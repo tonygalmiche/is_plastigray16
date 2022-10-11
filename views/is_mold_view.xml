@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <!-- Actualiser chef de projet -->
+        <!-- <record id="actualiser_chef_de_projet_action_server" model="ir.actions.server">
+             <field name="name">Actualiser chef de project</field>
+            <field name="model_id" ref="model_is_mold"/>
+            <field name="code">action = self.actualiser_chef_de_projet_action(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <record id="actualiser_chef_de_projet_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.mold'" name="model"/>
+            <field name="name">Actualiser chef de project</field>
+            <field eval="'ir.actions.server,%d'%actualiser_chef_de_projet_action_server" name="value"/>
+        </record> -->
+
+
+        <!-- is.mold -->
+        <record model="ir.ui.view" id="is_mold_form_view">
+            <field name="name">is_mold_form_view</field>
+            <field name="model">is.mold</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="designation"/>
+                                <field name="project"/>
+                                <field name="client_id" /> 
+                                <field name="chef_projet_id"/>
+                                <field name="dossierf_id"  context="{'default_project':project}" domain="[('project','=',project)]"/>
+                                <field name="dossierf_ids" context="{'default_project':project}" domain="[('project','=',project)]" widget="many2many_tags"/>
+                                <field name="nb_empreintes"/>
+                                <field name="moule_a_version"/>
+                                <field name="lieu_changement"   attrs="{'invisible': [('moule_a_version','!=', 'oui')]}"/>
+                                <field name="temps_changement"  attrs="{'invisible': [('moule_a_version','!=', 'oui')]}" widget="float_time"/>
+                                <field name="nettoyer"/>
+                                <field name="nettoyer_vis"/>
+                                <field name="date_creation"/>
+                                <field name="date_fin"/>
+                                <field name="mouliste_id"/> <!-- domain="[('supplier','=',True),('is_company','=',True)]" /> -->
+                                <field name="carcasse"/>
+                                <field name="emplacement"/>
+                                <field name="dateur_ids_vsb" invisible="1"/>
+                            </group>
+                        </group>
+                        <group  string="Dateurs" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}">
+                            <field name="dateur_ids" nolabel="1" >
+                                <tree editable="bottom">
+                                    <field name="type_dateur"/>
+                                    <field name="qt_dans_moule"/>
+                                    <field name="diametre_dateur"/>
+                                    <field name="date_peremption"/>
+                                    <field name="commentaire"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mold_tree_view">
+            <field name="name">is_mold_tree_view</field>
+            <field name="model">is.mold</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="designation"/>
+                    <field name="project"/>
+                    <field name="client_id" /> 
+                    <field name="chef_projet_id"/>
+                    <field name="dossierf_id"/>
+                    <field name="dossierf_ids" widget="many2many_tags"/>
+                    <field name="nb_empreintes"/>
+                    <field name="moule_a_version"  optional="show"/>
+                    <field name="lieu_changement"  optional="show"/>
+                    <field name="temps_changement" optional="show"/>
+                    <field name="date_creation"    optional="show"/>
+                    <field name="date_fin"         optional="show"/>
+                    <field name="mouliste_id"      optional="show"  /> 
+                    <field name="carcasse"         optional="show"/>
+                    <field name="emplacement"      optional="show"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="create_uid"  optional="hide"/>
+                    <field name="write_date"  optional="hide"/>
+                    <field name="write_uid"   optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mold_filter_view" >
+            <field name="name">is_mold_filter_view</field>
+            <field name="model">is.mold</field>
+            <field name="arch" type="xml">
+                <search string="Recherche">
+                    <field name="name"/>
+                    <field name="project"/>
+                    <field name="client_id" /> 
+                    <field name="chef_projet_id"/>
+                    <field name="dossierf_id"/>
+                    <field name="dossierf_ids"/>
+                    <field name="moule_a_version"/>
+                    <field name="lieu_changement"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_action">
+            <field name="name">Moules</field>
+            <field name="res_model">is.mold</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+  </data>
+</odoo>

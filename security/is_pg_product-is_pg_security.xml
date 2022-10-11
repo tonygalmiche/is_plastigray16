@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data noupdate="0">
+
+
+    <record model="ir.module.category" id="module_category_is_pg">
+        <field name="name">Gestionnaire des tables</field>
+        <field name="description">Gestionnaire des tables</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="group_is_pg_manager" model="res.groups">
+        <field name="name">Gestionnaire des tables</field>
+        <field name="comment">les tables segment/Famille/sous famille sont accessibles par cet utilisateur.</field>
+        <field name="category_id" ref="module_category_is_pg"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+
+    <record model="ir.module.category" id="is_plastigray_module_category">
+        <field name="name">Données techniques</field>
+        <field name="description">Données techniques</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="is_gestionnaire_donnees_techniques_group" model="res.groups">
+        <field name="name">Gestionnaire des données techniques</field>
+        <field name="comment">Groupe autorisé à modifier les articles, nomenclatures et gammes</field>
+        <field name="category_id" ref="is_plastigray_module_category"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+
+
+
+</data>
+</openerp>

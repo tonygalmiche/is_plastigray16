@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="is_mold_project_form_view">
+            <field name="name">is_mold_project_form_view</field>
+            <field name="model">is.mold.project</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="client_id"/> <!-- domain="[('customer','=',True),('is_company','=',True)]" />  -->
+                            <field name="chef_projet_id"/>
+                            <field name="choix_modele"/>
+                            <field name="commentaire"/>
+                        </group>
+                        <group>
+                            <field name="mold_ids" nolabel="1" readonly="1">
+                                <tree>
+                                    <button string="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
+                                    <field name="name"/>
+                                    <field name="designation"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="dossierf_ids" nolabel="1" readonly="1" attrs="{'invisible': [('dossierf_ids', '=', [])]}">
+                                <tree>
+                                    <button string="Dossiers F"   name="action_acceder_dossierf"  type="object" icon="fa-search-plus"/>
+                                    <field name="name"/>
+                                    <field name="designation"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_mold_project_tree_view">
+            <field name="name">is_mold_project_tree_view</field>
+            <field name="model">is.mold.project</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="client_id"/>
+                    <field name="chef_projet_id"/>
+                    <field name="choix_modele"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="create_uid"  optional="hide"/>
+                    <field name="write_date"  optional="hide"/>
+                    <field name="write_uid"   optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mold_project_filter_view" >
+            <field name="name">is_mold_project_filter_view</field>
+            <field name="model">is.mold.project</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="client_id"/>
+                    <field name="chef_projet_id"/>
+                    <field name="choix_modele"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_project_action">
+            <field name="name">Projets</field>
+            <field name="res_model">is.mold.project</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

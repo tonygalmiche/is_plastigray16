@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="is_dossierf_form_view">
+            <field name="name">is_dossierf_form_view</field>
+            <field name="model">is.dossierf</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="designation"/>
+                            <field name="project"/>
+                            <field name="client_id"/> <!-- domain="[('customer','=',True),('is_company','=',True)]" />  -->
+                            <field name="chef_projet_id"/>
+                        </group>
+                        <group>
+                            <field name="mold_ids" nolabel="1" readonly="1">
+                                <tree>
+                                    <button string="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
+                                    <field name="name"/>
+                                    <field name="designation"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_dossierf_tree_view">
+            <field name="name">is_dossierf_tree_view</field>
+            <field name="model">is.dossierf</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="designation"/>
+                    <field name="project"/>
+                    <field name="client_id" /> 
+                    <field name="chef_projet_id"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="create_uid"  optional="hide"/>
+                    <field name="write_date"  optional="hide"/>
+                    <field name="write_uid"   optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dossierf_filter_view" >
+            <field name="name">is_dossierf_filter_view</field>
+            <field name="model">is.dossierf</field>
+            <field name="arch" type="xml">
+                <search string="Recherche">
+                    <field name="name"/>
+                    <field name="designation"/>
+                    <field name="project"/>
+                    <field name="client_id" /> 
+                    <field name="chef_projet_id"/>
+
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_dossierf_action">
+            <field name="name">Dossier F</field>
+            <field name="res_model">is.dossierf</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+  </data>
+</odoo>
