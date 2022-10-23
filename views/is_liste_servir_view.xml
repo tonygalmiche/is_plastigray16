@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+
+
+        <!-- Liste des clients -->
+        <record model="ir.ui.view" id="is_liste_servir_client_tree_view">
+            <field name="name">is_liste_servir_client_tree_view</field>
+            <field name="model">is.liste.servir.client</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="tree" create="false" >
+                    <button string="Créer Liste à servir"   name="action_creer_liste_servir" type="object" icon="gtk-add"    attrs="{'invisible':[('liste_servir_id','!=',False)]}" />
+                    <field name="name" domain="[('customer','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
+                    <!--<button string="Voir la liste à servir" name="action_voir_liste_servir" type="object" icon="gtk-zoom-in" attrs="{'invisible':[('liste_servir_id','=',False)]}" />-->
+                    <field name="liste_servir_id" widget="many2one_clickable"/>
+                    <field name="zip"/>
+                    <field name="city"/>
+                    <field name="delai_transport"/>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                    <field name="livrable"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_liste_servir_client_action">
+            <field name="name">Clients à livrer</field>
+            <field name="res_model">is.liste.servir.client</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+        <!-- Affecter les UCs aux lignes -->
+        <!-- <record id="affecter_uc_aux_lignes_ls_action_server" model="ir.actions.server">
+             <field name="name">Affecter les UCs aux lignes</field>
+            <field name="model_id" ref="model_is_liste_servir"/>
+            <field name="code">action = self.affecter_uc_aux_lignes_ls_action(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <record id="affecter_uc_aux_lignes_ls_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.liste.servir'" name="model"/>
+            <field name="name">Affecter les UCs aux lignes</field>
+            <field eval="'ir.actions.server,%d'%affecter_uc_aux_lignes_ls_action_server" name="value"/>
+        </record> -->
+        
+        <record model="ir.ui.view" id="is_liste_servir_form_view">
+            <field name="name">is_liste_servir_form_view</field>
+            <field name="model">is.liste.servir</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">  
+                    <header>
+                        <button name="action_importer_commandes" type="object" string="Importer les commandes" class="oe_highlight" states="creation" />
+                        <button name="action_generer_bl"         type="object" string="Générer la commande de livraison" states="analyse" confirm2="Générer le bon de livraison ?"/>
+                        <field name="state" widget="statusbar"  clickable="True" />
+                    </header>
+                    <sheet class="oe_form_sheet_width_wider">
+                        <group>
+                            <group>
+                                <field name="name"/> 
+                                <field  name="partner_id" 
+                                        domain="[('customer','=',True),('is_company','=',True)]" 
+                                        on_change="onchange_partner_id(partner_id)"
+                                        attrs="{'readonly':[('state','!=','creation')]}" 
+                                /> 
+                                <field name="date_debut"  attrs="{'readonly':[('state','!=','creation')]}" /> 
+                                <field name="date_fin"    attrs="{'readonly':[('state','!=','creation')]}"/> 
+                                <field name="livrable"    attrs="{'readonly':[('state','!=','creation')]}"/> 
+                                <field name="commentaire" attrs="{'readonly':[('state','!=','creation')]}"/> 
+                            </group>
+                            <group>
+                                <field name="is_source_location_id"/> 
+                                <field name="poids_brut"/> 
+                                <field name="transporteur_id" domain="[('supplier','=',True),('is_company','=',True)]" /> 
+                                <field style="background:orange" name="message" readonly="1" attrs="{'invisible':[('message','=',False)]}"/>
+                                <!-- <field name="order_ids" >
+                                    <tree editable="bottom">
+                                        <button string="Accèder à la commande" name="action_acceder_commande" type="object" icon="gtk-zoom-in" />
+                                        <field name="name"  />
+                                        <field name="state" invisible="1" />
+                                    </tree>
+                                </field> -->
+
+                            </group>
+                        </group>
+                        <group>
+                            <field name="line_ids" nolabel="1">
+                                <tree editable="bottom"  create="true" colors="red:livrable == False">
+                                    <field name="sequence"       invisible="1"/>
+                                    <field name="product_id" widget="many2one_clickable"/>
+                                    <field name="mold_dossierf"/>
+                                    <field name="livrable"       invisible="1"/>
+                                    <field name="date_livraison"/>
+                                    <field name="date_expedition"/>
+
+                                    <field name="stock01"/>
+                                    <field name="stocka"/>
+                                    <field name="stockq"/>
+                                    <field name="quantite"/>
+                                    <field name="prix"           invisible="1"/>
+                                    <field name="justification"  invisible="1"/>
+
+                                    <!-- <field name="uc_id"/> -->
+                                    <field name="stock01_uc"/>
+                                    <field name="stocka_uc"/>
+                                    <field name="stockq_uc"/>
+                                    <field name="nb_uc"/>
+
+                                    <!-- <field name="um_id"/> -->
+                                    <field name="nb_um"/>
+
+                                    <field name="mixer"/>
+                                    <field name="client_order_ref" readonly="1" />
+                                    <field name="point_dechargement"/>
+                                    <field name="certificat_matiere" invisible="1"/>
+                                    <button 
+                                        string="Voir le certificat matière" 
+                                        name="action_acceder_certificat" type="object" 
+                                        context="{'certificat_matiere': certificat_matiere}"
+                                        icon="gtk-zoom-in" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
+                                    />
+                                    <field name="anomalie"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="uc_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="nb_uc"/>
+                                        <!-- <field name="uc_id"/> -->
+                                        <field name="nb_um"/>
+                                        <!-- <field name="um_id"/> -->
+                                        <field name="mixer"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="um_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="nb_um"/>
+                                        <!-- <field name="um_id"/> -->
+                                    </tree>
+                                </field>
+                            </group>
+                        </group>
+                        <group attrs="{'invisible': [('galia_um_ids', '=', [])]}">
+                            <field name="galia_um_ids" nolabel="1">
+                                <tree>
+                                    <button string="UM" name="acceder_um_action" type="object" icon="gtk-zoom-in"/>
+                                    <field name="name" string="N°étiquette UM scannée"/>
+                                    <field name="product_id"/>
+                                    <field name="qt_pieces"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="uc_non_affectes" attrs="{'invisible': [('uc_non_affectes', '=', 0)]}" readonly="1"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="info_client"/>
+                            </group>
+                        </group>
+                        <group>
+                            <a href="https://dynacase-rp/?sole=Y&amp;app=FDL&amp;action=FDL_CARD&amp;id=69112" target="_blank">Liste des certificats matière</a>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_liste_servir_tree_view">
+            <field name="name">is_liste_servir_tree_view</field>
+            <field name="model">is.liste.servir</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" /> 
+                    <field name="partner_id" widget="many2one_clickable"/> 
+                    <field name="date_debut"/> 
+                    <field name="date_fin"/> 
+                    <field name="livrable"/> 
+                    <field name="state"/> 
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_liste_servir_search_view" >
+            <field name="name">is_liste_servir_search_view</field>
+            <field name="model">is.liste.servir</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <filter string="En cours" name="en_cours" domain="[('state','!=','traite')]"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="is_liste_servir_action">
+            <field name="name">Liste à servir</field>
+            <field name="res_model">is.liste.servir</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{"search_default_en_cours":1}</field>
+        </record>
+
+
+        <!-- Message client -->
+        <record model="ir.ui.view" id="is_liste_servir_message_tree_view">
+            <field name="name">is_liste_servir_message_tree_view</field>
+            <field name="model">is.liste.servir.message</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="tree" editable="top">
+                    <field name="name" domain="[('customer','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
+                    <field name="message"/>
+                    <field name="create_date" string="Créé le"     readonly="1"/>
+                    <field name="write_date"  string="Modifié le"  readonly="1"/>
+                    <field name="write_uid"   string="Créé par"    readonly="1"/>
+                    <field name="create_uid"  string="Modifié par" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_liste_servir_message_action">
+            <field name="name">Message liste à servir</field>
+            <field name="res_model">is.liste.servir.message</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+  </data>
+</openerp>

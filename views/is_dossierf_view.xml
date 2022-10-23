@@ -13,18 +13,16 @@
                             <field name="name"/>
                             <field name="designation"/>
                             <field name="project"/>
-                            <field name="client_id"/> <!-- domain="[('customer','=',True),('is_company','=',True)]" />  -->
+                            <field name="client_id" domain="[('customer','=',True),('is_company','=',True)]"/>
                             <field name="chef_projet_id"/>
                         </group>
-                        <group>
-                            <field name="mold_ids" nolabel="1" readonly="1">
-                                <tree>
-                                    <button string="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
-                                    <field name="name"/>
-                                    <field name="designation"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="mold_ids" nolabel="1" readonly="1">
+                            <tree>
+                                <button string="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
+                                <field name="name"/>
+                                <field name="designation"/>
+                            </tree>
+                        </field>
                     </sheet>
                 </form>
             </field>
@@ -45,6 +43,8 @@
                     <field name="create_uid"  optional="hide"/>
                     <field name="write_date"  optional="hide"/>
                     <field name="write_uid"   optional="hide"/>
+                    <field name="write_uid"   optional="hide"/>
+                    <field name="is_database_origine_id"  optional="hide"/>
                 </tree>
             </field>
         </record>

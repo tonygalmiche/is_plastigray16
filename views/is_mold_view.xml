@@ -42,23 +42,22 @@
                                 <field name="nettoyer_vis"/>
                                 <field name="date_creation"/>
                                 <field name="date_fin"/>
-                                <field name="mouliste_id"/> <!-- domain="[('supplier','=',True),('is_company','=',True)]" /> -->
+                                <field name="mouliste_id" domain="[('supplier','=',True),('is_company','=',True)]"/>
                                 <field name="carcasse"/>
                                 <field name="emplacement"/>
                                 <field name="dateur_ids_vsb" invisible="1"/>
                             </group>
                         </group>
-                        <group  string="Dateurs" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}">
-                            <field name="dateur_ids" nolabel="1" >
-                                <tree editable="bottom">
-                                    <field name="type_dateur"/>
-                                    <field name="qt_dans_moule"/>
-                                    <field name="diametre_dateur"/>
-                                    <field name="date_peremption"/>
-                                    <field name="commentaire"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <group  string="Dateurs" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}"/>
+                        <field name="dateur_ids" nolabel="1" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}">
+                            <tree editable="bottom">
+                                <field name="type_dateur"/>
+                                <field name="qt_dans_moule"/>
+                                <field name="diametre_dateur"/>
+                                <field name="date_peremption"/>
+                                <field name="commentaire"/>
+                            </tree>
+                        </field>
                     </sheet>
                 </form>
             </field>
@@ -89,6 +88,7 @@
                     <field name="create_uid"  optional="hide"/>
                     <field name="write_date"  optional="hide"/>
                     <field name="write_uid"   optional="hide"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>

@@ -93,6 +93,130 @@ class is_mold(models.Model):
         ], "Diamètre dateur fleche")
     dateur_ids     = fields.One2many('is.mold.dateur', 'mold_id', u"Dateurs")
     dateur_ids_vsb = fields.Boolean('Dateurs vsb', store=False, compute='_compute_dateur_ids_vsb')
+    is_database_id         = fields.Many2one('is.database', "Site")
+    is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
+
+
+#     def write(self, vals):
+#         res=super(is_mold, self).write(vals)
+#         for obj in self:
+#             obj.copy_other_database_mold()
+#         return res
+
+#     def create(self, vals):
+#         obj=super(is_mold, self).create(vals)
+#         obj.copy_other_database_mold()
+#         return obj
+    
+#     def copy_other_database_mold(self):
+#         cr , uid, context = self.env.args
+#         context = dict(context)
+#         database_obj = self.env['is.database']
+#         database_lines = database_obj.search([])
+#         for mold in self:
+#             for database in database_lines:
+#                 if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
+#                     continue
+#                 DB = database.database
+#                 USERID = SUPERUSER_ID
+#                 DBLOGIN = database.login
+#                 USERPASS = database.password
+#                 DB_SERVER = database.ip_server
+#                 DB_PORT = database.port_server
+#                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
+#                 mold_vals = self.get_mold_vals(mold, DB, USERID, USERPASS, sock)
+
+#                 ids = sock.execute(DB, USERID, USERPASS, 'is.mold', 'search', [('is_database_origine_id', '=', mold.id)], {})
+#                 if not ids:
+#                     ids = sock.execute(DB, USERID, USERPASS, 'is.mold', 'search', [('name', '=', mold.name)], {})
+#                 if ids:
+#                     sock.execute(DB, USERID, USERPASS, 'is.mold', 'write', ids, mold_vals, {})
+#                     created_id = ids[0]
+#                 else:
+#                     created_id = sock.execute(DB, USERID, USERPASS, 'is.mold', 'create', mold_vals, {})
+#         return True
+
+
+#     def get_mold_vals(self, mold, DB, USERID, USERPASS, sock):
+#         mold_vals = {
+#         'name'             : mold.name,
+#         'designation'      : mold.designation,
+#         'project'          : self._get_project(mold, DB, USERID, USERPASS, sock),
+#         'dossierf_id'      : self._get_dossierf_id(mold, DB, USERID, USERPASS, sock),
+#         'dossierf_ids'     : self._get_dossierf_ids(mold, DB, USERID, USERPASS, sock),
+#         'nb_empreintes'    : mold.nb_empreintes,
+#         'moule_a_version'  : mold.moule_a_version,
+#         'lieu_changement'  : mold.lieu_changement,
+#         'temps_changement' : mold.temps_changement,
+#         'nettoyer'         : mold.nettoyer,
+#         'nettoyer_vis'     : mold.nettoyer_vis,
+#         'date_creation'    : mold.date_creation,
+#         'date_fin'         : mold.date_fin,
+#         'mouliste_id'      : self._get_mouliste_id(mold, DB, USERID, USERPASS, sock),
+#         'carcasse'         : mold.carcasse,
+#         'emplacement'      : mold.emplacement or '',
+#         'type_dateur'      : mold.type_dateur,
+#         'dateur_specifique': mold.dateur_specifique,
+#         'date_peremption'  : mold.date_peremption,
+#         'qt_dans_moule'    : mold.qt_dans_moule,
+#         'diametre_laiton'  : mold.diametre_laiton,
+#         'diametre_fleche'  : mold.diametre_fleche,
+#         'is_database_origine_id': mold.id,
+#         'is_database_id'        : self._get_is_database_id(mold, DB, USERID, USERPASS, sock),
+#         }
+#         return mold_vals
+
+#     def _get_dossierf_id(self, mold, DB, USERID, USERPASS, sock):
+#         if mold.dossierf_id:
+#             dossierf_ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('is_database_origine_id', '=', mold.dossierf_id.id)], {})
+#             if dossierf_ids:
+#                 mold.dossierf_id.copy_other_database_dossierf()
+#                 dossierf_ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('is_database_origine_id', '=', mold.dossierf_id.id)], {})
+#             if dossierf_ids:
+#                 return dossierf_ids[0]
+#         return False
+
+
+#     def _get_dossierf_ids(self, mold, DB, USERID, USERPASS, sock):
+#         list_dossierf_ids =[]
+#         for dossierf in mold.dossierf_ids:
+#             dest_dossierf_ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('is_database_origine_id', '=', dossierf.id)], {})
+#             if dest_dossierf_ids:
+#                 list_dossierf_ids.append(dest_dossierf_ids[0])
+#         return [(6, 0, list_dossierf_ids)]
+
+
+#     def _get_project(self, mold, DB, USERID, USERPASS, sock):
+#         if mold.project:
+#             project_ids = sock.execute(DB, USERID, USERPASS, 'is.mold.project', 'search', [('is_database_origine_id', '=', mold.project.id)], {})
+#             if not project_ids:
+#                 mold.project.copy_other_database_project()
+#                 project_ids = sock.execute(DB, USERID, USERPASS, 'is.mold.project', 'search', [('is_database_origine_id', '=', mold.project.id)], {})
+#             if project_ids:
+#                 return project_ids[0]
+#         return False
+    
+#     def _get_mouliste_id(self, mold, DB, USERID, USERPASS, sock):
+#         if mold.mouliste_id:
+#             mouliste_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', mold.mouliste_id.id),'|',('active','=',True),('active','=',False)], {})
+#             if not mouliste_ids:
+#                 self.env['is.database'].copy_other_database(mold.mouliste_id)
+#                 mouliste_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', mold.mouliste_id.id),'|',('active','=',True),('active','=',False)], {})
+#             if mouliste_ids:
+#                 return mouliste_ids[0]
+#         return False
+
+
+#     def _get_is_database_id(self, mold, DB, USERID, USERPASS, sock):
+#         if mold.is_database_id:
+#             ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', mold.is_database_id.id)], {})
+#             if ids:
+#                 return ids[0]
+#         return False
+
+
+
+
 
 
     _defaults = {
@@ -114,7 +238,7 @@ class is_mold(models.Model):
             uid=self._uid
             user=self.env['res.users'].browse(uid)
             company=user.company_id
-            vsb=False
+            vsb=True
             # if company.is_base_principale:
             #     vsb=True
             obj.dateur_ids_vsb=vsb

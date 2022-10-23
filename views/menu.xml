@@ -73,9 +73,12 @@
 
 
 
-<!-- 
     <menuitem id="menu_is_articles"       sequence="15" name="Articles"           parent="menu_is_donnees_techniques"/>
-    <menuitem id="menu_is_articles_10"    sequence="10" name="Articles"           parent="menu_is_articles" action="is_pg_product.is_product_action"/>
+    <menuitem id="menu_is_articles_10"    sequence="10" name="Articles"           parent="menu_is_articles" action="is_product_action"/>
+ 
+ 
+ <!-- 
+
     <menuitem id="is_article_achete_menu" sequence="15" name="Articles achetés"   parent="menu_is_articles" action="is_article_achete_action"/>
     <menuitem id="menu_is_articles_20"    sequence="20" name="Logistique article" parent="menu_is_articles" action="is_product_packaging_action"/>
 
@@ -210,14 +213,14 @@
  
 
     <!-- Achats -->
-    <!-- <record id="menu_is_achats" model="ir.ui.menu" >
+    <record id="menu_is_achats" model="ir.ui.menu" >
         <field name="name">Achats</field>
         <field name="sequence">2</field>
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
- -->
+
 
     <!-- Achats / Fournisseurs -->
     <!-- <menuitem id="menu_is_achats_fournisseurs"     sequence="10" name="Fournisseurs"  parent="menu_is_achats" />
@@ -516,25 +519,28 @@
 
 
     <!-- Achats / Tables -->
-    <!-- <menuitem id="menu_is_achats_table"    sequence="90" name="Tables"                    parent="menu_is_achats" groups="is_gestionnaire_tables_group" />
+    <menuitem id="menu_is_achats_table"    sequence="90" name="Tables"                    parent="menu_is_achats" groups="is_gestionnaire_tables_group" />
     <menuitem id="menu_is_achats_table_10" sequence="10" name="Segment d'achat"           parent="menu_is_achats_table" action="action_is_segment_achat"/>
     <menuitem id="menu_is_achats_table_20" sequence="20" name="Famille d'achat"           parent="menu_is_achats_table" action="action_is_famille_achat"/>
     <menuitem id="menu_is_achats_table_40" sequence="40" name="Mode transmission cde"     parent="menu_is_achats_table" action="action_is_transmission_cde"/>
     <menuitem id="menu_is_achats_table_50" sequence="50" name="Norme Certificat"          parent="menu_is_achats_table" action="action_is_norme_certificats"/>
     <menuitem id="menu_is_achats_table_60" sequence="60" name="Certifications Qualité"    parent="menu_is_achats_table" action="action_is_certifications_qualite"/>
+
+
+<!--
     <menuitem id="menu_is_achats_table_70" sequence="70" name="Justification facturation" parent="menu_is_achats_table" action="is_facturation_fournisseur_justification_action"/>
  -->
 
 
     <!-- Ventes -->
-    <!-- <record id="menu_is_ventes" model="ir.ui.menu" >
+    <record id="menu_is_ventes" model="ir.ui.menu" >
         <field name="name">Ventes</field>
         <field name="sequence">3</field>
-        <field name="groups_id" eval="[(6,0,[
+        <!-- <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
-        ])]"/>
+        ])]"/> -->
     </record>
- -->
+
 
     <!-- Ventes / Clients -->
     <!-- <menuitem id="menu_is_ventes_clients"     sequence="10" name="Clients"            parent="menu_is_ventes"/>
@@ -680,7 +686,7 @@
 
 
     <!-- Ventes / Liste à servir -->
-    <!-- <record id="menu_is_ventes_liste_servir" model="ir.ui.menu">
+    <record id="menu_is_ventes_liste_servir" model="ir.ui.menu">
         <field name="name">Liste à servir</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('menu_is_ventes')"/>
@@ -690,9 +696,9 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
-    <menuitem id="menu_is_ventes_liste_servir_10"  sequence="10" name="Clients à livrer"        parent="menu_is_ventes_liste_servir" action="is_liste_servir_wizard_action" />
+    <!-- <menuitem id="menu_is_ventes_liste_servir_10"  sequence="10" name="Clients à livrer"        parent="menu_is_vente<s>_liste_servir" action="is_liste_servir_wizard_action" /> -->
     <menuitem id="menu_is_ventes_liste_servir_20"  sequence="20" name="Liste à servir"          parent="menu_is_ventes_liste_servir" action="is_liste_servir_action" />
-    <record id="is_sale_order_ls_menu" model="ir.ui.menu" >
+    <!-- <record id="is_sale_order_ls_menu" model="ir.ui.menu" >
         <field name="name">Commandes Liste à servir</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('menu_is_ventes_liste_servir')"/>
@@ -701,7 +707,7 @@
             ref('is_rsp_production_group'),
             ref('is_administration_vente_group'),
         ])]"/>
-    </record>
+    </record> -->
     <record id="menu_is_message_liste_servir" model="ir.ui.menu">
         <field name="name">Message liste à service</field>
         <field name="sequence">90</field>
@@ -711,11 +717,11 @@
             ref('is_rsp_production_group'),
             ref('is_administration_vente_group'),
         ])]"/>
-    </record> -->
+    </record>
 
 
     <!-- Ventes / Livraisons - Bon de transfert -->
-    <!-- <record id="menu_is_ventes_bon_transfert" model="ir.ui.menu">
+    <record id="menu_is_ventes_bon_transfert" model="ir.ui.menu">
         <field name="name">Bon de transfert</field>
         <field name="sequence">35</field>
         <field name="parent_id" eval="ref('menu_is_ventes')"/>
@@ -725,37 +731,40 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
-    <menuitem id="menu_is_ventes_bon_transfert_10"  sequence="10" name="Bon de transfert" parent="menu_is_ventes_bon_transfert" action="is_bon_transfert_action" /> -->
+    <menuitem id="menu_is_ventes_bon_transfert_10"  sequence="10" name="Bon de transfert" parent="menu_is_ventes_bon_transfert" action="is_bon_transfert_action" />
 
 
     <!-- BL Manuel / Demande de transport-->
-    <!-- <record id="is_bl_manuel_demande_transport_menu" model="ir.ui.menu">
+    <record id="is_bl_manuel_demande_transport_menu" model="ir.ui.menu">
         <field name="name">BL Manuel / Transport</field>
         <field name="sequence">37</field>
         <field name="parent_id" eval="ref('menu_is_ventes')"/>
-        <field name="groups_id" eval="[(6,0,[
+        <!-- <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
-        ])]"/>
+        ])]"/> -->
     </record>
     <record id="is_bl_manuel_menu" model="ir.ui.menu">
         <field name="name">BL manuel</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('is_bl_manuel_demande_transport_menu')"/>
         <field name="action"    ref="is_bl_manuel_action"/>
-        <field name="groups_id" eval="[(6,0,[
+        <!-- <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
-        ])]"/>
+        ])]"/> -->
     </record>
+
+
     <record id="is_demande_transport_menu" model="ir.ui.menu">
         <field name="name">Demande de transport</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('is_bl_manuel_demande_transport_menu')"/>
         <field name="action"    ref="is_demande_transport_action"/>
-        <field name="groups_id" eval="[(6,0,[
+        <!-- <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
-        ])]"/>
+        ])]"/> -->
     </record>
 
+    <!-- 
 
 
     <menuitem id="menu_is_ventes_liv"      sequence="40" name="Livraisons"            parent="menu_is_ventes" groups="is_employes_hors_production_group" />
@@ -1070,10 +1079,10 @@
 
 
     <!-- Ventes / Tables -->
-    <!-- <menuitem id="menu_is_ventes_table"    sequence="90" name="Tables"                parent="menu_is_ventes" groups="is_gestionnaire_tables_group" />
+    <menuitem id="menu_is_ventes_table"    sequence="90" name="Tables"                parent="menu_is_ventes" groups="is_gestionnaire_tables_group" />
     <menuitem id="menu_is_ventes_table_10" sequence="10" name="Secteur d'activité"    parent="menu_is_ventes_table" action="is_secteur_activite_action"/>
     <menuitem id="menu_is_ventes_table_20" sequence="20" name="Type de contact"       parent="menu_is_ventes_table" action="is_type_contact_action"/>
-    <menuitem id="menu_is_ventes_table_30" sequence="30" name="Escompte"              parent="menu_is_ventes_table" action="is_escompte_action"/> -->
+    <menuitem id="menu_is_ventes_table_30" sequence="30" name="Escompte"              parent="menu_is_ventes_table" action="is_escompte_action"/>
 
 
     <!-- Production / Production -->

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from math import *
-#from openerp.osv import expression
 from odoo import models,fields,api
-#from odoo.tools.translate import _
 from odoo.exceptions import ValidationError
 
 
@@ -215,22 +213,22 @@ class is_code_cas(models.Model):
     ], "Substance réglementée", required=True)
 
 
-    def name_get(self, cr, uid, ids, context=None):
-        res = []
-        for obj in self.browse(cr, uid, ids, context=context):
-            name=obj.code_cas or obj.name or obj.code_einecs
-            res.append((obj.id,name))
-        return res
+    # def name_get(self, cr, uid, ids, context=None):
+    #     res = []
+    #     for obj in self.browse(cr, uid, ids, context=context):
+    #         name=obj.code_cas or obj.name or obj.code_einecs
+    #         res.append((obj.id,name))
+    #     return res
 
-    def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
-        if not args:
-            args = []
-        if name:
-            ids = self.search(cr, user, ['|','|',('name','ilike', name),('code_einecs','ilike', name),('code_cas','ilike', name)], limit=limit, context=context)
-        else:
-            ids = self.search(cr, user, args, limit=limit, context=context)
-        result = self.name_get(cr, user, ids, context=context)
-        return result
+    # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
+    #     if not args:
+    #         args = []
+    #     if name:
+    #         ids = self.search(cr, user, ['|','|',('name','ilike', name),('code_einecs','ilike', name),('code_cas','ilike', name)], limit=limit, context=context)
+    #     else:
+    #         ids = self.search(cr, user, args, limit=limit, context=context)
+    #     result = self.name_get(cr, user, ids, context=context)
+    #     return result
 
 
 
@@ -300,10 +298,13 @@ class product_template(models.Model):
         for obj in self:
 
             #** Conditionnement (UC) *******************************************
+            is_uc = is_uc_qt = False
             if obj.packaging_ids:
                 packaging=obj.packaging_ids[0]
-                obj.is_uc    = packaging.ul.name
-                obj.is_uc_qt = packaging.qty
+                is_uc    = packaging.ul.name
+                is_uc_qt = packaging.qty
+            obj.is_uc    = is_uc
+            obj.is_uc_qt = is_uc_qt
             #*******************************************************************
 
 

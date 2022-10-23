@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+        <!-- Sequence is.bl.manuel --> 
+        <record id="is_bl_manuel_seq" model="ir.sequence">
+            <field name="name">BL manuel</field>
+            <field name="code">is.bl.manuel</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- is.bl.manuel --> 
+        <record model="ir.ui.view" id="is_bl_manuel_form_view">
+            <field name="name">is_bl_manuel_form_view</field>
+            <field name="model">is.bl.manuel</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">
+                    <header>
+                        <button 
+                            name="vers_brouillon_action"
+                            string="Vers brouillon"
+                            attrs="{'invisible': [('state', '!=', 'termine')]}"
+                            type="object"
+                        />
+                        <button 
+                            name="vers_termine_action"
+                            string="Vers terminé"
+                            attrs="{'invisible': [('state', '!=', 'brouillon')]}"
+                            class="oe_highlight" type="object"
+                        />
+                        <button 
+                            name="creation_demande_transport_action"
+                            string="Créer la demande de transport"
+                            attrs="{'invisible': ['|',('state', '!=', 'termine'),('demande_transport_id', '!=', False)]}"
+                            type="object"
+                        />
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet class="oe_form_sheet_width_wider">
+                        <group>
+                            <group string="Identification">
+                                <field name="name"/>
+                                <field name="emetteur_id"/>
+                                <field name="initiales"/> 
+                                <field name="date_bl"/>
+                                <field name="incoterm_id"/> 
+                                <field name="colisage"/>
+                                <field name="motif_expedition"/>
+                            </group>
+                            <group string="Adresse de destinataire">
+                                <field 
+                                    name="destinataire_id" 
+                                    on_change="destinataire_id_change(destinataire_id)" 
+                                />
+                                <field name="raison_sociale"/> 
+                                <field name="adresse1"/> 
+                                <field name="adresse2"/> 
+                                <field name="code_postal"/> 
+                                <field name="ville"/> 
+                                <field name="pays_id"/> 
+                                <field name="contact"/>
+                            </group>
+                        </group>
+                        <field name="line_ids" nolabel="1" >
+                            <tree editable="bottom">
+                                <field name="sequence" />
+                                <field name="num_commande" />
+                                <field 
+                                    name="product_id" 
+                                    on_change="product_id_change(product_id)" 
+                                />
+                                <field name="description" />
+                                <field name="ref_client" />
+                                <field name="nomenclature_douaniere" />
+                                <field 
+                                    name="qt_livree" sum="Total" 
+                                    on_change="qt_change(product_id,qt_livree,qt_par_colis)" 
+                                />
+                                <field name="uom_id" />
+                                <field 
+                                    name="qt_par_colis" 
+                                    on_change="qt_change(product_id,qt_livree,qt_par_colis)" 
+                                />
+                                <field name="nb_colis"   sum="Total"/>
+                                <field name="poids_net"  sum="Total"/>
+                                <field name="poids_brut" sum="Total"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="transporteur_id" attrs="{'invisible': [('state', '=', 'brouillon')]}"/>
+                            <field 
+                                name="demande_transport_id" 
+                                attrs="{'invisible': [('demande_transport_id', '=', False)]}"
+                            />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_bl_manuel_tree_view">
+            <field name="name">is_bl_manuel_tree_view</field>
+            <field name="model">is.bl.manuel</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='termine'" decoration-danger="state=='brouillon'">
+                    <field name="name"/>
+                    <field name="emetteur_id"/> 
+                    <field name="date_bl"/> 
+                    <field name="incoterm_id"          optional="show"/> 
+                    <field name="transporteur_id"      optional="show"/> 
+                    <field name="colisage"             optional="show"/> 
+                    <field name="motif_expedition"     optional="show"/>
+                    <field name="raison_sociale"       optional="show"/> 
+                    <field name="ville"                optional="show"/>
+                    <field name="demande_transport_id" optional="show" widget="many2one_clickable"/> 
+                    <field name="state"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_bl_manuel_search_view" >
+            <field name="name">is_bl_manuel_search_view</field>
+            <field name="model">is.bl.manuel</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="emetteur_id"/> 
+                    <field name="transporteur_id"/> 
+                    <field name="motif_expedition"/>
+                    <field name="raison_sociale"/> 
+                    <field name="ville"/> 
+                    <field name="state"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_bl_manuel_action">
+            <field name="name">BL manuel</field>
+            <field name="res_model">is.bl.manuel</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}
+            </field>
+        </record>
+  </data>
+</openerp>

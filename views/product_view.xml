@@ -24,15 +24,13 @@
                             <field name="name" context="{'config_champ': 1}"  />
                         </group>
                     </group>
-                    <group>
-                        <field name="champs_line" nolabel="1"  context="{'model':name}">
-                            <tree editable="bottom">
-                                <field name="segment_id"  invisible="1"/>
-                                <field name="name" domain="" context="{'config_champ': 1}" />
-                                <field name="vsb"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <field name="champs_line" nolabel="1"  context="{'model':name}">
+                        <tree editable="bottom">
+                            <field name="segment_id"  invisible="1"/>
+                            <field name="name" domain="" context="{'config_champ': 1}" />
+                            <field name="vsb"/>
+                        </tree>
+                    </field>
                     <group>
                         <field name="afficher_onglet_cas"/>
                     </group>
@@ -458,6 +456,24 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
+
+                <xpath expr="//label[@for='name']/.." position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+
+                    <!-- <div class="oe_title">
+                        <label for="name" string="Product Name"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field name="priority" widget="priority" class="me-3"/>
+                                <field class="text-break" name="name" placeholder="e.g. Cheese Burger"/>
+                            </div>
+                        </h1>
+                    </div> -->
+
+
+
                 <!-- <xpath expr="//field[@name='image_medium']" position="before">
                     <img src='/is_pg_product/static/src/img/logo_rs.png' attrs="{'invisible': [('is_soumise_regl', '!=', 'SR')]}" style="height:64px" />
                 </xpath>
@@ -611,6 +627,12 @@
                     <group colspan="4">
                         <group>
 
+
+                            <field name="is_code"/>
+                            <field name="name" string="Désignation"/>
+
+
+
                             <field name="segment_id" on_change="onchange_segment_id(segment_id)"/>
                             <field name="family_id" context="{'default_segment_id':segment_id}" on_change="onchange_family_id(family_id)"/>
                             <field name="sub_family_id" context="{'default_family_id':family_id}" />
@@ -737,17 +759,17 @@
                     <field name="segment_id"/>
                     <field name="family_id"/>
                     <field name="is_category_id"/>
-                    <field name="is_gestionnaire_id"/>
-                    <field name="is_mold_dossierf"/>
-                    <field name="is_client_id"      widget="many2one_clickable"/>
-                    <field name="is_ref_client"/>
-                    <field name="is_fournisseur_id" widget="many2one_clickable"/>
-                    <field name="is_ref_plan"/>
-                    <field name="is_ind_plan"/>
-                    <field name="uom_id"/>
-                    <field name="is_uc"/>
-                    <field name="is_uc_qt"/>
-                    <field name="qty_available" string="Stock"  digits="(14, 0)"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="is_mold_dossierf"   optional="show"/>
+                    <field name="is_client_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="is_ref_client"      optional="show"/>
+                    <field name="is_fournisseur_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="is_ref_plan"        optional="show"/>
+                    <field name="is_ind_plan"        optional="show"/>
+                    <field name="is_uc"              optional="show"/>
+                    <field name="is_uc_qt"           optional="show"/>
+                    <field name="uom_id"             optional="show"/>
+                    <field name="qty_available"      optional="show" string="Stock"/>
                 </tree>
             </field>
         </record>
@@ -777,15 +799,17 @@
             <field name="name">Articles</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="product.product_template_only_form_view"/>
-            <field name="search_view_id" ref="is_product_search_view"/>
+            <!-- <field name="view_id" ref="product.product_template_only_form_view"/> -->
+            <!-- <field name="search_view_id" ref="is_product_search_view"/> -->
         </record>
+
+        <!-- 
         <record model="ir.actions.act_window.view" id="is_product_action_tree">
             <field name="act_window_id" ref="is_product_action"/>
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="is_product_tree_view"/>
-        </record>
+        </record> -->
 
 
         <!-- product.product -->

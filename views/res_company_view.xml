@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="is_view_company_form" model="ir.ui.view">
+            <field name="name">is_view_company_form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                </xpath>
+
+
+                <notebook position="inside">
+                    <page string="Configuration Plastigray">
+                        <group>
+                            <group string="Couleurs de l'interface">
+                                <field name="bg_color" widget="color"/>
+                                <field name="text_color" widget="color"/>
+                            </group>
+                            <group string="Multi-coeurs">
+                                <field name="is_nb_threads"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Mots de passe">
+                                <field name="is_mysql_pwd"    password="True"/>
+                                <field name="is_dynacase_pwd" password="True"/>
+                                <field name="is_cpta_pwd"     password="True"/>
+                                <field name="is_postgres_host"/>
+                                <field name="is_postgres_user"/>
+                                <field name="is_postgres_pwd" password="True"/>
+                            </group>
+                            <group string="Google Agenda">
+                                <field name="is_agenda_url"/>
+                                <field name="is_agenda_pwd" password="True"/>
+                            </group>
+                            <group string="Programmes externes">
+                                <field name="is_url_intranet_odoo"/>
+                                <field name="is_url_intranet_theia"/>
+                                <field name="is_url_odoo_theia"/>
+                            </group>
+                        </group>
+                        <group string="Gestionnaires">
+                            <field name="is_directeur_general_id"/>
+                            <field name="is_directeur_technique_id"/>
+                            <field name="is_acheteur_id"/>
+                            <field name="is_gest_demande_transport_id"/>
+                        </group>
+                        <group string="THEIA">
+                            <field name="is_code_societe"/>
+                        </group>
+                        <group string="SMS via OVH">
+                            <field name="is_sms_account"/>
+                            <field name="is_sms_login"/>
+                            <field name="is_sms_password" password="True"/>
+                            <field name="is_sms_from"/>
+                        </group>
+                        <group string="Base principale (Primaire)">
+                            <field name="is_base_principale"/>
+                        </group>
+                        <group string="PIC à 3 ans">
+                            <field name="is_annee_pic_3ans"/>
+                            <button string="Actualiser" name="annee_pic_3ans_action" type="object" confirm="Prendre en compte imméditement le changement d'année"/>
+                        </group>
+                        <group>
+                            <group string="Autre">
+                                <field name="is_cout_ctrl_qualite"/>
+                                <field name="is_dossier_interface_cegid"/>
+                                <field name="is_calendrier_expedition_id"/>
+                                <field 
+                                    name="is_cachet_plastigray" 
+                                    widget="image" class="oe_center oe_avatar" 
+                                    options='{"preview_image": "is_cachet_plastigray", "size": [150, 150]}'
+                                />
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+                <field name="logo" position="after">
+                    <field name="is_logo" widget="image"  class="oe_avatar oe_left"/>
+                </field>
+            </field>
+        </record>
+        <!-- <record id="is_view_partner_bank_form" model="ir.ui.view">
+            <field name="name">is_view_partner_bank_form</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_form" />
+            <field name="arch" type="xml">
+                <field name="bank_bic" position="after">
+                    <field name="is_bank_swift"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_view_partner_bank_tree" model="ir.ui.view">
+            <field name="name">is_view_partner_bank_tree</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_tree" />
+            <field name="arch" type="xml">
+                <field name="bank_name" position="after">
+                    <field name="is_bank_swift"/>
+                </field>
+            </field>
+        </record> -->
+    </data>
+</openerp>
