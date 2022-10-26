@@ -182,19 +182,17 @@
                             <field name="employee_id"/>
                             <field name="date_fin"/>
                         </group>
-                        <group>
-                            <field name="uc_ids" nolabel="1" >
-                                <tree editable="bottom">
-                                    <field name="num_eti"/>
-                                    <field name="type_eti"/>
-                                    <field name="num_carton"/>
-                                    <field name="qt_pieces"/>
-                                    <field name="date_creation"/>
-                                    <field name="production"/>
-                                    <field name="product_id"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="uc_ids" nolabel="1" >
+                            <tree editable="bottom">
+                                <field name="num_eti"/>
+                                <field name="type_eti"/>
+                                <field name="num_carton"/>
+                                <field name="qt_pieces"/>
+                                <field name="date_creation"/>
+                                <field name="production"/>
+                                <field name="product_id"/>
+                            </tree>
+                        </field>
                     </sheet>
                 </form>
             </field>

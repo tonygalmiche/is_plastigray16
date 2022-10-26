@@ -871,7 +871,12 @@ class res_partner(models.Model):
 
 
     def action_view_partner(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('base', 'view_partner_form')
+        #dummy, view_id = self.env['ir.model.data'].get_object_reference('base', 'view_partner_form')
+
+
+        view_id = self.env.ref('base.view_partner_form').id
+
+
         for partner in self:
             return {
             'name':partner.name,

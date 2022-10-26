@@ -55,6 +55,89 @@
         </record>
 
 
+        <!-- is.product.ul -->
+        <record id="is_product_ul_view_tree" model="ir.ui.view">
+            <field name="name">is.product.ul.view.tree</field>
+            <field name="model">is.product.ul</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+                    <field name="type" />
+                    <field name="height" />
+                    <field name="width" />
+                    <field name="length" />
+                    <field name="weight" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_product_ul_view_form" model="ir.ui.view">
+            <field name="name">is.product.ul.view.form</field>
+            <field name="model">is.product.ul</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name" />
+                        <field name="type" />
+                        <field name="height" />
+                        <field name="width" />
+                        <field name="length" />
+                        <field name="weight" />
+                   </group>
+                </form>
+            </field>
+        </record>
+        <record id="is_product_ul_action" model="ir.actions.act_window">
+            <field name="name">Unité logistique</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.product.ul</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- product.packaging -->
+        <record id="is_product_packaging_tree_view2" model="ir.ui.view">
+            <field name="name">is_product_packaging_tree_view2</field>
+            <field name="model">product.packaging</field>
+            <field name="inherit_id" ref="product.product_packaging_tree_view2"/>
+            <field name="arch" type="xml">
+                <field name="qty" position="after">
+                    <field name="ul"/>
+                    <field name="ul_qty"/>
+                    <field name="rows"/>
+                    <field name="ul_container"/>
+                    <field name="company_id" invisible="1"/>
+                </field>
+                <field name="name" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="package_type_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="product_uom_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="sales" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="purchase" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="barcode" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record>
+
+
+
+
+
+                            <!-- <group name="packaging" string="Packaging" colspan="4" attrs="{'invisible':['|', ('type', 'not in', ['product', 'consu']), ('product_variant_count', '&gt;', 1), ('is_product_variant', '=', False)]}" groups="product.group_stock_packaging">
+                                <field colspan="2" name="packaging_ids" nolabel="1" context="{'tree_view_ref':'product.product_packaging_tree_view2', 'default_company_id': company_id}"/>
+                            </group>
+ -->
+
 
 
         <!-- Segment -->
@@ -630,6 +713,7 @@
 
                             <field name="is_code"/>
                             <field name="name" string="Désignation"/>
+                            <field name="company_id" readonly="1"/>
 
 
 
@@ -671,6 +755,16 @@
                     <field name="is_section_analytique_ha_id_vsb" invisible="1"/>
                     <field name="is_section_analytique_ha_id"     attrs="{'invisible': [('is_section_analytique_ha_id_vsb', '=', True)]}"/>
                 </xpath>
+
+
+
+                <div name="weight" position="after">
+                    <label for="weight_net"/>
+                    <div class="o_row" name="weight_net">
+                        <field name="weight_net" class="oe_inline"/>
+                    </div>
+                </div>
+
 
                 <!-- <xpath expr="//field[@name='standard_price']" position="replace" >
                     <div invisible="1">

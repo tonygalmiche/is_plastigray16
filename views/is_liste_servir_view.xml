@@ -50,6 +50,11 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Form">  
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <header>
                         <button name="action_importer_commandes" type="object" string="Importer les commandes" class="oe_highlight" states="creation" />
                         <button name="action_generer_bl"         type="object" string="Générer la commande de livraison" states="analyse" confirm2="Générer le bon de livraison ?"/>
@@ -84,79 +89,67 @@
 
                             </group>
                         </group>
-                        <group>
-                            <field name="line_ids" nolabel="1">
-                                <tree editable="bottom"  create="true" colors="red:livrable == False">
-                                    <field name="sequence"       invisible="1"/>
-                                    <field name="product_id" widget="many2one_clickable"/>
-                                    <field name="mold_dossierf"/>
-                                    <field name="livrable"       invisible="1"/>
-                                    <field name="date_livraison"/>
-                                    <field name="date_expedition"/>
+                        <field name="line_ids" nolabel="1">
+                            <tree editable="bottom"  create="true" colors="red:livrable == False">
+                                <field name="sequence"       invisible="1"/>
+                                <field name="product_id" widget="many2one_clickable"/>
+                                <field name="mold_dossierf"/>
+                                <field name="livrable"       invisible="1"/>
+                                <field name="date_livraison"/>
+                                <field name="date_expedition"/>
 
-                                    <field name="stock01"/>
-                                    <field name="stocka"/>
-                                    <field name="stockq"/>
-                                    <field name="quantite"/>
-                                    <field name="prix"           invisible="1"/>
-                                    <field name="justification"  invisible="1"/>
+                                <field name="stock01"/>
+                                <field name="stocka"/>
+                                <field name="stockq"/>
+                                <field name="quantite"/>
+                                <field name="prix"           invisible="1"/>
+                                <field name="justification"  invisible="1"/>
 
-                                    <!-- <field name="uc_id"/> -->
-                                    <field name="stock01_uc"/>
-                                    <field name="stocka_uc"/>
-                                    <field name="stockq_uc"/>
-                                    <field name="nb_uc"/>
+                                <field name="uc_id"/>
+                                <field name="stock01_uc"/>
+                                <field name="stocka_uc"/>
+                                <field name="stockq_uc"/>
+                                <field name="nb_uc"/>
 
-                                    <!-- <field name="um_id"/> -->
-                                    <field name="nb_um"/>
+                                <field name="um_id"/>
+                                <field name="nb_um"/>
 
-                                    <field name="mixer"/>
-                                    <field name="client_order_ref" readonly="1" />
-                                    <field name="point_dechargement"/>
-                                    <field name="certificat_matiere" invisible="1"/>
-                                    <button 
-                                        string="Voir le certificat matière" 
-                                        name="action_acceder_certificat" type="object" 
-                                        context="{'certificat_matiere': certificat_matiere}"
-                                        icon="gtk-zoom-in" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
-                                    />
-                                    <field name="anomalie"/>
-                                </tree>
-                            </field>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="uc_ids" nolabel="1">
-                                    <tree editable="bottom">
-                                        <field name="nb_uc"/>
-                                        <!-- <field name="uc_id"/> -->
-                                        <field name="nb_um"/>
-                                        <!-- <field name="um_id"/> -->
-                                        <field name="mixer"/>
-                                    </tree>
-                                </field>
-                            </group>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="um_ids" nolabel="1">
-                                    <tree editable="bottom">
-                                        <field name="nb_um"/>
-                                        <!-- <field name="um_id"/> -->
-                                    </tree>
-                                </field>
-                            </group>
-                        </group>
-                        <group attrs="{'invisible': [('galia_um_ids', '=', [])]}">
-                            <field name="galia_um_ids" nolabel="1">
-                                <tree>
-                                    <button string="UM" name="acceder_um_action" type="object" icon="gtk-zoom-in"/>
-                                    <field name="name" string="N°étiquette UM scannée"/>
-                                    <field name="product_id"/>
-                                    <field name="qt_pieces"/>
-                                </tree>
-                            </field>
-                        </group>
+                                <field name="mixer"/>
+                                <field name="client_order_ref" readonly="1" />
+                                <field name="point_dechargement"/>
+                                <field name="certificat_matiere" invisible="1"/>
+                                <button 
+                                    string="Voir le certificat matière" 
+                                    name="action_acceder_certificat" type="object" 
+                                    context="{'certificat_matiere': certificat_matiere}"
+                                    icon="gtk-zoom-in" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
+                                />
+                                <field name="anomalie"/>
+                            </tree>
+                        </field>
+                        <field name="uc_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="nb_uc"/>
+                                <field name="uc_id"/>
+                                <field name="nb_um"/>
+                                <field name="um_id"/>
+                                <field name="mixer"/>
+                            </tree>
+                        </field>
+                        <field name="um_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="nb_um"/>
+                                <field name="um_id"/>
+                            </tree>
+                        </field>
+                        <field name="galia_um_ids" nolabel="1" attrs="{'invisible': [('galia_um_ids', '=', [])]}">
+                            <tree>
+                                <button string="UM" name="acceder_um_action" type="object" icon="gtk-zoom-in"/>
+                                <field name="name" string="N°étiquette UM scannée"/>
+                                <field name="product_id"/>
+                                <field name="qt_pieces"/>
+                            </tree>
+                        </field>
                         <group>
                             <field name="uc_non_affectes" attrs="{'invisible': [('uc_non_affectes', '=', 0)]}" readonly="1"/>
                         </group>

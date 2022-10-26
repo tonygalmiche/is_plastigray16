@@ -737,9 +737,9 @@ class is_liste_servir_line(models.Model):
     date_expedition    = fields.Date("Date d'expédition"   , readonly=True)
     prix               = fields.Float("Prix", digits=(14,4), readonly=True)
     justification      = fields.Char('Justification')
-    #uc_id              = fields.Many2one('product.ul', 'UC'      , compute='_compute', readonly=True, store=True)
+    uc_id              = fields.Many2one('is.product.ul', 'UC'      , compute='_compute', readonly=True, store=True)
     nb_uc              = fields.Float('Qt Cde UC'                    , compute='_compute', readonly=True, store=True)
-    #um_id              = fields.Many2one('product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
+    um_id              = fields.Many2one('is.product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
     nb_um              = fields.Float('Qt Cde UM'                    , compute='_compute', readonly=True, store=True)
     mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre")
     order_id           = fields.Many2one('sale.order', 'Commande', required=False, readonly=True)
@@ -807,9 +807,9 @@ class is_liste_servir_uc(models.Model):
     _order='uc_id'
 
     liste_servir_id = fields.Many2one('is.liste.servir', 'Liste à servir', required=True, ondelete='cascade')
-    #uc_id           = fields.Many2one('product.ul', 'UC')
+    uc_id           = fields.Many2one('is.product.ul', 'UC')
     nb_uc           = fields.Float('Nb UC')
-    #um_id           = fields.Many2one('product.ul', 'UM')
+    um_id           = fields.Many2one('is.product.ul', 'UM')
     nb_um           = fields.Float('Nb UM')
     mixer           = fields.Boolean('Mixer', help="L'UM peut-être mixée avec une autre")
 
@@ -824,7 +824,7 @@ class is_liste_servir_um(models.Model):
     _order='um_id,nb_um desc'
 
     liste_servir_id = fields.Many2one('is.liste.servir', 'Liste à servir', required=True, ondelete='cascade')
-    #um_id           = fields.Many2one('product.ul', 'UM')
+    um_id           = fields.Many2one('is.product.ul', 'UM')
     nb_um           = fields.Float('Nb UM')
 
 

@@ -32,6 +32,11 @@
             <field name="model">is.bon.transfert</field>
             <field name="arch" type="xml">
                 <form>
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <header>
                         <button 
                             name="desadv_action" 
@@ -62,32 +67,28 @@
                                 <field name="date_traitement_edi" attrs="{'invisible': [('date_traitement_edi', '=', False)]}"/> 
                             </group>
                         </group>
-                        <group>
-                            <field name="line_ids" nolabel="1" >
-                                <tree editable="bottom">
-                                     <field name="product_id" />
-                                     <field name="mold_id" />
-                                     <field name="ref_client" />
-                                     <field name="point_dechargement" />
-                                     <field name="quantite" />
-                                     <field name="uom_id" />
-                                     <!-- <field name="uc_id" /> -->
-                                     <field name="nb_uc" />
-                                     <!-- <field name="um_id" /> -->
-                                     <field name="nb_um" />
-                                </tree>
-                            </field>
-                        </group>
-                        <group attrs="{'invisible': [('galia_um_ids', '=', [])]}">
-                            <field name="galia_um_ids" nolabel="1">
-                                <tree>
-                                    <button string="UM" name="acceder_um_action" type="object" icon="gtk-zoom-in"/>
-                                    <field name="name" string="N°étiquette UM scannée"/>
-                                    <field name="product_id"/>
-                                    <field name="qt_pieces"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="line_ids" nolabel="1" >
+                            <tree editable="bottom">
+                                    <field name="product_id" />
+                                    <field name="mold_id" />
+                                    <field name="ref_client" />
+                                    <field name="point_dechargement" />
+                                    <field name="quantite" />
+                                    <field name="uom_id" />
+                                    <field name="uc_id" />
+                                    <field name="nb_uc" />
+                                    <field name="um_id" />
+                                    <field name="nb_um" />
+                            </tree>
+                        </field>
+                        <field name="galia_um_ids" nolabel="1" attrs="{'invisible': [('galia_um_ids', '=', [])]}">
+                            <tree>
+                                <button string="UM" name="acceder_um_action" type="object" icon="fa-search-plus"/>
+                                <field name="name" string="N°étiquette UM scannée"/>
+                                <field name="product_id"/>
+                                <field name="qt_pieces"/>
+                            </tree>
+                        </field>
                         <group>
                             <field name="uc_non_affectes" attrs="{'invisible': [('uc_non_affectes', '=', 0)]}" readonly="1"/>
                         </group>

@@ -50,3 +50,5 @@ access_is_liste_servir_line,access_is_liste_servir_line,model_is_liste_servir_li
 access_is_liste_servir_message,access_is_liste_servir_message,model_is_liste_servir_message,base.group_user,1,1,1,1
 access_is_liste_servir_uc,access_is_liste_servir_uc,model_is_liste_servir_uc,base.group_user,1,1,1,1
 access_is_liste_servir_um,access_is_liste_servir_um,model_is_liste_servir_um,base.group_user,1,1,1,1
+
+access_is_product_ul,access_is_product_ul,model_is_product_ul,base.group_user,1,1,1,1

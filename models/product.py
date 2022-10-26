@@ -34,8 +34,6 @@ class is_config_champ(models.Model):
             return res
 
 
-
-
 class is_config_champ_line(models.Model):
     _name='is.config.champ.line'
     _description="Configuration champs fiche article - Lignes"
@@ -55,6 +53,30 @@ class is_config_champ_line(models.Model):
     }
 
 
+class is_product_ul(models.Model):
+    _name='is.product.ul'
+    _description="Unité logistique"
+    _order='name'
+    _sql_constraints = [] 
+
+    name    = fields.Char("Nom",required=True, index=True)
+    type    = fields.Selection([('unit','Unité'),('pack','Colis'),('box', 'Box'), ('pallet', 'Palette')], 'Type', required=True)
+    height  = fields.Float('Hauteur', help='The height of the package')
+    width   = fields.Float('Largeur', help='The width of the package')
+    length  = fields.Float('Longueur', help='The length of the package')
+    weight  = fields.Float("Poids d'un colis à vide")
+
+
+class product_packaging(models.Model):
+    _inherit = 'product.packaging'
+
+    name = fields.Char("Conditionnement",required=False)
+
+    qty          = fields.Integer('Quantité par colis')
+    rows         = fields.Integer('Nombre de couches')
+    ul           = fields.Many2one('is.product.ul', 'Unité logistique colis')
+    ul_container = fields.Many2one('is.product.ul', 'Unité logistique palette')
+    ul_qty       = fields.Integer('Colis par couche')
 
 
 
@@ -83,8 +105,6 @@ class is_category(models.Model):
         for cat in cats:
             res.append(cat.id)
         return res
-
-
 
 
 class is_gestionnaire(models.Model):
@@ -454,6 +474,10 @@ class product_template(models.Model):
 
     volume_vsb                    = fields.Boolean('Volume vsb'    , store=False, compute='_compute')
     weight_vsb                    = fields.Boolean('Poids brut vsb', store=False, compute='_compute')
+
+
+
+    weight_net                    = fields.Float('Poids net')
     weight_net_vsb                = fields.Boolean('Poids net vsb' , store=False, compute='_compute')
 
     is_location_vsb              = fields.Boolean('Emplacement de stockage vsb', store=False, compute='_compute')

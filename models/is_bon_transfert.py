@@ -307,9 +307,9 @@ class is_bon_transfert_line(models.Model):
     ref_client         = fields.Char('Référence client'          , compute='_compute', readonly=True, store=True)
     quantite           = fields.Float('Quantité', digits=(14,0))
     uom_id             = fields.Many2one('uom.uom', 'Unité'  , compute='_compute', readonly=True, store=True)
-    #uc_id              = fields.Many2one('product.ul', 'UC'      , compute='_compute', readonly=True, store=True)
+    uc_id              = fields.Many2one('is.product.ul', 'UC'      , compute='_compute', readonly=True, store=True)
     nb_uc              = fields.Float('Nb UC'                    , compute='_compute', readonly=True, store=True, digits=(14,1))
-    #um_id              = fields.Many2one('product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
+    um_id              = fields.Many2one('is.product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
     nb_um              = fields.Float('Nb UM'                    , compute='_compute', readonly=True, store=True, digits=(14,1))
     point_dechargement = fields.Char(u'Point de déchargement', compute='_compute_point_dechargement', readonly=True, store=False)
 
