@@ -550,7 +550,7 @@
 
 
     <!-- Ventes / Tarif commercial -->
-    <!-- <record id="menu_is_ventes_tarif_cial" model="ir.ui.menu" >
+    <record id="menu_is_ventes_tarif_cial" model="ir.ui.menu" >
         <field name="name">Tarif commercial</field>
         <field name="sequence">15</field>
         <field name="parent_id" eval="ref('menu_is_ventes')"/>
@@ -580,7 +580,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
-    </record> -->
+    </record>
 
 
 
@@ -1088,12 +1088,12 @@
 
 
     <!-- Production / Production -->
-    <!-- <record id="menu_is_production" model="ir.ui.menu" >
+    <record id="menu_is_production" model="ir.ui.menu" >
         <field name="name">Production</field>
         <field name="sequence">4</field>
         <field name="parent_id" eval=""/>
         <field name="groups_id" eval="[(6,0,[])]"/>
-    </record> -->
+    </record>
 
 
 
@@ -1254,7 +1254,7 @@
 
 
     <!-- Production / Gestion des étuves -->
-    <!-- <record id="is_gestion_etuves_menu" model="ir.ui.menu" >
+    <record id="is_gestion_etuves_menu" model="ir.ui.menu" >
         <field name="name">Gestion des étuves</field>
         <field name="sequence">27</field>
         <field name="parent_id" eval="ref('menu_is_production')"/>
@@ -1297,7 +1297,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('base.group_system'),
         ])]"/>
-    </record> -->
+    </record>
 
 
 
@@ -1784,7 +1784,7 @@
 
 
     <!--     Outillages -->
-    <!-- <record id="menu_main_outillages" model="ir.ui.menu" >
+    <record id="menu_main_outillages" model="ir.ui.menu" >
         <field name="name">Outillages</field>
         <field name="sequence">90</field>
         <field name="parent_id" eval=""/>
@@ -1815,7 +1815,7 @@
 
     <menuitem id="menu_sub_main_outillages_table" sequence="90" parent="menu_main_outillages" name="Tables"/>
     <menuitem id="menu_is_type_controle_gabarit" sequence="20" name="Type de contrôle"       parent="menu_sub_main_outillages_table" action="is_type_controle_gabarit_action" />
-    <menuitem id="menu_is_famille_instrument"    sequence="30" name="Familles d'instruments" parent="menu_sub_main_outillages_table" action="is_famille_instrument_action" /> -->
+    <!-- <menuitem id="menu_is_famille_instrument"    sequence="30" name="Familles d'instruments" parent="menu_sub_main_outillages_table" action="is_famille_instrument_action" /> -->
 
     <!-- Puissance Presse - Table sub menu - Outillages -->
     <!-- <menuitem 
@@ -1855,13 +1855,13 @@
 
     <menuitem id="is_operation_controle_menu" sequence="46" name="Opération de contrôle"     parent="menu_sub_main_outillages_table" action="is_operation_controle_action" />
 
-
+ -->
 
 	<menuitem id="menu_piece_de_montabilite" 
               sequence="34" 
               name="Pièce de montabilité" 
               parent="menu_sub_main_outillages" 
-              action="is_piece_montabilite_action"  -->
+              action="is_piece_montabilite_action" 
     />
   </data>
 </odoo>

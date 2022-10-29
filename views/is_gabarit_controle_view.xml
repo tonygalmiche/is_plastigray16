@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="is_gabarit_controle_form_view">
+            <field name="name">is_gabarit_controle_form_view</field>
+            <field name="model">is.gabarit.controle</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Gabarit de contrôle">  
+                    <sheet class="oe_form_sheet_width_wider">
+                        <group col="4" colspan="4" string="Identification">
+                            <group>
+                                <field name="code_pg"/>
+                                <field name="fabriquant"/>
+                                <field name="reference_plan"/>
+                                <field name="client_id"     domain="[('customer' ,'=',True),('is_company','=',True)]"/>
+                                <field name="lieu_stockage"/>
+                            </group>
+                            <group>
+                                <field name="designation"/>
+                                <field name="date_reception"/>
+                                <field name="indice_plan"/>
+                                <field name="site_id"/>
+                                <field name="moule_ids"    widget="many2many_tags"/>
+                                <field name="dossierf_ids" widget="many2many_tags"/>
+                            </group>
+                        </group>
+                        <group string="Contrôle périodique">
+                            <field name="periodicite"/>
+                            <field name="type_controle"/>
+                            <field name="date_prochain_controle"/>
+                        </group>
+                        <notebook>
+                            <page string="Historique des contrôles">
+                                <field name="controle_ids">
+                                    <form string="Historique des contrôles">  
+                                        <sheet>
+                                            <group>
+                                                <field 
+                                                    name="operation_controle_id"
+                                                    domain="[('gabarit' ,'=',True)]"
+                                                />
+                                                <field name="operation_controle_code" invisible="1"/>
+                                                <field name="cause_arret"  attrs="{'invisible':[('operation_controle_code','!=','arret')] ,'required':[('operation_controle_code','=','arret')]}"/>
+                                                <field name="date_controle" />
+                                                <field name="organisme_controleur" />
+                                                <field 
+                                                    name="fournisseur_id" 
+                                                    domain="[('supplier' ,'=',True),('is_company','=',True)]"
+                                                    attrs="{
+                                                        'invisible':[('organisme_controleur','!=','externe')],
+                                                        'required':[('organisme_controleur','=','externe')]
+                                                    }"
+                                                />
+                                                <field name="etat_conformite" />
+                                                <field name="rapport_controle_ids" widget="many2many_binary" />
+                                                <field name="create_uid" string="Créé par" readonly="1"/>
+                                            </group>
+                                        </sheet>
+                                    </form>
+                                    <tree string="Historique des contrôles">
+                                        <field name="operation_controle_id" />
+                                        <field name="cause_arret" />
+                                        <field name="date_controle" />
+                                        <field name="organisme_controleur" />
+                                        <field name="fournisseur_id" />
+                                        <field name="etat_conformite" />
+                                        <field name="rapport_controle_ids"/>
+                                        <field name="create_uid" string="Créé par" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="is_gabarit_controle_tree_view">
+            <field name="name">is_gabarit_controle_tree_view</field>
+            <field name="model">is.gabarit.controle</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Gabarit de contrôle">
+                    <field name="code_pg"/>
+                    <field name="designation"/>
+                    <field name="fabriquant" optional="show"/>
+                    <field name="date_reception" optional="show"/>
+                    <field name="reference_plan" optional="show"/>
+                    <field name="indice_plan" optional="show"/>
+                    <field name="client_id" optional="show"/>
+                    <field name="site_id" optional="show"/>
+                    <field name="lieu_stockage" optional="show"/>
+                    <field name="periodicite" optional="show"/>
+                    <field name="date_prochain_controle" optional="show"/>
+                    <field name="is_database_origine_id" optional="hide"/>
+                </tree>
+            </field>
+        </record>  
+        
+        <record model="ir.ui.view" id="is_gabarit_controle_search_view" >
+            <field name="name">is_gabarit_controle_search_view</field>
+            <field name="model">is.gabarit.controle</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="code_pg"/>
+                    <field name="designation"/>
+                    <field name="fabriquant"/>
+                    <field name="client_id"/>
+                    <field name="site_id"/>
+                    <field name="moule_ids"/>
+                    <field name="dossierf_ids"/>
+                    <filter name="date_prochain_controle_filter" string="Date prochain contrôle dépassée" domain="[('date_prochain_controle','&lt;=',context_today().strftime('%%Y-%%m-%%d'))]"/>
+                </search>
+            </field>
+        </record>
+        
+        <record id="is_gabarit_controle_action" model="ir.actions.act_window" >
+            <field name="name">Gabarit de contrôle</field>
+            <field name="res_model">is.gabarit.controle</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+        
+        <!-- is.emplacement.outillage -->
+        <record model="ir.ui.view" id="is_emplacement_outillage_tree_view">
+            <field name="name">is_emplacement_outillage_tree_view</field>
+            <field name="model">is.emplacement.outillage</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Site d'affectation" editable="top">
+                    <field name="name"/>
+                    <field name="is_database_origine_id" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_outillage_search_view" >
+            <field name="name">is_emplacement_outillage_search_view</field>
+            <field name="model">is.emplacement.outillage</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_emplacement_outillage_action" model="ir.actions.act_window" >
+            <field name="name">Site d'affectation</field>
+            <field name="res_model">is.emplacement.outillage</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.type.controle.gabarit -->
+        <record model="ir.ui.view" id="is_type_controle_gabarit_tree_view">
+            <field name="name">is_type_controle_gabarit_tree_view</field>
+            <field name="model">is.type.controle.gabarit</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Type de contrôle" editable="top">
+                    <field name="name"/>
+                    <field name="is_database_origine_id" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="is_type_controle_gabarit_search_view" >
+            <field name="name">is_type_controle_gabarit_search_view</field>
+            <field name="model">is.type.controle.gabarit</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        
+        <record id="is_type_controle_gabarit_action" model="ir.actions.act_window" >
+            <field name="name">Type de contrôle</field>
+            <field name="res_model">is.type.controle.gabarit</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

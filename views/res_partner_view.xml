@@ -325,7 +325,7 @@
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="arch" type="xml">
                 <field name="email" position="after">
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </field>
             </field>
         </record>
@@ -363,6 +363,7 @@
                     <field 
                         name="is_database_origine_id" 
                         groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"
+                        optional="hide"
                     />
                 </tree>
             </field>
@@ -388,7 +389,7 @@
                 <tree string="tree" editable="top">
                     <field name="name"/>
                     <field name="commentaire"/>
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -408,7 +409,7 @@
                 <tree string="tree" editable="top">
                     <field name="name"/>
                     <field name="commentaire"/>
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -429,7 +430,7 @@
                     <field name="name"/>
                     <field name="taux"/>
                     <field name="compte"/>
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -447,7 +448,7 @@
             <field name="arch" type="xml">
                 <tree string="Segment d'achat">
                     <field name="name"/>
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -487,7 +488,7 @@
                 <tree string="Famille d'achat">
                     <field name="name" />
                     <field name="segment_id" />
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -533,7 +534,7 @@
             <field name="arch" type="xml">
                 <tree editable="bottom">
                     <field name="name" />
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -564,7 +565,7 @@
                 <tree editable="bottom">
                     <field name="name" />
                     <field name="commentaire"/>
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -596,7 +597,7 @@
                     <field name="name"/>
                     <field name="notation_fournisseur"/>
                     <field name="commentaire"/>
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -610,7 +611,7 @@
                             <field name="name"/>
                             <field name="notation_fournisseur"/>
                             <field name="commentaire"/>
-                            <field name="is_database_origine_id"/>
+                            <field name="is_database_origine_id" optional="hide"/>
                          </group>
                     </sheet>
                 </form>
@@ -632,7 +633,7 @@
                 <tree>
                     <field name="is_norme" />
                     <field name="is_date_validation" />
-                    <field name="is_database_origine_id"/>
+                    <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>

@@ -507,68 +507,6 @@ class is_database(models.Model):
 
 
 
-# class is_type_controle_gabarit(models.Model):
-#     _inherit = "is.type.controle.gabarit"
-    
-#     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
-
-#     def write(self, vals):
-#         try:
-#             res=super(is_type_controle_gabarit, self).write(vals)
-#             for obj in self:
-#                 obj.copy_other_database_controle_gabarit()
-#             return res
-#         except Exception as e:
-#             raise osv.except_osv(_('Gabarit!'),
-#                              _('(%s).') % str(e).decode('utf-8'))
-
-
-#     @api.model
-#     def create(self, vals):
-#         try:
-#             obj=super(is_type_controle_gabarit, self).create(vals)
-#             obj.copy_other_database_controle_gabarit()
-#             return obj
-#         except Exception as e:
-#             raise osv.except_osv(_('Gabarit!'),
-#                              _('(%s).') % str(e).decode('utf-8'))
-            
-#     def copy_other_database_controle_gabarit(self):
-#         cr , uid, context = self.env.args
-#         context = dict(context)
-#         database_obj = self.env['is.database']
-#         database_lines = database_obj.search([])
-#         for gabarit in self:
-#             for database in database_lines:
-#                 if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-#                     continue
-#                 DB = database.database
-#                 USERID = SUPERUSER_ID
-#                 DBLOGIN = database.login
-#                 USERPASS = database.password
-#                 DB_SERVER = database.ip_server
-#                 DB_PORT = database.port_server
-#                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-#                 controle_gabarit_vals = self.get_type_controle_gabarit_vals(gabarit, DB, USERID, USERPASS, sock)
-#                 dest_controle_gabarit_ids = sock.execute(DB, USERID, USERPASS, 'is.type.controle.gabarit', 'search', [('is_database_origine_id', '=', gabarit.id)], {})
-#                 if not dest_controle_gabarit_ids:
-#                     dest_controle_gabarit_ids = sock.execute(DB, USERID, USERPASS, 'is.type.controle.gabarit', 'search', [('name', '=', gabarit.name)], {})
-#                 if dest_controle_gabarit_ids:
-#                     sock.execute(DB, USERID, USERPASS, 'is.type.controle.gabarit', 'write', dest_controle_gabarit_ids, controle_gabarit_vals, {})
-#                     controle_gabarit_created_id = dest_controle_gabarit_ids[0]
-#                 else:
-#                     controle_gabarit_created_id = sock.execute(DB, USERID, USERPASS, 'is.type.controle.gabarit', 'create', controle_gabarit_vals, {})
-#         return True
-
-#     @api.model
-#     def get_type_controle_gabarit_vals(self, gabarit, DB, USERID, USERPASS, sock):
-#         controle_gabarit_vals ={
-#                      'name' : tools.ustr(gabarit.name),
-#                      'is_database_origine_id':gabarit.id,
-#                      }
-#         return controle_gabarit_vals
-    
-
 # class is_presse_classe(models.Model):
 #     _inherit='is.presse.classe'
     
@@ -692,73 +630,8 @@ class is_database(models.Model):
 #                      }
 #         return outillage_constructeur_vals
 
-# class is_famille_instrument(models.Model):
-#     _inherit = 'is.famille.instrument'
-
-#     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
-    
-#     def write(self, vals):
-#         try:
-#             res=super(is_famille_instrument, self).write(vals)
-#             for obj in self:
-#                 obj.copy_other_database_famille_instrument()
-#             return res
-#         except Exception as e:
-#             raise osv.except_osv(_('Instrument!'),
-#                              _('(%s).') % str(e).decode('utf-8'))
 
 
-#     @api.model
-#     def create(self, vals):
-#         try:
-#             obj=super(is_famille_instrument, self).create(vals)
-#             obj.copy_other_database_famille_instrument()
-#             return obj
-#         except Exception as e:
-#             raise osv.except_osv(_('Instrument!'),
-#                              _('(%s).') % str(e).decode('utf-8'))
-            
-#     def copy_other_database_famille_instrument(self):
-#         cr , uid, context = self.env.args
-#         context = dict(context)
-#         database_obj = self.env['is.database']
-#         database_lines = database_obj.search([])
-#         for instrument in self:
-#             for database in database_lines:
-#                 if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-#                     continue
-#                 DB = database.database
-#                 USERID = SUPERUSER_ID
-#                 DBLOGIN = database.login
-#                 USERPASS = database.password
-#                 DB_SERVER = database.ip_server
-#                 DB_PORT = database.port_server
-#                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-#                 famille_instrument_vals = self.get_famille_instrument_vals(instrument, DB, USERID, USERPASS, sock)
-#                 dest_famille_instrument_ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('is_database_origine_id', '=', instrument.id)], {})
-#                 if not dest_famille_instrument_ids:
-#                     dest_famille_instrument_ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('name', '=', instrument.name)], {})
-#                 if dest_famille_instrument_ids:
-#                     sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'write', dest_famille_instrument_ids, famille_instrument_vals, {})
-#                     famille_instrument_created_id = dest_famille_instrument_ids[0]
-#                 else:
-#                     famille_instrument_created_id = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'create', famille_instrument_vals, {})
-#         return True
-
-#     @api.model
-#     def get_famille_instrument_vals(self, instrument, DB, USERID, USERPASS, sock):
-#         famille_instrument_vals ={
-#                      'name' : tools.ustr(instrument.name or ''),
-#                      'intensive': tools.ustr(instrument.intensive or ''),
-#                      'moyenne': tools.ustr(instrument.moyenne or ''),
-#                      'faible': tools.ustr(instrument.faible or ''),
-#                      'tolerance': tools.ustr(instrument.tolerance or ''),
-#                      'afficher_classe':instrument.afficher_classe,
-#                      'afficher_type':instrument.afficher_type,
-#                      'is_database_origine_id':instrument.id,
-#                      }
-#         return famille_instrument_vals
-    
     
 # class is_type_equipement(models.Model):
 #     _inherit='is.type.equipement'
@@ -825,69 +698,6 @@ class is_database(models.Model):
 
 
 
-
-# class is_emplacement_outillage(models.Model):
-#     _inherit = "is.emplacement.outillage"
-    
-    
-#     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
-    
-    
-#     def write(self, vals):
-#         try:
-#             res=super(is_emplacement_outillage, self).write(vals)
-#             for obj in self:
-#                 obj.copy_other_database_emplacement_outillage()
-#             return res
-#         except Exception as e:
-#             raise osv.except_osv(_('Outillage!'),
-#                              _('(%s).') % str(e).decode('utf-8'))
-
-
-#     @api.model
-#     def create(self, vals):
-#         try:
-#             obj=super(is_emplacement_outillage, self).create(vals)
-#             obj.copy_other_database_emplacement_outillage()
-#             return obj
-#         except Exception as e:
-#             raise osv.except_osv(_('Outillage!'),
-#                              _('(%s).') % str(e).decode('utf-8'))
-            
-#     def copy_other_database_emplacement_outillage(self):
-#         cr , uid, context = self.env.args
-#         context = dict(context)
-#         database_obj = self.env['is.database']
-#         database_lines = database_obj.search([])
-#         for outillage in self:
-#             for database in database_lines:
-#                 if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-#                     continue
-#                 DB = database.database
-#                 USERID = SUPERUSER_ID
-#                 DBLOGIN = database.login
-#                 USERPASS = database.password
-#                 DB_SERVER = database.ip_server
-#                 DB_PORT = database.port_server
-#                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-#                 emplacement_outillage_vals = self.get_emplacement_outillage_vals(outillage, DB, USERID, USERPASS, sock)
-#                 dest_emplacement_outillage_ids = sock.execute(DB, USERID, USERPASS, 'is.emplacement.outillage', 'search', [('is_database_origine_id', '=', outillage.id)], {})
-#                 if not dest_emplacement_outillage_ids:
-#                     dest_emplacement_outillage_ids = sock.execute(DB, USERID, USERPASS, 'is.emplacement.outillage', 'search', [('name', '=', outillage.name)], {})
-#                 if dest_emplacement_outillage_ids:
-#                     sock.execute(DB, USERID, USERPASS, 'is.emplacement.outillage', 'write', dest_emplacement_outillage_ids, emplacement_outillage_vals, {})
-#                     emplacement_outillage_created_id = dest_emplacement_outillage_ids[0]
-#                 else:
-#                     emplacement_outillage_created_id = sock.execute(DB, USERID, USERPASS, 'is.emplacement.outillage', 'create', emplacement_outillage_vals, {})
-#         return True
-
-#     @api.model
-#     def get_emplacement_outillage_vals(self, outillage, DB, USERID, USERPASS, sock):
-#         emplacement_outillage_vals ={
-#                      'name' : tools.ustr(outillage.name),
-#                      'is_database_origine_id':outillage.id,
-#                      }
-#         return emplacement_outillage_vals
 
 # class is_presse(models.Model):
 #     _inherit='is.presse'
