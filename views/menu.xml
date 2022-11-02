@@ -267,7 +267,7 @@
  -->
 
     <!-- Achats / Demandes d'achats -->
-    <!-- <menuitem id="is_demande_achat_main_menu" sequence="25" name="Demandes d'achats"  parent="menu_is_achats" />
+    <menuitem id="is_demande_achat_main_menu" sequence="25" name="Demandes d'achats"  parent="menu_is_achats" />
     <record id="is_demande_achat_serie_menu" model="ir.ui.menu">
         <field name="name">DA Série</field>
         <field name="sequence">10</field>
@@ -303,7 +303,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
-    </record> -->
+    </record>
 
 
 
@@ -1763,16 +1763,24 @@
     </record>
 
     <menuitem id="is_database_menu"         action="is_database_action"         name="Sites"              parent="base.menu_res_company_global" sequence="90"/>
-    <menuitem id="is_commande_externe_menu" action="is_commande_externe_action" name="Commandes externes" parent="base.menu_res_company_global" sequence="92"/> -->
+-->
+
+
+    <menuitem id="is_commande_externe_menu" action="is_commande_externe_action" name="Commandes externes" parent="base.menu_users" sequence="92"/> 
 
 
     <!-- Déplacement des menus standards sous le menu 'Autre' -->
-    <!-- <menuitem id="menu_is_autre"                 sequence="9"  name="Autre" groups="base.group_system" />
-    <menuitem id="base.menu_purchase_root"    sequence="20" name="Achats"               parent="menu_is_autre"/>
-    <menuitem id="base.menu_base_partner"     sequence="30" name="Ventes"               parent="menu_is_autre"/>
-    <menuitem id="stock.menu_stock_root"      sequence="40" name="Entrepôt"             parent="menu_is_autre"/>
-    <menuitem id="base.menu_mrp_root"         sequence="50" name="Manufacturing"        parent="menu_is_autre"/>
-    <menuitem id="mail.mail_feeds_main"       sequence="90" name="Messagerie"           parent="menu_is_autre"/> -->
+    <menuitem id="menu_is_autre"               sequence="9"  name="Autre" groups="base.group_system" />
+    <menuitem id="purchase.menu_purchase_root" sequence="20" name="Achats"         parent="menu_is_autre"/>
+    <menuitem id="sale.sale_menu_root"         sequence="30" name="Ventes"         parent="menu_is_autre"/>
+    <menuitem id="stock.menu_stock_root"       sequence="40" name="Entrepôt"       parent="menu_is_autre"/>
+    <menuitem id="mrp.menu_mrp_root"           sequence="50" name="Fabrication"    parent="menu_is_autre"/>
+    <menuitem id="mail.menu_root_discuss"      sequence="60" name="Discussion"     parent="menu_is_autre"/>
+    <menuitem id="utm.menu_link_tracker_root"  sequence="70" name="Suivi de liens" parent="menu_is_autre"/>
+
+
+
+
 
 
     <!-- Gestion des utilisateurs -->
@@ -1794,6 +1802,20 @@
 
 
     <menuitem id="menu_sub_main_outillages"       sequence="20" parent="menu_main_outillages" name="Outillages"/>
+
+
+
+    <menuitem id="menu_is_historique_controle_plastigray" 
+            name="Historique des contrôles" 
+            parent="menu_sub_main_outillages"
+            sequence="4"
+            action="action_is_historique_controle_is_plastigray"
+    />
+
+
+
+
+
     <menuitem id="menu_is_gabarit_controle" 
               sequence="10" 
               name="Gabarit de contrôle" 
@@ -1815,32 +1837,28 @@
 
     <menuitem id="menu_sub_main_outillages_table" sequence="90" parent="menu_main_outillages" name="Tables"/>
     <menuitem id="menu_is_type_controle_gabarit" sequence="20" name="Type de contrôle"       parent="menu_sub_main_outillages_table" action="is_type_controle_gabarit_action" />
-    <!-- <menuitem id="menu_is_famille_instrument"    sequence="30" name="Familles d'instruments" parent="menu_sub_main_outillages_table" action="is_famille_instrument_action" /> -->
+    <menuitem id="menu_is_famille_instrument"    sequence="30" name="Familles d'instruments" parent="menu_sub_main_outillages_table" action="is_famille_instrument_action" />
 
     <!-- Puissance Presse - Table sub menu - Outillages -->
-    <!-- <menuitem 
+    <menuitem 
         id="menu_is_presse_puissance_table_outillages" 
         sequence="15"
         name="Puissance Presse" 
         parent="menu_sub_main_outillages_table" 
         action="action_is_presse_puissance_is_plastigray"
-    /> -->
+    />
 
     <!-- Classe Presse - Table sub menu - Outillages -->
-    <!-- <menuitem 
+    <menuitem 
         id="menu_is_presse_classe_table_outillages" 
         sequence="20"
         name="Classe Presse" 
         parent="menu_sub_main_outillages_table" 
         action="action_is_presse_classe_is_plastigray"
     />
- -->
-
-
-
-
+ 
     <!-- Constructeur - Table sub menu - Outillages -->
-    <!-- <menuitem 
+    <menuitem 
         id="menu_is_outillage_constructeur_table_outillages" 
         sequence="20"
         name="Constructeur" 
@@ -1849,7 +1867,7 @@
     />
 
 
-
+<!-- 
     <menuitem id="menu_type_equipement" sequence="45" name="Type Equipement"     parent="menu_sub_main_outillages_table" action="is_type_equipement_action" />
     
 

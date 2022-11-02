@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 from . import is_bl_manuel
 from . import is_bon_transfert
+from . import is_commande_externe
 from . import is_copy_other_database
+from . import is_demande_achat_fg
+from . import is_demande_achat_invest
+from . import is_demande_achat_moule
+from . import is_demande_achat_serie
 from . import is_demande_transport
 from . import is_dossierf
 from . import is_gabarit_controle
@@ -13,6 +18,8 @@ from . import is_mold
 from . import is_mold_project
 from . import is_piece_montabilite
 from . import is_plaquette_etalon
+from . import is_prechauffeur
+from . import is_presse
 from . import product
 from . import res_company
 from . import res_partner
@@ -50,14 +57,8 @@ from . import is_etuve
 # import log
 # import ir_actions_act_url
 
-# import is_presse
-# import is_prechauffeur
-# import is_commande_externe
-# import is_demande_achat
-# import is_demande_achat_serie
-# import is_demande_achat_fg
-# import is_demande_achat_invest
-# import is_demande_achat_moule
+
+
 # import is_facture_pk
 # import is_moyen_fabrication
 # import is_moyen_fabrication_autre
@@ -75,6 +76,8 @@ from . import is_etuve
 # import calendar
 
 
+
+
 # #TODO : Une fois la période de tests terminé, il faudra supprimer l'ancienne version
 # import is_analyse_cbn
 # import is_analyse_cbn2
@@ -84,3 +87,4 @@ from . import is_etuve
 # import report
 # import wizard
 
+# import is_demande_achat # TODO : N'est plus utilisé => Ne pas migrer

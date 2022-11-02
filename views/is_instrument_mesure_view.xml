@@ -144,6 +144,11 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Familles d'instruments">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <sheet>
                         <group>
                             <field name="name"/>
