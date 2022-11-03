@@ -155,7 +155,7 @@
                             <tree editable="bottom">
                                 <button 
                                     string="Fiche du contact" 
-                                    name= "action_view_partner" type="object" icon="gtk-zoom-in"
+                                    name= "action_view_partner" type="object" icon="fa-search-plus"
                                 />
                                 <field name="name"/>
                                 <field name="is_type_contact"/>

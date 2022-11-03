@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!-- is.cde.ouverte.fournisseur --> 
+        <record id="is_cde_ouverte_fournisseur_seq" model="ir.sequence">
+            <field name="name">Commande ouverte fournisseur</field>
+            <field name="code">is.cde.ouverte.fournisseur</field>
+            <field name="prefix">COF-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_form_view">
+            <field name="name">is_cde_ouverte_fournisseur_form_view</field>
+            <field name="model">is.cde.ouverte.fournisseur</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">  
+                    <header>
+                        <button 
+                            name="integrer_commandes"
+                            string="Intégrer les commandes"
+                            attrs="{'invisible': [('type_commande', '!=', 'ferme_uniquement')]}" 
+                            class="oe_highlight" type="object"
+                        />
+                        <button 
+                            name="integrer_commandes"
+                            string="Intégrer les commandes et les SA" 
+                            attrs="{'invisible': [('type_commande', '=' , 'ferme_uniquement')]}" 
+                            class="oe_highlight" type="object"  
+                        />
+                        <button 
+                            name="print_commande_ouverte"
+                            string="Imprimer la commande ouverte"
+                            attrs="{'invisible': [('type_commande', '!=', 'ouverte')]}"
+                            type="object"
+                        />
+                        <button
+                            name="mail_commande_ouverte"
+                            string="Envoyer par mail la commande ouverte"
+                            attrs="{'invisible': [('type_commande', '!=', 'ouverte')]}"
+                            type="object"
+                            confirm="Voulez-vous vraiment envoyer ce document par mail ?"
+                        />
+                        <button 
+                            name="print_appel_de_livraison"
+                            string="Imprimer l'appel de livraison"
+                            attrs="{'invisible': [('type_commande', '!=', 'ouverte')]}"
+                            type="object"
+                        />
+                        <button
+                            name="mail_appel_de_livraison"
+                            string="Envoyer par mail l'appel de livraison" 
+                            attrs="{'invisible': [('type_commande', '!=', 'ouverte')]}"
+                            type="object"
+                            confirm="Voulez-vous vraiment envoyer ce document par mail ?"
+                        />
+                        <button 
+                            name="print_appel_de_livraison"
+                            string="Imprimer l'horizon des besoins"
+                            attrs="{'invisible': [('type_commande', '!=', 'ferme')]}"
+                            type="object" 
+                        />
+                        <button
+                            name="mail_appel_de_livraison"
+                            string="Envoyer par mail l'horizon des besoins"
+                            attrs="{'invisible': [('type_commande', '!=', 'ferme')]}"
+                            type="object"
+                            confirm="Voulez-vous vraiment envoyer ce document par mail ?"
+                        />
+                        <button
+                            name="print_ferme_uniquement"
+                            string="Imprimer les commandes fermes"
+                            attrs="{'invisible': [('type_commande', '!=', 'ferme_uniquement')]}"
+                            type="object"
+                        />
+                        <button
+                            name="mail_ferme_uniquement"
+                            string="Envoyer par mail les commandes fermes"
+                            attrs="{'invisible': [('type_commande', '!=', 'ferme_uniquement')]}" 
+                            type="object" 
+                            confirm="Voulez-vous vraiment envoyer ce document par mail ?"
+                        />
+                        <button 
+                            name="print_relance"
+                            string="Imprimer relances"
+                            attrs="{'invisible': [('attente_confirmation', '==', 0)]}" 
+                            type="object"
+                        />
+                        <button
+                            name="mail_relance"
+                            string="Envoyer par mail relances" 
+                            attrs="{'invisible': [('attente_confirmation', '==', 0)]}" 
+                            type="object"
+                            confirm="Voulez-vous vraiment envoyer ce document par mail ?"
+                        />
+                        <button 
+                            name="liste_articles"
+                            string="Liste des articles"
+                            type="object"
+                        />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"  /> 
+                                <field name="partner_id" domain="[('supplier' ,'=',True),('is_company','=',True)]"/> 
+                                <field name="contact_id" domain="[('parent_id','=',partner_id)]" /> 
+                                <!-- <field name="pricelist_id"  />  -->
+                                <field name="type_commande"  /> 
+                                <field name="sans_commande"  /> 
+                            </group>
+                            <group>
+                                <field name="demandeur_id"/> 
+                                <field name="attente_confirmation"/> 
+                                <field name="is_livre_a_id"  /> 
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Articles et Tarifs">
+                                <group string="Articles"/>
+                                <field name="product_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <button 
+                                            title="Commandes" 
+                                            name= "action_acces_commandes" type="object"  icon="fa-list-alt"
+                                        />
+                                        <field name="product_id" widget="many2one_clickable" /> 
+                                        <field name="num_bl"/> 
+                                        <field name="date_bl"/> 
+                                        <field name="qt_bl"/> 
+                                        <field name="nb_commandes"/>
+                                        <field name="nb_ferme_imprime"/> 
+                                        <field name="attente_confirmation"/> 
+                                        <field name="imprimer"/> 
+                                    </tree>
+                                </field>
+                                <group>
+                                    <field name="commentaire"  /> 
+                                </group>
+                               <group string="Tarifs"/> 
+                                <field name="tarif_ids" nolabel="1" readonly="1">
+                                    <tree>
+                                        <field name="product_id" /> 
+                                        <field name="sequence" /> 
+                                        <field name="minimum" /> 
+                                        <field name="prix_achat"/> 
+                                        <field name="uom_po_id" /> 
+                                    </tree>
+                                </field>
+                                <group>
+                                    <field name="message"/> 
+                                </group>
+                            </page>
+                            <page string="Historique">
+                                <field name="historique_ids" nolabel="1" readonly="1">
+                                    <tree>
+                                        <field name="name" /> 
+                                        <field name="user_id" /> 
+                                        <field name="description" /> 
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_tree_view">
+            <field name="name">is_cde_ouverte_fournisseur_tree_view</field>
+            <field name="model">is.cde.ouverte.fournisseur</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="partner_id"/> 
+                    <!-- <field name="pricelist_id"/>  -->
+                    <field name="type_commande"  /> 
+                    <field name="sans_commande"  /> 
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_search_view" >
+            <field name="name">is_cde_ouverte_fournisseur_search_view</field>
+            <field name="model">is.cde.ouverte.fournisseur</field>
+            <field name="arch" type="xml">
+                <search>
+                    <!-- <filter string="Commande ouverte"            domain="[('type_commande','=','ouverte')]"/>
+                    <filter string="Commande ferme avec horizon" domain="[('type_commande','=','ferme')]"/>
+                    <filter string="Commande ferme uniquement"   domain="[('type_commande','=','ferme_uniquement')]"/> -->
+                    <field name="name"/> 
+                    <field name="partner_id"/> 
+                    <field name="type_commande"/> 
+                    <filter string="Type de commande" name="group_by_type_commande" context="{'group_by':'type_commande'}"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_cde_ouverte_fournisseur_action">
+            <field name="name">Commande prévisionnelle fournisseur</field>
+            <field name="res_model">is.cde.ouverte.fournisseur</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}
+            </field>
+        </record>
+
+
+        <!-- Intégrer les commandes et les SA -->
+        <!-- <record id="integrer_commandes_action_server" model="ir.actions.server">
+             <field name="name">Intégrer les commandes et les SA</field>
+            <field name="model_id" ref="model_is_cde_ouverte_fournisseur"/>
+            <field name="code">action = self.integrer_commandes(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <record id="integrer_commandes_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.cde.ouverte.fournisseur'" name="model"/>
+            <field name="name">Intégrer les commandes et les SA</field>
+            <field eval="'ir.actions.server,%d'%integrer_commandes_action_server" name="value"/>
+        </record> -->
+
+
+
+        <!-- Lignes is.cde.ouverte.fournisseur --> 
+        <!-- <record id="is_cde_ouverte_fournisseur_product_imprimer_action_server" model="ir.actions.server">
+             <field name="name">A imprimer</field>
+            <field name="model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
+            <field name="code">action = self.a_imprimer(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <record id="is_cde_ouverte_fournisseur_product_imprimer_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.cde.ouverte.fournisseur.product'" name="model"/>
+            <field name="name">A imprimer</field>
+            <field eval="'ir.actions.server,%d'%is_cde_ouverte_fournisseur_product_imprimer_action_server" name="value"/>
+        </record>
+        <record id="is_cde_ouverte_fournisseur_product_pas_imprimer_action_server" model="ir.actions.server">
+             <field name="name">Ne pas imprimer</field>
+            <field name="model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
+            <field name="code">action = self.ne_pas_imprimer(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <record id="is_cde_ouverte_fournisseur_product_pas_imprimer_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.cde.ouverte.fournisseur.product'" name="model"/>
+            <field name="name">Ne pas imprimer</field>
+            <field eval="'ir.actions.server,%d'%is_cde_ouverte_fournisseur_product_pas_imprimer_action_server" name="value"/>
+        </record> -->
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_product_form_view">
+            <field name="name">is_cde_ouverte_fournisseur_product_form_view</field>
+            <field name="model">is.cde.ouverte.fournisseur.product</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="order_id"/> 
+                                <field name="product_id"/> 
+                                <field name="num_bl"/> 
+                                <field name="date_bl"/> 
+                                <field name="qt_bl"/> 
+                            </group>
+                        </group>
+                        <group string="Commandes"/>
+                        <field name="line_ids" nolabel="1" readonly="0">
+                            <!-- colors="gray:type_cde == 'prev'" -->
+                            <tree editable="bottom" create="0">
+                                <field name="date"/> 
+                                <field name="type_cde"/> 
+                                <field name="date_approve"/> 
+                                <field name="quantite"/> 
+                                <field name="quantite_rcp"/> 
+                                <field name="uom_id"/> 
+                                <!-- <field name="mrp_prevision_id"/>  -->
+                                <field name="purchase_order_id"/> 
+                                <field name="date_fournisseur"/> 
+                                <field name="imprimer_commande"/> 
+                            </tree>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_product_tree_view">
+            <field name="name">is_cde_ouverte_fournisseur_product_tree_view</field>
+            <field name="model">is.cde.ouverte.fournisseur.product</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <button 
+                        string="Commandes" 
+                        name= "action_acces_commandes" type="object" icon="fa-list-alt"
+                    />
+                    <field name="order_id"/> 
+                    <field name="product_id" widget="many2one_clickable" /> 
+                    <field name="num_bl"/> 
+                    <field name="date_bl"/> 
+                    <field name="qt_bl"/> 
+                    <field name="nb_commandes"/>
+                    <field name="nb_ferme_imprime"/> 
+                    <field name="attente_confirmation"/> 
+                    <field name="imprimer"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_product_search_view" >
+            <field name="name">is_cde_ouverte_fournisseur_product_search_view</field>
+            <field name="model">is.cde.ouverte.fournisseur.product</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_cde_ouverte_fournisseur_product_action">
+            <field name="name">Lignes</field>
+            <field name="res_model">is.cde.ouverte.fournisseur.product</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}
+            </field>
+        </record>
+
+
+        <!-- Message client -->
+        <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_message_tree_view">
+            <field name="name">is_cde_ouverte_fournisseur_message_tree_view</field>
+            <field name="model">is.cde.ouverte.fournisseur.message</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="tree" editable="top">
+                    <field name="name" domain="[('supplier','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
+                    <field name="message"/>
+                    <field name="create_date" string="Créé le"     readonly="1"/>
+                    <field name="write_date"  string="Modifié le"  readonly="1"/>
+                    <field name="write_uid"   string="Créé par"    readonly="1"/>
+                    <field name="create_uid"  string="Modifié par" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_cde_ouverte_fournisseur_message_action">
+            <field name="name">Message Horizon  des besoins</field>
+            <field name="res_model">is.cde.ouverte.fournisseur.message</field>
+            <field name="view_mode">tree</field>
+        </record>
+    </data>
+</odoo>
