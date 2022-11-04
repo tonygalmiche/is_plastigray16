@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Fiche Emplacement de stock -->
+        <record id="is_stock_location_view_form" model="ir.ui.view">
+            <field name="name">is.stock.location.form</field>
+            <field name="model">stock.location</field>
+            <field name="inherit_id" ref="stock.view_location_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='usage']" position="after">
+                    <field name="control_quality" /> 
+                </xpath>
+            </field>
+        </record>
+        
+        <!-- Commentaire mouvement de stock -->
+        <record id="view_is_commentaire_tree" model="ir.ui.view">
+            <field name="name">is.commentaire.mouvement.stock.tree</field>
+            <field name="model">is.commentaire.mouvement.stock</field>
+            <field name="arch" type="xml">
+                <tree string="Commentaire">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="view_is_commentaire_form" model="ir.ui.view">
+            <field name="name">is.commentaire.mouvement.stock.form</field>
+            <field name="model">is.commentaire.mouvement.stock</field>
+            <field name="arch" type="xml">
+                <form string="Commentaire">
+                  <group name='comment'>
+                    <field name="name"  />
+                  </group>
+                </form>
+            </field>
+        </record>
+        <record id="is_commentaire_lot_action" model="ir.actions.act_window">
+            <field name="name">Commentaires sur stock</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.commentaire.mouvement.stock</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- stock.move.form --> 
+        <record id="is_view_move_form" model="ir.ui.view">
+            <field name="name">stock.move.form</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="group_id" position="after">
+                    <field name="restrict_lot_id" />
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="is_employee_theia_id"/>
+                </field>
+                <group name="destination_grp" position="after">
+                    <group string="Amortissement Moule">
+                        <field name="is_amortissement_moule"/>
+                        <field name="is_amt_interne"/>
+                        <field name="is_cagnotage"/>
+                        <field name="is_montant_amt_moule"/>
+                        <field name="is_montant_amt_interne"/>
+                        <field name="is_montant_cagnotage"/>
+                        <field name="is_montant_matiere"/>
+                    </group>
+                </group>
+            </field>
+        </record>
+
+
+
+
+        <!-- stock.move --> 
+        <record id="is_view_move_tree" model="ir.ui.view">
+            <field name="name">is_view_move_tree</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </field>
+                <field name="date_expected" position="after">
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="is_employee_theia_id"/>
+                </field>
+                <field name="date" position="replace">
+                    <field name="date" />
+                </field>
+                <button string="Scrap Products" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <button name="action_done" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+            </field>
+        </record>
+
+        <!-- Liste des mouvements terminés --> 
+        <record id="is_mouvements_termines_tree" model="ir.ui.view">
+            <field name="name">is_mouvements_termines_tree</field>
+            <field name="model">stock.move</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="location_dest_id"/>
+                    <field name="product_uom_qty" digits="(14,2)" sum="Total"/>
+                    <field name="product_uom" string="Unité"/>
+                    <field name="picking_type_id"/>
+                    <field name="picking_id"/>
+                    <field name="origin"/>
+                    <field name="write_uid"/>
+                    <field name="state" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+
+
+        <!-- Mouvements en cours -->
+        <record id="is_mouvements_en_cours_action" model="ir.actions.act_window">
+            <field name="name">Mouvements en cours</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[('state','in',['draft','waiting','confirmed','assigned'])]</field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_view_move_tree"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- Mouvements Terminés -->
+        <record id="is_mouvements_termines_action" model="ir.actions.act_window">
+            <field name="name">Mouvements terminés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[('state','in',['done'])]</field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_mouvements_termines_tree"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- Tous les mouvements -->
+        <record id="is_mouvements_tous_action" model="ir.actions.act_window">
+            <field name="name">Tous les mouvements</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[]</field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_view_move_tree"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <record id="is_view_move_picking_tree" model="ir.ui.view">
+            <field name="name">is_view_move_picking_tree</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_picking_tree"/>
+            <field name="arch" type="xml">
+                <button string="Scrap Products" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <field name="product_id" position="after">
+                    <field name="name" />
+                    <field name="is_lots"/>
+                    <field name="is_point_dechargement"/>
+                    <field name="is_dosmat_ctrl_qual"/>
+                    <field name="is_dosmat_conditions_stockage"/>
+                </field>
+            </field>
+        </record>
+
+
+        <record id="view_picking_location_inherit_form" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="attributes">
+                    <attribute name="class">oe_form_sheet_width_wider</attribute>
+                </xpath>
+                <button name="force_assign" position="replace" />
+                <button name="do_unreserve" position="attributes" >
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <button string="Reverse Transfer" position="attributes" >
+                    <attribute name="invisible">1</attribute>>
+                </button>
+
+                <button name="action_cancel" position="replace" >
+                    <button 
+                        name="action_cancel" 
+                        states="assigned,confirmed,partially_available,draft,waiting" 
+                        string="Cancel Transfer" 
+                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group" 
+                        confirm="Voulez-vous vraiment annuler cette réception ?"
+                        type="object"
+                    />
+                    <button 
+                        name="action_annuler_reception" 
+                        string="Annuler cette réception" 
+                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group" 
+                        attrs="{'invisible': ['|',('is_purchase_order_id', '=', False),('state','!=','done')]}" 
+                        confirm="Voulez-vous vraiment annuler cette réception ?"
+                        type="object"/>
+                    <button 
+                        name="desadv_action" 
+                        string="DESADV" 
+                        type="object"
+                        confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
+                        attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
+                    />
+                </button>
+                <button name="do_print_picking" position="after" >
+                    <button 
+                        name="action_imprimer_etiquette_reception" 
+                        class="oe_highlight"
+                        string="Imprimer les étiquettes de réception" 
+                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group,is_plastigray.is_magasiniers_group" 
+                        attrs="{'invisible': ['|',('is_purchase_order_id', '=', False),('state','!=','done')]}" 
+                        type="object"/>
+                </button>
+                <button name="do_partial_open_barcode" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <button name="open_barcode_interface" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <button name="do_enter_transfer_details" position="replace">
+                    <button 
+                        name="do_enter_transfer_details" 
+                        states="assigned,partially_available" 
+                        string="Transfer" 
+                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group,is_plastigray.is_magasiniers_group,is_plastigray.is_comptable_group" 
+                        type="object" class="oe_highlight"/>
+                </button>
+                <xpath expr="//notebook/page[@string='Additional Info']/group/group/field[@name='location_id']" position="attributes">
+                    <attribute name="invisible">0</attribute>>
+                </xpath>
+                <field name="origin" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </field>
+                <field name="min_date" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </field>
+                <field name="origin" position="after">
+                    <field name="is_sale_order_id"   attrs="{'invisible': [('is_sale_order_id', '=', False)]}" readonly="1" />
+                    <field 
+                        name="is_date_expedition"
+                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
+                        on_change="onchange_date_expedition(
+                            is_date_expedition,
+                            partner_id, 
+                            company_id
+                        )" 
+                    /> 
+                    <field
+                        name="is_date_livraison"
+                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
+                    /> 
+                    <field name="is_date_livraison_vsb" invisible="1"/>
+                    <field 
+                        name="is_date_livraison_msg" 
+                        attrs="{'invisible': [('is_date_livraison_vsb', '=', True)]}"
+                        style="background:orange" 
+                    />
+                    <field 
+                        name="is_transporteur_id" 
+                        domain="[('supplier','=',True),('is_company','=',True)]" 
+                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
+                    /> 
+                    <field name="is_purchase_order_id"  attrs="{'invisible': [('is_purchase_order_id', '=', False)]}" readonly="1"/> 
+                    <field name="is_num_bl"             attrs="{'invisible': [('is_purchase_order_id', '=', False)]}"  /> 
+                    <field name="is_date_reception"     attrs="{'invisible': [('is_purchase_order_id', '=', False)]}"  /> 
+                </field>
+                <field name="priority" position="after">
+                    <field name="is_mode_envoi_facture"/> 
+                    <field name="is_facture_pk_id" attrs="{'invisible': [('is_sale_order_id', '=', False)]}"/> 
+                    <field name="is_traitement_edi"/> 
+                    <field name="is_date_traitement_edi" attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
+                </field>
+            </field>
+        </record>
+        
+        <record id="is_view_picking_inherit_form2" model="ir.ui.view">
+            <field name="name">is_view_picking_inherit_form2</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock_account.view_picking_inherit_form2"/>
+            <field name="arch" type="xml">
+                <button string="Create Invoice" position="replace" />
+            </field>
+        </record>
+
+        <record id="is_vpicktree" model="ir.ui.view">
+            <field name="name">is_vpicktree</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after" >
+                    <field name="is_piece_jointe" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
+                </field>
+                <field name="date" position="after" >
+                    <field name="is_date_expedition" />
+                    <field name="is_date_livraison" />
+                    <field name="is_num_bl" />
+                </field>
+            </field>
+        </record>
+
+
+
+        <!-- Réceptions à traiter -->
+        <record id="is_reception_a_traiter_action" model="ir.actions.act_window">
+            <field name="name">Réceptions à traiter</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[('picking_type_id','=', 1),('state','not in', ('draft', 'cancel','done'))]</field>
+            <field name="limit">200</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Toutes les réceptions -->
+        <record id="is_reception_toutes_action" model="ir.actions.act_window">
+            <field name="name">Toutes les réceptions</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[('picking_type_id','=', 1)]</field>
+            <field name="limit">200</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- Réceptions à facturer -->
+        <!--
+        <record id="is_reception_a_facturer_action" model="ir.actions.act_window">
+            <field name="name">Réceptions à facturer</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[('invoice_state','=', '2binvoiced'),('picking_type_id','=', 1),('state','=', 'done')]</field>
+            <field name="limit">200</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        -->
+
+        <record id="is_view_production_lot_form" model="ir.ui.view">
+            <field name="name">is_view_production_lot_form</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form" />
+            <field name="arch" type="xml">
+                <field name="ref" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="ref" position="after">
+                    <field name="is_lot_fournisseur" />
+                    <field name="is_date_peremption" />
+                </field>
+            </field>
+        </record>
+
+        <record id="stock.view_production_lot_tree" model="ir.ui.view">
+            <field name="name">stock.production.lot.tree</field>
+            <field name="model">stock.production.lot</field>
+            <field name="arch" type="xml">
+                <tree colors="red:is_date_peremption and (is_date_peremption&lt;current_date)" create="1" >
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="is_lot_fournisseur"/>
+                    <field name="is_date_peremption"/>
+                    <field name="create_date"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_stock_production_lot_action" model="ir.actions.act_window">
+            <field name="name">Numéros de lots</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.production.lot</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="stock.view_production_lot_tree"/>
+        </record>
+
+
+
+
+        <record id="is_stock_incoterms_action" model="ir.actions.act_window">
+            <field name="name">Incoterm</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.incoterms</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Stocks détaillés -->
+        <record model="ir.ui.view" id="is_view_stock_quant_tree">
+            <field name="name">stock.quant.tree</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_tree" />
+            <field name="arch" type="xml">
+                <field name="qty" position="replace" >
+                    <field name="qty" sum="Total" />
+                </field>
+                <field name="product_id" position="after">
+                    <field name="is_mold_id" />
+                </field>
+                <field name="package_id" position="replace" />
+                <field name="inventory_value" position="replace" />
+                <field name="in_date" position="after">
+                    <field name="reservation_id"  widget="many2one_clickable" />
+                </field>
+            </field>
+        </record>
+        <record id="is_quant_search_view" model="ir.ui.view">
+            <field name="name">is_quant_search_view</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.quant_search_view" />
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="is_mold_id" />
+                </field>
+                <field name="package_id" position="replace" />
+            </field>
+        </record>
+
+        <!-- Liste des stocks sans lot -->
+        <record id="is_liste_stock_sans_lot_tree_view" model="ir.ui.view">
+            <field name="name">is_liste_stock_sans_lot_tree_view</field>
+            <field name="model">stock.quant</field>
+            <field name="arch" type="xml">
+                <tree colors="red:True">
+                    <field name="product_id"/>
+                    <field name="qty" sum="Total"/>
+                    <field name="location_id"/>
+                    <field name="in_date"/>
+                    <field name="lot_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_liste_stock_sans_lot_action" model="ir.actions.act_window">
+            <field name="name">Liste des stocks sans lot</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.quant</field>
+            <field name="domain">[('lot_id','=', False),('location_id.usage','=', 'internal')]</field>
+            <field name="context">{} </field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_liste_stock_sans_lot_tree_view"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+
+
+        <record id="is_liste_stock_detaille_negatif_action" model="ir.actions.act_window">
+            <field name="name">Stock détaillé (quant) négatif</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.quant</field>
+            <field name="domain">[('qty','&lt;', 0),('location_id.usage','=', 'internal')]</field>
+            <field name="context">{} </field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_liste_stock_sans_lot_tree_view"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+
+
+        <!-- Livraisons à traiter -->
+        <record id="is_livraisons_a_traiter_action" model="ir.actions.act_window">
+            <field name="name">Livraisons à traiter</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[('picking_type_id','=', 2),('state','not in', ('cancel','done'))]</field>
+            <field name="limit">200</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Toutes les livraisons -->
+        <record id="is_toutes_les_livraisons_action" model="ir.actions.act_window">
+            <field name="name">Toutes les livraisons</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[('picking_type_id','=', 2)]</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Livraisons à facturer -->
+        <record id="is_livraisons_a_facturer_action" model="ir.actions.act_window">
+            <field name="name">Livraisons à facturer</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[
+                    ('invoice_state','=', '2binvoiced'),
+                    ('picking_type_id','=', 2),
+                    ('state','=', 'done'),
+                    ('is_mode_envoi_facture','in', [False,'courrier','courrier2','mail','mail2','mail_client','mail_client_bl'])
+                ]
+            </field>
+            <field name="limit">200</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="is_regroupement_livraisons_a_facturer_action" model="ir.actions.act_window">
+            <field name="name">Regroupement livraisons à facturer</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>
+            <field name="domain">[
+                    ('invoice_state','=', '2binvoiced'),
+                    ('picking_type_id','=', 2),
+                    ('state','=', 'done'),
+                    ('is_mode_envoi_facture','=', 'regroupe_bl')
+                ]
+            </field>
+            <field name="limit">200</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="is_view_inventory_form" model="ir.ui.view">
+            <field name="name">is_view_inventory_form</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_form"/>
+            <field name="arch" type="xml">
+                <button name="prepare_inventory" position="replace">
+                    <button name="prepare_inventory" states="draft" string="Start Inventory" type="object" class="oe_highlight" groups="is_plastigray.is_rsp_production_group,is_plastigray.is_inventaire_jour_group"/>
+                </button>
+                <button name="action_done" position="replace">
+                    <button name="action_done" states="confirm" string="Validate Inventory" type="object" class="oe_highlight"  groups="is_plastigray.is_rsp_production_group,is_plastigray.is_inventaire_jour_group"/>
+                </button>
+            </field>
+        </record>
+        <record id="is_view_inventory_tree" model="ir.ui.view">
+            <field name="name">is_view_inventory_tree</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="product_id"/>
+                </field>
+            </field>
+        </record>
+
+
+        <!-- Action pour accèder aux lignes de l'inventaire pour l'importation -->
+        <record id="is_stock_inventory_line_action" model="ir.actions.act_window" >
+            <field name="name">is_stock_inventory_line_action</field>
+            <field name="res_model">stock.inventory.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+
+    </data>
+</openerp>

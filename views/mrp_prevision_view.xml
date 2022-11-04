@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <!-- Sequences -->
+        <record id="seq_mrp_prevision_fs" model="ir.sequence">
+            <field name="name">Suggestion de fabrication</field>
+            <field name="code">mrp.prevision</field>
+            <field name="prefix">FS-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_mrp_prevision_ft" model="ir.sequence">
+            <field name="name">Besoin suggéré</field>
+            <field name="code">mrp.prevision</field>
+            <field name="prefix">FT-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_mrp_prevision_sa" model="ir.sequence">
+            <field name="name">Suggestion d'achat</field>
+            <field name="code">mrp.prevision</field>
+            <field name="prefix">SA-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- tree prevision -->
+        <record id="mrp_prevision_tree" model="ir.ui.view">
+            <field name="name">mrp.prevision.tree</field>
+            <field name="model">mrp.prevision</field>
+            <field name="arch" type="xml">
+                <!-- colors="red:note!=False" -->
+                <tree>
+                    <field name="name"/>
+                    <field name="parent_id" />
+                    <field name="product_id" />
+                    <field name="is_category_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="partner_id" />
+                    <field name="quantity"    sum="Total" />
+                    <field name="uom_id"/>
+                    <field name="quantity_ha" sum="Total" />
+                    <field name="uom_po_id"/>
+                    <field name="tps_fab" />
+                    <field name="delai_livraison"/>
+                    <field name="delai_cq" />
+                    <field name="start_date" />
+                    <field name="start_date_cq" />
+                    <field name="end_date" />
+                    <field name="type" />
+                    <field name="note" />
+                    <field name="niveau" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- form prevision -->
+        <record id="mrp_prevision_form" model="ir.ui.view">
+            <field name="name">mrp.prevision.form</field>
+            <field name="model">mrp.prevision</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="type"/> 
+                                <field name="product_id"/>
+                                <field name="partner_id"/>
+                                <field name="quantity" default_focus="1"/>
+                                <field name="uom_id" />
+                                <field name="quantity_ha"      attrs="{'invisible': [('type','!=', 'sa')]}"/>
+                                <field name="uom_po_id"        attrs="{'invisible': [('type','!=', 'sa')]}" />
+                                <field name="parent_id"        attrs="{'invisible': [('type','!=', 'ft')]}" />
+                            </group>
+                            <group>
+                                <field name="name"             readonly="1"/>
+                                <field name="start_date"       readonly="1" />
+                                <field name="delai_livraison"  attrs="{'invisible': [('type','!=', 'sa')]}"/>
+                                <field name="tps_fab"          attrs="{'invisible': [('type','!=', 'fs')]}"/>
+                                <field name="start_date_cq"    attrs="{'readonly': [('type','!=', 'sa')], 'required': [('type','=', 'sa')]}"/>
+                                <field name="delai_cq"         readonly="1"/>
+                                <field name="end_date"         attrs="{'readonly': [('type','=', 'sa')], 'required': [('type','!=', 'sa')]}"/>
+                                <field name="quantity_origine" readonly="1"/>
+                                <field name="is_category_id"/>
+                                <field name="is_gestionnaire_id"/>
+                            </group>
+                        </group>
+                        <group string="Composants" attrs="{'invisible': [('type','!=', 'fs')]}"/>
+                        <field name="ft_ids" nolabel="1" readonly="1"  attrs="{'invisible': [('type','!=', 'fs')]}">
+                            <tree>
+                                <field name="product_id" />
+                                <field name="quantity_origine" />
+                                <field name="quantity" />
+                                <field name="start_date"/>
+                                <field name="end_date" />
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="note" />
+                        </group>
+                        <div style="background-color:#EEEEEE;width=100%">
+                            Précisions sur les calculs : <br />
+                            - Pour une FS, le champ 'Date de fin' issu du calcul des besoins correspond à la date d'expédition de 
+                            la commande
+                            - Le champ 'Date début contrôle qualité', tient compte du champ 'Délai contrôle qualité' et des jours 
+                            d'ouverture de la société<br /> 
+                            - 'Temps de fabrication (H)' =  'Temps de fabrication' de la fiche article x Quantité / (3600 x 24)
+                            - Le champ 'Date de début' tient compte du champ 'Temps de fabrication (H)' arrondi à l'entier supérieur 
+                            et des jours d'ouverture de la société<br /> <br /> 
+                            Pour une SA : <br /> 
+                            - Date fin contrôle qualité = Date du besoin <br /> 
+                            - Date début contrôle qualité = Date fin contrôle qualité - Délai CQ. 
+                            La date calculée doit tomber sur un jour ouvré du fourniseur (et du pays) et de Plastigray<br /> 
+                            Ensuite, il faut rechercher le premier jour ouvré du fournisseur pour fixer la date de réception par fourniseur <br /> 
+                            - Date de début = Date début contrôle qualité - Délai fourniseur en jours calendaires.<br /> 
+                            Ensuite, il faut rechercher le premier jour ouvré de Plastigray pour pouvoir passer la commande un jour ouvré <br /> 
+                        </div>
+
+                    </sheet>
+                </form>
+           </field>
+        </record>
+        
+        <record id="mrp_prevision_search_view" model="ir.ui.view">
+            <field name="name">mrp.prevision.search</field>
+            <field name="model">mrp.prevision</field>
+            <field name="arch" type="xml">
+                <search string="Prevision">
+                    <filter string="SA"  name="filter_sa"     domain="[('type','=','sa')]"/>
+                    <filter string="FS"  name="filter_fs"    domain="[('type','=','fs')]"/>
+                    <filter string="FT"  name="filter_ft"    domain="[('type','=','ft')]"/>
+                    <field name="name" string="OD" filter_domain="['|',('name', 'ilike', self),('parent_id', 'ilike', self)]"/>
+                    <field name="product_id"/>
+                    <field name="is_category_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="partner_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="type"/>
+                    <field name="niveau"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <filter string="Type"         name="group_by_type" context="{'group_by':'type'}"/>
+                    <filter string="Article"      name="group_by_product_id" context="{'group_by':'product_id'}"/>
+                    <filter string="Catégorie"    name="group_by_is_category_id" context="{'group_by':'is_category_id'}"/>
+                    <filter string="Gestionnaire" name="group_by_is_gestionnaire_id" context="{'group_by':'is_gestionnaire_id'}"/>
+                    <filter string="Client/Fournisseur"  name="group_by_partner_id" context="{'group_by':'partner_id'}"/>
+                    <filter string="Semaine"      name="group_by_start_date" context="{'group_by':'start_date:week'}"/>
+                </search>
+            </field>
+        </record>
+        
+        
+        <!-- action de la fenetre -->
+        <record id="action_mrp_prevision_form" model="ir.actions.act_window">
+            <field name="name">Prevision</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.prevision</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="mrp_prevision_tree"/>
+            <field name="search_view_id" ref="mrp_prevision_search_view"/>
+            <field name="domain">[('is_category_id.name','!=','80')]</field>
+        </record>
+        
+        <!-- <menuitem name="Previsions" id="menu_mrp_prevision" parent="base.menu_mrp_root" sequence="1"/>
+        <menuitem action="action_mrp_prevision_form" 
+                  id="menu_action_mrp_prevision_form" 
+                  parent="menu_mrp_prevision" sequence="30"/>
+ -->
+
+        <!-- convertir les FS -->
+        <record id="convertir_fs_action_server" model="ir.actions.server">
+             <field name="name">Convertir FS en ordre de fabrication</field>
+            <field name="model_id" ref="model_mrp_prevision"/>
+            <field name="code">action = self.convertir_fs(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="convertir_fs_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'mrp.prevision'" name="model"/>
+            <field name="name">Convertir FS en ordre de fabrication</field>
+            <field eval="'ir.actions.server,%d'%convertir_fs_action_server" name="value"/>
+        </record> -->
+
+
+        <!-- convertir les SA -->
+        <record id="convertir_sa_action_server" model="ir.actions.server">
+             <field name="name">Convertir SA en commande fournisseur</field>
+            <field name="model_id" ref="model_mrp_prevision"/>
+            <field name="code">action = self.convertir_sa(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="convertir_sa_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'mrp.prevision'" name="model"/>
+            <field name="name">Convertir SA en commande fournisseur</field>
+            <field eval="'ir.actions.server,%d'%convertir_sa_action_server" name="value"/>
+        </record> -->
+
+
+
+
+    </data>
+</odoo>
+

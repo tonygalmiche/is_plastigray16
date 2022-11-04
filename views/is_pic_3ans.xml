@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!-- is.pic.3ans.saisie -->
+        <record id="cbb_article_action_server" model="ir.actions.server">
+             <field name="name">CBB sur cet article</field>
+            <field name="model_id" ref="model_is_pic_3ans_saisie"/>
+            <field name="code">action = self.cbb_article(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="cbb_article_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.pic.3ans.saisie'" name="model"/>
+            <field name="name">CBB sur cet article</field>
+            <field eval="'ir.actions.server,%d'%cbb_article_action_server" name="value"/>
+        </record> -->
+        <record model="ir.ui.view" id="is_pic_3ans_saisie_form_view">
+            <field name="name">is_pic_3ans_saisie_form_view</field>
+            <field name="model">is.pic.3ans.saisie</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="annee"/>
+                                <field name="product_id"/>
+                                <field 
+                                    name="recharger"
+                                    on_change="on_change_recharger(annee,product_id)"
+                                />
+                                                                    <!-- domain="[('sale_ok','=',True)]" -->
+
+                                <field 
+                                    name="raz"
+                                    on_change="on_change_raz()"
+                                />
+                            </group>
+                        </group>
+                        <group col="4" colspan="4">
+                            <field name="liv_01"/>
+                            <field name="pic_01"/>
+                            <field name="liv_02"/>
+                            <field name="pic_02"/>
+                            <field name="liv_03"/>
+                            <field name="pic_03"/>
+                            <field name="liv_04"/>
+                            <field name="pic_04"/>
+                            <field name="liv_05"/>
+                            <field name="pic_05"/>
+                            <field name="liv_06"/>
+                            <field name="pic_06"/>
+                            <field name="liv_07"/>
+                            <field name="pic_07"/>
+                            <field name="liv_08"/>
+                            <field name="pic_08"/>
+                            <field name="liv_09"/>
+                            <field name="pic_09"/>
+                            <field name="liv_10"/>
+                            <field name="pic_10"/>
+                            <field name="liv_11"/>
+                            <field name="pic_11"/>
+                            <field name="liv_12"/>
+                            <field name="pic_12"/>
+                            <field name="liv_total"/>
+                            <field name="pic_total"/>
+                        </group>
+                        <div style="background-color:#EEEEEE;width:100%">
+                            Remarque : La recherche de la quantité livrée est faite indépendamment de l'indice de l'article
+                        </div>
+                        <group col="4" colspan="4">
+                            <field name="prevision_annuelle"/>
+                            <field name="lot_livraison"/>
+                        </group>
+                        <group col="4" colspan="4">
+                            <field name="repartition_01"/>
+                            <field name="proposition_01"/>
+                            <field name="repartition_02"/>
+                            <field name="proposition_02"/>
+                            <field name="repartition_03"/>
+                            <field name="proposition_03"/>
+                            <field name="repartition_04"/>
+                            <field name="proposition_04"/>
+                            <field name="repartition_05"/>
+                            <field name="proposition_05"/>
+                            <field name="repartition_06"/>
+                            <field name="proposition_06"/>
+                            <field name="repartition_07"/>
+                            <field name="proposition_07"/>
+                            <field name="repartition_08"/>
+                            <field name="proposition_08"/>
+                            <field name="repartition_09"/>
+                            <field name="proposition_09"/>
+                            <field name="repartition_10"/>
+                            <field name="proposition_10"/>
+                            <field name="repartition_11"/>
+                            <field name="proposition_11"/>
+                            <field name="repartition_12"/>
+                            <field name="proposition_12"/>
+                            <field name="repartition_total"/>
+                            <field name="proposition_total"/>
+                        </group>
+                        <group>
+                            <field 
+                                name="proposition_vers_pic"
+                                on_change="on_change_proposition_vers_pic(proposition_01,proposition_02,proposition_03,proposition_04,proposition_05,proposition_06,proposition_07,proposition_08,proposition_09,proposition_10,proposition_11,proposition_12)"
+                            />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_pic_3ans_saisie_tree_view">
+            <field name="name">is_pic_3ans_saisie_tree_view</field>
+            <field name="model">is.pic.3ans.saisie</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="annee"/>
+                    <field name="product_id"       widget="many2one_clickable"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_pic_3ans_saisie_search_view" >
+            <field name="name">is_pic_3ans_saisie_search_view</field>
+            <field name="model">is.pic.3ans.saisie</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="annee"/>
+                    <field name="product_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_pic_3ans_saisie_action" model="ir.actions.act_window" >
+            <field name="name">Saisie PIC à 3 ans</field>
+            <field name="res_model">is.pic.3ans.saisie</field>
+            <field name="view_mode">form,tree</field>
+        </record>
+
+
+
+        <!-- is.pic.3ans -->
+        <record model="ir.ui.view" id="is_pic_3ans_form_view">
+            <field name="name">is_pic_3ans_form_view</field>
+            <field name="model">is.pic.3ans</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="type_donnee"/>
+                                <field name="annee"/>
+                                <field name="mois"/>
+                                <field name="product_id" domain="[('sale_ok','=',True)]"/>
+                                <field name="quantite"/>
+                                <field name="origine_id" attrs="{'invisible': [('type_donnee','!=', 'pdp')]}"/>
+                                <field name="niveau"     attrs="{'invisible': [('type_donnee','!=', 'pdp')]}"/>
+                                <field name="ordre"      attrs="{'invisible': [('type_donnee','!=', 'pdp')]}"/>
+                            </group>
+                            <group>
+                                <field name="mold_dossierf"/>
+                                <field name="client_id"        widget="many2one_clickable"/>
+                                <field name="fournisseur_id"   widget="many2one_clickable"/>
+                                <field name="description"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_pic_3ans_tree_view">
+            <field name="name">is_pic_3ans_tree_view</field>
+            <field name="model">is.pic.3ans</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="0">
+                    <field name="type_donnee"/>
+                    <field name="annee"/>
+                    <field name="mois"/>
+                    <field name="product_id"       widget="many2one_clickable"/>
+                    <field name="quantite"/>
+                    <field name="origine_id"       widget="many2one_clickable"/>
+                    <field name="niveau"/>
+                    <field name="ordre"/>
+                    <field name="mold_dossierf"/>
+                    <field name="client_id"        widget="many2one_clickable"/>
+                    <field name="fournisseur_id"   widget="many2one_clickable"/>
+                    <field name="write_date"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_pic_3ans_graph_view" model="ir.ui.view">
+             <field name="name">is_pic_3ans_graph_view</field>
+             <field name="model">is.pic.3ans</field>
+             <field name="arch" type="xml">
+                 <pivot string="pivot">
+                     <field name="product_id"        type="row"/>
+                     <field name="annee"             type="col"/>
+                     <field name="quantite"          type="measure"/>
+                 </pivot>
+             </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_pic_3ans_search_view" >
+            <field name="name">is_pic_3ans_search_view</field>
+            <field name="model">is.pic.3ans</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="type_donnee"/>
+                    <field name="annee"/>
+                    <field name="mois"/>
+                    <field name="product_id"/>
+                    <field name="origine_id"/>
+                    <field name="mold_dossierf"/>
+                    <field name="client_id"/>
+                    <field name="fournisseur_id"/>
+                    <filter string="Type de donnée"    name="group_by_type_donnee" context="{'group_by':'type_donnee'}"/>
+                    <filter string="Année"             name="group_by_annee"  context="{'group_by':'annee'}"/>
+                    <filter string="Mois"              name="group_by_mois"  context="{'group_by':'mois'}"/>
+                    <filter string="Article"           name="group_by_product_id"  context="{'group_by':'product_id'}"/>
+                    <filter string="Origine du besoin" name="group_by_origine_id"  context="{'group_by':'origine_id'}"/>
+                    <filter string="Moule"             name="group_by_mold_dossierf"  context="{'group_by':'mold_dossierf'}"/>
+                    <filter string="Client"            name="group_by_client_id"  context="{'group_by':'client_id'}"/>
+                    <filter string="Fournisseur"       name="group_by_fournisseur_id"  context="{'group_by':'fournisseur_id'}"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_pic_3ans_action" model="ir.actions.act_window" >
+            <field name="name">Liste des saisies</field>
+            <field name="res_model">is.pic.3ans</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+
+        <!-- Lancement automatisé du CBB -->
+        <!-- <record forcecreate="True" id="is_pic_3ans_cbb_scheduler_action" model="ir.cron">
+            <field name="name">CBB sur PIC à 3 ans</field>
+            <field name="active" eval="True" />
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+            <field eval="'is.pic.3ans.saisie'" name="model"/>
+            <field eval="'run_cbb_scheduler_action'" name="function"/>
+            <field eval="'(True,)'" name="args"/>
+        </record>
+ -->
+
+
+        <!-- is.pic.3ans.desactive -->
+        <record model='ir.ui.view' id='is_pic_3ans_desactive_tree_view'>
+            <field name="name">is_pic_3ans_desactive_tree_view</field>
+            <field name="model">is.pic.3ans.desactive</field>
+            <field name="arch" type="xml">
+               <tree>
+                  <field name="product_id" widget="many2one_clickable"/>
+                  <field name="gest"/>
+                  <field name="qt"/>
+               </tree>
+            </field>
+        </record>
+        <record model='ir.ui.view' id='is_pic_3ans_desactive_form_view'>
+           <field name="name">is_pic_3ans_desactive_form_view</field>
+           <field name="model">is.pic.3ans.desactive</field>
+           <field name="arch" type="xml">
+              <form>
+                 <sheet>
+                     <group>
+                         <field name="product_id"/>
+                         <field name="gest"/>
+                         <field name="qt"/>
+                     </group>
+                 </sheet>
+              </form>
+           </field>
+        </record>
+        <record model="ir.ui.view" id="is_pic_3ans_desactive_search_view" >
+            <field name="name">is_pic_3ans_desactive_search_view</field>
+           <field name="model">is.pic.3ans.desactive</field>
+            <field name="arch" type="xml">
+                <search>
+                     <field name="product_id"/>
+                     <field name="gest"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_pic_3ans_desactive_action" model="ir.actions.act_window">
+            <field name="name">PIC 3 ans désactivé</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.pic.3ans.desactive</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

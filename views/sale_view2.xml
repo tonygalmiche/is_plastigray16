@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+
+        <!-- Actualiser prix commande -->
+        <record id="actualiser_prix_sale_order_action_server" model="ir.actions.server">
+             <field name="name">Actualiser prix commande</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="code">action = self.actualiser_prix_commande(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="actualiser_prix_sale_order_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'sale.order'" name="model"/>
+            <field name="name">Actualiser prix commande</field>
+            <field eval="'ir.actions.server,%d'%actualiser_prix_sale_order_action_server" name="value"/>
+        </record> -->
+
+
+        <!-- Numéroter les lignes -->
+        <record id="numeroter_lignes_sale_order_action_server" model="ir.actions.server">
+             <field name="name">Renuméroter les lignes par date d'expédition</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="code">action = self.numeroter_lignes(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="numeroter_lignes_sale_order_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'sale.order'" name="model"/>
+            <field name="name">Renuméroter les lignes par date d'expédition</field>
+            <field eval="'ir.actions.server,%d'%numeroter_lignes_sale_order_action_server" name="value"/>
+        </record> -->
+
+
+<!-- 
+        <record id="is_view_order_form" model="ir.ui.view">
+            <field name="name">is_view_order_form</field>
+            <field name="model">sale.order</field>
+            <field name="priority" eval="20"/>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[@name='action_button_confirm']" position="after">
+                    <button
+                        name="envoyer_ar_par_mail"
+                        string="Envoyer AR par mail"
+                        type="object"
+                        confirm="Voulez-vous vraiment envoyer ce document par mail ?"
+                    />
+                </xpath>
+                <xpath expr="//sheet" position="attributes">
+                    <attribute name="class">oe_form_sheet_width_wider</attribute>
+                </xpath>
+                <button name="print_quotation" states="draft"                      position="replace" />
+                <button name="print_quotation" states="sent,progress,manual"       position="replace" />
+                <button name="action_quotation_send" states="draft"                position="replace" />
+                <button name="action_quotation_send" states="sent,progress,manual" position="replace" />
+                <button name="cancel"                position="replace" />
+
+
+                <button name="action_button_confirm" position="replace" >
+                    <button 
+                        name="action_button_confirm" 
+                        string="Confirm Sale" type="object" groups="base.group_user"
+                        attrs="{'invisible': ['|',('is_type_commande', '!=', 'ls'),('state','not in',('draft','sent'))]}"
+                    />
+                    <button 
+                        name="action_button_confirm" 
+                        string="Valider et livrer la PROFORMA" type="object" groups="base.group_user"
+                        attrs="{'invisible': ['|',('is_type_commande', '!=', 'proforma'),('state','not in',('draft','sent'))]}"
+                    />
+                </button>
+
+
+
+                <xpath expr="/form/sheet/group/group/field[@name='date_order']" position="after">
+                    <field name="is_transporteur_id" domain="[('is_company', '=', True),('supplier','=', True)]"/>
+                    <field  name="is_type_commande"
+                            required="1"
+                            attrs="{'invisible': [('partner_id', '=', False)] }   " />
+                    <field name="is_liste_servir_id" attrs="{'invisible' : [('is_type_commande', '!=', 'ls')]}" />
+                    <field  name="is_article_commande_id" 
+                            attrs="{
+                                'required' : [        ('is_type_commande', '!=', 'standard'),('is_type_commande', '!=', 'ls'),('is_type_commande', '!=', 'proforma')], 
+                                'invisible': ['|','|',('is_type_commande', '=', 'standard') ,('is_type_commande', '=', 'ls') ,('is_type_commande', '=', 'proforma')] , 
+                            }" 
+                            context="{'pricelist': pricelist_id}" />
+                    <field name="is_ref_client" readonly="1" attrs="{'invisible' : [('is_article_commande_id', '=', False)]}"/>
+                    <field name="is_point_dechargement" attrs="{'invisible': [('is_type_commande', '!=', 'ouverte')]}"/>
+                    <field name="is_date_envoi_mail" />
+                    <field name="is_incoterm" domain="[('is_company', '=', True),('supplier','=', True)]"/>
+                    <field name="is_lieu" domain="[('is_company', '=', True),('supplier','=', True)]"/>
+                </xpath>
+                <field name="partner_id" position="attributes">
+                    <attribute name="domain">[('customer','=',True),('is_company','=',True)]</attribute>
+                </field>
+                <field name="partner_shipping_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="user_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="partner_invoice_id" position="replace">
+                    <field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice', 'show_address': 1}" options="{'always_reload': True}"/>
+                </field>
+                <xpath expr="//field[@name='client_order_ref']" position="replace">
+                    <field 
+                        name="client_order_ref"
+                        required="1"
+                        on_change="onchange_client_order_ref(client_order_ref,partner_id)"
+                    />
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='sequence']" position="replace">
+                    <field name="sequence"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='product_id']" position="replace">
+                    <field 
+                        name="product_id"
+                        context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                        groups="base.group_user"
+                        on_change="product_id_change(
+                            parent.pricelist_id, product_id, 0, False, 0, False, name, 
+                            parent.partner_id, False, True, is_date_livraison, False, parent.fiscal_position, False, context
+                        )"
+                    />
+                    <field name="is_ref_client" readonly="1"/>
+                    <field name="is_ref_plan" readonly="1"/>
+                    <field name="is_ind_plan" readonly="1"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='product_uom_qty']" position="replace">
+                    <field 
+                        name="product_uom_qty" 
+                        context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}"
+                        on_change="product_id_change(
+                            parent.pricelist_id, product_id, product_uom_qty, product_uom, product_uos_qty, product_uos, 
+                            name, parent.partner_id, False, False, is_date_livraison, False, parent.fiscal_position, True, context
+                        )"
+                    />
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='price_unit']" position="before">
+                    <field  name="is_date_livraison"  
+                            on_change="onchange_date_livraison(
+                                is_date_livraison,
+                                product_id,
+                                product_uom_qty,
+                                product_uom,
+                                parent.partner_id, 
+                                parent.pricelist_id, 
+                                parent.company_id
+                            )" 
+                            required="1"/>
+                    <field name="is_date_expedition" readonly="1" />
+                    <field name="is_type_commande" required="1"  />
+                    <field name="is_client_order_ref" readonly="1" invisible="1"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                    <field 
+                        name="is_justification" 
+                        attrs="{'required':[('price_unit', '=', 0),('product_id', '!=', False),('is_type_commande', '=', 'ferme')]}"
+                    />
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']" position="attributes">
+                    <attribute name="context">   {'default_product_id' : is_article_commande_id, 'is_type_commande' : is_type_commande }</attribute>
+                    <attribute name="on_change">onchange_order_line(is_type_commande,order_line)</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree" position="attributes">
+                    <attribute name="editable">bottom</attribute>
+                </xpath>
+                <xpath expr="//notebook/page[@string='Other Information']/group/group" position="inside">
+                    <field name="is_source_location_id" required="1"/>
+                </xpath>
+
+                <field name="note" position="replace">
+                    <group>
+                        <group>
+                            <field name="note"/>
+                        </group>
+                        <group>
+                            <field name="is_info_client"/>
+                        </group>
+                        <group>
+			    <field name="is_ar_commentaire"/>
+			    <field name="is_ar_contact_id" widget="many2many_tags" domain="[('parent_id','=',partner_id)]"/>
+                        </group>
+                    </group>
+                </field>
+
+
+            </field>
+        </record> -->
+
+
+        <!-- Désactive la vue formulaire des lignes de commandes -->
+        <!-- <record id="sale.view_order_form_editable_list" model="ir.ui.view">
+            <field name="name">is.sale.order.form.editable.list</field>
+            <field name="model">sale.order</field>
+            <field name="groups_id" eval="[]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree" position="attributes">
+                    <attribute name="editable"/>
+                </xpath>
+            </field>
+        </record> -->
+        <!-- <record id="is_view_order_form_inherit" model="ir.ui.view">
+            <field name="name">is_view_order_form_inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
+            <field name="arch" type="xml">
+                <field name="warehouse_id" position="attributes" > 
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record>
+ -->
+
+        <!-- Masque les champs de la CRM -->
+        <!-- <record model="ir.ui.view" id="is_sale_view_inherit123">
+            <field name="name">is_sale_view_inherit123</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_crm.sale_view_inherit123"/>
+            <field name="arch" type="xml">
+                <field name="categ_ids" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="campaign_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="medium_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="source_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record> -->
+
+
+        <!-- sale.view_order_tree -->
+        <!-- <record id="sale.view_order_tree" model="ir.ui.view">
+            <field name="name">view_order_tree</field>
+            <field name="model">sale.order</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="message_unread" invisible="1"/>
+                    <field name="name" string="Order Number"/>
+                    <field name="is_type_commande"/>
+                    <field name="client_order_ref"/>
+                    <field name="is_ref_client"/>
+                    <field name="is_article_commande_id"/>
+                    <field name="partner_id" widget="many2one_clickable"/>
+                    <field name="date_order"/>
+                    <field name="user_id" invisible="1"/>
+                    <field name="amount_total" sum="Total Tax Included"/>
+                    <field name="write_date"/>
+                    <field name="is_nb_lignes"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+ -->
+
+        <record id="is_view_sales_order_filter" model="ir.ui.view">
+            <field name="name">is_view_sales_order_filter</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <field name="name" position="replace" > 
+                    <field name="name" string="N° de commande"/>
+                    <field name="client_order_ref" />
+                    <field name="is_ref_client"/>
+                    <field name="is_article_commande_id"/>
+                    <field name="is_type_commande" />
+                </field>
+            </field>
+        </record>
+
+
+
+        <record model="ir.ui.view" id="is_order_line_tree_view">
+            <field name="name">is_order_line_tree_view</field>
+            <field name="model">sale.order.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="top" create="0">
+                    <field name="product_id"          readonly="1" widget="many2one_clickable"/>
+                    <field name="is_ref_client"       readonly="1"/>
+                    <field name="product_uom_qty"     readonly="1" sum="Total"/>
+                    <field name="is_date_livraison"   readonly="1" />
+                    <field name="is_date_expedition"  readonly="1"/>
+                    <field name="is_type_commande"    readonly="1" />
+                    <button string="Client"    name="action_acceder_client"   type="object" icon="gtk-home" />
+                    <field name="order_id"            readonly="1" widget="many2one_clickable"/>
+                    <field name="is_client_order_ref" readonly="1"/>
+                    <field name="price_unit"          readonly="1"/>
+                    <field name="price_subtotal"      readonly="1" sum="Total"/>
+                    <field name="is_justification"    readonly="1"/>
+                    <field name="is_date_confirmation"/>
+                    <field name="is_comment_confirm"/>
+                    <field name="state"               readonly="1"/>
+                </tree>
+            </field>
+        </record>
+
+
+
+        <!-- <record id="is_sale_order_line_graph_view1" model="ir.ui.view">
+             <field name="name">is_sale_order_line_graph_view1</field>
+             <field name="model">sale.order.line</field>
+             <field name="arch" type="xml">
+                 <graph type="pivot">
+                     <field name="product_id"         type="row"/>
+                     <field name="is_date_expedition" type="col"/>
+                     <field name="product_uom_qty"    type="measure"/>
+                 </graph>
+             </field>
+        </record> -->
+
+        <record id="is_view_sales_order_line_filter" model="ir.ui.view">
+            <field name="name">is_view_sales_order_line_filter</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale.view_sales_order_line_filter"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="is_ref_client" />
+                    <field name="is_type_commande" />
+                </field>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="is_order_line_tree_action">
+            <field name="name">Lignes commandes vente</field>
+            <field name="res_model">sale.order.line</field>
+            <field name="view_id" ref="is_order_line_tree_view"/>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+
+        <!-- Liste des commandes sans les listes à servir -->
+        <record id="is_sale_order_action" model="ir.actions.act_window">
+            <field name="name">Commandes</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,form,calendar,graph</field>
+            <field name="domain">[('is_type_commande','!=', 'ls')]</field>
+            <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+        </record>
+
+        <!-- Commandes de type liste à servir uniquement -->
+        <record id="is_sale_order_ls_action" model="ir.actions.act_window">
+            <field name="name">Commandes Liste à servir</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,form,calendar,graph</field>
+            <field name="domain">[('is_type_commande','=', 'ls')]</field>
+            <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+        </record>
+
+
+        <!-- Commandes de type 'proforma' uniquement -->
+        <record id="is_sale_order_proforma_action" model="ir.actions.act_window">
+            <field name="name">Factures Proforma</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,form,calendar,graph</field>
+            <field name="domain">[('is_type_commande','=', 'proforma')]</field>
+            <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+        </record>
+
+        <!-- Message client -->
+        <record model="ir.ui.view" id="is_vente_message_tree_view">
+            <field name="name">is_vente_message_tree_view</field>
+            <field name="model">is.vente.message</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="tree" editable="top">
+                    <field name="name" domain="[('customer','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
+                    <field name="message"/>
+                    <field name="create_date" string="Créé le"     readonly="1"/>
+                    <field name="write_date"  string="Modifié le"  readonly="1"/>
+                    <field name="write_uid"   string="Créé par"    readonly="1"/>
+                    <field name="create_uid"  string="Modifié par" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_vente_message_action">
+            <field name="name">Message vente</field>
+            <field name="res_model">is.vente.message</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+
+
+    </data>
+</odoo>

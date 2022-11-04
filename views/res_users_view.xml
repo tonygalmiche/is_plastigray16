@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Groupes -->
+        <record id="is_view_groups_form" model="ir.ui.view">
+            <field name="name">is_view_groups_form</field>
+            <field name="model">res.groups</field>
+            <field name="inherit_id" ref="base.view_groups_form"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="active"/>
+                </field>
+            </field>
+        </record>
+
+
+        <!-- Utilisateurs -->
+        <record id="is_view_users_form" model="ir.ui.view">
+            <field name="name">is_view_users_form</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <page name="access_rights" position="after">
+                    <page name="Plastigray">
+                        <group>
+                            <field name="is_site_id"/>
+                            <field name="is_site_ids" widget="many2many_tags"/>
+                            <field name="is_service_id"/>
+                            <field name="is_adresse_ip"/>
+                            <field 
+                                name="is_signature" 
+                                widget="image" class="oe_center oe_avatar" 
+                                options='{"preview_image": "is_signature", "size": [150, 150]}'
+                            />
+                        </group>
+                    </page>
+                </page>
+            </field>
+        </record>
+        <record id="is_view_users_tree" model="ir.ui.view">
+            <field name="name">is_view_users_tree</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_tree"/>
+            <field name="arch" type="xml">
+                <field name="login" position="after">
+                    <field name="is_site_id"/>
+                    <field name="is_site_ids"/>
+                    <field name="is_service_id"/>
+                </field>
+            </field>
+        </record>
+
+
+        <!-- Services -->
+        <record id="is_service_tree_view" model="ir.ui.view">
+            <field name="name">is_service_tree_view</field>
+            <field name="model">is.service</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_service_form_view" model="ir.ui.view">
+            <field name="name">is_service_form_view</field>
+            <field name="model">is.service</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name" />
+                      </group> 
+                </form>
+            </field>
+        </record>
+        <record id="is_service_action" model="ir.actions.act_window">
+            <field name="name">Service</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.service</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+        <!-- Historique de connexion -->
+        <record id="is_res_users_tree_view" model="ir.ui.view">
+            <field name="name">is_res_users_tree_view</field>
+            <field name="model">is.res.users</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="heure_connexion" />
+                    <field name="user_id" />
+                    <field name="adresse_ip" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_res_users_form_view" model="ir.ui.view">
+            <field name="name">is_res_users_form_view</field>
+            <field name="model">is.res.users</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="heure_connexion" />
+                            <field name="user_id" />
+                            <field name="adresse_ip" />
+                         </group> 
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_res_users_search_view" model="ir.ui.view">
+            <field name="name">is_res_users_search_view</field>
+            <field name="model">is.res.users</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="user_id" />
+                    <field name="adresse_ip"/>
+                    <filter string="Utilisateur" name="group_by_user_id" context="{'group_by':'user_id'}"/>
+                    <filter string="Adresse IP"  name="group_by_adresse_ip" context="{'group_by':'adresse_ip'}"/>
+                    <filter string="Jour"        name="group_by_day" context="{'group_by':'heure_connexion:day'}"/>
+                    <filter string="Semaine"     name="group_by_week" context="{'group_by':'heure_connexion:week'}"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_res_users_action" model="ir.actions.act_window">
+            <field name="name">Historique de connexion</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.res.users</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+
+    </data>
+</odoo>
