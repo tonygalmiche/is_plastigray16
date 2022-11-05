@@ -1,0 +1,735 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Opérations standard -->
+        <record model="ir.ui.view" id="is_ctrl100_operation_standard_tree_view">
+            <field name="name">is.ctrl100.operation.standard.tree</field>
+            <field name="model">is.ctrl100.operation.standard</field>
+            <field name="arch" type="xml">
+                <tree string="Opérations standard">
+                    <field name="order"/>
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_operation_standard_form_view">
+            <field name="name">is.ctrl100.operation.standard.form</field>
+            <field name="model">is.ctrl100.operation.standard</field>
+            <field name="arch" type="xml">
+            <form string="Opérations standard">
+                <sheet>
+                    <group>
+                        <field name="name" required="True"/>
+                        <field name="order"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_operation_standard_search_view" >
+            <field name="name">is.ctrl100.operation.standard.search</field>
+            <field name="model">is.ctrl100.operation.standard</field>
+            <field name="arch" type="xml">
+                <search string="Opérations standard">
+                    <field name="name"/>
+                    <field name="order"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_operation_standard_action">
+            <field name="name">Opérations standard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.operation.standard</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Gamme mur qualité -->
+        <record model="ir.ui.view" id="is_ctrl100_gamme_mur_qualite_tree_view">
+            <field name="name">is.ctrl100.gamme.mur.qualite.tree</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite</field>
+            <field name="arch" type="xml">
+                <tree string="Gamme mur qualité">
+                    <field name="name"/>
+                    <field name="type_gamme"/>
+                    <field name="commentaire"/>
+                    <field name="gamme_sur"/>
+                    <field name="moule_dossierf"/>
+                    <field name="product_id"/>
+                    <field name="product_cout_id"/>
+                    <field name="typologie_produit_id"/>
+                    <field name="formation_id"/>
+                    <field name="date_creation"/>
+                    <field name="date_fin_validite"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_gamme_mur_qualite_form_view">
+            <field name="name">is.ctrl100.gamme.mur.qualite.form</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite</field>
+            <field name="arch" type="xml">
+            <form string="Gamme mur qualité">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="type_gamme"/>
+                            <field name="description_defaut" attrs="{'invisible': [('type_gamme', 'not in', ['securisation','reprise'])]}"/>
+                            <field name="commentaire"        attrs="{'invisible': [('type_gamme', '!=', 'securisation'),('type_gamme', '!=', 'reprise')]}"/>
+                            <field name="gamme_sur"/>
+                            <field name="mold_id"     attrs="{'invisible': [('gamme_sur', '!=', 'moule')], 'required': [('gamme_sur', '=', 'moule')]}"/>
+                            <field name="dossierf_id" attrs="{'invisible': [('gamme_sur', '!=', 'dossier_f')], 'required': [('gamme_sur', '=', 'dossier_f')]}"/>
+                            <field name="product_id"  attrs="{'invisible': [('gamme_sur', '!=', 'article')], 'required': [('gamme_sur', '=', 'article')]}"/>
+                            <field name="moule_dossierf"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </group>
+                        <group>
+                            <field name="date_creation"/>
+                            <field name="typologie_produit_id"/>
+                            <field name="date_fin_validite"/>
+                            <field name="operateur_referent_id"/>
+                            <field name="formation_id"/>
+                            <field name="afficher_cout"/>
+                        </group>
+                    </group>
+                    <field name="risque_lie_ids" attrs="{'invisible': [('type_gamme', '!=', 'reprise')]}">
+                        <tree editable="bottom">
+                            <field name="name"/>
+                            <field name="description"/>
+                        </tree>
+                    </field>
+                    <field name="operation_standard_ids" colspan="4" context="{'active_test':True}">
+                        <tree editable="bottom">
+                            <field name="operation_standard_id" required="True" />
+                            <field name="active"/>
+                        </tree>
+                    </field>
+                    <field name="operation_specifique_ids" colspan="4">
+                        <tree>
+                            <field name="operation"/>
+                            <field name="temps_etape"/>
+                        </tree>
+                        <form>
+                            <group>
+                                <field name="operation" />
+                                <field name="photo" widget='image' class="oe_left oe_avatar" />
+                                <field name="temps_etape"/>
+                            </group>
+                        </form>
+                    </field>
+                    <button string="Recharger défauthèque" name="recharger_defautheque_action" type="object" confirm="Cela va recharger la défauthèque ci-dessous"/>
+                    <field name="defautheque_ids">
+                        <tree create="0">
+                            <field name="defaut_id"/>
+                            <field name="defaut_text" readonly="1"/>
+                        </tree>
+                        <form create="0">
+                            <group>
+                                <field name="defaut_id"   readonly="1"/>
+                                <field name="defaut_text" readonly="1"/>
+                                <field name="defaut_photo" widget='image' class="oe_left oe_avatar" readonly="1"/>
+                            </group>
+                        </form>
+                    </field>
+                    <group string="Coût">
+                        <field 
+                            name="product_cout_id"
+                            attrs="{
+                                'invisible': [('type_gamme', 'not in', ['securisation','reprise'])],
+                                'required' : [('type_gamme', 'in'    , ['securisation','reprise'])]
+                            }"
+                            domain="[('is_mold_dossierf','=',moule_dossierf),('is_gestionnaire_id.name','not in',['04','07','12','14','23'])]"
+                        />
+                        <field
+                            name="cout_actualise"
+                            attrs="{
+                                'invisible': [('type_gamme', 'not in', ['securisation','reprise'])]
+                            }"
+                        />
+                        <field name="cout_ctrl_qualite"/>
+                        <field name="cout_previsionnel"/>
+                        <field name="delta_cout" invisible="1"/>
+                        <field
+                            name="justification"
+                            attrs="{
+                                'invisible': ['|',('delta_cout', '&gt;', 0.0),('type_gamme', 'not in', ['securisation','reprise'])],
+                                'required' : [('delta_cout', '&lt;', 0.0),('type_gamme', 'in', ['securisation','reprise'])]
+                            }"
+                        />
+                        <field name="cadence_previsionnelle"/>
+                        <field name="active"/>
+
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_gamme_mur_qualite_search_view" >
+            <field name="name">is.ctrl100.gamme.mur.qualite.search</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite</field>
+            <field name="arch" type="xml">
+                <search string="Gamme mur qualité">
+                    <field name="name"/>
+                    <field name="type_gamme"/>
+                    <field name="commentaire"/>
+                    <field name="gamme_sur"/>
+                    <field name="moule_dossierf"/>
+                    <field name="product_id"/>
+                    <field name="typologie_produit_id"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_gamme_mur_qualite_action">
+            <field name="name">Gamme mur qualité</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.gamme.mur.qualite</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Typologie de produit -->
+        <record model="ir.ui.view" id="is_ctrl100_typologie_produit_tree_view">
+            <field name="name">is.ctrl100.typologie.produit.tree</field>
+            <field name="model">is.ctrl100.typologie.produit</field>
+            <field name="arch" type="xml">
+                <tree string="Typologie de produit">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_typologie_produit_form_view">
+            <field name="name">is.ctrl100.typologie.produit.form</field>
+            <field name="model">is.ctrl100.typologie.produit</field>
+            <field name="arch" type="xml">
+            <form string="Typologie de produit">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="True"/>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_typologie_produit_search_view" >
+            <field name="name">is.ctrl100.typologie.produit.search</field>
+            <field name="model">is.ctrl100.typologie.produit</field>
+            <field name="arch" type="xml">
+                <search string="Typologie de produit">
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_typologie_produit_action">
+            <field name="name">Typologie de produit</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.typologie.produit</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Défauthèque -->
+        <record model="ir.ui.view" id="is_ctrl100_defautheque_form_view">
+            <field name="name">is.ctrl100.defautheque.form</field>
+            <field name="model">is.ctrl100.defautheque</field>
+            <field name="arch" type="xml">
+            <form string="Défauthèque">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="defautheque_sur"/>
+                        <field name="mold_id"     attrs="{'invisible': [('defautheque_sur', '!=', 'moule')]}"/>
+                        <field name="dossierf_id" attrs="{'invisible': [('defautheque_sur', '!=', 'dossier_f')]}"/>
+                    </group>
+                    <group>
+                        <field name="defaut" required="True"/>
+                        <field name="ou_et_quand"/>
+                    </group>
+                    <group>
+                        <div style="text-align:center"> 
+                            <field 
+                                name="photo" widget='image' class="oe_center oe_avatar" 
+                                options='{"preview_image": "photo", "size": [900, 900]}'
+                            />
+                        </div>
+                    </group>
+                    <group>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_defautheque_tree_view">
+            <field name="name">is.ctrl100.defautheque.tree</field>
+            <field name="model">is.ctrl100.defautheque</field>
+            <field name="arch" type="xml">
+                <tree string="Défauthèque">
+                    <field name="name"/>
+                    <field name="defautheque_sur"/>
+                    <field name="moule_dossierf"/>
+                    <field name="defaut"/>
+                    <field name="ou_et_quand"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_defautheque_search_view" >
+            <field name="name">is_ctrl100_defautheque_search_view</field>
+            <field name="model">is.ctrl100.defautheque</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="defautheque_sur"/>
+                    <field name="moule_dossierf"/>
+                    <field name="defaut"/>
+                    <field name="ou_et_quand"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_defautheque_action">
+            <field name="name">Défauthèque</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.defautheque</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Défauts -->
+        <record model="ir.ui.view" id="is_ctrl100_defaut_form_view">
+            <field name="name">is.ctrl100.defaut.form</field>
+            <field name="model">is.ctrl100.defaut</field>
+            <field name="arch" type="xml">
+            <form string="Défauts">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="True" />
+                            <field name="gamme_id" required="True" />
+                            <field name="employee_ids" widget="many2many_tags"/>
+                            <field name="operateur_evalue_ids" widget="many2many_tags" required="True"/>
+                            <field name="moule_dossierf"/>
+                            <field name="tracabilite" required="True" />
+                            <field 
+                                name="product_id"
+                                domain="[('is_mold_dossierf','=',moule_dossierf)]"
+                                attrs="{'invisible': [('tracabilite', '!=', 'article')], 'required': [('tracabilite', '=', 'article')]}"
+                            />
+                            <field 
+                                name="production_id" 
+                                domain="[('is_mold_dossierf','=',moule_dossierf)]"
+                                attrs="{'invisible': [('tracabilite', '!=', 'of')], 'required': [('tracabilite', '=', 'of')]}"
+                            />
+                            <field name="picking_id"    attrs="{'invisible': [('tracabilite', '!=', 'reception')], 'required': [('tracabilite', '=', 'reception')]}"/>
+                        </group>
+                        <group>
+                            <field name="createur_id"                   required="True"/>
+                            <field name="employe_id" domain="[('id', 'in', employee_ids and employee_ids[0] and employee_ids[0][2] or False)]"/> 
+                            <field name="date_saisie"                   required="True"/>
+                            <field name="nb_pieces_controlees"          required="True"/>
+                            <field name="tps_passe" widget="float_time" required="True"/>
+                        </group>
+                    </group>
+                    <field name="defautheque_ids" colspan="4">
+                        <tree create="0" delete="0">
+                            <field name="defaut_id" widget="many2one_clickable"/>
+                            <field name="defaut_text" />
+                            <field name="nb_rebuts" sum="Total"/>
+                            <field name="nb_repris" sum="Total"/>
+                            <field name="operateur_defaut_ids" widget="many2many_tags"/>
+                        </tree>
+                        <form create="0">
+                            <group>
+                                <field name="defaut_id" required="True"/> <!--  domain="[('gamme_id','=',parent.gamme_id)]" /> -->
+                                <field name="defaut_text" readonly="True" />
+                                <field name="nb_rebuts"/>
+                                <field name="nb_repris"/>
+                                <field 
+                                    name="operateur_defaut_ids" 
+                                    widget="many2many_tags"
+                                    domain="[('id', 'in', parent.operateur_evalue_ids and parent.operateur_evalue_ids[0] and parent.operateur_evalue_ids[0][2] or False)]"
+                                />
+                            </group>
+                            <group>
+                                <div style="text-align:center"> 
+                                    <field readonly="True"
+                                        name="defaut_photo" widget='image' class="oe_center oe_avatar" 
+                                        options='{"preview_image": "defaut_photo", "size": [900, 900]}'
+                                    />
+                                </div>
+                            </group>
+                        </form>
+                    </field>
+                    <group>
+                        <field name="nb_rebuts"/>
+                        <field name="nb_repris"/>
+                        <field name="taux_rebut"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_defaut_tree_view">
+            <field name="name">is.ctrl100.defaut.tree</field>
+            <field name="model">is.ctrl100.defaut</field>
+            <field name="arch" type="xml">
+                <tree string="Défauts">
+                    <field name="name"/>
+                    <field name="gamme_id"/>
+                    <field name="tracabilite" />
+                    <field name="product_id" />
+                    <field name="production_id" />
+                    <field name="picking_id" />
+                    <field name="moule_dossierf"/>
+                    <field name="createur_id"/>
+                    <field name="employe_id"/>
+                    <field name="date_saisie"/>
+                    <field name="operateur_evalue_ids" widget="many2many_tags"/>
+                    <field name="nb_rebuts" sum="Total"/>
+                    <field name="nb_repris" sum="Total"/>
+                    <field name="taux_rebut"/>
+                    <field name="nb_pieces_controlees" sum="Total"/>
+                    <field name="tps_passe"            sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_defaut_search_view" >
+            <field name="name">is_ctrl100_defaut_search_view</field>
+            <field name="model">is.ctrl100.defaut</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="gamme_id"/>
+                    <field name="tracabilite"/>
+                    <field name="product_id" />
+                    <field name="production_id" />
+                    <field name="picking_id" />
+                    <field name="moule_dossierf"/>
+                    <field name="createur_id"/>
+                    <field name="employe_id"/>
+                    <field name="operateur_evalue_ids"/>
+                    <group string="Regroupement par">
+                        <filter string="Game"              name="group_by_gamme_id"       context="{'group_by': 'gamme_id'}"/>
+                        <filter string="Moule / Dossier F" name="group_by_moule_dossierf" context="{'group_by': 'moule_dossierf'}"/>
+                        <filter string="OF"                name="group_by_production_id"  context="{'group_by': 'production_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="is_ctrl100_defaut_graph_view" model="ir.ui.view">
+            <field name="name">is_ctrl100_defaut_graph_view</field>
+            <field name="model">is.ctrl100.defaut</field>
+            <field name="arch" type="xml">
+                <pivot string="view">
+                    <field name="moule_dossierf" type="row"/>
+                    <field name="date_saisie" interval="month" type="col"/>
+                    <field name="tps_passe" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_defaut_action">
+            <field name="name">Saisie mur qualité</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.defaut</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+        <!-- Rapport de contrôle -->
+        <record model="ir.ui.view" id="view_is_ctrl100_rapport_controle_tree">
+            <field name="name">view.is.ctrl100.rapport.controle.tree</field>
+            <field name="model">is.ctrl100.rapport.controle</field>
+            <field name="arch" type="xml">
+                <tree string="Rapport de contrôle">
+                    <field name="gamme_id"/>
+                    <field name="moule_dossierf"/>
+                    <field name="createur_id"/>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_ctrl100_rapport_controle_form">
+            <field name="name">view.is.ctrl100.rapport.controle.form</field>
+            <field name="model">is.ctrl100.rapport.controle</field>
+            <field name="arch" type="xml">
+            <form string="Rapport de contrôle">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="gamme_id"/>
+                            <field name="moule_dossierf"/>
+                            <field name="createur_id"/>
+                            <field name="afficher_cout"/>
+                        </group>
+                        <group>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_rapport_controle_search_view" >
+            <field name="name">is_ctrl100_rapport_controle_search_view</field>
+            <field name="model">is.ctrl100.rapport.controle</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="gamme_id"/>
+                    <field name="moule_dossierf"/>
+                    <field name="createur_id"/>
+                    <group string="Regroupement par">
+                        <filter string="Game"              name="group_by_gamme_id"       context="{'group_by': 'gamme_id'}"/>
+                        <filter string="Moule / Dossier F" name="group_by_moule_dossierf" context="{'group_by': 'moule_dossierf'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_rapport_controle_action">
+            <field name="name">Rapport de mission</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.rapport.controle</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- is.ctrl100.pareto -->
+        <record model="ir.ui.view" id="view_is_ctrl100_pareto_form">
+            <field name="name">view.is.ctrl100.pareto.form</field>
+            <field name="model">is.ctrl100.pareto</field>
+            <field name="arch" type="xml">
+            <form string="Rapport de contrôle">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="gamme_id"/>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="typologie_ids" widget="many2many_tags"/>
+
+                        </group>
+                        <group>
+                            <field name="date_creation"/>
+                            <field name="createur_id"/>
+                        </group>
+                    </group>
+                    <group string="Sélectionnez des moules, des dossiers, des articles ou des OF">
+                        <field name="mold_ids"     widget="many2many_tags"/>
+                        <field name="dossierf_ids" widget="many2many_tags"/>
+                        <field name="product_ids"  widget="many2many_tags"/>
+                        <field name="of_ids"       widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_ctrl100_pareto_tree">
+            <field name="name">view.is.ctrl100.pareto.tree</field>
+            <field name="model">is.ctrl100.pareto</field>
+            <field name="arch" type="xml">
+                <tree string="Rapport de contrôle">
+                    <field name="date_creation"/>
+                    <field name="createur_id"/>
+                    <field name="gamme_id"/>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_pareto_search_view" >
+            <field name="name">is_ctrl100_pareto_search_view</field>
+            <field name="model">is.ctrl100.pareto</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="createur_id"/>
+                    <field name="gamme_id"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_pareto_action">
+            <field name="name">Pareto</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.pareto</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.ctrl100.gamme.mur.qualite.formation -->
+        <record model="ir.ui.view" id="is_ctrl100_gamme_mur_qualite_formation_form">
+            <field name="name">is_ctrl100_gamme_mur_qualite_formation_form</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite.formation</field>
+            <field name="arch" type="xml">
+            <form string="Formation" create="0">
+                <sheet>
+                    <group>
+                        <field name="gamme_id"/>
+                        <field name="createur_id"/>
+                        <field name="operateur_referent_id"/>
+                        <field name="operateur_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_gamme_mur_qualite_formation_tree">
+            <field name="name">is_ctrl100_gamme_mur_qualite_formation_tree</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite.formation</field>
+            <field name="arch" type="xml">
+                <tree string="Formation" create="0">
+                    <field name="gamme_id"/>
+                    <field name="createur_id"/>
+                    <field name="operateur_referent_id"/>
+                    <field name="operateur_ids"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_gamme_mur_qualite_formation_search" >
+            <field name="name">is_ctrl100_gamme_mur_qualite_formation_search</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite.formation</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="gamme_id"/>
+                    <field name="createur_id"/>
+                    <field name="operateur_referent_id"/>
+                    <field name="operateur_ids"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_gamme_mur_qualite_formation_action">
+            <field name="name">Formation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.gamme.mur.qualite.formation</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- is.ctrl100.ligne.saisie -->
+        <record model="ir.ui.view" id="is_ctrl100_ligne_saisie_form">
+            <field name="name">is_ctrl100_ligne_saisie_form</field>
+            <field name="model">is.ctrl100.ligne.saisie</field>
+            <field name="arch" type="xml">
+            <form>
+                <sheet>
+
+                    <group string="Saisie">
+                        <group>
+                            <field name="defautid"/>
+                            <field name="gamme_id" required="True" />
+                            <!-- <field name="employee_ids" widget="many2many_tags"/> -->
+                            <!-- <field name="operateur_evalue_ids" widget="many2many_tags" required="True"/> -->
+                            <field name="moule_dossierf"/>
+                            <field name="tracabilite" required="True" />
+                            <field 
+                                name="product_id"
+                                domain="[('is_mold_dossierf','=',moule_dossierf)]"
+                                attrs="{'invisible': [('tracabilite', '!=', 'article')], 'required': [('tracabilite', '=', 'article')]}"
+                            />
+                            <field 
+                                name="production_id" 
+                                domain="[('is_mold_dossierf','=',moule_dossierf)]"
+                                attrs="{'invisible': [('tracabilite', '!=', 'of')], 'required': [('tracabilite', '=', 'of')]}"
+                            />
+                            <field name="picking_id"    attrs="{'invisible': [('tracabilite', '!=', 'reception')], 'required': [('tracabilite', '=', 'reception')]}"/>
+                        </group>
+                        <group>
+                            <field name="createur_id"                   required="True"/>
+                            <field name="employe_id"/> <!-- domain="[('id', 'in', employee_ids and employee_ids[0] and employee_ids[0][2] or False)]"/>  -->
+                            <field name="date_saisie"                   required="True"/>
+                            <field name="nb_pieces_controlees"          required="True"/>
+                            <field name="tps_passe" widget="float_time" required="True"/>
+                        </group>
+                    </group>
+                    <group string="Ligne de saisie">
+                        <group>
+                            <field name="ligne_id"/>
+                            <field name="defaut_id"/>
+                            <field name="defaut_text"/>
+                            <field name="operateur_defaut_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="nb_rebuts"/>
+                            <field name="nb_repris"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div style="text-align:center"> 
+                            <field readonly="True"
+                                name="defaut_photo" widget='image' class="oe_center oe_avatar" 
+                                options='{"preview_image": "defaut_photo", "size": [900, 900]}'
+                            />
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_ligne_saisie_tree">
+            <field name="name">is_ctrl100_ligne_saisie_tree</field>
+            <field name="model">is.ctrl100.ligne.saisie</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="gamme_id"/>
+                    <field name="tracabilite"/>
+                    <field name="product_id"/>
+                    <field name="production_id"/>
+                    <field name="picking_id"/>
+                    <field name="moule_dossierf"/>
+                    <field name="createur_id"/>
+                    <field name="date_saisie"/>
+                    <field name="employe_id"/>
+                    <field name="defautid"/>
+                    <field name="defaut_id"/>
+                    <field name="defaut_text"/>
+                    <field name="nb_pieces_controlees" sum="Total"/>
+                    <field name="nb_rebuts" sum="Total"/>
+                    <field name="nb_repris" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_ctrl100_ligne_saisie_graph" model="ir.ui.view">
+            <field name="name">is_ctrl100_ligne_saisie_graph</field>
+            <field name="model">is.ctrl100.ligne.saisie</field>
+            <field name="arch" type="xml">
+                <pivot string="view">
+                    <field name="moule_dossierf" type="row"/>
+                    <field name="date_saisie"    type="col" interval="month"/>
+                    <field name="nb_rebuts"      type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_ctrl100_ligne_saisie_search" >
+            <field name="name">is_ctrl100_ligne_saisie_search</field>
+            <field name="model">is.ctrl100.ligne.saisie</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="gamme_id"/>
+                    <field name="tracabilite"/>
+                    <field name="product_id"/>
+                    <field name="production_id"/>
+                    <field name="picking_id"/>
+                    <field name="moule_dossierf"/>
+                    <field name="createur_id"/>
+                    <field name="defaut_id"/>
+                    <field name="defaut_text"/>
+                    <field name="defautid"/>
+                    <group string="Regroupement par">
+                        <filter string="Game"              name="group_by_gamme_id" context="{'group_by': 'gamme_id'}"/>
+                        <filter string="Moule / Dossier F" name="group_by_moule_dossierf" context="{'group_by': 'moule_dossierf'}"/>
+                        <filter string="OF"                name="group_by_production_id" context="{'group_by': 'production_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_ctrl100_ligne_saisie_action">
+            <field name="name">Lignes des saisies</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl100.ligne.saisie</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+    </data>
+</odoo>

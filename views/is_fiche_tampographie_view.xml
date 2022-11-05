@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Constituant Tampographie -->
+        <record id="is_fiche_tampographie_constituant_view_tree" model="ir.ui.view">
+            <field name="name">is.fiche.tampographie.constituant.view.tree</field>
+            <field name="model">is.fiche.tampographie.constituant</field>
+            <field name="arch" type="xml">
+                <tree string="Constituant Tampographie">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_fiche_tampographie_constituant_view_form" model="ir.ui.view">
+            <field name="name">is.fiche.tampographie.constituant.view.form</field>
+            <field name="model">is.fiche.tampographie.constituant</field>
+            <field name="arch" type="xml">
+                <form string="Constituant Tampographie">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_fiche_tampographie_constituant" model="ir.actions.act_window">
+            <field name="name">Constituant Tampographie</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.fiche.tampographie.constituant</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Type réglage Tampographie -->
+        <record id="is_fiche_tampographie_type_reglage_view_tree"
+            model="ir.ui.view">
+            <field name="name">is.fiche.tampographie.type.reglage.view.tree
+            </field>
+            <field name="model">is.fiche.tampographie.type.reglage</field>
+            <field name="arch" type="xml">
+                <tree string="Type réglage Tampographie">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_fiche_tampographie_type_reglage_view_form"
+            model="ir.ui.view">
+            <field name="name">is.fiche.tampographie.type.reglage.view.form
+            </field>
+            <field name="model">is.fiche.tampographie.type.reglage</field>
+            <field name="arch" type="xml">
+                <form string="Type réglage Tampographie">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                                <field name="active" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_fiche_tampographie_type_reglage" model="ir.actions.act_window">
+            <field name="name">Type réglage Tampographie</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.fiche.tampographie.type.reglage</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Tampographie -->
+        <record id="is_fiche_tampographie_view_tree" model="ir.ui.view">
+            <field name="name">is.fiche.tampographie.view.tree</field>
+            <field name="model">is.fiche.tampographie</field>
+            <field name="arch" type="xml">
+                <tree string="Tampographie">
+                    <field name="name" />
+                    <field name="article_injection_id" />
+                    <field name="is_mold_dossierf" />
+                    <field name="article_tampo_id" />
+                    <field name="mold_tampo_id" />
+                    <field name="temps_cycle" />
+                    <field name="nettoyage_materiel_id" />
+                    <field name="date_redaction" />
+                    <field name="nettoyage_piece_id" />
+                    <field name="duree_vie_melange" />
+                    <field name="redacteur_id" />
+                    <field name="approbateur_id" />
+                    <field name="indice" />
+                    <field name="state" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_fiche_tampographie_view_form" model="ir.ui.view">
+            <field name="name">is.fiche.tampographie.view.form</field>
+            <field name="model">is.fiche.tampographie</field>
+            <field name="arch" type="xml">
+                <form string="Tampographie">
+                    <header>
+                        <field name="vers_approbation_vsb" invisible="1"/>
+                        <button 
+                            name="vers_approbation_action"
+                            string="Vers Approbation"
+                            attrs="{'invisible': [('vers_approbation_vsb', '!=', True)]}"
+                            type="object"
+                            class="oe_highlight"
+                        />
+                        <field name="vers_approbation_to_redaction_vsb" invisible="1"/>
+                        <button 
+                            name="vers_approbation_to_redaction_action"
+                            string="Vers Rédaction"
+                            attrs="{'invisible': [('vers_approbation_to_redaction_vsb', '!=', True)]}"
+                            type="object"
+                        />
+                        <field name="vers_approbation_to_valide_vsb" invisible="1"/>
+                        <button 
+                            name="vers_approbation_to_valide_action"
+                            string="Vers Validé"
+                            attrs="{'invisible': [('vers_approbation_to_valide_vsb', '!=', True)]}"
+                            type="object"
+                            class="oe_highlight"
+                        />
+                        <field name="vers_valide_to_approbation_vsb" invisible="1"/>
+                        <button 
+                            name="vers_valide_to_approbation_action"
+                            string="Vers Approbation"
+                            attrs="{'invisible': [('vers_valide_to_approbation_vsb', '!=', True)]}"
+                            type="object"
+                        />
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="article_injection_id" />
+                                <field name="is_mold_dossierf" />
+                                <field name="article_tampo_id" />
+                                <field name="mold_tampo_id" />
+                                <field name="temps_cycle" />
+                                <field name="nettoyage_materiel_id" domain="[('is_category_id.name','=','71')]" />
+                                <field name="nettoyage_piece_id" domain="[('is_category_id.name','=','71')]" />
+                                <field name="duree_vie_melange" />
+                            </group>
+                            <group>
+                                <field name="date_redaction" />
+                                <field name="redacteur_id" />
+                                <field name="approbateur_id" />
+                                <field name="indice" />
+                            </group>
+                            <separator string="Recette" colspan="4" />
+                            <field name="recette_ids" colspan="4" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="name" />
+                                    <field name="constituant_id" />
+                                    <field name="product_id" domain="[('is_category_id.name','=','71')]" />
+                                    <field name="poids" />
+                                </tree>
+                            </field>
+                            <separator string="Reglage" colspan="4" />
+                            <field name="reglage_ids" colspan="4" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="name" />
+                                    <field name="type_reglage_id" />
+                                    <field name="reglage" />
+                                    <field name="active" />
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="image_finale" widget='image' class="oe_left oe_avatar" />
+                            <field name="image_encrier1_vsb" invisible="1" />
+                            <field name="image_encrier1" widget='image' 
+                                attrs="{'invisible': [('image_encrier1_vsb', '!=', True)]}" class="oe_left oe_avatar" />
+                            <field name="image_encrier2_vsb" invisible="1" />
+                            <field name="image_encrier2" widget='image' 
+                                attrs="{'invisible': [('image_encrier2_vsb', '!=', True)]}" class="oe_left oe_avatar" />
+                            <field name="image_encrier3_vsb" invisible="1" />
+                            <field name="image_encrier3" widget='image' 
+                                attrs="{'invisible': [('image_encrier3_vsb', '!=', True)]}" class="oe_left oe_avatar" />
+                            <field name="image_posage" widget='image' class="oe_left oe_avatar" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_fiche_tampographie_search_view" >
+            <field name="name">is_fiche_tampographie_search_view</field>
+            <field name="model">is.fiche.tampographie</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="article_injection_id"/>
+                    <field name="is_mold_dossierf"/>
+                    <field name="article_tampo_id"/>
+                    <field name="mold_tampo_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_is_fiche_tampographie" model="ir.actions.act_window">
+            <field name="name">Tampographie</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.fiche.tampographie</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

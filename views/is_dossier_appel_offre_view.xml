@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="is_dossier_appel_offre_form_view">
+            <field name="name">is_dossier_appel_offre_form_view</field>
+            <field name="model">is.dossier.appel.offre</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form" create="1">
+                    <header>
+                        <field name="state" widget="statusbar" clickable="True"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="dao_num"/>
+                                <field name="dao_date"/>
+                                <field name="dao_annee"/>
+                                <field name="dao_client"/>
+                                <field name="dao_typeclient"/>
+                                <field name="dao_sectclient"/>
+                                <field name="dao_commercial"/>
+                                <field name="dao_desig"/>
+                                <field name="dao_ref"/>
+                                <field name="dao_datedms"/>
+                                <field name="dao_ca"/>
+                                <field name="dao_vacom"/>
+                                <field name="dao_pourcentva"/>
+                                <field name="dao_camoule"/>
+                             </group>
+                            <group>
+                                <field name="dao_be"/>
+                                <field name="dao_dirbe"/>
+                                <field name="dao_daterepbe"/>
+                                <field name="dao_daterepplast"/>
+                                <field name="dao_rsplast"/>
+                                <field name="dao_daterepcli"/>
+                                <field name="dao_comment"/>
+                                <field name="dao_motif"/>
+                                <field name="dao_avancement"/>
+                                <field name="dynacase_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dossier_appel_offre_tree_view">
+            <field name="name">is_dossier_appel_offre_tree_view</field>
+            <field name="model">is.dossier.appel.offre</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="dao_num"/>
+                    <field name="dao_date"/>
+                    <field name="dao_annee"/>
+                    <field name="dao_client"/>
+                    <field name="dao_typeclient"/>
+                    <field name="dao_sectclient"/>
+                    <field name="dao_commercial"/>
+                    <field name="dao_desig"/>
+                    <field name="dao_ref"/>
+                    <field name="dao_datedms"/>
+                    <field name="dao_ca"      sum="Total"/>
+                    <field name="dao_vacom"   sum="Total"/>
+                    <field name="dao_pourcentva"/>
+                    <field name="dao_camoule" sum="Total"/>
+                    <field name="dao_be"/>
+                    <field name="dao_dirbe"/>
+                    <field name="dao_daterepbe"/>
+                    <field name="dao_daterepplast"/>
+                    <field name="dao_rsplast"/>
+                    <field name="dao_daterepcli"/>
+                    <field name="dao_comment"/>
+                    <field name="dao_motif"/>
+                    <field name="dao_avancement"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dossier_appel_offre_search_view" >
+            <field name="name">is_dossier_appel_offre_search_view</field>
+            <field name="model">is.dossier.appel.offre</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="dao_num"/>
+                    <field name="dao_annee"/>
+                    <field name="dao_client"/>
+                    <field name="dao_typeclient"/>
+                    <field name="dao_sectclient"/>
+                    <field name="dao_commercial"/>
+                    <field name="dao_desig"/>
+                    <field name="dao_ref"/>
+                    <field name="dao_be"/>
+                    <field name="dao_dirbe"/>
+                    <field name="dao_rsplast"/>
+                    <field name="dao_comment"/>
+                    <field name="dao_motif"/>
+                    <field name="dao_avancement"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_dossier_appel_offre_graph_view" model="ir.ui.view">
+            <field name="name">is_dossier_appel_offre_graph_view</field>
+            <field name="model">is.dossier.appel.offre</field>
+            <field name="arch" type="xml">
+                <pivot string="view">
+                    <field name="dao_client" type="row"/>
+                    <field name="dao_annee"  type="col"/>
+                    <field name="dao_ca"     type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_dossier_appel_offre_action">
+            <field name="name">Dossier appels d'offres</field>
+            <field name="res_model">is.dossier.appel.offre</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+    </data>
+</odoo>

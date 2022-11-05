@@ -2,6 +2,9 @@
 from odoo import models,fields,api, SUPERUSER_ID
 
 
+
+
+
 class is_res_users(models.Model):
     _name = 'is.res.users'
     _description="is_res_users"
@@ -27,6 +30,35 @@ class res_users(models.Model):
     is_service_id = fields.Many2one('is.service', 'Service')
     is_adresse_ip = fields.Char('Adresse IP', help='Adresse IP de cet utilisateur pour lui donner des accès spcécifiques dans THEIA')
     is_signature  = fields.Binary("Signature", help="Utilisé pour imprimer les certificats matière fournisseur")
+
+
+    def update_group(self):
+        for data in self:
+            principale_grp_id = self.env.ref('is_plastigray16.is_base_principale_grp')
+            secondaire_grp_id = self.env.ref('is_plastigray16.is_base_secondaire_grp')
+            if data.company_id.is_base_principale:
+                principale_grp_id.write({'users': [(4, data.id)]})
+                secondaire_grp_id.write({'users': [(5, data.id)]})
+            else:
+                secondaire_grp_id.write({'users': [(4, data.id)]})
+                principale_grp_id.write({'users': [(5, data.id)]})
+        return True
+
+
+    # def create(self, vals):
+    #     res = super(res_users, self).create(vals)
+    #     res.update_group()
+    #     return res
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        res.update_group()
+        return res
+
+
+
 
 
     # def _login(self, db, login, password):

@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.ot.indicateur-->
+        <record id="is_ot_indicateur_form_view" model="ir.ui.view">
+            <field name="name">is_ot_indicateur_form_view</field>
+            <field name="model">is.ot.indicateur</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="site_id"/>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="nb_heures_technicien"/>
+                            <field name="nb_heures_nature"/>
+                            <field name="nb_heures_equipement"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_ot_indicateur_tree_view" model="ir.ui.view">
+            <field name="name">is_ot_indicateur_tree_view</field>
+            <field name="model">is.ot.indicateur</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                    <field name="nb_heures_technicien"/>
+                    <field name="nb_heures_nature"/>
+                    <field name="nb_heures_equipement"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_ot_indicateur_action" model="ir.actions.act_window">
+            <field name="name">Indicateur sur les OTs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot.indicateur</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('create_uid','=',uid)]</field>
+        </record>
+
+
+        <!-- Is OT Affectation-->
+        <record id="is_ot_affectation_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.affectation.view.tree</field>
+            <field name="model">is.ot.affectation</field>
+            <field name="arch" type="xml">
+                <tree string="Gestion des OT Affectation">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_ot_affectation_view_form" model="ir.ui.view">
+            <field name="name">is.ot.affectation.view.form</field>
+            <field name="model">is.ot.affectation</field>
+            <field name="arch" type="xml">
+                <form string="Gestion des OT Affectation">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_ot_affectation" model="ir.actions.act_window">
+            <field name="name">Gestion des OT Affectation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot.affectation</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Is OT -->
+        <record id="is_ot_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Gestion des OT">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_ot_view_form" model="ir.ui.view">
+            <field name="name">is.ot.view.form</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <form string="Gestion des OT">
+                    <header>
+                        <button 
+                            name="vers_travaux_a_valider"
+                            string="Fin de cet OT"
+                            attrs="{'invisible': [('state', '!=', 'travaux_a_realiser')]}"
+                            type="object"
+                            class="oe_highlight"
+                        />
+                        <button 
+                            name="vers_analyse_ot"
+                            string="Analyse OT"
+                            attrs="{'invisible': [('state', '!=', 'creation')]}"
+                            type="object"
+                            class="oe_highlight"
+                        />
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" readonly="1"  attrs="{'readonly': [('state', '!=', 'creation')]}" />
+                                <field name="date_creation"      readonly="1" />
+                                <field name="type_equipement_id" attrs="{'readonly': [('state', 'not in', ['creation','analyse_ot'])]}"/>
+                                <field 
+                                    name="equipement_id"
+                                    attrs="{
+                                        'readonly':  [('state', 'not in', ['creation','analyse_ot'])],
+                                        'invisible': [('type_equipement_id', '=', False)],
+                                        'required':  [('type_equipement_id', '!=', False)]
+                                    }" 
+                                    domain="[('type_id','=',type_equipement_id),('database_id','=',site_id)]"
+                                    context="{'tree_view_ref':'is_pg_2019.is_equipement_view_tree'}"
+                                />
+                                <field name="gravite" attrs="{'readonly': [('state', '!=', 'creation')]}"/>
+                                <field name="date_intervention_demandee" attrs="{'readonly': [('state', '!=', 'creation')]}"/>
+                            </group>
+                            <group>
+                                <field 
+                                    name="site_id"
+                                    attrs="{
+                                        'readonly':  [('state', 'not in', ['creation'])],
+                                    }" 
+                                />
+                                <field name="emplacement"  readonly="1"/>
+                                <field name="demandeur_id" readonly="1"/>
+                                <field 
+                                    name="moule_id"
+                                    attrs="{'readonly': [('state', 'not in', ['creation','analyse_ot'])]}"
+                                />
+                                <field
+                                    name="dossierf_id"
+                                    attrs="{'readonly': [('state', 'not in', ['creation','analyse_ot'])]}"
+                                />
+                                <field
+                                    name="gabarit_id"
+                                    attrs="{'readonly': [('state', 'not in', ['creation','analyse_ot'])]}"
+                                    domain="[('site_id','=',site_id)]"
+                                />
+                                <field
+                                    name="instrument_id"
+                                    attrs="{'readonly': [('state', 'not in', ['creation','analyse_ot'])]}"
+                                    domain="[('site_id','=',site_id)]"
+                                />
+                                <field name="numero_qrci"  attrs="{'readonly': [('state', '!=', 'creation')]}" />
+                            </group>
+                        </group>
+                        <group>
+                            <field name="descriptif" attrs="{'readonly': [('state', '!=', 'creation')]}" required="True" />
+                        </group>
+                        <group>
+                            <group>
+                                <field name="validation_ot"  attrs="{'invisible': [('state', '=', 'creation')], 'required': [('state', '=', 'analyse_ot')], 'readonly': [('state', '!=', 'analyse_ot')]}" />
+                                <field name="motif"          attrs="{'invisible': ['|',('validation_ot', '!=', 'non'),('state', '=', 'creation')], 'required': [('validation_ot', '=', 'non')], 'readonly': [('state', '!=', 'analyse_ot')]}" />
+                            </group>
+                            <group>
+                                <field 
+                                    name="affectation_id"
+                                    attrs="{
+                                        'invisible': ['|',('state', '=', 'creation'),('validation_ot', '!=', 'oui')],
+                                        'readonly': [('state', '!=', 'analyse_ot')],
+                                        'required': [('state', '=', 'analyse_ot'),('validation_ot', '=', 'oui')]
+                                    }"
+                                />
+                                <field
+                                    name="nature"
+                                    attrs="{
+                                        'invisible': ['|',('state', '=', 'creation'),('validation_ot', '!=', 'oui')],
+                                        'readonly': [('state', '!=', 'analyse_ot')],
+                                        'required': [('state', '=', 'analyse_ot'),('validation_ot', '=', 'oui')]
+                                    }"
+                                />
+                                <field
+                                    name="delai_previsionnel"
+                                    attrs="{
+                                        'invisible': ['|',('state', '=', 'creation'),('validation_ot', '!=', 'oui')],
+                                        'readonly': [('state', '!=', 'analyse_ot')]
+                                    }"
+                                />
+                                <field 
+                                    name="date_previsionnelle_intervention" 
+                                    attrs="{
+                                        'invisible': ['|',('state', '=', 'creation'),('validation_ot', '!=', 'oui')],
+                                        'readonly': [('state', '!=', 'analyse_ot')]
+                                    }"
+                                />
+                                <field 
+                                    name="date_realisation_travaux" 
+                                    attrs="{
+                                        'invisible': ['|',('state', 'in', ['creation','analyse_ot','annule']),('validation_ot', '!=', 'oui')],
+                                        'readonly': [('state', '!=', 'travaux_a_realiser')]
+                                    }"
+                                />
+
+                            </group>
+                        </group>
+                        <group>
+                            <field name="complement" attrs="{'invisible': [('state', '=', 'creation')], 'readonly': [('state', '!=', 'analyse_ot')]}" />
+                        </group>
+                        <separator string="Temps passé" attrs="{'invisible': [('state', 'in', ['creation','analyse_ot','annule'])], 'readonly': [('state', '!=', 'travaux_a_realiser')]}" colspan="4" />
+                        <field name="temps_passe_ids"   attrs="{'invisible': [('state', 'in', ['creation','analyse_ot','annule'])], 'readonly': [('state', '!=', 'travaux_a_realiser')]}" colspan="4" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="technicien_id" />
+                                <field name="temps_passe" widget="float_time" />
+                                <field name="descriptif" />
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="temps_passe_total" widget="float_time"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="valideur_id"   attrs="{'invisible': [('state', 'in', ['creation','analyse_ot','travaux_a_realiser','annule'])]}" readonly="1" />
+                                <field 
+                                    name="nouveau_delai"
+                                    attrs="{
+                                        'invisible': [('state', '!=', 'travaux_a_valider'),('nouveau_delai', '=', False)], 
+                                        'readonly':  [('state', '!=', 'travaux_a_valider')], 
+                                        'required':  [('validation_travaux', '=', 'non_ok')]
+                                    }" />
+                            </group>
+                            <group>
+                                <field name="validation_travaux" attrs="{'invisible': [('state', 'in', ['creation','analyse_ot','travaux_a_realiser','annule'])], 'readonly': [('state', '!=', 'travaux_a_valider')], 'required': [('state', '=', 'travaux_a_valider')]}" />
+                            </group>
+                        </group>
+
+                        <!--
+                                    'invisible': ['|',('validation_travaux', '!=', 'non_ok'),('state', 'in', ['creation','analyse_ot','travaux_a_realiser','annule'])], 
+                                    'invisible': ['|',('validation_travaux', '!=', 'non_ok'),('state', 'in', ['creation','analyse_ot','travaux_a_realiser','annule'])], 
+                        -->
+                        <group>
+                            <field 
+                                name="commentaires_non_ok" 
+                                attrs="{
+                                    'invisible': [('state', '!=', 'travaux_a_valider'),('commentaires_non_ok', '=', False)], 
+                                    'readonly':  [('state', '!=', 'travaux_a_valider')], 
+                                    'required':  [('validation_travaux', '=', 'non_ok')]}"
+                            />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_ot_search_view" >
+            <field name="name">is_ot_search_view</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <search string="Opérations standard">
+                    <field name="name"/>
+                    <field name="descriptif"/>
+                    <field name="demandeur_id"/>
+                    <field name="valideur_id"/>
+                    <field name="type_equipement_id"/>
+                    <field name="equipement_id"/>
+                    <field name="moule_id"/>
+                    <field name="dossierf_id"/>
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="site_id"/>
+                    <field name="state"/>
+                    <group expand="0" string="Regroupé par...">
+                      <filter name="group_demandeur_id"       string="Demandeur"            context="{'group_by':'demandeur_id'}"/>
+                      <filter name="group_valideur_id"        string="Valideur"             context="{'group_by':'valideur_id'}"/>
+                      <filter name="group_type_equipement_id" string="Type équipement"      context="{'group_by':'type_equipement_id'}"/>
+                      <filter name="group_equipement_id"      string="Équipement"           context="{'group_by':'equipement_id'}"/>
+                      <filter name="group_moule_id"           string="Moule"                context="{'group_by':'moule_id'}"/>
+                      <filter name="group_dossierf_id"        string="Dossier F"            context="{'group_by':'dossierf_id'}"/>
+                      <filter name="group_gabarit_id"         string="Gabarit de Contrôle"  context="{'group_by':'gabarit_id'}"/>
+                      <filter name="group_instrument_id"      string="Instrument de mesure" context="{'group_by':'instrument_id'}"/>
+                      <filter name="group_affectation_id"     string="Affectation"          context="{'group_by':'affectation_id'}"/>
+                      <filter name="group_site_id"            string="Site"                 context="{'group_by':'site_id'}"/>
+                      <filter name="group_state"              string="Etat"                 context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+
+        <record id="is_ot_graph_view" model="ir.ui.view">
+             <field name="name">is_ot_graph_view</field>
+             <field name="model">is.ot</field>
+             <field name="arch" type="xml">
+                 <pivot string="pivot">
+                     <field name="demandeur_id"       type="row"/>
+                     <field name="date_creation"      type="col" interval="month"/>
+                     <field name="temps_passe_total"  type="measure"/>
+                 </pivot>
+             </field>
+        </record>
+
+
+        <record id="action_is_ot" model="ir.actions.act_window">
+            <field name="name">Gestion des OT</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+        <record id="is_ot_creation_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.creation.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Création">
+                    <field name="name" />
+                    <field name="date_creation" />
+                    <field name="demandeur_id" />
+                    <field name="equipement_id" />
+                    <field name="moule_id" />
+                    <field name="dossierf_id" />
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="date_intervention_demandee"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci"/>
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_is_ot_creation" model="ir.actions.act_window">
+            <field name="name">Création</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[('state', '=', 'creation')]</field>
+            <field name="view_id" ref="is_ot_creation_view_tree"/>
+        </record>
+
+        <record id="is_ot_analyse_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.analyse.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Analyse de l'OT" create="false">
+                    <field name="name" />
+                    <field name="date_creation" />
+                    <field name="demandeur_id" />
+                    <field name="equipement_id" />
+                    <field name="moule_id" />
+                    <field name="dossierf_id" />
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci" />
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_is_ot_analyse_ot" model="ir.actions.act_window">
+            <field name="name">Analyse de l'OT</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[('state', '=', 'analyse_ot')]</field>
+            <field name="view_id" ref="is_ot_analyse_view_tree"/>
+        </record>
+
+        <record id="is_ot_travaux_a_realiser_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.travaux.realiser.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Travaux à réaliser" create="false">
+                    <field name="name" />
+                    <field name="date_creation" />
+                    <field name="demandeur_id" />
+                    <field name="equipement_id" />
+                    <field name="moule_id" />
+                    <field name="dossierf_id" />
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci" />
+                    <field name="affectation_id" />
+                    <field name="nature" />
+                    <field name="delai_previsionnel" />
+                    <field name="date_intervention_demandee" />
+                    <field name="date_previsionnelle_intervention" />
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_is_ot_travaux_a_realiser" model="ir.actions.act_window">
+            <field name="name">Travaux à réaliser</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[('state', '=', 'travaux_a_realiser')]</field>
+            <field name="view_id" ref="is_ot_travaux_a_realiser_view_tree"/>
+        </record>
+
+        <record id="is_ot_travaux_a_valider_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.travaux.valider.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Travaux à valider" create="false">
+                    <field name="name" />
+                    <field name="date_creation" />
+                    <field name="demandeur_id" />
+                    <field name="equipement_id" />
+                    <field name="moule_id" />
+                    <field name="dossierf_id" />
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci" />
+                    <field name="affectation_id" />
+                    <field name="nature" />
+                    <field name="delai_previsionnel" />
+                    <field name="date_previsionnelle_intervention" />
+                    <field name="date_realisation_travaux" />
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_is_ot_travaux_a_valider" model="ir.actions.act_window">
+            <field name="name">Travaux à valider</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[('state', '=', 'travaux_a_valider')]</field>
+            <field name="view_id" ref="is_ot_travaux_a_valider_view_tree"/>
+        </record>
+
+
+
+        <record id="is_ot_travaux_annule_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.travaux.annule.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Travaux annulés" create="false">
+                    <field name="name" />
+                    <field name="date_creation" />
+                    <field name="demandeur_id" />
+                    <field name="equipement_id" />
+                    <field name="moule_id" />
+                    <field name="dossierf_id" />
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci" />
+                    <field name="affectation_id" />
+                    <field name="nature" />
+                    <field name="delai_previsionnel" />
+                    <field name="date_previsionnelle_intervention" />
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_is_ot_annule" model="ir.actions.act_window">
+            <field name="name">Annulé</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[('state', '=', 'annule')]</field>
+            <field name="view_id" ref="is_ot_travaux_annule_view_tree"/>
+        </record>
+
+        <record id="is_ot_termine_view_tree" model="ir.ui.view">
+            <field name="name">is.ot.termine.view.tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Terminé" create="false">
+                    <field name="site_id"/>
+                    <field name="name"/>
+                    <field name="date_creation"/>
+                    <field name="demandeur_id"/>
+                    <field name="valideur_id"/>
+                    <field name="equipement_id"/>
+                    <field name="moule_id"/>
+                    <field name="dossierf_id"/>
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci"/>
+                    <field name="affectation_id"/>
+                    <field name="nature"/>
+                    <field name="delai_previsionnel"/>
+                    <field name="date_realisation_travaux"/>
+                    <field name="temps_passe_total" widget="float_time"/>
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_is_ot_termine" model="ir.actions.act_window">
+            <field name="name">Terminé</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[('state', '=', 'termine')]</field>
+            <field name="view_id" ref="is_ot_termine_view_tree"/>
+        </record>
+
+
+        <record id="is_ot_tous_tree_view" model="ir.ui.view">
+            <field name="name">is_ot_tous_view_tree</field>
+            <field name="model">is.ot</field>
+            <field name="arch" type="xml">
+                <tree string="Terminé" create="false">
+                    <field name="site_id"/>
+                    <field name="name"/>
+                    <field name="date_creation"/>
+                    <field name="demandeur_id"/>
+                    <field name="valideur_id"/>
+                    <field name="equipement_id"/>
+                    <field name="moule_id"/>
+                    <field name="dossierf_id"/>
+                    <field name="gabarit_id"/>
+                    <field name="instrument_id"/>
+                    <field name="code_gravite"/>
+                    <field name="descriptif"/>
+                    <field name="numero_qrci"/>
+                    <field name="affectation_id"/>
+                    <field name="nature"/>
+                    <field name="delai_previsionnel"/>
+                    <field name="date_realisation_travaux"/>
+                    <field name="temps_passe_total" widget="float_time"/>
+                    <field name="state"/>
+                    <field name="pj" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
+                    <field name="write_date" string="Date modification"/>
+                    <field name="write_uid"  string="Dernier intervenant"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_ot_tous_action" model="ir.actions.act_window">
+            <field name="name">Tous les OTs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ot</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="domain">[]</field>
+            <field name="view_id" ref="is_ot_tous_tree_view"/>
+        </record>
+    </data>
+</odoo>

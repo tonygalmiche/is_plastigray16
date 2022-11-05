@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Equipement Type -->
+        <record id="is_equipement_type_view_tree" model="ir.ui.view">
+            <field name="name">view.is.equipement.type.tree</field>
+            <field name="model">is.equipement.type</field>
+            <field name="arch" type="xml">
+                <tree string="Type equipement">
+                    <field name="name" />
+                    <field name="code" />
+                    <field name="is_database_origine_id" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_equipement_type_view_form" model="ir.ui.view">
+            <field name="name">view.is.equipement.type.form</field>
+            <field name="model">is.equipement.type</field>
+            <field name="arch" type="xml">
+                <form string="Type equipement">
+                    <header>
+                        <button 
+                            name="add_champs_action"
+                            string="Add champs"
+                            type="object"
+                            class="oe_highlight"
+                        />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                                <field name="code" />
+                            </group>
+                        </group>
+                        <field name="champ_line_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="name" required="1 "/>
+                                <field name="vsb" />
+                                <field name="obligatoire" />
+                            </tree>
+                        </field>
+                        <group>
+                        <field name="active" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_equipement_type_filter" model="ir.ui.view">
+            <field name="name">is_equipement_type_filter</field>
+            <field name="model">is.equipement.type</field>
+            <field name="arch" type="xml">
+                <search string="Type equipement">
+                    <field name="name" />
+                    <field name="code" />
+                </search>
+            </field>
+        </record>
+        <record id="action_is_equipement_type" model="ir.actions.act_window">
+            <field name="name">Type equipement</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.equipement.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Equipement -->
+        <record id="is_equipement_view_tree" model="ir.ui.view">
+            <field name="name">view.is.equipement.tree</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <tree string="Equipement">
+                    <field name="type_id"/>
+                    <field name="numero_equipement"/>
+                    <field name="designation"/>
+                    <field name="database_id"/>
+                    <field name="zone_id"/>
+                    <field name="equipement_cle"/>
+                    <field name="constructeur"/>
+                    <field name="constructeur_serie"/>
+                    <field name="emplacement_affectation_pe"/>
+                    <field name="partner_id"/>
+                    <field name="date_fabrication"/>
+                    <field name="date_de_fin"/>
+                    <field name="is_database_origine_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_equipement_view_form" model="ir.ui.view">
+            <field name="name">view.is.equipement.form</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <form string="Equipement">
+                    <sheet>
+                        <group string="Identification" name="identification" cols="2">
+                            <group>
+                                <field name="type_id" />
+                                <field name="numero_equipement" />
+
+                                <field name="equipement_cle_vsb" invisible="1" />
+                                <field name="equipement_cle_obl" invisible="1" />
+                                <field name="equipement_cle" 
+                                    attrs="{'invisible': [('equipement_cle_vsb', '!=', True)], 'required':  [('equipement_cle_obl', '=', True)]}" />
+
+                                <field name="constructeur_vsb" invisible="1" />
+                                <field name="constructeur_obl" invisible="1" />
+                                <field name="constructeur" 
+                                    attrs="{'invisible': [('constructeur_vsb', '!=', True)], 'required':  [('constructeur_obl', '=', True)]}" />
+                                
+                                <field name="constructeur_serie_vsb" invisible="1" />
+                                <field name="constructeur_serie_obl" invisible="1" />
+                                <field name="constructeur_serie" 
+                                    attrs="{'invisible': [('constructeur_serie_vsb', '!=', True)], 'required':  [('constructeur_serie_obl', '=', True)]}"/>
+                                
+                                <field name="partner_id_vsb" invisible="1" />
+                                <field name="partner_id_obl" invisible="1" />
+                                <field name="partner_id" 
+                                    attrs="{'invisible': [('partner_id_vsb', '!=', True)], 'required':  [('partner_id_obl', '=', True)]}"/>
+                            </group>
+                            <group>
+                                <field name="designation" />
+                                <field name="database_id" />
+                                <field name="zone_id_vsb" invisible="1" />
+                                <field name="zone_id_obl" invisible="1" />
+                                <field name="zone_id"
+                                    attrs="{'invisible': [('zone_id_vsb', '!=', True)], 'required':  [('zone_id_obl', '=', True)]}"/>
+                                <field name="date_fabrication_vsb" invisible="1" />
+                                <field name="date_fabrication_obl" invisible="1" />
+                                <field name="date_fabrication"
+                                    attrs="{'invisible': [('date_fabrication_vsb', '!=', True)], 'required':  [('date_fabrication_obl', '=', True)]}"/>
+                                
+                                <field name="date_de_fin_vsb" invisible="1" />
+                                <field name="date_de_fin_obl" invisible="1" />
+                                <field name="date_de_fin" 
+                                    attrs="{'invisible': [('date_de_fin_vsb', '!=', True)], 'required':  [('date_de_fin_obl', '=', True)]}"/>
+                            </group>
+                            <group>
+                                <field name="ordre_vsb" invisible="1" />
+                                <field name="ordre_obl" invisible="1" />
+                                <field name="ordre" attrs="{'invisible': [('ordre_vsb', '!=', True)], 'required':  [('ordre_obl', '=', True)]}"/>
+
+                                <field name="ilot_id_vsb" invisible="1" />
+                                <field name="ilot_id_obl" invisible="1" />
+                                <field name="ilot_id" attrs="{'invisible': [('ilot_id_vsb', '!=', True)], 'required':  [('ilot_id_obl', '=', True)]}"/>
+
+                                <field name="raspberry_id_vsb" invisible="1" />
+                                <field name="raspberry_id_obl" invisible="1" />
+                                <field name="raspberry_id" attrs="{'invisible': [('raspberry_id_vsb', '!=', True)], 'required':  [('raspberry_id_obl', '=', True)]}"/>
+
+                                <field name="etat_presse_id_vsb" invisible="1" />
+                                <field name="etat_presse_id_obl" invisible="1" />
+                                <field name="etat_presse_id" attrs="{'invisible': [('etat_presse_id_vsb', '!=', True)], 'required':  [('etat_presse_id_obl', '=', True)]}"/>
+
+                                <field name="couleur_vsb" invisible="1" />
+                                <field name="couleur_obl" invisible="1" />
+                                <field name="couleur" attrs="{'invisible': [('couleur_vsb', '!=', True)], 'required':  [('couleur_obl', '=', True)]}"/>
+
+                                <field name="prioritaire_vsb" invisible="1" />
+                                <field name="prioritaire_obl" invisible="1" />
+                                <field name="prioritaire" attrs="{'invisible': [('prioritaire_vsb', '!=', True)], 'required':  [('prioritaire_obl', '=', True)]}"/>
+                            </group>
+                        </group>
+                        <group string="Préventif" name="preventif">
+                            <group>
+                                <field name="maintenance_preventif_niveau1_vsb" invisible="1" />
+                                <field name="maintenance_preventif_niveau1_obl" invisible="1" />
+                                <field name="maintenance_preventif_niveau1" 
+                                    attrs="{'invisible': [('maintenance_preventif_niveau1_vsb', '!=', True)], 'required':  [('maintenance_preventif_niveau1_obl', '=', True)]}"/>
+                                
+                                <field name="maintenance_preventif_niveau2_vsb" invisible="1" />
+                                <field name="maintenance_preventif_niveau2_obl" invisible="1" />
+                                <field name="maintenance_preventif_niveau2" 
+                                    attrs="{'invisible': [('maintenance_preventif_niveau2_vsb', '!=', True)], 'required':  [('maintenance_preventif_niveau2_obl', '=', True)]}"/>
+                            </group>
+                            <group>
+                                <field name="maintenance_preventif_niveau3_vsb" invisible="1" />
+                                <field name="maintenance_preventif_niveau3_obl" invisible="1" />
+                                <field name="maintenance_preventif_niveau3" 
+                                    attrs="{'invisible': [('maintenance_preventif_niveau3_vsb', '!=', True)], 'required':  [('maintenance_preventif_niveau3_obl', '=', True)]}"/>
+                                
+                                <field name="maintenance_preventif_niveau4_vsb" invisible="1" />
+                                <field name="maintenance_preventif_niveau4_obl" invisible="1" />
+                                <field name="maintenance_preventif_niveau4" 
+                                    attrs="{'invisible': [('maintenance_preventif_niveau4_vsb', '!=', True)], 'required':  [('maintenance_preventif_niveau4_obl', '=', True)]}"/>
+                            </group>
+                        </group>
+                        <group string=" Caractéristiques" name="caracteristiques">
+                            <group>
+                                <field name="type_presse_commande_vsb" invisible="1" />
+                                <field name="type_presse_commande_obl" invisible="1" />
+                                <field name="type_presse_commande" 
+                                    attrs="{'invisible': [('type_presse_commande_vsb', '!=', True)], 'required':  [('type_presse_commande_obl', '=', True)]}"/>
+                                
+                                <field name="classe_id_vsb" invisible="1" />
+                                <field name="classe_id_obl" invisible="1" />
+                                <field name="classe_id" 
+                                    attrs="{'invisible': [('classe_id_vsb', '!=', True)], 'required':  [('classe_id_obl', '=', True)]}"/>
+                                
+                                <field name="classe_commerciale_vsb" invisible="1" />
+                                <field name="classe_commerciale_obl" invisible="1" />
+                                <field name="classe_commerciale" 
+                                    attrs="{'invisible': [('classe_commerciale_vsb', '!=', True)], 'required':  [('classe_commerciale_obl', '=', True)]}"/>
+                                
+                                <field name="force_fermeture_vsb" invisible="1" />
+                                <field name="force_fermeture_obl" invisible="1" />
+                                <field name="force_fermeture" 
+                                    attrs="{'invisible': [('force_fermeture_vsb', '!=', True)], 'required':  [('force_fermeture_obl', '=', True)]}"/>
+                                
+                                <field name="energie_vsb" invisible="1" />
+                                <field name="energie_obl" invisible="1" />
+                                <field name="energie" 
+                                    attrs="{'invisible': [('energie_vsb', '!=', True)], 'required':  [('energie_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_entre_col_h_vsb" invisible="1" />
+                                <field name="dimension_entre_col_h_obl" invisible="1" />
+                                <field name="dimension_entre_col_h" 
+                                    attrs="{'invisible': [('dimension_entre_col_h_vsb', '!=', True)], 'required':  [('dimension_entre_col_h_obl', '=', True)]}"/>
+                                
+                                <field name="faux_plateau_vsb" invisible="1" />
+                                <field name="faux_plateau_obl" invisible="1" />
+                                <field name="faux_plateau" 
+                                    attrs="{'invisible': [('faux_plateau_vsb', '!=', True)], 'required':  [('faux_plateau_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_demi_plateau_h_vsb" invisible="1" />
+                                <field name="dimension_demi_plateau_h_obl" invisible="1" />
+                                <field name="dimension_demi_plateau_h" 
+                                    attrs="{'invisible': [('dimension_demi_plateau_h_vsb', '!=', True)], 'required':  [('dimension_demi_plateau_h_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_hors_tout_haut_vsb" invisible="1" />
+                                <field name="dimension_hors_tout_haut_obl" invisible="1" />
+                                <field name="dimension_hors_tout_haut" 
+                                    attrs="{'invisible': [('dimension_hors_tout_haut_vsb', '!=', True)], 'required':  [('dimension_hors_tout_haut_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_entre_col_v_vsb" invisible="1" />
+                                <field name="dimension_entre_col_v_obl" invisible="1" />
+                                <field name="dimension_entre_col_v" 
+                                    attrs="{'invisible': [('dimension_entre_col_v_vsb', '!=', True)], 'required':  [('dimension_entre_col_v_obl', '=', True)]}"/>
+                                
+                                <field name="epaisseur_moule_mini_presse_vsb" invisible="1" />
+                                <field name="epaisseur_moule_mini_presse_obl" invisible="1" />
+                                <field name="epaisseur_moule_mini_presse" 
+                                    attrs="{'invisible': [('epaisseur_moule_mini_presse_vsb', '!=', True)], 'required':  [('epaisseur_moule_mini_presse_obl', '=', True)]}"/>
+                                
+                                <field name="epaisseur_faux_plateau_vsb" invisible="1" />
+                                <field name="epaisseur_faux_plateau_obl" invisible="1" />
+                                <field name="epaisseur_faux_plateau" 
+                                    attrs="{'invisible': [('epaisseur_faux_plateau_vsb', '!=', True)], 'required':  [('epaisseur_faux_plateau_obl', '=', True)]}"/>
+                                
+                                <field name="epaisseur_moule_maxi_vsb" invisible="1" />
+                                <field name="epaisseur_moule_maxi_obl" invisible="1" />
+                                <field name="epaisseur_moule_maxi" 
+                                    attrs="{'invisible': [('epaisseur_moule_maxi_vsb', '!=', True)], 'required':  [('epaisseur_moule_maxi_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_demi_plateau_v_vsb" invisible="1" />
+                                <field name="dimension_demi_plateau_v_obl" invisible="1" />
+                                <field name="dimension_demi_plateau_v" 
+                                    attrs="{'invisible': [('dimension_demi_plateau_v_vsb', '!=', True)], 'required':  [('dimension_demi_plateau_v_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_hors_tout_bas_vsb" invisible="1" />
+                                <field name="dimension_hors_tout_bas_obl" invisible="1" />
+                                <field name="dimension_hors_tout_bas" 
+                                    attrs="{'invisible': [('dimension_hors_tout_bas_vsb', '!=', True)], 'required':  [('dimension_hors_tout_bas_obl', '=', True)]}"/>
+                                
+                                <field name="coefficient_vis_vsb" invisible="1" />
+                                <field name="coefficient_vis_obl" invisible="1" />
+                                <field name="coefficient_vis" 
+                                    attrs="{'invisible': [('coefficient_vis_vsb', '!=', True)], 'required':  [('coefficient_vis_obl', '=', True)]}"/>
+                                
+                                <field name="type_de_clapet_vsb" invisible="1" />
+                                <field name="type_de_clapet_obl" invisible="1" />
+                                <field name="type_de_clapet" 
+                                    attrs="{'invisible': [('type_de_clapet_vsb', '!=', True)], 'required':  [('type_de_clapet_obl', '=', True)]}"/>
+                                
+                                <field name="pression_maximum_vsb" invisible="1" />
+                                <field name="pression_maximum_obl" invisible="1" />
+                                <field name="pression_maximum" 
+                                    attrs="{'invisible': [('pression_maximum_vsb', '!=', True)], 'required':  [('pression_maximum_obl', '=', True)]}"/>
+                                
+                                <field name="pression_maximum2_vsb" invisible="1" />
+                                <field name="pression_maximum2_obl" invisible="1" />
+                                <field name="pression_maximum2" 
+                                    attrs="{'invisible': [('pression_maximum2_vsb', '!=', True)], 'required':  [('pression_maximum2_obl', '=', True)]}"/>
+
+                                <field name="vis_mn_vsb" invisible="1" />
+                                <field name="vis_mn_obl" invisible="1" />
+                                <field name="vis_mn" 
+                                    attrs="{'invisible': [('vis_mn_vsb', '!=', True)], 'required':  [('vis_mn_obl', '=', True)]}"/>
+
+                                <field name="vis_mn2_vsb" invisible="1" />
+                                <field name="vis_mn2_obl" invisible="1" />
+                                <field name="vis_mn2" 
+                                    attrs="{'invisible': [('vis_mn2_vsb', '!=', True)], 'required':  [('vis_mn2_obl', '=', True)]}"/>
+                                
+                                <field name="volume_injectable_vsb" invisible="1" />
+                                <field name="volume_injectable_obl" invisible="1" />
+                                <field name="volume_injectable" 
+                                    attrs="{'invisible': [('volume_injectable_vsb', '!=', True)], 'required':  [('volume_injectable_obl', '=', True)]}"/>
+                                
+                                <field name="volume_injectable2_vsb" invisible="1" />
+                                <field name="volume_injectable2_obl" invisible="1" />
+                                <field name="volume_injectable2" 
+                                    attrs="{'invisible': [('volume_injectable2_vsb', '!=', True)], 'required':  [('volume_injectable2_obl', '=', True)]}"/>
+
+                                <field name="course_ejection_vsb" invisible="1" />
+                                <field name="course_ejection_obl" invisible="1" />
+                                <field name="course_ejection" 
+                                    attrs="{'invisible': [('course_ejection_vsb', '!=', True)], 'required':  [('course_ejection_obl', '=', True)]}"/>
+                                
+                                <field name="course_ouverture_vsb" invisible="1" />
+                                <field name="course_ouverture_obl" invisible="1" />
+                                <field name="course_ouverture" 
+                                    attrs="{'invisible': [('course_ouverture_vsb', '!=', True)], 'required':  [('course_ouverture_obl', '=', True)]}"/>
+                                
+                                <field name="centrage_moule_vsb" invisible="1" />
+                                <field name="centrage_moule_obl" invisible="1" />
+                                <field name="centrage_moule" 
+                                    attrs="{'invisible': [('centrage_moule_vsb', '!=', True)], 'required':  [('centrage_moule_obl', '=', True)]}"/>
+                                
+                                <field name="centrage_moule2_vsb" invisible="1" />
+                                <field name="centrage_moule2_obl" invisible="1" />
+                                <field name="centrage_moule2" 
+                                    attrs="{'invisible': [('centrage_moule2_vsb', '!=', True)], 'required':  [('centrage_moule2_obl', '=', True)]}"/>
+
+
+                                <field name="centrage_presse_vsb" invisible="1" />
+                                <field name="centrage_presse_obl" invisible="1" />
+                                <field name="centrage_presse" 
+                                    attrs="{'invisible': [('centrage_presse_vsb', '!=', True)], 'required':  [('centrage_presse_obl', '=', True)]}"/>
+                                
+                                <field name="hauteur_porte_sol_vsb" invisible="1" />
+                                <field name="hauteur_porte_sol_obl" invisible="1" />
+                                <field name="hauteur_porte_sol" 
+                                    attrs="{'invisible': [('hauteur_porte_sol_vsb', '!=', True)], 'required':  [('hauteur_porte_sol_obl', '=', True)]}"/>
+                                
+                                <field name="bridage_rapide_entre_axe_vsb" invisible="1" />
+                                <field name="bridage_rapide_entre_axe_obl" invisible="1" />
+                                <field name="bridage_rapide_entre_axe" 
+                                    attrs="{'invisible': [('bridage_rapide_entre_axe_vsb', '!=', True)], 'required':  [('bridage_rapide_entre_axe_obl', '=', True)]}"/>
+                                
+                                <field name="bridage_rapide_pas_vsb" invisible="1" />
+                                <field name="bridage_rapide_pas_obl" invisible="1" />
+                                <field name="bridage_rapide_pas" 
+                                    attrs="{'invisible': [('bridage_rapide_pas_vsb', '!=', True)], 'required':  [('bridage_rapide_pas_obl', '=', True)]}"/>
+                                
+                                <field name="bridage_rapide_vsb" invisible="1" />
+                                <field name="bridage_rapide_obl" invisible="1" />
+                                <field name="bridage_rapide" 
+                                    attrs="{'invisible': [('bridage_rapide_vsb', '!=', True)], 'required':  [('bridage_rapide_obl', '=', True)]}"/>
+                                
+                                <field name="type_huile_hydraulique_vsb" invisible="1" />
+                                <field name="type_huile_hydraulique_obl" invisible="1" />
+                                <field name="type_huile_hydraulique" 
+                                    attrs="{'invisible': [('type_huile_hydraulique_vsb', '!=', True)], 'required':  [('type_huile_hydraulique_obl', '=', True)]}"/>
+                                
+                                <field name="volume_reservoir_vsb" invisible="1" />
+                                <field name="volume_reservoir_obl" invisible="1" />
+                                <field name="volume_reservoir" 
+                                    attrs="{'invisible': [('volume_reservoir_vsb', '!=', True)], 'required':  [('volume_reservoir_obl', '=', True)]}"/>
+                                
+                                <field name="type_huile_graissage_centralise_vsb" invisible="1" />
+                                <field name="type_huile_graissage_centralise_obl" invisible="1" />
+                                <field name="type_huile_graissage_centralise" 
+                                    attrs="{'invisible': [('type_huile_graissage_centralise_vsb', '!=', True)], 'required':  [('type_huile_graissage_centralise_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_noyau_total_vsb" invisible="1" />
+                                <field name="nbre_noyau_total_obl" invisible="1" />
+                                <field name="nbre_noyau_total" 
+                                    attrs="{'invisible': [('nbre_noyau_total_vsb', '!=', True)], 'required':  [('nbre_noyau_total_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_noyau_pf_vsb" invisible="1" />
+                                <field name="nbre_noyau_pf_obl" invisible="1" />
+                                <field name="nbre_noyau_pf" 
+                                    attrs="{'invisible': [('nbre_noyau_pf_vsb', '!=', True)], 'required':  [('nbre_noyau_pf_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_noyau_pm_vsb" invisible="1" />
+                                <field name="nbre_noyau_pm_obl" invisible="1" />
+                                <field name="nbre_noyau_pm" 
+                                    attrs="{'invisible': [('nbre_noyau_pm_vsb', '!=', True)], 'required':  [('nbre_noyau_pm_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_circuit_eau_vsb" invisible="1" />
+                                <field name="nbre_circuit_eau_obl" invisible="1" />
+                                <field name="nbre_circuit_eau" 
+                                    attrs="{'invisible': [('nbre_circuit_eau_vsb', '!=', True)], 'required':  [('nbre_circuit_eau_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_zone_de_chauffe_moule_vsb" invisible="1" />
+                                <field name="nbre_zone_de_chauffe_moule_obl" invisible="1" />
+                                <field name="nbre_zone_de_chauffe_moule" 
+                                    attrs="{'invisible': [('nbre_zone_de_chauffe_moule_vsb', '!=', True)], 'required':  [('nbre_zone_de_chauffe_moule_obl', '=', True)]}"/>
+                            </group>
+                            <group>
+                                <field name="puissance_electrique_installee_vsb" invisible="1" />
+                                <field name="puissance_electrique_installee_obl" invisible="1" />
+                                <field name="puissance_electrique_installee" 
+                                    attrs="{'invisible': [('puissance_electrique_installee_vsb', '!=', True)], 'required':  [('puissance_electrique_installee_obl', '=', True)]}"/>
+                                
+                                <field name="puissance_electrique_moteur_vsb" invisible="1" />
+                                <field name="puissance_electrique_moteur_obl" invisible="1" />
+                                <field name="puissance_electrique_moteur" 
+                                    attrs="{'invisible': [('puissance_electrique_moteur_vsb', '!=', True)], 'required':  [('puissance_electrique_moteur_obl', '=', True)]}"/>
+                                
+                                <field name="puissance_de_chauffe_vsb" invisible="1" />
+                                <field name="puissance_de_chauffe_obl" invisible="1" />
+                                <field name="puissance_de_chauffe" 
+                                    attrs="{'invisible': [('puissance_de_chauffe_vsb', '!=', True)], 'required':  [('puissance_de_chauffe_obl', '=', True)]}"/>
+                                
+                                <field name="compensation_cosinus_vsb" invisible="1" />
+                                <field name="compensation_cosinus_obl" invisible="1" />
+                                <field name="compensation_cosinus" 
+                                    attrs="{'invisible': [('compensation_cosinus_vsb', '!=', True)], 'required':  [('compensation_cosinus_obl', '=', True)]}"/>
+                                
+                                <field name="passage_buse_vsb" invisible="1" />
+                                <field name="passage_buse_obl" invisible="1" />
+                                <field name="passage_buse" 
+                                    attrs="{'invisible': [('passage_buse_vsb', '!=', True)], 'required':  [('passage_buse_obl', '=', True)]}"/>
+                                
+                                <field name="option_rotation_r1_vsb" invisible="1" />
+                                <field name="option_rotation_r1_obl" invisible="1" />
+                                <field name="option_rotation_r1" 
+                                    attrs="{'invisible': [('option_rotation_r1_vsb', '!=', True)], 'required':  [('option_rotation_r1_obl', '=', True)]}"/>
+                                
+                                <field name="option_rotation_r2_vsb" invisible="1" />
+                                <field name="option_rotation_r2_obl" invisible="1" />
+                                <field name="option_rotation_r2" 
+                                    attrs="{'invisible': [('option_rotation_r2_vsb', '!=', True)], 'required':  [('option_rotation_r2_obl', '=', True)]}"/>
+                                
+                                <field name="option_arret_intermediaire_vsb" invisible="1" />
+                                <field name="option_arret_intermediaire_obl" invisible="1" />
+                                <field name="option_arret_intermediaire" 
+                                    attrs="{'invisible': [('option_arret_intermediaire_vsb', '!=', True)], 'required':  [('option_arret_intermediaire_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_circuit_vide_vsb" invisible="1" />
+                                <field name="nbre_circuit_vide_obl" invisible="1" />
+                                <field name="nbre_circuit_vide" 
+                                    attrs="{'invisible': [('nbre_circuit_vide_vsb', '!=', True)], 'required':  [('nbre_circuit_vide_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_circuit_pression_vsb" invisible="1" />
+                                <field name="nbre_circuit_pression_obl" invisible="1" />
+                                <field name="nbre_circuit_pression" 
+                                    attrs="{'invisible': [('nbre_circuit_pression_vsb', '!=', True)], 'required':  [('nbre_circuit_pression_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_dentrees_automate_disponibles_vsb" invisible="1" />
+                                <field name="nbre_dentrees_automate_disponibles_obl" invisible="1" />
+                                <field name="nbre_dentrees_automate_disponibles" 
+                                    attrs="{'invisible': [('nbre_dentrees_automate_disponibles_vsb', '!=', True)], 'required':  [('nbre_dentrees_automate_disponibles_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_de_sorties_automate_disponibles_vsb" invisible="1" />
+                                <field name="nbre_de_sorties_automate_disponibles_obl" invisible="1" />
+                                <field name="nbre_de_sorties_automate_disponibles" 
+                                    attrs="{'invisible': [('nbre_de_sorties_automate_disponibles_vsb', '!=', True)], 'required':  [('nbre_de_sorties_automate_disponibles_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_chambre_vsb" invisible="1" />
+                                <field name="dimension_chambre_obl" invisible="1" />
+                                <field name="dimension_chambre" 
+                                    attrs="{'invisible': [('dimension_chambre_vsb', '!=', True)], 'required':  [('dimension_chambre_obl', '=', True)]}"/>
+                                
+                                <field name="nbre_de_voie_vsb" invisible="1" />
+                                <field name="nbre_de_voie_obl" invisible="1" />
+                                <field name="nbre_de_voie" 
+                                    attrs="{'invisible': [('nbre_de_voie_vsb', '!=', True)], 'required':  [('nbre_de_voie_obl', '=', True)]}"/>
+                                
+                                <field name="capacite_de_levage_vsb" invisible="1" />
+                                <field name="capacite_de_levage_obl" invisible="1" />
+                                <field name="capacite_de_levage" 
+                                    attrs="{'invisible': [('capacite_de_levage_vsb', '!=', True)], 'required':  [('capacite_de_levage_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_bande_vsb" invisible="1" />
+                                <field name="dimension_bande_obl" invisible="1" />
+                                <field name="dimension_bande" 
+                                    attrs="{'invisible': [('dimension_bande_vsb', '!=', True)], 'required':  [('dimension_bande_obl', '=', True)]}"/>
+                                
+                                <field name="dimension_cage_vsb" invisible="1" />
+                                <field name="dimension_cage_obl" invisible="1" />
+                                <field name="dimension_cage" 
+                                    attrs="{'invisible': [('dimension_cage_vsb', '!=', True)], 'required':  [('dimension_cage_obl', '=', True)]}"/>
+                                
+                                <field name="poids_kg_vsb" invisible="1" />
+                                <field name="poids_kg_obl" invisible="1" />
+                                <field name="poids_kg" 
+                                    attrs="{'invisible': [('poids_kg_vsb', '!=', True)], 'required':  [('poids_kg_obl', '=', True)]}"/>
+                                
+                                <field name="affectation_sur_le_site_vsb" invisible="1" />
+                                <field name="affectation_sur_le_site_obl" invisible="1" />
+                                <field name="affectation_sur_le_site" 
+                                    attrs="{'invisible': [('affectation_sur_le_site_vsb', '!=', True)], 'required':  [('affectation_sur_le_site_obl', '=', True)]}"/>
+                                
+                                <field name="is_mold_ids_vsb" invisible="1" />
+                                <field name="is_mold_ids_obl" invisible="1" />
+                                <field name="is_mold_ids" widget="many2many_tags" 
+                                    attrs="{'invisible': [('is_mold_ids_vsb', '!=', True)], 'required':  [('is_mold_ids_obl', '=', True)]}"/>
+                                
+                                <field name="is_dossierf_ids_vsb" invisible="1" />
+                                <field name="is_dossierf_ids_obl" invisible="1" />
+                                <field name="is_dossierf_ids" widget="many2many_tags" 
+                                    attrs="{'invisible': [('is_dossierf_ids_vsb', '!=', True)], 'required':  [('is_dossierf_ids_obl', '=', True)]}"/>
+                                
+                                <field name="type_de_fluide_vsb" invisible="1" />
+                                <field name="type_de_fluide_obl" invisible="1" />
+                                <field name="type_de_fluide" 
+                                    attrs="{'invisible': [('type_de_fluide_vsb', '!=', True)], 'required':  [('type_de_fluide_obl', '=', True)]}"/>
+                                
+                                <field name="temperature_maximum_vsb" invisible="1" />
+                                <field name="temperature_maximum_obl" invisible="1" />
+                                <field name="temperature_maximum" 
+                                    attrs="{'invisible': [('temperature_maximum_vsb', '!=', True)], 'required':  [('temperature_maximum_obl', '=', True)]}"/>
+                                
+                                <field name="puissance_de_refroidissement_vsb" invisible="1" />
+                                <field name="puissance_de_refroidissement_obl" invisible="1" />
+                                <field name="puissance_de_refroidissement" 
+                                    attrs="{'invisible': [('puissance_de_refroidissement_vsb', '!=', True)], 'required':  [('puissance_de_refroidissement_obl', '=', True)]}"/>
+                                
+                                <field name="debit_maximum_vsb" invisible="1" />
+                                <field name="debit_maximum_obl" invisible="1" />
+                                <field name="debit_maximum" 
+                                    attrs="{'invisible': [('debit_maximum_vsb', '!=', True)], 'required':  [('debit_maximum_obl', '=', True)]}"/>
+                                
+                                <field name="volume_l_vsb" invisible="1" />
+                                <field name="volume_l_obl" invisible="1" />
+                                <field name="volume_l" 
+                                    attrs="{'invisible': [('volume_l_vsb', '!=', True)], 'required':  [('volume_l_obl', '=', True)]}"/>
+                                
+                                <field name="option_depresssion_vsb" invisible="1" />
+                                <field name="option_depresssion_obl" invisible="1" />
+                                <field name="option_depresssion" 
+                                    attrs="{'invisible': [('option_depresssion_vsb', '!=', True)], 'required':  [('option_depresssion_obl', '=', True)]}"/>
+                                
+                                <field name="mesure_debit_vsb" invisible="1" />
+                                <field name="mesure_debit_obl" invisible="1" />
+                                <field name="mesure_debit" 
+                                    attrs="{'invisible': [('mesure_debit_vsb', '!=', True)], 'required':  [('mesure_debit_obl', '=', True)]}"/>
+                                
+                                <field name="base_capacitaire_vsb" invisible="1" />
+                                <field name="base_capacitaire_obl" invisible="1" />
+                                <field name="base_capacitaire" 
+                                    attrs="{'invisible': [('base_capacitaire_vsb', '!=', True)], 'required':  [('base_capacitaire_obl', '=', True)]}"/>
+                                
+                                <field name="emplacement_affectation_pe_vsb" invisible="1" />
+                                <field name="emplacement_affectation_pe_obl" invisible="1" />
+                                <field name="emplacement_affectation_pe" 
+                                    attrs="{'invisible': [('emplacement_affectation_pe_vsb', '!=', True)], 'required':  [('emplacement_affectation_pe_obl', '=', True)]}"/>
+
+                                <field name="adresse_ip_mac_vsb" invisible="1" />
+                                <field name="adresse_ip_mac_obl" invisible="1" />
+                                <field name="adresse_ip_mac" 
+                                    attrs="{'invisible': [('adresse_ip_mac_vsb', '!=', True)], 'required':  [('adresse_ip_mac_obl', '=', True)]}"/>
+
+                                <field name="active" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_equipement_filter" model="ir.ui.view">
+            <field name="name">is_equipement_filter</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <search string="Equipement">
+                    <field name="type_id"/>
+                    <field name="numero_equipement"/>
+                    <field name="designation"/>
+                    <field name="equipement_cle"/>
+                    <field name="emplacement_affectation_pe"/>
+                    <field name="database_id"/>
+                    <field name="constructeur"/>
+                    <field name="constructeur_serie"/>
+                    <field name="partner_id"/>
+                    <field name="date_fabrication"/>
+                    <field name="date_de_fin"/>
+                    <group expand="0" string="Regroupé par...">
+                      <filter name="group_type_id" string="Type équipement" context="{'group_by':'type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="action_is_equipement" model="ir.actions.act_window">
+            <field name="name">Equipement</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.equipement</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="search_view_id" ref="is_equipement_filter"/>
+            <field name="view_id" ref="is_equipement_view_tree"/>
+        </record>
+
+        <!-- Presse -->
+        <record id="is_equipement_view_tree_press" model="ir.ui.view">
+            <field name="name">view.is.equipement.presse.tree</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <tree string="Presse">
+                    <field name="numero_equipement"            invisible="context.get('caracteristigues',True)"/>
+                    <field name="designation"                  invisible="context.get('caracteristigues',True)"/>
+                    <field name="classe_id"                    invisible="context.get('caracteristigues',True)"/>
+                    <field name="emplacement_affectation_pe"   invisible="context.get('caracteristigues',True)"/>
+                    <field name="database_id"                  invisible="context.get('caracteristigues',True)"/>
+                    <field name="classe_commerciale"           invisible="context.get('caracteristigues',True)"/>
+                    <field name="puissance_de_chauffe"         invisible="context.get('caracteristigues',True)"/>
+                    <field name="puissance_de_refroidissement" invisible="context.get('caracteristigues',True)"/>
+                    <field name="type_id"                      invisible="context.get('caracteristigues',True)"/>
+                    <field name="constructeur"                 invisible="context.get('caracteristigues',True)"/>
+                    <field name="constructeur_serie"           invisible="context.get('caracteristigues',True)"/>
+                    <field name="type_presse_commande"         invisible="context.get('caracteristigues',True)"/>
+                    <field name="energie"                      invisible="context.get('caracteristigues',True)"/>
+                    <field name="volume_l"                     invisible="context.get('caracteristigues',True)"/>
+                    <field name="volume_reservoir"             invisible="context.get('caracteristigues',True)"/>
+                    <field name="dimension_entre_col_h"       invisible="context.get('capacite_moule',True)"/>
+                    <field name="faux_plateau"                invisible="context.get('capacite_moule',True)"/>
+                    <field name="epaisseur_moule_mini_presse" invisible="context.get('capacite_moule',True)"/>
+                    <field name="dimension_demi_plateau_h"    invisible="context.get('capacite_moule',True)"/>
+                    <field name="dimension_hors_tout_haut"    invisible="context.get('capacite_moule',True)"/>
+                    <field name="dimension_entre_col_v"       invisible="context.get('capacite_moule',True)"/>
+                    <field name="epaisseur_moule_mini_presse" invisible="context.get('capacite_moule',True)"/>
+                    <field name="epaisseur_faux_plateau"      invisible="context.get('capacite_moule',True)"/>
+                    <field name="epaisseur_moule_maxi"        invisible="context.get('capacite_moule',True)"/>
+                    <field name="dimension_demi_plateau_v"    invisible="context.get('capacite_moule',True)"/>
+                    <field name="dimension_hors_tout_bas"     invisible="context.get('capacite_moule',True)"/>
+                    <field name="coefficient_vis"   invisible="context.get('capacite_injection',True)"/>
+                    <field name="type_de_clapet"    invisible="context.get('capacite_injection',True)"/>
+                    <field name="coefficient_vis"   invisible="context.get('capacite_injection',True)"/>
+                    <field name="volume_injectable"  invisible="context.get('capacite_injection',True)"/>
+                    <field name="volume_injectable2" invisible="context.get('capacite_injection',True)"/>
+                    <field name="course_ejection"   invisible="context.get('course',True)"/>
+                    <field name="course_ouverture"  invisible="context.get('course',True)"/>
+                    <field name="centrage_moule"    invisible="context.get('centrage',True)"/>
+                    <field name="centrage_moule2"   invisible="context.get('centrage',True)"/>
+                    <field name="centrage_presse"   invisible="context.get('centrage',True)"/>
+                    <field name="hauteur_porte_sol" invisible="context.get('hauteur',True)"/>
+                    <field name="bridage_rapide"           invisible="context.get('bridage',True)"/>
+                    <field name="bridage_rapide_pas"       invisible="context.get('bridage',True)"/>
+                    <field name="bridage_rapide_entre_axe" invisible="context.get('bridage',True)"/>
+                    <field name="type_huile_hydraulique"   invisible="context.get('huile',True)"/>
+                    <field name="volume_reservoir"         invisible="context.get('huile',True)"/>
+                    <field name="hauteur_porte_sol"               invisible="context.get('autres',True)"/>
+                    <field name="type_huile_graissage_centralise" invisible="context.get('autres',True)"/>
+                    <field name="nbre_noyau_pf"                   invisible="context.get('autres',True)"/>
+                    <field name="nbre_noyau_total"                invisible="context.get('autres',True)"/>
+                    <field name="nbre_zone_de_chauffe_moule"      invisible="context.get('autres',True)"/>
+                    <field name="puissance_electrique_installee"  invisible="context.get('autres',True)"/>
+                    <field name="puissance_electrique_moteur"     invisible="context.get('autres',True)"/>
+                    <field name="puissance_de_chauffe"            invisible="context.get('autres',True)"/>
+                    <field name="compensation_cosinus"            invisible="context.get('autres',True)"/>
+                    <field name="nbre_noyau_pm"                   invisible="context.get('autres',True)"/>
+                    <field name="passage_buse"                    invisible="context.get('autres',True)"/>
+                    <field name="poids_kg"                        invisible="context.get('autres',True)"/>
+                    <field name="is_database_origine_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_is_equipement_presse_search" model="ir.ui.view">
+            <field name="name">view.is.equipement.presse.search</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <search string="Presse">
+                    <field name="type_id"/>
+                    <!-- <filter name="caracteristigues_filter" filter_domain="[]" context="{'caracteristigues':False}" string="Caractéristiques"/>
+                    <filter name="capacite moule_filter" filter_domain="[]" context="{'capacite_moule':False}" string="Capacité moule"/>
+                    <filter name="capacite_injection_filter" filter_domain="[]" context="{'capacite_injection':False}" string="Capacité injection"/>
+                    <filter name="course_filter" filter_domain="[]" context="{'course':False}" string="Course"/>
+                    <filter name="centrage_filter" filter_domain="[]" context="{'centrage':False}" string="Centrage"/>
+                    <filter name="hauteur_porte_sol_filter" filter_domain="[]" context="{'hauteur':False}" string="Hauteur"/>
+                    <filter name="bridage_filter" filter_domain="[]" context="{'bridage':False}" string="Bridage"/>
+                    <filter name="huile_filter" filter_domain="[]" context="{'huile':False}" string="Huile"/>
+                    <filter name="autres_filter" filter_domain="[]" context="{'autres':False}" string="Autres informations"/> -->
+                </search>
+            </field>
+        </record>
+
+        <record id="action_is_equipement_presse" model="ir.actions.act_window" >
+            <field name="name">Presse</field>
+            <field name="res_model">is.equipement</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_is_equipement_presse_search"/>
+            <field name="context">{'search_default_caracteristigues_filter':1}</field>
+            <field name="domain">[('type_id.code', '=', 'PE')]</field>
+            <field name="view_id" ref="is_equipement_view_tree_press"/>
+        </record>
+
+        <!-- Prechauffeur -->
+        <record id="is_equipement_view_tree_prechauffeur" model="ir.ui.view">
+            <field name="name">view.is.equipement.prechauffeur.tree</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <tree string="Prechauffeur">
+                    <field name="numero_equipement" invisible="context.get('identification',True)"/>
+                    <field name="database_id"       invisible="context.get('identification',True)"/>
+                    <field name="is_mold_ids"       invisible="context.get('identification',True)"/>
+                    <field name="constructeur"      invisible="context.get('identification',True)"/>
+                    <field name="type_id"           invisible="context.get('identification',True)"/>
+                    <field name="numero_equipement" invisible="context.get('identification',True)"/>
+                    <field name="date_fabrication"  invisible="context.get('identification',True)"/>
+                    <field name="poids_kg"          invisible="context.get('encombrement',True)"/>
+                    <field name="hauteur_porte_sol" invisible="context.get('encombrement',True)"/>
+                    <field name="type_de_fluide"                 invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="temperature_maximum"            invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="puissance_electrique_installee" invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="puissance_de_chauffe"           invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="puissance_de_refroidissement"   invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="debit_maximum"                  invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="pression_maximum"               invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="pression_maximum2"              invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="mesure_debit"                   invisible="context.get('caracteristiques_techniques',True)"/>
+                    <field name="is_database_origine_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_is_equipement_prechauffeur_search" model="ir.ui.view">
+            <field name="name">view.is.equipement.prechauffeur.search</field>
+            <field name="model">is.equipement</field>
+            <field name="arch" type="xml">
+                <search string="Prechauffeur">
+                    <field name="type_id"/>
+                    <!-- <filter name="identification_filter"              filter_domain="[]" context="{'identification':False}" string="Identification"/>
+                    <filter name="encombrement_filter"                filter_domain="[]" context="{'encombrement':False}" string="Encombrement"/>
+                    <filter name="caracteristiques_techniques_filter" filter_domain="[]" context="{'caracteristiques_techniques':False}" string="Caractéristiques techniques"/> -->
+                </search>
+            </field>
+        </record>
+
+        <record id="action_is_equipement_prechauffeur" model="ir.actions.act_window" >
+            <field name="name">Prechauffeur</field>
+            <field name="res_model">is.equipement</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_is_equipement_prechauffeur_search"/>
+            <field name="context">{'search_default_identification_filter':1}</field>
+            <field name="domain">[('type_id.code', '=', 'PR')]</field>
+            <field name="view_id" ref="is_equipement_view_tree_prechauffeur"/>
+        </record>
+
+
+    <!-- Presse THIEA -->
+    <record model="ir.ui.view" id="is_theia_presse_tree_view">
+        <field name="name">is_theia_presse_tree_view</field>
+        <field name="model">is.equipement</field>
+        <field name="priority" eval="90" />
+        <field name="arch" type="xml">
+            <tree>
+                <field name="type_id"/>
+                <field name="numero_equipement"/>
+                <field name="prioritaire"/>
+                <field name="designation"/>
+                <field name="ilot_id"/>
+                <field name="ordre"/>
+                <field name="raspberry_id"/>
+                <field name="etat_presse_id" />
+                <field name="couleur" widget='pgcolor'/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_theia_presse_form_view">
+        <field name="name">is_theia_presse_form_view</field>
+        <field name="model">is.equipement</field>
+        <field name="priority" eval="90" />
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
+                   <!-- <button class="oe_inline oe_stat_button"    string="Interface"    
+                            help="Interface de la presse"      name= "interface_presse"     
+                            type="object" icon="fa-eye" /> -->
+                    <button 
+                        class="oe_inline oe_stat_button"      string="Etiquette" 
+                        help="Imprimer étiquette équipement"  name= "imprimer_etiquette_equipement"     
+                        type="object" icon="fa-print"
+                    />
+                </div>
+                <group>
+                    <field name="type_id"           readonly="1"/>
+                    <field name="numero_equipement" readonly="1"/>
+                    <field name="prioritaire"       readonly="1"/>
+                    <field name="designation"       readonly="1"/>
+                    <field name="ilot_id"/>
+                    <field name="ordre"/>
+                    <field name="raspberry_id"/>
+                    <field name="etat_presse_id" readonly="1"/>
+                </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+    <!--
+    <record model="ir.ui.view" id="is_presse_search_view" >
+        <field name="name">is.presse.search</field>
+        <field name="model">is.equipement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="intitule"/>
+                <field name="ilot_id"/>
+                <field name="ordre"/>
+                <field name="etat_presse_id"/>
+                <filter string="Presses actives" name="presses_actives" domain="[('raspberry_id','!=',False)]" />
+                <separator/>
+                <group expand="0" string="Group By...">
+                    <filter string="Ilot"         domain="[]" context="{'group_by':'ilot_id'}"/>
+                    <filter string="État presse"  domain="[]" context="{'group_by':'etat_presse_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    -->
+    <record model="ir.actions.act_window" id="is_theia_presse_action">
+        <field name="name">Process</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.equipement</field>
+        <!--<field name="context">{"search_default_presses_actives":1}</field>-->
+        <field name="context">{}</field>
+        <field name="domain">[('type_id.code', 'in', ['PE','9000'])]</field>
+        <field name="view_mode">tree,form</field>
+        <!--<field name="view_id" ref="is_theia_presse_tree_view"/>-->
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('is_theia_presse_tree_view'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('is_theia_presse_form_view'), 'sequence': 2})
+        ]"/>
+    </record>
+
+
+    <menuitem action="is_theia_presse_action" 
+              id="is_theia_presse_menu" 
+              parent="is_theia_presse_main_menu" 
+              sequence="10"/>
+
+
+
+
+
+
+    </data>
+</odoo>

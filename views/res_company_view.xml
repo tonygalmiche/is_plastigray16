@@ -51,9 +51,13 @@
                             <field name="is_directeur_technique_id"/>
                             <field name="is_acheteur_id"/>
                             <field name="is_gest_demande_transport_id"/>
+                            <field name="is_responsable_rh_id" />
+
+
                         </group>
                         <group string="THEIA">
                             <field name="is_code_societe"/>
+                            <field name="is_zebra_id" />
                         </group>
                         <group string="SMS via OVH">
                             <field name="is_sms_account"/>

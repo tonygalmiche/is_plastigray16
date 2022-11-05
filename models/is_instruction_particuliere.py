@@ -17,8 +17,14 @@ class is_instruction_particuliere(models.Model):
     date_validite = fields.Date("Date de validité", required=True)
     commentaire   = fields.Text("Commentaire")
     contenu       = fields.Binary("Image du contenu")
+    afficher_imprimer = fields.Selection([
+        ('afficher'         , u'Afficher'),
+        ('imprimer'         , u'Imprimer'),
+        ('afficher-imprimer', u'Afficher et Imprimer'),
+    ], 'Afficher / Imprimer', required=True, help=u'Afficher dans THEIA ou imprimer en PDF avec les documents de fabrication', default='imprimer')
+    groupe_ids = fields.Many2many('is.theia.validation.groupe','is_instruction_particuliere_groupe_rel','ip_id','groupe_id', string="Groupes autorisés")
 
- 
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:

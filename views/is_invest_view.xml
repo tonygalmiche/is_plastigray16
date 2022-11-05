@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Investissement Global -->
+        <!-- <record id="is_invest_global_type_seq" model="ir.sequence.type">
+            <field name="name">Investissement Global</field>
+            <field name="code">is.invest.global</field>
+        </record> -->
+        <record id="is_invest_global_seq" model="ir.sequence">
+            <field name="name">Investissement Global</field>
+            <field name="code">is.invest.global</field>
+            <field name="prefix"></field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="is_invest_global_form_view" model="ir.ui.view">
+            <field name="name">is_invest_global_form_view</field>
+            <field name="model">is.invest.global</field>
+            <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button 
+                        name="creer_detail_action"
+                        string="Créer investissement détail"
+                        type="object"
+                    />
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="date_creation"/>
+                        <field name="annee"/>
+                        <field name="site_id" default_focus="1"/>
+                        <field name="intitule"/>
+                        <field name="montant"/>
+                    </group>
+                    <field name="detail_ids" nolabel="1">
+                        <tree>
+                            <field name="name" />
+                            <field name="date_creation"/>
+                            <field name="annee"/>
+                            <field name="intitule"/>
+                            <field name="imputation"/>
+                            <field name="section"/>
+                            <field name="montant_odoo"  sum="Total"/>
+                            <field name="montant_cegid" sum="Total"/>
+                        </tree>
+                    </field>
+                    <group>
+                        <field name="montant_odoo" />
+                        <field name="montant_cegid"/>
+                        <field name="reste_odoo"/>
+                        <field name="reste_cegid"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_invest_global_tree_view" model="ir.ui.view">
+            <field name="name">is_invest_global_tree_view</field>
+            <field name="model">is.invest.global</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="date_creation"/>
+                    <field name="annee"/>
+                    <field name="site_id"/>
+                    <field name="intitule"/>
+                    <field name="montant"       sum="Total"/>
+                    <field name="montant_odoo"  sum="Total"/>
+                    <field name="montant_cegid" sum="Total"/>
+                    <field name="reste_odoo"    sum="Total"/>
+                    <field name="reste_cegid"   sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_invest_global_search_view" model="ir.ui.view">
+            <field name="name">is_invest_global_search_view</field>
+            <field name="model">is.invest.global</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                    <field name="annee"/>
+                    <field name="site_id"/>
+                    <field name="intitule"/>
+                    <separator/>
+                </search>
+            </field>
+        </record>
+        <record id="is_invest_global_action" model="ir.actions.act_window" >
+            <field name="name">Investissement Global</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.invest.global</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Investissement Détail -->
+        <record id="is_invest_detail_form_view" model="ir.ui.view">
+            <field name="name">is_invest_detail_form_view</field>
+            <field name="model">is.invest.detail</field>
+            <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button 
+                        name="actualiser_commandes"
+                        string="Actualiser les commandes"
+                        type="object"
+                    />
+                </header>
+                <sheet>
+                    <group string="Investissement Détail">
+                        <group>
+                            <field name="global_id"/>
+                            <field name="name"/>
+                            <field name="date_creation"/>
+                            <field name="annee"/>
+                        </group>
+                        <group>
+                            <field name="site_id"/>
+                            <field name="intitule"  default_focus="1"/>
+                            <field name="imputation"/>
+                            <field name="section"/>
+                        </group>
+                    </group>
+                    <group string="Commandes">
+                        <field name="cde_ids" nolabel="1">
+                            <tree>
+                                <button 
+                                    string="Accès à la commande" 
+                                    name= "acces_commande_action" type="object" icon="gtk-zoom-in"
+                                />
+                                <field name="order"/>
+                                <field name="order_id"/>
+                                <field name="code_pg"/>
+                                <field name="date_liv"/>
+                                <field name="qt_cde" sum="Total"/>
+                                <field name="prix"/>
+                                <field name="montant" sum="Total"/>
+                                <field name="base"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group string="Compta">
+                        <field name="compta_ids" nolabel="1">
+                            <tree>
+                                <field name="date_facture"/>
+                                <field name="piece"/>
+                                <field name="intitule"/>
+                                <field name="affaire"/>
+                                <field name="compte"/>
+                                <field name="section"/>
+                                <field name="montant" sum="Total"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group>
+                        <field name="montant_odoo"/>
+                        <field name="montant_cegid"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_invest_detail_tree_view" model="ir.ui.view">
+            <field name="name">is_invest_detail_tree_view</field>
+            <field name="model">is.invest.detail</field>
+            <field name="arch" type="xml">
+                <tree create="0">
+                    <field name="global_id"/>
+                    <field name="name" />
+                    <field name="date_creation"/>
+                    <field name="annee"/>
+                    <field name="site_id"/>
+                    <field name="intitule"/>
+                    <field name="imputation"/>
+                    <field name="section"/>
+                    <field name="montant_odoo"  sum="Total"/>
+                    <field name="montant_cegid" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_invest_detail_search_view" model="ir.ui.view">
+            <field name="name">is_invest_detail_search_view</field>
+            <field name="model">is.invest.detail</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="global_id"/>
+                    <field name="name" />
+                    <field name="annee"/>
+                    <field name="site_id"/>
+                    <field name="intitule"/>
+                    <field name="imputation"/>
+                    <field name="section"/>
+                    <separator/>
+                </search>
+            </field>
+        </record>
+        <record id="is_invest_detail_action" model="ir.actions.act_window" >
+            <field name="name">Investissement Détail</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.invest.detail</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Investissement Commandes -->
+        <record id="is_invest_cde_form_view" model="ir.ui.view">
+            <field name="name">is_invest_cde_form_view</field>
+            <field name="model">is.invest.cde</field>
+            <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <group>
+                        <field name="detail_id"/>
+                        <field name="order"/>
+                        <field name="order_id"/>
+                        <field name="code_pg"/>
+                        <field name="date_liv"/>
+                        <field name="qt_cde"/>
+                        <field name="prix"/>
+                        <field name="montant"/>
+                        <field name="base"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_invest_cde_tree_view" model="ir.ui.view">
+            <field name="name">is_invest_cde_tree_view</field>
+            <field name="model">is.invest.cde</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="detail_id"/>
+                    <field name="order"/>
+                    <field name="order_id"/>
+                    <field name="code_pg"/>
+                    <field name="date_liv"/>
+                    <field name="qt_cde" sum="Total"/>
+                    <field name="prix"/>
+                    <field name="montant" sum="Total"/>
+                    <field name="base"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_invest_cde_search_view" model="ir.ui.view">
+            <field name="name">is_invest_cde_search_view</field>
+            <field name="model">is.invest.cde</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="detail_id"/>
+                    <field name="order"/>
+                    <field name="code_pg"/>
+                    <field name="base"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_invest_cde_action" model="ir.actions.act_window" >
+            <field name="name">Commandes</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.invest.cde</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- Investissement Compta -->
+        <record id="is_invest_compta_form_view" model="ir.ui.view">
+            <field name="name">is_invest_compta_form_view</field>
+            <field name="model">is.invest.compta</field>
+            <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <group>
+                        <field name="detail_id"/>
+                        <field name="date_facture"/>
+                        <field name="piece"/>
+                        <field name="intitule"/>
+                        <field name="affaire"/>
+                        <field name="compte"/>
+                        <field name="montant"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_invest_compta_tree_view" model="ir.ui.view">
+            <field name="name">is_invest_compta_tree_view</field>
+            <field name="model">is.invest.compta</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="detail_id"/>
+                    <field name="date_facture"/>
+                    <field name="piece"/>
+                    <field name="intitule"/>
+                    <field name="affaire"/>
+                    <field name="compte"/>
+                    <field name="montant" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_invest_compta_search_view" model="ir.ui.view">
+            <field name="name">is_invest_compta_search_view</field>
+            <field name="model">is.invest.compta</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="detail_id"/>
+                    <field name="piece"/>
+                    <field name="intitule"/>
+                    <field name="affaire"/>
+                    <field name="compte"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_invest_compta_action" model="ir.actions.act_window" >
+            <field name="name">Compta</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.invest.compta</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Actualiser les commandes -->
+        <record id="actualiser_commandes_action_server" model="ir.actions.server">
+            <field name="name">Actualiser les commandes</field>
+            <field name="model_id" ref="model_is_invest_detail"/>
+            <field name="code">action = self.actualiser_commandes(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="actualiser_commandes_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.invest.detail'" name="model"/>
+            <field name="name">Actualiser les commandes</field>
+            <field eval="'ir.actions.server,%d'%actualiser_commandes_action_server" name="value"/>
+        </record> -->
+
+
+        <record id="is_invest_main_menu" model="ir.ui.menu" >
+            <field name="name">Investissements</field>
+            <field name="sequence">1</field>
+            <field name="parent_id" eval="ref('account.menu_finance')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_base_principale_grp')
+            ])]"/>
+        </record>
+        <menuitem
+            id="is_invest_global_menu"
+            action="is_invest_global_action"
+            parent="is_invest_main_menu" 
+            sequence="10"
+        />
+        <menuitem
+            id="is_invest_detail_menu"
+            action="is_invest_detail_action"
+            parent="is_invest_main_menu" 
+            sequence="20"
+        />
+        <menuitem
+            id="is_invest_cde_menu"
+            action="is_invest_cde_action"
+            parent="is_invest_main_menu" 
+            sequence="30"
+        />
+        <menuitem
+            id="is_invest_compta_menu"
+            action="is_invest_compta_action"
+            parent="is_invest_main_menu" 
+            sequence="40"
+        />
+
+
+    </data>
+</odoo>

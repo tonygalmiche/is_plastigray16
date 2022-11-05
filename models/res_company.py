@@ -48,6 +48,21 @@ class res_company(models.Model):
     is_agenda_url = fields.Char(u'URL Google Agenda')
     is_agenda_pwd = fields.Char(u'Mot de passe admin Google Agenda')
 
+    is_responsable_rh_id = fields.Many2one('res.users', string='Responsable RH')
+    is_zebra_id = fields.Many2one('is.raspberry.zebra', u"Imprimante Zebra par défaut", help=u"Utilisé pour imprimer les étiquettes des équipements")
+
+    def write(self, vals):
+        base_group_id = self.env.ref('base.group_user')
+        principale_grp_id = self.env.ref('is_plastigray16.is_base_principale_grp')
+        secondaire_grp_id = self.env.ref('is_plastigray16.is_base_secondaire_grp')
+        if vals and vals.get('is_base_principale'):
+            principale_grp_id.write({'users': [(4, user) for user in base_group_id.users.ids]})
+            secondaire_grp_id.write({'users': [(5, user) for user in base_group_id.users.ids]})
+        if vals.get('is_base_principale') == False:
+            secondaire_grp_id.write({'users': [(4, user) for user in base_group_id.users.ids]})
+            principale_grp_id.write({'users': [(5, user) for user in base_group_id.users.ids]})
+        return super(res_company, self).write(vals)
+
 
     def annee_pic_3ans_action(self):
         for obj in self:

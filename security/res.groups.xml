@@ -234,6 +234,56 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
 
+
+
+
+    <record model="res.groups" id="is_base_principale_grp" >
+        <field name="name">Menu: Principale Group</field>
+        <field name="comment"></field>
+    </record>
+    <record model="res.groups" id="is_base_secondaire_grp" >
+        <field name="name">Menu: Secondaire Group</field>
+        <field name="comment"></field>
+    </record>
+    <record model="res.groups" id="is_ctrl100_grp" >
+        <field name="name">Contrôle 100%</field>
+        <field name="comment">Ce groupe permet de créer les gammes et gérer les droits sur les saisies</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
+    <record model="res.groups" id="is_bon_achat_ville_grp" >
+        <field name="name">Bon d'achat en ville</field>
+        <field name="comment">Ce groupe permet d'accèder au menu "Bon d'achat en ville"</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
+
+    <record model="res.groups" id="is_gestionnaire_mode_operatoire_grp" >
+        <field name="name">Gestionnaire des modes opératoires</field>
+        <field name="comment">Ce groupe permet de créer les modes opératoires et les menus</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+    <record model="res.groups" id="is_import_budget_pk_grp" >
+        <field name="name">Import budget PK</field>
+        <field name="comment">Ce groupe permet d'importer dans PK le budget (PIC/PDP) de Gray</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
+    <record model="res.groups" id="is_gestionnaire_dossier_article_grp" >
+        <field name="name">Gestionnaire dossier article</field>
+        <field name="comment">Ce groupe permet de modifier les dossier article</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
+
+
+
+
+
+
+
+
+
     <!-- Catégories de groupes -->
     <record id="is_view_module_category_tree" model="ir.ui.view">
         <field name="name">is_view_module_category_tree</field>

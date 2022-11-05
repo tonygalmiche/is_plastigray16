@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!-- Préventif Moule -->
+        <record model="ir.ui.view" id="view_is_preventif_moule_tree">
+            <field name="name">view.is.preventif.moule.tree</field>
+            <field name="model">is.preventif.moule</field>
+            <field name="arch" type="xml">
+                <tree string="Préventif Moule">
+                    <field name="date_preventif"/>
+                    <field name="moule"/>
+                    <field name="nb_cycles" sum="Total"/>
+                    <field name="periodicite"/>
+                    <field name="fiche_preventif_ids"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_preventif_moule_form">
+            <field name="name">view.is.preventif.moule.form</field>
+            <field name="model">is.preventif.moule</field>
+            <field name="arch" type="xml">
+            <form string="Préventif Moule">
+                <sheet>
+                    <group>
+                        <field name="moule" required="1" />
+                        <field name="nb_cycles"/>
+                        <field name="periodicite"/>
+                        <field name="date_preventif" required="1" />
+                        <field name="fiche_preventif_ids" widget="many2many_binary"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_preventif_moule_search_view" >
+            <field name="name">is_preventif_moule_search_view</field>
+            <field name="model">is.preventif.moule</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="moule"/>
+                    <field name="date_preventif"/>
+                    <field name="periodicite"/>
+                    <group expand="0" string="Regroupé par...">
+                        <filter name="group_annee"        string="Année"     context="{'group_by':'date_preventif:year'}"/>
+                        <filter name="group_mois"         string="Mois"      context="{'group_by':'date_preventif:month'}"/>
+                        <filter name="group_semaine"      string="Semaine"   context="{'group_by':'date_preventif:week'}"/>
+                        <filter name="group_jour"         string="Jour"      context="{'group_by':'date_preventif:day'}"/>
+                        <filter name="group_moule"        string="Moule"     context="{'group_by':'moule'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_preventif_moule_action">
+            <field name="name">Historique des préventifs des moules</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.preventif.moule</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.mold.cycle -->
+        <record model="ir.ui.view" id="is_mold_cycle_tree">
+            <field name="name">is_mold_cycle_tree</field>
+            <field name="model">is.mold.cycle</field>
+            <field name="arch" type="xml">
+                <tree string="Cycles des moules">
+                    <field name="moule_id"/>
+                    <field name="mois"/>
+                    <field name="nb_cycles" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mold_cycle_form">
+            <field name="name">is_mold_cycle_form</field>
+            <field name="model">is.mold.cycle</field>
+            <field name="arch" type="xml">
+                <form string="Cycles des moules">
+                    <sheet>
+                        <group>
+                            <field name="mois"/>
+                            <field name="moule_id"/>
+                            <field name="nb_cycles" sum="Total"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mold_cycle_search_view" >
+            <field name="name">is_mold_cycle_search_view</field>
+            <field name="model">is.mold.cycle</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="moule_id"/>
+                    <field name="mois"/>
+                    <group expand="0" string="Regroupé par...">
+                        <filter name="group_moule" string="Moule" context="{'group_by':'moule_id'}"/>
+                        <filter name="group_mois"  string="Mois"  context="{'group_by':'mois'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="is_mold_cycle_action">
+            <field name="name">Cycles des moules</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.cycle</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- Opérations systématiques -->
+        <record model="ir.ui.view" id="view_is_mold_operation_systematique_tree">
+            <field name="name">view.is.mold.operation.systematique.tree</field>
+            <field name="model">is.mold.operation.systematique</field>
+            <field name="arch" type="xml">
+                <tree string="Opérations systématiques">
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_mold_operation_systematique_form">
+            <field name="name">view.is.mold.operation.systematique.form</field>
+            <field name="model">is.mold.operation.systematique</field>
+            <field name="arch" type="xml">
+            <form string="Opérations systématiques">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_operation_systematique_action">
+            <field name="name">Opérations systématiques</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.operation.systematique</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Opérations spécifiques -->
+        <record model="ir.ui.view" id="view_is_mold_operation_specifique_tree">
+            <field name="name">view.is.mold.operation.specifique.tree</field>
+            <field name="model">is.mold.operation.specifique</field>
+            <field name="arch" type="xml">
+                <tree string="Opérations spécifiques">
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_mold_operation_specifique_form">
+            <field name="name">view.is.mold.operation.specifique.form</field>
+            <field name="model">is.mold.operation.specifique</field>
+            <field name="arch" type="xml">
+            <form string="Opérations spécifiques">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_operation_specifique_action">
+            <field name="name">Opérations spécifiques</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.operation.specifique</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Spécifications particulières -->
+        <record model="ir.ui.view" id="view_is_mold_specification_particuliere_tree">
+            <field name="name">view.is.mold.specification.particuliere.tree</field>
+            <field name="model">is.mold.specification.particuliere</field>
+            <field name="arch" type="xml">
+                <tree string="Spécifications particulières">
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_mold_specification_particuliere_form">
+            <field name="name">view.is.mold.specification.particuliere.form</field>
+            <field name="model">is.mold.specification.particuliere</field>
+            <field name="arch" type="xml">
+            <form string="Spécifications particulières">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_specification_particuliere_action">
+            <field name="name">Spécifications particulières</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.specification.particuliere</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Fréquence préventif moule -->
+        <record model="ir.ui.view" id="view_is_mold_frequence_preventif_tree">
+            <field name="name">view.is.mold.frequence.preventif.tree</field>
+            <field name="model">is.mold.frequence.preventif</field>
+            <field name="arch" type="xml">
+                <tree string="Fréquence préventif moule">
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_mold_frequence_preventif_form">
+            <field name="name">view.is.mold.frequence.preventif.form</field>
+            <field name="model">is.mold.frequence.preventif</field>
+            <field name="arch" type="xml">
+            <form string="Fréquence préventif moule">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_frequence_preventif_action">
+            <field name="name">Fréquence préventif moule</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.frequence.preventif</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Pièces spécifiques -->
+        <record model="ir.ui.view" id="view_is_mold_piece_specifique_tree">
+            <field name="name">view.is.mold.piece.specifique.tree</field>
+            <field name="model">is.mold.piece.specifique</field>
+            <field name="arch" type="xml">
+                <tree string="Pièces spécifiques">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_mold_piece_specifique_form">
+            <field name="name">view.is.mold.piece.specifique.form</field>
+            <field name="model">is.mold.piece.specifique</field>
+            <field name="arch" type="xml">
+            <form string="Pièces spécifiques">
+                <sheet>
+                    <group>
+                        <field name="name" required="True" />
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_piece_specifique_action">
+            <field name="name">Pièces spécifiques</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.piece.specifique</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Surface d'aspect -->
+        <record model="ir.ui.view" id="view_is_mold_surface_aspect_tree">
+            <field name="name">view.is.mold.surface.aspect.tree</field>
+            <field name="model">is.mold.surface.aspect</field>
+            <field name="arch" type="xml">
+                <tree string="Surface d'aspect">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_is_mold_surface_aspect_form">
+            <field name="name">view.is.mold.surface.aspect.form</field>
+            <field name="model">is.mold.surface.aspect</field>
+            <field name="arch" type="xml">
+            <form string="Surface d'aspect">
+                <sheet>
+                    <group>
+                        <field name="name" required="True" />
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_surface_aspect_action">
+            <field name="name">Surface d'aspect</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.surface.aspect</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>
+

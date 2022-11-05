@@ -2,6 +2,48 @@
 
 <odoo>
     <data>
+        <!-- is.mold.bridage -->
+        <record id="is_mold_bridage_tree_view" model="ir.ui.view">
+            <field name="name">is_mold_bridage_tree_view</field>
+            <field name="model">is.mold.bridage</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_mold_bridage_form_view" model="ir.ui.view">
+            <field name="name">is_mold_bridage_form_view</field>
+            <field name="model">is.mold.bridage</field>
+            <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_mold_bridage_search_view" model="ir.ui.view">
+            <field name="name">is_mold_bridage_search_view</field>
+            <field name="model">is.mold.bridage</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_mold_bridage_action" model="ir.actions.act_window" >
+            <field name="name">Bridage Moule</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.mold.bridage</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+
 
         <!-- Actualiser chef de projet -->
         <!-- <record id="actualiser_chef_de_projet_action_server" model="ir.actions.server">
@@ -24,6 +66,11 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form>
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <sheet>
                         <group>
                             <group>
@@ -45,6 +92,8 @@
                                 <field name="mouliste_id" domain="[('supplier','=',True),('is_company','=',True)]"/>
                                 <field name="carcasse"/>
                                 <field name="emplacement"/>
+                                <field name="garantie_outillage" required="1"/>
+                                <field name="numero_plaquette_interne"/>
                                 <field name="dateur_ids_vsb" invisible="1"/>
                             </group>
                         </group>
@@ -58,6 +107,180 @@
                                 <field name="commentaire"/>
                             </tree>
                         </field>
+                        <notebook colspan="4">
+                            <page string="Préventif Moule" attrs="{'invisible': [('is_base_check','!=',True)]}">
+                                <button 
+                                    name="vers_nouveau_preventif_mold"
+                                    string="Nouveau préventif"
+                                    type="object"
+                                />
+                                <group>
+                                    <group>
+                                        <field name="nb_cycles_dernier_preventif" readonly="1"/>
+                                        <field name="nb_cycles_actuel"            readonly="1"/>
+                                        <field name="nb_cycles_avant_preventif"   readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="periodicite_maintenance_moule"/>
+                                        <field name="date_dernier_preventif"      readonly="1"/>
+                                        <field name="preventif_inactif"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="gamme_preventif_ids" widget="many2many_binary"/>
+                                    <field name="is_base_check" invisible="1" />
+                                </group>
+                                <field name="is_preventif_moule" readonly="1" nolabel="1">
+                                    <tree>
+                                        <field name="date_preventif"/>
+                                        <field name="nb_cycles"/>
+                                        <field name="periodicite"/>
+                                        <field name="fiche_preventif_ids"/>
+                                    </tree>
+                                </field>
+                                <group string="Opérations systématiques"/>
+                                <field name="systematique_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="operation_systematique_id"/>
+                                        <field name="activer"/>
+                                        <field name="frequence_preventif_id"/>
+                                    </tree>
+                                </field>
+                                <group string="Opérations spécifiques"/>
+                                <field name="specifique_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="operation_specifique_id"/>
+                                        <field name="activer"/>
+                                        <field name="frequence_preventif_id"/>
+                                    </tree>
+                                </field>
+                                <group string="Spécifications particulières"/>
+                                <field name="specification_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="specification_particuliere_id"/>
+                                        <field name="activer"/>
+                                        <field name="frequence_preventif_id"/>
+                                    </tree>
+                                </field>
+                                <group>
+                                    <field name="piece_specifique_ids" widget="many2many_tags"/>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="surface_aspect_id" />
+                                        <field name="reference_grain" />
+                                        <field name="graineur_id" />
+                                        <field name="diametre_seuil" />
+                                        <field name="fournisseur_bloc_chaud_id" />
+                                        <field name="num_systeme" />
+                                        <field name="indice_creation_fiche" />
+                                        <field name="createur_fiche_id" />
+                                        <field name="date_creation_fiche" />
+                                        <field name="date_modification_fiche" />
+                                    </group>
+                                </group>
+                            </page>
+
+
+                            <page string="Fiche description moule" attrs="{'invisible': [('is_base_check','!=',True)]}">
+                                <group>
+                                    <group string="Dimensions du moule">
+                                        <field name="largeur"/>
+                                        <field name="hauteur"/>
+                                        <field name="epaisseur"/>
+                                        <field name="largeur_hors_tout"/>
+                                        <field name="hauteur_hors_tout"/>
+                                        <field name="epaisseur_hors_tout"/>
+                                        <field name="poids"/>
+                                    </group>
+                                    <group>
+                                        <img 
+                                            src="is_pg_2019/static/img/dimensions-moule.png" 
+                                            style="max-height:350px;max-width:350px"
+                                            alt="dimensions-moule"
+                                        />
+                                    </group>
+                                </group>
+                                <group string="Autres informations">
+                                    <field name="nb_zones_utiles"/>
+                                    <field name="recu_de_buse"/>
+                                    <field name="recu_de_buse_specifique" attrs="{'invisible': [('recu_de_buse', '!=', 'specifique')]}"/>
+
+                                    <field name="diametre_entree_cheminee"/>
+                                    <field name="diametre_entree_cheminee_specifique" attrs="{'invisible': [('diametre_entree_cheminee', '!=', 'specifique')]}"/>
+
+                                    <field name="bridage_ids" widget="many2many_tags"/>
+                                    <field name="bridage_specifique_vsb" invisible="1"/>
+                                    <field name="bridage_specifique" attrs="{'invisible': [('bridage_specifique_vsb', '=', False)]}"/>
+
+                                    <field name="ejection"/>
+                                    <field name="ejection_specifique" attrs="{'invisible': [('ejection', '!=', 'specifique')]}"/>
+                                </group>
+                                <group string="Embout de buse standard 7/8">
+                                    <field name="diametre_passage_matiere"/>
+                                    <field name="type_matiere_transformee"/>
+                                    <field name="embout_buse_longueur"/>
+                                    <field name="type_de_portee"/>
+                                </group>
+                                <group string="Rondelle de centrage">
+                                    <field name="rondelle_centrage_fixe"/>
+                                    <field name="rondelle_centrage_fixe_specifique"   attrs="{'invisible': [('rondelle_centrage_fixe', '!=', 'specifique')]}"/>
+                                    <field name="rondelle_centrage_mobile"/>
+                                    <field name="rondelle_centrage_mobile_specifique" attrs="{'invisible': [('rondelle_centrage_mobile', '!=', 'specifique')]}"/>
+                                </group>
+                                <group string="Presses">
+                                    <field name="presse_ids" widget="many2many_tags"/>
+                                </group>
+                                <group string="Nombre de circuits d'eau">
+                                    <group>
+                                        <field name="nb_circuit_eau_fixe"/>
+                                    </group>
+                                    <group>
+                                        <field name="nb_circuit_eau_fixe_commentaire" attrs="{'invisible': [('nb_circuit_eau_fixe', '==', False)]}"  nolabel="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="nb_circuit_eau_mobile"/>
+                                    </group>
+                                    <group>
+                                        <field name="nb_circuit_eau_mobile_commentaire" attrs="{'invisible': [('nb_circuit_eau_mobile', '==', False)]}"  nolabel="1"/>
+                                    </group>
+                                </group>
+
+                                <group string="Nombre de noyaux">
+                                    <group>
+                                        <field name="nb_noyaux_fixe"/>
+                                    </group>
+                                    <group>
+                                        <field name="nb_noyaux_fixe_commentaire" attrs="{'invisible': [('nb_noyaux_fixe', 'in', [False,'0'])]}"  nolabel="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="nb_noyaux_mobile"/>
+                                    </group>
+                                    <group>
+                                        <field name="nb_noyaux_mobile_commentaire" attrs="{'invisible': [('nb_noyaux_mobile', 'in', [False,'0'])]}"  nolabel="1"/>
+                                    </group>
+                                </group>
+
+
+
+
+                                <group string="Cinématique">
+                                    <field name="cinematique"/>
+                                    <field name="cinematique_description" attrs="{'invisible': [('cinematique', '==', 'specifique')]}"/>
+                                    <field name="cinematique_specifique"  attrs="{'invisible': [('cinematique', '!=', 'specifique')]}"/>
+                                </group>
+                                <group string="Commentaire">
+                                    <field name="fiche_description_commentaire"/>
+                                </group>
+                                <group string="Suivi évolution">
+                                    <field name="fiche_description_indice"/>
+                                    <field name="fiche_description_createur_id"/>
+                                    <field name="fiche_description_date_creation"/>
+                                    <field name="fiche_description_date_modif"/>
+                                </group>
+                            </page>
+
+                        </notebook>
                     </sheet>
                 </form>
             </field>
@@ -113,5 +336,41 @@
             <field name="res_model">is.mold</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+
+        <record model="ir.ui.view" id="is_mold_preventif_tree_view">
+            <field name="name">is_mold_tree_view</field>
+            <field name="model">is.mold</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="90"/>
+            <field name="arch" type="xml">
+                 <!-- colors="red:nb_cycles_avant_preventif &lt; 0" -->
+                <tree>
+                    <field name="name"/>
+                    <field name="designation"/>
+                    <field name="project"/>
+                    <field name="is_database_id"/>
+                    <field name="emplacement"/>
+                    <field name="date_dernier_preventif"/>
+                    <field name="nb_cycles_dernier_preventif"/>
+                    <field name="nb_cycles_actuel"/>
+                    <field name="nb_cycles_avant_preventif"/>
+                    <field name="periodicite_maintenance_moule"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mold_preventif_action">
+            <field name="name">Préventif Moules</field>
+            <field name="res_model">is.mold</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_mold_preventif_tree_view"/>
+            <field name="domain">[('preventif_inactif', '=', False)]</field>
+            <field name="limit">200</field>
+        </record>
+
+
+
+
   </data>
 </odoo>

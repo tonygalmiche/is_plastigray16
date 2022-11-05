@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <!-- is.bon.transfert -->
+        <!-- <record id="is_bon_transfert_form_view_certificat" model="ir.ui.view">
+            <field name="name">is_bon_transfert_form_view_certificat</field>
+            <field name="model">is.bon.transfert</field>
+            <field name="inherit_id" ref="is_bon_transfert_form_view_2019"/>
+            <field name="priority" eval="10" />
+            <field name="arch" type="xml">
+
+                <button name="creation_facture_proforma_action" position="after" >
+                    <button 
+                        name="imprimer_certificat_action" 
+                        string="Imprimer les certificats" 
+                        type="object" class="oe_highlight"
+                        attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
+                    />
+                </button>
+
+
+
+                <field name="partner_id" position="after">
+                    <field 
+                        name="is_certificat_conformite_msg"
+                        style="background:orange"
+                        attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
+                    />
+                </field>
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="before">
+                    <field name="is_certificat_conformite_vsb" invisible="1"/>
+                    <button 
+                        string="Certificat" 
+                        name="imprimer_certificat_action"  
+                        type="object" icon="gtk-print" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
+                    />
+                    <button 
+                        string="Pas de certificat !" 
+                        name="pas_de_certifcat_action"  
+                        type="object" icon="gtk-dialog-warning" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
+                    />
+                </xpath>
+            </field>
+        </record> -->
+
+
+        <!-- is.liste.servir -->
+        <!-- <record model="ir.ui.view" id="is_liste_servir_form_view_2019">
+            <field name="name">is_liste_servir_form_view_2019</field>
+            <field name="model">is.liste.servir</field>
+            <field name="inherit_id" ref="is_liste_servir_form_view"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field 
+                        name="is_certificat_conformite_msg"
+                        style="background:orange"
+                        attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
+                    />
+                </field>
+
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="before">
+                    <field name="is_certificat_conformite_vsb" invisible="1"/>
+                    <button 
+                        string="Certificat" 
+                        name="imprimer_certificat_action"  
+                        type="object" icon="gtk-print" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
+                    />
+                    <button 
+                        string="Pas de certificat !" 
+                        name="pas_de_certifcat_action"  
+                        type="object" icon="gtk-dialog-warning" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
+                    />
+                </xpath>
+            </field>
+        </record> -->
+
+
+        <!-- stock.picking -->
+        <record id="is_view_picking_form" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <button name="do_print_picking" position="after" >
+                    <button 
+                        name="imprimer_certificat_action" 
+                        string="Imprimer les certificats" 
+                        type="object" class="oe_highlight"
+                        attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
+                    />
+                </button>
+                <field name="partner_id" position="after">
+                    <field 
+                        name="is_certificat_conformite_msg"
+                        style="background:orange"
+                        attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
+                    />
+                </field>
+            </field>
+        </record>
+
+        <!-- stock.move -->
+        <!-- <record id="is_view_move_picking_tree2" model="ir.ui.view">
+            <field name="name">is_view_move_picking_tree2</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_picking_tree"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="before">
+                    <field name="is_certificat_conformite_vsb" invisible="1"/>
+                    <button 
+                        string="Certificat" 
+                        name="imprimer_certificat_action"  
+                        type="object" icon="gtk-print" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
+                    />
+                    <button 
+                        string="Pas de certificat !" 
+                        name="pas_de_certifcat_action"  
+                        type="object" icon="gtk-dialog-warning" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
+                    />
+                </field>
+            </field>
+        </record> -->
+
+
+
+
+
+        <!-- is.certificat.conformite --> 
+        <record model="ir.ui.view" id="is_certificat_conformite_form_view">
+            <field name="name">is_certificat_conformite_form_view</field>
+            <field name="model">is.certificat.conformite</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form" create="0">
+                    <header>
+                        <!-- <button 
+                            name="vers_valide"
+                            string="vers Validé"
+                            attrs="{'invisible': [('state', '=', 'valide')]}"
+                            type="object"
+                            groups="is_qualite_group"
+                        />
+                        <button 
+                            name="vers_creation"
+                            string="vers Création"
+                            attrs="{'invisible': [('state', '=', 'creation')]}"
+                            type="object"
+                            groups="is_qualite_group"
+                        /> -->
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet class="oe_form_sheet_width_wider">
+                        <group>
+                            <group>
+                                <field name="product_id"  attrs="{'readonly': [('state', '=', 'valide')]}"/>
+                                <field name="client_id"   attrs="{'readonly': [('state', '=', 'valide')]}"/>
+                                <field name="ref_client"/>
+                                <field name="ref_plan"/>
+                                <field name="ind_plan"/>
+                                <field name="rsp_qualite" attrs="{'readonly': [('state', '=', 'valide')]}"/>
+                            </group>
+                            <group>
+                                <field name="client_order_ref" attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="order_id"         attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="picking_id"       attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="bon_transfert_id" attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="date_bl"/>
+                                <field name="qt_liv"           attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="num_lot"          attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="date_fabrication" attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="rsp_livraison"    attrs="{'readonly': [('state', '=', 'creation')]}"/>
+                                <field name="job_id"/>
+                            </group>
+                        </group>
+                        <field name="reference_ids" nolabel="1"  attrs="{'readonly': [('state', '=', 'valide')]}">
+                            <tree editable="bottom">
+                                <field name="reference"/>
+                                <field name="fabricant"/>
+                                <field name="ref_precise"/>
+                                <field name="epaisseur"/>
+                                <field name="classe"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="pourcentage_maxi" attrs="{'readonly': [('state', '=', 'valide')]}"/>
+                        </group>
+                        <field name="autre_ids" nolabel="1" attrs="{'readonly': [('state', '=', 'valide')]}">
+                            <tree editable="bottom">
+                                <field name="autre_conformite"/>
+                                <field name="epaisseur_mini"/>
+                                <field name="classe_inflammabilite"/>
+                            </tree>
+                        </field>
+                        <field name="autre2_ids" nolabel="1" attrs="{'readonly': [('state', '=', 'valide')]}">
+                            <tree editable="bottom">
+                                <field name="autre"/>
+                            </tree>
+                        </field>
+                        <field name="fabricant_ids" nolabel="1"  attrs="{'readonly': [('state', '=', 'valide')]}">
+                            <tree editable="bottom">
+                                <field name="fabricant"/>
+                                <field name="pourcentage"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_certificat_conformite_tree_view">
+            <field name="name">is_certificat_conformite_tree_view</field>
+            <field name="model">is.certificat.conformite</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <!-- colors="red:state == 'creation'" -->
+                <tree>
+                    <field name="product_id"/>
+                    <field name="client_id"/>
+                    <field name="ref_client"/>
+                    <field name="ref_plan"/>
+                    <field name="ind_plan"/>
+                    <field name="rsp_qualite"/>
+                    <field name="order_id"/>
+                    <field name="picking_id"/>
+                    <field name="bon_transfert_id"/>
+                    <field name="date_bl"/>
+                    <field name="qt_liv"/>
+                    <field name="num_lot"/>
+                    <field name="date_fabrication"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_certificat_conformite_search_view" >
+            <field name="name">is_certificat_conformite_search_view</field>
+            <field name="model">is.certificat.conformite</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/>
+                    <field name="client_id"/>
+                    <field name="ref_client"/>
+                    <field name="order_id"/>
+                    <field name="picking_id"/>
+                    <field name="bon_transfert_id"/>
+                    <field name="state"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_certificat_conformite_action">
+            <field name="name">Certificat de conformité</field>
+            <field name="res_model">is.certificat.conformite</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}
+            </field>
+        </record>
+    </data>
+</odoo>

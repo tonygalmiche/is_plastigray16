@@ -23,31 +23,46 @@ Module Odoo 16 pour Plastigray
         #"security/res.groups.csv",
 
         "security/ir.model.access.csv",
+        "security/is_demande_conges_security.xml",
+
         "views/is_article_view.xml",
         "views/is_bl_manuel_view.xml",
+        "views/is_bon_achat_ville_view.xml",
         "views/is_bon_transfert_view.xml",
+        "views/is_capteur_view.xml",
         "views/is_commande_externe_view.xml",
         "views/is_cde_ferme_cadencee_view.xml",
         "views/is_cde_ouverte_fournisseur_view.xml",
+        "views/is_certificat_conformite_view.xml",
         #"views/is_consigne_journaliere_view.xml", TODO : Liens avec odoo0, dynacase et les ordres de travaux => A revoir plus tard
         "views/is_cout_view.xml",
+        "views/is_ctrl100_view.xml",
+        "views/is_ctrl_budget_ana_view.xml",
+        "views/is_ctrl_budget_tdb_view.xml",
         "views/is_deb_view.xml",
         "views/is_demande_achat_fg_view.xml",
         "views/is_demande_achat_invest_view.xml",
         "views/is_demande_achat_moule_view.xml",
         "views/is_demande_achat_serie_view.xml",
         "views/is_demande_transport_view.xml",
+        "views/is_donnee_machine_view.xml",
+        "views/is_dossier_appel_offre_view.xml",
         "views/is_dossierf_view.xml",
         "views/is_edi_cde_cli_view.xml",
         "views/is_export_cegid_view.xml",
         "views/is_export_edi_view.xml",
         "views/is_gabarit_controle_view.xml",
+        # "views/is_gestion_des_absences_workflow.xml",
+        "views/is_gestion_des_absences_view.xml",
         "views/is_instruction_particuliere_view.xml",
         "views/is_instrument_mesure_view.xml",
         "views/is_inventaire_view.xml",
+        "views/is_invest_view.xml",
+        "views/is_equipement_view.xml",
         "views/is_etuve_view.xml",
         "views/is_facturation_fournisseur_view.xml",
         "views/is_facture_pk_view.xml",
+        "views/is_fiche_tampographie_view.xml",
         "views/is_galia_base_view.xml",
         "views/is_historique_controle_view.xml",
         "views/is_liste_servir_view.xml",
@@ -55,6 +70,8 @@ Module Odoo 16 pour Plastigray
         "views/is_mini_delta_dore_view.xml",
         "views/is_mold_view.xml",
         "views/is_mold_project_view.xml",
+        #"views/is_ot_workflow.xml",
+        "views/is_ot_view.xml",
         "views/is_pdc_view.xml",
         "views/is_pic_3ans.xml",
         "views/is_piece_montabilite_view.xml",
@@ -62,9 +79,13 @@ Module Odoo 16 pour Plastigray
         "views/is_pointage_view.xml",
         "views/is_prechauffeur_view.xml",
         "views/is_presse_view.xml",
+        "views/is_preventif_view.xml",
+        "views/is_preventif_equipement_view.xml",
+        "views/is_proforma_chine_view.xml",
         "views/is_reach_view.xml",
         "views/is_rgpd_view.xml",
         "views/is_tarif_cial_view.xml",
+        "views/is_theia_view.xml",
         "views/mrp_prevision_view.xml",
         "views/product_view.xml",
         # "views/product_pricelist_view.xml", #TODO : A revoir car il y a eu besaucoup de changement sur les pricelist 
@@ -80,6 +101,56 @@ Module Odoo 16 pour Plastigray
         "views/menu.xml",
 
 
+
+
+
+        # TODO is_pg_2019
+        # "data/sequence.xml",
+        # "security/res_groups.xml",
+        # "security/ir_model_access_is_fiche_tampographie.xml",
+        # "security/ir_model_access_is_ctrl100.xml",
+        # "security/ot_security_view.xml",
+        # "security/ir_model_access_is_bon_achat_ville.xml",
+        # "views/auditlog_view.xml",
+        # "views/bilan_fin_of_report.xml",
+        # "views/is_facture_proforma_view.xml",
+        # "views/is_facture_proforma_outillage_view.xml",
+        # 'views/is_head_model_view.xml',
+        # "views/is_mode_operatoire_view.xml",
+        # "views/is_import_budget_pk_view.xml",
+        # "views/is_ot_report.xml",
+        # "views/is_presse_report.xml",
+        # "views/is_proforma_chine_report.xml",
+        # "views/is_indicateur_revue_jalon_view.xml",
+        # "views/is_dossier_article_view.xml",
+        # "views/report_gamme_defautheque.xml",
+        # "views/report_gamme_qualite.xml",
+        # "views/report_is_certificat_conformite.xml",
+        # "views/report_is_ctrl100_rapport_controle.xml",
+        # "views/report_is_ot_indicateur.xml",
+        # "views/report_is_fiche_tampographie.xml",
+        # "views/report_maintenance_preventive_niv2_a.xml",
+        # "views/report_maintenance_preventive_niv2_b.xml",
+        # "views/report_fiche_description_moule.xml",
+        # "views/report_is_ctrl100_pareto.xml",
+        # "views/report_is_bon_achat_ville.xml",
+        # "views/report_is_facture_proforma.xml",
+        # "views/report_is_facture_proforma_outillage.xml",
+        # "views/report_preventif_equipement_zone.xml",
+        # "views/report_paperformat.xml",
+        # "views/report.xml",
+        # "report/is_encres_utilisees_view.xml",
+        # "wizard/server_action_view.xml",
+        # "wizard/is_gestion_des_absences_wiz_view.xml",
+
+
+        # "views/menu.xml",
+        # "security/ir.model.access.csv",
+        # "views/assets.xml",
+
+
+
+        # TODO is_plastigray
         # "security/ir.model.access.csv",
         # "security/ir.model.access.xml", 
         # "security/ir.model.access.is.demande.achat.xml",
@@ -206,16 +277,15 @@ Module Odoo 16 pour Plastigray
         # "report/is_comparatif_cout_pk_tarif.xml",
 
 
-    ],
 
+    ], 
+    "qweb": [
+    ],
     "assets": {
          'web.assets_backend': [
             'is_plastigray16/static/src/css/styles.css',
          ]
     },
-
-
-
     "installable": True,
     "application": True,
     "license": "LGPL-3",

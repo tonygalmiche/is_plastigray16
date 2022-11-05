@@ -23,6 +23,8 @@
                             <field name="mold_ids"     widget="many2many_tags"/>
                             <field name="dossierf_ids" widget="many2many_tags"/>
                             <field name="product_ids"  widget="many2many_tags"/>
+                            <field name="afficher_imprimer"/>
+                            <field name="groupe_ids" widget="many2many_tags"/>
                             <field name="commentaire"/>
                         </group>
                         <field name="contenu" widget="image" style="max-width:1200px"/>
@@ -43,6 +45,8 @@
                     <field name="mold_ids"/>
                     <field name="dossierf_ids"/>
                     <field name="product_ids"/>
+                    <field name="afficher_imprimer"/>
+                    <field name="groupe_ids" widget="many2many_tags"/>
                     <field name="commentaire" optional="show"/>
                     <field name="contenu"     optional="show" widget="image" class="oe_avatar" options="{'size': [200,0]}"/>
                 </tree>
@@ -57,6 +61,8 @@
                     <field name="mold_ids"/>
                     <field name="dossierf_ids"/>
                     <field name="product_ids"/>
+                    <field name="afficher_imprimer"/>
+                    <field name="groupe_ids" widget="many2many_tags"/>
                     <field name="commentaire"/>
                     <filter name="date_validite_filter" string="IP valides" domain="[('date_validite','&gt;=',context_today().strftime('%%Y-%%m-%%d'))]"/>
                 </search>

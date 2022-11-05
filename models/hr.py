@@ -53,24 +53,38 @@ class hr_employee(models.Model):
     is_employe_horaire_ids = fields.One2many('is.employe.horaire', 'employe_id', u"Horaires")
     is_employe_absence_ids = fields.One2many('is.employe.absence', 'employe_id', u"Absences")
 
-    def name_get(self, cr, uid, ids, context=None):
-        res = []
-        for obj in self.browse(cr, uid, ids, context=context):
-            #name=obj.name+" / "+(obj.code_einecs or '')+" / "+(obj.code_cas or '')
-            #name=obj.code_cas or obj.name or obj.code_einecs
-            name = obj.name + u' (' + (obj.is_matricule or u'') + u')'
-            res.append((obj.id,name))
-        return res
+    is_valideur_n1      = fields.Many2one('res.users', string=u'Valideur Niveau 1')
+    is_valideur_n2      = fields.Many2one('res.users', string=u'Valideur Niveau 2')
+    is_droit_conges_ids = fields.One2many('is.droit.conges', 'employe_id', u"Droit aux congés")
 
-    def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
-        if not args:
-            args = []
-        if name:
-            ids = self.search(cr, user, ['|',('name','ilike', name),('is_matricule','ilike', name)], limit=limit, context=context)
-        else:
-            ids = self.search(cr, user, args, limit=limit, context=context)
-        result = self.name_get(cr, user, ids, context=context)
-        return result
+    is_mode_communication = fields.Selection([
+                                        ('courriel'    , u'Courriel'),
+                                        ('sms'         , u'SMS'),
+                                        ('courriel+sms','Courriel + SMS'),
+                                        ], string='Mode de communication')
+    is_mobile   = fields.Char(u"Mobile"  , help="Téléphone utilisé pour l'envoi des SMS pour les demandes de congés")
+    is_courriel = fields.Char(u"Courriel", help="Courriel utilisé pour l'envoi des informations pour les demandes de congés")
+
+
+
+    # def name_get(self, cr, uid, ids, context=None):
+    #     res = []
+    #     for obj in self.browse(cr, uid, ids, context=context):
+    #         #name=obj.name+" / "+(obj.code_einecs or '')+" / "+(obj.code_cas or '')
+    #         #name=obj.code_cas or obj.name or obj.code_einecs
+    #         name = obj.name + u' (' + (obj.is_matricule or u'') + u')'
+    #         res.append((obj.id,name))
+    #     return res
+
+    # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
+    #     if not args:
+    #         args = []
+    #     if name:
+    #         ids = self.search(cr, user, ['|',('name','ilike', name),('is_matricule','ilike', name)], limit=limit, context=context)
+    #     else:
+    #         ids = self.search(cr, user, args, limit=limit, context=context)
+    #     result = self.name_get(cr, user, ids, context=context)
+    #     return result
 
 
 class is_employe_horaire(models.Model):

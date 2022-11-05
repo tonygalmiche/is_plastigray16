@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.proforma.chine -->
+        <record id="is_proforma_chine_form_view" model="ir.ui.view">
+            <field name="name">is_proforma_chine_form_view</field>
+            <field name="model">is.proforma.chine</field>
+            <field name="arch" type="xml">
+                <form string="Proforma Chine">
+                    <sheet class="oe_form_sheet_width_wider">
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="partner_id"/>
+                                <field name="incoterm_id"/>
+                                <field name="place"/>
+                            </group>
+                            <group>
+                                <field name="date_creation"/>
+                                <field name="transport_costs"/>
+                            </group>
+                        </group>
+                        <field name="line_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="type_material"/>
+                                <field name="mold_ids" widget="many2many_tags"/>
+                                <field name="product_id" widget="many2one_clickable"/>
+                                <field name="designation"/>
+                                <field name="custom_code"/>
+                                <field name="country_origin"/>
+                                <field name="uom_id"/>
+                                <field name="quantity" sum="Total"/>
+                                <field name="packaging"/>
+                                <field name="qty_per_pack"/>
+                                <field name="qty_of_pack"/>
+                                <field name="net_weight"/>
+                                <field name="price_unit"/>
+                                <field name="total_price" sum="Total"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="total_net_weight"/>
+                            <field name="total_gross_weight"/>
+                            <field name="pallet_size"/>
+                            <field name="total_amount"/>
+                        </group>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_proforma_chine_tree_view" model="ir.ui.view">
+            <field name="name">is_proforma_chine_tree_view</field>
+            <field name="model">is.proforma.chine</field>
+            <field name="arch" type="xml">
+                <tree string="Proforma Chine">
+                    <field name="name"/>
+                    <field name="date_creation"/>
+                    <field name="partner_id"/>
+                    <field name="incoterm_id"/>
+                    <field name="place"/>
+                    <field name="pallet_size"/>
+                    <field name="transport_costs"/>
+                    <field name="total_net_weight"/>
+                    <field name="total_gross_weight"/>
+                    <field name="total_amount" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_proforma_chine_search_view" >
+            <field name="name">is_proforma_chine_search_view</field>
+            <field name="model">is.proforma.chine</field>
+            <field name="arch" type="xml">
+                <search string="Proforma Chine">
+                    <field name="name"/>
+                    <field name="date_creation"/>
+                    <field name="partner_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_proforma_chine_action" model="ir.actions.act_window">
+            <field name="name">Proforma Chine</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.proforma.chine</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

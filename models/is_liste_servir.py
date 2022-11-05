@@ -92,6 +92,22 @@ class is_liste_servir(models.Model):
         location = warehouse_id.out_type_id and  warehouse_id.out_type_id.default_location_src_id
         return location and location or False
 
+
+    def _compute_is_certificat_conformite_msg(self):
+        for obj in self:
+            msg = False
+            if obj.partner_id.is_certificat_matiere:
+                nb=0
+                for line in obj.line_ids:
+                    certificat = self.env['is.certificat.conformite'].GetCertificat(obj.partner_id, line.product_id.id)
+                    if not certificat:
+                        nb+=1
+                msg=u"Ne pas oublier de fournir les certificats matières."
+                if nb:
+                    msg+=u"\nATTENTION : Il manque "+str(nb)+u" certificats !"
+            obj.is_certificat_conformite_msg = msg
+
+
     name                   = fields.Char("N°", readonly=True)
     partner_id             = fields.Many2one('res.partner', 'Client', required=True)
     date_debut             = fields.Date("Date de début d'expédition")
@@ -111,6 +127,9 @@ class is_liste_servir(models.Model):
     info_client            = fields.Text("Information client complèmentaire")
     galia_um_ids           = fields.One2many('is.galia.base.um', 'liste_servir_id', u"UMs scannées", readonly=True)
     uc_non_affectes        = fields.Integer(u"UCs non affectés")
+    is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
+
+
 
 
     def tableaux(self):
@@ -715,6 +734,19 @@ class is_liste_servir_line(models.Model):
                         obj.stockq_uc  = stockq_uc
 
 
+
+    def _compute_is_certificat_conformite_vsb(self):
+        for obj in self:
+            vsb = False
+            if obj.liste_servir_id.partner_id.is_certificat_matiere:
+                certificat = self.env['is.certificat.conformite'].GetCertificat(obj.liste_servir_id.partner_id, obj.product_id.id)
+                if certificat:
+                    vsb = 1
+                else:
+                    vsb = 2
+            obj.is_certificat_conformite_vsb = vsb
+
+
     liste_servir_id    = fields.Many2one('is.liste.servir', 'Liste à servir', required=True, ondelete='cascade')
     sequence           = fields.Integer('Sequence')
     product_id         = fields.Many2one('product.product', 'Article', required=True, readonly=True)
@@ -741,16 +773,35 @@ class is_liste_servir_line(models.Model):
     nb_uc              = fields.Float('Qt Cde UC'                    , compute='_compute', readonly=True, store=True)
     um_id              = fields.Many2one('is.product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
     nb_um              = fields.Float('Qt Cde UM'                    , compute='_compute', readonly=True, store=True)
-    mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre")
+    mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre", default=True)
     order_id           = fields.Many2one('sale.order', 'Commande', required=False, readonly=True)
     client_order_ref   = fields.Char('Cde Client', readonly=True)
     point_dechargement = fields.Char(u'Point de déchargement', readonly=True)
     certificat_matiere = fields.Char('Certificat matiere', readonly=True)
     anomalie           = fields.Char('Commentaire')
+    is_certificat_conformite_vsb = fields.Integer('Certificat de conformité', compute='_compute_is_certificat_conformite_vsb', store=False, readonly=True)
 
-    _defaults = {
-        'mixer': True,
-    }
+
+    def pas_de_certifcat_action(self):
+        for obj in self:
+            print(obj)
+
+
+    def imprimer_certificat_action(self):
+        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_2019', 'is_certificat_conformite_form_view')
+        for obj in self:
+            certificat = self.env['is.certificat.conformite'].GetCertificat(obj.liste_servir_id.partner_id, obj.product_id.id)
+            if certificat:
+                return {
+                    'name': "Certificat de conformité",
+                    'view_mode': 'form',
+                    'view_id': view_id,
+                    'view_type': 'form',
+                    'res_model': 'is.certificat.conformite',
+                    'type': 'ir.actions.act_window',
+                    'res_id': certificat.id,
+                    'domain': '[]',
+                }
 
 
     def action_acceder_certificat(self):

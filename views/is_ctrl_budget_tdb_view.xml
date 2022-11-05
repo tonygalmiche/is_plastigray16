@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+    <!-- is.ctrl.budget.tdb.famille -->
+    <record id="is_ctrl_budget_tdb_famille_tree_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_famille_tree_view</field>
+        <field name="model">is.ctrl.budget.tdb.famille</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="ordre"/>
+                <field name="name"/>
+                <field name="variable"/>
+                <field name="fixe"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_famille_form_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_famille_form_view</field>
+        <field name="model">is.ctrl.budget.tdb.famille</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="ordre"/>
+                    <field name="name"/>
+                    <field name="variable"/>
+                    <field name="fixe"/>
+                    <field name="active"/>
+                </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_famille_search_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_famille_search_view</field>
+        <field name="model">is.ctrl.budget.tdb.famille</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="ordre"/>
+                <field name="name"/>
+                <field name="variable"/>
+                <field name="fixe"/>
+            </search>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_famille_action" model="ir.actions.act_window" >
+        <field name="name">Famille</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.ctrl.budget.tdb.famille</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- is.ctrl.budget.tdb.intitule -->
+    <record id="is_ctrl_budget_tdb_intitule_tree_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_intitule_tree_view</field>
+        <field name="model">is.ctrl.budget.tdb.intitule</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="famille_id"/>
+                <field name="ordre"/>
+                <field name="intitule"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_intitule_form_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_intitule_form_view</field>
+        <field name="model">is.ctrl.budget.tdb.intitule</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="famille_id"/>
+                    <field name="ordre"/>
+                    <field name="intitule"/>
+                    <field name="code"/>
+                    <field name="active"/>
+                </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_intitule_search_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_intitule_search_view</field>
+        <field name="model">is.ctrl.budget.tdb.intitule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="famille_id"/>
+                <field name="ordre"/>
+                <field name="intitule"/>
+                <field name="code"/>
+            </search>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_intitule_action" model="ir.actions.act_window" >
+        <field name="name">Intitulé</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.ctrl.budget.tdb.intitule</field>
+        <field name="view_mode">tree,form</field>
+        <field name="limit">1000</field>
+    </record>
+
+
+    <!-- is.ctrl.budget.tdb.saisie -->
+    <record id="is_ctrl_budget_tdb_saisie_action_server" model="ir.actions.server">
+         <field name="name">Initialiser les lignes</field>
+        <field name="model_id" ref="model_is_ctrl_budget_tdb_saisie"/>
+        <field name="code">action = self.initialiser_lignes(cr, uid, context.get('active_ids', []), context=context)</field>
+    </record>
+    <!-- <record id="is_ctrl_budget_tdb_saisie_ir_value" model="ir.values">
+        <field eval="'client_action_multi'" name="key2"/>
+        <field eval="'is.ctrl.budget.tdb.saisie'" name="model"/>
+        <field name="name">Initialiser les lignes</field>
+        <field eval="'ir.actions.server,%d'%is_ctrl_budget_tdb_saisie_action_server" name="value"/>
+    </record> -->
+    <record id="is_ctrl_budget_tdb_saisie_tree_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_saisie_tree_view</field>
+        <field name="model">is.ctrl.budget.tdb.saisie</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="annee"/>
+                <field name="mois"/>
+                <field name="destination"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="is_ctrl_budget_tdb_saisie_form_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_saisie_form_view</field>
+        <field name="model">is.ctrl.budget.tdb.saisie</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="lignes_action" type="object" string="Lignes"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="annee"/>
+                        <field name="mois"/>
+                        <field name="destination"/>
+                    </group>
+                    <field name="famille_ids" nolabel="1" readonly="1">
+                        <tree>
+                            <button 
+                                string="Lignes de cette famille" 
+                                name= "lignes_famille_action" type="object" icon="gtk-justify-fill"
+                            />
+                            <field name="famille_id"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="is_ctrl_budget_tdb_saisie_search_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_saisie_search_view</field>
+        <field name="model">is.ctrl.budget.tdb.saisie</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="annee"/>
+                <field name="mois"/>
+                <field name="destination"/>
+            </search>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_saisie_action" model="ir.actions.act_window" >
+        <field name="name">Saisie</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.ctrl.budget.tdb.saisie</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- is.ctrl.budget.tdb -->
+    <record id="is_ctrl_budget_tdb_tree_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_tree_view</field>
+        <field name="model">is.ctrl.budget.tdb</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" create="false">
+                <field name="famille_id"/>
+                <field name="ordre"       readonly="1"/>
+                <field name="intitule_id" readonly="1"/>
+                <field name="code"        readonly="1"/>
+                <field name="montant_variable" sum="Total"/>
+                <field name="montant_fixe"     sum="Total" invisible="context.get('montant_fixe',True)"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_form_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_form_view</field>
+        <field name="model">is.ctrl.budget.tdb</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="famille_id"/>
+                    <field name="ordre"/>
+                    <field name="intitule_id"/>
+                    <field name="code"/>
+                    <field name="montant_variable"/>
+                    <field name="montant_fixe"/>
+                </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+    <record id="is_ctrl_budget_tdb_search_view" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_search_view</field>
+        <field name="model">is.ctrl.budget.tdb</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="ordre"/>
+                <field name="intitule_id"/>
+                <field name="code"/>
+                <field name="famille_id"/>
+                <!-- <filter name="montant_fixe_filter" filter_domain="[]" context="{'montant_fixe':False}" string="Afficher Montant Fixe"/> -->
+            </search>
+        </field>
+    </record>
+</data>
+</odoo>

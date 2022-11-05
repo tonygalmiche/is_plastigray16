@@ -1444,7 +1444,7 @@
 
 
     <!-- Indicateurs -->
-    <!-- <record id="is_indicateurs_menu" model="ir.ui.menu" >
+    <record id="is_indicateurs_menu" model="ir.ui.menu" >
         <field name="name">Indicateurs</field>
         <field name="sequence">6</field>
         <field name="groups_id" eval="[(6,0,[
@@ -1454,6 +1454,8 @@
             ref('is_chef_projet_group'),
         ])]"/>
     </record>
+
+    <!-- 
     <menuitem id="is_indicateur_ca_menu" sequence="10" name="Chiffre d'affaire" parent="is_indicateurs_menu"/>
     <record id="is_sale_order_line_menu" model="ir.ui.menu" >
         <field name="name">CA commandes client</field>
@@ -1893,10 +1895,10 @@
     />
 
 
-<!-- 
-    <menuitem id="menu_type_equipement" sequence="45" name="Type Equipement"     parent="menu_sub_main_outillages_table" action="is_type_equipement_action" />
-    
 
+    <!-- <menuitem id="menu_type_equipement" sequence="45" name="Type Equipement"     parent="menu_sub_main_outillages_table" action="is_type_equipement_action" /> -->
+    
+<!--
     <menuitem id="is_operation_controle_menu" sequence="46" name="Opération de contrôle"     parent="menu_sub_main_outillages_table" action="is_operation_controle_action" />
 
  -->
@@ -1934,6 +1936,602 @@
         <menuitem id="is_rgpd_table_menu"              sequence="20" name="Tables" parent="is_rgpd_main_menu"/>
         <menuitem id="is_rgpd_service_menu"            sequence="10" name="Services"             parent="is_rgpd_table_menu" action="is_rgpd_service_action"/>
         <menuitem id="is_rgpd_lieu_stockage_menu"      sequence="20" name="Lieu de stockage"     parent="is_rgpd_table_menu" action="is_rgpd_lieu_stockage_action"/>
+
+
+
+
+
+
+
+
+
+
+        <!-- <record id="is_article_menu" model="ir.ui.menu" >
+            <field name="name">Articles de tous les sites (intégré)</field>
+            <field name="sequence">40</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_articles')"/>
+            <field name="action"    ref="is_plastigray.is_article_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_base_principale_grp'),
+            ])]"/>
+        </record>
+        <record id="is_article_actualiser_menu" model="ir.ui.menu" >
+            <field name="name">Actualiser les articles</field>
+            <field name="sequence">50</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_articles')"/>
+            <field name="action"    ref="is_plastigray.is_article_actualiser_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_base_principale_grp'),
+            ])]"/>
+        </record> -->
+
+
+        <!-- Dossiers articles -->
+        <!-- <record id="is_dossier_article_main_menu" model="ir.ui.menu" >
+            <field name="name">Dossiers articles</field>
+            <field name="sequence">16</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_donnees_techniques')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_base_principale_grp'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_menu" model="ir.ui.menu" >
+            <field name="name">Dossiers articles</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_main_menu')"/>
+            <field name="action"    ref="is_dossier_article_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_base_principale_grp'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_actualiser_menu" model="ir.ui.menu" >
+            <field name="name">Actualiser Dossier article</field>
+            <field name="sequence">20</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_actions_server"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_gestionnaire_dossier_article_grp'),
+            ])]"/>
+        </record>
+
+
+        <record id="is_dossier_article_code_recyclage_menu" model="ir.ui.menu" >
+            <field name="name">Code recyclage</field>
+            <field name="sequence">30</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_code_recyclage_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_combustion_menu" model="ir.ui.menu" >
+            <field name="name">Combustion</field>
+            <field name="sequence">31</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_combustion_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_durete_menu" model="ir.ui.menu" >
+            <field name="name">Dureté</field>
+            <field name="sequence">32</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_durete_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_gamme_commerciale_menu" model="ir.ui.menu" >
+            <field name="name">Gamme commerciale</field>
+            <field name="sequence">33</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_gamme_commerciale_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_producteur_menu" model="ir.ui.menu" >
+            <field name="name">Producteur</field>
+            <field name="sequence">34</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_producteur_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_traitement_menu" model="ir.ui.menu" >
+            <field name="name">Traitement</field>
+            <field name="sequence">35</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_traitement_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_type_article_menu" model="ir.ui.menu" >
+            <field name="name">Type charge</field>
+            <field name="sequence">36</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_type_article_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record>
+        <record id="is_dossier_article_utilisation_menu" model="ir.ui.menu" >
+            <field name="name">Utilisation</field>
+            <field name="sequence">37</field>
+            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="action"    ref="is_dossier_article_utilisation_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_gestionnaire_tables_group'),
+            ])]"/>
+        </record> -->
+
+
+        <!-- Bon d'achat en ville -->
+        <menuitem id="is_bon_achat_ville_main_menu" sequence="26" name="Bon d'achat en ville"  parent="menu_is_achats" />
+        <record id="is_bon_achat_ville_menu" model="ir.ui.menu">
+            <field name="name">Bon d'achat en ville</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_bon_achat_ville_main_menu')"/>
+            <field name="action"    ref="is_bon_achat_ville_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_bon_achat_ville_grp'),
+            ])]"/>
+        </record>
+
+
+        <!-- Tampographie -->
+        <menuitem id="menu_is_dt_tables_is_fiche_tampographie_constituant" sequence="100" name="Constituant Tampographie"  parent="menu_is_dt_tables" action="action_is_fiche_tampographie_constituant"/>
+        <menuitem id="menu_is_fiche_tampographie_type_reglage"             sequence="101" name="Type réglage Tampographie" parent="menu_is_dt_tables" action="action_is_fiche_tampographie_type_reglage"/>
+        <record id="menu_is_dt_tampographie" model="ir.ui.menu">
+            <field name="name">Tampographie</field>
+            <field name="sequence">89</field>
+            <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_user')])]"/>
+        </record>
+
+        <menuitem id="menu_is_fiche_tampographie" sequence="1" name="Tampographie"     parent="menu_is_dt_tampographie" action="action_is_fiche_tampographie" />
+        <!-- <menuitem id="menu_is_encres_utilisees"   sequence="1" name="Encres utilisées" parent="menu_is_dt_tampographie" action="is_encres_utilisees_action" />  -->
+
+
+
+        <!-- Equipement -->
+        <menuitem id="menu_sub_main_is_equipement"     sequence="31" name="Equipement"      parent="menu_main_outillages" />
+
+        <menuitem id="menu_is_equipement"              sequence="10" name="Equipement"      parent="menu_sub_main_is_equipement" action="action_is_equipement" />
+        <menuitem id="menu_is_equipement_presse"       sequence="20" name="Presse"          parent="menu_sub_main_is_equipement" action="action_is_equipement_presse" />
+        <menuitem id="menu_is_equipement_prechauffeur" sequence="30" name="Prechauffeur"    parent="menu_sub_main_is_equipement" action="action_is_equipement_prechauffeur" />
+
+        <record id="menu_is_equipement_type" model="ir.ui.menu" >
+            <field name="name">Type equipement</field>
+            <field name="sequence">90</field>
+            <field name="action"    ref="action_is_equipement_type"/>
+            <field name="parent_id" eval="ref('menu_sub_main_is_equipement')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_gestionnaire_tables_group')])]"/>
+        </record>
+
+        <!-- Head View -->
+        <!-- <menuitem id="menu_action_is_head_model_form" sequence="30"  parent="base.menu_res_company_global" action="action_is_head_model_form" /> -->
+
+        <!-- Production / Gestion des OT -->
+        <menuitem id="menu_action_is_ot_affectation_form" sequence="100" parent="menu_is_dt_tables" action="action_is_ot_affectation" name="Gestion des OT Affectation"/>
+        <record id="is_gestion_des_ot_menu" model="ir.ui.menu" >
+            <field name="name">Gestion des OT</field>
+            <field name="sequence">28</field>
+            <field name="parent_id" eval="ref('menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_principale_grp')])]"/>
+        </record>
+        <menuitem id="menu_action_is_ot_form"                     sequence="10" parent="is_gestion_des_ot_menu" action="action_is_ot" />
+        <menuitem id="menu_action_is_ot_creation_state"           sequence="30" parent="is_gestion_des_ot_menu" action="action_is_ot_creation"            name="Création"/>
+        <menuitem id="menu_action_is_ot_analyse_ot_state"         sequence="40" parent="is_gestion_des_ot_menu" action="action_is_ot_analyse_ot"          name="Analyse de l'OT"/>
+        <menuitem id="menu_action_is_ot_travaux_a_realiser_state" sequence="50" parent="is_gestion_des_ot_menu" action="action_is_ot_travaux_a_realiser"  name="Travaux à réaliser"/>
+        <menuitem id="menu_action_is_ot_travaux_a_valider_state"  sequence="60" parent="is_gestion_des_ot_menu" action="action_is_ot_travaux_a_valider"   name="Travaux à valider"/>
+        <menuitem id="menu_action_is_ot_annule_state"             sequence="70" parent="is_gestion_des_ot_menu" action="action_is_ot_annule"              name="Annulé"/>
+        <menuitem id="menu_action_is_ot_termine_state"            sequence="80" parent="is_gestion_des_ot_menu" action="action_is_ot_termine"             name="Terminé"/>
+        <menuitem id="is_ot_tous_menu"                            sequence="85" parent="is_gestion_des_ot_menu" action="is_ot_tous_action"                name="Tous les OTs"/>
+        <menuitem id="is_ot_indicateur_menu"                      sequence="90" parent="is_gestion_des_ot_menu" action="is_ot_indicateur_action"          name="Indicateurs"/>
+
+
+        <!-- Contrôle 100% -->
+        <record id="menu_is_controle_100" model="ir.ui.menu" >
+            <field name="name">Contrôle 100%</field>
+            <field name="sequence">43</field>
+            <field name="parent_id" eval="ref('menu_is_production')"/>
+        </record>
+        <menuitem id="menu_is_ctrl100_gamme_mur_qualite"            sequence="10" name="Gamme mur qualité"    parent="menu_is_controle_100" action="is_ctrl100_gamme_mur_qualite_action" />
+        <menuitem id="is_ctrl100_gamme_mur_qualite_formation_menu"  sequence="20" name="Formation"            parent="menu_is_controle_100" action="is_ctrl100_gamme_mur_qualite_formation_action" />
+        <menuitem id="menu_is_ctrl100_defautheque"                  sequence="30" name="Défauthèque"          parent="menu_is_controle_100" action="is_ctrl100_defautheque_action" />
+        <menuitem id="menu_is_ctrl100_defaut"                       sequence="40" name="Saisie mur qualité"   parent="menu_is_controle_100" action="is_ctrl100_defaut_action"/>
+        <menuitem id="is_ctrl100_ligne_saisie_menu"                 sequence="45" name="Lignes des saisies"   parent="menu_is_controle_100" action="is_ctrl100_ligne_saisie_action"/>
+        <menuitem id="menu_is_ctrl100_rapport_controle"             sequence="50" name="Rapport de mission"   parent="menu_is_controle_100" action="is_ctrl100_rapport_controle_action" />
+        <record id="is_ctrl100_pareto_menu" model="ir.ui.menu" >
+            <field name="name">Pareto</field>
+            <field name="sequence">60</field>
+            <field name="action"    ref="is_ctrl100_pareto_action"/>
+            <field name="parent_id" eval="ref('menu_is_controle_100')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_ctrl100_grp')])]"/>
+        </record>
+        <record id="is_ctrl100_typologie_produit_menu" model="ir.ui.menu" >
+            <field name="name">Typologie de produit</field>
+            <field name="sequence">70</field>
+            <field name="action"    ref="is_ctrl100_typologie_produit_action"/>
+            <field name="parent_id" eval="ref('menu_is_controle_100')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_ctrl100_grp')])]"/>
+        </record>
+        <record id="is_ctrl100_operation_standard_menu" model="ir.ui.menu" >
+            <field name="name">Opérations standard</field>
+            <field name="sequence">80</field>
+            <field name="action"    ref="is_ctrl100_operation_standard_action"/>
+            <field name="parent_id" eval="ref('menu_is_controle_100')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_ctrl100_grp')])]"/>
+        </record>
+
+
+
+
+        <!-- Production / Préventif moule -->
+        <record id="is_preventif_moule_main_menu" model="ir.ui.menu" >
+            <field name="name">Préventif moule</field>
+            <field name="sequence">29</field>
+            <field name="parent_id" eval="ref('menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_principale_grp')])]"/>
+        </record>
+        <menuitem id="is_mold_preventif_menu"  sequence="10" parent="is_preventif_moule_main_menu" action="is_mold_preventif_action"  name="Préventif Moules"/>
+        <menuitem id="is_preventif_moule_menu" sequence="20" parent="is_preventif_moule_main_menu" action="is_preventif_moule_action" name="Historique des préventifs"/>
+        <menuitem id="is_mold_cycle_menu"      sequence="30" parent="is_preventif_moule_main_menu" action="is_mold_cycle_action"      name="Cycles des moules"/>
+
+
+        <!-- Production / Préventif équipement -->
+        <record id="is_preventif_equipement_main_menu" model="ir.ui.menu" >
+            <field name="name">Préventif équipement</field>
+            <field name="sequence">29</field>
+            <field name="parent_id" eval="ref('menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_principale_grp')])]"/>
+        </record>
+        <menuitem id="is_preventif_equipement_zone_menu"   sequence="10" parent="is_preventif_equipement_main_menu" action="is_preventif_equipement_zone_action"   name="Zones"/>
+        <menuitem id="is_preventif_equipement_menu"        sequence="20" parent="is_preventif_equipement_main_menu" action="is_preventif_equipement_action"        name="Préventifs"/>
+        <menuitem id="is_preventif_equipement_saisie_menu" sequence="30" parent="is_preventif_equipement_main_menu" action="is_preventif_equipement_saisie_action" name="Historique préventifs"/>
+        <menuitem id="is_preventif_equipement_heure_menu"  sequence="90" parent="is_preventif_equipement_main_menu" action="is_preventif_equipement_heure_action"  name="Heures par équipement"/> 
+
+
+        <!-- Production / Etiquettes GALIA -->
+        <!-- <record id="is_galia_base_main_menu" model="ir.ui.menu" >
+            <field name="name">Étiquettes GALIA</field>
+            <field name="sequence">110</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_pg_2019.is_base_principale_grp')])]"/>
+        </record>
+        <menuitem id="is_galia_base_menu" sequence="10" parent="is_pg_2019.is_galia_base_main_menu" name="Étiquettes GALIA" action="is_plastigray.is_galia_base_action"/>
+ -->
+
+        <!-- Production / Traçabilité -->
+        <!-- <record id="is_tracabilite_main_menu" model="ir.ui.menu" >
+            <field name="name">Traçabilité</field>
+            <field name="sequence">120</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_pg_2019.is_base_secondaire_grp')])]"/>
+        </record>
+        <record id="is_galia_base_uc_menu" model="ir.ui.menu" >
+            <field name="name">UCs</field>
+            <field name="sequence">10</field>
+            <field name="action"    ref="is_plastigray.is_galia_base_uc_action"/>
+            <field name="parent_id" eval="ref('is_pg_2019.is_tracabilite_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_rsp_production_group'),
+                ref('is_plastigray.is_magasiniers_group'),
+                ref('is_plastigray.is_administration_vente_group'),
+            ])]"/>
+        </record>
+        <record id="is_galia_base_um_menu" model="ir.ui.menu" >
+            <field name="name">UMs</field>
+            <field name="sequence">20</field>
+            <field name="action"    ref="is_plastigray.is_galia_base_um_action"/>
+            <field name="parent_id" eval="ref('is_pg_2019.is_tracabilite_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_rsp_production_group'),
+                ref('is_plastigray.is_magasiniers_group'),
+                ref('is_plastigray.is_administration_vente_group'),
+            ])]"/>
+        </record> -->
+
+
+        <!-- Tables Moules -->
+        <!-- <record id="menu_tables_moules" model="ir.ui.menu" >
+            <field name="name">Tables Moules</field>
+            <field name="sequence">130</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_donnees_techniques')"/>
+        </record>
+        <menuitem id="menu_is_mold_operation_systematique"     sequence="1" parent="menu_tables_moules" action="is_mold_operation_systematique_action" name="Opérations systématiques" />
+        <menuitem id="menu_is_mold_operation_specifique"       sequence="2" parent="menu_tables_moules" action="is_mold_operation_specifique_action" name="Opérations spécifiques" />
+        <menuitem id="menu_is_mold_specification_particuliere" sequence="3" parent="menu_tables_moules" action="is_mold_specification_particuliere_action" name="Spécifications particulières" />
+        <menuitem id="menu_is_mold_frequence_preventif"        sequence="4" parent="menu_tables_moules" action="is_mold_frequence_preventif_action" name="Fréquence préventif moule" />
+        <menuitem id="menu_is_mold_piece_specifique"           sequence="5" parent="menu_tables_moules" action="is_mold_piece_specifique_action" name="Pièces spécifiques" />
+        <menuitem id="menu_is_mold_surface_aspect"             sequence="6" parent="menu_tables_moules" action="is_mold_surface_aspect_action" name="Surface d'aspect" />
+        <menuitem id="is_mold_bridage_menu"                    sequence="7" parent="menu_tables_moules" action="is_mold_bridage_action" name="Bridage Moule"/> -->
+
+
+        <!-- Contrôle budgétaire Tdb -->
+        <record id="is_ctrl_budget_tdb_main_menu" model="ir.ui.menu" >
+            <field name="name">Ctrl budgétaire Tdb</field>
+            <field name="sequence">3</field>
+            <field name="parent_id" eval="ref('account.menu_finance')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_principale_grp')])]"/>
+        </record>
+        <menuitem 
+            action="is_ctrl_budget_tdb_saisie_action" 
+            id="is_ctrl_budget_tdb_saisie_menu" 
+            parent="is_ctrl_budget_tdb_main_menu" 
+            sequence="10"
+        />
+        <menuitem 
+            action="is_ctrl_budget_tdb_intitule_action" 
+            id="is_ctrl_budget_tdb_intitule_menu" 
+            parent="is_ctrl_budget_tdb_main_menu" 
+            sequence="20"
+        />
+        <menuitem 
+            action="is_ctrl_budget_tdb_famille_action" 
+            id="is_ctrl_budget_tdb_famille_menu" 
+            parent="is_ctrl_budget_tdb_main_menu" 
+            sequence="30"
+        />
+ 
+
+        <!-- Contrôle budgétaire Analytique -->
+        <record id="is_ctrl_budget_ana_main_menu" model="ir.ui.menu" >
+            <field name="name">Ctrl budgétaire Analytique</field>
+            <field name="sequence">3</field>
+            <field name="parent_id" eval="ref('account.menu_finance')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_secondaire_grp')])]"/>
+        </record>
+        <menuitem 
+            action="is_ctrl_budget_ana_annee_action" 
+            id="is_ctrl_budget_ana_annee_menu" 
+            parent="is_ctrl_budget_ana_main_menu" 
+            sequence="10"
+        />
+
+
+
+
+        <!-- Absences -->
+        <menuitem
+            name="Absences"
+            id="menu_absences_root"
+            sequence="89"
+        />
+        <menuitem
+            name="Gestion des absences"
+            id="menu_hr_gestion_des_absences"
+            parent="menu_absences_root"
+            sequence="10"
+        />
+        <menuitem
+            name="Demande de congés"
+            id="is_demande_conges_menu"
+            parent="menu_hr_gestion_des_absences"
+            sequence="10"
+            action="is_demande_conges_action"
+        />
+        <record id="is_demande_collective_menu" model="ir.ui.menu">
+            <field name="name">Demande collective</field>
+            <field name="sequence">15</field>
+            <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
+            <field name="action"    ref="is_demande_collective_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_manager_des_absences_group'),
+            ])]"/>
+        </record>
+        <record id="menu_is_demande_absence" model="ir.ui.menu">
+            <field name="name">Absence</field>
+            <field name="sequence">20</field>
+            <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
+            <field name="action"    ref="is_demande_absence_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_manager_des_absences_group'),
+            ])]"/>
+        </record>
+
+        <record id="is_Calendrier_des_absences_menu" model="ir.ui.menu">
+            <field name="name">Calendrier des absences</field>
+            <field name="sequence">40</field>
+            <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
+            <field name="action"    ref="is_Calendrier_des_absences_action"/>
+            <field name="groups_id" eval="[(6,0,[
+            ])]"/>
+        </record>
+
+
+
+        <menuitem
+            id="is_employe_absence_menu" 
+            parent="menu_hr_gestion_des_absences"
+            name="Employés"
+            sequence="40"
+            action="is_employe_absence_action"
+        />
+        <menuitem
+            id="is_droit_conges_menu"
+            parent="menu_hr_gestion_des_absences"
+            name="Droit aux congés"
+            groups="is_gestionnaire_des_absences_group"
+            sequence="50"
+            action="is_droit_conges_action"
+        /> 
+
+
+        <!-- Export Congés CEGID -->
+        <!-- <menuitem
+            name="Export Congés CEGID"
+            id="is_demande_conges_export_cegid_main_menu"
+            groups="base.group_hr_manager"
+            parent="menu_absences_root"
+            sequence="20"
+        />
+        <menuitem
+            id="is_demande_conges_export_cegid_menu"
+            parent="is_demande_conges_export_cegid_main_menu"
+            name="Export Congés CEGID"
+            sequence="10"
+            action="is_demande_conges_export_cegid_action"
+        /> -->
+
+
+        <!-- Tables -->
+        <!-- <menuitem
+            name="Tables"
+            id="menu_hr_gestion_des_absences_table"
+            groups="is_gestionnaire_des_absences_group"
+            parent="menu_absences_root"
+            sequence="30"
+        />
+        <menuitem
+            id="menu_is_demande_absence_type"
+            parent="menu_hr_gestion_des_absences_table"
+            name="Type d’absence"
+            sequence="10"
+            action="is_demande_absence_type_action"
+        />
+        <menuitem
+            id="is_demande_conges_autre_menu"
+            parent="menu_hr_gestion_des_absences_table"
+            name="Autres congés"
+            sequence="20"
+            action="is_demande_conges_autre_action"
+        /> -->
+
+
+        <!-- is.proforma.chine -->
+        <menuitem
+            id="is_proforma_main_menu"
+            parent="menu_is_ventes"
+            name="Factures Proforma"
+            sequence="42"
+        />
+        <!-- 
+       <menuitem
+            id="is_facture_proforma_menu"
+            parent="is_proforma_main_menu"
+            name="Facture Proforma"
+            sequence="10"
+            action="is_facture_proforma_action"
+        />
+       <menuitem
+            id="is_facture_proforma_outillage_menu"
+            parent="is_proforma_main_menu"
+            name="Facture Proforma outillage"
+            sequence="20"
+            action="is_facture_proforma_outillage_action"
+        />
+         -->
+        <menuitem
+            id="is_proforma_chine_menu"
+            parent="is_proforma_main_menu"
+            name="Proforma Chine"
+            sequence="30"
+            action="is_proforma_chine_action"
+        />
+ 
+
+        <!-- Ressources Humaines -->
+        <!-- <menuitem
+            id="is_hr_job_menu"
+            parent="hr.menu_hr_configuration"
+            name="Postes"
+            sequence="90"
+            action="is_hr_job_action"
+        /> -->
+
+
+
+        <!-- Modes opératoires -->
+        <!-- <menuitem id="is_mode_operatoire_top_menu" sequence="100" name="Modes opératoires"  groups="is_pg_2019.is_base_principale_grp"/>
+        <menuitem id="is_mode_operatoire_main_menu" sequence="10" name="Modes opératoires"  parent="is_pg_2019.is_mode_operatoire_top_menu" />
+        <record id="is_mode_operatoire_menu" model="ir.ui.menu">
+            <field name="name">Modes opératoires</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_mode_operatoire_main_menu')"/>
+            <field name="action"    ref="is_mode_operatoire_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_gestionnaire_mode_operatoire_grp'),
+            ])]"/>
+        </record>
+
+        <menuitem id="is_mode_operatoire_menu_main_menu" sequence="20" name="Menus"  parent="is_pg_2019.is_mode_operatoire_top_menu" />
+        <record id="is_mode_operatoire_menu_menu" model="ir.ui.menu">
+            <field name="name">Menus</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_mode_operatoire_menu_main_menu')"/>
+            <field name="action"    ref="is_mode_operatoire_menu_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_gestionnaire_mode_operatoire_grp'),
+            ])]"/>
+        </record>
+
+        <record id="is_certificat_conformite_menu" model="ir.ui.menu" >
+            <field name="name">Certificat de conformité</field>
+            <field name="sequence">50</field>
+            <field name="parent_id" eval="ref('is_plastigray.menu_is_ventes_liv')"/>
+            <field name="action"    ref="is_certificat_conformite_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_administration_vente_group'),
+                ref('is_plastigray.is_qualite_group'),
+            ])]"/>
+        </record>
+
+
+       <record id="is_indicateur_bei_menu" model="ir.ui.menu" >
+            <field name="name">BEI</field>
+            <field name="sequence">20</field>
+            <field name="parent_id" eval="ref('is_plastigray.is_indicateurs_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_pg_2019.is_base_principale_grp'),
+            ])]"/>
+        </record>
+        <record id="is_indicateur_revue_jalon_menu" model="ir.ui.menu" >
+            <field name="name">Indicateur Revue Jalon</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_indicateur_bei_menu')"/>
+            <field name="action"    ref="is_indicateur_revue_jalon_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_plastigray.is_chef_projet_group'),
+            ])]"/>
+        </record>
+         -->
+
+        <record id="is_indicateur_commercial_menu" model="ir.ui.menu" >
+            <field name="name">Commercial</field>
+            <field name="sequence">30</field>
+            <field name="parent_id" eval="ref('is_indicateurs_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_base_principale_grp'),
+            ])]"/>
+        </record>
+
+        <record id="is_dossier_appel_offre_menu" model="ir.ui.menu" >
+            <field name="name">Dossier appels d'offres</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_indicateur_commercial_menu')"/>
+            <field name="action"    ref="is_dossier_appel_offre_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_chef_projet_group'),
+                ref('is_administration_vente_group'),
+            ])]"/>
+        </record>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

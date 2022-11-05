@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.ctrl.budget.ana.annee -->
+        <record id="is_ctrl_budget_ana_annee_action_server" model="ir.actions.server">
+            <field name="name">Initialiser les articles</field>
+            <field name="model_id" ref="model_is_ctrl_budget_ana_annee"/>
+            <field name="code">action = self.initialiser_articles(cr, uid, context.get('active_ids', []), context=context)</field>
+        </record>
+        <!-- <record id="is_ctrl_budget_ana_annee_ir_value" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'is.ctrl.budget.ana.annee'" name="model"/>
+            <field name="name">Initialiser les articles</field>
+            <field eval="'ir.actions.server,%d'%is_ctrl_budget_ana_annee_action_server" name="value"/>
+        </record> -->
+        <record id="is_ctrl_budget_ana_annee_tree_view" model="ir.ui.view">
+            <field name="name">is_ctrl_budget_ana_annee_tree_view</field>
+            <field name="model">is.ctrl.budget.ana.annee</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="annee"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_ctrl_budget_ana_annee_form_view" model="ir.ui.view">
+            <field name="name">is_ctrl_budget_ana_annee_form_view</field>
+            <field name="model">is.ctrl.budget.ana.annee</field>
+            <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="liste_articles_action" type="object" string="Liste des articles"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="annee"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_ctrl_budget_ana_annee_search_view" model="ir.ui.view">
+            <field name="name">is_ctrl_budget_ana_annee_search_view</field>
+            <field name="model">is.ctrl.budget.ana.annee</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="annee"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_ctrl_budget_ana_annee_action" model="ir.actions.act_window" >
+            <field name="name">Année</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.ctrl.budget.ana.annee</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.ctrl.budget.ana.product -->
+        <record id="is_ctrl_budget_ana_product_tree_view" model="ir.ui.view">
+            <field name="name">is_ctrl_budget_ana_product_tree_view</field>
+            <field name="model">is.ctrl.budget.ana.product</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="product_id" readonly="1"/>
+                    <field name="is_budget_responsable_id"/>
+                    <field name="budget_annee"/>
+                    <field name="budget_m01"/>
+                    <field name="budget_m02"/>
+                    <field name="budget_m03"/>
+                    <field name="budget_m04"/>
+                    <field name="budget_m05"/>
+                    <field name="budget_m06"/>
+                    <field name="budget_m07"/>
+                    <field name="budget_m08"/>
+                    <field name="budget_m09"/>
+                    <field name="budget_m10"/>
+                    <field name="budget_m11"/>
+                    <field name="budget_m12"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_ctrl_budget_ana_product_form_view" model="ir.ui.view">
+            <field name="name">is_ctrl_budget_ana_product_form_view</field>
+            <field name="model">is.ctrl.budget.ana.product</field>
+            <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="product_id"/>
+                        <field name="is_budget_responsable_id"/>
+                        <field name="budget_annee"/>
+                        <field name="budget_m01"/>
+                        <field name="budget_m02"/>
+                        <field name="budget_m03"/>
+                        <field name="budget_m04"/>
+                        <field name="budget_m05"/>
+                        <field name="budget_m06"/>
+                        <field name="budget_m07"/>
+                        <field name="budget_m08"/>
+                        <field name="budget_m09"/>
+                        <field name="budget_m10"/>
+                        <field name="budget_m11"/>
+                        <field name="budget_m12"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_ctrl_budget_ana_product_search_view" model="ir.ui.view">
+            <field name="name">is_ctrl_budget_ana_product_search_view</field>
+            <field name="model">is.ctrl.budget.ana.product</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/>
+                    <field name="is_budget_responsable_id"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>
