@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <report 
+            id="report_liste_servirs"
+            model="is.liste.servir"
+            string="Liste à servir"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_liste_servir"
+            file="is_plastigray.report_liste_servir"
+        />
+        <record id="report_liste_servirs" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.liste_servir_paperformat"/>
+        </record>
+
+        <report 
+            id="report_proformas"
+            model="sale.order"
+            string="PROFORMA"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_proforma"
+            file="is_plastigray.report_proforma"
+        />
+        <record id="report_proformas" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.proforma_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_inventaires"
+            model="is.inventaire"
+            string="Ecarts d'inventaire"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_inventaire"
+            file="is_plastigray.report_inventaire"
+        />
+        <record id="report_inventaires" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.inventaire_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_inventaire_ecarts"
+            model="is.inventaire"
+            string="Feuilles écarts d'inventaire"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_inventaire_ecart"
+            file="is_plastigray.report_inventaire_ecart"
+        />
+        <record id="report_inventaire_ecarts" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.inventaire_ecart_paperformat"/>
+        </record>
+
+
+        <report 
+            id="account.account_invoices"
+            model="account.invoice"
+            string="Factures"
+            report_type="qweb-pdf"
+            name="is_plastigray.is_report_invoice"
+            file="is_plastigray.is_report_invoice"
+            attachment="(object.state in ('open','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
+        />
+        <record id="account.account_invoices" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.is_paperformat_facture_client"/>
+        </record>
+
+
+        <report 
+            id="report_cde_ouverte_fournisseurs"
+            model="is.cde.ouverte.fournisseur"
+            string="Commande ouverte fournisseur"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_cde_ouverte_fournisseur"
+            file="is_plastigray.report_cde_ouverte_fournisseur"
+            multi="True"
+        />
+        <record id="report_cde_ouverte_fournisseurs" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.cde_ouverte_fournisseur_paperformat"/>
+        </record>
+
+        <report 
+            id="report_cde_ferme_cadencees"
+            model="is.cde.ferme.cadencee"
+            string="Commande ferme cadencée"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_cde_ferme_cadencee"
+            file="is_plastigray.report_cde_ferme_cadencee"
+            multi="False"
+        />
+        <record id="report_cde_ferme_cadencees" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.cde_ferme_cadencee_paperformat"/>
+        </record>
+
+        <report 
+            id="report_appel_de_livraisons"
+            model="is.cde.ouverte.fournisseur"
+            string="Appel de livraison / Horizon des besoins"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_appel_de_livraison"
+            file="is_plastigray.report_appel_de_livraison"
+            multi="True"
+        />
+        <record id="report_appel_de_livraisons" model="ir.actions.report.xml" >
+            <field name="paperformat_id" ref="is_plastigray.cde_ouverte_fournisseur_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_relance_fournisseurs"
+            model="is.cde.ouverte.fournisseur"
+            string="Relance fournisseur"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_relance_fournisseur"
+            file="is_plastigray.report_relance_fournisseur"
+            multi="True"
+        />
+        <record id="report_relance_fournisseurs" model="ir.actions.report.xml" >
+            <field name="paperformat_id" ref="is_plastigray.cde_ouverte_fournisseur_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_bon_de_sortie_matieres"
+            model="mrp.production"
+            string="Bon de sortie matière"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_bon_de_sortie_matiere"
+            file="is_plastigray.report_bon_de_sortie_matiere"
+        />
+        <record id="report_bon_de_sortie_matieres" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_plan_de_charges"
+            model="is.pdc"
+            string="Plan de charge"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_plan_de_charge"
+            file="is_plastigray.report_plan_de_charge"
+        />
+        <record id="report_plan_de_charges" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.plan_de_charge_portrait_paperformat"/>
+        </record>
+
+        <report 
+            id="report_detail_charge_injections"
+            model="is.pdc"
+            string="Détail charge par poste"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_detail_charge_injection"
+            file="is_plastigray.report_detail_charge_injection"
+        />
+        <record id="report_detail_charge_injections" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.plan_de_charge_landscape_paperformat"/>
+        </record>
+
+
+
+        <report 
+            id="report_bon_transferts"
+            model="is.bon.transfert"
+            string="Bon de transfert"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_bon_transfert"
+            file="is_plastigray.report_bon_transfert"
+        />
+        <record id="report_bon_transferts" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.bon_transfert_paperformat"/>
+        </record>
+
+
+
+        <report 
+            string="Bon de commande" 
+            id="purchase.action_report_purchase_order" 
+            model="purchase.order" 
+            report_type="qweb-pdf"
+            name="is_plastigray.is_report_purchaseorder" 
+            file="is_plastigray.is_report_purchaseorder" 
+        />
+        <record id="purchase.action_report_purchase_order" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.purchaseorder_paperformat"/>
+        </record>
+
+        <report 
+            id="report_devis_commandes" 
+            string="Devis de commande" 
+            model="sale.order" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_devis_commande" 
+            file="is_plastigray.report_devis_commande" 
+        />
+        <record id="report_devis_commandes" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.devis_commandes_paperformat"/>
+        </record>
+        <report 
+            id="report_ar_commandes" 
+            string="AR de commande" 
+            model="sale.order" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_ar_commande" 
+            file="is_plastigray.report_ar_commande" 
+        />
+        <record id="report_ar_commandes" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.ar_commandes_paperformat"/>
+        </record>
+
+        <report 
+            id="report_liste_articles" 
+            string="Liste des articles" 
+            model="product.template" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_liste_article" 
+            file="is_plastigray.report_liste_article" 
+        />
+        <record id="report_liste_articles" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.liste_article_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_is_couts" 
+            string="Coût article" 
+            model="is.cout" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_cout" 
+            file="is_plastigray.report_is_cout" 
+        />
+        <record id="report_is_couts" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.is_cout_paperformat"/>
+        </record>
+
+        <report 
+            id="report_pricelist_versions" 
+            string="Liste des prix" 
+            model="product.pricelist.version" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_pricelist_version" 
+            file="is_plastigray.report_pricelist_version" 
+        />
+        <record id="report_pricelist_versions" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.pricelist_version_paperformat"/>
+        </record>
+
+        <report 
+            string="Stock détaillés" 
+            id="report_stock_detail_tree" 
+            model="is.stock.quant" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_stockdetails_tree" 
+            file="is_plastigray.report_stockdetails_tree" 
+        />
+        <record id="report_stock_detail_tree" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+        <report 
+            string="Réceptions" 
+            id="ligne_reception_tree_reports" 
+            model="is.ligne.reception" 
+            report_type="qweb-pdf"
+            name="is_plastigray.ligne_reception_tree_report" 
+            file="is_plastigray.ligne_reception_tree_report" 
+        />
+        <record id="ligne_reception_tree_reports" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+
+        
+        <report 
+            string="Mouvements de stock" 
+            id="report_stock_movement_tree" 
+            model="is.stock.move" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_stockmovement_tree" 
+            file="is_plastigray.report_stockmovement_tree" 
+        />
+        <record id="report_stock_movement_tree" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+        <report 
+            string="Lignes Facture PK" 
+            id="report_is_facture_pk_line_trees" 
+            model="is.facture.pk.line" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_facture_pk_line_tree" 
+            file="is_plastigray.report_is_facture_pk_line_tree" 
+        />
+        <record id="report_is_facture_pk_line_trees" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+
+        <report 
+            string="Lignes d'inventaire" 
+            id="report_is_inventaire_line_trees" 
+            model="is.inventaire.line" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_inventaire_line_tree" 
+            file="is_plastigray.report_is_inventaire_line_tree" 
+        />
+        <record id="report_is_inventaire_line_trees" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+        <report 
+            string="Feuilles Inventaire" 
+            id="report_feuilles_inventaire_report" 
+            model="is.inventaire.feuille" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_feuilles_inventaire" 
+            file="is_plastigray.report_feuilles_inventaire" 
+        />
+        
+        <record id="report_feuilles_inventaire_report" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_fabrication_landscape_paperformat"/>
+        </record>
+
+
+
+        <report 
+            id="report_is_facture_pks"
+            model="is.facture.pk"
+            string="Facture PK"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_facture_pk"
+            file="is_plastigray.report_is_facture_pk"
+        />
+        <record id="report_is_facture_pks" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.is_facture_pk_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_is_consigne_journalieres"
+            model="is.consigne.journaliere"
+            string="Consignes journalières"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_consigne_journaliere"
+            file="is_plastigray.report_is_consigne_journaliere"
+        />
+        <record id="report_is_consigne_journalieres" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.is_consigne_journaliere_paperformat"/>
+        </record>
+
+
+
+        <report 
+            id="report_is_bl_manuels"
+            model="is.bl.manuel"
+            string="BL manuel"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_bl_manuel"
+            file="is_plastigray.report_is_bl_manuel"
+        />
+        <record id="report_is_bl_manuels" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.is_bl_manuel_paperformat"/>
+        </record>
+
+
+        <report 
+            id="report_emballages"
+            model="product.template"
+            string="Emballage"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_emballage"
+            file="is_plastigray.report_emballage"
+        />
+        <record id="report_emballages" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.emballage_paperformat"/>
+        </record>
+
+
+        <report 
+            id="is_reach_reports" 
+            string="REACH" 
+            model="is.reach" 
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_reach"
+            file="is_plastigray.report_is_reach"
+        />
+        <record id="is_reach_reports" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.reach_paperformat"/>
+        </record>
+
+        <report
+            id="is_livraison_gefbox_reports"
+            string="Livraison GEFBOX"
+            model="is.livraison.gefco"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_is_livraison_gefbox_tree"
+            file="is_plastigray.report_is_livraison_gefbox_tree"
+        />
+        <record id="is_livraison_gefbox_reports" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.document_livraison_gefbox"/>
+        </record>
+
+
+        <report
+            id="is_galia_base_reports"
+            string="Etiquette GALIA"
+            model="is.galia.base"
+            report_type="qweb-pdf"
+            name="is_plastigray.report_galia_base"
+            file="is_plastigray.report_galia_base"
+        />
+        <record id="is_galia_base_reports" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="is_plastigray.is_galia_base_paperformat"/>
+        </record>
+
+    </data>
+</openerp>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+<template id="report_is_inventaire_line_tree">
+    <t t-call="report.html_container">
+    <t t-call="report.internal_layout">
+        <div class="page">
+            <div class="oe_structure"/>
+            <h2>Lignes d'inventaire</h2>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th class="text-center"><strong>Inventaire</strong></th>
+                        <th class="text-center"><strong>Feuille</strong></th>
+                        <th class="text-center"><strong>Séquence</strong></th>
+                        <th class="text-left"><strong>Code</strong></th>
+                        <th class="text-left"><strong>Désignation</strong></th>
+                        <th class="text-center"><strong>Encours</strong></th>
+                        <th class="text-center"><strong>Composant</strong></th>
+                        <th class="text-center"><strong>UC</strong></th>
+                        <th class="text-center"><strong>US par UC</strong></th>
+                        <th class="text-center"><strong>Emplacement</strong></th>
+                        <th class="text-right"><strong>Qt US saisie</strong></th>
+                        <th class="text-right"><strong>Qt UC saisie</strong></th>
+                        <th class="text-right"><strong>Qt US</strong></th>
+                        <th class="text-center"><strong>Lieu</strong></th>
+                        <th class="text-center"><strong>Lot</strong></th>
+                        <th class="text-center"><strong>État</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="docs" t-as="o">
+                        <td class="text-center"><span t-field="o.inventaire_id.name"/> </td>
+                        <td class="text-center"><span t-field="o.feuille_id.name"/> </td>
+                        <td class="text-center"><span t-field="o.sequence"/> </td>
+                        <td class="text-left"><span t-field="o.product_id.is_code"/> </td>
+                        <td class="text-left"><span t-field="o.product_id.name"/> </td>
+                        <td class="text-center"><span t-field="o.encours"/> </td>
+                        <td class="text-center"><span t-field="o.composant_encours"/> </td>
+                        <td class="text-center"><span t-field="o.uc"/> </td>
+                        <td class="text-center"><span t-field="o.uc_us"/> </td>
+                        <td class="text-center"><span t-field="o.location_id.name"/> </td>
+                        <td class="text-right"><span style="white-space: nowrap;" t-field="o.qt_us"/> </td>
+                        <td class="text-right"><span style="white-space: nowrap;" t-field="o.qt_uc"/> </td>
+                        <td class="text-right"><span style="white-space: nowrap;" t-field="o.qt_us_calc"/> </td>
+                        <td class="text-center"><span t-field="o.lieu"/> </td>
+                        <td class="text-center"><span t-field="o.lot_id.name"/> </td>
+                        <td class="text-center"><span t-field="o.state"/> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </t>
+    </t>
+</template>
+
+</data>
+</openerp>

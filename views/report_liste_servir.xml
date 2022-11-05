@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+
+
+        <template id="report_liste_servir_style">
+            .header {
+                font-size:11pt;
+            }
+            .footer {
+                font-size:10pt;
+            }
+            .page {
+                font-size:10pt;
+            }
+            .titre {
+                font-size:13pt;
+                font-weight: bold;
+            }
+            }
+            .client {
+                text-align:left;
+                border: 1px solid black;
+                padding:5mm;
+            }
+            .nowrap{
+                white-space: nowrap;
+            }
+            .commentaire {
+                padding:1mm;
+                font-size:12pt;
+                font-weight: bold;
+                background:orange;
+                margin-right:1mm
+            }
+            .message {
+                padding:1mm;
+                font-size:12pt;
+                font-weight: bold;
+                background:orange;
+                margin-left:1mm
+            }
+        </template>
+
+
+        <template id="report_liste_servir_layout" inherit_id="web.layout" primary="True">
+            <!-- Add report attributes -->
+            <xpath expr="//html" position="attributes">
+                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
+                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
+                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
+            </xpath>
+            <!-- Add report style -->
+            <xpath expr="//head" position="inside">
+                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
+                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
+                <style type="text/css">
+                    <t t-call="report.style"/>
+                    <t t-call="is_plastigray.report_liste_servir_style"/>
+                </style>
+            </xpath>
+            <!-- Remove conflicting style -->
+            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
+        </template>
+
+
+
+        <template id="report_liste_servir_html_container">
+            <t t-set="body_classname" t-value="'container'"/>
+            <t t-call="is_plastigray.report_liste_servir_layout">
+                <t t-raw="0"/>
+            </t>
+        </template>
+
+
+        <!-- Entête personnalisé Plastigray -->
+        <template id="report_liste_servir_external_layout_header">
+            <div class="header">
+                <div class="row">
+                    <div class="col-xs-3  text-left">
+                        <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="titre">
+                            <span>Liste à servir </span>
+                            <span style="font-size:12pt;" t-field="o.name"/>
+                             du <t t-usertime="%d/%m/%Y"/> à <t t-usertime="%H"/>H<br />
+                        </div><br />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3">
+                        <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 350, 60)"/><br/><br/>
+                    </div>
+                    <div class="col-xs-5">
+                        <div class="client">
+                            Client à livrer : <br />
+                            <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)<br />
+                            <span t-field="o.partner_id.street" /><br />
+                            <t t-if="o.partner_id.street2">
+                                <span t-field="o.partner_id.street2" /><br />
+                            </t>
+                            <span t-field="o.partner_id.zip" /> - 
+                            <span t-field="o.partner_id.city" /><br />
+                            <span t-field="o.partner_id.country_id.name" />
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="client">
+                            Emplacement source : <b><span t-field="o.is_source_location_id.name"/></b><br />
+                            Poids brut : <b><t t-esc='"{:,.1f}".format(o.poids_brut).replace(","," ").replace(".",",")'/> Kg</b><br />
+                            Transporteur : <br />
+                            <b><span t-field="o.transporteur_id.name"/></b> (<span t-field="o.transporteur_id.is_code"/>)<br />
+                            Téléphone : <span t-field="o.transporteur_id.phone" /><br />
+                        </div>
+                    </div>
+                </div><br />
+            </div>
+        </template>
+
+
+
+        <!-- Pied de page personnalisé Plastigray -->
+        <template id="report_liste_servir_external_layout_footer">
+            <div class="footer">
+                <div style="border-top: 1px solid black">
+                    <table style="width:100%">
+                        <tr>
+                            <td class="text-left" style="width:90%">
+                            </td>
+                            <td class="text-right">
+                                Page <span class="page" style="font-size:9pt;"/> / <span class="topage"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br />
+        </template>
+
+        <!-- Squelette de la page personnalisé pour Plastigray -->
+        <template id="report_liste_servir_external_layout">
+            <t t-if="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id"/>
+            </t>
+            <t t-if="not o or not 'company_id' in o">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+            <t t-call="is_plastigray.report_liste_servir_external_layout_header"/>
+            <t t-raw="0"/>
+            <t t-call="is_plastigray.report_liste_servir_external_layout_footer"/>
+        </template>
+
+
+
+
+
+<template id="report_liste_servir_external_layout">
+    <t t-if="o and 'company_id' in o">
+        <t t-set="company" t-value="o.company_id"></t>
+    </t>
+    <t t-if="not o or not 'company_id' in o">
+        <t t-set="company" t-value="res_company"></t>
+    </t>
+    <t t-call="is_plastigray.report_liste_servir_external_layout_header" />
+    <t t-raw="0" />
+    <t t-call="is_plastigray.report_liste_servir_external_layout_footer" />
+</template>
+
+
+<template id="report_liste_servir_document">
+    <t t-call="is_plastigray.report_liste_servir_external_layout">
+        <div class="page">
+            <div class="row">
+                <div class="col-xs-6">
+                    <t t-if="o.commentaire">
+                        <div class="commentaire"  t-field="o.commentaire"/>
+                    </t>
+                </div>
+                <div class="col-xs-6">
+                    <t t-if="o.message">
+                        <div class="message"  t-field="o.message"/>
+                    </t>
+                </div>
+            </div><br />
+
+            <t t-set="aqp"     t-value="0"/>
+            <t t-set="pas_aqp" t-value="0"/>
+            <t t-foreach="o.line_ids" t-as="l">
+                <t t-if="l.product_id.is_livree_aqp"> 
+                    <t t-set="aqp" t-value="aqp+1"/>
+                </t>
+                <t t-if="not l.product_id.is_livree_aqp"> 
+                    <t t-set="pas_aqp" t-value="pas_aqp+1"/>
+                </t>
+            </t>
+
+
+            <t t-set="poids_total" t-value="0"/>
+            <t t-foreach="o.tableaux()" t-as="t">
+                <t t-if="t and aqp"> 
+                    <h2>Articles à livrer en AQP</h2>
+                </t>
+
+                <t t-if="not t and pas_aqp"> 
+                    <h2>Articles à livrer non AQP</h2>
+                </t>
+
+                <t t-if="(t and aqp) or (not t and pas_aqp)"> 
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr >
+                                        <th class="text-left"   style="vertical-align:top">Code PG / Moule / Gest / Ref Client / Désignation</th>
+                                        <th class="text-left"   style="vertical-align:top">N°Cde</th>
+                                        <th class="text-center" style="vertical-align:top">Date<br />Exp/Liv</th>
+
+                                        <th class="text-right"  style="vertical-align:top">Stock 01 US</th>
+                                        <th class="text-right"  style="vertical-align:top">Stock A US</th>
+                                        <th class="text-right"  style="vertical-align:top">Stock Q US</th>
+                                        <th class="text-right"  style="vertical-align:top">Qt CDE<br />US</th>
+
+
+                                        <th class="text-left"   style="vertical-align:top">UC</th>
+                                        <th class="text-right"  style="vertical-align:top">Stock 01 UC</th>
+                                        <th class="text-right"  style="vertical-align:top">Stock A UC</th>
+                                        <th class="text-right"  style="vertical-align:top">Stock Q UC</th>
+                                        <th class="text-right"  style="vertical-align:top">Qt CDE<br />UC</th>
+
+                                        <th class="text-left"   style="vertical-align:top">UM</th>
+                                        <th class="text-right"  style="vertical-align:top">Qt CDE<br />UM</th>
+
+                                        <th class="text-right"  style="vertical-align:top">Poids<br />(en kg)</th>
+                                        <th class="text-center" style="vertical-align:top">Mixer</th>
+                                        <th class="text-left"   style="vertical-align:top">Commentaire</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.line_ids" t-as="l">
+                                        <t t-if="(t and l.product_id.is_livree_aqp) or (not t and not l.product_id.is_livree_aqp)"> 
+                                            <tr>
+                                                <td class="text-left">    
+                                                    <b><span t-field="l.product_id.is_code"/></b> / 
+                                                    <span t-field="l.product_id.is_mold_id"/>
+                                                    <span t-field="l.product_id.is_dossierf_id"/> / 
+                                                    <span t-field="l.product_id.is_gestionnaire_id.name"/> / 
+                                                    <span t-field="l.product_id.is_ref_client"/> <br />
+                                                    <span t-field="l.product_id.product_tmpl_id.name"/>
+                                                </td>
+                                                <td class="text-left">
+                                                    <span t-field="l.client_order_ref"/>
+                                                    <t t-if="l.product_id.is_livree_aqp"> 
+                                                        <br /><b>AQP</b>
+                                                    </t>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span t-field="l.date_expedition"/><br />
+                                                    <span t-field="l.date_livraison"/>
+                                                </td>
+
+                                                <td class="text-right nowrap">   
+                                                    <t t-esc='"{:,.1f}".format(l.stock01).replace(","," ").replace(".",",")'/> 
+                                                </td>
+                                                <td class="text-right nowrap">   
+                                                    <t t-esc='"{:,.1f}".format(l.stocka).replace(","," ").replace(".",",")'/> 
+                                                </td>
+                                                <td class="text-right nowrap">  
+                                                    <t t-esc='"{:,.1f}".format(l.stockq).replace(","," ").replace(".",",")'/>
+                                                </td>
+                                                <td class="text-right nowrap">  
+                                                    <b><t t-esc='"{:,.0f}".format(l.quantite).replace(","," ").replace(".",",")'/></b>
+                                                </td>
+
+                                                <td class="text-left">    <span t-field="l.uc_id"/> </td>
+                                                <td class="text-right nowrap">   
+                                                    <t t-esc='"{:,.1f}".format(l.stock01_uc).replace(","," ").replace(".",",")'/> 
+                                                </td>
+                                                <td class="text-right nowrap">   
+                                                    <t t-esc='"{:,.1f}".format(l.stocka_uc).replace(","," ").replace(".",",")'/> 
+                                                </td>
+                                                <td class="text-right nowrap">  
+                                                    <t t-esc='"{:,.1f}".format(l.stockq_uc).replace(","," ").replace(".",",")'/>
+                                                </td>
+                                                <td class="text-right nowrap">  
+                                                    <b><t t-esc='"{:,.1f}".format(l.nb_uc).replace(","," ").replace(".",",")'/></b>
+                                                </td>
+                                                <td class="text-left">    <span t-field="l.um_id"/> </td>
+                                                <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(l.nb_um).replace(","," ").replace(".",",")'/>  </td>
+
+
+                                                <t t-set="poids" t-value="l.quantite*l.product_id.product_tmpl_id.weight_net"/>
+                                                <t t-set="poids_total" t-value="poids_total + poids"/>
+
+                                                <td class="text-right nowrap">  
+                                                    <t t-esc='"{:,.0f}".format(poids).replace(","," ").replace(".",",")'/> 
+                                                </td>
+
+
+                                                <td class="text-center"><t t-if="l.mixer">x</t></td>
+
+                                                <td class="text-left">    <span t-field="l.anomalie"/> </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div><br />
+                </t>
+            </t>
+
+            <div class="row">
+                <div class="col-xs-8">
+                    Poids net Total : <b><t t-esc='"{:,.0f}".format(poids_total).replace(","," ").replace(".",",")'/> Kg</b>
+                </div>
+            </div><br />
+
+            <div class="row">
+                <div class="col-xs-5">
+                    <b>Liste des UC : </b>
+                    <table class="table table-condensed" style="width:100%">
+                        <thead>
+                            <tr >
+                                <th class="text-right"  style="vertical-align:top">Nb UC</th>
+                                <th class="text-left"  style="vertical-align:top">UC</th>
+                                <th class="text-right"  style="vertical-align:top">Nb UM</th>
+                                <th class="text-left"  style="vertical-align:top">UM</th>
+                                <th class="text-center"  style="vertical-align:top">Mixer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="o.uc_ids" t-as="l">
+                                <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(l.nb_uc).replace(","," ").replace(".",",")'/>  </td>
+                                <td class="text-left">    <span t-field="l.uc_id"/> </td>
+                                <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(l.nb_um).replace(","," ").replace(".",",")'/>  </td>
+                                <td class="text-left">    <span t-field="l.um_id"/> </td>
+                                <td class="text-center"><t t-if="l.mixer">x</t></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-4">
+                </div>
+                <div class="col-xs-3">
+                    <b>Liste des UM : </b>
+                    <table class="table table-condensed" style="width:100%">
+                        <thead>
+                            <tr >
+                                <th class="text-right"  style="vertical-align:top">Nb UM</th>
+                                <th class="text-left"  style="vertical-align:top">UM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="o.um_ids" t-as="l">
+                                <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(l.nb_um).replace(","," ").replace(".",",")'/>  </td>
+                                <td class="text-left">    <span t-field="l.um_id"/> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+           <t t-if="o.galia_um_ids">
+                <div style="page-break-after:always;" />
+                <table class="table table-condensed" style="width:50%">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Article</th>
+                            <th class="text-left">Etiquette UM</th>
+                            <th class="text-left">Etiquette UC</th>
+                            <th class="text-left">Qt pièces</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="res" t-value="o.get_etiquettes()"/>
+                        <tr t-foreach="res" t-as="obj">
+                            <t t-if="obj['is_code_rowspan']">
+                                <td style="padding:2px;font-size:12pt" t-att-rowspan="obj['is_code_rowspan']"><span t-esc="obj['is_code']"/></td>
+                            </t>
+                            <t t-if="obj['um_rowspan']">
+                                <td style="padding:2px;font-size:12pt" t-att-rowspan="obj['um_rowspan']"><span t-esc="obj['um']"/></td>
+                            </t>
+                            <td style="padding:2px;font-size:12pt"><span t-esc="obj['uc']"/></td>
+                            <td style="padding:2px;font-size:12pt"><span t-esc="obj['qt_pieces']"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+
+
+
+        </div>
+    </t>
+</template>
+
+
+<template id="report_liste_servir">
+    <t t-call="is_plastigray.report_liste_servir_html_container">
+        <t t-foreach="doc_ids" t-as="doc_id">
+            <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'is_plastigray.report_liste_servir_document')"/>
+        </t>
+    </t>
+</template>
+</data>
+</openerp>
