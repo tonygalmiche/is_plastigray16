@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 # import base64
 # import tempfile
 # import os
@@ -190,7 +190,7 @@ class is_cde_ouverte_fournisseur(models.Model):
     def test_unique(self, partner_id):
         ids=self.env['is.cde.ouverte.fournisseur'].search([ ('partner_id', '=', partner_id) ])
         if len(ids)>1:
-            raise Warning(u"Une commande ouverte existe déjà pour ce fournisseur !")
+            raise ValidationError(u"Une commande ouverte existe déjà pour ce fournisseur !")
 
 
     def _merge_pdf(self, documents):
@@ -485,12 +485,12 @@ class is_cde_ouverte_fournisseur(models.Model):
         for obj in self:
             email_to=obj.contact_id.email
             if email_to==False:
-                raise Warning(u"Mail non renseigné pour ce contact !")
+                raise ValidationError(u"Mail non renseigné pour ce contact !")
             user  = self.env['res.users'].browse(self._uid)
             email = user.email
             nom   = user.name
             if email==False:
-                raise Warning(u"Votre mail n'est pas renseigné !")
+                raise ValidationError(u"Votre mail n'est pas renseigné !")
             if email:
                 attachment_id = self.env['ir.attachment'].search([
                     ('res_model','=','is.cde.ouverte.fournisseur'),
@@ -525,7 +525,7 @@ class is_cde_ouverte_fournisseur(models.Model):
         for obj in self:
 
             if obj.pricelist_id.id==False:
-                raise Warning(u"Pas de liste de prix pour le fournisseur "+str(obj.partner_id.name))
+                raise ValidationError(u"Pas de liste de prix pour le fournisseur "+str(obj.partner_id.name))
 
             obj.demandeur_id=uid
             self.set_histo(obj.id, u'Intégration des commandes et SA')

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 import datetime
 
 
@@ -195,19 +195,19 @@ class is_demande_achat_invest(models.Model):
             order_line_obj = self.env['purchase.order.line']
             partner=obj.fournisseur_id
             if partner.id==False:
-                raise Warning('Fournisseur obligatoire pour générer la commande !')
+                raise ValidationError('Fournisseur obligatoire pour générer la commande !')
             for line in obj.line_ids:
                 if line.num_chantier==False:
-                    raise Warning('N° du chantier obligatoire sur toutes les lignes de la commande !')
+                    raise ValidationError('N° du chantier obligatoire sur toutes les lignes de la commande !')
                 else:
                     if len(line.num_chantier)==5:
                         line.num_chantier='0'+line.num_chantier
                     if len(line.num_chantier)!=6:
-                        raise Warning('N° du chantier sur 6 chiffres obligatoire sur toutes les lignes de la commande !')
+                        raise ValidationError('N° du chantier sur 6 chiffres obligatoire sur toutes les lignes de la commande !')
 
 
             if partner.property_product_pricelist_purchase.id == False:
-                raise Warning('Liste de prix non renseignée pour ce fournisseur')
+                raise ValidationError('Liste de prix non renseignée pour ce fournisseur')
             else:
                 is_document=False
                 vals={

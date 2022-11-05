@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="is_export_seriem_from_view" model="ir.ui.view">
+            <field name="name">is_export_seriem_from_view</field>
+            <field name="model">is.export.seriem</field>
+            <field name="arch" type="xml">
+                <form string="Exportation des factures vers Série-M">
+                    <group>
+                        <field name="type_interface" />
+                        <field name="date_debut" />
+                        <field name="date_fin" />
+                    </group>
+                    <footer>
+                        <button string='Exporter les factures dans Série-M' name="export_seriem" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Annuler" class="oe_link" special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+        <record id="is_export_ventes_seriem_action" model="ir.actions.act_window">
+            <field name="name">Exportation Série-M Ventes</field>
+            <field name="res_model">is.export.seriem</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+           <field name="view_id" ref="is_export_seriem_from_view"/>
+            <field name="context">{'default_type_interface': 'ventes'}</field>
+           <field name="target">new</field>
+        </record>
+        <record id="is_export_achats_seriem_action" model="ir.actions.act_window">
+            <field name="name">Exportation Série-M Achats</field>
+            <field name="res_model">is.export.seriem</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="is_export_seriem_from_view"/>
+            <field name="context">{'default_type_interface': 'achats'}</field>
+           <field name="target">new</field>
+        </record>
+
+
+    </data>
+</openerp>

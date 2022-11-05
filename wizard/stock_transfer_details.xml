@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record id="is_view_stock_enter_transfer_details" model="ir.ui.view">
+            <field name="name">is_view_stock_enter_transfer_details</field>
+            <field name="model">stock.transfer_details</field>
+            <field name="inherit_id" ref="stock.view_stock_enter_transfer_details" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='item_ids']/tree[@string='Inventory Details']/field[@name='product_id']" position="after">
+                    <field name="name"/>
+                </xpath>
+
+<!-- gtk-dialog-warning.png -->
+
+                <field name="picking_source_location_id" position="before">
+                    <group>
+                        <field 
+                            name="is_purchase_order_id"  
+                            attrs="{'invisible': [('is_purchase_order_id', '=', False)]}" 
+                            readonly="1"
+                        /> 
+                        <field 
+                            name="is_num_bl"
+                            attrs="{'invisible': [('is_purchase_order_id', '=', False)], 'required': [('is_purchase_order_id', '!=', False)]}" 
+                        />
+                        <field 
+                            name="is_date_reception"
+                            attrs="{'invisible': [('is_purchase_order_id', '=', False)], 'required': [('is_purchase_order_id', '!=', False)]}" 
+                        />
+                    </group>
+                </field>
+                <field name="package_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="result_package_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="sourceloc_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <button name="split_quantities" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </button>
+                <button name="put_in_pack" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </button>
+                <field name="destinationloc_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <group string="Products To Move" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </group>
+                <group string="Packages To Move" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </group>
+                <field name="packop_ids" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="lot_id" position="after">
+                    <field name="is_produit_perissable" invisible="1"/>
+                    <button string="Produit périssable" name="produit_perissable_action" type="object" icon="gtk-dialog-warning" attrs="{'invisible': [('is_produit_perissable', '==', False)]}"/>
+                    <field name="is_lot_fournisseur" attrs="" />
+                    <field name="is_ctrl_rcp"        attrs="" />
+                </field>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, tools
-#from openerp.exceptions import ValidationError, Warning
+#from openerp.exceptions import ValidationError, ValidationError
 #import xmlrpclib
 #from openerp.osv import osv
 import unicodedata

@@ -2,7 +2,7 @@
 
 import string
 from odoo import models,fields,api
-#from openerp.exceptions import Warning
+#from openerp.exceptions import ValidationError
 #from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
 import time
 import datetime
@@ -273,7 +273,7 @@ class stock_picking(models.Model):
             #** Recherche si les lignes de cette réception son facturées *******
             for line in obj.move_lines:
                 if line.invoice_state=='invoiced':
-                    raise Warning(u'Annulation impossible car la réception est déjà facturée !')
+                    raise ValidationError(u'Annulation impossible car la réception est déjà facturée !')
             #*******************************************************************
 
 
@@ -416,10 +416,10 @@ class stock_picking(models.Model):
 
     #         if not move.scrapped:
     #             if location_dest_id and move.location_dest_id.id != location_dest_id:
-    #                 raise Warning(_('The destination location must be the same for all the moves of the picking.'))
+    #                 raise ValidationError(_('The destination location must be the same for all the moves of the picking.'))
     #             location_dest_id = move.location_dest_id.id
     #             if location_id and move.location_id.id != location_id:
-    #                 raise Warning(_('The source location must be the same for all the moves of the picking.'))
+    #                 raise ValidationError(_('The source location must be the same for all the moves of the picking.'))
     #             location_id = move.location_id.id
 
     #     pack_obj = self.pool.get("stock.quant.package")

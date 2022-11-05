@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 #import base64
 #import csv, cStringIO
 from datetime import date,datetime,timedelta
@@ -39,7 +39,7 @@ class is_mini_delta_dore(models.Model):
         cr, uid, context = self.env.args
         for obj in self:
             if obj.edi_id:
-                raise Warning('Un EDI a déjà été généré. Il faut le traiter ou le supprimer pour pouvoir lancer un nouveau calcul')
+                raise ValidationError('Un EDI a déjà été généré. Il faut le traiter ou le supprimer pour pouvoir lancer un nouveau calcul')
             obj.line_ids.unlink()
             obj.besoin_ids.unlink()
             for attachment in obj.file_ids:

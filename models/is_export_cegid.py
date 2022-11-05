@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 import datetime
 # import codecs
 # import unicodedata
@@ -126,7 +126,7 @@ class is_export_cegid(models.Model):
             ], order='is_bon_a_payer, number')
 
             if len(invoices)==0:
-                raise Warning('Aucune facture à traiter')
+                raise ValidationError('Aucune facture à traiter')
 
 
 
@@ -363,7 +363,7 @@ class is_export_cegid(models.Model):
                             if len(t)==2:
                                 A2=t[1]
                             else:
-                                raise Warning(u'N° du chantier mal formaté sur la facture %s'%(refinterne))
+                                raise ValidationError(u'N° du chantier mal formaté sur la facture %s'%(refinterne))
 
                     if general[0:1] in ['6','7']:
                         if A1:

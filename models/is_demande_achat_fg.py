@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 import datetime
 
 

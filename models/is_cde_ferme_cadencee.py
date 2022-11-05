@@ -68,10 +68,10 @@ class is_cde_ferme_cadencee(models.Model):
         for line in obj.order_ids:
             nb=len(line.order_id.order_line)
             if nb!=1:
-                raise Warning(u"La commande "+str(line.order_id.name)+u" à "+str(nb)+u" lignes")
+                raise ValidationError(u"La commande "+str(line.order_id.name)+u" à "+str(nb)+u" lignes")
             for row in line.order_id.order_line:
                 if row.product_id!=obj.product_id:
-                    raise Warning(u"L'article de la commande "+str(line.order_id.name)+u" ne correspond pas à l'article indiqué")
+                    raise ValidationError(u"L'article de la commande "+str(line.order_id.name)+u" ne correspond pas à l'article indiqué")
 
 
     def set_histo(self, order_id, description):
@@ -186,12 +186,12 @@ class is_cde_ferme_cadencee(models.Model):
             email_to=obj.contact_id.email
             self.set_histo(obj.id, u'Commande envoyée par mail à '+str(email_to))
             if email_to==False:
-                raise Warning(u"Mail non renseigné pour ce contact !")
+                raise ValidationError(u"Mail non renseigné pour ce contact !")
             user  = self.env['res.users'].browse(self._uid)
             email = user.email
             nom   = user.name
             if email==False:
-                raise Warning(u"Votre mail n'est pas renseigné !")
+                raise ValidationError(u"Votre mail n'est pas renseigné !")
             if email:
                 email_vals = {}
                 body_html=modele_mail.replace('[from]', nom)

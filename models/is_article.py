@@ -37,7 +37,7 @@ class is_article_actualiser(models.TransientModel):
                 try:
                     cnx  = psycopg2.connect("dbname='"+base.database  +"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
                 except Exception:
-                    raise Warning('Postgresql non disponible !')
+                    raise ValidationError('Postgresql non disponible !')
             if cnx:
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 SQL= """

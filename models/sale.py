@@ -64,7 +64,7 @@ class sale_order(models.Model):
             orders = self.env['sale.order'].search([('client_order_ref','=',client_order_ref),('partner_id','=',partner_id)],limit=1)
             if orders:
                 warning = {
-                    'title': _('Warning!'),
+                    'title': _('ValidationError!'),
                     'message' : u"La commande "+orders[0].name+u" a déjà ce même numéro de commande client !"
                 }
         return {
@@ -118,13 +118,13 @@ class sale_order(models.Model):
                         mail = c.name + u' <' + c.email + u'>'
                         mails.append(mail)
             if not mails:
-                raise Warning(u"Aucun mail de type 'Approvisionneur' pour ce client !")
+                raise ValidationError(u"Aucun mail de type 'Approvisionneur' pour ce client !")
             email_contact = ','.join(mails)
             user  = self.env['res.users'].browse(uid)
             email = user.email
             nom   = user.name
             if email==False:
-                raise Warning(u"Votre mail n'est pas renseigné !")
+                raise ValidationError(u"Votre mail n'est pas renseigné !")
 
             #** Génération du PDF **********************************************
             name=u'ar_commande-' + obj.client_order_ref + u'.pdf'
@@ -299,7 +299,7 @@ class sale_order(models.Model):
                     price = self.pool.get('product.pricelist').price_get(self._cr, self._uid, pricelist_id,
                             product_id, qty, vals['partner_id'], ctx)[pricelist_id]
                     if price is False:
-                        raise Warning("Il n'existe pas de tarif (liste de prix) pour l'article '"+str(product.is_code)+"' / qt="+str(qty)+ " / date="+str(date))
+                        raise ValidationError("Il n'existe pas de tarif (liste de prix) pour l'article '"+str(product.is_code)+"' / qt="+str(qty)+ " / date="+str(date))
 
 
     def _verif_existe(self,vals):
@@ -312,7 +312,7 @@ class sale_order(models.Model):
                 ['is_type_commande'      , '=', 'ouverte'],
             ])
             if len(r)>1 :
-                raise Warning(u"Il exite déjà une commande ouverte pour cet article et ce client")
+                raise ValidationError(u"Il exite déjà une commande ouverte pour cet article et ce client")
 
 
     def _client_order_ref(self, obj):
@@ -328,7 +328,7 @@ class sale_order(models.Model):
                 if l.client_id.id==obj.partner_id.id:
                     ok=True
             if ok==False:
-                raise Warning(u"L'article "+line.product_id.is_code+u" n'est pas livrable à ce client (cf fiche article) !")
+                raise ValidationError(u"L'article "+line.product_id.is_code+u" n'est pas livrable à ce client (cf fiche article) !")
 
 
 
@@ -521,7 +521,7 @@ class sale_order_line(models.Model):
             check_date = self.check_date_livraison(date_livraison, partner_id, context=context)
             if not check_date:
                 warning = {
-                            'title': _('Warning!'),
+                            'title': _('ValidationError!'),
                             'message' : 'La date de livraison tombe pendant la fermeture du client.'
                 }
 

@@ -134,7 +134,7 @@ class is_pic_3ans_saisie(models.Model):
             if obj.annee:
                 annee=num(obj.annee)
                 if annee<2017 or annee>=2040:
-                    raise Warning("Année non valide")
+                    raise ValidationError("Année non valide")
 
             for i in range(1,13):
                 champ="liv_"+("00"+str(i))[-2:]
@@ -248,7 +248,7 @@ class is_pic_3ans_saisie(models.Model):
         if annee and product_id:
             annee=num(annee)
             if annee<2017 or annee>=2040:
-                raise Warning("Année non valide")
+                raise ValidationError("Année non valide")
             product=self.env['product.product'].browse(product_id)
             code_pg=product.is_code
             code_pg=code_pg[:6]
@@ -306,7 +306,7 @@ class is_pic_3ans_saisie(models.Model):
         for obj in self:
             annee=num(obj.annee)
             if annee<2017 or annee>=2040:
-                raise Warning("Année non valide")
+                raise ValidationError("Année non valide")
             self.env['is.mem.var'].set(self._uid, 'annee_pic', annee)
             self.create_pic_3ans(obj)
         return res
@@ -383,7 +383,7 @@ class is_pic_3ans_saisie(models.Model):
 
     def cbb_article(self):
         if len(self)>1:
-            raise Warning("Calcul multiple non autorisé")
+            raise ValidationError("Calcul multiple non autorisé")
         for obj in self:
             pic_obj = self.env['is.pic.3ans']
 

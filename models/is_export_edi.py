@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 import os
 
 
@@ -131,12 +131,12 @@ class is_export_edi(models.Model):
         for obj in self:
             email_to=obj.contact_id.email
             if email_to==False:
-                raise Warning(u"Mail non renseigné pour ce contact !")
+                raise ValidationError(u"Mail non renseigné pour ce contact !")
             user  = self.env['res.users'].browse(self._uid)
             email = user.email
             nom   = user.name
             if email==False:
-                raise Warning(u"Votre mail n'est pas renseigné !")
+                raise ValidationError(u"Votre mail n'est pas renseigné !")
             if email:
                 attachment_id = self.env['ir.attachment'].search([
                     ('res_model','=','is.export.edi'),

@@ -93,7 +93,7 @@ class is_cout_calcul(models.Model):
         #cout=self.creation_cout(cout_calcul_obj, product, type_article)
         if type_article!='A' and multiniveaux==True:
             if niveau>10:
-                raise Warning(u"Trop de niveaux (>10) dans la nomenclature du "+product.is_code)
+                raise ValidationError(u"Trop de niveaux (>10) dans la nomenclature du "+product.is_code)
             SQL="""
                 select mbl.product_id, mbl.id, mbl.sequence, mb.id
                 from mrp_bom mb inner join mrp_bom_line mbl on mbl.bom_id=mb.id
@@ -499,7 +499,7 @@ class is_cout_calcul(models.Model):
         cout=self.creation_cout(cout_calcul_obj, product, type_article)
         if type_article!='A' and multiniveaux==True:
             if niveau>10:
-                raise Warning(u"Trop de niveaux (>10) dans la nomenclature du "+product.is_code)
+                raise ValidationError(u"Trop de niveaux (>10) dans la nomenclature du "+product.is_code)
             SQL="""
                 select mbl.product_id, mbl.id, mbl.sequence, mb.id
                 from mrp_bom mb inner join mrp_bom_line mbl on mbl.bom_id=mb.id
@@ -1250,18 +1250,18 @@ class is_cout(models.Model):
 
     def cout_standard_indice_precedent(self):
         if len(self)>1:
-            raise Warning(u"Modification multiple non autorisée !")
+            raise ValidationError(u"Modification multiple non autorisée !")
         for obj in self:
             is_code=obj.name.is_code
             indice=is_code[6:7]
             if indice=='':
-                raise Warning(u"Code sans indice !")
+                raise ValidationError(u"Code sans indice !")
             code=is_code[0:6]
             if indice!='A':
                 code=code+chr(ord(indice)-1)
             couts=self.env['is.cout'].search([('name.is_code', '=', code)])
             if len(couts)==0:
-                raise Warning(u"Coût précédent non trouvé !")
+                raise ValidationError(u"Coût précédent non trouvé !")
             for cout in couts:
                 obj.cout_std_matiere    = cout.cout_std_matiere
                 obj.cout_std_condition  = cout.cout_std_condition

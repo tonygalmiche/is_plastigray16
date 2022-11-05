@@ -49,7 +49,7 @@ class is_gabarit_controle(models.Model):
     #             obj.copy_other_database_gabarit_controle()
     #         return res
     #     except Exception as e:
-    #         raise Warning(e)
+    #         raise ValidationError(e)
 
 
     # def create(self, vals):

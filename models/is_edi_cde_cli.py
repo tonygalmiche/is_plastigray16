@@ -2,7 +2,7 @@
 #import csv, cStringIO
 #from openerp import netsvc
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 # from lxml import etree
 # import xml.etree.ElementTree as ET
 # from tempfile import TemporaryFile
@@ -481,7 +481,7 @@ class is_edi_cde_cli(models.Model):
                 title = ws.title
                 cells = list(ws)
             except:
-                raise Warning(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx")
+                raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx")
             #*******************************************************************
 
             lig=0
@@ -739,7 +739,7 @@ class is_edi_cde_cli(models.Model):
                     lig+=1
 
             if type_fichier==False:
-                raise Warning(u"Le fichier "+attachment.name+u" n'est pas un fichier SIMU compatible (xlsx pour le ferme ou le prévisionnel)")
+                raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier SIMU compatible (xlsx pour le ferme ou le prévisionnel)")
 
         return res
 
@@ -1046,7 +1046,7 @@ class is_edi_cde_cli(models.Model):
                         val.update({'lignes': [ligne]})
                         res.append(val)
             except csv.Error:
-                raise Warning('Fichier vide ou non compatible (le fichier doit être au format CSV)')
+                raise ValidationError('Fichier vide ou non compatible (le fichier doit être au format CSV)')
         return res
 
 
@@ -1532,7 +1532,7 @@ class is_edi_cde_cli(models.Model):
                 ws = wb.active
                 cells = list(ws)
             except:
-                raise Warning(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx valide")
+                raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx valide")
             #*******************************************************************
 
             lig=0

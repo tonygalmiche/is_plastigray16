@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
+from . import account_invoice
 from . import hr
+from . import ir_actions_act_url
+
+# TODO : Il faudra supprimer l'ancienne version
+from . import is_analyse_cbn
+from . import is_analyse_cbn2
+
 from . import is_article
 from . import is_bl_manuel
 from . import is_bon_transfert
 from . import is_commande_externe
 from . import is_cde_ferme_cadencee
 from . import is_cde_ouverte_fournisseur  # TODO à finaliser
-#from . import is_consigne_journaliere      TODO : Liens avec odoo0, dynacase et les ordres de travaux => A revoir plus tard
+from . import is_consigne_journaliere     # TODO : Liens avec odoo0, dynacase et les ordres de travaux => A revoir plus tard
 from . import is_copy_other_database
 from . import is_cout                     # TODO à finaliser
 from . import is_deb                      # TODO A revoir après la facturation client
@@ -39,10 +46,11 @@ from . import is_plaquette_etalon
 from . import is_pointage
 from . import is_prechauffeur
 from . import is_presse
-from . import is_reach               #TODO A revoir après stock_picking
+from . import is_reach                # TODO A revoir après stock_picking
 from . import is_rgpd
-#from . import is_taux_rotation_stock TODO A revoir plus tard
-from .  import mrp
+from . import is_taux_rotation_stock  # TODO A revoir plus tard
+from . import mrp
+from . import mrp_production
 from . import product
 from . import product_pricelist
 from . import res_company
@@ -58,16 +66,8 @@ from . import stock
 
 
 
-#TODO model à migrer de is_plastigray
-# import account_invoice
-# import mrp_production
-# import ir_actions_act_url
 
-# #TODO : Une fois la période de tests terminé, il faudra supprimer l'ancienne version
-# import is_analyse_cbn
-# import is_analyse_cbn2
-
-# import report
+# TODO : model à migrer de is_plastigray
 # import wizard
 
 

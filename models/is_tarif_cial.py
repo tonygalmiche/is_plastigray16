@@ -81,7 +81,7 @@ class is_tarif_cial(models.Model):
     def create(self, vals):
         res=super(is_tarif_cial, self).create(vals)
         if res.ecart!=0:
-            raise Warning(u"Ecart prix de vente différent de 0 !")
+            raise ValidationError(u"Ecart prix de vente différent de 0 !")
         return res
 
 
@@ -89,16 +89,16 @@ class is_tarif_cial(models.Model):
         res=super(is_tarif_cial, self).write(vals)
         for obj in self:
             if obj.ecart!=0:
-                raise Warning(u"Ecart prix de vente différent de 0 !")
+                raise ValidationError(u"Ecart prix de vente différent de 0 !")
         return res
 
 
     def evolution_indice_prix(self):
         if len(self)>1:
-            raise Warning(u"Impossible de faire évoluer plusieurs tarifs en même temps !")
+            raise ValidationError(u"Impossible de faire évoluer plusieurs tarifs en même temps !")
         for obj in self:
             if obj.indice_prix!=999:
-                raise Warning(u"Cette fonction n'est possible que depuis l'indice 999 !")
+                raise ValidationError(u"Cette fonction n'est possible que depuis l'indice 999 !")
             new_obj=obj.copy({})
             res=self.env['is.tarif.cial'].search([
                 ['partner_id', '=', obj.partner_id.id], 

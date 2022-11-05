@@ -258,7 +258,7 @@ class mrp_prevision(models.Model):
         type       = vals.get('type'      , None)
         quantity   = vals.get('quantity'  , None)
         if quantity==None or quantity==0:
-            raise Warning(u'Quantité à 0 non autorisée !')
+            raise ValidationError(u'Quantité à 0 non autorisée !')
 
         end_date   = vals.get('end_date'  , None)
         if (type=='sa' or type=='fs') and quantity:
@@ -353,7 +353,7 @@ class mrp_prevision(models.Model):
             end_date      = vals.get('end_date'     , obj.end_date)
 
             if quantity==None or quantity==0:
-                raise Warning(u'Quantité à 0 non autorisée !')
+                raise ValidationError(u'Quantité à 0 non autorisée !')
 
 
             #** Si modification start_date_cq **********************************

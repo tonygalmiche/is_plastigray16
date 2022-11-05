@@ -3,7 +3,7 @@ from odoo import models,fields,api
 import time
 from datetime import datetime
 from math import *
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 
 
 class is_facture_pk(models.Model):
@@ -62,7 +62,7 @@ class is_facture_pk(models.Model):
             pickings = stock_picking_obj.search([('id', '=', vals['num_bl'])])
             for picking in pickings:
                 if picking.is_facture_pk_id:
-                    raise Warning('Ce BL est déjà facturé !')
+                    raise ValidationError('Ce BL est déjà facturé !')
         #***********************************************************************
 
         sequence_ids = data_obj.search([('name','=','seq_is_facture_pk')])
@@ -144,7 +144,7 @@ class is_facture_pk(models.Model):
 
     def check_bl(self,obj):
         if obj.num_bl.is_facture_pk_id:
-            raise Warning('Ce BL est déjà facturé !')
+            raise ValidationError('Ce BL est déjà facturé !')
         obj.num_bl.is_facture_pk_id=obj.id
 
 

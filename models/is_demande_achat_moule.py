@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 import datetime
 
 
@@ -218,15 +218,15 @@ class is_demande_achat_moule(models.Model):
             order_line_obj = self.env['purchase.order.line']
             partner=obj.fournisseur_id
             if partner.id==False:
-                raise Warning('Fournisseur obligatoire pour générer la commande !')
+                raise ValidationError('Fournisseur obligatoire pour générer la commande !')
             for line in obj.line_ids:
                 if line.num_chantier==False:
-                    raise Warning('N° du chantier obligatoire sur toutes les lignes de la commande !')
+                    raise ValidationError('N° du chantier obligatoire sur toutes les lignes de la commande !')
                 else:
                     if len(line.num_chantier)!=11 and len(line.num_chantier)!=12:
-                        raise Warning('Le numéro du chantier doit-être sur 11 ou 12 caractères (ex : M0000/123456)')
+                        raise ValidationError('Le numéro du chantier doit-être sur 11 ou 12 caractères (ex : M0000/123456)')
             if partner.property_product_pricelist_purchase.id == False:
-                raise Warning('Liste de prix non renseignée pour ce fournisseur')
+                raise ValidationError('Liste de prix non renseignée pour ce fournisseur')
             else:
                 vals={
                     'partner_id'      : partner.id,
@@ -369,7 +369,7 @@ class is_demande_achat_moule_line(models.Model):
         if 'num_chantier' in vals:
             num_chantier=vals.get('num_chantier')
             if len(num_chantier)!=11:
-                raise Warning('Le numéro du chantier doit-être sur 11 caractères (ex : M0000/12345)')
+                raise ValidationError('Le numéro du chantier doit-être sur 11 caractères (ex : M0000/12345)')
 
 
     def create(self, vals):

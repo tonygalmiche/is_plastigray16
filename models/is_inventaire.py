@@ -781,7 +781,7 @@ class is_inventaire_feuille(models.Model):
                 db = MySQLdb.connect(host="dynacase", user="root",    passwd=pwd, db="Plastigray")
             #except MySQLdb.OperationalError, msg:
             except MySQLdb.OperationalError:
-                raise Warning(u"La connexion à Prodstar a échouée ! \n"+str(msg[1]))
+                raise ValidationError(u"La connexion à Prodstar a échouée ! \n"+str(msg[1]))
             cur = db.cursor()
             SQL="""
                 SELECT PA0003, PF0023, PF0059, PF0102, sum(PF0104), sum(PF0113) 

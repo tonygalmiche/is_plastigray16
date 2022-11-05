@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,api
-#from openerp.exceptions import Warning
+#from openerp.exceptions import ValidationError
 import datetime
 import time
 import psycopg2
@@ -298,7 +298,7 @@ class is_liste_servir(models.Model):
                 try:
                     cnx = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='dynacaseowner' password='"+password+"'")
                 except:
-                    raise Warning("Impossible de se connecter à Dynacase")
+                    raise ValidationError("Impossible de se connecter à Dynacase")
                 cursor = cnx.cursor()
             #*******************************************************************
 

@@ -118,7 +118,7 @@ class is_etuve_saisie(models.Model):
                 cnx0 = psycopg2.connect("dbname='"+base0+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
                 cr0 = cnx0.cursor(cursor_factory=RealDictCursor)
             except:
-                raise Warning("Impossible de se connecter à %s"%(base0))
+                raise ValidationError("Impossible de se connecter à %s"%(base0))
 
 
             #** Recherche fiche technique Matière dans odoo0 ******************
@@ -194,7 +194,7 @@ class is_etuve_saisie(models.Model):
         rsp_obj = self.env['is.etuve.rsp']
         rsp = rsp_obj.browse(vals['rsp_etuve_id'])
         if rsp.mot_de_passe!=vals['mot_de_passe']:
-            raise Warning(u"Mot de passe incorecte !")
+            raise ValidationError(u"Mot de passe incorecte !")
         data_obj = self.env['ir.model.data']
         sequence_ids = data_obj.search([('name','=','is_etuve_saisie_seq')])
         if sequence_ids:
@@ -205,7 +205,7 @@ class is_etuve_saisie(models.Model):
         #** Vérfication des matières *******************************************
         for row in obj.of_ids:
             if not row.matiere:
-                raise Warning(u"Les matières des OF ne correspondent pas à la matière de l'étuve !")
+                raise ValidationError(u"Les matières des OF ne correspondent pas à la matière de l'étuve !")
         #***********************************************************************
 
 
@@ -236,7 +236,7 @@ class is_etuve_saisie(models.Model):
 
 
     def copy(self, default=None):
-        raise Warning(u"Duplication interdite !")
+        raise ValidationError(u"Duplication interdite !")
 
 
 class is_etuve_of(models.Model):

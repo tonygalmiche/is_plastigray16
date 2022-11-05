@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+
+    <!-- Importer nomenclature dans OF -->
+    <record id="importer_nomenclature_action_server" model="ir.actions.server">
+         <field name="name">Importer nomenclature</field>
+        <field name="model_id" ref="model_mrp_production"/>
+        <field name="code">action = self.importer_nomenclature(cr, uid, context.get('active_ids', []), context=context)</field>
+    </record>
+    <record id="importer_nomenclature_ir_value" model="ir.values">
+        <field eval="'client_action_multi'" name="key2"/>
+        <field eval="'mrp.production'" name="model"/>
+        <field name="name">Importer nomenclature</field>
+        <field eval="'ir.actions.server,%d'%importer_nomenclature_action_server" name="value"/>
+    </record>
+
+
+    <!-- Ordre de fabrication -->
+        <record model="ir.ui.view" id="view_mrp_production_form_view_extended_form">
+            <field name="name">mrp.production.form</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="attributes">
+                    <attribute name="class">oe_form_sheet_width_wider</attribute>
+                </xpath>
+                <button name="button_cancel" position="replace" />
+                <xpath expr="//form/header/button[@name='action_cancel']" position="replace">
+                    <button 
+                        name="action_done" type="object" string="Solder cet OF"
+                        states="draft,ready,in_production,confirmed" 
+                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_magasiniers_group,is_plastigray.is_chef_equipe_group"
+                        confirm="Voulez-vous vraiment solder cet OF ?" />
+                </xpath>
+                <xpath expr="//group/group[@string='Consumed Products']" position="replace">
+                    <group string="Consumed Products">
+                        <field name="move_lines2" nolabel="1" options="{'reload_on_button': true}" domain="[('state','=','done')]">
+                           <tree string="Consumed Products">
+                               <field name="date" readonly="1"/>
+                               <field name="product_id" readonly="1"/>
+                               <field name="restrict_lot_id" context="{'product_id': product_id}" groups="stock.group_production_lot"/>
+                               <field name="product_uom_qty" readonly="1"/>
+                               <field name="product_uom" readonly="1" string="Unit of Measure" groups="product.group_uom"/>
+                               <field name="state" invisible="1"/>
+                               <field name="scrapped" invisible="1"/>
+                               <field name="location_id" readonly="1"/>
+                           </tree>
+                        </field>
+                    </group>
+                </xpath>
+                <field name="product_lines" position="replace">
+                    <field name="product_lines">
+                        <tree editable="bottom">
+                            <field 
+                                name="product_id"  
+                                context="{'product_qty':parent.product_qty}"
+                                on_change="on_change_product_id(product_id,is_bom_qty)"
+                            />
+                            <field name="name"/>
+                            <field name="product_uom"/>
+                            <field 
+                                name="is_bom_qty"  
+                                context="{'product_qty':parent.product_qty}"
+                                on_change="on_change_product_id(product_id,is_bom_qty)"
+                            />
+                            <field name="product_qty" string="Quantité totale"/>
+                       </tree>
+                    </field>
+                </field>
+                <xpath expr="//tree[@string='Production Work Centers']/field[@name='hour']" position="after">
+                    <field name="is_date_planning"/>
+                    <field name="is_date_tri"/>
+                    <field name="is_ordre"/>
+                    <field name="is_qt_restante"/>
+                    <field name="is_tps_restant"/>
+                </xpath>
+                <button icon="gtk-go-forward" position="replace" />
+                <button icon="terp-gtk-jump-to-ltr"  position="replace" />
+                <button string="Update" position="replace">
+                    <button type="action" name="%(mrp.action_change_production_qty)d"
+                        string="Update" states="confirmed,ready,in_production" class="oe_edit_only oe_link"/>
+                </button>
+                <xpath expr="//form/header/button[@string='Produce']" position="replace">
+                    <button 
+                        name="%(mrp.act_mrp_product_produce)d" 
+                        attrs="{'invisible':[('state','not in',('ready','in_production'))]}"
+                        string="Produce" type="action" class="oe_highlight"
+                    />
+                </xpath>
+                <field name="date_planned" position="after">
+                    <field name="is_prioritaire"/>
+                    <field name="is_num_essai"/>
+                    <field name="is_qt_fabriquee_uom"/>
+                    <field name="is_qt_reste_uom"/>
+                    <field name="is_qt_rebut_uom"/>
+                </field>
+                <field name="origin" position="after">
+                    <field name="product_package"/>
+                    <field name="package_qty"/>
+                    <field name="is_qt_prevue"/>
+                    <field name="is_qt_fabriquee"/>
+                    <field name="is_qt_reste"/>
+                    <field name="is_qt_rebut"/>
+                    <field name="is_done" invisible="1"/>
+                </field>
+                <button icon="terp-gtk-jump-to-ltr" position="before"> 
+                    <button string="Ligne" name="action_acceder_mouvement_stock" type="object" icon="gtk-zoom-in"/>
+                </button>
+                <button icon="terp-gtk-jump-to-ltr" position="attributes" > 
+                    <attribute name="invisible">1</attribute>
+                </button>
+                <xpath expr="//field[@name='move_lines']/tree/field[@name='product_uom_qty']" position="replace">
+                    <field name="product_uom_qty"  string="Quantity" digits="(14, 4)" />
+                </xpath>
+                <xpath expr="//field[@name='move_lines2']/tree/field[@name='product_uom_qty']" position="replace">
+                    <field name="product_uom_qty"  string="Quantity" digits="(14, 4)" />
+                </xpath>
+                <xpath expr="//page[@string='Work Orders']/button[@name='action_compute']" position="replace" />
+                <xpath expr="//page[@string='Scheduled Products']/button[@name='action_compute']" position="replace" />
+                <xpath expr="//div/button[@string='Update']" position="replace" />
+                <xpath expr="//sheet/div[@class='oe_title']" position="replace" />
+                <field name="bom_id" position="before" >
+                     <field name="name" />
+                </field>
+                <xpath expr="//div/field[@name='product_uom']" position="replace" />
+                <field name="is_qt_rebut_uom" position="after" >
+                     <field name="product_uom" />
+                </field>
+            </field>
+        </record>
+
+
+        <!-- Bon de travaux sur l'OF -->
+        <record id="is_mrp_production_form_inherit_view" model="ir.ui.view">
+            <field name="name">is.mrp.production.form.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp_operations.mrp_production_form_inherit_view"/>
+            <field name="arch" type="xml">
+                <button name="button_draft"         position="replace" />
+                <button name="button_start_working" position="replace" />
+                <button name="button_resume"        position="replace" />
+                <button name="button_pause"         position="replace" />
+                <button name="button_done"          position="replace" />
+            </field>
+        </record>
+        <record id="is_mrp_production_form_inherit_view2" model="ir.ui.view">
+            <field name="name">is.mrp.production.form.inherit2</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp_operations.mrp_production_form_inherit_view2"/>
+            <field name="arch" type="xml">
+                <button name="button_draft"         position="replace" />
+                <button name="button_start_working" position="replace" />
+                <button name="button_resume"        position="replace" />
+                <button name="button_pause"         position="replace" />
+                <button name="button_done"          position="replace" />
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_mrp_production_tree_view">
+            <field name="name">is_mrp_production_tree_view</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+            <field name="arch" type="xml">
+                <field name="product_uom" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="routing_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="hour_total" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="cycle_total" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="origin" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="product_id" position="after">
+                    <field name="is_mold_dossierf"/>
+                    <field name="is_prioritaire"/>
+                </field>
+                <field name="product_qty" position="after">
+                    <field name="is_qt_fabriquee_uom"/>
+                    <field name="is_qt_reste_uom"/>
+                    <field name="is_qt_rebut_uom"/>
+                </field>
+            </field>
+        </record>
+
+
+        <record id="is_view_mrp_production_filter" model="ir.ui.view">
+            <field name="name">is_view_mrp_production_filter</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.view_mrp_production_filter" />
+            <field name="arch" type="xml">
+                <field name="name" position="replace">
+                    <field name="name"/>
+                </field>
+                <field name="product_id" position="after">
+                    <field name="is_mold_dossierf"/>
+                    <field name="is_prioritaire"/>
+                </field>
+            </field>
+        </record>
+
+
+        <record id="is_declaration_fab_action" model="ir.actions.act_window">
+            <field name="name">Déclaration de fab</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,calendar,graph,gantt</field>
+            <field name="view_id" eval="False"/>
+            <field name="context">{}</field>
+            <field name="domain">[('state','in',['ready','in_production'])]</field>
+        </record>
+
+
+        <!-- Liste OF sans gamme -->
+        <record id="is_liste_of_sans_gamme_tree_view" model="ir.ui.view">
+            <field name="name">is_liste_of_sans_gamme_tree_view</field>
+            <field name="model">mrp.production</field>
+            <field eval="99" name="priority"/>
+            <field name="arch" type="xml">
+                <tree colors="red:True">
+                    <field name="product_id"/>
+                    <field name="product_qty"/>
+                    <field name="date_planned"/>
+                    <field name="bom_id"/>
+                    <field name="state"/>
+                    <field name="routing_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_liste_of_sans_gamme_action" model="ir.actions.act_window">
+            <field name="name">Liste OF sans gamme</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.production</field>
+            <field name="domain">[('routing_id','=', False),('state','not in', ('cancel','done'))]</field>
+            <field name="context">{} </field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_liste_of_sans_gamme_tree_view"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- mrp.production.product.line -->
+        <record id="is_mrp_production_product_line_form_view" model="ir.ui.view">
+            <field name="name">is_mrp_production_product_line_form_view</field>
+            <field name="model">mrp.production.product.line</field>
+            <field name="arch" type="xml">
+                <form string="Form">  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="is_bom_qty"/>
+                                <field name="product_qty" string="Quantité totale" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>

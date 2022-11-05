@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-#from openerp.exceptions import Warning
+#from openerp.exceptions import ValidationError
 #from math import *
 #from openerp.addons.purchase import purchase
 from datetime import datetime
@@ -86,7 +86,7 @@ class purchase_order_line(models.Model):
                 res = partner_obj.test_date_dispo(date_planned, partner, avec_jours_feries=False)
         if res==False:
             warning = {
-                'title': _('Warning!'),
+                'title': _('ValidationError!'),
                 'message' : 'La date prévue tombe pendant la fermeture du fournisseur ou de plastigray !'
             }
         return {
@@ -140,12 +140,12 @@ class purchase_order(models.Model):
         for obj in self:
             email_contact=obj.is_contact_id.email
             if email_contact==False:
-                raise Warning(u"Mail non renseigné pour ce contact !")
+                raise ValidationError(u"Mail non renseigné pour ce contact !")
             user  = self.env['res.users'].browse(uid)
             email = user.email
             nom   = user.name
             if email==False:
-                raise Warning(u"Votre mail n'est pas renseigné !")
+                raise ValidationError(u"Votre mail n'est pas renseigné !")
 
 
             #** Génération du PDF **********************************************
@@ -265,7 +265,7 @@ class purchase_order(models.Model):
                 )
                 price=res['value']['price_unit']
                 if not price:
-                    raise Warning(u"Modification non éffectuée, car prix non trouvé")
+                    raise ValidationError(u"Modification non éffectuée, car prix non trouvé")
                 line.price_unit=price
 
 
@@ -297,7 +297,7 @@ class purchase_order(models.Model):
     def test_prix0(self,obj):
         for line in obj.order_line:
             if not line.is_justification and not line.price_unit:
-                raise Warning(u"Prix à 0 sans justification pour l'article "+str(line.product_id.is_code))
+                raise ValidationError(u"Prix à 0 sans justification pour l'article "+str(line.product_id.is_code))
 
 
     def write(self,vals):

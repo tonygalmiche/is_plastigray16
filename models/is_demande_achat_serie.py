@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-from odoo.exceptions import Warning
+from odoo.exceptions import ValidationError
 import datetime
 
 
@@ -21,7 +21,7 @@ class is_demande_achat_serie(models.Model):
                 montant_total+=line.montant
             nb_lignes=len(obj.line_ids)
             if nb_lignes>1:
-                raise Warning('Une seule ligne autorisée !')
+                raise ValidationError('Une seule ligne autorisée !')
             obj.nb_lignes     = nb_lignes
             obj.montant_total = montant_total
 

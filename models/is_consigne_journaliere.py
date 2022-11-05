@@ -68,7 +68,8 @@ class is_consigne_journaliere_inj(models.Model):
     remarque       = fields.Text('Remarques / Consignes')
 
 
-    @api.depends('sequence','presse_id','of1_id','remarque')
+    #@api.depends('sequence','presse_id','of1_id','remarque')
+    @api.depends('sequence','presse_id','remarque')
     def _compute_info_planning1(self):
         cr , uid, context = self.env.args
         company = self.env.user.company_id
