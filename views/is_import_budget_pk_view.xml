@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_import_budget_pk_tree_view" model="ir.ui.view">
+            <field name="name">is_import_budget_pk_tree_view</field>
+            <field name="model">is.import.budget.pk</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="product_id" />
+                    <field name="annee"/>
+                    <field name="mois"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_import_budget_pk_form_view" model="ir.ui.view">
+            <field name="name">is_import_budget_pk_form_view</field>
+            <field name="model">is.import.budget.pk</field>
+            <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button 
+                        name="import_budget_pk"
+                        string="Import budget PK"
+                        type="object"
+                    />
+                    <button 
+                        name="voir_les_lignes"
+                        type="object"
+                        string="Voir les lignes"
+                    />
+                </header>
+                <sheet>
+                    <group>
+                        <field name="product_id" />
+                        <field name="annee"/>
+                        <field name="mois"/>
+                        <field name="anomalies" attrs="{'invisible': [('anomalies', '=', False)]}"/>
+                        <field name="nb_lignes" attrs="{'invisible': [('anomalies', '=', 0)]}"/>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_import_budget_pk_search_view" model="ir.ui.view">
+            <field name="name">is_import_budget_pk_search_view</field>
+            <field name="model">is.import.budget.pk</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id" />
+                    <field name="annee"/>
+                    <field name="mois"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_import_budget_pk_action" model="ir.actions.act_window" >
+            <field name="name">Import budget PK</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.import.budget.pk</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="is_import_budget_pk_menu" model="ir.ui.menu" >
+            <field name="name">Import budget PK</field>
+            <field name="sequence">90</field>
+            <field name="parent_id" eval="ref('is_pic_3ans_main_menu')"/>
+            <field name="action"    ref="is_import_budget_pk_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_import_budget_pk_grp'),
+            ])]"/>
+        </record>
+    </data>
+</odoo>

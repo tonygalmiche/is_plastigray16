@@ -30,6 +30,7 @@ from . import is_demande_achat_serie
 from . import is_demande_transport
 from . import is_donnee_machine
 from . import is_dossier_appel_offre
+from . import is_dossier_article
 from . import is_dossierf
 from . import is_edi_cde_cli          # TODO à finaliser
 from . import is_equipement
@@ -38,11 +39,15 @@ from . import is_export_cegid         # TODO à finaliser après la facturation
 from . import is_export_edi           # TODO à finaliser
 from . import is_facturation_fournisseur
 from . import is_facture_pk
+from . import is_facture_proforma
+from . import is_facture_proforma_outillage
 from . import is_fiche_tampographie
 from . import is_gabarit_controle
 from . import is_galia_base
 from . import is_gestion_des_absences
 from . import is_historique_controle
+from . import is_import_budget_pk
+from . import is_indicateur_revue_jalon
 from . import is_instruction_particuliere
 from . import is_instrument_mesure
 from . import is_inventaire           # TODO à finaliser => Il n'y a plus le modele stock.inventory...
@@ -50,6 +55,7 @@ from . import is_invest
 from . import is_liste_servir
 from . import is_mem_var
 from . import is_mini_delta_dore      # TODO à finaliser
+from . import is_mode_operatoire
 from . import is_mold
 from . import is_mold_project
 from . import is_ot
@@ -83,16 +89,9 @@ from . import stock
 
 
 # TODO : is_pg_2019
-# import is_mode_operatoire
-# import is_facture_proforma
-# import is_facture_proforma_outillage
-# import is_indicateur_revue_jalon
-# import is_import_budget_pk
-# import is_dossier_article
 # import is_gestion_des_absences_report TODO : A revoir avec l'analyse du CBN (Javascript)
 # from . import is_head_model           TODO : Ne pas migrer pour le moment
 # import auditlog                       TODO : A revoir avec l'installation du moule auditlog quant il sera dispo
-
 
 # TODO : is_plastigray
 # import is_resource                 TODO : Voir s'il faut migrer ce module ou pas

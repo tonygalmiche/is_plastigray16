@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<openerp>
+<odoo>
     <data>
-        <!-- Sequence is.bl.manuel --> 
+        <!-- is.bl.manuel --> 
         <record id="is_bl_manuel_seq" model="ir.sequence">
             <field name="name">BL manuel</field>
             <field name="code">is.bl.manuel</field>
@@ -10,8 +10,6 @@
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
-
-        <!-- is.bl.manuel --> 
         <record model="ir.ui.view" id="is_bl_manuel_form_view">
             <field name="name">is_bl_manuel_form_view</field>
             <field name="model">is.bl.manuel</field>
@@ -35,6 +33,12 @@
                             name="creation_demande_transport_action"
                             string="Créer la demande de transport"
                             attrs="{'invisible': ['|',('state', '!=', 'termine'),('demande_transport_id', '!=', False)]}"
+                            type="object"
+                        />
+                        <button 
+                            name="creation_facture_proforma_action"
+                            string="Créer facture proforma"
+                            groups="is_plastigray16.is_administration_vente_group"
                             type="object"
                         />
                         <field name="state" widget="statusbar"/>
@@ -143,4 +147,4 @@
             </field>
         </record>
   </data>
-</openerp>
+</odoo>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!-- is.mode.operatoire.menu --> 
+        <record model="ir.ui.view" id="is_mode_operatoire_menu_form_view">
+            <field name="name">is_mode_operatoire_menu_form_view</field>
+            <field name="model">is.mode.operatoire.menu</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="ordre"/>
+                            <field name="menu_id" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mode_operatoire_menu_tree_view">
+            <field name="name">is_mode_operatoire_menu_tree_view</field>
+            <field name="model">is.mode.operatoire.menu</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="ordre"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mode_operatoire_menu_search_view" >
+            <field name="name">is_mode_operatoire_menu_search_view</field>
+            <field name="model">is.mode.operatoire.menu</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mode_operatoire_menu_action">
+            <field name="name">Menus</field>
+            <field name="res_model">is.mode.operatoire.menu</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.mode.operatoire --> 
+        <record model="ir.ui.view" id="is_mode_operatoire_form_view">
+            <field name="name">is_mode_operatoire_form_view</field>
+            <field name="model">is.mode.operatoire</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="menu_id"/>
+                            <field name="createur_id"/>
+                            <field name="date_demande"/>
+                            <field name="attachment_ids"  widget="many2many_binary" />
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mode_operatoire_tree_view">
+            <field name="name">is_mode_operatoire_tree_view</field>
+            <field name="model">is.mode.operatoire</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="menu_id"/>
+                    <field name="createur_id"/>
+                    <field name="date_demande"/>
+                    <field name="attachment_ids"  widget="many2many_binary" />
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mode_operatoire_search_view" >
+            <field name="name">is_mode_operatoire_search_view</field>
+            <field name="model">is.mode.operatoire</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="menu_id"/>
+                    <field name="createur_id"/>
+                    <filter string="Menu" name="group_by_menu_id" context="{'group_by': 'menu_id'}"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mode_operatoire_action">
+            <field name="name">Mode opératoire</field>
+            <field name="res_model">is.mode.operatoire</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+  </data>
+</odoo>

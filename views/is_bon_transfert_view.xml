@@ -26,6 +26,7 @@
         </record> -->
 
 
+
         <!-- Bon de transfert -->
         <record id="is_bon_transfert_form_view" model="ir.ui.view">
             <field name="name">is_bon_transfert_from_view</field>
@@ -44,6 +45,12 @@
                             type="object"
                             confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
                             attrs="{'invisible': ['|',('date_traitement_edi', '!=', False),('traitement_edi', '!=', 'DESADV')]}" 
+                        />
+                        <button 
+                            name="creation_facture_proforma_action"
+                            string="Créer facture proforma"
+                            groups="is_plastigray16.is_administration_vente_group"
+                            type="object"
                         />
                     </header>
                     <sheet class="oe_form_sheet_width_wider">

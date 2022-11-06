@@ -1967,106 +1967,115 @@
 
 
         <!-- Dossiers articles -->
-        <!-- <record id="is_dossier_article_main_menu" model="ir.ui.menu" >
+        <record id="is_dossier_article_main_menu" model="ir.ui.menu" >
             <field name="name">Dossiers articles</field>
             <field name="sequence">16</field>
-            <field name="parent_id" eval="ref('is_plastigray.menu_is_donnees_techniques')"/>
+            <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_pg_2019.is_base_principale_grp'),
+                ref('is_base_principale_grp'),
             ])]"/>
         </record>
         <record id="is_dossier_article_menu" model="ir.ui.menu" >
             <field name="name">Dossiers articles</field>
             <field name="sequence">10</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_main_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_main_menu')"/>
             <field name="action"    ref="is_dossier_article_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_pg_2019.is_base_principale_grp'),
+                ref('is_base_principale_grp'),
             ])]"/>
         </record>
-        <record id="is_dossier_article_actualiser_menu" model="ir.ui.menu" >
+        <record id="is_dossier_article2_menu" model="ir.ui.menu" >
+            <field name="name">Dossiers articles</field>
+            <field name="sequence">1</field>
+            <field name="parent_id" eval="ref('is_dossier_article_main_menu')"/>
+            <field name="action"    ref="is_dossier_article_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_base_principale_grp'),
+            ])]"/>
+        </record>
+        <!-- <record id="is_dossier_article_actualiser_menu" model="ir.ui.menu" >
             <field name="name">Actualiser Dossier article</field>
             <field name="sequence">20</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_actions_server"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_pg_2019.is_gestionnaire_dossier_article_grp'),
+                ref('is_gestionnaire_dossier_article_grp'),
             ])]"/>
-        </record>
+        </record> -->
 
 
         <record id="is_dossier_article_code_recyclage_menu" model="ir.ui.menu" >
             <field name="name">Code recyclage</field>
             <field name="sequence">30</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_code_recyclage_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_combustion_menu" model="ir.ui.menu" >
             <field name="name">Combustion</field>
             <field name="sequence">31</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_combustion_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_durete_menu" model="ir.ui.menu" >
             <field name="name">Dureté</field>
             <field name="sequence">32</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_durete_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_gamme_commerciale_menu" model="ir.ui.menu" >
             <field name="name">Gamme commerciale</field>
             <field name="sequence">33</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_gamme_commerciale_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_producteur_menu" model="ir.ui.menu" >
             <field name="name">Producteur</field>
             <field name="sequence">34</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_producteur_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_traitement_menu" model="ir.ui.menu" >
             <field name="name">Traitement</field>
             <field name="sequence">35</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_traitement_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_type_article_menu" model="ir.ui.menu" >
             <field name="name">Type charge</field>
             <field name="sequence">36</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_type_article_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
         </record>
         <record id="is_dossier_article_utilisation_menu" model="ir.ui.menu" >
             <field name="name">Utilisation</field>
             <field name="sequence">37</field>
-            <field name="parent_id" eval="ref('is_pg_2019.is_dossier_article_menu')"/>
+            <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
             <field name="action"    ref="is_dossier_article_utilisation_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_gestionnaire_tables_group'),
+                ref('is_gestionnaire_tables_group'),
             ])]"/>
-        </record> -->
+        </record>
 
 
         <!-- Bon d'achat en ville -->
@@ -2410,7 +2419,6 @@
             name="Factures Proforma"
             sequence="42"
         />
-        <!-- 
        <menuitem
             id="is_facture_proforma_menu"
             parent="is_proforma_main_menu"
@@ -2425,7 +2433,6 @@
             sequence="20"
             action="is_facture_proforma_outillage_action"
         />
-         -->
         <menuitem
             id="is_proforma_chine_menu"
             parent="is_proforma_main_menu"
@@ -2447,29 +2454,30 @@
 
 
         <!-- Modes opératoires -->
-        <!-- <menuitem id="is_mode_operatoire_top_menu" sequence="100" name="Modes opératoires"  groups="is_pg_2019.is_base_principale_grp"/>
-        <menuitem id="is_mode_operatoire_main_menu" sequence="10" name="Modes opératoires"  parent="is_pg_2019.is_mode_operatoire_top_menu" />
+        <menuitem id="is_mode_operatoire_top_menu" sequence="100" name="Modes opératoires"  groups="is_base_principale_grp"/>
+        <menuitem id="is_mode_operatoire_main_menu" sequence="10" name="Modes opératoires"  parent="is_mode_operatoire_top_menu" />
         <record id="is_mode_operatoire_menu" model="ir.ui.menu">
             <field name="name">Modes opératoires</field>
             <field name="sequence">10</field>
             <field name="parent_id" eval="ref('is_mode_operatoire_main_menu')"/>
             <field name="action"    ref="is_mode_operatoire_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_pg_2019.is_gestionnaire_mode_operatoire_grp'),
+                ref('is_gestionnaire_mode_operatoire_grp'),
             ])]"/>
         </record>
 
-        <menuitem id="is_mode_operatoire_menu_main_menu" sequence="20" name="Menus"  parent="is_pg_2019.is_mode_operatoire_top_menu" />
+        <menuitem id="is_mode_operatoire_menu_main_menu" sequence="20" name="Menus"  parent="is_mode_operatoire_top_menu" />
         <record id="is_mode_operatoire_menu_menu" model="ir.ui.menu">
             <field name="name">Menus</field>
             <field name="sequence">10</field>
             <field name="parent_id" eval="ref('is_mode_operatoire_menu_main_menu')"/>
             <field name="action"    ref="is_mode_operatoire_menu_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_pg_2019.is_gestionnaire_mode_operatoire_grp'),
+                ref('is_gestionnaire_mode_operatoire_grp'),
             ])]"/>
         </record>
 
+        <!--
         <record id="is_certificat_conformite_menu" model="ir.ui.menu" >
             <field name="name">Certificat de conformité</field>
             <field name="sequence">50</field>
@@ -2480,14 +2488,15 @@
                 ref('is_plastigray.is_qualite_group'),
             ])]"/>
         </record>
+         -->
 
 
        <record id="is_indicateur_bei_menu" model="ir.ui.menu" >
             <field name="name">BEI</field>
             <field name="sequence">20</field>
-            <field name="parent_id" eval="ref('is_plastigray.is_indicateurs_menu')"/>
+            <field name="parent_id" eval="ref('is_indicateurs_menu')"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_pg_2019.is_base_principale_grp'),
+                ref('is_base_principale_grp'),
             ])]"/>
         </record>
         <record id="is_indicateur_revue_jalon_menu" model="ir.ui.menu" >
@@ -2496,10 +2505,9 @@
             <field name="parent_id" eval="ref('is_indicateur_bei_menu')"/>
             <field name="action"    ref="is_indicateur_revue_jalon_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_chef_projet_group'),
+                ref('is_chef_projet_group'),
             ])]"/>
         </record>
-         -->
 
         <record id="is_indicateur_commercial_menu" model="ir.ui.menu" >
             <field name="name">Commercial</field>

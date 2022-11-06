@@ -38,7 +38,44 @@ class is_bl_manuel(models.Model):
     state                = fields.Selection([('brouillon', 'Brouillon'),('termine', 'Terminé')], "Etat", default='brouillon')
     line_ids             = fields.One2many('is.bl.manuel.line'  , 'bl_id', u"Lignes")
 
- 
+
+    def creation_facture_proforma_action(self):
+        for obj in self:
+            vals={
+                'adresse_liv_id': obj.destinataire_id.id,
+                'bl_manuel_id'  : obj.id,
+                'packaging'     : obj.colisage,
+                'informations'  : obj.motif_expedition,
+            }
+            proforma=self.env['is.facture.proforma'].create(vals)
+            poids_net = poids_brut = 0
+            for line in obj.line_ids:
+                poids_net  += line.poids_net
+                poids_brut += line.poids_brut
+                vals={
+                    'proforma_id': proforma.id,
+                    'sequence': line.sequence,
+                    'product_id': line.product_id.id,
+                    'designation': line.description,
+                    'uom_id': line.uom_id.id,
+                    'quantite': line.qt_livree,
+                }
+                res=self.env['is.facture.proforma.line'].create(vals)
+                res._onchange_product_id()
+            proforma.poids_net  = poids_net
+            proforma.poids_brut = poids_brut
+            proforma._compute()
+            return {
+                'name': "Facture proforma",
+                'view_mode': 'form',
+                'view_type': 'form',
+                'res_model': 'is.facture.proforma',
+                'type': 'ir.actions.act_window',
+                'res_id': proforma.id,
+                'domain': '[]',
+            }
+
+
     def destinataire_id_change(self, destinataire_id):
         values = {}
         if destinataire_id:

@@ -12,6 +12,21 @@ class is_bon_transfert(models.Model):
     _description = "Bon de transfert"
     _order='name desc'
 
+
+    @api.depends('line_ids')
+    def _compute(self):
+        cr = self._cr
+        for obj in self:
+            qt_total=total_uc=total_um=0
+            for line in obj.line_ids:
+                qt_total=qt_total+line.quantite
+                total_uc=total_uc+line.nb_uc
+                total_um=total_um+line.nb_um
+            obj.qt_total=qt_total
+            obj.total_uc=total_uc
+            obj.total_um=total_um
+
+
     name            = fields.Char('N° de bon de transfert', readonly=True)
     location_id     = fields.Many2one('stock.location', 'Emplacement (Navette)', required=True)
     date_creation   = fields.Date('Date de création', readonly=True, default=lambda *a: fields.datetime.now())
@@ -29,18 +44,38 @@ class is_bon_transfert(models.Model):
     date_traitement_edi = fields.Datetime("Date traitement EDI")
 
 
-    @api.depends('line_ids')
-    def _compute(self):
-        cr = self._cr
+    def creation_facture_proforma_action(self):
         for obj in self:
-            qt_total=total_uc=total_um=0
+            vals={
+                'adresse_liv_id'  : obj.partner_id.id,
+                'bon_transfert_id': obj.id,
+            }
+            proforma=self.env['is.facture.proforma'].create(vals)
+            poids_net = poids_brut = 0
+            sequence=0
             for line in obj.line_ids:
-                qt_total=qt_total+line.quantite
-                total_uc=total_uc+line.nb_uc
-                total_um=total_um+line.nb_um
-            obj.qt_total=qt_total
-            obj.total_uc=total_uc
-            obj.total_um=total_um
+                sequence += 10
+                vals={
+                    'proforma_id': proforma.id,
+                    'sequence'   : sequence,
+                    'product_id' : line.product_id.id,
+                    'designation': line.product_id.name,
+                    'uom_id'     : line.uom_id.id,
+                    'quantite'   : line.quantite,
+                }
+                res=self.env['is.facture.proforma.line'].create(vals)
+                res._onchange_product_id()
+            proforma.calcul_poids()
+            proforma._compute()
+            return {
+                'name': "Facture proforma",
+                'view_mode': 'form',
+                'view_type': 'form',
+                'res_model': 'is.facture.proforma',
+                'type': 'ir.actions.act_window',
+                'res_id': proforma.id,
+                'domain': '[]',
+            }
 
 
     @api.model_create_multi

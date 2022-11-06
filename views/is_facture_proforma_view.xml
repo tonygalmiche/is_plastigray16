@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.facture.proforma --> 
+        <record id="is_facture_proforma_seq" model="ir.sequence">
+            <field name="name">Facture proforma</field>
+            <field name="code">is.facture.proforma</field>
+            <field name="prefix">FP-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record model="ir.ui.view" id="is_facture_proforma_form_view">
+            <field name="name">is_facture_proforma_form_view</field>
+            <field name="model">is.facture.proforma</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form" create="1">
+                    <sheet class="oe_form_sheet_width_wider">
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="adresse_liv_id"/>
+                                <field name="adresse_fac_id"/>
+                            </group>
+                            <group>
+                                <field name="date_facture"/>
+                                <field name="createur_id"/>
+                                <field name="pricelist_id"/>
+                                <field name="vat"/>
+                                <field name="incoterm_id"/>
+                                <field name="lieu"/>
+                            </group>
+                        </group>
+                        <field name="line_ids" nolabel="1" >
+                            <tree editable="bottom">
+                                <field name="sequence" />
+                                <field name="product_id" widget="many2one_clickable"/>
+                                <field name="designation"/>
+                                <field name="ref_client"/>
+                                <field name="nomenclature_douaniere"/>
+                                <field name="quantite"/>
+                                <field name="uom_id"/>
+                                <field name="prix"/>
+                                <field name="montant" sum="Total"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="montant"/>
+                            <field name="poids_brut"/>
+                            <field name="poids_net"/>
+                            <field name="packaging"/>
+                            <field name="informations"/>
+                            <field name="bon_transfert_id" attrs="{'invisible': [('bon_transfert_id','=', False)]}"/>
+                            <field name="bl_manuel_id"     attrs="{'invisible': [('bl_manuel_id','=', False)]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_facture_proforma_tree_view">
+            <field name="name">is_facture_proforma_tree_view</field>
+            <field name="model">is.facture.proforma</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="adresse_liv_id"   optional="show"/>
+                    <field name="adresse_fac_id"   optional="show"/>
+                    <field name="date_facture"     optional="show"/>
+                    <field name="createur_id"      optional="show"/>
+                    <field name="poids_brut"       optional="show" sum="Total"/>
+                    <field name="poids_net"        optional="show" sum="Total"/>
+                    <field name="packaging"        optional="show"/>
+                    <field name="informations"     optional="show"/>
+                    <field name="bon_transfert_id" optional="hide"/>
+                    <field name="bl_manuel_id"     optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_facture_proforma_search_view" >
+            <field name="name">is_facture_proforma_search_view</field>
+            <field name="model">is.facture.proforma</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="adresse_liv_id"/>
+                    <field name="adresse_fac_id"/>
+                    <field name="bon_transfert_id"/>
+                    <field name="bl_manuel_id"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_facture_proforma_action">
+            <field name="name">Facture proforma</field>
+            <field name="res_model">is.facture.proforma</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>
