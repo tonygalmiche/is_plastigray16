@@ -58,7 +58,6 @@
                     <field name="project"/>
                     <field name="client_id" /> 
                     <field name="chef_projet_id"/>
-
                 </search>
             </field>
         </record>

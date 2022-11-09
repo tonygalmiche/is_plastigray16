@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from calendar import c
 from odoo import models, fields, api,tools,SUPERUSER_ID
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-#import xmlrpclib
 #from is_outillage import date_prochain_controle
 
 
@@ -79,114 +77,67 @@ class is_instrument_mesure(models.Model):
         self.type_boolean = self.famille_id.afficher_type
         self.etendue_boolean = self.famille_id.afficher_type
         self.resolution_boolean = self.famille_id.afficher_type
-        self.classe_boolean = self.famille_id.afficher_classe
+        #self.classe_boolean = self.famille_id.afficher_classe
         
 
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_instrument_mesure, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_instrument_mesure()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Instrument!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_instrument_mesure, self).create(vals)
-    #         obj.copy_other_database_instrument_mesure()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Instrument!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            filtre=[('code_pg', '=', obj.code_pg),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
             
-    def copy_other_database_instrument_mesure(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for mesure in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                instrument_mesure_vals = self.get_instrument_mesure_vals(mesure, DB, USERID, USERPASS, sock)
-                dest_instrument_mesure_ids = sock.execute(DB, USERID, USERPASS, 'is.instrument.mesure', 'search', [('is_database_origine_id', '=', mesure.id),
-                                                                                                '|',('active','=',True),('active','=',False)], {})
-                if dest_instrument_mesure_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.instrument.mesure', 'write', dest_instrument_mesure_ids, instrument_mesure_vals, {})
-                    instrument_mesure_created_id = dest_instrument_mesure_ids[0]
-                else:
-                    instrument_mesure_created_id = sock.execute(DB, USERID, USERPASS, 'is.instrument.mesure', 'create', instrument_mesure_vals, {})
-        return True
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        filtre=[('code_pg', '=', res.code_pg),'|',('active','=',True),('active','=',False)]
+        self.env['is.database'].copy_other_database(res,filtre)
+        return res
 
-    def get_instrument_mesure_vals(self, mesure, DB, USERID, USERPASS, sock):
-        instrument_mesure_vals ={
-            'code_pg' : tools.ustr(mesure.code_pg or ''),
-            'designation':tools.ustr(mesure.designation or ''),
-            'famille_id':self._get_famille_id(mesure, DB, USERID, USERPASS, sock),
-            'fabriquant':tools.ustr(mesure.fabriquant or ''),
-            'num_serie':tools.ustr(mesure.num_serie or ''),
-            'date_reception':mesure.date_reception,
-            'type':tools.ustr(mesure.type or ''),
-            'etendue': tools.ustr(mesure.etendue or '') ,
-            'resolution': tools.ustr(mesure.resolution or ''),
-            'type_boolean': mesure.type_boolean ,
-            'etendue_boolean': mesure.etendue_boolean ,
-            'resolution_boolean':mesure.resolution_boolean,
-            'lieu_stockage': tools.ustr(mesure.lieu_stockage or '') ,
-            'service_affecte': tools.ustr(mesure.service_affecte or '') ,
-            'frequence':mesure.frequence,
-            'periodicite':tools.ustr(mesure.periodicite or ''),
-            'emt':mesure.emt,
-            'site_id':self._get_site_id(mesure, DB, USERID, USERPASS, sock),
-            'active':mesure.site_id and mesure.site_id.database == DB and True or False,
-            'is_database_origine_id':mesure.id,
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+
+            'code_pg'               : self.code_pg,
+            'designation'           : self.designation,
+            'famille_id'            : self._get_famille_id(DB, USERID, USERPASS, sock),
+            'fabriquant'            : self.fabriquant,
+            'num_serie'             : self.num_serie,
+            'date_reception'        : self.date_reception,
+            'type'                  : self.type,
+            'etendue'               : self.etendue,
+            'resolution'            : self.resolution,
+            'type_boolean'          : self.type_boolean,
+            'etendue_boolean'       : self.etendue_boolean,
+            'resolution_boolean'    : self.resolution_boolean,
+            'lieu_stockage'         : self.lieu_stockage,
+            'service_affecte'       : self.service_affecte,
+            'frequence'             : self.frequence,
+            'periodicite'           : self.periodicite,
+            'emt'                   : self.emt,
+            'site_id'               : self._get_site_id(DB, USERID, USERPASS, sock),
+            'active'                : self.site_id and self.site_id.database == DB and True or False,
+            'is_database_origine_id': self.id,
         }
-        return instrument_mesure_vals
-    
+        return vals
 
 
-    def _get_site_id(self, mesure, DB, USERID, USERPASS, sock):
-        if mesure.site_id:
-            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', mesure.site_id.id)], {})
+    def _get_site_id(self, DB, USERID, USERPASS, sock):
+        if self.site_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', self.site_id.id)])
             if ids:
                 return ids[0]
         return False
 
 
-    def _get_famille_id(self, mesure, DB, USERID, USERPASS, sock):
-        if mesure.famille_id:
-            famille_ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('is_database_origine_id', '=', mesure.famille_id.id)], {})
-            if not famille_ids:
-                mesure.famille_id.copy_other_database_famille_instrument()
-                famille_ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('is_database_origine_id', '=', mesure.famille_id.id)], {})
-            if famille_ids:
-                return famille_ids[0]
+    def _get_famille_id(self, DB, USERID, USERPASS, sock):
+        if self.famille_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('is_database_origine_id', '=', self.famille_id.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(self.famille_id)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('is_database_origine_id', '=', self.famille_id.id)])
+            if ids:
+                return ids[0]
         return False
-    
-    def _get_fabriquant_id(self, mesure, DB, USERID, USERPASS, sock):
-        if mesure.fabriquant_id:
-            fabriquant_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', mesure.fabriquant_id.id)], {})
-            if fabriquant_ids:
-                return fabriquant_ids[0]
-        return False
-    
-    def _get_fournisseur_id(self, mesure, DB, USERID, USERPASS, sock):
-        if mesure.fournisseur_id:
-            fournisseur_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', mesure.fournisseur_id.id)], {})
-            if fournisseur_ids:
-                return fournisseur_ids[0]
-        return False
-    
 
         
 class is_famille_instrument(models.Model):

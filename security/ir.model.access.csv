@@ -62,8 +62,6 @@ access_is_piece_montabilite,access_is_piece_montabilite,model_is_piece_montabili
 access_is_presse_classe,access_is_presse_classe,model_is_presse_classe,base.group_user,1,1,1,1
 access_is_presse_puissance,access_is_presse_puissance,model_is_presse_puissance,base.group_user,1,1,1,1
 access_is_outillage_constructeur,access_is_outillage_constructeur,model_is_outillage_constructeur,base.group_user,1,1,1,1
-access_is_presse,access_is_presse,model_is_presse,base.group_user,1,1,1,1
-access_is_prechauffeur,access_is_prechauffeur,model_is_prechauffeur,base.group_user,1,1,1,1
 access_is_commande_externe,access_is_commande_externe,model_is_commande_externe,base.group_user,1,1,1,1
 access_is_demande_achat_serie,access_is_demande_achat_serie,model_is_demande_achat_serie,base.group_user,1,1,1,1
 access_is_demande_achat_serie_line,access_is_demande_achat_serie_line,model_is_demande_achat_serie_line,base.group_user,1,1,1,1

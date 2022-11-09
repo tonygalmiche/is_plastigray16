@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Bases de données -->
+        <record id="is_database_form_view" model="ir.ui.view">
+            <field name="name">is_database_form_view</field>
+            <field name="model">is.database</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name='name' />
+                                <field name='ip_server' />
+                                <field name='database' />
+                                <field name='port_server' />
+                            </group>
+                            <group>
+                                <field name='login' />
+                                <field name='password' password='True' />
+                            </group>
+                        </group>
+                        <group>
+                            <field name="preventif_equipement_user_ids" widget="many2many_tags"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_database_tree_view" model="ir.ui.view">
+            <field name="name">is_database_tree_view</field>
+            <field name="model">is.database</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name='name' />
+                    <field name='ip_server' />
+                    <field name='port_server' />
+                    <field name='database' />
+                    <field name='login' />
+                    <field name='is_database_origine_id' />
+                </tree>
+            </field>
+        </record>
+        <record id="is_database_action" model="ir.actions.act_window">
+            <field name="name">Site</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.database</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Dossier F -->
+        <!-- <record id="is_dossierf_form_view_inherit" model="ir.ui.view">
+            <field name="name">is_dossierf_form_view_inherit</field>
+            <field name="model">is.dossierf</field>
+            <field name="inherit_id" ref="is_mold.is_dossierf_form_view" />
+            <field name="arch" type="xml">
+                <field name="chef_projet_id" position="after">
+                    <field name="is_database_id"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_dossierf_tree_view_inherit" model="ir.ui.view">
+            <field name="name">is_dossierf_tree_view_inherit</field>
+            <field name="model">is.dossierf</field>
+            <field name="inherit_id" ref="is_mold.is_dossierf_tree_view" />
+            <field name="arch" type="xml">
+                <field name="chef_projet_id" position="after">
+                    <field name="is_database_origine_id"/>
+                </field>
+            </field>
+        </record> -->
+
+        <!-- Moules  -->
+        <!-- <record id="is_mold_form_view_inherit" model="ir.ui.view">
+            <field name="name">is_mold_form_view_inherit</field>
+            <field name="model">is.mold</field>
+            <field name="inherit_id" ref="is_mold.is_mold_form_view" />
+            <field name="arch" type="xml">
+                <field name="emplacement" position="after">
+                    <field name="is_database_id"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_mold_tree_view_inherit" model="ir.ui.view">
+            <field name="name">is_mold_tree_view_inherit</field>
+            <field name="model">is.mold</field>
+            <field name="inherit_id" ref="is_mold.is_mold_tree_view" />
+            <field name="arch" type="xml">
+                <field name="emplacement" position="after">
+                    <field name="is_database_id"/>
+                    <field name="is_database_origine_id"/>
+                </field>
+            </field>
+        </record> -->
+
+        <!-- Projets -->
+        <!-- <record id="is_mold_project_tree_view_inherit" model="ir.ui.view">
+            <field name="name">is_mold_project_tree_view_inherit</field>
+            <field name="model">is.mold.project</field>
+            <field name="inherit_id" ref="is_mold.is_mold_project_tree_view" />
+            <field name="arch" type="xml">
+                <field name="chef_projet_id" position="after">
+                    <field name="is_database_origine_id"/>
+                </field>
+            </field> 
+        </record>-->
+
+
+
+    </data>
+</odoo>

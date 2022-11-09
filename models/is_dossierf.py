@@ -18,86 +18,53 @@ class is_dossierf(models.Model):
     is_database_id         = fields.Many2one('is.database', "Site")
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
 
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
 
-#     def write(self, vals):
-#         res=super(is_dossierf, self).write(vals)
-#         for obj in self:
-#             obj.copy_other_database_dossierf()
-#         return res
-
-#     def create(self, vals):
-#         obj=super(is_dossierf, self).create(vals)
-#         obj.copy_other_database_dossierf()
-#         return obj
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'designation'           : self.designation,
+            'project'               : self._get_project(DB, USERID, USERPASS, sock),
+            'mold_ids'              : self._get_mold_ids(DB, USERID, USERPASS, sock),
+            'is_database_id'        : self._get_is_database_id(DB, USERID, USERPASS, sock),
+            'is_database_origine_id': self.id,
+        }
+        return vals
     
-#     def copy_other_database_dossierf(self):
-#         cr , uid, context = self.env.args
-#         context = dict(context)
-#         database_obj = self.env['is.database']
-#         database_lines = database_obj.search([])
-#         for dossierf in self:
-#             for database in database_lines:
-#                 if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-#                     continue
-#                 DB = database.database
-#                 USERID = SUPERUSER_ID
-#                 DBLOGIN = database.login
-#                 USERPASS = database.password
-#                 DB_SERVER = database.ip_server
-#                 DB_PORT = database.port_server
-#                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-#                 dossierf_vals = self.get_dossierf_vals(dossierf, DB, USERID, USERPASS, sock)
-#                 ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('is_database_origine_id', '=', dossierf.id)], {})
-#                 if not ids:
-#                     ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('name', '=', dossierf.name)], {})
-#                 if ids:
-#                     sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'write', ids, dossierf_vals, {})
-#                     created_id = ids[0]
-#                 else:
-#                     created_id = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'create', dossierf_vals, {})
-#         return True
+    def _get_project(self, DB, USERID, USERPASS, sock):
+        if self.project:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.mold.project', 'search', [('is_database_origine_id', '=', self.project.id)])
+            if not ids:
+                self.project.copy_other_database_project()
+                ids = sock.execute(DB, USERID, USERPASS, 'is.mold.project', 'search', [('is_database_origine_id', '=', self.project.id)])
+            if ids:
+                return ids[0]
+        return False
     
-    
-#     def get_dossierf_vals(self, dossierf, DB, USERID, USERPASS, sock):
-#         dossierf_vals = {
-#             'name': dossierf.name,
-#             'designation':dossierf.designation,
-#             'project':self._get_project(dossierf, DB, USERID, USERPASS, sock),
-#             'mold_ids': self._get_mold_ids(dossierf, DB, USERID, USERPASS, sock),
-#             'is_database_origine_id':dossierf.id,
-#             'is_database_id':self._get_is_database_id(dossierf, DB, USERID, USERPASS, sock),
-#         }
-#         return dossierf_vals
-    
-#     def _get_project(self, dossierf, DB, USERID, USERPASS, sock):
-#         if dossierf.project:
-#             project_ids = sock.execute(DB, USERID, USERPASS, 'is.mold.project', 'search', [('is_database_origine_id', '=', dossierf.project.id)], {})
-#             if not project_ids:
-#                 dossierf.project.copy_other_database_project()
-#                 project_ids = sock.execute(DB, USERID, USERPASS, 'is.mold.project', 'search', [('is_database_origine_id', '=', dossierf.project.id)], {})
-#             if project_ids:
-#                 return project_ids[0]
-#         return False
-    
-#     def _get_mold_ids(self, dossierf, DB, USERID, USERPASS, sock):
-#         list_mold_ids =[]
-#         for mold in dossierf.mold_ids:
-#             dest_mold_ids = sock.execute(DB, USERID, USERPASS, 'is.mold', 'search', [('is_database_origine_id', '=', mold.id)], {})
-#             if dest_mold_ids:
-#                 list_mold_ids.append(dest_mold_ids[0])
-        
-#         return [(6, 0, list_mold_ids)]
+    def _get_mold_ids(self, DB, USERID, USERPASS, sock):
+        mold_ids =[]
+        for mold in self.mold_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.mold', 'search', [('is_database_origine_id', '=', mold.id)])
+            if ids:
+                mold_ids.append(ids[0])
+        return [(6, 0, mold_ids)]
 
-
-#     def _get_is_database_id(self, dossierf, DB, USERID, USERPASS, sock):
-#         if dossierf.is_database_id:
-#             ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', dossierf.is_database_id.id)], {})
-#             if ids:
-#                 return ids[0]
-#         return False
-
-
-
+    def _get_is_database_id(self, DB, USERID, USERPASS, sock):
+        if self.is_database_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', self.is_database_id.id)])
+            if ids:
+                return ids[0]
+        return False
 
     @api.depends('project','project.client_id','project.chef_projet_id')
     def _compute(self):
@@ -105,7 +72,6 @@ class is_dossierf(models.Model):
             if obj.project:
                 obj.client_id      = obj.project.client_id
                 obj.chef_projet_id = obj.project.chef_projet_id
-
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not context:
@@ -115,7 +81,6 @@ class is_dossierf(models.Model):
             'name': mold['name'] + _(' (copy)'),
         })
         return super(is_dossierf, self).copy(cr, uid, id, default=default, context=context)
-
 
     def action_acceder_dossierf(self):
         for obj in self:

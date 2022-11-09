@@ -2,7 +2,6 @@
 from odoo import models,fields,api,tools,SUPERUSER_ID
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-#import xmlrpclib
 #from is_outillage import date_prochain_controle
 
 
@@ -33,88 +32,38 @@ class is_plaquette_etalon(models.Model):
             v=self.env['is.historique.controle'].date_prochain_controle(rec)
             rec.date_prochain_controle = v
 
-
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_plaquette_etalon, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_plaquette_etalon()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Plaquette!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_plaquette_etalon, self).create(vals)
-    #         obj.copy_other_database_plaquette_etalon()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Plaquette!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            filtre=[('code_pg', '=', obj.code_pg),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
             
-    def copy_other_database_plaquette_etalon(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for etalon in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                plaquette_etalon_vals = self.get_plaquette_etalon_vals(etalon, DB, USERID, USERPASS, sock)
-                dest_plaquette_etalon_ids = sock.execute(DB, USERID, USERPASS, 'is.plaquette.etalon', 'search', [('is_database_origine_id', '=', etalon.id),
-                                                                                                '|',('active','=',True),('active','=',False)], {})
-                if dest_plaquette_etalon_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.plaquette.etalon', 'write', dest_plaquette_etalon_ids, plaquette_etalon_vals, {})
-                    plaquette_etalon_created_id = dest_plaquette_etalon_ids[0]
-                else:
-                    plaquette_etalon_created_id = sock.execute(DB, USERID, USERPASS, 'is.plaquette.etalon', 'create', plaquette_etalon_vals, {})
-        return True
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        filtre=[('code_pg', '=', res.code_pg),'|',('active','=',True),('active','=',False)]
+        self.env['is.database'].copy_other_database(res,filtre)
+        return res
 
-    def get_plaquette_etalon_vals(self, etalon, DB, USERID, USERPASS, sock):
-        plaquette_etalon_vals ={
-            'code_pg'               : tools.ustr(etalon.code_pg or ''),
-            'designation'           : tools.ustr(etalon.designation or ''),
-            'fabriquant'            : tools.ustr(etalon.fabriquant or ''),
-            'date_reception'        : etalon.date_reception,
-            'lieu_stockage'         : tools.ustr(etalon.lieu_stockage or ''),
-            'periodicite'           : etalon.periodicite ,
-            'type_controle'         : etalon.type_controle ,
-            'site_id'               : self._get_site_id(etalon, DB, USERID, USERPASS, sock),
-            'active'                : etalon.site_id and etalon.site_id.database == DB and True or False,
-            'is_database_origine_id': etalon.id,
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'code_pg'               : self.code_pg,
+            'designation'           : self.designation,
+            'fabriquant'            : self.fabriquant,
+            'date_reception'        : self.date_reception,
+            'lieu_stockage'         : self.lieu_stockage,
+            'periodicite'           : self.periodicite,
+            'type_controle'         : self.type_controle,
+            'site_id'               : self._get_site_id(DB, USERID, USERPASS, sock),
+            'active'                : self.site_id and self.site_id.database == DB and True or False,
+            'is_database_origine_id': self.id,
         }
-        return plaquette_etalon_vals
+        return vals
 
-
-    def _get_site_id(self, etalon, DB, USERID, USERPASS, sock):
-        if etalon.site_id:
-            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', etalon.site_id.id)], {})
+    def _get_site_id(self, DB, USERID, USERPASS, sock):
+        if self.site_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', self.site_id.id)])
             if ids:
                 return ids[0]
         return False
-
-
-    def _get_fabriquant_id(self, etalon, DB, USERID, USERPASS, sock):
-        if etalon.fabriquant_id:
-            fabriquant_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', etalon.fabriquant_id.id)], {})
-            if fabriquant_ids:
-                return fabriquant_ids[0]
-        return False
-    
-    def _get_fournisseur_id(self, etalon, DB, USERID, USERPASS, sock):
-        if etalon.fournisseur_id:
-            fournisseur_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', etalon.fournisseur_id.id)], {})
-            if fournisseur_ids:
-                return fournisseur_ids[0]
-        return False
-    

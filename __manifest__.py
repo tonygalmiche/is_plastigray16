@@ -39,6 +39,7 @@ Module Odoo 16 pour Plastigray
         "views/is_ctrl100_view.xml",
         "views/is_ctrl_budget_ana_view.xml",
         "views/is_ctrl_budget_tdb_view.xml",
+        "views/is_database_view.xml",
         "views/is_deb_view.xml",
         "views/is_demande_achat_fg_view.xml",
         "views/is_demande_achat_invest_view.xml",
@@ -83,8 +84,6 @@ Module Odoo 16 pour Plastigray
         "views/is_piece_montabilite_view.xml",
         "views/is_plaquette_etalon_view.xml",
         "views/is_pointage_view.xml",
-        "views/is_prechauffeur_view.xml",
-        "views/is_presse_view.xml",
         "views/is_preventif_view.xml",
         "views/is_preventif_equipement_view.xml",
         "views/is_proforma_chine_view.xml",
@@ -165,7 +164,6 @@ Module Odoo 16 pour Plastigray
         # "mrp_production_view.xml",
         # "account_invoice_sequence.xml",
         # "purchase_view.xml",
-        # "is_copy_other_database_view.xml",
         # "log_view.xml",
         # "purchase_workflow.xml",
         # "email_template.xml",
@@ -290,3 +288,7 @@ Module Odoo 16 pour Plastigray
     "application": True,
     "license": "LGPL-3",
 }
+
+
+        #"views/is_prechauffeur_view.xml", TODO : Ce model est migré dans is_equipement
+        #"views/is_presse_view.xml",       TODO : Ce model est migré dans is_equipement
