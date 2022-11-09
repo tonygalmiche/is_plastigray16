@@ -55,7 +55,24 @@ class is_database(models.Model):
         return True
 
 
-
+    def unlink_other_database(self, objs):
+        for obj in objs:
+            databases = self.env['is.database'].search([])
+            for database in databases:
+                if obj and database.ip_server and database.database and database.port_server and database.login and database.password:
+                    model     = obj._name
+                    DB        = database.database
+                    USERID    = SUPERUSER_ID
+                    DBLOGIN   = database.login
+                    USERPASS  = database.password
+                    DB_SERVER = database.ip_server
+                    DB_PORT   = database.port_server
+                    sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
+                    ids = sock.execute(DB, USERID, USERPASS, model, 'search', [('is_database_origine_id', '=', obj.id)])
+                    if ids:
+                        for id in ids:
+                            res=sock.execute(DB, USERID, USERPASS, model, 'unlink', id)
+                            _logger.info("unlink : database=%s : model=%s : id=%s : res=%s"%(DB,model,id,res))
 
 
 

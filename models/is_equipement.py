@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models,fields,api,tools,SUPERUSER_ID
-import datetime
 from odoo.exceptions import ValidationError
+import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -12,121 +11,73 @@ class is_equipement_champ_line(models.Model):
     _description="is_equipement_champ_line"
     _order = "name"
 
-    def write(self, vals):
-        try:
-            res=super(is_equipement_champ_line, self).write(vals)
-            for obj in self:
-                obj.copy_other_database_equipment_champs()
-            return res
-        except Exception as e:
-            raise except_orm(_('Equipement Champs!'),
-                             _(" %s ") % (str(e).decode('utf-8'),))
-
-    def create(self, vals):
-        try:
-            obj=super(is_equipement_champ_line, self).create(vals)
-            obj.copy_other_database_equipment_champs()
-            return obj
-        except Exception as e:
-            raise except_orm(_('Equipement Champs!'),
-                             _(" %s ") % (str(e).decode('utf-8'),))
-
-    def unlink(self):
-        super(is_equipement_champ_line, self).unlink()
-        for obj in self:
-            cr , uid, context = self.env.args
-            context = dict(context)
-            database_obj = self.env['is.database']
-            database_lines = database_obj.search([])
-            for et in self:
-                for database in database_lines:
-                    if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                        continue
-                    DB = database.database
-                    USERID = SUPERUSER_ID
-                    DBLOGIN = database.login
-                    USERPASS = database.password
-                    DB_SERVER = database.ip_server
-                    DB_PORT = database.port_server
-                    sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                    dest_is_equipement_champ_line_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'search', [('is_database_origine_id', '=', et.id),
-                                                                                                                    '|',('active','=',True),('active','=',False)], {})
-                    if dest_is_equipement_champ_line_ids:
-                        try:
-                            res = sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'unlink', dest_is_equipement_champ_line_ids,)
-                        except Exception as e:
-                            raise except_orm(_('Delete Equipement Champ!'),
-                                             _(" %s ") % (str(e).decode('utf-8'),))
-        return True
-
-    def copy_other_database_equipment_champs(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for et in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                is_equipement_champ_line_vals = self.get_is_equipement_champ_line_vals(et, DB, USERID, USERPASS, sock)
-                dest_is_equipement_champ_line_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'search', [('is_database_origine_id', '=', et.id),
-                                                                                                                '|',('active','=',True),('active','=',False)], {})
-                if dest_is_equipement_champ_line_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'write', dest_is_equipement_champ_line_ids, is_equipement_champ_line_vals, {})
-                    is_equipement_champ_line_created_id = dest_is_equipement_champ_line_ids[0]
-                else:
-                    is_equipement_champ_line_created_id = sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'create', is_equipement_champ_line_vals, {})
-        return True
-
-    def _get_type_id(self, et, DB, USERID, USERPASS, sock):
-        if et.equipement_type_id:
-            type_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', et.equipement_type_id.id)], {})
-            if not type_ids:
-                et.equipement_type_id.copy_other_database_equipement_type()
-                type_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', et.equipement_type_id.id)], {})
-            if type_ids:
-                return type_ids[0]
-        return False
-
-    def get_is_equipement_champ_line_vals(self, et, DB, USERID, USERPASS, sock):
-        field_id = sock.execute(DB, USERID, USERPASS, 'ir.model.fields', 'search', [('model_id.model', '=', 'is.equipement'),('name', '=', et.name.name)], {})
-        if field_id:
-            is_equipement_champ_line_vals = {
-                'name'                  : field_id and field_id[0],
-                'vsb'                   : et.vsb,
-                'obligatoire'           : et.obligatoire,
-                'equipement_type_id'    : self._get_type_id(et, DB, USERID, USERPASS, sock),
-                'is_database_origine_id': et.id,
-            }
-            return is_equipement_champ_line_vals
-        return {}
-
-    @api.constrains('name', 'equipement_type_id')
-    def check_unique_so_record(self):
-        if self.name and self.equipement_type_id:
-            filters = [('name', '=', self.name.id),
-                       ('equipement_type_id', '=', self.equipement_type_id.id)]
-            champ_ids = self.search(filters)
-            if len(champ_ids) > 1:
-                raise Warning(
-                    _('There can not be two " %s " field in the same champ.' % champ_ids[0].name.field_description))
-
-    name                   = fields.Many2one("ir.model.fields", "Champ", domain=[
-                                                                            ('model_id.model', '=', 'is.equipement'),
-                                                                            ('ttype', '!=', 'boolean')
-                                                                        ])
+    name = fields.Many2one("ir.model.fields", "Champ", domain=[
+            ('model_id.model', '=', 'is.equipement'),
+            ('ttype', '!=', 'boolean')
+        ])
     vsb                    = fields.Boolean("Visible", default=True)
     obligatoire            = fields.Boolean("Obligatoire", default=False)
     equipement_type_id     = fields.Many2one("is.equipement.type", "Type Equipement")
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True)
     active                 = fields.Boolean('Active', default=True)
+
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            filtre=[('is_database_origine_id', '=', obj.is_database_origine_id),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        for obj in res:
+            filtre=[('is_database_origine_id', '=', obj.is_database_origine_id),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
+
+    def unlink(self):
+        res=super().unlink()
+        self.env['is.database'].unlink_other_database(self)
+        return(res)
+
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self._get_name(DB, USERID, USERPASS, sock),
+            'vsb'                   : self.vsb,
+            'obligatoire'           : self.obligatoire,
+            'equipement_type_id'    : self._get_equipement_type_id(DB, USERID, USERPASS, sock),
+            'active'                : self.active,
+            'is_database_origine_id': self.id
+        }
+        return vals
+
+    def _get_name(self, DB, USERID, USERPASS, sock):
+        if self.name:
+            ids = sock.execute(DB, USERID, USERPASS, 'ir.model.fields', 'search', [('model_id.model', '=', 'is.equipement'),('name', '=', self.name.name)])
+            if ids:
+                return ids[0]
+        return False
+
+    def _get_equipement_type_id(self, DB, USERID, USERPASS, sock):
+        if self.equipement_type_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', self.equipement_type_id.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(self.equipement_type_id)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', self.equipement_type_id.id)])
+            if ids:
+                return ids[0]
+        return False
+
+    @api.constrains('name', 'equipement_type_id')
+    def check_unique_so_record(self):
+        for obj in self:
+            if obj.name and obj.equipement_type_id:
+                filters = [('name', '=', obj.name.id),
+                        ('equipement_type_id', '=', obj.equipement_type_id.id)]
+                champ_ids = obj.search(filters)
+                if len(champ_ids) > 1:
+                    raise ValidationError(('Le champ "%s" existe déjà' % champ_ids[0].name.field_description))
 
 
 class is_equipement_type(models.Model):
@@ -134,14 +85,20 @@ class is_equipement_type(models.Model):
     _description="is_equipement_type"
     _order = 'name'
 
+    name                   = fields.Char(u"Type d'équipement", required=True)
+    code                   = fields.Char("Code", required=True)
+    champ_line_ids         = fields.One2many("is.equipement.champ.line", "equipement_type_id", "Champs")
+    is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True)
+    active                 = fields.Boolean('Active', default=True)
+
     def add_champs_action(self):
         for obj in self:
             champ_line_obj = self.env['is.equipement.champ.line']
             equp_field_ids = self.env['ir.model.fields'].search([
-                                                            ('ttype','!=','boolean'),
-                                                            ('model_id.model', '=', 'is.equipement'),
-                                                            ('name', 'not in', ['create_date','create_uid','write_date','write_uid','is_database_origine_id','type_id','numero_equipement','designation','database_id']),
-                                                    ])
+                    ('ttype','!=','boolean'),
+                    ('model_id.model', '=', 'is.equipement'),
+                    ('name', 'not in', ['create_date','create_uid','write_date','write_uid','is_database_origine_id','type_id','numero_equipement','designation','database_id']),
+                ])
             for equ in equp_field_ids:
                 champ_line_obj.create({
                     'name'              : equ.id,
@@ -149,110 +106,44 @@ class is_equipement_type(models.Model):
                 })
             return True
 
-    def write(self, vals):
-        try:
-            res=super(is_equipement_type, self).write(vals)
-            for obj in self:
-                obj.copy_other_database_equipement_type()
-            return res
-        except Exception as e:
-            raise except_orm(_('Equipement Type!'),
-                             _(" %s ") % (str(e).decode('utf-8'),))
 
-    def create(self, vals):
-        try:
-            obj=super(is_equipement_type, self).create(vals)
-            obj.copy_other_database_equipement_type()
-            return obj
-        except Exception as e:
-            raise except_orm(_('Equipement Type!'),
-                             _(" %s ") % (str(e).decode('utf-8'),))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            filtre=[('code', '=', obj.code),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        for obj in res:
+            filtre=[('code', '=', obj.code),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
 
     def unlink(self):
-        super(is_equipement_type, self).unlink()
-        for obj in self:
-            cr , uid, context = self.env.args
-            context = dict(context)
-            database_obj = self.env['is.database']
-            database_lines = database_obj.search([])
-            for et in self:
-                for database in database_lines:
-                    if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                        continue
-                    DB = database.database
-                    USERID = SUPERUSER_ID
-                    DBLOGIN = database.login
-                    USERPASS = database.password
-                    DB_SERVER = database.ip_server
-                    DB_PORT = database.port_server
-                    sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                    dest_is_equipement_type_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', et.id),
-                                                                                                                    '|',('active','=',True),('active','=',False)], {})
-#                     if not dest_is_equipement_type_ids:
-#                         dest_is_equipement_type_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('code', '=', et.code)], {})
-                    if dest_is_equipement_type_ids:
-                        try:
-                            res = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'unlink', dest_is_equipement_type_ids,)
-                        except Exception as e:
-                            return True
-                            raise except_orm(_('Delete Equipement Type!'),
-                                             _(" %s ") % (str(e).decode('utf-8'),))
-        return True
+        res=super().unlink()
+        self.env['is.database'].unlink_other_database(self)
+        return(res)
 
-    def copy_other_database_equipement_type(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for et in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                is_equipement_type_vals = self.get_is_equipement_type_vals(et, DB, USERID, USERPASS, sock)
-                dest_is_equipement_type_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', et.id),
-                                                                                                                '|',('active','=',True),('active','=',False)], {})
-                if not dest_is_equipement_type_ids:
-                    dest_is_equipement_type_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('code', '=', et.code)], {})
-                if dest_is_equipement_type_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'write', dest_is_equipement_type_ids, is_equipement_type_vals, {})
-                    is_equipement_type_created_id = dest_is_equipement_type_ids[0]
-                else:
-                    is_equipement_type_created_id = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'create', is_equipement_type_vals, {})
-        return True
-
-    def get_is_equipement_type_vals(self, et, DB, USERID, USERPASS, sock):
-        is_equipement_type_vals = {
-            'name'                  : tools.ustr(et.name),
-            'code'                  : tools.ustr(et.code),
-            'champ_line_ids'        : self._get_champ_line_ids(et, DB, USERID, USERPASS, sock),
-            'is_database_origine_id': et.id,
-            'active'                : et.active,
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'code'                  : self.code,
+            'active'                : self.active,
+            'champ_line_ids'        : self._get_champ_line_ids(DB, USERID, USERPASS, sock),
+            'is_database_origine_id': self.id
         }
-        return is_equipement_type_vals
+        return vals
 
-    def _get_champ_line_ids(self, et, DB, USERID, USERPASS, sock):
+    def _get_champ_line_ids(self,  DB, USERID, USERPASS, sock):
         list_champ_line_ids =[]
-        for mold in et.champ_line_ids:
-            dest_champ_line_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'search', [('is_database_origine_id', '=', mold.id)], {})
-            if dest_champ_line_ids:
-                list_champ_line_ids.append(dest_champ_line_ids[0])
+        for line in self.champ_line_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.champ.line', 'search', [('is_database_origine_id', '=', line.id)])
+            if ids:
+                list_champ_line_ids.append(ids[0])
         return [(6, 0, list_champ_line_ids)]
-
-    name                   = fields.Char(u"Type d'équipement", required=True)
-    code                   = fields.Char("Code", required=True)
-    champ_line_ids         = fields.One2many("is.equipement.champ.line", "equipement_type_id", "Champs")
-    is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True)
-    active                 = fields.Boolean('Active', default=True)
-
-
-
 
 
 class is_presse_classe(models.Model):
@@ -263,62 +154,24 @@ class is_presse_classe(models.Model):
     name = fields.Char(string='Classe commerciale')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
    
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_presse_classe, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_presse_classe()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Classe!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_presse_classe, self).create(vals)
-    #         obj.copy_other_database_presse_classe()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Classe!'),
-                            #  _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
             
-    def copy_other_database_presse_classe(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for classe in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                presse_classe_vals = self.get_presse_classe_vals(classe, DB, USERID, USERPASS, sock)
-                dest_presse_classe_ids = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'search', [('is_database_origine_id', '=', classe.id)], {})
-                if not dest_presse_classe_ids:
-                    dest_presse_classe_ids = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'search', [('name', '=', classe.name)], {})
-                if dest_presse_classe_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'write', dest_presse_classe_ids, presse_classe_vals, {})
-                    presse_classe_created_id = dest_presse_classe_ids[0]
-                else:
-                    presse_classe_created_id = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'create', presse_classe_vals, {})
-        return True
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
 
-
-    def get_presse_classe_vals(self, classe, DB, USERID, USERPASS, sock):
-        controle_gabarit_vals ={
-                     'name' : tools.ustr(classe.name),
-                     'is_database_origine_id':classe.id,
-                     }
-        return controle_gabarit_vals
-   
-
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'is_database_origine_id': self.id
+        }
+        return vals
 
 
 class is_presse_puissance(models.Model):
@@ -329,61 +182,24 @@ class is_presse_puissance(models.Model):
     name                   = fields.Char(string='Puissance')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     
-    
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_presse_puissance, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_presse_puissance()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Puissance!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_presse_puissance, self).create(vals)
-    #         obj.copy_other_database_presse_puissance()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Puissance!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
             
-    def copy_other_database_presse_puissance(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for puissance in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                presse_puissance_vals = self.get_presse_puissance_vals(puissance, DB, USERID, USERPASS, sock)
-                dest_presse_puissance_ids = sock.execute(DB, USERID, USERPASS, 'is.presse.puissance', 'search', [('is_database_origine_id', '=', puissance.id)], {})
-                if not dest_presse_puissance_ids:
-                    dest_presse_puissance_ids = sock.execute(DB, USERID, USERPASS, 'is.presse.puissance', 'search', [('name', '=', puissance.name)], {})
-                if dest_presse_puissance_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.presse.puissance', 'write', dest_presse_puissance_ids, presse_puissance_vals, {})
-                    presse_puissance_created_id = dest_presse_puissance_ids[0]
-                else:
-                    presse_puissance_created_id = sock.execute(DB, USERID, USERPASS, 'is.presse.puissance', 'create', presse_puissance_vals, {})
-        return True
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
 
-    @api.model
-    def get_presse_puissance_vals(self, puissance, DB, USERID, USERPASS, sock):
-        presse_puissance_vals ={
-                     'name' : tools.ustr(puissance.name),
-                     'is_database_origine_id':puissance.id,
-                     }
-        return presse_puissance_vals
-
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'is_database_origine_id': self.id
+        }
+        return vals
 
 class is_outillage_constructeur(models.Model):
     _name='is.outillage.constructeur'
@@ -393,61 +209,24 @@ class is_outillage_constructeur(models.Model):
     name = fields.Char(string='Name')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_outillage_constructeur, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_outillage_constructeur()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Constructeur!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_outillage_constructeur, self).create(vals)
-    #         obj.copy_other_database_outillage_constructeur()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Constructeur!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
             
-    def copy_other_database_outillage_constructeur(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for constructeur in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                outillage_constructeur_vals = self.get_outillage_constructeur_vals(constructeur, DB, USERID, USERPASS, sock)
-                dest_outillage_constructeur_ids = sock.execute(DB, USERID, USERPASS, 'is.outillage.constructeur', 'search', [('is_database_origine_id', '=', constructeur.id)], {})
-                if not dest_outillage_constructeur_ids:
-                    dest_outillage_constructeur_ids = sock.execute(DB, USERID, USERPASS, 'is.outillage.constructeur', 'search', [('name', '=', constructeur.name)], {})
-                if dest_outillage_constructeur_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.outillage.constructeur', 'write', dest_outillage_constructeur_ids, outillage_constructeur_vals, {})
-                    outillage_constructeur_created_id = dest_outillage_constructeur_ids[0]
-                else:
-                    outillage_constructeur_created_id = sock.execute(DB, USERID, USERPASS, 'is.outillage.constructeur', 'create', outillage_constructeur_vals, {})
-        return True
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
 
-    def get_outillage_constructeur_vals(self, constructeur, DB, USERID, USERPASS, sock):
-        outillage_constructeur_vals ={
-                     'name' : tools.ustr(constructeur.name),
-                     'is_database_origine_id':constructeur.id,
-                     }
-        return outillage_constructeur_vals
-
-
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'is_database_origine_id': self.id
+        }
+        return vals
 
 
 class is_equipement(models.Model):
