@@ -226,9 +226,9 @@
 
 
     <!-- Achats / Fournisseurs -->
-    <!-- <menuitem id="menu_is_achats_fournisseurs"     sequence="10" name="Fournisseurs"  parent="menu_is_achats" />
+    <menuitem id="menu_is_achats_fournisseurs"     sequence="10" name="Fournisseurs"  parent="menu_is_achats" />
     <menuitem id="menu_is_achats_fournisseurs_10"  sequence="10" name="Fournisseurs"  parent="menu_is_achats_fournisseurs" action="fournisseur_action" />
-    <record id="is_certifications_qualite_suivi_menu" model="ir.ui.menu">
+    <!-- <record id="is_certifications_qualite_suivi_menu" model="ir.ui.menu">
         <field name="name">Suivi validité certificats</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('menu_is_achats_fournisseurs')"/>
@@ -554,8 +554,8 @@
 
 
     <!-- Ventes / Clients -->
-    <!-- <menuitem id="menu_is_ventes_clients"     sequence="10" name="Clients"            parent="menu_is_ventes"/>
-    <menuitem id="menu_is_ventes_clients_10"  sequence="10" name="Clients"            parent="menu_is_ventes_clients" action="base.action_partner_customer_form" /> -->
+    <menuitem id="menu_is_ventes_clients"     sequence="10" name="Clients"            parent="menu_is_ventes"/>
+    <menuitem id="menu_is_ventes_clients_10"  sequence="10" name="Clients"            parent="menu_is_ventes_clients" action="base.action_partner_customer_form" /> 
 
 
     <!-- Ventes / Tarif commercial -->
