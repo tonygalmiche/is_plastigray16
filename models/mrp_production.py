@@ -325,29 +325,29 @@ class MrpProduction(models.Model):
                     self.envoi_mail(email_from,email_to,email_cc,subject,body_html)
 
 
-    def write(self, vals, update=False):
-        vals = vals or {}
+    # def write(self, vals, update=False):
+    #     vals = vals or {}
 
-        if 'product_qty' in vals:
-            for obj in self:
-                obj.mail_quantite_modifiee(obj.product_qty,  vals["product_qty"])
+    #     if 'product_qty' in vals:
+    #         for obj in self:
+    #             obj.mail_quantite_modifiee(obj.product_qty,  vals["product_qty"])
 
 
-        if vals.get('date_planned',False):
-            stock_move_obj = self.env["stock.move"]
-            for rec in self:
-                move_ids = stock_move_obj.search([('production_id','=', rec.id)])
-                move_ids += rec.move_lines
-                for move in move_ids:
-                    if move.state not in ['cancel','done']:
-                        move.write({
-                            'date'         : vals.get('date_planned'),
-                            'date_expected': vals.get('date_planned'),
-                        })
-        res=super(MrpProduction, self).write(vals, update=update)
-        if 'product_lines' in vals or 'product_qty' in vals:
-            self.recreer_mouvements()
-        return res
+    #     if vals.get('date_planned',False):
+    #         stock_move_obj = self.env["stock.move"]
+    #         for rec in self:
+    #             move_ids = stock_move_obj.search([('production_id','=', rec.id)])
+    #             move_ids += rec.move_lines
+    #             for move in move_ids:
+    #                 if move.state not in ['cancel','done']:
+    #                     move.write({
+    #                         'date'         : vals.get('date_planned'),
+    #                         'date_expected': vals.get('date_planned'),
+    #                     })
+    #     res=super(MrpProduction, self).write(vals, update=update)
+    #     if 'product_lines' in vals or 'product_qty' in vals:
+    #         self.recreer_mouvements()
+    #     return res
 
 
     def importer_nomenclature(self):
