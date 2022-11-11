@@ -103,15 +103,6 @@ class is_demande_achat_invest(models.Model):
         return company.is_directeur_general_id.id
 
 
-    _defaults = {
-        'date_creation'    : lambda *a: fields.datetime.now(),
-        'createur_id'      : lambda obj, cr, uid, context: uid,
-        'direction_id'     : lambda self,cr,uid,context: self._dirigeant_id(cr,uid,context),
-        'state'            : 'brouillon',
-        'lieu_livraison_id': lambda self,cr,uid,context: self._lieu_livraison_id(cr,uid,context),
-    }
-
-
     def fournisseur_id_on_change(self,fournisseur_id):
         res={}
         if fournisseur_id:

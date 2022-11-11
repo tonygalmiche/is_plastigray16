@@ -14,6 +14,9 @@ Module Odoo 16 pour Plastigray
         "base",
         "sale_management",
         "purchase",
+        "hr",
+        "stock",
+        "mrp",
         "account",
         "l10n_fr",
         "l10n_fr_fec",
@@ -29,7 +32,6 @@ Module Odoo 16 pour Plastigray
         "views/is_bl_manuel_view.xml",
         "views/is_bon_achat_ville_view.xml",
         "views/is_bon_transfert_view.xml",
-        "views/is_capteur_view.xml",
         "views/is_commande_externe_view.xml",
         "views/is_cde_ferme_cadencee_view.xml",
         "views/is_cde_ouverte_fournisseur_view.xml",
@@ -46,7 +48,6 @@ Module Odoo 16 pour Plastigray
         "views/is_demande_achat_moule_view.xml",
         "views/is_demande_achat_serie_view.xml",
         "views/is_demande_transport_view.xml",
-        "views/is_donnee_machine_view.xml",
         "views/is_dossier_appel_offre_view.xml",
         "views/is_dossier_article_view.xml",
         "views/is_dossierf_view.xml",
@@ -103,6 +104,8 @@ Module Odoo 16 pour Plastigray
         "views/sale_view2.xml",   # TODO : Il faut tout revoir dans les vues
 
 
+        "views/is_donnee_machine_view.xml",
+        "views/is_capteur_view.xml",
         "views/menu.xml",
 
 
@@ -159,7 +162,6 @@ Module Odoo 16 pour Plastigray
         # "sale_picking_view.xml",
         # "mrp_view.xml",
         # "stock_view.xml",
-        # "is_liste_servir_sequence.xml",
         # "is_resource_view.xml",
         # "mrp_production_view.xml",
         # "account_invoice_sequence.xml",
@@ -167,10 +169,6 @@ Module Odoo 16 pour Plastigray
         # "log_view.xml",
         # "purchase_workflow.xml",
         # "email_template.xml",
-        # "is_moyen_fabrication_view.xml",
-        # "is_moyen_fabrication_autre_view.xml",
-        # "is_demande_transport_view.xml",
-        # "is_bl_manuel_view.xml",
         # "is_taux_rotation_stock_view.xml",
         # "hr_view.xml",
         # "calendar_view.xml",
@@ -290,5 +288,7 @@ Module Odoo 16 pour Plastigray
 }
 
 
-        #"views/is_prechauffeur_view.xml", TODO : Ce model est migré dans is_equipement
-        #"views/is_presse_view.xml",       TODO : Ce model est migré dans is_equipement
+        #"views/is_prechauffeur_view.xml",        TODO : Ce model est migré dans is_equipement
+        #"views/is_presse_view.xml",              TODO : Ce model est migré dans is_equipement
+        # "is_moyen_fabrication_view.xml"         TODO : Ce model est migré dans is_equipement
+        # "is_moyen_fabrication_autre_view.xml",  TODO : Ce model est migré dans is_equipement

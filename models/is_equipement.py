@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api,tools,SUPERUSER_ID
 from odoo.exceptions import ValidationError
+from odoo.osv import expression
 import datetime
 import logging
 _logger = logging.getLogger(__name__)
@@ -233,249 +234,202 @@ class is_equipement(models.Model):
     _name = "is.equipement"
     _description="is_equipement"
     _order = 'type_id,numero_equipement,designation'
+    _rec_name="numero_equipement"
 
-    def name_get(self):
-        res = []
-        for obj in self:
-            name=obj.numero_equipement
-            res.append((obj.id,name))
-        return res
+    # def name_get(self):
+    #     res = []
+    #     for obj in self:
+    #         name=obj.numero_equipement
+    #         res.append((obj.id,name))
+    #     return res
 
-
-    # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
-    #     if not args:
-    #         args = []
+    # @api.model
+    # def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
     #     if name:
     #         args.append(['numero_equipement','ilike', name])
-    #         #ids = self.search(cr, user, ['|',('numero_equipement','ilike', name),('designation','ilike', name)], limit=limit, context=context)
-    #         ids = self.search(cr, user, args, limit=limit, context=context)
-    #     else:
-    #         ids = self.search(cr, user, args, limit=limit, context=context)
-    #     result = self.name_get(cr, user, ids, context=context)
-    #     return result
-
+    #     return super()._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
     @api.depends('type_id')
     def _compute(self):
         for obj in self:
+            fields = self.env['ir.model.fields'].search([
+                ('ttype','=','boolean'),
+                ('model_id.model', '=', 'is.equipement'),
+                '|',('name', 'like', '_vsb'),('name', 'like', '_obl'),
+            ])
+            for field in fields:
+                setattr(obj, field.name, False)
             for cl in obj.type_id.champ_line_ids:
                 if cl.vsb:
                     setattr(obj, cl.name.name + '_vsb', True)
                 if cl.obligatoire:
                     setattr(obj, cl.name.name + '_obl', True)
 
-    def write(self, vals):
-        try:
-            res=super(is_equipement, self).write(vals)
-            for obj in self:
-                obj.copy_other_database_is_equipement()
-            return res
-        except Exception as e:
-            raise except_orm(_('Equipement!'),
-                             _(" %s ") % (str(e).decode('utf-8'),))
 
-    def create(self, vals):
-        try:
-            obj=super(is_equipement, self).create(vals)
-            obj.copy_other_database_is_equipement()
-            return obj
-        except Exception as e:
-            raise except_orm(_('Equipement!'),
-                             _(" %s ") % (str(e).decode('utf-8'),))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            filtre=[('is_database_origine_id', '=', obj.is_database_origine_id),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        for obj in res:
+            filtre=[('is_database_origine_id', '=', obj.is_database_origine_id),'|',('active','=',True),('active','=',False)]
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
 
     def unlink(self):
-        super(is_equipement, self).unlink()
-        for obj in self:
-            cr , uid, context = self.env.args
-            context = dict(context)
-            database_obj = self.env['is.database']
-            database_lines = database_obj.search([])
-            for equp in self:
-                for database in database_lines:
-                    if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                        continue
-                    DB = database.database
-                    USERID = SUPERUSER_ID
-                    DBLOGIN = database.login
-                    USERPASS = database.password
-                    DB_SERVER = database.ip_server
-                    DB_PORT = database.port_server
-                    sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                    dest_is_equipement_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement', 'search', [('is_database_origine_id', '=', equp.id),
-                                                                                                    '|',('active','=',True),('active','=',False)], {})
-                    if dest_is_equipement_ids:
-                        res = sock.execute(DB, USERID, USERPASS, 'is.equipement', 'unlink', dest_is_equipement_ids,)
-        return True
+        res=super().unlink()
+        self.env['is.database'].unlink_other_database(self)
+        return(res)
 
-    def copy_other_database_is_equipement(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for equp in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                is_equipement_vals = self.get_is_equipement_vals(equp, DB, USERID, USERPASS, sock)
-                dest_is_equipement_ids = sock.execute(DB, USERID, USERPASS, 'is.equipement', 'search', [('is_database_origine_id', '=', equp.id),
-                                                                                                '|',('active','=',True),('active','=',False)], {})
-                if dest_is_equipement_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.equipement', 'write', dest_is_equipement_ids, is_equipement_vals, {})
-                    is_equipement_created_id = dest_is_equipement_ids[0]
-                else:
-                    is_equipement_created_id = sock.execute(DB, USERID, USERPASS, 'is.equipement', 'create', is_equipement_vals, {})
-        return True
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
 
-    def get_is_equipement_vals(self, equp, DB, USERID, USERPASS, sock):
-        is_equipement_vals = {
-            'numero_equipement'                     : tools.ustr(equp.numero_equipement),
-            'designation'                           : tools.ustr(equp.designation),
-            'database_id'                           : self._get_database_id(equp, DB, USERID, USERPASS, sock),
-            'active'                                : equp.database_id and equp.database_id.database == DB and equp.active or False,
-            'is_database_origine_id'                : equp.id,
-            'equipement_cle'                        : equp.equipement_cle,
-            'type_id'                               : self._get_type_id(equp, DB, USERID, USERPASS, sock),
-            'constructeur'                          : tools.ustr(equp.constructeur or ''),
-            'constructeur_serie'                    : tools.ustr(equp.constructeur_serie or ''),
-            'partner_id'                            : self._get_partner_id(equp, DB, USERID, USERPASS, sock),
-            'date_fabrication'                      : equp.date_fabrication,
-            'date_de_fin'                           : equp.date_de_fin,
-            'maintenance_preventif_niveau1'         : tools.ustr(equp.maintenance_preventif_niveau1),
-            'maintenance_preventif_niveau2'         : tools.ustr(equp.maintenance_preventif_niveau2),
-            'maintenance_preventif_niveau3'         : tools.ustr(equp.maintenance_preventif_niveau3),
-            'maintenance_preventif_niveau4'         : tools.ustr(equp.maintenance_preventif_niveau4),
-            'type_presse_commande'                  : tools.ustr(equp.type_presse_commande or ''),
-            'classe_id'                             : self._get_classe_id(equp, DB, USERID, USERPASS, sock),
-            'classe_commerciale'                    : tools.ustr(equp.classe_commerciale or ''),
-            'force_fermeture'                       : tools.ustr(equp.force_fermeture),
-            'energie'                               : tools.ustr(equp.energie or ''),
-            'dimension_entre_col_h'                 : tools.ustr(equp.dimension_entre_col_h),
-            'faux_plateau'                          : tools.ustr(equp.faux_plateau),
-            'dimension_demi_plateau_h'              : tools.ustr(equp.dimension_demi_plateau_h),
-            'dimension_hors_tout_haut'              : tools.ustr(equp.dimension_hors_tout_haut),
-            'dimension_entre_col_v'                 : tools.ustr(equp.dimension_entre_col_v),
-            'epaisseur_moule_mini_presse'           : tools.ustr(equp.epaisseur_moule_mini_presse),
-            'epaisseur_faux_plateau'                : tools.ustr(equp.epaisseur_faux_plateau),
-            'epaisseur_moule_maxi'                  : tools.ustr(equp.epaisseur_moule_maxi),
-            'dimension_demi_plateau_v'              : tools.ustr(equp.dimension_demi_plateau_v),
-            'dimension_hors_tout_bas'               : tools.ustr(equp.dimension_hors_tout_bas),
-            'coefficient_vis'                       : tools.ustr(equp.coefficient_vis or ''),
-            'type_de_clapet'                        : equp.type_de_clapet,
-            'pression_maximum'                      : tools.ustr(equp.pression_maximum),
-            'pression_maximum2'                     : tools.ustr(equp.pression_maximum2),
-            'vis_mn'                                : tools.ustr(equp.vis_mn),
-            'vis_mn2'                               : tools.ustr(equp.vis_mn2),
-            'volume_injectable'                     : tools.ustr(equp.volume_injectable),
-            'volume_injectable2'                    : tools.ustr(equp.volume_injectable2),
-            'course_ejection'                       : tools.ustr(equp.course_ejection),
-            'course_ouverture'                      : tools.ustr(equp.course_ouverture),
-            'centrage_moule'                        : tools.ustr(equp.centrage_moule),
-            'centrage_moule2'                       : tools.ustr(equp.centrage_moule2),
-            'centrage_presse'                       : tools.ustr(equp.centrage_presse),
-            'hauteur_porte_sol'                     : tools.ustr(equp.hauteur_porte_sol),
-            'bridage_rapide_entre_axe'              : tools.ustr(equp.bridage_rapide_entre_axe),
-            'bridage_rapide_pas'                    : tools.ustr(equp.bridage_rapide_pas),
-            'bridage_rapide'                        : tools.ustr(equp.bridage_rapide),
-            'type_huile_hydraulique'                : tools.ustr(equp.type_huile_hydraulique or ''),
-            'volume_reservoir'                      : tools.ustr(equp.volume_reservoir),
-            'type_huile_graissage_centralise'       : tools.ustr(equp.type_huile_graissage_centralise or ''),
-            'nbre_noyau_total'                      : tools.ustr(equp.nbre_noyau_total),
-            'nbre_noyau_pf'                         : tools.ustr(equp.nbre_noyau_pf),
-            'nbre_noyau_pm'                         : tools.ustr(equp.nbre_noyau_pm),
-            'nbre_circuit_eau'                      : tools.ustr(equp.nbre_circuit_eau),
-            'nbre_zone_de_chauffe_moule'            : tools.ustr(equp.nbre_zone_de_chauffe_moule),
-            'puissance_electrique_installee'        : tools.ustr(equp.puissance_electrique_installee),
-            'puissance_electrique_moteur'           : tools.ustr(equp.puissance_electrique_moteur),
-            'puissance_de_chauffe'                  : tools.ustr(equp.puissance_de_chauffe),
-            'compensation_cosinus'                  : equp.compensation_cosinus,
-            'passage_buse'                          : tools.ustr(equp.passage_buse),
-            'option_rotation_r1'                    : equp.option_rotation_r1,
-            'option_rotation_r2'                    : equp.option_rotation_r2,
-            'option_arret_intermediaire'            : equp.option_arret_intermediaire,
-            'nbre_circuit_vide'                     : tools.ustr(equp.nbre_circuit_vide),
-            'nbre_circuit_pression'                 : tools.ustr(equp.nbre_circuit_pression),
-            'nbre_dentrees_automate_disponibles'    : tools.ustr(equp.nbre_dentrees_automate_disponibles),
-            'nbre_de_sorties_automate_disponibles'  : tools.ustr(equp.nbre_de_sorties_automate_disponibles),
-            'dimension_chambre'                     : tools.ustr(equp.dimension_chambre),
-            'nbre_de_voie'                          : tools.ustr(equp.nbre_de_voie),
-            'capacite_de_levage'                    : tools.ustr(equp.capacite_de_levage),
-            'dimension_bande'                       : tools.ustr(equp.dimension_bande),
-            'dimension_cage'                        : tools.ustr(equp.dimension_cage),
-            'poids_kg'                              : tools.ustr(equp.poids_kg),
-            'affectation_sur_le_site'               : tools.ustr(equp.affectation_sur_le_site or ''),
-            'is_mold_ids'                           : self._get_mold_ids(equp, DB, USERID, USERPASS, sock),
-            'is_dossierf_ids'                       : self._get_dossierf_ids(equp, DB, USERID, USERPASS, sock),
-            'type_de_fluide'                        : equp.type_de_fluide,
-            'temperature_maximum'                   : tools.ustr(equp.temperature_maximum),
-            'puissance_de_refroidissement'          : tools.ustr(equp.puissance_de_refroidissement),
-            'debit_maximum'                         : tools.ustr(equp.debit_maximum),
-            'volume_l'                              : tools.ustr(equp.volume_l),
-            'option_depresssion'                    : equp.option_depresssion,
-            'mesure_debit'                          : equp.mesure_debit,
-            'base_capacitaire'                      : tools.ustr(equp.base_capacitaire),
-            'emplacement_affectation_pe'            : tools.ustr(equp.emplacement_affectation_pe or ''),
-            'adresse_ip_mac'                        : tools.ustr(equp.adresse_ip_mac or ''),
+            'numero_equipement'                     : self.numero_equipement,
+            'designation'                           : self.designation,
+            'database_id'                           : self._get_database_id(DB, USERID, USERPASS, sock),
+            'equipement_cle'                        : self.equipement_cle,
+            'type_id'                               : self._get_type_id(DB, USERID, USERPASS, sock),
+            'constructeur'                          : self.constructeur,
+            'constructeur_serie'                    : self.constructeur_serie,
+            'partner_id'                            : self._get_partner_id(DB, USERID, USERPASS, sock),
+            'date_fabrication'                      : self.date_fabrication,
+            'date_de_fin'                           : self.date_de_fin,
+            'maintenance_preventif_niveau1'         : self.maintenance_preventif_niveau1,
+            'maintenance_preventif_niveau2'         : self.maintenance_preventif_niveau2,
+            'maintenance_preventif_niveau3'         : self.maintenance_preventif_niveau3,
+            'maintenance_preventif_niveau4'         : self.maintenance_preventif_niveau4,
+            'type_presse_commande'                  : self.type_presse_commande,
+            'classe_id'                             : self._get_classe_id(DB, USERID, USERPASS, sock),
+            'classe_commerciale'                    : self.classe_commerciale,
+            'force_fermeture'                       : self.force_fermeture,
+            'energie'                               : self.energie,
+            'dimension_entre_col_h'                 : self.dimension_entre_col_h,
+            'faux_plateau'                          : self.faux_plateau,
+            'dimension_demi_plateau_h'              : self.dimension_demi_plateau_h,
+            'dimension_hors_tout_haut'              : self.dimension_hors_tout_haut,
+            'dimension_entre_col_v'                 : self.dimension_entre_col_v,
+            'epaisseur_moule_mini_presse'           : self.epaisseur_moule_mini_presse,
+            'epaisseur_faux_plateau'                : self.epaisseur_faux_plateau,
+            'epaisseur_moule_maxi'                  : self.epaisseur_moule_maxi,
+            'dimension_demi_plateau_v'              : self.dimension_demi_plateau_v,
+            'dimension_hors_tout_bas'               : self.dimension_hors_tout_bas,
+            'coefficient_vis'                       : self.coefficient_vis,
+            'type_de_clapet'                        : self.type_de_clapet,
+            'pression_maximum'                      : self.pression_maximum,
+            'pression_maximum2'                     : self.pression_maximum2,
+            'vis_mn'                                : self.vis_mn,
+            'vis_mn2'                               : self.vis_mn2,
+            'volume_injectable'                     : self.volume_injectable,
+            'volume_injectable2'                    : self.volume_injectable2,
+            'course_ejection'                       : self.course_ejection,
+            'course_ouverture'                      : self.course_ouverture,
+            'centrage_moule'                        : self.centrage_moule,
+            'centrage_moule2'                       : self.centrage_moule2,
+            'centrage_presse'                       : self.centrage_presse,
+            'hauteur_porte_sol'                     : self.hauteur_porte_sol,
+            'bridage_rapide_entre_axe'              : self.bridage_rapide_entre_axe,
+            'bridage_rapide_pas'                    : self.bridage_rapide_pas,
+            'bridage_rapide'                        : self.bridage_rapide,
+            'type_huile_hydraulique'                : self.type_huile_hydraulique,
+            'volume_reservoir'                      : self.volume_reservoir,
+            'type_huile_graissage_centralise'       : self.type_huile_graissage_centralise,
+            'nbre_noyau_total'                      : self.nbre_noyau_total,
+            'nbre_noyau_pf'                         : self.nbre_noyau_pf,
+            'nbre_noyau_pm'                         : self.nbre_noyau_pm,
+            'nbre_circuit_eau'                      : self.nbre_circuit_eau,
+            'nbre_zone_de_chauffe_moule'            : self.nbre_zone_de_chauffe_moule,
+            'puissance_electrique_installee'        : self.puissance_electrique_installee,
+            'puissance_electrique_moteur'           : self.puissance_electrique_moteur,
+            'puissance_de_chauffe'                  : self.puissance_de_chauffe,
+            'compensation_cosinus'                  : self.compensation_cosinus,
+            'passage_buse'                          : self.passage_buse,
+            'option_rotation_r1'                    : self.option_rotation_r1,
+            'option_rotation_r2'                    : self.option_rotation_r2,
+            'option_arret_intermediaire'            : self.option_arret_intermediaire,
+            'nbre_circuit_vide'                     : self.nbre_circuit_vide,
+            'nbre_circuit_pression'                 : self.nbre_circuit_pression,
+            'nbre_dentrees_automate_disponibles'    : self.nbre_dentrees_automate_disponibles,
+            'nbre_de_sorties_automate_disponibles'  : self.nbre_de_sorties_automate_disponibles,
+            'dimension_chambre'                     : self.dimension_chambre,
+            'nbre_de_voie'                          : self.nbre_de_voie,
+            'capacite_de_levage'                    : self.capacite_de_levage,
+            'dimension_bande'                       : self.dimension_bande,
+            'dimension_cage'                        : self.dimension_cage,
+            'poids_kg'                              : self.poids_kg,
+            'affectation_sur_le_site'               : self.affectation_sur_le_site,
+            'is_mold_ids'                           : self._get_mold_ids(DB, USERID, USERPASS, sock),
+            'is_dossierf_ids'                       : self._get_dossierf_ids(DB, USERID, USERPASS, sock),
+            'type_de_fluide'                        : self.type_de_fluide,
+            'temperature_maximum'                   : self.temperature_maximum,
+            'puissance_de_refroidissement'          : self.puissance_de_refroidissement,
+            'debit_maximum'                         : self.debit_maximum,
+            'volume_l'                              : self.volume_l,
+            'option_depresssion'                    : self.option_depresssion,
+            'mesure_debit'                          : self.mesure_debit,
+            'base_capacitaire'                      : self.base_capacitaire,
+            'emplacement_affectation_pe'            : self.emplacement_affectation_pe,
+            'adresse_ip_mac'                        : self.adresse_ip_mac,
+            'active'                                : self.database_id and self.database_id.database == DB and self.active or False,
+            'is_database_origine_id'                : self.id,
         }
-        return is_equipement_vals
+        return vals
 
-    def _get_database_id(self, equp, DB, USERID, USERPASS, sock):
-        if equp.database_id:
-            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', equp.database_id.id)], {})
+    def _get_database_id(self, DB, USERID, USERPASS, sock):
+        if self.database_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', self.database_id.id)])
             if ids:
                 return ids[0]
         return False
 
-    def _get_dossierf_ids(self, equp, DB, USERID, USERPASS, sock):
+    def _get_dossierf_ids(self, DB, USERID, USERPASS, sock):
         list_dossierf_ids =[]
-        for doss in equp.is_dossierf_ids:
-            dest_dossierf_ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('is_database_origine_id', '=', doss.id)], {})
-            if dest_dossierf_ids:
-                list_dossierf_ids.append(dest_dossierf_ids[0])
+        for doss in self.is_dossierf_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.dossierf', 'search', [('is_database_origine_id', '=', doss.id)])
+            if ids:
+                list_dossierf_ids.append(ids[0])
         return [(6, 0, list_dossierf_ids)]
 
-    def _get_mold_ids(self, equp, DB, USERID, USERPASS, sock):
+    def _get_mold_ids(self, DB, USERID, USERPASS, sock):
         list_mold_ids =[]
-        for mold in equp.is_mold_ids:
-            dest_mold_ids = sock.execute(DB, USERID, USERPASS, 'is.mold', 'search', [('is_database_origine_id', '=', mold.id)], {})
-            if dest_mold_ids:
-                list_mold_ids.append(dest_mold_ids[0])
+        for mold in self.is_mold_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.mold', 'search', [('is_database_origine_id', '=', mold.id)])
+            if ids:
+                list_mold_ids.append(ids[0])
         return [(6, 0, list_mold_ids)]
 
-    def _get_type_id(self, equp, DB, USERID, USERPASS, sock):
-        if equp.type_id:
-            ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', equp.type_id.id), '|',('active','=',True),('active','=',False)], {})
+    def _get_type_id(self, DB, USERID, USERPASS, sock):
+        if self.type_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', self.type_id.id), '|',('active','=',True),('active','=',False)])
             if not ids:
-                equp.type_id.copy_other_database_equipement_type()
-                ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', equp.type_id.id), '|',('active','=',True),('active','=',False)], {})
+                self.env['is.database'].copy_other_database(self.type_id)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.equipement.type', 'search', [('is_database_origine_id', '=', self.type_id.id), '|',('active','=',True),('active','=',False)])
             if ids:
                 return ids[0]
         return False
 
-    def _get_partner_id(self, equp, DB, USERID, USERPASS, sock):
-        if equp.partner_id:
-            equp_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', equp.partner_id.id),'|',('active','=',True),('active','=',False)], {})
-            if not equp_ids:
-                self.env['is.database'].copy_other_database(equp.partner_id)
-                equp_ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', equp.partner_id.id),'|',('active','=',True),('active','=',False)], {})
-            if equp_ids:
-                return equp_ids[0]
+    def _get_partner_id(self, DB, USERID, USERPASS, sock):
+        if self.partner_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.partner_id.id),'|',('active','=',True),('active','=',False)])
+            if not ids:
+                self.env['is.database'].copy_other_database(self.partner_id)
+                ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.partner_id.id),'|',('active','=',True),('active','=',False)])
+            if ids:
+                return ids[0]
         return False
 
-    def _get_classe_id(self, equp, DB, USERID, USERPASS, sock):
-        if equp.classe_id:
-            equp_ids = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'search', [('is_database_origine_id', '=', equp.classe_id.id)], {})
-            if not equp_ids:
-                self.env['is.database'].copy_other_database_presse_classe(equp.classe_id)
-                equp_ids = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'search', [('is_database_origine_id', '=', equp.classe_id.id)], {})
-            if equp_ids:
-                return equp_ids[0]
+    def _get_classe_id(self, DB, USERID, USERPASS, sock):
+        if self.classe_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'search', [('is_database_origine_id', '=', self.classe_id.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(self.classe_id)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.presse.classe', 'search', [('is_database_origine_id', '=', self.classe_id.id)])
+            if ids:
+                return ids[0]
         return False
 
 
@@ -518,7 +472,6 @@ class is_equipement(models.Model):
             'url'      : url
         }
 
-
     def acceder_equipement_action(self):
         for obj in self:
             return {
@@ -530,7 +483,6 @@ class is_equipement(models.Model):
                 'res_id': obj.id,
                 'domain': '[]',
             }
-
 
     def imprimer_etiquette_equipement(self):
         for obj in self:
@@ -553,7 +505,6 @@ class is_equipement(models.Model):
                 cmd='echo "'+ZPL+'" | lpr -P '+imprimante
                 res = subprocess.call(cmd, shell=True)
                 _logger.info(cmd)
-
 
     @api.depends('numero_equipement')
     def _couleur(self):

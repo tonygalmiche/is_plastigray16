@@ -128,7 +128,7 @@ class is_mold(models.Model):
     temps_changement = fields.Float("Temps de changement de la version (H)")
     nettoyer         = fields.Boolean('Nettoyage moule avant production')
     nettoyer_vis     = fields.Boolean('Nettoyage vis avant production')
-    date_creation    = fields.Date("Date de création")
+    date_creation    = fields.Date("Date de création", default=lambda *a: fields.datetime.now())
     date_fin         = fields.Date("Date de fin")
     mouliste_id      = fields.Many2one('res.partner', 'Mouliste')
     carcasse         = fields.Char("Carcasse")
@@ -398,18 +398,6 @@ class is_mold(models.Model):
             if ids:
                 return ids[0]
         return False
-
-
-
-
-
-
-    _defaults = {
-        'date_creation': lambda *a: fields.datetime.now(),
-    }
-
-
-
 
 
     def vers_nouveau_preventif_mold(self):

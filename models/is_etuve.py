@@ -16,10 +16,10 @@ class is_etuve(models.Model):
     _order='name'
     _sql_constraints = [('name_uniq','UNIQUE(name)', u'Cette étuve existe déjà')]
 
-    name            = fields.Char("N°étuve",size=10, index=True                    , required=True)
-    dessication     = fields.Selection(dessication_list, "Dessication" , required=True)
-    type_etuve      = fields.Selection([('0', u'0'),('MAT', u'MAT')], "Type étuve"  , required=True)
-    capacite        = fields.Integer("Capacité"                                     , required=True)
+    name            = fields.Char("N°étuve",size=10, index=True                     , required=True)
+    dessication     = fields.Selection(dessication_list, "Dessication"              , required=True, default="N")
+    type_etuve      = fields.Selection([('0', u'0'),('MAT', u'MAT')], "Type étuve"  , required=True, default="0")
+    capacite        = fields.Integer("Capacité"                                     , required=True, default=0)
 
     matiere_id        = fields.Many2one('product.product', 'Matière', readonly=True)
     num_ordre_matiere = fields.Char("N°ordre matière"               , readonly=True)
@@ -32,13 +32,6 @@ class is_etuve(models.Model):
     rsp_etuve_id      = fields.Many2one('is.etuve.rsp', 'Rsp étuve' , readonly=True)
     commentaire       = fields.Char("Commenaire optionnel"          , readonly=True)
 
-
-
-    _defaults = {
-        'capacite'   :  0,
-        'dessication':  'N',
-        'type_etuve' :  '0',
-    }
 
     def action_saisie_etuve(self):
         for obj in self:

@@ -36,7 +36,7 @@ class is_cout_calcul(models.Model):
     _description="is_cout_calcul"
     _order='name desc'
 
-    name               = fields.Datetime('Date', required=True     , readonly=True, default=lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'))
+    name               = fields.Datetime('Date', required=True     , readonly=True, default=lambda *a: fields.datetime.now())
     user_id            = fields.Many2one('res.users', 'Responsable', readonly=True, default=lambda self: self.env.uid)
     product_id         = fields.Many2one('product.product', 'Article')
     segment_id         = fields.Many2one('is.product.segment', 'Segment')
@@ -50,12 +50,6 @@ class is_cout_calcul(models.Model):
             ('creation',u'Création'), ('prix_achat', u"Calcul des prix d'achat"),('termine', u"Terminé")
         ], u"État", readonly=True, index=True, default="creation")
 
-    # _defaults = {
-    #     'name': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-    #     'user_id': lambda self, cr, uid, c: uid,
-    #     'multiniveaux': True,
-    #     'state': 'creation',
-    # }
 
     detail_nomenclature=[]
     detail_gamme_ma=[]
@@ -65,9 +59,6 @@ class is_cout_calcul(models.Model):
     detail_gamme_mo_pk=[]
 
     mem_couts={}
-
-
-
 
 
     ###########################################################################

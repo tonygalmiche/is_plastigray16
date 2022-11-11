@@ -18,6 +18,10 @@
 
 
 
+
+
+
+
     <menuitem name="Indicateurs" id="menu_is_cpi_indicateurs" 
               parent="is_theia_root_menu" sequence="30"/>
 
@@ -39,6 +43,19 @@
         <field name="url">http://localhost</field>
         <field name="type">ir.actions.act_url</field>
     </record>
+
+
+
+
+    <menuitem action="is_theia_presse_action" 
+              id="is_theia_presse_menu" 
+              parent="is_theia_presse_main_menu" 
+              sequence="10"/>
+
+
+
+
+
     <!-- <menuitem 
         name="Parc des presses (ancien)" 
         id="is_url_parc_presses_menu" 
@@ -72,6 +89,8 @@
         parent="is_theia_presse_main_menu"
         sequence="17"
     /> -->
+
+
 
 
     <record model="ir.actions.act_url" id="is_url_indicateur_rebuts_action">

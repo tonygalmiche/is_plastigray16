@@ -32,11 +32,10 @@ class is_pdc(models.Model):
     workcenter_ids        = fields.One2many('is.pdc.workcenter', 'pdc_id', u'Postes de charge')
     mod_ids               = fields.One2many('is.pdc.mod'       , 'pdc_id', u"Nombres d'heures par semaine")
     mold_nb               = fields.Integer('Nb moule', store=True, compute='_mold_nb')
-    state                 = fields.Selection([('creation', u'Création'),('analyse', u'Analyse')], u"État", readonly=True, index=True)
-
-    _defaults = {
-        'state': 'creation',
-    }
+    state                 = fields.Selection([
+            ('creation', u'Création'),
+            ('analyse', u'Analyse')
+        ], u"État", readonly=True, index=True, default="creation")
 
 
     @api.depends('nb_heures_periode','nb_presses','temps_ouverture','workcenter_ids')
@@ -299,7 +298,13 @@ class is_pdc_mold(models.Model):
     _description="is_pdc_mold"
     _order='pdc_id desc, workcenter_id, mold_dossierf'
 
-    pdc_id         = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade')
+
+    def _get_default_pdc_id(self):
+        context=self._context
+        return context.get('pdc_id') or False
+
+
+    pdc_id         = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade', default=lambda self: self._get_default_pdc_id())
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de charge')
     resource_type  = fields.Selection([('material', u'Machine'),('user', u'MO')], u"Type", readonly=True, index=True, store=True, compute='_resource_type')
     mold_id        = fields.Many2one('is.mold', 'Moule')
@@ -314,8 +319,6 @@ class is_pdc_mold(models.Model):
     cumul_pourcent = fields.Float('Temps Cumulé (%)', store=False, compute='_cumul', readonly=1)
     cumul_h        = fields.Float('Cumul (H)'       , store=False, compute='_cumul', readonly=1)
     cumul_j        = fields.Float('Cumul (J)'       , store=False, compute='_cumul', readonly=1)
-
-
 
 
     @api.depends('workcenter_id')
@@ -364,14 +367,6 @@ class is_pdc_mold(models.Model):
             obj.temps_h=temps_h
             obj.capacite=capacite
             obj.temps_pourcent=temps_pourcent
-
-
-    def _get_default_pdc_id(self, cr, uid, context=None):
-        return context.get('pdc_id') or {}
-
-    _defaults = {
-        'pdc_id': _get_default_pdc_id,
-    }
 
 
 class is_pdc_workcenter(models.Model):

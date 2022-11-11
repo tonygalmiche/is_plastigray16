@@ -28,12 +28,12 @@ class is_facturation_fournisseur(models.Model):
     _description = "Facturation fournisseur"
     _order='id desc'
 
-    afficher_lignes     = fields.Selection([('oui', u'Oui'),('non', u'Non')], u"Afficher les lignes")
+    afficher_lignes     = fields.Selection([('oui', u'Oui'),('non', u'Non')], u"Afficher les lignes", default="oui")
     masquer_montant_0   = fields.Boolean(u"Masquer les montants à 0", default=True)
     name                = fields.Many2one('res.partner', 'Fournisseur à facturer', required=True)
     is_incoterm         = fields.Many2one('account.incoterms', "Incoterm  / Conditions de livraison", related='name.is_incoterm', readonly=True)
     partner_ids         = fields.Many2many('res.partner', "is_facturation_fournisseur_partner_rel", 'facturation_id', 'partner_id', string='Autres fournisseurs')
-    date_fin            = fields.Date('Date de fin'                      , required=True)
+    date_fin            = fields.Date('Date de fin'                      , required=True, default=lambda *a: fields.datetime.now())
     date_facture        = fields.Date('Date facture fournisseur'         , required=True)
     num_facture         = fields.Char('N° facture fournisseur'           , required=True)
     total_ht            = fields.Float("Total HT"         , digits=(14,2), required=True)
@@ -49,25 +49,10 @@ class is_facturation_fournisseur(models.Model):
     bon_a_payer         = fields.Boolean("Bon à payer", compute='_compute', readonly=True, store=False)
     forcer_bon_a_payer  = fields.Selection([('oui', u'Bon à payer = Oui'),('non', u'Bon à payer = Non')], "Forcer bon à payer")
     is_masse_nette      = fields.Float("Masse nette (Kg)")
-
-
-
     line_ids            = fields.One2many('is.facturation.fournisseur.line', 'facturation_id', u"Lignes")
-    state               = fields.Selection([('creation', u'Création'),('termine', u'Terminé')], u"État", readonly=True, index=True)
+    state               = fields.Selection([('creation', u'Création'),('termine', u'Terminé')], u"État", readonly=True, index=True, default="creation")
 
-    def _date():
-        now  = datetime.date.today()               # Date du jour
-        date = now + datetime.timedelta(days=0)    # Date +0
-        return date.strftime('%Y-%m-%d')           # Formatage
-
-    _defaults = {
-        'afficher_lignes': 'oui',
-        #'date_fin'       :  _date(),
-        'date_fin'       : lambda *a: fields.datetime.now(),
-        'state'          : 'creation',
-    }
-
-
+ 
     @api.depends('line_ids','total_ht','total_tva')
     def _compute(self):
         for obj in self:
@@ -390,60 +375,22 @@ class is_facturation_fournisseur_justification(models.Model):
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     
 
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_facturation_fournisseur_justification, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_fournisseur_justification()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Justification!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
 
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_facturation_fournisseur_justification, self).create(vals)
-    #         obj.copy_other_database_fournisseur_justification()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Justification!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-    
-    def copy_other_database_fournisseur_justification(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for justification in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                justification_vals = self.get_justification_vals(justification, DB, USERID, USERPASS, sock)
-                dest_justification_ids = sock.execute(DB, USERID, USERPASS, 'is.facturation.fournisseur.justification', 'search', [('is_database_origine_id', '=', justification.id)], {})
-                if not dest_justification_ids:
-                    dest_justification_ids = sock.execute(DB, USERID, USERPASS, 'is.facturation.fournisseur.justification', 'search', [('name', '=', justification.name)], {})
-                if dest_justification_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.facturation.fournisseur.justification', 'write', dest_justification_ids, justification_vals, {})
-                    justification_created_id = dest_justification_ids[0]
-                else:
-                    justification_created_id = sock.execute(DB, USERID, USERPASS, 'is.facturation.fournisseur.justification', 'create', justification_vals, {})
-        return True
-
-
-    def get_justification_vals(self, justification, DB, USERID, USERPASS, sock):
-        justification_vals ={
-                     'name' : tools.ustr(justification.name),
-                     'is_database_origine_id':justification.id,
-                     }
-        return justification_vals
-    
-    
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'commentaire'           : self.commentaire,
+            'is_database_origine_id': self.id
+        }
+        return vals

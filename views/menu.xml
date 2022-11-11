@@ -1055,6 +1055,17 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
+    <record id="is_import_budget_pk_menu" model="ir.ui.menu" >
+        <field name="name">Import budget PK</field>
+        <field name="sequence">90</field>
+        <field name="parent_id" eval="ref('is_pic_3ans_main_menu')"/>
+        <field name="action"    ref="is_import_budget_pk_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_import_budget_pk_grp'),
+        ])]"/>
+    </record>
+
+
 
 
     <!-- Analyse REACH -->

@@ -620,20 +620,18 @@ class is_inventaire_feuille(models.Model):
 
     inventaire_id   = fields.Many2one('is.inventaire', 'Inventaire', required=True, ondelete='cascade', readonly=True)
     name            = fields.Char('Numéro de feuille', required=True)
-    date_creation   = fields.Date("Date de création"         , readonly=True)
-    createur_id     = fields.Many2one('res.users', 'Créé par', readonly=True)
+    date_creation   = fields.Date("Date de création"         , readonly=True, default=lambda *a: fields.datetime.now())
+    createur_id     = fields.Many2one('res.users', 'Créé par', readonly=True, default=lambda self: self.env.user)
     fichier         = fields.Binary('Fichier à importer', help=u"Le fichier doit-être au format CSV. Séparateur virgule avec ces colonnes : article, lot, emplacement, statut, stotck A et stock Q")
     line_ids        = fields.One2many('is.inventaire.line', 'feuille_id', u"Lignes")
     anomalies       = fields.Text('Anomalies')
-    state           = fields.Selection([('creation', u'Création'),('cloture', u'Cloturé'),('traite', u'Traité')], u"État", readonly=True, index=True)
+    state           = fields.Selection([
+            ('creation', u'Création'),
+            ('cloture', u'Cloturé'),
+            ('traite', u'Traité')
+        ], u"État", readonly=True, index=True, default="creation")
 
     sequence=1
-
-    _defaults = {
-        'createur_id': lambda obj, cr, uid, ctx=None: uid,
-        'date_creation': lambda *a: _date_creation(),
-        'state': 'creation',
-    }
 
 
     def calculer_encours(self):
@@ -859,7 +857,7 @@ class is_inventaire_line(models.Model):
 
     inventaire_id     = fields.Many2one('is.inventaire', 'Inventaire', store=True, compute='_compute')
     feuille_id        = fields.Many2one('is.inventaire.feuille', 'Feuille Inventaire', required=True, ondelete='cascade')
-    sequence          = fields.Integer('Séquence')
+    sequence          = fields.Integer('Séquence', default=10)
     product_id        = fields.Many2one('product.product', 'Article' , required=True,index=1)
     encours           = fields.Boolean('Encours')
     composant_encours = fields.Boolean('Composant', help='Composant encours')
@@ -872,12 +870,12 @@ class is_inventaire_line(models.Model):
     qt_us_calc        = fields.Float('Qt US', store=True, compute='_compute')
     lieu              = fields.Char('Lieu')
     lot_id            = fields.Many2one('stock.lot','Lot')
-    state             = fields.Selection([('creation', u'Création'),('cloture', u'Cloturé'),('traite', u'Traité')], u"État", readonly=True, index=True)
+    state             = fields.Selection([
+            ('creation', u'Création'),
+            ('cloture', u'Cloturé'),
+            ('traite', u'Traité')
+        ], u"État", readonly=True, index=True, default="creation")
 
-    _defaults = {
-        'sequence': 10,
-        'state': 'creation',
-    }
 
     def get_emplacement(self, obj):
         emplacement_name = ''

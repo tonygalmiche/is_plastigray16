@@ -115,15 +115,6 @@ class is_demande_achat_moule(models.Model):
         return company.is_directeur_technique_id.id
 
 
-    # _defaults = {
-    #     'date_creation'    : lambda *a: fields.datetime.now(),
-    #     'createur_id'      : lambda obj, cr, uid, context: uid,
-    #     'direction_id'     : lambda self,cr,uid,context: self._dirigeant_id(cr,uid,context),
-    #     'state'            : 'brouillon',
-    #     'lieu_livraison_id': lambda self,cr,uid,context: self._lieu_livraison_id(cr,uid,context),
-    # }
-
-
     def fournisseur_id_on_change(self,fournisseur_id):
         res={}
         if fournisseur_id:
@@ -318,7 +309,7 @@ class is_demande_achat_moule_line(models.Model):
 
     da_id                  = fields.Many2one('is.demande.achat.moule', "Demande d'achat", required=True, ondelete='cascade', readonly=True)
     sequence               = fields.Integer('Ordre')
-    product_id             = fields.Many2one('product.product', 'Article', required=True, domain=[('is_code','=','607000MOUL')])
+    product_id             = fields.Many2one('product.product', 'Article', required=True, domain=[('is_code','=','607000MOUL')], default=lambda self: self._product_id())
     designation1           = fields.Char("Désignation 1")
     designation2           = fields.Char("Désignation 2")
     uom_id                 = fields.Many2one('uom.uom', "Unité d'achat")
@@ -333,10 +324,6 @@ class is_demande_achat_moule_line(models.Model):
         for product in products:
             return product.id
         return False
-
-    _defaults = {
-        'product_id': lambda self,cr,uid,context: self._product_id(cr,uid,context),
-    }
 
 
     def product_id_on_change(self,parent,product_id,quantite):

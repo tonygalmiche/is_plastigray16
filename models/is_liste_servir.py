@@ -108,15 +108,25 @@ class is_liste_servir(models.Model):
             obj.is_certificat_conformite_msg = msg
 
 
+    def _date_fin():
+        now = datetime.date.today()                 # Date du jour
+        date_fin = now + datetime.timedelta(days=1) # J+1
+        return date_fin.strftime('%Y-%m-%d')        # Formatage
+
+
     name                   = fields.Char("N°", readonly=True)
     partner_id             = fields.Many2one('res.partner', 'Client', required=True)
     date_debut             = fields.Date("Date de début d'expédition")
-    date_fin               = fields.Date("Date de fin d'expédition", required=True)
-    livrable               = fields.Boolean("Livrable")
+    date_fin               = fields.Date("Date de fin d'expédition", required=True, default=lambda self: self._date_fin())
+    livrable               = fields.Boolean("Livrable", default=False)
     transporteur_id        = fields.Many2one('res.partner', 'Transporteur')
     message                = fields.Text("Message")
     commentaire            = fields.Text("Commentaire")
-    state                  = fields.Selection([('creation', u'Création'),('analyse', u'Analyse'),('traite', u'Traité')], u"État", readonly=True, index=True)
+    state                  = fields.Selection([
+            ('creation', u'Création'),
+            ('analyse', u'Analyse'),
+            ('traite', u'Traité')
+        ], u"État", readonly=True, index=True, default="creation")
     #order_ids              = fields.One2many('sale.order', 'is_liste_servir_id', 'Commandes générées', readonly=False)
     line_ids               = fields.One2many('is.liste.servir.line', 'liste_servir_id', u"Lignes")
     uc_ids                 = fields.One2many('is.liste.servir.uc', 'liste_servir_id', u"UCs")
@@ -130,24 +140,9 @@ class is_liste_servir(models.Model):
     is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
 
 
-
-
     def tableaux(self):
         t=[True,False]
         return t
-
-
-    def _date_fin():
-        now = datetime.date.today()                 # Date du jour
-        date_fin = now + datetime.timedelta(days=1) # J+1
-        return date_fin.strftime('%Y-%m-%d')        # Formatage
-
-    _defaults = {
-        'state': 'creation',
-        'date_fin':  _date_fin(),
-        'livrable':  False,
-    }
-
 
 
     @api.depends('line_ids')
@@ -850,8 +845,6 @@ class is_liste_servir_message(models.Model):
     message = fields.Text('Message')
 
 
-
-
 class is_liste_servir_uc(models.Model):
     _name='is.liste.servir.uc'
     _description="UC Liste à servir"
@@ -862,13 +855,9 @@ class is_liste_servir_uc(models.Model):
     nb_uc           = fields.Float('Nb UC')
     um_id           = fields.Many2one('is.product.ul', 'UM')
     nb_um           = fields.Float('Nb UM')
-    mixer           = fields.Boolean('Mixer', help="L'UM peut-être mixée avec une autre")
+    mixer           = fields.Boolean('Mixer', help="L'UM peut-être mixée avec une autre", default=False)
 
-    _defaults = {
-        'mixer': False,
-    }
-
-
+ 
 class is_liste_servir_um(models.Model):
     _name='is.liste.servir.um'
     _description="UM Liste à servir"

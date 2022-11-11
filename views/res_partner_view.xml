@@ -22,7 +22,7 @@
             <field name="inherit_id" ref="base.view_partner_form" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='category_id']" position="after">
-                    <field name="is_database_line_ids" widget="many2many_tags" nolabel="1" placeholder="Sites"/>
+                    <field name="is_database_line_ids" widget="many2many_tags"/> <!-- nolabel="1" placeholder="Sites"/> -->
                 </xpath>
                 <xpath expr="//field[@name='street2']" position="after">
                     <field name="is_rue3" placeholder="Rue 3 ou Boite Postale" />
@@ -96,8 +96,8 @@
                         <field name="is_adr_code"        placeholder="Code Adresse"     attrs="{'required': [('is_company', '=', True)], 'invisible': [('is_company', '=', False)]}"/> 
                     </group>   
                 </xpath>
-
                 <xpath expr="//field[@name='website']" position="before">
+                    <field name="fax"                 attrs="{'invisible': [('is_company', '=', False)]}" />
                     <field name="is_adr_facturation"  attrs="{'invisible': [('is_company', '=', False)]}"  domain="[('is_company', '=', True),('customer','=', customer),('supplier','=',supplier)]" />
                     <field name="is_adr_groupe"       attrs="{'invisible': [('is_company', '=', False)]}" />
                     <field name="is_secteur_activite" attrs="{'invisible': [('is_company', '=', False)]}" />
@@ -207,11 +207,36 @@
                             </tree>
                         </field>
                     </page>
+
+
+
+
                 </xpath>
 
             </field>
         </record>
         
+
+
+
+        <record id="is_view_partner_property_form" model="ir.ui.view">
+            <field name="name">is_view_partner_property_form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form" />
+            <field name="arch" type="xml">
+                <field name="property_account_payable_id" position="after">
+                    <field name="is_caracteristique_bl"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                    <field name="is_mode_envoi_facture"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                    <field name="is_type_reglement"      attrs="{'invisible': [('is_company', '=', False)]}" />
+                    <field name="is_num_siret"           attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
+                    <field name="is_code_client"         attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
+                    <field name="is_rib_id"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                    <field name="is_adr_liv_sur_facture" attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                </field>
+            </field>
+        </record>
+
+
 
         <!-- Permet de masquer les boutons RDV et Opportunities -->
         <!-- <record id="is_view_partners_form_crm1" model="ir.ui.view">
@@ -326,6 +351,7 @@
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="arch" type="xml">
                 <field name="email" position="after">
+                    <field name="is_type_contact"        optional="hide"/>
                     <field name="is_database_origine_id" optional="hide"/>
                 </field>
             </field>

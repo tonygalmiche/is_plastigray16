@@ -46,7 +46,7 @@ class is_export_cegid_ligne(models.Model):
 
     export_cegid_id   = fields.Many2one('is.export.cegid', u'Export Cegid', required=True, ondelete='cascade')
     ligne             = fields.Integer(u"Ligne")
-    journal           = fields.Char(u"Journal")
+    journal           = fields.Char(u"Journal", default="VTE")
     datecomptable     = fields.Date(u"Date")
     type_piece        = fields.Char(u"Nature mouvement")
     general           = fields.Char(u"Compte général")
@@ -58,7 +58,7 @@ class is_export_cegid_ligne(models.Model):
     echeance          = fields.Date(u"Date échéance")
     sens              = fields.Char(u"Sens")
     montant1          = fields.Float(u"Montant")
-    devise            = fields.Char(u"Devise")
+    devise            = fields.Char(u"Devise", default="E")
     tauxdev           = fields.Float(u"Taux devise")
     etablissement     = fields.Char(u"Etablissement")
     axe               = fields.Char(u"Axe analytique")
@@ -71,12 +71,6 @@ class is_export_cegid_ligne(models.Model):
     tva               = fields.Char(u"TVA")
     bon_a_payer       = fields.Char(u"Bon à payer")
     invoice_id        = fields.Many2one('account.move', u"Facture")
-
-    _defaults = {
-        'journal': 'VTE',
-        'devise' : 'E',
-    }
-
 
 
 class is_export_cegid(models.Model):

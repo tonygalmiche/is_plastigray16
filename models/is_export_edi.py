@@ -171,18 +171,8 @@ class is_export_edi_histo(models.Model):
     _order='name desc'
 
     edi_id      = fields.Many2one('is.export.edi', 'Export EDI', required=True, ondelete='cascade', readonly=True)
-    name        = fields.Datetime("Date")
-    user_id     = fields.Many2one('res.users', 'Utilisateur')
+    name        = fields.Datetime("Date"                    , default=lambda *a: fields.datetime.now())
+    user_id     = fields.Many2one('res.users', 'Utilisateur', default=lambda self: self.env.user)
     description = fields.Char("Opération éffectuée")
-
-    _defaults = {
-        'name'   : lambda *a: fields.datetime.now(),
-        'user_id': lambda obj, cr, uid, context: uid,
-    }
-
-
-
-
-
 
 

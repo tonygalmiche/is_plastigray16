@@ -153,66 +153,27 @@ class is_famille_instrument(models.Model):
     afficher_type = fields.Boolean("Afficher les champs Type, Etendue et Résolution", default=False)
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     
-
-    # def write(self, vals):
-    #     try:
-    #         res=super(is_famille_instrument, self).write(vals)
-    #         for obj in self:
-    #             obj.copy_other_database_famille_instrument()
-    #         return res
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Instrument!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
-
-
-    # def create(self, vals):
-    #     try:
-    #         obj=super(is_famille_instrument, self).create(vals)
-    #         obj.copy_other_database_famille_instrument()
-    #         return obj
-    #     except Exception as e:
-    #         raise osv.except_osv(_('Instrument!'),
-    #                          _('(%s).') % str(e).decode('utf-8'))
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
             
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
 
-    def copy_other_database_famille_instrument(self):
-        cr , uid, context = self.env.args
-        context = dict(context)
-        database_obj = self.env['is.database']
-        database_lines = database_obj.search([])
-        for instrument in self:
-            for database in database_lines:
-                if not database.ip_server or not database.database or not database.port_server or not database.login or not database.password:
-                    continue
-                DB = database.database
-                USERID = SUPERUSER_ID
-                DBLOGIN = database.login
-                USERPASS = database.password
-                DB_SERVER = database.ip_server
-                DB_PORT = database.port_server
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                famille_instrument_vals = self.get_famille_instrument_vals(instrument, DB, USERID, USERPASS, sock)
-                dest_famille_instrument_ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('is_database_origine_id', '=', instrument.id)], {})
-                if not dest_famille_instrument_ids:
-                    dest_famille_instrument_ids = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'search', [('name', '=', instrument.name)], {})
-                if dest_famille_instrument_ids:
-                    sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'write', dest_famille_instrument_ids, famille_instrument_vals, {})
-                    famille_instrument_created_id = dest_famille_instrument_ids[0]
-                else:
-                    famille_instrument_created_id = sock.execute(DB, USERID, USERPASS, 'is.famille.instrument', 'create', famille_instrument_vals, {})
-        return True
-
-
-    def get_famille_instrument_vals(self, instrument, DB, USERID, USERPASS, sock):
-        famille_instrument_vals ={
-                     'name' : tools.ustr(instrument.name or ''),
-                     'intensive': tools.ustr(instrument.intensive or ''),
-                     'moyenne': tools.ustr(instrument.moyenne or ''),
-                     'faible': tools.ustr(instrument.faible or ''),
-                     'tolerance': tools.ustr(instrument.tolerance or ''),
-                     'afficher_classe':instrument.afficher_classe,
-                     'afficher_type':instrument.afficher_type,
-                     'is_database_origine_id':instrument.id,
-                     }
-        return famille_instrument_vals
-    
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'intensive'             : self.intensive,
+            'moyenne'               : self.moyenne,
+            'faible'                : self.faible,
+            'tolerance'             : self.tolerance,
+            'afficher_classe'       : self.afficher_classe,
+            'afficher_type'         : self.afficher_type,
+            'is_database_origine_id': self.id
+        }
+        return vals

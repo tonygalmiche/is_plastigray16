@@ -16,18 +16,17 @@ class is_deb(models.Model):
         for obj in self:
             obj.soc=soc
 
-    name         = fields.Date("Date DEB"     , required=True)
+    name         = fields.Date("Date DEB"     , required=True, default=lambda *a: fields.datetime.now())
     date_debut   = fields.Date("Date de début", required=True, help="Date de début des factures")
     date_fin     = fields.Date("Date de fin"  , required=True, help="Date de fin des factures")
     soc          = fields.Char('Code société', compute='_compute', readonly=True, store=False)
     line_ids     = fields.One2many('is.deb.line'    , 'deb_id', u"Lignes DEB")
     synthese_ids = fields.One2many('is.deb.synthese', 'deb_id', u"Synthèse DEB")
-    state        = fields.Selection([('creation', u'Création'),('modification', u'Modification des lignes'),('termine', u'Terminé')], u"État", readonly=True, index=True)
-
-    _defaults = {
-        'name' : lambda *a: fields.datetime.now(),
-        'state': 'creation',
-    }
+    state        = fields.Selection([
+            ('creation', u'Création'),
+            ('modification', u'Modification des lignes'),
+            ('termine', u'Terminé')
+        ], u"État", readonly=True, index=True, default='creation')
 
 
     def transfert_action(self):
@@ -313,22 +312,16 @@ class is_deb_line(models.Model):
     date_facture           = fields.Date("Date facture")
     type_facture           = fields.Char("Type de facture")
     partner_id             = fields.Many2one('res.partner', 'Client livré / Fournisseur')
-    code_regime            = fields.Char("Code régime")
+    code_regime            = fields.Char("Code régime", default="21")
     nomenclature_douaniere = fields.Char("Nomenclature douaniere")
     masse_nette            = fields.Float("Masse nette")
     pays_origine           = fields.Char("Pays d'origine"     , help="Pays d'origine indiqué dans la fiche article")
     pays_destination       = fields.Char("Pays de destination", help="Pays de destination du client livré")
     valeur_fiscale         = fields.Float("Valeur fiscale"    , help="Montant net facturé")
-    nature_transaction     = fields.Char("Nature de la transaction")
-    mode_transport         = fields.Char("Mode de transport")
+    nature_transaction     = fields.Char("Nature de la transaction", default="11")
+    mode_transport         = fields.Char("Mode de transport", default="3")
     departement_expedition = fields.Char("Département d'expédition", help="2 premiers chiffres du code postal du client livré")
     num_tva                = fields.Char("N°TVA du client livré")
-
-    _defaults = {
-        'code_regime'       : '21',
-        'nature_transaction': '11',
-        'mode_transport'    : '3',
-    }
 
 
 class is_deb_synthese(models.Model):
@@ -340,7 +333,7 @@ class is_deb_synthese(models.Model):
     type_deb               = fields.Selection([('introduction', u'Introduction'),('exportation', u'Exportation')], u"Type de DEB", required=True, index=True)
     num_facture            = fields.Char("N° de facture")
     date_facture           = fields.Date("Date facture")
-    code_regime            = fields.Char("Code régime")
+    code_regime            = fields.Char("Code régime", default="21")
     nomenclature_douaniere = fields.Char("Nomenclature douaniere")
     masse_nette            = fields.Float("Masse nette")
 
@@ -348,16 +341,10 @@ class is_deb_synthese(models.Model):
     pays_destination       = fields.Char("Pays de destination", help="Pays de destination du client livré")
 
     valeur_fiscale         = fields.Float("Valeur fiscale"    , help="Montant net facturé")
-    nature_transaction     = fields.Char("Nature de la transaction")
-    mode_transport         = fields.Char("Mode de transport")
+    nature_transaction     = fields.Char("Nature de la transaction", default="11")
+    mode_transport         = fields.Char("Mode de transport", default="3")
     departement_expedition = fields.Char("Département d'expédition", help="2 premiers chiffres du code postal du client livré")
     num_tva                = fields.Char("N°TVA du client livré")
-
-    _defaults = {
-        'code_regime'       : '21',
-        'nature_transaction': '11',
-        'mode_transport'    : '3',
-    }
 
 
 

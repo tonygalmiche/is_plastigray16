@@ -923,13 +923,6 @@
     </record>
 
 
-    <menuitem action="is_theia_presse_action" 
-              id="is_theia_presse_menu" 
-              parent="is_theia_presse_main_menu" 
-              sequence="10"/>
-
-
-
 
 
 

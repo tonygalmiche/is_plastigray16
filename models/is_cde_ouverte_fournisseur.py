@@ -786,25 +786,17 @@ class is_cde_ouverte_fournisseur_line(models.Model):
     imprimer_commande = fields.Boolean("Imprimer la commande", default=False)
 
 
-
-
-
 class is_cde_ouverte_fournisseur_histo(models.Model):
     _name='is.cde.ouverte.fournisseur.histo'
     _description="is_cde_ouverte_fournisseur_histo"
     _order='name desc'
 
     order_id    = fields.Many2one('is.cde.ouverte.fournisseur', 'Commande ouverte fournisseur', required=True, ondelete='cascade', readonly=True)
-    name        = fields.Datetime("Date")
-    user_id     = fields.Many2one('res.users', 'Utilisateur')
+    name        = fields.Datetime("Date"                    , default=lambda *a: fields.datetime.now())
+    user_id     = fields.Many2one('res.users', 'Utilisateur', default=lambda self: self.env.user)
     description = fields.Char("Opération éffectuée")
 
-    _defaults = {
-        'name'   : lambda *a: fields.datetime.now(),
-        'user_id': lambda obj, cr, uid, context: uid,
-    }
-
-
+ 
 class is_cde_ouverte_fournisseur_message(models.Model):
     _name='is.cde.ouverte.fournisseur.message'
     _description="is_cde_ouverte_fournisseur_message"

@@ -53,20 +53,17 @@ class is_site(models.Model):
     name = fields.Char('Site', required=True) 
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
 
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -85,20 +82,17 @@ class is_segment_achat(models.Model):
     family_line = fields.One2many('is.famille.achat', 'segment_id', 'Familles')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
 
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -118,20 +112,17 @@ class is_famille_achat(models.Model):
     description = fields.Text('Commentaire')  
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
  
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -141,7 +132,6 @@ class is_famille_achat(models.Model):
             'is_database_origine_id': self.id
         }
         return vals
-
 
     def get_segment_id(self, DB, USERID, USERPASS, sock):
         if self.segment_id:
@@ -168,13 +158,11 @@ class is_transmission_cde(models.Model):
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -194,20 +182,17 @@ class is_norme_certificats(models.Model):
     commentaire            = fields.Char('Commentaire')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
 
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -230,7 +215,6 @@ class is_certifications_qualite(models.Model):
     partner_id         = fields.Many2one('res.partner', 'Client/Fournisseur')    
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
@@ -238,14 +222,12 @@ class is_certifications_qualite(models.Model):
             self.env['is.database'].copy_other_database(obj,filtre)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         filtre=[('is_norme', '=', res.is_norme.id),('is_date_validation', '=', res.is_date_validation)]
         self.env['is.database'].copy_other_database(res,filtre)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -256,7 +238,6 @@ class is_certifications_qualite(models.Model):
         }
         return vals
 
-
     def get_is_norme(self, DB, USERID, USERPASS, sock):
         if self.is_norme:
             ids = sock.execute(DB, USERID, USERPASS, 'is.norme.certificats', 'search', [('is_database_origine_id', '=', self.is_norme.id)])
@@ -266,7 +247,6 @@ class is_certifications_qualite(models.Model):
             if ids:
                 return ids[0]
         return False
-
 
     def _get_certificat_ids(self, DB, USERID, USERPASS, sock):
         certificat_data = []
@@ -292,13 +272,11 @@ class is_secteur_activite(models.Model):
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -319,20 +297,17 @@ class is_type_contact(models.Model):
     commentaire = fields.Char('Commentaire')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
 
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -353,20 +328,17 @@ class is_escompte(models.Model):
     compte = fields.Many2one('account.account', "Compte")
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     
-
     def write(self, vals):
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
             
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.database'].copy_other_database(res)
         return res
-
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
@@ -385,6 +357,31 @@ class is_escompte(models.Model):
         return False
 
 
+class res_partner_category(models.Model):
+    _inherit = 'res.partner.category'
+
+    is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
+
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
+
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'is_database_origine_id': self.id
+        }
+        return vals
+
+
 class res_partner(models.Model):
     _inherit = 'res.partner'
 
@@ -397,6 +394,7 @@ class res_partner(models.Model):
 
     customer   = fields.Boolean('Client')      # Champ ajouté car n'existe plus dans Odoo 16
     supplier   = fields.Boolean('Fournisseur') # Champ ajouté car n'existe plus dans Odoo 16
+    fax        = fields.Char('Fax')            # Champ ajouté car n'existe plus dans Odoo 16
 
     display_name            = fields.Char(string='Nom affiché', compute='_compute_display_name')
     is_transporteur_id      = fields.Many2one('res.partner', 'Transporteur')
@@ -490,33 +488,263 @@ class res_partner(models.Model):
     #     self.display_name = r[0][1]
 
 
-    # def write(self, vals):
-    #     for obj in self:
-    #         logger.info(u'write : partner='+str(obj.is_code)+u'/'+str(obj.is_adr_code))
-    #         if 'is_adr_facturation' in vals:
-    #             if vals['is_adr_facturation']==obj.id:
-    #                 vals['is_adr_facturation']=False
-    #         else:
-    #             if obj.is_adr_facturation.id==obj.id:
-    #                 vals['is_adr_facturation']=False
-    #     try:
-    #         for obj in self:
-    #             res=super(res_partner, self).write(vals)
-    #             self.env['is.database'].copy_other_database(obj)
-    #             return res
-    #     except Exception as e:
-    #         raise osv.except_osv('Client recursif !','')
+    def _get_partner_filtre(self):
+        filtre=[
+            ('name'       , '=', self.name),
+            ('parent_id'  , '=', self.parent_id.id),
+            ('is_code'    , '=', self.is_code),
+            ('is_adr_code', '=', self.is_adr_code),
+            '|',('active','=',True),('active','=',False)
+        ]
+        return filtre
+
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            filtre=obj._get_partner_filtre()
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        for obj in res:
+            filtre=obj._get_partner_filtre()
+            self.env['is.database'].copy_other_database(obj,filtre)
+        return res
+
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'               : self.name,
+            'is_raison_sociale2' : self.is_raison_sociale2,
+            'is_code'            : self.is_code,
+            'is_adr_code'        : self.is_adr_code,
+            'category_id'        : self._get_category_id(DB, USERID, USERPASS, sock),
+            'parent_id'          : self._get_parent_id(DB, USERID, USERPASS, sock),
+            'is_company'         : self.is_company,
+            'street'             : self.street,
+            'street2'            : self.street2,
+            'is_rue3'            : self.is_rue3,
+            'city'               : self.city,
+            'state_id'           : self._get_state_id(DB, USERID, USERPASS, sock),
+            'zip'                : self.zip,
+            'country_id'         : self.country_id.id or False,
+            'is_adr_facturation' : self._get_partner_is_adr_facturation(DB, USERID, USERPASS, sock),
+            'website'            : self.website,
+            'function'           : self.function,
+            'phone'              : self.phone,
+            'mobile'             : self.mobile,
+            'fax'                : self.fax,
+            'email'              : self.email,
+            'title'              : self._get_title(DB, USERID, USERPASS, sock),
+            'is_secteur_activite': self._get_is_secteur_activite(DB, USERID, USERPASS, sock),
+            'customer'           : self.customer,
+            'supplier'           : self.supplier,
+            'is_raison_sociale2'    :  self.is_raison_sociale2,
+            'is_code'               :  self.is_code,
+            'is_adr_code'           :  self.is_adr_code,
+            'is_rue3'               :  self.is_rue3,
+            'is_type_contact'       :  self._get_is_type_contact(DB, USERID, USERPASS, sock),
+            'is_adr_groupe'         :  self.is_adr_groupe,
+            'is_cofor'              :  self.is_cofor,
+            'is_num_siret'          :  self.is_num_siret,
+            'is_code_client'        :  self.is_code_client,
+            'is_segment_achat'      :  self._get_is_segment_achat(DB, USERID, USERPASS, sock),
+            'is_famille_achat_ids'  :  self._get_is_famille_achat_ids(DB, USERID, USERPASS, sock),
+            'is_fournisseur_imp'    :  self.is_fournisseur_imp,
+            'is_fournisseur_da_fg'  :  self.is_fournisseur_da_fg,
+            'is_site_livre_ids'     :  self._get_is_site_livre_ids(DB, USERID, USERPASS, sock),
+            'is_groupage'           :  self.is_groupage,
+            'is_tolerance_delai'    :  self.is_tolerance_delai,
+            'is_nb_jours_tolerance' :  self.is_nb_jours_tolerance,
+            'is_tolerance_quantite' :  self.is_tolerance_quantite,
+            'is_transmission_cde'   :  self._get_is_transmission_cde(DB, USERID, USERPASS, sock),
+            'is_certifications'     :  self._get_is_certifications(DB, USERID, USERPASS, sock),
+            'is_adr_liv_sur_facture' : self.is_adr_liv_sur_facture,
+            'is_num_autorisation_tva': self.is_num_autorisation_tva,
+            'is_caracteristique_bl'  : self.is_caracteristique_bl,
+            'is_mode_envoi_facture'  : self.is_mode_envoi_facture,
+            'is_database_line_ids'   : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),
+            'vat'                              : self.vat,
+            'property_account_position_id'     : self.property_account_position_id.id,
+            'property_payment_term_id'         : self.property_payment_term_id.id,
+            'property_supplier_payment_term_id': self.property_supplier_payment_term_id.id,
+            'is_escompte'                      : self.is_escompte.id,
+            'is_type_reglement'                : self._get_is_type_reglement(DB, USERID, USERPASS, sock),
+            'is_rib_id'                        : self._get_is_rib_id(DB, USERID, USERPASS, sock),
+            'user_id'                          : self._get_user_id(DB, USERID, USERPASS, sock),
+            'active'                           : self._get_active(DB, USERID, USERPASS, sock),
+            'is_database_origine_id'           : self.id
+        }
+        return vals
+    
+    def _get_parent_id(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.parent_id.id),'|',('active','=',True),('active','=',False)])
+        if not ids:
+            filtre=[
+                ('name'       , '=', self.parent_id.name),
+                ('parent_id'  , '=', self.parent_id.parent_id.id),
+                ('is_code'    , '=', self.parent_id.is_code),
+                ('is_adr_code', '=', self.parent_id.is_adr_code),
+                '|',('active','=',True),('active','=',False)
+            ]
+            self.env['is.database'].copy_other_database(self.parent_id, filtre)
+            ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.parent_id.id),'|',('active','=',True),('active','=',False)])
+        if ids:
+            return ids[0]
+        return False
+
+    def _get_category_id(self, DB, USERID, USERPASS, sock):
+        categ_lst = []
+        for category in self.category_id:
+            ids = sock.execute(DB, USERID, USERPASS, 'res.partner.category', 'search', [('name', '=', category.name)])
+            if not ids:
+                self.env['is.database'].copy_other_database(category)
+                ids = sock.execute(DB, USERID, USERPASS, 'res.partner.category', 'search', [('name', '=', category.name)])
+            if ids:
+                categ_lst.append(ids[0])
+        return [(6, 0, categ_lst)]
+
+    def _get_state_id(self, DB, USERID, USERPASS, sock):
+        if not self.state_id:
+            return False
+        ids = sock.execute(DB, USERID, USERPASS, 'res.country.state', 'search', [('name', '=', self.state_id.name)])
+        if ids:
+            return ids[0]
+        else:
+            vals = {
+                'name'      : self.state_id.name, 
+                'code'      : self.state_id.code, 
+                'country_id': self.state_id.country_id.id,
+            }
+            id = sock.execute(DB, USERID, USERPASS, 'res.country.state', 'create', vals)
+            return id
+
+    def _get_partner_is_adr_facturation(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_adr_facturation.id),'|',('active','=',True),('active','=',False)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_adr_facturation)
+            ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_adr_facturation.id),'|',('active','=',True),('active','=',False)])
+        if ids:
+            return ids[0]
+        return False
+
+    def _get_title(self, DB, USERID, USERPASS, sock):
+        if not self.title:
+            return False
+        ids = sock.execute(DB, USERID, USERPASS, 'res.partner.title', 'search', [('name', '=', self.title.name)])
+        if ids:
+            return ids[0]
+        else:
+            vals = {'name':self.title.name, 'shortcut':self.title.shortcut}
+            id = sock.execute(DB, USERID, USERPASS, 'res.partner.title', 'create', vals)
+            return id
+
+    def _get_is_secteur_activite(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'is.secteur.activite', 'search', [('is_database_origine_id', '=', self.is_secteur_activite.id)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_secteur_activite)
+            ids = sock.execute(DB, USERID, USERPASS, 'is.secteur.activite', 'search', [('is_database_origine_id', '=', self.is_secteur_activite.id)])
+        if ids:
+            return ids[0]
+        return False
+            
+    def _get_is_type_contact(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'is.type.contact', 'search', [('is_database_origine_id', '=', self.is_type_contact.id)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_type_contact)
+            ids = sock.execute(DB, USERID, USERPASS, 'is.type.contact', 'search', [('is_database_origine_id', '=', self.is_type_contact.id)])
+        if ids:
+            return ids[0]
+        return False
+
+    def _get_is_segment_achat(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'is.segment.achat', 'search', [('is_database_origine_id', '=', self.is_segment_achat.id)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_segment_achat)
+            ids = sock.execute(DB, USERID, USERPASS, 'is.segment.achat', 'search', [('is_database_origine_id', '=', self.is_segment_achat.id)])
+        if ids:
+            return ids[0]
+        return False
+
+    def _get_is_famille_achat_ids(self, DB, USERID, USERPASS, sock):
+        lst_is_famille_achat_ids = []
+        for obj in self.is_famille_achat_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.famille.achat', 'search', [('is_database_origine_id', '=', obj.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(obj)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.segment.achat', 'search', [('is_database_origine_id', '=', obj.id)])
+            if ids:
+                lst_is_famille_achat_ids.append(ids[0])
+        return [(6,0,lst_is_famille_achat_ids)]
+         
+    def _get_is_site_livre_ids(self, DB, USERID, USERPASS, sock):
+        lst_site_livre_ids = []
+        for obj in self.is_site_livre_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.site', 'search', [('is_database_origine_id', '=', obj.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(obj)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.site', 'search', [('is_database_origine_id', '=', obj.id)])
+            if ids:
+                lst_site_livre_ids.append(ids[0])
+        return [(6,0,lst_site_livre_ids)]
+          
+    def _get_is_transmission_cde(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'is.transmission.cde', 'search', [('is_database_origine_id', '=', self.is_transmission_cde.id)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_transmission_cde)
+            ids = sock.execute(DB, USERID, USERPASS, 'is.transmission.cde', 'search', [('is_database_origine_id', '=', self.is_transmission_cde.id)])
+        if ids:
+            return ids[0]
+        return False
+
+    def _get_is_certifications(self, DB, USERID, USERPASS, sock):
+        lst_is_certifications = []
+        for obj in self.is_certifications:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.certifications.qualite', 'search', [('is_database_origine_id', '=', obj.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(obj)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.certifications.qualite', 'search', [('is_database_origine_id', '=', obj.id)])
+            if ids:
+                lst_is_certifications.append(ids[0])
+        return [(6,0,lst_is_certifications)]
+    
+    def _get_is_database_line_ids(self, DB, USERID, USERPASS, sock):
+        lst_is_database_line_ids = []
+        for obj in self.is_database_line_ids:
+            ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', obj.id)])
+            if not ids:
+                self.env['is.database'].copy_other_database(obj)
+                ids = sock.execute(DB, USERID, USERPASS, 'is.database', 'search', [('is_database_origine_id', '=', obj.id)])
+            if ids:
+                lst_is_database_line_ids.append(ids[0])
+        return [(6,0,lst_is_database_line_ids)]
+        
+    def _get_is_type_reglement(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'account.journal', 'search', [('code', '=', self.is_type_reglement.code)])
+        if ids:
+            return ids[0]
+        return False
+
+    def _get_is_rib_id(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [('acc_number', '=', self.is_rib_id.acc_number)])
+        if ids:
+            return ids[0]
+        return False
 
 
-    # @api.model
-    # def create(self, vals):
-    #     try:
-    #         obj=super(res_partner, self).create(vals)
-    #         self.env['is.database'].copy_other_database(obj)
-    #     except Exception as e:
-    #         raise osv.except_osv('Client recursif !','')
-    #     return obj
+    def _get_user_id(self, DB, USERID, USERPASS, sock):
+        ids = sock.execute(DB, USERID, USERPASS, 'res.users', 'search', [('login', '=', self.user_id.login)])
+        if ids:
+            return ids[0]
+        return False
 
+    def _get_active(self, DB, USERID, USERPASS, sock):
+        active=False
+        for obj in self.is_database_line_ids:
+            if obj.database==DB:
+                active=True
+        return active
 
     def name_get(self):
         context=self._context

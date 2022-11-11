@@ -60,7 +60,6 @@ from . import is_mold
 from . import is_mold_project
 from . import is_ot
 from . import is_pdc
-from . import is_pic_3ans
 from . import is_piece_montabilite
 from . import is_plaquette_etalon
 from . import is_pointage
@@ -84,6 +83,10 @@ from . import res_partner
 from . import res_users
 from . import sale
 from . import stock
+
+from . import is_pic_3ans
+
+
 
 
 # TODO : is_pg_2019

@@ -772,7 +772,7 @@ class stock_move(models.Model):
         return res
 
 
-    def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
+    def name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
         if not args:
             args = []
         if name:
@@ -784,11 +784,10 @@ class stock_move(models.Model):
                 filtre=['|','|','|',('product_id.is_code','ilike', name),('picking_id.name','ilike', name),('origin','ilike', name),('id','=', name)]
             else:
                 filtre=['|','|',('product_id.is_code','ilike', name),('picking_id.name','ilike', name),('origin','ilike', name)]
-            ids = self.search(cr, user, filtre, limit=limit, context=context)
+            ids = list(self._search(filtre + args, limit=limit))
         else:
-            ids = self.search(cr, user, args, limit=limit, context=context)
-        result = self.name_get(cr, user, ids, context=context)
-        return result
+            ids = list(self._search(filtre + args, limit=limit))
+        return ids
 
 
     def create(self, vals):

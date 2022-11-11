@@ -36,18 +36,9 @@ class is_account_folio(models.Model):
     _order = 'name desc'
 
     name          = fields.Char('N° de Folio'              , readonly=True)
-    date_creation = fields.Date("Date de création"         , readonly=True)
-    createur_id   = fields.Many2one('res.users', 'Créé par', readonly=True)
+    date_creation = fields.Date("Date de création"         , readonly=True, default=lambda *a: fields.datetime.now())
+    createur_id   = fields.Many2one('res.users', 'Créé par', readonly=True, default=lambda self: self.env.user)
     invoice_ids   = fields.One2many('account.move', 'is_folio_id', 'Factures', readonly=True)
-
-    def _date_creation():
-        return date.today() # Date du jour
-
-    _defaults = {
-        'date_creation': _date_creation(),
-        'createur_id': lambda obj, cr, uid, ctx=None: uid,
-    }
-
 
     def create(self, vals):
         data_obj = self.env['ir.model.data']
