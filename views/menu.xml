@@ -1110,10 +1110,13 @@
 
 
     <!-- Ventes / Tables -->
-    <menuitem id="menu_is_ventes_table"    sequence="90" name="Tables"                parent="menu_is_ventes" groups="is_gestionnaire_tables_group" />
-    <menuitem id="menu_is_ventes_table_10" sequence="10" name="Secteur d'activité"    parent="menu_is_ventes_table" action="is_secteur_activite_action"/>
-    <menuitem id="menu_is_ventes_table_20" sequence="20" name="Type de contact"       parent="menu_is_ventes_table" action="is_type_contact_action"/>
-    <menuitem id="menu_is_ventes_table_30" sequence="30" name="Escompte"              parent="menu_is_ventes_table" action="is_escompte_action"/>
+    <menuitem id="menu_is_ventes_table"         sequence="90" name="Tables"                     parent="menu_is_ventes" groups="is_gestionnaire_tables_group" />
+    <menuitem id="menu_is_ventes_table_10"      sequence="10" name="Secteur d'activité"         parent="menu_is_ventes_table" action="is_secteur_activite_action"/>
+    <menuitem id="menu_is_ventes_table_20"      sequence="20" name="Type de contact"            parent="menu_is_ventes_table" action="is_type_contact_action"/>
+    <menuitem id="menu_is_ventes_table_30"      sequence="30" name="Escompte"                   parent="menu_is_ventes_table" action="is_escompte_action"/>
+    <menuitem id="is_res_partner_category_menu" sequence="40" name="Etiquettes des partenaires" parent="menu_is_ventes_table" action="is_res_partner_category_action"/>
+
+
 
 
     <!-- Production / Production -->

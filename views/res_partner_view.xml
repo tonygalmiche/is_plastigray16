@@ -687,5 +687,15 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+        <record id="is_res_partner_category_action" model="ir.actions.act_window">
+            <field name="name">Etiquettes des partenaires</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
     </data>
 </openerp>
