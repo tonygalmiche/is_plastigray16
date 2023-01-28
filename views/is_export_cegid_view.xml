@@ -152,8 +152,8 @@
                         </group>
                         <!-- <field name="invoice_ids" >
                             <tree>
-                                <button string="Facture Client"      name="voir_facture_client_action"      type="object" icon="gtk-zoom-in" attrs="{'invisible': [('type', '!=', 'out_invoice')]}"/>
-                                <button string="Facture Fournisseur" name="voir_facture_fournisseur_action" type="object" icon="gtk-zoom-in" attrs="{'invisible': [('type', '!=', 'in_invoice')]}"/>
+                                <button string="Facture Client"      name="voir_facture_client_action"      type="object" icon="fa-search-plus" attrs="{'invisible': [('type', '!=', 'out_invoice')]}"/>
+                                <button string="Facture Fournisseur" name="voir_facture_fournisseur_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('type', '!=', 'in_invoice')]}"/>
                                 <field name="number"  />
                                 <field name="name"  />
                                 <field name="partner_id"/>

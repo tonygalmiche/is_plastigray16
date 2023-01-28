@@ -63,7 +63,7 @@ class is_export_edi(models.Model):
 
 
     def creer_fichier_edi_action(self):
-        cr , uid, context = self.env.args
+        cr = self.env.cr
         for obj in self:
             SQL="""
                 select 
@@ -79,7 +79,7 @@ class is_export_edi(models.Model):
                                                        inner join product_template pt on pp.product_tmpl_id=pt.id
                                                        inner join is_cde_ouverte_fournisseur f on p.order_id=f.id
                                                        inner join res_partner rp on f.partner_id=rp.id
-                where rp.is_code='"""+obj.code+"""' and l.date<='"""+obj.date_fin+"""' 
+                where rp.is_code='"""+obj.code+"""' and l.date<='"""+str(obj.date_fin)+"""' 
 
             """
             if obj.code_adr:
@@ -87,7 +87,7 @@ class is_export_edi(models.Model):
             SQL=SQL+"order by rp.is_code, rp.is_adr_code, pt.is_code, l.date "
             cr.execute(SQL)
             result = cr.fetchall()
-            datas="";
+            datas=""
             for row in result:
                 lig=row[0]+'\t'+row[1]+'\t'+row[2]+'\t'+row[3]+'\t'+str(row[4])+'\t'+row[5]+'\t'+str(row[6])+'\n'
                 datas=datas+lig

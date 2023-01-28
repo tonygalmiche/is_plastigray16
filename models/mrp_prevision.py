@@ -20,8 +20,13 @@ class mrp_prevision(models.Model):
         quantity_ha=0
         self.quantity_ha = quantity_ha
 
+    def _get_company_id(self):
+        company_id  = self.env.user.company_id.id
+        print("OK",company_id)
+        return company_id
+
     num_od           = fields.Integer("Numéro", readonly=True)
-    name             =  fields.Char('OD', size=128, required=True)
+    name             =  fields.Char('OD', size=128, required=True, default="/")
     parent_id        = fields.Many2one('mrp.prevision', "FS d'origine", ondelete='cascade')
     type             = fields.Selection([
         ('fs', u"FS"),
@@ -44,21 +49,12 @@ class mrp_prevision(models.Model):
     tps_fab            = fields.Float("Temps de fabrication (Jour)", readonly=True, digits=(12, 1))
     delai_livraison    = fields.Integer("Délai de livraison", readonly=True)
     note               = fields.Text('Information')
-    niveau             = fields.Integer('Niveau', readonly=True, required=True)
+    niveau             = fields.Integer('Niveau', readonly=True, required=True, default=0)
     stock_th           = fields.Float('Stock Théorique', readonly=True)
-    company_id         = fields.Many2one('res.company', 'Société', required=True, change_default=True, readonly=True)
-    active             = fields.Boolean('Active')
+    company_id         = fields.Many2one('res.company', 'Société', required=True, change_default=True, readonly=True,  default=lambda self: self._get_company_id())
+    active             = fields.Boolean('Active', default=True)
     ft_ids             = fields.One2many('mrp.prevision', 'parent_id', u'Composants')
-    state              = fields.Selection([('creation', u'Création'),('valide', u'Validé')], u"État", readonly=True, index=True)
-
-
-    _defaults = {
-        'active': True,
-        'niveau': 0,
-        'name': lambda obj, cr, uid, context: '/',
-        'company_id': lambda self,cr,uid,c: self.pool.get('res.company')._company_default_get(cr, uid, 'mrp.prevision', context=c),
-        'state': 'creation'
-    }
+    state              = fields.Selection([('creation', u'Création'),('valide', u'Validé')], u"État", readonly=True, index=True, default="creation")
 
 
     def convertir_sa(self):

@@ -124,37 +124,35 @@
                             <field name="section"/>
                         </group>
                     </group>
-                    <group string="Commandes">
-                        <field name="cde_ids" nolabel="1">
-                            <tree>
-                                <button 
-                                    string="Accès à la commande" 
-                                    name= "acces_commande_action" type="object" icon="gtk-zoom-in"
-                                />
-                                <field name="order"/>
-                                <field name="order_id"/>
-                                <field name="code_pg"/>
-                                <field name="date_liv"/>
-                                <field name="qt_cde" sum="Total"/>
-                                <field name="prix"/>
-                                <field name="montant" sum="Total"/>
-                                <field name="base"/>
-                            </tree>
-                        </field>
-                    </group>
-                    <group string="Compta">
-                        <field name="compta_ids" nolabel="1">
-                            <tree>
-                                <field name="date_facture"/>
-                                <field name="piece"/>
-                                <field name="intitule"/>
-                                <field name="affaire"/>
-                                <field name="compte"/>
-                                <field name="section"/>
-                                <field name="montant" sum="Total"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <group string="Commandes"/>
+                    <field name="cde_ids" nolabel="1">
+                        <tree>
+                            <button 
+                                title="Accès à la commande" 
+                                name= "acces_commande_action" type="object" icon="fa-search-plus"
+                            />
+                            <field name="order"/>
+                            <field name="order_id"/>
+                            <field name="code_pg"/>
+                            <field name="date_liv"/>
+                            <field name="qt_cde" sum="Total"/>
+                            <field name="prix"/>
+                            <field name="montant" sum="Total"/>
+                            <field name="base"/>
+                        </tree>
+                    </field>
+                    <group string="Compta"/>
+                    <field name="compta_ids" nolabel="1">
+                        <tree>
+                            <field name="date_facture"/>
+                            <field name="piece"/>
+                            <field name="intitule"/>
+                            <field name="affaire"/>
+                            <field name="compte"/>
+                            <field name="section"/>
+                            <field name="montant" sum="Total"/>
+                        </tree>
+                    </field>
                     <group>
                         <field name="montant_odoo"/>
                         <field name="montant_cegid"/>

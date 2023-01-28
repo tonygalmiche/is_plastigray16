@@ -26,16 +26,11 @@ class is_rgpd_traitement(models.Model):
     mesure_technique         = fields.Text("Mesure de sécurité technique", required=True)
     mesure_organisationnelle = fields.Text("Mesure organisationnelle", required=True)
     commentaire              = fields.Text("Commentaire")
-    createur_id              = fields.Many2one('res.users', 'Créateur', required=True)
-    date_creation            = fields.Date("Date de création")
+    createur_id              = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user)
+    date_creation            = fields.Date("Date de création", default=lambda *a: fields.datetime.now())
     conforme                 = fields.Selection([('Oui', 'Oui'),('Non', 'Non')], "Conforme")
     action_id                = fields.Many2one('is.rgpd.action', 'Action')
 
-
-    _defaults = {
-        'createur_id'  : lambda obj, cr, uid, context: uid,
-        'date_creation': lambda *a: fields.datetime.now(),
-    }
 
     def create(self, vals):
         data_obj = self.env['ir.model.data']
@@ -173,8 +168,6 @@ class is_rgpd_action(models.Model):
             }
 
 
-
-
 class is_rgpd_donnee_personnelle(models.Model):
     _name='is.rgpd.donnee.personnelle'
     _description="Données personnelles RGPD"
@@ -187,16 +180,10 @@ class is_rgpd_donnee_personnelle(models.Model):
     duree_conservation = fields.Char("Durée de conservation")
     acces              = fields.Char("Qui a accès")
     commentaire        = fields.Text("Commentaire")
-    createur_id        = fields.Many2one('res.users', 'Créateur', required=True)
+    createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user)
     date_creation      = fields.Date("Date de création")
-    conforme           = fields.Selection([('Oui', 'Oui'),('Non', 'Non')], "Conforme")
+    conforme           = fields.Selection([('Oui', 'Oui'),('Non', 'Non')], "Conforme", default=lambda *a: fields.datetime.now())
     action_id          = fields.Many2one('is.rgpd.action', 'Action')
-
-    _defaults = {
-        'createur_id'  : lambda obj, cr, uid, context: uid,
-        'date_creation': lambda *a: fields.datetime.now(),
-    }
-
 
     def liste_traitemments_action(self):
         for obj in self:

@@ -398,7 +398,7 @@ class res_partner(models.Model):
 
     display_name            = fields.Char(string='Nom affiché', compute='_compute_display_name')
     is_transporteur_id      = fields.Many2one('res.partner', 'Transporteur')
-    is_delai_transport      = fields.Integer('Delai de transport (jour)')
+    is_delai_transport      = fields.Integer('Delai de transport (jour)', default=0)
     is_livre_a_id           = fields.Many2one('res.partner', 'Livrer à', help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
     is_certificat_matiere   = fields.Boolean(u'Certificat matière demandé')
     is_import_function      = fields.Selection(import_function, "Fonction d'importation EDI")
@@ -417,7 +417,7 @@ class res_partner(models.Model):
 
     is_raison_sociale2      = fields.Char('Raison sociale 2')
     is_code                 = fields.Char('Code'        , index=True)
-    is_adr_code             = fields.Char('Code adresse', index=True)
+    is_adr_code             = fields.Char('Code adresse', index=True, default=0)
     is_rue3                 = fields.Char('Rue 3 ou Boite Postale')
     is_secteur_activite     = fields.Many2one('is.secteur.activite', "Secteur d'activité")
     is_type_contact         = fields.Many2one('is.type.contact', "Type de contact")
@@ -433,7 +433,7 @@ class res_partner(models.Model):
     is_segment_achat        = fields.Many2one('is.segment.achat', "Segment d'achat")
     is_famille_achat_ids    = fields.Many2many('is.famille.achat', "res_partner_famille_achat_rel", 'partner_id', 'famille_id', string="Famille d'achat")
     is_fournisseur_imp      = fields.Boolean(u'Fournisseur imposé')
-    is_fournisseur_da_fg    = fields.Boolean(u'Fournisseur pour DA-FG')
+    is_fournisseur_da_fg    = fields.Boolean(u'Fournisseur pour DA-FG', default=False)
     is_site_livre_ids       = fields.Many2many('is.site', "res_partner_site_livre_rel", 'partner_id', 'site_id', string='sites livrés')
     is_groupage             = fields.Boolean('Groupage')
     is_tolerance_delai      = fields.Boolean('Tolérance sur délai')
@@ -461,18 +461,11 @@ class res_partner(models.Model):
         ('mail_regroupe_bl', 'Regroupement des BL sur une même facture et envoi par mail'),
     ], "Mode d'envoi des factures")
     is_type_cde_fournisseur = fields.Selection(type_commande_list, "Type commande fourniseur", readonly=True)
-    is_horizon_besoins      = fields.Integer(u'Horizon des besoins (jour)', help=u"Champ utilisé pour le mail de l'horizon des besoins (7 jours en général ou 21 jours pendant la période de vacances)")
+    is_horizon_besoins      = fields.Integer(u'Horizon des besoins (jour)', default=7, help=u"Champ utilisé pour le mail de l'horizon des besoins (7 jours en général ou 21 jours pendant la période de vacances)")
 
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True)
     is_database_line_ids   = fields.Many2many('is.database','partner_database_rel','partner_id','database_id', string="Sites")
 
-
-    _defaults = {
-        'delai_transport'     : 0,
-        'is_adr_code'         : 0,
-        'is_fournisseur_da_fg': False,
-        'is_horizon_besoins'  : 7,
-    }
 
     # _sql_constraints = [
     #     ('code_adr_uniq', 'unique(is_code, is_adr_code, company_id)', u'Le code et le code adresse doivent être uniques par société!'),

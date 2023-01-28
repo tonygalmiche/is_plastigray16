@@ -103,7 +103,7 @@ class purchase_order(models.Model):
     is_livre_a_id        = fields.Many2one('res.partner', 'Livrer à', help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
     is_num_da            = fields.Char("N°Demande d'achat")
     is_document          = fields.Char("Document (N° de dossier)")
-    is_demandeur_id      = fields.Many2one('res.users', 'Demandeur')
+    is_demandeur_id      = fields.Many2one('res.users', 'Demandeur', default=lambda self: self.env.user)
     is_date_confirmation = fields.Date("Date de confirmation du fournisseur")
     is_commentaire       = fields.Text("Commentaire")
     is_acheteur_id       = fields.Many2one('res.users','Acheteur')
@@ -112,11 +112,6 @@ class purchase_order(models.Model):
     is_date_end_cfc      = fields.Date("Date de fin de la cde ferme cadencée", readonly=True)
     is_lieu              = fields.Char("Lieu")
     is_modified          = fields.Boolean('Commande modifiée')
-
-
-    _defaults = {
-        'is_demandeur_id': lambda obj, cr, uid, ctx=None: uid,
-    }
 
 
     def envoyer_par_mail(self):

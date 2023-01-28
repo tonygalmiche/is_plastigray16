@@ -50,14 +50,18 @@ class is_preventif_moule(models.Model):
     fiche_preventif_ids = fields.Many2many('ir.attachment', 'is_preventif_moule_attachment_rel', 'preventif_id', 'file_id', u"Fiche de réalisation du préventif")
 
 
-    def create(self, vals):
-        obj = super(is_preventif_moule, self).create(vals)
-        if obj and 'moule' in vals:
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+
+        print(res,vals_list)
+        for obj in res:
+            if obj and 'moule' in vals_list[0]:
                 obj.moule.nb_cycles_dernier_preventif = obj.nb_cycles
                 obj.moule.nb_cycles_actuel            = obj.nb_cycles
                 obj.moule.date_dernier_preventif      = obj.date_preventif
                 obj.moule.nb_cycles_avant_preventif   = obj.periodicite
-        return obj
+        return res
 
 
 class is_mold_operation_systematique(models.Model):

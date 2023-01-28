@@ -97,17 +97,14 @@
 
 
         <!-- Évolution de l'indice du prix -->
-        <!-- <record id="evolution_indice_prix_action_server" model="ir.actions.server">
+        <record id="evolution_indice_prix_action_server" model="ir.actions.server">
              <field name="name">Évolution de l'indice du prix</field>
             <field name="model_id" ref="model_is_tarif_cial"/>
-            <field name="code">action = self.evolution_indice_prix(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_tarif_cial"/>
+            <field name="state">code</field>
+            <field name="code">action = records.evolution_indice_prix()</field>
         </record>
-        <record id="evolution_indice_prix_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.tarif.cial'" name="model"/>
-            <field name="name">Évolution de l'indice du prix</field>
-            <field eval="'ir.actions.server,%d'%evolution_indice_prix_action_server" name="value"/>
-        </record> -->
+
 
 
         <!-- Liste 'Suivi des évolutions' accessible aux employés hors production -->
@@ -116,8 +113,7 @@
             <field name="model">is.tarif.cial</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <!-- colors="gray:indice_prix != 999" -->
-                <tree>
+                <tree decoration-muted="indice_prix != 999">
                     <field name="partner_id" widget="many2one_clickable"/> 
                     <field name="product_id" widget="many2one_clickable"/> 
                     <field name="is_mold_dossierf"/> 

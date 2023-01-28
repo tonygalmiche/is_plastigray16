@@ -144,8 +144,8 @@
                     <field name="famille_ids" nolabel="1" readonly="1">
                         <tree>
                             <button 
-                                string="Lignes de cette famille" 
-                                name= "lignes_famille_action" type="object" icon="gtk-justify-fill"
+                                title="Lignes de cette famille" 
+                                name= "lignes_famille_action" type="object" icon="fa-list"
                             />
                             <field name="famille_id"/>
                         </tree>

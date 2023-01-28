@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models,fields,api
+from odoo.exceptions import ValidationError
 import datetime
 
 
@@ -17,7 +17,7 @@ class is_tarif_cial(models.Model):
     is_ref_client       = fields.Char("Référence client", related='product_id.is_ref_client', readonly=True)
     is_mold_dossierf    = fields.Char('Moule', related='product_id.is_mold_dossierf', readonly=True)
     is_gestionnaire_id  = fields.Many2one('is.gestionnaire', 'Gestionnaire', related='product_id.is_gestionnaire_id', readonly=True)
-    indice_prix         = fields.Integer("Indice Prix"                 , required=True, index=True)
+    indice_prix         = fields.Integer("Indice Prix", required=True, index=True, default=999)
     date_debut          = fields.Date("Date de début")
     date_fin            = fields.Date("Date de fin")
     type_evolution      = fields.Char("Type évolution")
@@ -72,10 +72,6 @@ class is_tarif_cial(models.Model):
     def _compute_display_name(self):
         for obj in self:
             self.display_name = obj.product_id.is_code + " ("+str(obj.indice_prix)+")"
-
-    _defaults = {
-        'indice_prix': 999,
-    }
 
 
     def create(self, vals):

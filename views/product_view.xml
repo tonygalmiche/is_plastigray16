@@ -1130,7 +1130,7 @@
 
 
         <!-- Articles achetés-->
-        <!-- <record id="is_article_achete_tree_view" model="ir.ui.view">
+        <record id="is_article_achete_tree_view" model="ir.ui.view">
             <field name="name">is_article_achete_tree_view</field>
             <field name="model">product.template</field>
             <field name="priority" eval="92" />
@@ -1138,17 +1138,17 @@
                 <tree>
                     <field name="is_code"/>
                     <field name="name" string="Désignation"/>
-                    <field name="segment_id"/>
-                    <field name="family_id"/>
-                    <field name="sub_family_id"/>
-                    <field name="is_category_id"/>
-                    <field name="is_gestionnaire_id"/>
-                    <field name="is_ref_fournisseur"/>
-                    <field name="is_fournisseur_id" widget="many2one_clickable"/>
-                    <field name="uom_id"/>
-                    <field name="is_uc"/>
-                    <field name="is_uc_qt"/>
-                    <field name="qty_available" string="Stock" digits="(14, 0)"/>
+                    <field name="segment_id" optional="show"/>
+                    <field name="family_id" optional="show"/>
+                    <field name="sub_family_id" optional="show"/>
+                    <field name="is_category_id" optional="show"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="is_ref_fournisseur" optional="show"/>
+                    <field name="is_fournisseur_id" widget="many2one_clickable" optional="show"/>
+                    <field name="uom_id" optional="show"/>
+                    <field name="is_uc" optional="show"/>
+                    <field name="is_uc_qt" optional="show"/>
+                    <field name="qty_available" string="Stock" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -1159,9 +1159,8 @@
             <field name="domain">[]</field>
             <field name="limit">200</field>
             <field name="view_id" ref="is_article_achete_tree_view"/>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record> -->
+        </record>
 
 
 

@@ -29,7 +29,11 @@ class is_pic_3ans_saisie(models.Model):
 
     ordre=0
 
-    annee      = fields.Char('Année PIC',                         required=True)
+    def _get_annee(self):
+        annee=self.env["is.mem.var"].get(self._uid, "annee_pic")
+        return annee
+
+    annee      = fields.Char('Année PIC',required=True,default=lambda self: self._get_annee())
     product_id = fields.Many2one('product.product', 'Article',    required=True)
     recharger  = fields.Boolean('Recharger les données')
     raz        = fields.Boolean('Mise à 0 des données')
@@ -98,11 +102,6 @@ class is_pic_3ans_saisie(models.Model):
     proposition_vers_pic = fields.Boolean('Copier propositions dans PIC')
 
 
-    _defaults = {
-        'annee': lambda self, cr, uid, ctx=None: self.pool.get('is.mem.var').get(cr, uid, uid, uid, 'annee_pic'),
-    }
-
-
     def name_get(self):
         res=[]
         for obj in self:
@@ -123,8 +122,6 @@ class is_pic_3ans_saisie(models.Model):
                     if qt:
                         pic_total=pic_total+qt
             obj.pic_total=pic_total
-
-
 
     @api.depends('annee','product_id')
     def _compute(self):
@@ -210,70 +207,74 @@ class is_pic_3ans_saisie(models.Model):
             obj.proposition_total=proposition_total
 
 
-    def on_change_proposition_vers_pic(self,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12):
+    @api.onchange('proposition_vers_pic')
+    def on_change_proposition_vers_pic(self):
         value={}
         for i in range(1,13):
             qt=0
             if i==1:
-                qt=p1
+                qt=self.proposition_01
             if i==2:
-                qt=p2
+                qt=self.proposition_02
             if i==3:
-                qt=p3
+                qt=self.proposition_03
             if i==4:
-                qt=p4
+                qt=self.proposition_04
             if i==5:
-                qt=p5
+                qt=self.proposition_05
             if i==6:
-                qt=p6
+                qt=self.proposition_06
             if i==7:
-                qt=p7
+                qt=self.proposition_07
             if i==8:
-                qt=p8
+                qt=self.proposition_08
             if i==9:
-                qt=p9
+                qt=self.proposition_09
             if i==10:
-                qt=p10
+                qt=self.proposition_10
             if i==11:
-                qt=p11
+                qt=self.proposition_11
             if i==12:
-                qt=p12
+                qt=self.proposition_12
             champ="pic_"+("00"+str(i))[-2:]
             value[champ]=qt
         return {'value': value}
 
 
-    def on_change_recharger(self, annee, product_id):
+    @api.onchange('recharger')
+    def on_change_recharger(self): #, annee, product_id):
         cr = self._cr
-        if annee and product_id:
-            annee=num(annee)
-            if annee<2017 or annee>=2040:
-                raise ValidationError("Année non valide")
-            product=self.env['product.product'].browse(product_id)
-            code_pg=product.is_code
-            code_pg=code_pg[:6]
-            date_debut = datetime.strptime(str(annee)+'-01-01', '%Y-%m-%d')
-            value={}
-            for i in range(1,13):
-                SQL="""
-                    select quantite
-                    from is_pic_3ans
-                    where 
-                        product_id="""+str(product_id)+""" and
-                        type_donnee='pic' and
-                        mois='"""+date_debut.strftime('%Y-%m')+"""' 
-                """
-                cr.execute(SQL)
-                result = cr.fetchall()
-                qt=0
-                for row in result:
-                    qt=row[0]
-                champ="pic_"+("00"+str(i))[-2:]
-                value[champ]=qt
-                date_debut = date_debut + relativedelta(months=1)
-            return {'value': value}
+        for obj in self:
+            if obj.annee and obj.product_id:
+                annee=num(obj.annee)
+                if annee<2017 or annee>=2040:
+                    raise ValidationError("Année non valide")
+                product=obj.product_id
+                code_pg=product.is_code
+                code_pg=code_pg[:6]
+                date_debut = datetime.strptime(str(annee)+'-01-01', '%Y-%m-%d')
+                value={}
+                for i in range(1,13):
+                    SQL="""
+                        select quantite
+                        from is_pic_3ans
+                        where 
+                            product_id="""+str(product.id)+""" and
+                            type_donnee='pic' and
+                            mois='"""+date_debut.strftime('%Y-%m')+"""' 
+                    """
+                    cr.execute(SQL)
+                    result = cr.fetchall()
+                    qt=0
+                    for row in result:
+                        qt=row[0]
+                    champ="pic_"+("00"+str(i))[-2:]
+                    value[champ]=qt
+                    date_debut = date_debut + relativedelta(months=1)
+                return {'value': value}
 
 
+    @api.onchange('raz')
     def on_change_raz(self):
         value={}
         for i in range(1,13):
@@ -282,23 +283,12 @@ class is_pic_3ans_saisie(models.Model):
         return {'value': value}
 
 
-    # def create(self, vals):
-    #     obj = super(is_pic_3ans_saisie, self).create(vals)
-    #     self.env['is.mem.var'].set(self._uid, 'annee_pic', obj.annee)
-    #     self.create_pic_3ans(obj)
-    #     return obj
-
-
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
         self.env['is.mem.var'].set(self._uid, 'annee_pic', res.annee)
         self.create_pic_3ans(res)
         return res
-
-
-
 
 
     def write(self,vals):

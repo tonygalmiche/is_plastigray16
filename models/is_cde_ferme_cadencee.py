@@ -83,7 +83,8 @@ class is_cde_ferme_cadencee(models.Model):
 
 
     def actualiser_commandes(self):
-        cr , uid, context = self.env.args
+        cr  = self.env.cr
+        uid = self.env.uid
         for obj in self:
 
             #** Recherche du contact logistique ********************************
@@ -151,7 +152,7 @@ class is_cde_ferme_cadencee(models.Model):
                 order.date_bl      = date_bl
                 order.qt_rcp       = qt_rcp
                 order.qt_reste     = order.product_qty-qt_rcp
-                order.date_planned = order.order_id.minimum_planned_date
+                #order.date_planned = order.order_id.minimum_planned_date
 
 
     def envoyer_par_mail(self):

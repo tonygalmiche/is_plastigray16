@@ -457,18 +457,20 @@ class is_mold(models.Model):
         for obj in self:
             user_obj = self.env['res.users']
             user_data = user_obj.browse(self._uid)
+            check=False
             if user_data and user_data.company_id.is_base_principale:
-                obj.is_base_check = True
-
-
-
+                check = True
+            obj.is_base_check = check
 
     @api.depends('project','project.client_id','project.chef_projet_id')
     def _compute_chef_projet_id(self):
         for obj in self:
+            client_id=chef_projet_id=False
             if obj.project:
-                obj.client_id      = obj.project.client_id
-                obj.chef_projet_id = obj.project.chef_projet_id
+                client_id      = obj.project.client_id
+                chef_projet_id = obj.project.chef_projet_id
+            obj.client_id      = client_id
+            obj.chef_projet_id = chef_projet_id
 
 
     @api.depends('name')
@@ -477,9 +479,9 @@ class is_mold(models.Model):
             uid=self._uid
             user=self.env['res.users'].browse(uid)
             company=user.company_id
-            vsb=True
-            # if company.is_base_principale:
-            #     vsb=True
+            vsb=False
+            if company.is_base_principale:
+                vsb=True
             obj.dateur_ids_vsb=vsb
 
 

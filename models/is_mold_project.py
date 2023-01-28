@@ -47,6 +47,7 @@ class is_mold_project(models.Model):
 
     def _get_client_id(self, DB, USERID, USERPASS, sock):
         if self.client_id:
+            print(self, DB, USERID, USERPASS, sock)
             ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.client_id.id),'|',('active','=',True),('active','=',False)])
             if ids:
                 return ids[0]
@@ -85,7 +86,6 @@ class is_mold_project(models.Model):
             default={}
         default["name"] = '%s (copy)'%(self.name)
         return super(is_mold_project, self).copy(default=default)
-
 
 
 

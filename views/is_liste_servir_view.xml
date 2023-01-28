@@ -13,7 +13,7 @@
                 <tree string="tree" create="false" >
                     <button string="Créer Liste à servir"   name="action_creer_liste_servir" type="object" icon="gtk-add"    attrs="{'invisible':[('liste_servir_id','!=',False)]}" />
                     <field name="name" domain="[('customer','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
-                    <!--<button string="Voir la liste à servir" name="action_voir_liste_servir" type="object" icon="gtk-zoom-in" attrs="{'invisible':[('liste_servir_id','=',False)]}" />-->
+                    <!--<button title="Voir la liste à servir" name="action_voir_liste_servir" type="object" icon="fa-search-plus" attrs="{'invisible':[('liste_servir_id','=',False)]}" />-->
                     <field name="liste_servir_id" widget="many2one_clickable"/>
                     <field name="zip"/>
                     <field name="city"/>
@@ -81,7 +81,7 @@
                                 <field style="background:orange" name="message" readonly="1" attrs="{'invisible':[('message','=',False)]}"/>
                                 <!-- <field name="order_ids" >
                                     <tree editable="bottom">
-                                        <button string="Accèder à la commande" name="action_acceder_commande" type="object" icon="gtk-zoom-in" />
+                                        <button title="Accèder à la commande" name="action_acceder_commande" type="object" icon="fa-search-plus" />
                                         <field name="name"  />
                                         <field name="state" invisible="1" />
                                     </tree>
@@ -119,10 +119,10 @@
                                 <field name="point_dechargement"/>
                                 <field name="certificat_matiere" invisible="1"/>
                                 <button 
-                                    string="Voir le certificat matière" 
+                                    title="Voir le certificat matière" 
                                     name="action_acceder_certificat" type="object" 
                                     context="{'certificat_matiere': certificat_matiere}"
-                                    icon="gtk-zoom-in" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
+                                    icon="fa-search-plus" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
                                 />
                                 <field name="anomalie"/>
                             </tree>
@@ -144,7 +144,7 @@
                         </field>
                         <field name="galia_um_ids" nolabel="1" attrs="{'invisible': [('galia_um_ids', '=', [])]}">
                             <tree>
-                                <button string="UM" name="acceder_um_action" type="object" icon="gtk-zoom-in"/>
+                                <button title="UM" name="acceder_um_action" type="object" icon="fa-search-plus"/>
                                 <field name="name" string="N°étiquette UM scannée"/>
                                 <field name="product_id"/>
                                 <field name="qt_pieces"/>

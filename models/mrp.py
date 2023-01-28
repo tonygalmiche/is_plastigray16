@@ -44,14 +44,10 @@ class mrp_bom_line(models.Model):
             obj.type=type
     type = fields.Selection([('normal', 'Normal'), ('phantom', 'Phantom')], 'BoM Line Type', required=True, compute='_type')
 
-    is_article_fourni = fields.Selection([('oui', 'Oui'), ('non', 'Non')], 'Article fourni')
+    is_article_fourni = fields.Selection([('oui', 'Oui'), ('non', 'Non')], 'Article fourni', default="non")
     is_qt_uc          = fields.Float("Qt par UC", digits=(12, 2), compute='_compute')
     is_qt_um          = fields.Float("Qt par UM", digits=(12, 2), compute='_compute')
     is_bom            = fields.Boolean('Nomenclature existante' , compute='_compute')
-
-    _defaults = {
-        'is_article_fourni': 'non',
-    }
 
 
     @api.depends('bom_id.product_tmpl_id', 'product_qty')

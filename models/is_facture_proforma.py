@@ -4,8 +4,6 @@ from odoo.exceptions import ValidationError
 import datetime
 
 
-
-
 class is_facture_proforma(models.Model):
     _name='is.facture.proforma'
     _description="is_facture_proforma"
@@ -45,15 +43,12 @@ class is_facture_proforma(models.Model):
     bl_manuel_id         = fields.Many2one('is.bl.manuel', 'BL manuel', readonly=True)
     montant              = fields.Float("Montant Total", digits=(14,2), compute='_compute', readonly=True, store=True)
 
-    
-    def create(self, vals):
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','is_facture_proforma_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-        obj = super(is_facture_proforma, self).create(vals)
-        return obj
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.facture.proforma')
+        return super().create(vals_list)
 
 
     @api.onchange('line_ids')
@@ -88,8 +83,8 @@ class is_facture_proforma_line(models.Model):
         if product_id:
             pricelist_id = self.proforma_id.pricelist_id.id
             partner_id   = self.proforma_id.adresse_liv_id.id
-            price = self.proforma_id.pricelist_id.price_get(product_id, self.quantite, partner_id)
-            prix = price[pricelist_id]
+            #price = self.proforma_id.pricelist_id.price_get(product_id, self.quantite, partner_id)
+            #prix = price[pricelist_id]
         self.prix = prix
 
 

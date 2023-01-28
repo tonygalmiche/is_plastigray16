@@ -170,8 +170,8 @@
                 <xpath expr="/form/notebook/page/field/tree/field[@name='sequence']" position="replace">
                     <field name="sequence" />
                     <field name="is_bom" invisible="1"/>
-                    <button string="Nomenclature" name= "action_acces_nomenclature" 
-                            type="object" icon="gtk-justify-fill"
+                    <button title="Nomenclature" name= "action_acces_nomenclature" 
+                            type="object" icon="fa-list"
                             attrs="{'invisible': [('is_bom', '=', False)]}"/>
                 </xpath>
 

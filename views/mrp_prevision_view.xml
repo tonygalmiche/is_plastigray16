@@ -83,6 +83,7 @@
                                 <field name="quantity_origine" readonly="1"/>
                                 <field name="is_category_id"/>
                                 <field name="is_gestionnaire_id"/>
+                                <field name="company_id" readonly="1"/>
                             </group>
                         </group>
                         <group string="Composants" attrs="{'invisible': [('type','!=', 'fs')]}"/>

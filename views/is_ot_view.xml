@@ -77,6 +77,11 @@
         </record>
 
         <!-- Is OT -->
+        <record id="seq_is_ot" model="ir.sequence">
+            <field name="name">Gestion des OT Sequence</field>
+            <field name="code">is.ot</field>
+            <field name="padding">5</field>
+        </record>
         <record id="is_ot_view_tree" model="ir.ui.view">
             <field name="name">is.ot.view.tree</field>
             <field name="model">is.ot</field>
@@ -91,6 +96,11 @@
             <field name="model">is.ot</field>
             <field name="arch" type="xml">
                 <form string="Gestion des OT">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <header>
                         <button 
                             name="vers_travaux_a_valider"

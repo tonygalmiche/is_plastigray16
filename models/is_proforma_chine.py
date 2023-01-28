@@ -41,9 +41,21 @@ class is_proforma_chine(models.Model):
             obj.total_amount     = total_amount
 
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.proforma.chine') or ''
-        return super(is_proforma_chine, self).create(vals)
+    # def create(self, vals):
+    #     vals['name'] = self.env['ir.sequence'].get('is.proforma.chine') or ''
+    #     return super(is_proforma_chine, self).create(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.proforma.chine')
+
+
+        print(vals_list)
+        return super().create(vals_list)
+
+
+
 
 
 class is_proforma_chine_line(models.Model):

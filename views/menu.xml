@@ -72,16 +72,14 @@
 
 
 
-
+    <!-- Articles -->
     <menuitem id="menu_is_articles"       sequence="15" name="Articles"           parent="menu_is_donnees_techniques"/>
     <menuitem id="menu_is_articles_10"    sequence="10" name="Articles"           parent="menu_is_articles" action="is_product_action"/>
  
- 
- <!-- 
-
     <menuitem id="is_article_achete_menu" sequence="15" name="Articles achetés"   parent="menu_is_articles" action="is_article_achete_action"/>
     <menuitem id="menu_is_articles_20"    sequence="20" name="Logistique article" parent="menu_is_articles" action="is_product_packaging_action"/>
 
+  <!-- 
 
     <menuitem id="menu_is_nomenclatures"    sequence="20" name="Nomenclatures"            parent="menu_is_donnees_techniques"/>
     <menuitem id="menu_is_nomenclatures_10" sequence="10" name="Nomenclatures"            parent="menu_is_nomenclatures" action="mrp.mrp_bom_form_action" />
@@ -120,15 +118,16 @@
         <field name="sequence">35</field>
         <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_gestionnaire_tables_group'),
-            ref('is_gestionnaire_donnees_techniques_group'),
-            ref('is_rsp_achats_group'),
-            ref('is_rsp_production_group'),
-            ref('is_gestionnaire_moules_group'),
-            ref('is_chef_projet_group'),
-            ref('is_comptable_group')
+            ref('is_base_secondaire_grp'),
         ])]"/>
     </record>
+
+
+            <!-- 
+             -->
+
+
+
     <record id="menu_is_calcul_cout" model="ir.ui.menu" >
         <field name="name">Calcul des coûts</field>
         <field name="sequence">10</field>
@@ -156,9 +155,37 @@
             ref('is_rsp_achats_group'),
         ])]"/>
     </record>
-    <menuitem id="menu_is_cout_40"     sequence="40" name="Coût article"   parent="menu_is_cout"  action="is_cout_action" />
-    <menuitem id="is_cout_export_menu" sequence="50" name="Coût Std / Act / Budget" parent="menu_is_cout"  action="is_cout_export_action" />
 
+    <record id="menu_is_cout_40" model="ir.ui.menu" >
+        <field name="name">Coût article</field>
+        <field name="sequence">40</field>
+        <field name="parent_id" eval="ref('menu_is_cout')"/>
+        <field name="action"    ref="is_cout_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_gestionnaire_tables_group'),
+            ref('is_gestionnaire_donnees_techniques_group'),
+            ref('is_rsp_achats_group'),
+            ref('is_rsp_production_group'),
+            ref('is_gestionnaire_moules_group'),
+            ref('is_chef_projet_group'),
+            ref('is_comptable_group')
+        ])]"/>
+    </record>
+    <record id="is_cout_export_menu" model="ir.ui.menu" >
+        <field name="name">Coût Std / Act / Budget</field>
+        <field name="sequence">50</field>
+        <field name="parent_id" eval="ref('menu_is_cout')"/>
+        <field name="action"    ref="is_cout_export_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_gestionnaire_tables_group'),
+            ref('is_gestionnaire_donnees_techniques_group'),
+            ref('is_rsp_achats_group'),
+            ref('is_rsp_production_group'),
+            ref('is_gestionnaire_moules_group'),
+            ref('is_chef_projet_group'),
+            ref('is_comptable_group')
+        ])]"/>
+    </record>
     <!-- <record id="menu_sauvegarde_cout_pdf" model="ir.ui.menu" >
         <field name="name">Sauvegarde coûts en PDF</field>
         <field name="sequence">60</field>
@@ -170,10 +197,20 @@
     </record> -->
 
 
+    <!-- Société -->
     <record id="menu_is_societes" model="ir.ui.menu">
         <field name="name">Société</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_base_secondaire_grp'),
+        ])]"/>
+    </record>
+    <record id="menu_is_societes_10" model="ir.ui.menu">
+        <field name="name">Société</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('menu_is_societes')"/>
+        <field name="action"    ref="is_action_partner_supplier_form"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_commerciaux_group'),
             ref('is_rsp_achats_group'),
@@ -181,8 +218,18 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
-    <!-- <menuitem id="menu_is_societes_10"   sequence="10" name="Société"               parent="menu_is_societes" action="is_action_partner_supplier_form" /> -->
-    <menuitem id="is_res_country_menu"   sequence="20" name="Calendrier par pays"   parent="menu_is_societes" action="is_res_country_action" />
+    <record id="is_res_country_menu" model="ir.ui.menu">
+        <field name="name">Calendrier par pays</field>
+        <field name="sequence">20</field>
+        <field name="parent_id" eval="ref('menu_is_societes')"/>
+        <field name="action"    ref="is_res_country_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_commerciaux_group'),
+            ref('is_rsp_achats_group'),
+            ref('is_rsp_production_group'),
+            ref('is_administration_vente_group'),
+        ])]"/>
+    </record>
 
 
     <record id="menu_is_dt_tables" model="ir.ui.menu">
@@ -371,7 +418,7 @@
 
 
     <!-- Achats / Réceptions -->
-    <!-- <record id="menu_is_achats_rcp" model="ir.ui.menu">
+    <record id="menu_is_achats_rcp" model="ir.ui.menu">
         <field name="name">Réceptions</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_is_achats')"/>
@@ -385,6 +432,7 @@
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
+    <!--     
     <record id="is_ligne_reception_a_traiter_menu" model="ir.ui.menu">
         <field name="name">Réceptions à traiter</field>
         <field name="sequence">10</field>
@@ -2116,10 +2164,24 @@
             <field name="name">Tampographie</field>
             <field name="sequence">89</field>
             <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
-            <field name="groups_id" eval="[(6,0,[ref('base.group_user')])]"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_base_secondaire_grp'),
+            ])]"/>
         </record>
 
-        <menuitem id="menu_is_fiche_tampographie" sequence="1" name="Tampographie"     parent="menu_is_dt_tampographie" action="action_is_fiche_tampographie" />
+        <record id="menu_is_fiche_tampographie" model="ir.ui.menu">
+            <field name="name">Tampographie</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('menu_is_dt_tampographie')"/>
+            <field name="action"    ref="action_is_fiche_tampographie"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('base.group_user'),
+            ])]"/>
+        </record>
+
+
+
+        <!-- <menuitem id="menu_is_fiche_tampographie" sequence="1" name="Tampographie"     parent="menu_is_dt_tampographie" action="action_is_fiche_tampographie" /> -->
         <!-- <menuitem id="menu_is_encres_utilisees"   sequence="1" name="Encres utilisées" parent="menu_is_dt_tampographie" action="is_encres_utilisees_action" />  -->
 
 
@@ -2265,18 +2327,21 @@
 
 
         <!-- Tables Moules -->
-        <!-- <record id="menu_tables_moules" model="ir.ui.menu" >
+        <record id="menu_tables_moules" model="ir.ui.menu" >
             <field name="name">Tables Moules</field>
             <field name="sequence">130</field>
-            <field name="parent_id" eval="ref('is_plastigray.menu_is_donnees_techniques')"/>
-        </record>
+            <field name="parent_id" eval="ref('is_plastigray16.menu_is_donnees_techniques')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_base_principale_grp'),
+            ])]"/>
+        </record>        
         <menuitem id="menu_is_mold_operation_systematique"     sequence="1" parent="menu_tables_moules" action="is_mold_operation_systematique_action" name="Opérations systématiques" />
         <menuitem id="menu_is_mold_operation_specifique"       sequence="2" parent="menu_tables_moules" action="is_mold_operation_specifique_action" name="Opérations spécifiques" />
         <menuitem id="menu_is_mold_specification_particuliere" sequence="3" parent="menu_tables_moules" action="is_mold_specification_particuliere_action" name="Spécifications particulières" />
         <menuitem id="menu_is_mold_frequence_preventif"        sequence="4" parent="menu_tables_moules" action="is_mold_frequence_preventif_action" name="Fréquence préventif moule" />
         <menuitem id="menu_is_mold_piece_specifique"           sequence="5" parent="menu_tables_moules" action="is_mold_piece_specifique_action" name="Pièces spécifiques" />
         <menuitem id="menu_is_mold_surface_aspect"             sequence="6" parent="menu_tables_moules" action="is_mold_surface_aspect_action" name="Surface d'aspect" />
-        <menuitem id="is_mold_bridage_menu"                    sequence="7" parent="menu_tables_moules" action="is_mold_bridage_action" name="Bridage Moule"/> -->
+        <menuitem id="is_mold_bridage_menu"                    sequence="7" parent="menu_tables_moules" action="is_mold_bridage_action" name="Bridage Moule"/>
 
 
         <!-- Contrôle budgétaire Tdb -->
@@ -2321,14 +2386,14 @@
         />
 
 
-
-
         <!-- Absences -->
-        <menuitem
-            name="Absences"
-            id="menu_absences_root"
-            sequence="89"
-        />
+        <record id="menu_absences_root" model="ir.ui.menu" >
+            <field name="name">Absences</field>
+            <field name="sequence">89</field>
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_base_secondaire_grp'),
+            ])]"/>
+        </record>
         <menuitem
             name="Gestion des absences"
             id="menu_hr_gestion_des_absences"
@@ -2371,7 +2436,7 @@
         </record>
 
 
-
+        <!-- Employés -->
         <menuitem
             id="is_employe_absence_menu" 
             parent="menu_hr_gestion_des_absences"

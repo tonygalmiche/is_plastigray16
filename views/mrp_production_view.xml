@@ -106,7 +106,7 @@
                     <field name="is_done" invisible="1"/>
                 </field>
                 <button icon="terp-gtk-jump-to-ltr" position="before"> 
-                    <button string="Ligne" name="action_acceder_mouvement_stock" type="object" icon="gtk-zoom-in"/>
+                    <button title="Ligne" name="action_acceder_mouvement_stock" type="object" icon="fa-search-plus"/>
                 </button>
                 <button icon="terp-gtk-jump-to-ltr" position="attributes" > 
                     <attribute name="invisible">1</attribute>

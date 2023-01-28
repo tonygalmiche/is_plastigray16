@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from . import is_res_partner
+from . import is_product_packaging
+
+
+
 # import is_create_postgres_function
 # import stock_bloquer_lot
 # import stock_debloquer_lot
@@ -38,7 +42,6 @@ from . import is_res_partner
 # import is_article_sans_cde_ouverte_fou
 # import is_anomalie_position_fiscale
 # import is_sale_order_line
-# import is_product_packaging
 # import is_mrp_production_workcenter_line
 # import is_livraison_gefco
 # import is_certifications_qualite_suivi

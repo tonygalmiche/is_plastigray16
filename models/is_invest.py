@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,api
+from odoo.exceptions import ValidationError
 import time
 #import psycopg2
 #import psycopg2.extras
@@ -40,20 +41,27 @@ class IsInvestGlobal(models.Model):
     reste_cegid   = fields.Float(u"Reste Cegid"  , digits=(12, 0), compute="_compute_montant", store=False, readonly=True)
 
 
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         try:
-            annee = int(vals['annee'])
+            annee = int(vals_list[0]['annee'])
         except ValueError:
             annee=0
         if annee<2019 or annee>2099:
-            raise Warning(u"L'année doit-être comprise entre 2019 et 2099 !")
+            raise ValidationError(u"L'année doit-être comprise entre 2019 et 2099 !")
         data_obj = self.env['ir.model.data']
         sequence_ids = data_obj.search([('name','=','is_invest_global_seq')])
         if sequence_ids:
             sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-        obj = super(IsInvestGlobal, self).create(vals)
-        return obj
+            vals_list[0]['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
+        #obj = super(IsInvestGlobal, self).create(vals)
+        res=super().create(vals_list)
+        return res
+
+
+ 
+
+
 
 
     def creer_detail_action(self):
@@ -111,15 +119,15 @@ class IsInvestDetail(models.Model):
     montant_cegid = fields.Float(u"Montant Cegid", digits=(12, 0), compute="_compute_montant_cegid", store=False, readonly=True)
 
 
-    def create(self, vals):
-        cr , uid, context = self.env.args
+    @api.model_create_multi
+    def create(self, vals_list):
         try:
-            annee = int(vals['annee'])
+            annee = int(vals_list[0]['annee'])
         except ValueError:
             annee=0
         if annee<2019 or annee>2099:
-            raise Warning(u"L'année doit-être comprise entre 2019 et 2099 !")
-        global_id = context.get('default_global_id')
+            raise ValidationError(u"L'année doit-être comprise entre 2019 et 2099 !")
+        global_id = self.env.context.get('default_global_id')
         if global_id:
             g = self.env['is.invest.global'].browse(global_id)
             res = self.env['is.invest.detail'].search([('global_id','=',global_id)],order='ordre desc',limit=1)
@@ -127,14 +135,14 @@ class IsInvestDetail(models.Model):
             for line in res:
                 ordre = line.ordre+1
             name = g.name + ('00'+str(ordre))[-2:]
-            vals['global_id'] = global_id
-            vals['ordre'] = ordre
-            vals['name']  = name
-            vals['site_id']  = g.site_id.id
+            vals_list[0]['global_id'] = global_id
+            vals_list[0]['ordre'] = ordre
+            vals_list[0]['name']  = name
+            vals_list[0]['site_id']  = g.site_id.id
         else:
-            raise Warning(u"Investissement global non défini !")
-        obj = super(IsInvestDetail, self).create(vals)
-        return obj
+            raise ValidationError(u"Investissement global non défini !")
+        res=super().create(vals_list)
+        return res
 
 
     def actualiser_commandes(self):

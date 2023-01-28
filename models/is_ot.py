@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 import datetime
 #from collections import defaultdict
 #from collections import OrderedDict
@@ -41,28 +42,43 @@ class is_ot(models.Model):
     _description="is_ot"
     _order = 'name desc'
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.ot') or ''
-        count = 0
-        if vals and vals.get('equipement_id'):
-            count += 1
-        if vals and vals.get('moule_id'):
-            count += 1
-        if vals and vals.get('dossierf_id'):
-            count += 1
-        if vals and vals.get('gabarit_id'):
-            count += 1
-        if vals and vals.get('instrument_id'):
-            count += 1
-        if count == 0 or count > 1:
-            raise except_orm(_('Configuration!'),
-                             _("Il est obligatoire de saisir un équipement, un moule, un dossier F, un gabarit ou un instrument (un seul choix possible)"))
-        if self._uid:
-            user_data = self.env['res.users'].browse(self._uid)
-            if user_data and not user_data.is_site_id:
-                raise except_orm(_('Configuration!'),
-                             _("Site must be filled in its user form"))
-        return super(is_ot, self).create(vals)
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            print(vals)
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.ot')
+
+            count = 0
+            if vals and vals.get('equipement_id'):
+                count += 1
+            if vals and vals.get('moule_id'):
+                count += 1
+            if vals and vals.get('dossierf_id'):
+                count += 1
+            if vals and vals.get('gabarit_id'):
+                count += 1
+            if vals and vals.get('instrument_id'):
+                count += 1
+
+            print("count=",count)
+            if count == 0 or count > 1:
+                msg="Il est obligatoire de saisir un équipement, un moule, un dossier F, un gabarit ou un instrument (un seul choix possible)"
+                raise ValidationError(msg)
+        print(vals_list)
+
+        return super().create(vals_list)
+
+
+    # def create(self, vals):
+    #     if self._uid:
+    #         user_data = self.env['res.users'].browse(self._uid)
+    #         if user_data and not user_data.is_site_id:
+    #             raise except_orm(_('Configuration!'),
+    #                          _("Site must be filled in its user form"))
+    #     return super(is_ot, self).create(vals)
+
 
     def write(self, vals):
         for data in self:
@@ -71,13 +87,17 @@ class is_ot(models.Model):
         res = super(is_ot, self).write(vals)
         for data in self:
             if data.state == 'analyse_ot' and data.validation_ot == 'oui':
-                self.signal_workflow('travaux_a_realiser')
+                #self.signal_workflow('travaux_a_realiser')
+                data.state="travaux_a_realiser"
             if data.state == 'analyse_ot' and data.validation_ot == 'non':
-                self.signal_workflow('annule')
+                #self.signal_workflow('annule')
+                data.state="annule"
             if data.state == 'travaux_a_valider' and data.validation_travaux == 'non_ok':
-                data.signal_workflow('a_valider_to_analyse')
+                #data.signal_workflow('a_valider_to_analyse')
+                data.state="analyse_ot"
             if data.state == 'travaux_a_valider' and data.validation_travaux == 'ok':
-                data.signal_workflow('termine')
+                #data.signal_workflow('termine')
+                data.state="termine"
             count = 0
             if data.equipement_id:
                 count += 1
@@ -104,12 +124,15 @@ class is_ot(models.Model):
         for data in self:
             if not data.date_realisation_travaux:
                 data.date_realisation_travaux = datetime.datetime.today()
-            data.signal_workflow('travaux_a_valider')
+            #data.signal_workflow('travaux_a_valider')
+            data.state="travaux_a_valider"
         return True
 
     def vers_analyse_ot(self):
-        for data in self:
-            data.signal_workflow('creation_to_analyse')
+        for obj in self:
+            #obj.signal_workflow('creation_to_analyse')
+            obj.state="analyse_ot"
+
         return True
 
     def envoi_mail(self, email_from, email_to, subject, body_html):

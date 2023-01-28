@@ -2,6 +2,11 @@
 <odoo>
     <data>
         <!-- is.proforma.chine -->
+        <record id="is_proforma_chine_seq" model="ir.sequence">
+            <field name="name">Proforma Chine</field>
+            <field name="code">is.proforma.chine</field>
+            <field name="padding">5</field>
+        </record>
         <record id="is_proforma_chine_form_view" model="ir.ui.view">
             <field name="name">is_proforma_chine_form_view</field>
             <field name="model">is.proforma.chine</field>

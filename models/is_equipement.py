@@ -260,10 +260,13 @@ class is_equipement(models.Model):
             for field in fields:
                 setattr(obj, field.name, False)
             for cl in obj.type_id.champ_line_ids:
-                if cl.vsb:
-                    setattr(obj, cl.name.name + '_vsb', True)
-                if cl.obligatoire:
-                    setattr(obj, cl.name.name + '_obl', True)
+                exclude = ["is_database_origine_id","active","type_id","numero_equipement","designation","database_id"]
+                if cl.name.name not in exclude:
+                    if cl.vsb:
+                        print(cl.vsb, cl.name, cl.name.name)
+                        setattr(obj, cl.name.name + '_vsb', True)
+                    if cl.obligatoire:
+                        setattr(obj, cl.name.name + '_obl', True)
 
 
     def write(self, vals):

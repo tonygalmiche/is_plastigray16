@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-#from odoo.tools.translate import _
-
 
 class is_dossierf(models.Model):
     _name='is.dossierf'
@@ -73,14 +71,11 @@ class is_dossierf(models.Model):
                 obj.client_id      = obj.project.client_id
                 obj.chef_projet_id = obj.project.chef_projet_id
 
-    def copy(self, cr, uid, id, default=None, context=None):
-        if not context:
-            context = {}
-        mold = self.read(cr, uid, id, ['name'], context=context)
-        default.update({
-            'name': mold['name'] + _(' (copy)'),
-        })
-        return super(is_dossierf, self).copy(cr, uid, id, default=default, context=context)
+    def copy(self, default=None):
+        if not default:
+            default={}
+        default["name"] = '%s (copy)'%(self.name)
+        return super(is_dossierf, self).copy(default=default)
 
     def action_acceder_dossierf(self):
         for obj in self:

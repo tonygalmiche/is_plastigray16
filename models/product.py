@@ -47,10 +47,7 @@ class is_config_champ_line(models.Model):
         ]
     )
 
-    vsb      = fields.Boolean('Visible')
-    _defaults = {
-        'vsb': False,
-    }
+    vsb      = fields.Boolean('Visible', default=False)
 
 
 class is_product_ul(models.Model):
@@ -89,14 +86,10 @@ class is_category(models.Model):
     commentaire  = fields.Char('Intitulé')
     fantome      = fields.Boolean('Article fantôme', \
         help="Si cette case est cochée, les articles de cette catégorie passeront en fantôme dans les composants de la nomenclature")
-    calcul_cout  = fields.Boolean('Calculer le coût', \
+    calcul_cout  = fields.Boolean('Calculer le coût', default=True, \
         help="Si cette case est cochée, le coût sera calculé pour les articles de cette catégorie")
     a_inventorier = fields.Boolean(u'Articles à inventorier', \
         help="Si cette case est cochée, les articles de cette catégorie seront inventoriés",default=True)
-
-    _defaults = {
-        'calcul_cout': True,
-    }
 
 
     def _calcul_cout(self):
@@ -114,13 +107,8 @@ class is_gestionnaire(models.Model):
     _sql_constraints = [('name_uniq','UNIQUE(name)', 'Ce code existe déjà')] 
 
     name        = fields.Char("Code",size=40,required=True, index=True)
-    actif       = fields.Boolean('Actif')
+    actif       = fields.Boolean('Actif', default=True)
     commentaire = fields.Text('Commentaire')
-
-    _defaults = {
-        'actif': True,
-    }
-
 
 
 class is_section_analytique(models.Model):
@@ -532,6 +520,17 @@ class product_template(models.Model):
     is_weight_delta = fields.Float("Ecart entre poids brut et poids net", compute='_compute_weight_delta', readonly=True, store=True,digits=(12,4))
 
 
+    #TODO à revoir car cela n'est plus executé avec Odoo 16
+    _defaults = {        
+        'list_price': 0.0,
+        'standard_price': 0.0,
+        'lot_mini': 0.0,
+        'multiple': 1.0,
+        'delai_fabrication': 0.0,
+        'temps_realisation': 0.0,
+    }
+
+
     @api.depends('weight','weight_net')
     def _compute_weight_delta(self):
         for obj in self:
@@ -643,17 +642,6 @@ class product_template(models.Model):
                     inventory.action_done()
 
 
-
-
-
-    _defaults = {        
-        'list_price': 0.0,
-        'standard_price': 0.0,
-        'lot_mini': 0.0,
-        'multiple': 1.0,
-        'delai_fabrication': 0.0,
-        'temps_realisation': 0.0,
-    }
 
     # def name_get(self, cr, uid, ids, context=None):
     #     res = []

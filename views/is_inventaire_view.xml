@@ -36,7 +36,7 @@
                         <group string="Feuilles" attrs="{'invisible': [('line_ids', '=', [])]}">
                             <field name="line_ids" nolabel="1" readonly="1" >
                                 <tree limit="200">
-                                    <button string="Feuille"   name="action_acceder_feuille"  type="object" icon="gtk-zoom-in" />
+                                    <button title="Feuille"   name="action_acceder_feuille"  type="object" icon="fa-search-plus" />
                                     <field name="name"/>
                                     <field name="date_creation"/>
                                     <field name="createur_id"    />
@@ -46,7 +46,7 @@
                         <group string="Inventaires" states="cloture,traite">
                             <field name="inventory_ids" nolabel="1" >
                                 <tree editable="bottom">
-                                    <button string="Inventaire"   name="action_acceder_inventaire"  type="object" icon="gtk-zoom-in" />
+                                    <button title="Inventaire"   name="action_acceder_inventaire"  type="object" icon="fa-search-plus" />
                                     <!-- <field name="inventory_id"/> -->
                                 </tree>
                             </field>

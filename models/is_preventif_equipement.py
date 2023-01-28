@@ -167,7 +167,7 @@ class is_preventif_equipement(models.Model):
             date_prochain_preventif = False
             nb_heures_avant_preventif = obj.nb_heures_avant_preventif
             if obj.date_dernier_preventif and obj.frequence_semaine:
-                d=datetime.strptime(obj.date_dernier_preventif, '%Y-%m-%d')
+                d =  obj.date_dernier_preventif
                 date_prochain_preventif = d + timedelta(days=obj.frequence_semaine*7)
                 if not obj.frequence:
                     now = datetime.now()
@@ -284,11 +284,9 @@ class is_preventif_equipement_saisie(models.Model):
 
     @api.depends('nb_heures','frequence')
     def _compute_ro(self):
-        cr , uid, context = self.env.args
         for obj in self:
             ro = True
-            user = self.env['res.users'].browse(uid)
-            if self.pool['res.users'].has_group(cr, uid, 'is_plastigray.is_rsp_preventif_equipement_group'):
+            if self.env.user.has_group('is_plastigray16.is_rsp_preventif_equipement_group'):
                 ro=False
             obj.readonly = ro
 
@@ -304,8 +302,9 @@ class is_preventif_equipement_saisie(models.Model):
     fiche_preventif_ids = fields.Many2many('ir.attachment', 'is_preventif_equipement_saisie_attachment_rel', 'saisie_id', 'file_id', u"Fiche de réalisation du préventif")
 
 
-    def create(self, vals):
-        res =  super(is_preventif_equipement_saisie, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
         res.preventif_id.date_dernier_preventif      = res.date_preventif
         res.preventif_id.nb_heures_dernier_preventif = res.nb_heures
         res.preventif_id.nb_heures_actuel            = res.nb_heures

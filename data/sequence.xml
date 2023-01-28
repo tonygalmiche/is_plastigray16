@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+
+    <data noupdate="1">
+
+        <!-- is.ctrl100.gamme.mur.qualite -->
+        <record id="seq_type_is_ctrl100_gamme_mur_qualite" model="ir.sequence.type">
+            <field name="name">Gamme mur qualité</field>
+            <field name="code">is.ctrl100.gamme.mur.qualite</field>
+        </record>
+        <record id="seq_is_ctrl100_gamme_mur_qualite" model="ir.sequence">
+            <field name="name">Gamme mur qualité Sequence</field>
+            <field name="code">is.ctrl100.gamme.mur.qualite</field>
+            <field name="padding">5</field>
+        </record>
+
+        <!-- is.ctrl100.gamme.mur.qualite -->
+        <record id="seq_type_is_ctrl100_defautheque" model="ir.sequence.type">
+            <field name="name">Défauthèque</field>
+            <field name="code">is.ctrl100.defautheque</field>
+        </record>
+        <record id="seq_is_ctrl100_defautheque" model="ir.sequence">
+            <field name="name">Défauthèque Sequence</field>
+            <field name="code">is.ctrl100.defautheque</field>
+            <field name="padding">5</field>
+        </record>
+
+        <!-- is.ctrl100.defaut -->
+        <record id="seq_type_is_ctrl100_defaut" model="ir.sequence.type">
+            <field name="name">Défauts</field>
+            <field name="code">is.ctrl100.defaut</field>
+        </record>
+        <record id="seq_is_ctrl100_defaut" model="ir.sequence">
+            <field name="name">Défauts Sequence</field>
+            <field name="code">is.ctrl100.defaut</field>
+            <field name="padding">5</field>
+        </record>
+
+        <!-- Demande de congés -->
+        <record id="seq_type_is_demande_conges" model="ir.sequence.type">
+            <field name="name">Demande de congés</field>
+            <field name="code">is.demande.conges</field>
+        </record>
+        <record id="seq_is_demande_conges" model="ir.sequence">
+            <field name="name">Demande de congés Sequence</field>
+            <field name="code">is.demande.conges</field>
+            <field name="padding">5</field>
+        </record>
+
+        <!-- Demande d’absence -->
+        <record id="seq_type_is_demande_absence" model="ir.sequence.type">
+            <field name="name">Demande d’absence</field>
+            <field name="code">is.demande.absence</field>
+        </record>
+        <record id="seq_is_demande_absence" model="ir.sequence">
+            <field name="name">Demande d’absence Sequence</field>
+            <field name="code">is.demande.absence</field>
+            <field name="padding">5</field>
+        </record>
+
+
+        <!-- Export Cegid -->
+        <record id="is_demande_conges_export_cegid_seq_type" model="ir.sequence.type">
+            <field name="name">Export Cegid</field>
+            <field name="code">is.demande.conges.export.cegid</field>
+        </record>
+        <record id="is_demande_conges_export_cegid_seq" model="ir.sequence">
+            <field name="name">Export Cegid</field>
+            <field name="code">is.demande.conges.export.cegid</field>
+            <field name="padding">5</field>
+        </record>
+
+
+    </data>
+</openerp>

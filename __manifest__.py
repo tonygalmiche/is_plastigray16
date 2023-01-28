@@ -106,6 +106,12 @@ Module Odoo 16 pour Plastigray
 
         "views/is_donnee_machine_view.xml",
         "views/is_capteur_view.xml",
+
+
+        "report/is_product_packaging.xml",
+
+
+
         "views/menu.xml",
 
 
@@ -265,7 +271,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_article_sans_cde_ouverte_fou.xml",
         # "report/is_anomalie_position_fiscale.xml",
         # "report/is_sale_order_line.xml",
-        # "report/is_product_packaging.xml",
         # "report/is_mrp_production_workcenter_line.xml",
         # "report/is_livraison_gefco.xml",
         # "report/is_certifications_qualite_suivi.xml",

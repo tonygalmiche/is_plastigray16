@@ -73,7 +73,6 @@ class is_etat_presse(models.Model):
     _sql_constraints = [
         ('name_uniq', 'unique(name)', u"L'intulé doit être unique !"),
     ]
-    _defaults = {}
 
 
 class is_raspberry_entree_sortie(models.Model):
@@ -243,7 +242,6 @@ class is_of(models.Model):
     _sql_constraints = [
         ('name_uniq', 'unique(name)', u"Le numéro d'OF doit être unique !"),
     ]
-    _defaults = {}
 
 
     def get_id_production_serie(self):
@@ -464,8 +462,6 @@ class is_of_declaration(models.Model):
     defaut_id   = fields.Many2one('is.type.defaut', u"Type de défaut", required=False)
     employee_id = fields.Many2one("hr.employee", "Employé")
 
-    _defaults = {}
-
 
 class is_presse_cycle(models.Model):
     _name = 'is.presse.cycle'
@@ -490,9 +486,6 @@ class is_presse_cycle(models.Model):
     couleur    = fields.Char('Couleur', compute='_couleur')
     of_ids     = fields.Many2many('is.of', 'is_presse_cycle_of_rel', 'is_of_id', 'is_presse_cycle_id', 'OF', readonly=False, required=False)
     
-    #_sql_constraints = []
-    #_defaults = {}
-
 
 class is_presse_arret(models.Model):
     _name = 'is.presse.arret'
@@ -518,9 +511,6 @@ class is_presse_arret(models.Model):
     of_ids        = fields.Many2many('is.of', 'is_presse_arret_of_rel', 'is_of_id', 'is_presse_arret_id', 'OF', readonly=False, required=False)
     employee_id   = fields.Many2one("hr.employee", "Employé")
 
-    _sql_constraints = []
-    _defaults = {}
-
 
 class is_type_defaut(models.Model):
     _name = 'is.type.defaut'
@@ -530,11 +520,9 @@ class is_type_defaut(models.Model):
     name   = fields.Char('Type de défaut' , required=True)
     active = fields.Boolean(u'Actif', default=True)
 
-
     _sql_constraints = [
         ('name_uniq', 'unique(name)', u"Le type de défaut doit être unique !"),
     ]
-    _defaults = {}
 
 
 class is_theia_trs(models.Model):
