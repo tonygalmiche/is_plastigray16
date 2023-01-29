@@ -33,24 +33,22 @@
                                 <field name="commentaire"/> 
                             </group>
                         </group>
-                        <group string="Feuilles" attrs="{'invisible': [('line_ids', '=', [])]}">
-                            <field name="line_ids" nolabel="1" readonly="1" >
-                                <tree limit="200">
-                                    <button title="Feuille"   name="action_acceder_feuille"  type="object" icon="fa-search-plus" />
-                                    <field name="name"/>
-                                    <field name="date_creation"/>
-                                    <field name="createur_id"    />
-                                </tree>
-                            </field>
-                        </group>
-                        <group string="Inventaires" states="cloture,traite">
-                            <field name="inventory_ids" nolabel="1" >
-                                <tree editable="bottom">
-                                    <button title="Inventaire"   name="action_acceder_inventaire"  type="object" icon="fa-search-plus" />
-                                    <!-- <field name="inventory_id"/> -->
-                                </tree>
-                            </field>
-                        </group>
+                        <group string="Feuilles" attrs="{'invisible': [('line_ids', '=', [])]}"/>
+                        <field name="line_ids" nolabel="1" readonly="1" attrs="{'invisible': [('line_ids', '=', [])]}">
+                            <tree limit="200">
+                                <button title="Feuille"   name="action_acceder_feuille"  type="object" icon="fa-search-plus" />
+                                <field name="name"/>
+                                <field name="date_creation"/>
+                                <field name="createur_id"    />
+                            </tree>
+                        </field>
+                        <group string="Inventaires" states="cloture,traite"/>
+                        <field name="inventory_ids" nolabel="1" states="cloture,traite">
+                            <tree editable="bottom">
+                                <button title="Inventaire"   name="action_acceder_inventaire"  type="object" icon="fa-search-plus" />
+                                <!-- <field name="inventory_id"/> -->
+                            </tree>
+                        </field>
                     </sheet>
 
                     <footer>
@@ -113,7 +111,15 @@
             <field name="model">is.inventaire.feuille</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Form">  
+                <form>  
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                        .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: 1800px;
+                        }
+                    </style>
                     <header>
                         <button name="action_creer_feuille"   type="object" string="Nouvelle feuille"         class="oe_highlight" />
                     </header>
@@ -129,34 +135,30 @@
                                 <!--<field name="fichier"              /> -->
                             </group>
                         </group>
-                        <group>
-                            <div style="color:green">Astuce : Pour la saisie des lignes, vous pouvez utiliser la touche TAB pour passer au champ suivant ou à la ligne suivante pour éviter d'utiliser la souris. La barre d'espace permet de cocher ou décocher une case</div>
-                        </group>
-                        <group>
-                            <field name="line_ids" nolabel="1">
-                                <!-- colors="blue:encours; red:composant_encours" -->
-                                <tree editable="bottom"  
-                                      create="true"  
-                                      domain="[('location_id','=',location_id.id)]"
-                                >
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="product_id"  on_change="onchange_product_id(product_id)" />
-                                    <field name="encours"/>
-                                    <field name="composant_encours" readonly="1"/>
-                                    <field name="us_id"/>
-                                    <field name="uc"/>
-                                    <field name="uc_us"/>
-                                    <field name="location_id" 
-                                           domain="[('usage','=','internal')]"  
-                                           on_change="onchange_location_id(product_id,location_id,qt_us,qt_uc,lieu)"/> 
-                                    <field name="qt_us"/>
-                                    <field name="qt_uc"/>
-                                    <field name="qt_us_calc"/>
-                                    <field name="lieu"/>
-                                    <field name="lot_id" domain="[('product_id', '=', product_id)]" invisible="1" />
-                                </tree>
-                            </field>
-                        </group>
+                        <div style="color:green">Astuce : Pour la saisie des lignes, vous pouvez utiliser la touche TAB pour passer au champ suivant ou à la ligne suivante pour éviter d'utiliser la souris. La barre d'espace permet de cocher ou décocher une case</div>
+                        <field name="line_ids" nolabel="1">
+                            <!-- colors="blue:encours; red:composant_encours" -->
+                            <tree editable="bottom"  
+                                    create="true"  
+                                    domain="[('location_id','=',location_id.id)]"
+                            >
+                                <field name="sequence" widget="handle"/>
+                                <field name="product_id"  on_change="onchange_product_id(product_id)" />
+                                <field name="encours"/>
+                                <field name="composant_encours" readonly="1"/>
+                                <field name="us_id" width="100px"/>
+                                <field name="uc"    width="100px"/>
+                                <field name="uc_us" width="100px"/>
+                                <field name="location_id" 
+                                        domain="[('usage','=','internal')]"  
+                                        on_change="onchange_location_id(product_id,location_id,qt_us,qt_uc,lieu)"/> 
+                                <field name="qt_us" width="100px"/>
+                                <field name="qt_uc" width="100px"/>
+                                <field name="qt_us_calc"/>
+                                <field name="lieu"/>
+                                <field name="lot_id" domain="[('product_id', '=', product_id)]" invisible="1" />
+                            </tree>
+                        </field>
 
                         <group>
                             <group>

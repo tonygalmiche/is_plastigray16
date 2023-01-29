@@ -221,12 +221,7 @@ class is_code_cas(models.Model):
     ], "Substance réglementée", required=True)
 
 
-    # def name_get(self, cr, uid, ids, context=None):
-    #     res = []
-    #     for obj in self.browse(cr, uid, ids, context=context):
-    #         name=obj.code_cas or obj.name or obj.code_einecs
-    #         res.append((obj.id,name))
-    #     return res
+ 
 
     # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
     #     if not args:
@@ -237,6 +232,17 @@ class is_code_cas(models.Model):
     #         ids = self.search(cr, user, args, limit=limit, context=context)
     #     result = self.name_get(cr, user, ids, context=context)
     #     return result
+
+
+
+    def name_get(self):
+        res = []
+        for obj in self:
+            name=obj.code_cas or obj.name or obj.code_einecs
+            res.append((obj.id,name))
+        return res
+
+
 
 
 
@@ -650,6 +656,21 @@ class product_template(models.Model):
     #         res.append((product.id,name))
     #     return res
 
+
+
+    def name_get(self):
+        res = []
+        for obj in self:
+            print(obj)
+            name=obj.is_code+" "+obj.name
+            res.append((obj.id,name))
+        return res
+
+
+
+
+
+
     # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
     #     if not args:
     #         args = []
@@ -721,12 +742,39 @@ class product_product(models.Model):
     _inherit = 'product.product'
     _order   = 'is_code'
 
-    # def name_get(self, cr, uid, ids, context=None):
-    #     res = []
-    #     for product in self.browse(cr, uid, ids, context=context):
-    #         name=product.is_code+" "+product.name
-    #         res.append((product.id,name))
-    #     return res
+    def name_get(self):
+        res = []
+        for obj in self:
+            name=obj.is_code+" "+obj.name
+            res.append((obj.id,name))
+        return res
+
+
+
+
+
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        if args is None:
+            args = []
+
+        if name:
+            filtre = ['|',('is_code','ilike', name),('name','ilike', name)]
+            ids = list(self._search(filtre + args, limit=limit))
+            #ids = self.search(cr, user, ['|',('is_code','ilike', name),('name','ilike', name)], limit=limit, context=context)
+        else:
+            ids = list(self._search(args, limit=limit))
+            #ids = self.search(cr, user, args, limit=limit, context=context)
+
+        search_domain = [('name', operator, name)]
+        if ids:
+            search_domain.append(('id', 'not in', ids))
+        ids += list(self._search(search_domain + args, limit=limit))
+
+        return ids
+
+
+
+
 
 
     # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):

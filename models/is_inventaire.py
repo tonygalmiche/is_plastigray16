@@ -82,7 +82,8 @@ class is_inventaire(models.Model):
 
 
     def creer_feuille(self,obj):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_plastigray', 'is_inventaire_feuille_form_view')
+        #dummy, view_id = self.env['ir.model.data'].get_object_reference('is_plastigray', 'is_inventaire_feuille_form_view')
+        view_id = self.env.ref('is_plastigray16.is_inventaire_feuille_form_view', False).id
         context=self._context
         if context is None:
             context = {}
@@ -683,10 +684,9 @@ class is_inventaire_feuille(models.Model):
                 self.sequence=self.sequence+1
 
 
-
-
     def action_acceder_feuille(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_plastigray', 'is_inventaire_feuille_form_view')
+        #dummy, view_id = self.env['ir.model.data'].get_object_reference('is_plastigray', 'is_inventaire_feuille_form_view')
+        view_id = self.env.ref('is_plastigray16.is_inventaire_feuille_form_view', False).id
         for obj in self:
             return {
                 'name': "Feuille d'inventaire",
@@ -944,7 +944,8 @@ class is_inventaire_inventory(models.Model):
 
 
     def action_acceder_inventaire(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('stock', 'view_inventory_form')
+        #dummy, view_id = self.env['ir.model.data'].get_object_reference('stock', 'view_inventory_form')
+        view_id = self.env.ref('stock.view_inventory_form', False).id
         for obj in self:
             return {
                 'name': "Inventaire",

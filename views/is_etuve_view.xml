@@ -194,13 +194,13 @@
                                 <field name="capacite"/>
                                 <field name="dessication"/>
                                 <field name="matiere_id" on_change=""/>
-                                <field name="tmp_etuvage" digits="(14,0)"/>
-                                <field name="tps_etuvage" digits="(14,0)"/>
+                                <field name="tmp_etuvage"/>
+                                <field name="tps_etuvage"/>
                                 <field name="densite"/>
                                 <field name="dessication_matiere"/>
-                                <field name="capacite_maxi"    digits="(14,0)"/>
-                                <field name="conso_horaire"    digits="(14,0)"/>
-                                <field name="taux_utilisation" digits="(14,1)"/>
+                                <field name="capacite_maxi"/>
+                                <field name="conso_horaire"/>
+                                <field name="taux_utilisation"/>
                                 <field name="test_taux" invisible="1"/>
                                 <field style="background:orange;font-size:13pt" name="message" readonly="1" attrs="{'invisible':[('test_taux','=',False)]}"/>
                             </group>
@@ -212,23 +212,21 @@
                                 <field name="commentaire_optionel"/>
                             </group>
                         </group>
-                        <group>
-                            <field name="of_ids" nolabel="1">
-                                <tree editable="bottom"  create="true">
-                                    <field name="of_id"   on_change=""/>
-                                    <field name="matiere" readonly="1"/>
-                                    <field name="code_pg" />
-                                    <field name="qt_prevue" />
-                                    <field name="moule" />
-                                    <field name="presse" />
-                                    <field name="tps_arret_matiere" />
-                                    <field name="tps_cycle_matiere" />
-                                    <field name="besoin_total_of" />
-                                    <field name="poids_moulee" digits="(14,0)"/>
-                                    <field name="debit"        digits="(14,0)" />
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="of_ids" nolabel="1">
+                            <tree editable="bottom"  create="true">
+                                <field name="of_id"   on_change=""/>
+                                <field name="matiere" readonly="1"/>
+                                <field name="code_pg" />
+                                <field name="qt_prevue" />
+                                <field name="moule" />
+                                <field name="presse" />
+                                <field name="tps_arret_matiere" />
+                                <field name="tps_cycle_matiere" />
+                                <field name="besoin_total_of" />
+                                <field name="poids_moulee"/>
+                                <field name="debit"/>
+                            </tree>
+                        </field>
                     </sheet>
                 </form>
             </field>
