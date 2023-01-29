@@ -392,46 +392,39 @@ class mrp_prevision(models.Model):
         company = user.company_id
         vals={}
         start_date=end_date
-        product_obj = self.pool.get('product.product')
-        for product in product_obj.browse(self._cr, self._uid, [product_id], context=self._context):
-            delai_cq = ceil(product.delai_cq)
-            #TODO : Le 09/04/2017 : Ajout de 2 jours en dur au délai CQ pour les SA
-            #TODO : Le 21/01/2018 : Suppression de ce délai de 2 jours en dur
-            #if type_od=='sa':
-            #    delai_cq=delai_cq+2
-            start_date_cq = partner_obj.get_date_debut(company.partner_id, end_date, delai_cq)
-            #La date d'arrivée (= start_date_cq) doit tomber sur un jour d'ouverture du fournisseur pour fixer la date de réception par fournisseur
-            if type_od=='sa' and partner_id:
-                partner = self.env["res.partner"].browse(partner_id)
-                start_date_cq = partner_obj.get_date_dispo(partner           , start_date_cq, avec_jours_feries=True)  # Date dispo pour le fourniseur avec calendrier pays
-                start_date_cq = partner_obj.get_date_dispo(company.partner_id, start_date_cq, avec_jours_feries=False) # Date dispo pour Plastigray sans calendrier pays
-            start_date = start_date_cq
-            days=0
-            tps_fab=0
-            delai_livraison=0
-            if type_od=='sa':
-                if len(product.seller_ids)>0:
-                    partner_obj=self.env['res.partner']
-                    days=product.seller_ids[0].delay
-                    delai_livraison=days
-                    start_date = datetime.strptime(start_date_cq, '%Y-%m-%d')  - timedelta(days=days)
-                    start_date = start_date.strftime('%Y-%m-%d')
-                    start_date = partner_obj.get_date_dispo(company.partner_id, start_date) # Date dispo pour Plastigray
-            if type_od=='fs':
-                tps_fab = round(quantity*product.temps_realisation/(3600*24),1)
-                days    = ceil(tps_fab)
-                start_date = partner_obj.get_date_debut(company.partner_id, start_date, days)
-            vals={
-                'delai_cq'        : product.delai_cq,
-                'delai_livraison' : delai_livraison,
-                'tps_fab'         : tps_fab,
-                'start_date_cq'   : start_date_cq,
-                'start_date'      : start_date,
-            }
+        product_obj = self.env['product.product']
+        product = product_obj.browse(product_id)
+        delai_cq = ceil(product.delai_cq)
+        start_date_cq = partner_obj.get_date_debut(company.partner_id, end_date, delai_cq)
+        #La date d'arrivée (= start_date_cq) doit tomber sur un jour d'ouverture du fournisseur pour fixer la date de réception par fournisseur
+        if type_od=='sa' and partner_id:
+            partner = self.env["res.partner"].browse(partner_id)
+            start_date_cq = partner_obj.get_date_dispo(partner           , start_date_cq, avec_jours_feries=True)  # Date dispo pour le fourniseur avec calendrier pays
+            start_date_cq = partner_obj.get_date_dispo(company.partner_id, start_date_cq, avec_jours_feries=False) # Date dispo pour Plastigray sans calendrier pays
+        start_date = start_date_cq
+        days=0
+        tps_fab=0
+        delai_livraison=0
+        if type_od=='sa':
+            if len(product.seller_ids)>0:
+                partner_obj=self.env['res.partner']
+                days=product.seller_ids[0].delay
+                delai_livraison=days
+                start_date = datetime.strptime(start_date_cq, '%Y-%m-%d')  - timedelta(days=days)
+                start_date = start_date.strftime('%Y-%m-%d')
+                start_date = partner_obj.get_date_dispo(company.partner_id, start_date) # Date dispo pour Plastigray
+        if type_od=='fs':
+            tps_fab = round(quantity*product.temps_realisation/(3600*24),1)
+            days    = ceil(tps_fab)
+            start_date = partner_obj.get_date_debut(company.partner_id, start_date, days)
+        vals={
+            'delai_cq'        : product.delai_cq,
+            'delai_livraison' : delai_livraison,
+            'tps_fab'         : tps_fab,
+            'start_date_cq'   : start_date_cq,
+            'start_date'      : start_date,
+        }
         return vals
-
-
-
 
 
     def get_dates_from_start_date_cq(self, type_od, product_id, quantity, start_date_cq, partner_id):

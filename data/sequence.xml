@@ -3,38 +3,7 @@
 
     <data noupdate="1">
 
-        <!-- is.ctrl100.gamme.mur.qualite -->
-        <record id="seq_type_is_ctrl100_gamme_mur_qualite" model="ir.sequence.type">
-            <field name="name">Gamme mur qualité</field>
-            <field name="code">is.ctrl100.gamme.mur.qualite</field>
-        </record>
-        <record id="seq_is_ctrl100_gamme_mur_qualite" model="ir.sequence">
-            <field name="name">Gamme mur qualité Sequence</field>
-            <field name="code">is.ctrl100.gamme.mur.qualite</field>
-            <field name="padding">5</field>
-        </record>
 
-        <!-- is.ctrl100.gamme.mur.qualite -->
-        <record id="seq_type_is_ctrl100_defautheque" model="ir.sequence.type">
-            <field name="name">Défauthèque</field>
-            <field name="code">is.ctrl100.defautheque</field>
-        </record>
-        <record id="seq_is_ctrl100_defautheque" model="ir.sequence">
-            <field name="name">Défauthèque Sequence</field>
-            <field name="code">is.ctrl100.defautheque</field>
-            <field name="padding">5</field>
-        </record>
-
-        <!-- is.ctrl100.defaut -->
-        <record id="seq_type_is_ctrl100_defaut" model="ir.sequence.type">
-            <field name="name">Défauts</field>
-            <field name="code">is.ctrl100.defaut</field>
-        </record>
-        <record id="seq_is_ctrl100_defaut" model="ir.sequence">
-            <field name="name">Défauts Sequence</field>
-            <field name="code">is.ctrl100.defaut</field>
-            <field name="padding">5</field>
-        </record>
 
         <!-- Demande de congés -->
         <record id="seq_type_is_demande_conges" model="ir.sequence.type">

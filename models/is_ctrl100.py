@@ -165,11 +165,15 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
                     default.append(recdict)
         return default
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.ctrl100.gamme.mur.qualite') or ''
-        res =  super(is_ctrl100_gamme_mur_qualite, self).create(vals)
-        #res.creer_modifier_formation()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.ctrl100.gamme.mur.qualite')
+        res =super().create(vals_list)
+        res.creer_modifier_formation()
         return res
+
 
 
     def default_get(self, default_fields):
@@ -358,9 +362,12 @@ class is_ctrl100_defautheque(models.Model):
     _description = u"Défauthèque"
     _order       = 'name desc'
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.ctrl100.defautheque') or ''
-        res = super(is_ctrl100_defautheque, self).create(vals)
+ 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.ctrl100.defautheque')
+        res =super().create(vals_list)
         return res
 
 
@@ -373,8 +380,6 @@ class is_ctrl100_defautheque(models.Model):
             if obj.dossierf_id:
                 name = obj.dossierf_id.name
             obj.moule_dossierf = name
-
-
 
 
     name            = fields.Char(u"N° du défaut", readonly=True)
@@ -396,23 +401,27 @@ class is_ctrl100_defaut(models.Model):
     _description = u"Défauts"
     _order       = 'name desc'
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.ctrl100.defaut') or ''
-        res = super(is_ctrl100_defaut, self).create(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.ctrl100.defaut')
+        res =super().create(vals_list)
         for data in res:
             if data.tps_passe <= 0:
-                raise Warning("Temps passé obligatoire")
+                raise ValidationError("Temps passé obligatoire")
             if data.nb_pieces_controlees <= 0:
-                raise Warning("Nombre de pièces contrôlées obligatoire")
+                raise ValidationError("Nombre de pièces contrôlées obligatoire")
         return res
+
 
     def write(self, vals):
         res = super(is_ctrl100_defaut, self).write(vals)
         for data in self:
             if data.tps_passe <= 0:
-                raise Warning("Temps passé obligatoire")
+                raise ValidationError("Temps passé obligatoire")
             if data.nb_pieces_controlees <= 0:
-                raise Warning("Nombre de pièces contrôlées obligatoire")
+                raise ValidationError("Nombre de pièces contrôlées obligatoire")
         return res
 
     def get_employee(self):

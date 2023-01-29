@@ -130,8 +130,7 @@
                 <field name="date_heure"/>
                 <field name="presse_id"/>
                 <field name="entree"/>
-                <field name="couleur"/>
-                 <!-- widget="pgcolor"/> -->
+                <field name="couleur" widget="pgcolor"/>
                 <field name="etat"/>
                 <field name="of_ids"/>
             </tree>
@@ -355,31 +354,31 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-                <field name="prioritaire"/>
+                <field name="prioritaire" optional="show"/>
                 <field name="moule"/>
-                <field name="nb_empreintes"/>
-                <field name="coef_cpi"/>
+                <field name="nb_empreintes" optional="show"/>
+                <field name="coef_cpi" optional="show"/>
                 <field name="code_article"/>
-                <field name="categorie"/>
-                <field name="designation"/>
-                <field name="presse_id"/>
-                <field name="affecte"/>
-                <field name="ordre"/>
-                <field name="qt"/>
-                <field name="qt_theorique"/>
-                <field name="qt_declaree"/>
-                <field name="qt_restante"/>
-                <field name="qt_rebut"/>
-                <field name="qt_rebut_theo"/>
-                <field name="taux_rebut"/>
-                <field name="taux_rebut_theo"/>
-                <field name="cycle_gamme"/>
-                <field name="cycle_moyen"/>
-                <field name="cycle_moyen_serie"/>
-                <field name="tps_restant" widget="float_time"/>
-                <field name="heure_debut"/>
-                <field name="heure_fin"/>
-                <field name="heure_fin_planning"/>
+                <field name="categorie" optional="show"/>
+                <field name="designation" optional="show"/>
+                <field name="presse_id" optional="show"/>
+                <field name="affecte" optional="show"/>
+                <field name="ordre" optional="show"/>
+                <field name="qt" optional="show"/>
+                <field name="qt_theorique" optional="show"/>
+                <field name="qt_declaree" optional="show"/>
+                <field name="qt_restante" optional="show"/>
+                <field name="qt_rebut" optional="show"/>
+                <field name="qt_rebut_theo" optional="show"/>
+                <field name="taux_rebut" optional="show"/>
+                <field name="taux_rebut_theo" optional="show"/>
+                <field name="cycle_gamme" optional="show"/>
+                <field name="cycle_moyen" optional="show"/>
+                <field name="cycle_moyen_serie" optional="show"/>
+                <field name="tps_restant" optional="show" widget="float_time"/>
+                <field name="heure_debut" optional="show"/>
+                <field name="heure_fin" optional="show"/>
+                <field name="heure_fin_planning" optional="show"/>
             </tree>
         </field>
     </record>
@@ -433,25 +432,27 @@
                         <field name="heure_fin_planning" readonly="1"/>
                     </group>
                 </group>
-                <group>
-                    <group>
-                        <field name="tps_ids" nolabel="1" readonly="1">
-                            <tree>
-                                <field name="etat_presse_id" />
-                                <field name="tps_arret" widget="float_time" sum="Total"/>
-                                <field name="couleur" widget='pgcolor'/>
-                            </tree>
-                        </field>
-                    </group>
-                    <group>
-                        <field name="rebut_ids" nolabel="1" readonly="1">
-                            <tree>
-                                 <field name="defaut_id" />
-                                 <field name="qt_rebut" sum="Total"/>
-                            </tree>
-                        </field>
-                    </group>
-                </group>
+                <table>
+                    <tr style="vertical-align: top">
+                        <td style="width:50%">
+                            <field name="tps_ids" nolabel="1" readonly="1">
+                                <tree>
+                                    <field name="etat_presse_id" />
+                                    <field name="tps_arret" widget="float_time" sum="Total"/>
+                                    <field name="couleur" widget='pgcolor'/>
+                                </tree>
+                            </field>
+                        </td>
+                        <td>
+                            <field name="rebut_ids" nolabel="1" readonly="1">
+                                <tree>
+                                        <field name="defaut_id" />
+                                        <field name="qt_rebut" sum="Total"/>
+                                </tree>
+                            </field>
+                        </td>
+                    </tr>
+                </table>
             </sheet>
         </form>
         </field>
@@ -939,27 +940,32 @@
                     <field name="declaration_odoo"/>
                     <field name="zebra_id"/>
                 </group>
-                <group>
-                    <group string="Entrées">
-                        <field name="entree_ids" nolabel="1" readonly="1">
-                            <tree>
-                                <field name="numero" />
-                                <field name="etat" />
-                                <field name="couleur" widget='pgcolor'/>
-                            </tree>
-                        </field>
-                    </group>
-                    <group string="Sorties">
-                        <field name="sortie_ids" nolabel="1" readonly="1">
-                            <tree>
-                                <button string="Inverser l'état de la sortie" name="changer_etat_action"  type="object" icon="gtk-execute" />
-                                <field name="numero" />
-                                <field name="etat" />
-                                <field name="couleur" widget='pgcolor'/>
-                            </tree>
-                        </field>
-                    </group>
-                </group>
+
+                <table>
+                    <tr style="vertical-align: top">
+                        <td style="width:50%">
+                            <group string="Entrées"/>
+                            <field name="entree_ids" nolabel="1" readonly="1">
+                                <tree>
+                                    <field name="numero" />
+                                    <field name="etat" />
+                                    <field name="couleur" widget='pgcolor'/>
+                                </tree>
+                            </field>
+                        </td>
+                        <td>
+                            <group string="Sorties"/>
+                            <field name="sortie_ids" nolabel="1" readonly="1">
+                                <tree>
+                                    <button title="Inverser l'état de la sortie" name="changer_etat_action"  type="object" icon="fa-gear" />
+                                    <field name="numero" />
+                                    <field name="etat" />
+                                    <field name="couleur" widget='pgcolor'/>
+                                </tree>
+                            </field>
+                        </td>
+                    </tr>
+                </table>
             </sheet>
         </form>
         </field>

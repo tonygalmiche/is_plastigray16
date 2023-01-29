@@ -1,0 +1,31 @@
+
+
+.o_form_view .o_form_sheet_bg {
+    background-color: #f7f9f9;
+}
+
+.o_form_label{
+    white-space: nowrap;
+}
+
+.o_form_view .o_group .o_form_label {
+  margin-bottom: 1px;
+}
+
+.o_form_view .o_input {
+    border-color: transparent;
+    padding: 0px 1px;
+}
+
+.o_form_view .o_inner_group {
+    gap: 0.2rem 16px;
+}
+
+.table-sm > :not(caption) > * > * {
+    padding: 0.1rem 0.1rem;
+    padding-left: 0.1rem;
+}
+
+.btn {
+    line-height: 1;
+}

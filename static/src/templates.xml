@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="is_plastigray16.PgColor" owl="1">
+        <div t-attf-style="background-color:{{props.value}}">
+            <span t-attf-style="color:{{props.value}}" t-esc="props.value"/>
+        </div>
+    </t>
+
+</templates>
