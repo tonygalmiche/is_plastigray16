@@ -28,6 +28,9 @@ Module Odoo 16 pour Plastigray
         "security/ir.model.access.csv",
         "security/is_demande_conges_security.xml",
 
+        "views/hr_view.xml",
+
+
         "views/is_article_view.xml",
         "views/is_bl_manuel_view.xml",
         "views/is_bon_achat_ville_view.xml",
@@ -93,6 +96,7 @@ Module Odoo 16 pour Plastigray
         "views/is_tarif_cial_view.xml",
         "views/is_theia_view.xml",
         "views/mrp_prevision_view.xml",
+        "views/mrp_view.xml",
         "views/product_view.xml",
         # "views/product_pricelist_view.xml", #TODO : A revoir car il y a eu besaucoup de changement sur les pricelist 
 
@@ -107,7 +111,7 @@ Module Odoo 16 pour Plastigray
         "views/is_donnee_machine_view.xml",
         "views/is_capteur_view.xml",
 
-
+        "report/is_encres_utilisees_view.xml",
         "report/is_product_packaging.xml",
 
 
@@ -166,7 +170,6 @@ Module Odoo 16 pour Plastigray
         # "assets.xml",
         # "account_invoice_view.xml",
         # "sale_picking_view.xml",
-        # "mrp_view.xml",
         # "stock_view.xml",
         # "is_resource_view.xml",
         # "mrp_production_view.xml",
@@ -176,7 +179,6 @@ Module Odoo 16 pour Plastigray
         # "purchase_workflow.xml",
         # "email_template.xml",
         # "is_taux_rotation_stock_view.xml",
-        # "hr_view.xml",
         # "calendar_view.xml",
         # "wizard/is_gestion_lot_view.xml",
         # "wizard/is_stock_mise_rebut_view.xml",

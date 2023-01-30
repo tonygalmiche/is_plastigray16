@@ -79,14 +79,16 @@
     <menuitem id="is_article_achete_menu" sequence="15" name="Articles achetés"   parent="menu_is_articles" action="is_article_achete_action"/>
     <menuitem id="menu_is_articles_20"    sequence="20" name="Logistique article" parent="menu_is_articles" action="is_product_packaging_action"/>
 
-  <!-- 
 
     <menuitem id="menu_is_nomenclatures"    sequence="20" name="Nomenclatures"            parent="menu_is_donnees_techniques"/>
     <menuitem id="menu_is_nomenclatures_10" sequence="10" name="Nomenclatures"            parent="menu_is_nomenclatures" action="mrp.mrp_bom_form_action" />
-    <menuitem id="menu_is_nomenclatures_20" sequence="20" name="Lignes des nomenclatures" parent="menu_is_nomenclatures" action="is_mrp_bom_line_action" />
 
 
-    <menuitem id="menu_is_nomenclatures_40" sequence="40" name="Cas d'emplois" parent="menu_is_nomenclatures" action="is_cas_emploi_wizard_new_action" />
+
+    <!-- <menuitem id="menu_is_nomenclatures_20" sequence="20" name="Lignes des nomenclatures" parent="menu_is_nomenclatures" action="is_mrp_bom_line_action" /> -->
+
+
+    <!-- <menuitem id="menu_is_nomenclatures_40" sequence="40" name="Cas d'emplois" parent="menu_is_nomenclatures" action="is_cas_emploi_wizard_new_action" /> -->
 
     <record id="menu_is_gammes" model="ir.ui.menu" >
         <field name="name">Gammes</field>
@@ -94,9 +96,9 @@
         <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
         <field name="groups_id" eval="[(6,0,[ref('is_employes_hors_production_group')])]"/>
     </record>
-    <menuitem id="menu_is_gammes_gammes" sequence="10" name="Gammes"            parent="menu_is_gammes" action="mrp.mrp_routing_action" />
+    <!-- <menuitem id="menu_is_gammes_gammes" sequence="10" name="Gammes"            parent="menu_is_gammes" action="mrp.mrp_routing_action" />
     <menuitem id="menu_is_gammes_lignes" sequence="15" name="Lignes des Gammes" parent="menu_is_gammes" action="action_is_mrp_routing_workcenter" />
-    <menuitem id="menu_is_gammes_20"     sequence="20" name="Poste de charge"   parent="menu_is_gammes" action="mrp.mrp_workcenter_action" />
+    <menuitem id="menu_is_gammes_20"     sequence="20" name="Poste de charge"   parent="menu_is_gammes" action="mrp.mrp_workcenter_action" /> -->
     <record id="menu_is_atelier" model="ir.ui.menu" >
         <field name="name">Atelier</field>
         <field name="sequence">50</field>
@@ -111,7 +113,7 @@
         <field name="action"    ref="is_ilot_action"/>
         <field name="groups_id" eval="[(6,0,[ref('is_rsp_production_group')])]"/>
     </record>
-    -->
+    
 
     <record id="menu_is_cout" model="ir.ui.menu" >
         <field name="name">Coût article</field>
@@ -2178,11 +2180,7 @@
                 ref('base.group_user'),
             ])]"/>
         </record>
-
-
-
-        <!-- <menuitem id="menu_is_fiche_tampographie" sequence="1" name="Tampographie"     parent="menu_is_dt_tampographie" action="action_is_fiche_tampographie" /> -->
-        <!-- <menuitem id="menu_is_encres_utilisees"   sequence="1" name="Encres utilisées" parent="menu_is_dt_tampographie" action="is_encres_utilisees_action" />  -->
+        <menuitem id="menu_is_encres_utilisees" sequence="20" name="Encres utilisées" parent="menu_is_dt_tampographie" action="is_encres_utilisees_action" /> 
 
 
 

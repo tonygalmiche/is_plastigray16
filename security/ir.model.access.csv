@@ -281,3 +281,5 @@ access_is_dossier_article_code_recyclage,access_is_dossier_article_code_recyclag
 
 
 access_is_product_packaging,access_is_product_packaging,model_is_product_packaging,base.group_user,1,1,1,1
+
+access_is_encres_utilisees,access_is_encres_utilisees,model_is_encres_utilisees,base.group_user,1,0,0,0

@@ -3,12 +3,13 @@
 from odoo import models, fields, api
 import datetime
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import ValidationError
+
 #import os
 #import unicodedata
 #import codecs
 #import base64
 #import csv, cStringIO
-#from openerp.exceptions import Warning
 #import xmlrpclib
 #from openerp import SUPERUSER_ID
 #import pytz
@@ -83,9 +84,9 @@ class is_demande_conges(models.Model):
                 'subject'       : subject,
                 'body_html'     : body_html,
             }
-            email = self.env['mail.mail'].create(vals)
+            email = self.env['mail.mail'].sudo().create(vals)
             if email:
-                self.env['mail.mail'].send(email)
+                self.env['mail.mail'].sudo().send(email)
 
 
     def creer_notification(self, subject,body_html):
@@ -97,7 +98,7 @@ class is_demande_conges(models.Model):
                 'body_html'     : body_html, 
                 'model'         : self._name,
                 'res_id'        : obj.id,
-                'notification'  : True,
+                #'notification'  : True,
                 'author_id'     : user.partner_id.id
                 #'message_type'  : 'comment',
             }
@@ -161,7 +162,8 @@ class is_demande_conges(models.Model):
                     else:
                         self.creer_notification(u'ATTENTION : SMS non envoyé', err)
 
-            obj.signal_workflow('validation_n1')
+            #obj.signal_workflow('validation_n1')
+            obj.state = "validation_n1"
         return True
 
     def vers_validation_n2_action(self):
@@ -205,7 +207,8 @@ class is_demande_conges(models.Model):
                     else:
                         self.creer_notification(u'ATTENTION : SMS non envoyé', err)
 
-            obj.signal_workflow('validation_n2')
+            #obj.signal_workflow('validation_n2')
+            obj.state = "validation_n2"
         return True
 
     def vers_validation_rh_action(self):
@@ -271,7 +274,8 @@ class is_demande_conges(models.Model):
                     obj.ajouter_dans_agenda()
             except:
                 pass
-            obj.signal_workflow('validation_rh')
+            #obj.signal_workflow('validation_rh')
+            obj.state = "validation_rh"
         return True
 
     def vers_solde_action(self):
@@ -282,20 +286,24 @@ class is_demande_conges(models.Model):
                     if demande.state not in ['solde','refuse','annule']:
                         alerte=True
                 if alerte:
-                    raise Warning(u'Il est nécessaire de solder chaque demande individuellement pour pouvoir solder cette demande collective !')
+                    raise ValidationError(u'Il est nécessaire de solder chaque demande individuellement pour pouvoir solder cette demande collective !')
             subject   = u"vers Soldé"
             self.creer_notification(subject,"")
 
-            obj.signal_workflow('solde')
+            #obj.signal_workflow('solde')
+            obj.state = "solde"
         return True
 
 
     def default_get(self, default_fields):
+        print(self, default_fields)
         res = super(is_demande_conges, self).default_get(default_fields)
         emp_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1) or False
+        print("emp_id=",emp_id)
         if emp_id:
             res['valideur_n1'] = emp_id.is_valideur_n1.id
             res['valideur_n2'] = emp_id.is_valideur_n2.id
+        print(res)
         return res
 
 
@@ -305,19 +313,23 @@ class is_demande_conges(models.Model):
             mois_demande = str(self.date_debut)[:8]
             ce_mois      = str(datetime.date.today())[:8]
             if mois_demande<ce_mois and self.responsable_rh_id.id!=uid and uid!=1:
-                raise Warning(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
+                raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
             if str(self.date_debut)[:8]!=str(self.date_fin)[:8]:
-                raise Warning(u"La date de fin doit être dans le même mois que la date de début")
+                raise ValidationError(u"La date de fin doit être dans le même mois que la date de début")
             if self.date_debut>self.date_fin:
-                raise Warning(u"La date de fin doit être supérieure à la date de début")
+                raise ValidationError(u"La date de fin doit être supérieure à la date de début")
         return True
 
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.demande.conges') or ''
-        res=super(is_demande_conges, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.demande.conges')
+        res = super().create(vals_list)
         res.test_dates()
         return res
+
+
 
 
 
@@ -438,10 +450,10 @@ class is_demande_conges(models.Model):
             current_date = datetime.date.today()
             current_date_plus_ten = current_date + relativedelta(days=10)
             if obj.date_debut:
-                if str(current_date_plus_ten) < obj.date_debut:
+                if current_date_plus_ten < obj.date_debut:
                     test_date = True
             if obj.le:
-                if str(current_date_plus_ten) < obj.le:
+                if current_date_plus_ten < obj.le:
                     test_date = True
             if test_date:
                 if obj.state == 'validation_n1' or obj.state == 'validation_n2' or obj.state == 'validation_rh':
@@ -674,9 +686,13 @@ class is_demande_absence(models.Model):
     _order       = 'name desc'
 
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.demande.absence') or ''
-        return super(is_demande_absence, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.demande.absence')
+        res = super().create(vals_list)
+        return res
+
 
     name          = fields.Char(u"N° demande", index=True)
     createur_id   = fields.Many2one('res.users', u'Créateur', default=lambda self: self.env.user)

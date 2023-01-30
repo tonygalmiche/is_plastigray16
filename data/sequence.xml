@@ -5,29 +5,6 @@
 
 
 
-        <!-- Demande de congés -->
-        <record id="seq_type_is_demande_conges" model="ir.sequence.type">
-            <field name="name">Demande de congés</field>
-            <field name="code">is.demande.conges</field>
-        </record>
-        <record id="seq_is_demande_conges" model="ir.sequence">
-            <field name="name">Demande de congés Sequence</field>
-            <field name="code">is.demande.conges</field>
-            <field name="padding">5</field>
-        </record>
-
-        <!-- Demande d’absence -->
-        <record id="seq_type_is_demande_absence" model="ir.sequence.type">
-            <field name="name">Demande d’absence</field>
-            <field name="code">is.demande.absence</field>
-        </record>
-        <record id="seq_is_demande_absence" model="ir.sequence">
-            <field name="name">Demande d’absence Sequence</field>
-            <field name="code">is.demande.absence</field>
-            <field name="padding">5</field>
-        </record>
-
-
         <!-- Export Cegid -->
         <record id="is_demande_conges_export_cegid_seq_type" model="ir.sequence.type">
             <field name="name">Export Cegid</field>

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import is_res_partner
+from . import is_encres_utilisees
 from . import is_product_packaging
-
-
 
 # import is_create_postgres_function
 # import stock_bloquer_lot

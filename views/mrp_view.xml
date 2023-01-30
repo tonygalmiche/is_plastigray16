@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<openerp>
+<odoo>
     <data>
 
         <!-- Entêtes des gammes -->
-        <record model="ir.ui.view" id="is_mrp_routing_form_view" >
+        <!-- <record model="ir.ui.view" id="is_mrp_routing_form_view" >
             <field name="name">is_mrp_routing_form_view</field>
             <field name="model">mrp.routing</field>
             <field name="type">form</field>
@@ -72,11 +71,11 @@
                     <filter string="avec Reprise d'humidité" name="avec_reprise_humidite" domain="[('is_reprise_humidite','=',True)]"/>
                 </field>
             </field>
-        </record>
+        </record> -->
 
 
         <!-- Lignes des gammes -->
-        <record model="ir.ui.view" id="is_mrp_routing_workcenter_tree_view">
+        <!-- <record model="ir.ui.view" id="is_mrp_routing_workcenter_tree_view">
             <field name="name">is.mrp.routing.workcenter.tree</field>
             <field name="model">mrp.routing.workcenter</field>
             <field name="type">tree</field>
@@ -120,7 +119,7 @@
             <field name="res_model">mrp.routing.workcenter</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record>
+        </record> -->
 
 
 
@@ -131,24 +130,24 @@
             <field name="model">mrp.bom</field>
             <field name="inherit_id" ref="mrp.mrp_bom_form_view" />
             <field name="arch" type="xml">
-                <xpath expr="/form/group/group/div[@groups='mrp.group_mrp_routings']" position="after">
+                <!-- <xpath expr="/form/group/group/div[@groups='mrp.group_mrp_routings']" position="after">
                     <label for="is_gamme_generique_id" class="oe_inline" groups="mrp.group_mrp_routings"/>
                     <div groups="mrp.group_mrp_routings">
                         <field name="is_gamme_generique_id" class="oe_inline"/>
                     </div>
-                </xpath>
-                <field name="name" position="attributes" > 
+                </xpath> -->
+                <!-- <field name="name" position="attributes" > 
                     <attribute name="invisible">1</attribute>
-                </field>
+                </field> -->
                 <field name="product_id" position="attributes" > 
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="product_qty" position="attributes" > 
                     <attribute name="readonly">1</attribute>
                 </field>
-                <field name="product_uom" position="attributes" > 
+                <!-- <field name="product_uom" position="attributes" > 
                     <attribute name="readonly">1</attribute>
-                </field>
+                </field> -->
                 <field name="code" position="attributes" > 
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -162,32 +161,35 @@
                     <field name="is_qt_um" />
                 </field>
 
-                <field name="name" position="after" > 
+                <field name="code" position="after" > 
                     <field name="is_sous_traitance" />
                     <field name="is_negoce" />
                     <field name="is_inactive" />
                 </field>
-                <xpath expr="/form/notebook/page/field/tree/field[@name='sequence']" position="replace">
+                <!-- <xpath expr="/form/notebook/page/field/tree/field[@name='sequence']" position="replace">
                     <field name="sequence" />
                     <field name="is_bom" invisible="1"/>
                     <button title="Nomenclature" name= "action_acces_nomenclature" 
                             type="object" icon="fa-list"
                             attrs="{'invisible': [('is_bom', '=', False)]}"/>
-                </xpath>
+                </xpath> -->
 
-                <xpath expr="/form/notebook/page/field/tree/field[@name='type']" position="attributes">
+
+                <!-- <xpath expr="/notebook/page/field/tree/field[@name='type']" position="attributes">
                     <attribute name="readonly">1</attribute>
-                </xpath>
-                <xpath expr="/form/notebook/page/field/tree/field[@name='type']" position="after">
-                    <field name="is_article_fourni"/> 
+                </xpath> -->
+
+
+                <xpath expr="//notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="is_article_fourni" optional="show"/> 
                 </xpath>
 
-                <xpath expr="/form/notebook/page/field/tree/field[@name='product_uom']" position="after">
-                    <field name="is_qt_uc"/> 
-                    <field name="is_qt_um"/> 
+                <xpath expr="//notebook/page/field/tree/field[@name='product_uom_id']" position="after">
+                    <field name="is_qt_uc" optional="show"/> 
+                    <field name="is_qt_um" optional="show"/> 
                 </xpath>
 
-                <xpath expr="/form/notebook/page/field/tree/field[@name='product_rounding']" position="attributes">
+                <!-- <xpath expr="/form/notebook/page/field/tree/field[@name='product_rounding']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="/form/notebook/page/field/tree/field[@name='attribute_value_ids']" position="attributes">
@@ -195,7 +197,7 @@
                 </xpath>
                 <xpath expr="/form/notebook/page/field/tree/field[@name='property_ids']" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </xpath>
+                </xpath> -->
 
             </field>
         </record>
@@ -205,14 +207,14 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="product_tmpl_id"       widget="many2one_clickable"/>
-                    <field name="sequence"/>
-                    <field name="segment_id"/>
-                    <field name="is_gestionnaire_id"/>
-                    <field name="is_sous_traitance"/>
-                    <field name="is_negoce"/>
-                    <field name="is_inactive"/>
-                    <field name="routing_id"            widget="many2one_clickable"/>
-                    <field name="is_gamme_generique_id" widget="many2one_clickable"/>
+                    <field name="sequence" optional="show"/>
+                    <field name="segment_id" optional="show" />
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="is_sous_traitance" optional="show"/>
+                    <field name="is_negoce" optional="show"/>
+                    <field name="is_inactive" optional="show"/>
+                    <!-- <field name="routing_id"            widget="many2one_clickable"/> -->
+                    <!-- <field name="is_gamme_generique_id" widget="many2one_clickable"/> -->
                 </tree>
             </field>
         </record>
@@ -224,14 +226,14 @@
                 <field name="product_tmpl_id" position="after" > 
                     <field name="segment_id" /> 
                     <field name="is_gestionnaire_id" /> 
-                    <field name="routing_id" /> 
-                    <field name="is_gamme_generique_id" /> 
+                    <!-- <field name="routing_id" />  -->
+                    <!-- <field name="is_gamme_generique_id" />  -->
 
                     <filter string="Gestionnaire 4"         name="gest4"      domain="[('is_gestionnaire_id','=','04')]"/>
                     <filter string="Gestionnaires 3,6,7,12" name="gest36712"  domain="[('is_gestionnaire_id','in',['03','06','07','12'])]"/>
                     <filter string="Gestionnaires 10,11,14" name="gest101114" domain="[('is_gestionnaire_id','in',['10','11','14'])]"/>
                 </field>
-                <field name="product_id" position="replace" /> 
+                <!-- <field name="product_id" position="replace" />  -->
             </field>
         </record>
 
@@ -239,7 +241,7 @@
 
 
         <!-- Lignes des nomenclatures -->
-        <record model="ir.actions.act_window" id="is_mrp_bom_line_action">
+        <!-- <record model="ir.actions.act_window" id="is_mrp_bom_line_action">
             <field name="name">Lignes des nomenclatures</field>
             <field name="res_model">mrp.bom.line</field>
             <field name="view_type">form</field>
@@ -275,7 +277,7 @@
                 </field>
 
             </field>
-        </record>
+        </record> -->
 
 
         <!-- Atelier -->
@@ -292,7 +294,6 @@
             <field name="name">Atelier</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.atelier</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree</field>
         </record>
 
@@ -312,13 +313,12 @@
             <field name="name">Ilot</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.ilot</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree</field>
         </record>
 
 
         <!-- Poste de charges -->
-        <record id="mrp.mrp_workcenter_tree_view" model="ir.ui.view">
+        <!-- <record id="mrp.mrp_workcenter_tree_view" model="ir.ui.view">
             <field name="name">mrp.workcenter.tree</field>
             <field name="model">mrp.workcenter</field>
             <field name="arch" type="xml">
@@ -415,7 +415,7 @@
                     <field name="is_date_tri" />
                 </field>
             </field>
-        </record>
+        </record> -->
 
     </data>
-</openerp>
+</odoo>

@@ -10,109 +10,13 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <!-- hr.employee -->
-        <!-- <record id="view_hr_employee_form_inherit_is_pg_2019" model="ir.ui.view">
-            <field name="name">view.hr.employee.form.inherit.is.pg.2019</field>
-            <field name="model">hr.employee</field>
-            <field name="inherit_id" ref="is_plastigray.is_view_employee_form" />
-            <field name="arch" type="xml">
-                <xpath expr="//sheet/div[@class='oe_title']" position="replace">
-                        <div class="oe_title">
-                            <label for="name" class="oe_edit_only"/>
-                            <h1>
-                                <field name="name"/>
-                            </h1>
-                        </div>
-                </xpath>
-                <field name="mobile_phone"  position="replace"/>
-                <field name="work_location" position="replace"/>
-                <field name="parent_id"     position="replace"/>
-                <field name="coach_id"      position="replace"/>
-                <xpath expr="//page[@string='Pointage']/group[1]/group[2]" position="after">
-                    <group string="Validation">
-                        <field name="is_valideur_n1" readonly="1"/>
-                        <field name="is_valideur_n2" readonly="1"/>
-                    </group>
-                    <group string="Communication">
-                        <field name="is_mode_communication"/>
-                        <field 
-                            name="is_courriel" 
-                            attrs="{'invisible': [('is_mode_communication', 'not in', ['courriel','courriel+sms'])], 'required': [('is_mode_communication', 'in', ['courriel','courriel+sms'])] }"
-                        />
-                        <field 
-                            name="is_mobile"
-                            attrs="{'invisible': [('is_mode_communication', 'not in', ['sms','courriel+sms'])], 'required': [('is_mode_communication', 'in', ['sms','courriel+sms'])] }"
-                        />
-                    </group>
-                </xpath>
-                <group string="Absences" position="after">
-                    <group string="Droit aux congés">
-                        <field name="is_droit_conges_ids" nolabel="1" >
-                            <tree>
-                                <field name="name"/>
-                                <field name="nombre"/>
-                            </tree>
-                        </field>
-                    </group>
-                </group>
-            </field>
-        </record> -->
-
-        <!-- <record id="is_view_employee_form_manager_absence" model="ir.ui.view">
-            <field name="name">is_view_employee_form_manager_absence</field>
-            <field name="model">hr.employee</field>
-            <field name="inherit_id" ref="is_pg_2019.view_hr_employee_form_inherit_is_pg_2019" />
-            <field name="groups_id" eval="[(4, ref('base.group_hr_manager'))]"/>
-            <field name="arch" type="xml">
-                <field name="is_valideur_n1" position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_valideur_n2" position="attributes"><attribute name="readonly" position="replace"/></field>
-            </field>
-        </record> -->
-
-        <!-- <record id="is_view_employee_tree" model="ir.ui.view">
-            <field name="name">is.hr.employee.tree</field>
-            <field name="model">hr.employee</field>
-            <field name="inherit_id" ref="is_plastigray.is_view_employee_tree"/>
-            <field name="arch" type="xml">
-                <field name="is_interimaire" position="after">
-                    <field name="department_id"/>
-                    <field name="job_id"/>
-                    <field name="is_valideur_n1"/>
-                    <field name="is_valideur_n2"/>
-                    <field name="user_id"/>
-                    <field name="is_mode_communication"/>
-                    <field name="is_courriel"/>
-                    <field name="is_mobile"/>
-                </field>
-            </field>
-        </record> -->
-        <record model="ir.actions.act_window" id="is_employe_absence_action">
-            <field name="name">Employés</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">hr.employee</field>
-            <field name="view_mode">tree,form</field>
-            <field name="domain">['|','|',
-                ('user_id'       , '=', uid),
-                ('is_valideur_n1', '=', uid),
-                ('is_valideur_n2', '=', uid),
-            ]</field>
-        </record>
-        <record id="is_view_employee_tree2" model="ir.ui.view">
-            <field name="name">is.hr.employee.tree2</field>
-            <field name="model">hr.employee</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"/>
-                    <field name="is_categorie"/>
-                    <field name="department_id"/>
-                    <field name="job_id"/>
-                    <field name="is_interimaire"/>
-                </tree>
-            </field>
-        </record>
-
 
         <!-- Demande de congés -->
+        <record id="seq_is_demande_conges" model="ir.sequence">
+            <field name="name">Demande de congés Sequence</field>
+            <field name="code">is.demande.conges</field>
+            <field name="padding">5</field>
+        </record>
         <record model="ir.ui.view" id="view_is_demande_conges_form">
             <field name="name">view.is.demande.conges.form</field>
             <field name="model">is.demande.conges</field>
@@ -299,27 +203,23 @@
                         </group>
 
 
-                        <group attrs="{'invisible': [('demande_collective','!=','oui')]}">
-                            <field nolabel="1"
-                                name="demandeur_ids"
-                                context="{
-                                    'form_view_ref' : 'is_pg_2019.view_hr_employee_form_inherit_is_pg_2019',
-                                    'tree_view_ref' : 'is_pg_2019.is_view_employee_tree2'
-                                }"
-                                attrs="{
-                                    'invisible': [('demande_collective','!=','oui')],
-                                    'required' : [('demande_collective','=' ,'oui')]
-                                }"
-                            />
-                        </group>
-                        <group attrs="{'invisible': [('demande_collective','!=','oui')]}">
-                            <field name="demande_conges_ids" readonly="1" nolabel="1">
-                                <tree>
-                                    <field name="name"/>
-                                    <field name="state"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <field nolabel="1"
+                            name="demandeur_ids"
+                            context="{
+                                'form_view_ref' : 'is_pg_2019.view_hr_employee_form_inherit_is_pg_2019',
+                                'tree_view_ref' : 'is_pg_2019.is_view_employee_tree2'
+                            }"
+                            attrs="{
+                                'invisible': [('demande_collective','!=','oui')],
+                                'required' : [('demande_collective','=' ,'oui')]
+                            }"
+                        />
+                        <field name="demande_conges_ids" readonly="1" nolabel="1" attrs="{'invisible': [('demande_collective','!=','oui')]}">
+                            <tree>
+                                <field name="name"/>
+                                <field name="state"/>
+                            </tree>
+                        </field>
                         <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
                             <group string="Droit aux congés">
                                 <field name="droit_cp"/>
@@ -416,10 +316,12 @@
         </record>
 
 
-
-
-
         <!-- Demande d’absence -->
+        <record id="seq_is_demande_absence" model="ir.sequence">
+            <field name="name">Demande d’absence Sequence</field>
+            <field name="code">is.demande.absence</field>
+            <field name="padding">5</field>
+        </record>
         <record model="ir.ui.view" id="view_is_demande_absence_form">
             <field name="name">view.is.demande.absence.form</field>
             <field name="model">is.demande.absence</field>
