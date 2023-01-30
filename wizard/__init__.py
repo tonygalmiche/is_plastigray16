@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from . import is_cas_emploi_wizard_new
+
+
 # import is_gestion_lot
 # import is_stock_mise_rebut
 # import mrp_product_produce

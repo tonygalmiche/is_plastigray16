@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
     <data>
         <record id="is_cas_emploi_wizard_new_form" model="ir.ui.view">
             <field name="name">is.cas.emploi.wizard.new.form</field>
@@ -8,12 +8,11 @@
                 <form string="Cas d'emplois">
                     <group>
                         <field name="product_id"/>
-                        <label string=""/>
                     </group>
                     <footer>
-                        <button name="do_search_component" string="OK" type="object" class="oe_highlight"/>
-                        or
-                        <button string="Annuler" class="oe_link" special="cancel" />
+                        <button name="do_search_component" string="OK" type="object" default_focus="1" class="btn-primary" data-hotkey="q"/>
+                        ou
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
                     </footer>
                 </form>
             </field>
@@ -22,7 +21,6 @@
             <field name="name">Cas d'emplois</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.cas.emploi.wizard.new</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="is_cas_emploi_wizard_new_form"/>
             <field name="target">new</field>
@@ -64,22 +62,22 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree create="false">
-                    <field name="niveau" />
+                    <field name="niveau" optional="show"/>
                     <field name="composant_id"       widget="many2one_clickable" />
-                    <field name="ligne" />
+                    <field name="ligne" optional="show"/>
                     <field name="quantite" />
-                    <field name="mrp_bom_id"         widget="many2one_clickable" />
-                    <field name="segment_id" />
-                    <field name="is_categery_id" />
-                    <field name="is_gestionnaire_id" />
-                    <field name="is_mold_dossierf" />
-                    <field name="is_ref_client" />
-                    <field name="is_ref_fournisseur" />
-                    <field name="is_client_id"       widget="many2one_clickable" />
-                    <field name="is_fournisseur_id"  widget="many2one_clickable" />
-                    <field name="is_sous_traitance" />
-                    <field name="is_negoce" />
-                    <field name="is_inactive" />
+                    <field name="mrp_bom_id" optional="show"         widget="many2one_clickable" />
+                    <field name="segment_id" optional="show"/>
+                    <field name="is_categery_id" optional="show"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="is_mold_dossierf" optional="show"/>
+                    <field name="is_ref_client" optional="hide"/>
+                    <field name="is_ref_fournisseur" optional="hide"/>
+                    <field name="is_client_id"     optional="hide"  widget="many2one_clickable" />
+                    <field name="is_fournisseur_id" optional="hide" widget="many2one_clickable" />
+                    <field name="is_sous_traitance" optional="hide"/>
+                    <field name="is_negoce" optional="hide"/>
+                    <field name="is_inactive" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -108,4 +106,4 @@
         </record>
         
     </data>
-</openerp>
+</odoo>

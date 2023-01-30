@@ -1,27 +1,16 @@
 # -*- coding: utf-8 -*-
-
-from openerp import models, fields, api
-from openerp.tools.translate import _
-from openerp.exceptions import Warning
-
-
-#TODO : 
-# - Ajouter les filtres dans la zone de recherche sur toutes les colonnes $
-# - Revoir le niveau en champ de type texte avec des tirets devant
-# - Ajouter le segment
+from odoo import models,fields,api
 
 
 class  is_cas_emploi_wizard_new(models.TransientModel):
     _name = 'is.cas.emploi.wizard.new'
-    
+    _description = "is_cas_emploi_wizard_new"
     
     product_id = fields.Many2one('product.product','Article', required=True)
     
 
-
-    @api.multi
     def cas_emploi(self, wizard_id, composant_id, niveau):
-        cr=self._cr
+        cr = self.env.cr
         sql="""
             select 
                 mbl.sequence,
@@ -70,11 +59,8 @@ class  is_cas_emploi_wizard_new(models.TransientModel):
             self.cas_emploi(wizard_id, compose_id,niveau+1)
 
 
-
-    @api.multi
     def do_search_component(self):
         for obj in self:
-            print obj, obj.product_id
             if obj.product_id:
                 self.cas_emploi(obj.id, obj.product_id.id,1)
         return {
@@ -89,6 +75,7 @@ class  is_cas_emploi_wizard_new(models.TransientModel):
 
 class is_cas_emploi_line(models.TransientModel):
     _name = 'is.cas.emploi.line'
+    _description = "is_cas_emploi_line"
     
     wizard_id          = fields.Many2one('is.cas.emploi.wizard.new','Wizard')
     niveau             = fields.Char('Niveau')

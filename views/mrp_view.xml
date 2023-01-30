@@ -238,46 +238,41 @@
         </record>
 
 
-
-
-        <!-- Lignes des nomenclatures -->
-        <!-- <record model="ir.actions.act_window" id="is_mrp_bom_line_action">
+        <!-- mrp.bom.line -->
+        <record model="ir.ui.view" id="is_mrp_bom_line_tree_view">
+            <field name="name">is_mrp_bom_line_tree_view</field>
+            <field name="model">mrp.bom.line</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="bom_id"/>
+                    <field name="product_id"/>
+                    <field name="is_article_fourni" optional="show"/>
+                    <field name="product_qty"/>
+                    <field name="product_uom_id" optional="show"/>
+                    <field name="is_qt_uc"       optional="show"/>
+                    <field name="is_qt_um"       optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mrp_bom_line_search_view" >
+            <field name="name">is_mrp_bom_line_search_view</field>
+            <field name="model">mrp.bom.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="bom_id"/>
+                    <field name="product_id"/>
+                    <field name="is_article_fourni"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mrp_bom_line_action">
             <field name="name">Lignes des nomenclatures</field>
             <field name="res_model">mrp.bom.line</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record id="is_mrp_bom_component_tree_view" model="ir.ui.view">
-            <field name="name">is_mrp_bom_component_tree_view</field>
-            <field name="model">mrp.bom.line</field>
-            <field name="inherit_id" ref="mrp.mrp_bom_component_tree_view" />
-            <field name="arch" type="xml">
 
-                <field name="bom_id" position="attributes" > 
-                    <attribute name="readonly">1</attribute>
-                </field>
 
-                <field name="type" position="attributes" > 
-                    <attribute name="readonly">1</attribute>
-                </field>
-                <field name="type" position="after" > 
-                    <field name="is_article_fourni"/> 
-                </field>
-                <field name="product_rounding" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </field>
-                <field name="routing_id" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </field>
-                <field name="attribute_value_ids" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </field>
-                <field name="property_ids" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </field>
 
-            </field>
-        </record> -->
 
 
         <!-- Atelier -->
@@ -318,69 +313,99 @@
 
 
         <!-- Poste de charges -->
-        <!-- <record id="mrp.mrp_workcenter_tree_view" model="ir.ui.view">
-            <field name="name">mrp.workcenter.tree</field>
+        <record id="is_mrp_workcenter_tree_view" model="ir.ui.view">
+            <field name="name">is_mrp_workcenter_tree_view</field>
             <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view" />
             <field name="arch" type="xml">
-                <tree string="Work Center">
-                    <field name="code"/>
-                    <field name="name"/>
+                <field name="code" position="after"> 
                     <field name="resource_type"/>
+                    <field name="is_atelier_id" optional="show"/>
+                    <field name="is_ilot_id" optional="show"/>
+                    <field name="is_prioritaire" optional="show"/>
+                </field>
+                <field name="costs_hour" position="before"> 
+                    <field name="is_ordre" optional="show"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="is_mrp_workcenter_view" model="ir.ui.view">
+            <field name="name">is_mrp_workcenter_view</field>
+            <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.mrp_workcenter_view" />
+            <field name="arch" type="xml">
+                <field name="code" position="replace"/>
+                <field name="name" position="replace"/>
+                <field name="alternative_workcenter_ids" position="replace"/>
+                <field name="tag_ids" position="replace"/>
+                <field name="resource_calendar_id" position="replace"/>
+                <!-- <page name="capacity" position="replace"/> -->
+                <!-- <page name="general_info" position="replace"/>  -->
+                <notebook position="before">
+
+                    <group>
+                        <group string="Description du poste de charge">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="resource_type"/>
+                            <!-- <field name="calendar_id" widget="selection"/> -->
+                            <field name="resource_calendar_id" required="1"/>
+                            <!-- <field name="company_id" groups="base.group_multi_company" widget="selection"/> -->
+                            <field name="active"/>
+                        </group>
+                        <group string="Configuration pour le Planning">
+                            <field name="is_atelier_id"/>
+                            <field name="is_ilot_id"/>
+                            <field name="is_ordre"/>
+                            <field name="is_prioritaire"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Information sur la capacité">
+                            <!-- <field name="time_efficiency"                 invisible="1"/> -->
+                            <!-- <field name="capacity_per_cycle"              invisible="1"/> -->
+                            <!-- <field name="time_cycle" widget="float_time"  invisible="1"/> -->
+                            <field name="time_start" widget="float_time"/>
+                            <field name="time_stop" widget="float_time"/>
+                        </group>
+                        <group string="Information de coût">
+                            <!-- <field name="product_id" on_change="on_change_product_cost(product_id)"  invisible="1"/> -->
+                            <field name="costs_hour"/>
+                            <field name="is_cout_pk"/>
+                            <!-- <field name="costs_hour_account_id" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
+                            <!-- <field name="costs_cycle"/> -->
+                            <!-- <field name="costs_cycle_account_id" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
+                            <!-- <field name="costs_journal_id" attrs="{'required':['|',('costs_hour_account_id', '=', True),('costs_cycle_account_id', '=', True)]}" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
+                            <!-- <field name="costs_general_account_id" attrs="{ 'required':['|',('costs_cycle_account_id', '=', True),('costs_hour_account_id', '=', True)]}" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
+                        </group>
+                    </group>
+                </notebook>
+
+                <notebook position="replace"/>
+
+
+
+            </field>
+        </record>
+
+        <record id="is_view_mrp_workcenter_search" model="ir.ui.view">
+            <field name="name">is_view_mrp_workcenter_search</field>
+            <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.view_mrp_workcenter_search" />
+            <field name="arch" type="xml">
+                <field name="name" position="after"> 
+                    <field name="code"/>
                     <field name="is_atelier_id"/>
                     <field name="is_ilot_id"/>
-                    <field name="is_ordre"/>
                     <field name="is_prioritaire"/>
-                    <field name="company_id" groups="base.group_multi_company"/>
-                </tree>
+                </field>
             </field>
         </record>
-        <record id="mrp.mrp_workcenter_view" model="ir.ui.view">
-            <field name="name">mrp.workcenter.form</field>
-            <field name="model">mrp.workcenter</field>
-            <field name="arch" type="xml">
-                <form string="Work Center">
-                    <sheet>
-                        <group col="4">
-                            <group string="Description du poste de charge">
-                                <field name="code"/>
-                                <field name="name"/>
-                                <field name="resource_type"/>
-                                <field name="calendar_id" widget="selection"/>
-                                <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                                <field name="active"/>
-                            </group>
-                            <group string="Configuration pour le Planning">
-                                <field name="is_atelier_id"/>
-                                <field name="is_ilot_id"/>
-                                <field name="is_ordre"/>
-                                <field name="is_prioritaire"/>
-                            </group>
-                        </group>
-                        <group>
-                            <group string="Capacity Information">
-                                <field name="time_efficiency"                 invisible="1"/>
-                                <field name="capacity_per_cycle"              invisible="1"/>
-                                <field name="time_cycle" widget="float_time"  invisible="1"/>
-                                <field name="time_start" widget="float_time"/>
-                                <field name="time_stop" widget="float_time"/>
-                            </group>
-                            <group string="Costing Information">
-                                <field name="product_id" on_change="on_change_product_cost(product_id)"  invisible="1"/>
-                                <field name="costs_hour"/>
-                                <field name="is_cout_pk"/>
-                                <field name="costs_hour_account_id" groups="analytic.group_analytic_accounting"  invisible="1"/>
-                                <field name="costs_cycle"/>
-                                <field name="costs_cycle_account_id" groups="analytic.group_analytic_accounting"  invisible="1"/>
-                                <field name="costs_journal_id" attrs="{'required':['|',('costs_hour_account_id', '=', True),('costs_cycle_account_id', '=', True)]}" groups="analytic.group_analytic_accounting"  invisible="1"/>
-                                <field name="costs_general_account_id" attrs="{ 'required':['|',('costs_cycle_account_id', '=', True),('costs_hour_account_id', '=', True)]}" groups="analytic.group_analytic_accounting"  invisible="1"/>
-                            </group>
-                        </group>
-                        <label for="note"/>
-                        <field name="note"/>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+
+
+
+        <!-- 
         <record id="mrp.view_mrp_workcenter_search" model="ir.ui.view">
             <field name="name">mrp.workcenter.search</field>
             <field name="model">mrp.workcenter</field>
@@ -401,7 +426,6 @@
                 </search>
             </field>
         </record>
-
 
         <record model="ir.ui.view" id="is_mrp_production_workcenter_form_view_inherit">
             <field name="name">mrp.production.workcenter.line.form</field>

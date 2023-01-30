@@ -163,7 +163,13 @@ class mrp_workcenter(models.Model):
     is_ilot_id     = fields.Many2one('is.ilot'   , 'Ilot')
     is_ordre       = fields.Integer("Ordre")
     is_cout_pk     = fields.Float("Coût horaire Plasti-ka")
-    is_prioritaire = fields.Boolean("Poste de charge prioritaire")
+    is_prioritaire = fields.Boolean("Prioritaire", help="Poste de charge prioritaire")
+    resource_type  = fields.Selection([
+            ('user'    , 'Humain'),
+            ('material', "Matériel"),
+        ], "Type de ressource", required=True, default="material")
+
+
 
 
 # class mrp_production_workcenter_line(models.Model):

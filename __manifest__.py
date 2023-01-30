@@ -114,6 +114,7 @@ Module Odoo 16 pour Plastigray
         "report/is_encres_utilisees_view.xml",
         "report/is_product_packaging.xml",
 
+        "wizard/is_cas_emploi_wizard_new.xml",
 
 
         "views/menu.xml",
@@ -189,7 +190,6 @@ Module Odoo 16 pour Plastigray
         # "wizard/stock_transfer_details.xml",
         # "wizard/audit_log_wizard.xml",
         # "wizard/is_cas_emploi_wizard.xml",
-        # "wizard/is_cas_emploi_wizard_new.xml",
         # "wizard/set_sheduler_cout_article.xml",
         # "wizard/assistent_report_view.xml",
         # "wizard/is_change_emplacement_wizard_view.xml",
