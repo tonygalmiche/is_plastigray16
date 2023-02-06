@@ -98,7 +98,7 @@ Module Odoo 16 pour Plastigray
         "views/mrp_prevision_view.xml",
         "views/mrp_view.xml",
         "views/product_view.xml",
-        # "views/product_pricelist_view.xml", #TODO : A revoir car il y a eu besaucoup de changement sur les pricelist 
+        "views/product_pricelist_view.xml", #TODO : A revoir car il y a eu besaucoup de changement sur les pricelist 
 
         "views/res_company_view.xml",
         "views/res_country_view.xml",

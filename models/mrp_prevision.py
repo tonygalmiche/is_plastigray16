@@ -10,7 +10,6 @@ from odoo.exceptions import ValidationError
 
 class mrp_prevision(models.Model):
     _name = 'mrp.prevision'
-    _description="mrp_prevision"
     _description = 'Prevision des fabrication dans le secteur automobile'
 
 
@@ -22,7 +21,6 @@ class mrp_prevision(models.Model):
 
     def _get_company_id(self):
         company_id  = self.env.user.company_id.id
-        print("OK",company_id)
         return company_id
 
     num_od           = fields.Integer("Numéro", readonly=True)

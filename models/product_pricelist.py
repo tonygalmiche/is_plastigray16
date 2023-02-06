@@ -8,15 +8,18 @@ class product_pricelist_item(models.Model):
     _inherit = "product.pricelist.item"
     _order="price_version_id,product_id,sequence"
 
+    sequence           = fields.Integer('Séquence', index=True) #TODO : Ce champ a été supprimé dans Odoo 16
     date_start         = fields.Date('Date de début de validité')
     date_end           = fields.Date('Date de fin de validité')
     justification      = fields.Char('Justification du prix')
-    product_uom_id     = fields.Many2one('product.uom', 'Unité'        , related='product_id.uom_id'   , readonly=True)
-    product_po_uom_id  = fields.Many2one('product.uom', "Unité d'achat", related='product_id.uom_po_id', readonly=True)
+    product_uom_id     = fields.Many2one('uom.uom', 'Unité'        , related='product_id.uom_id'   , readonly=True)
+    product_po_uom_id  = fields.Many2one('uom.uom', "Unité d'achat", related='product_id.uom_po_id', readonly=True)
     is_ref_client      = fields.Char("Référence client"  , related='product_id.is_ref_client', readonly=True)
     is_mold_dossierf   = fields.Char("Moule ou Dossier F", related='product_id.is_mold_dossierf', readonly=True)
     is_gestionnaire_id = fields.Many2one('is.gestionnaire', "Gestionnaire", related='product_id.is_gestionnaire_id', readonly=True)
     min_quantity       = fields.Float('Quantité minimum', required=True)
+    pricelist_id       = fields.Many2one('product.pricelist', 'Liste de prix', required=False)
+    price_version_id   = fields.Many2one('product.pricelist.version', 'Version', required=False, index=True)
 
 
     def on_change_product_id(self, product_id):
@@ -33,7 +36,7 @@ class product_pricelist_item(models.Model):
                         min_quantity=self.env['product.template'].get_lot_livraison(product.product_tmpl_id, partner)
                     else:
                         min_quantity=product.lot_mini
-                        product_uom = self.env['product.uom'].browse(product.uom_po_id.id)
+                        product_uom = self.env['uom.uom'].browse(product.uom_po_id.id)
                         min_quantity = product_uom._compute_qty(product.uom_id.id, min_quantity, product.uom_po_id.id)
                     res['value']['product_uom_id']    = product.uom_id.id
                     res['value']['product_po_uom_id'] = product.uom_po_id.id
@@ -42,87 +45,90 @@ class product_pricelist_item(models.Model):
         return res
 
 
+class product_pricelist_version(models.Model):
+    """product.pricelist.version n'existe plus dans Odoo 16 !"""
+    _name = 'product.pricelist.version'
+    _description = 'Version de liste de prix'
+
+    name         =  fields.Char('Version'      , required=True, index=True)
+    date_start   =  fields.Date('Date de début', index=True)
+    date_end     =  fields.Date('Date de fin'  , index=True)
+    pricelist_id = fields.Many2one('product.pricelist', 'Liste de prix',  required=True)
+    active       =  fields.Boolean('Active', default=1)
+  
+    def action_liste_items(self):
+        for obj in self:
+            if obj.pricelist_id.type=='sale':
+                view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_sale_tree_view')
+            else:
+                view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_purchase_tree_view')
+            return {
+                'name': obj.name,
+                'view_mode': 'tree',
+                'res_model': 'product.pricelist.item',
+                'type': 'ir.actions.act_window',
+                'view_id': view_id.id,
+                'domain': [('price_version_id','=',obj.id)],
+                'context': {'default_price_version_id': obj.id }
+            }
 
 
-#TODO product.pricelist.version n'existe plus !!!!
+    def print_pricelist_version(self):
+        cr, uid, context = self.env.args
+        for obj in self:
+            return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray.report_pricelist_version', context=context)
 
 
-# class product_pricelist_version(models.Model):
-#     _inherit = "product.pricelist.version"
+    def action_dupliquer(self):
+        for obj in self:
+            print(obj)
+
+        # for obj in self.browse(cr, uid, ids, dict(context, active_test=False)):
+        #     date_end=datetime.datetime.strptime(obj.date_end, '%Y-%m-%d')
+        #     date_start = date_end   + datetime.timedelta(days=1)
+        #     date_end = date_start + relativedelta(years=1)
+        #     date_end = date_end   + datetime.timedelta(days=-1)
+        #     name=str(int(obj.name)+1)
+        #     vals = {
+        #         'pricelist_id' : obj.pricelist_id.id,
+        #         'name': name,
+        #         'active': obj.active,
+        #         'date_start': date_start,
+        #         'date_end': date_end ,
+        #     }
+        #     model = self.pool.get('product.pricelist.version')
+        #     new_id = model.create(cr, uid, vals, context=context)
 
 
-#     def action_liste_items(self):
-#         for obj in self:
-#             if obj.pricelist_id.type=='sale':
-#                 view_id=self.env.ref('is_plastigray.is_product_pricelist_item_sale_tree_view')
-#             else:
-#                 view_id=self.env.ref('is_plastigray.is_product_pricelist_item_purchase_tree_view')
-#             return {
-#                 'name': obj.name,
-#                 'view_mode': 'tree',
-#                 'view_type': 'form',
-#                 'res_model': 'product.pricelist.item',
-#                 'type': 'ir.actions.act_window',
-#                 'view_id': view_id.id,
-#                 'domain': [('price_version_id','=',obj.id)],
-#                 'context': {'default_price_version_id': obj.id }
-#             }
+        #     model = self.pool.get('product.pricelist.item')
+        #     for item in obj.items_id:
+        #         start=item.date_start
+        #         if start:
+        #             start=date_start
+        #         end=item.date_end
+        #         if end:
+        #             end=date_end
+        #         vals = {
+        #             'price_version_id': new_id,
+        #             'name' : name,
+        #             'product_id': item.product_id.id,
+        #             'min_quantity': item.min_quantity,
+        #             'sequence': item.sequence,
+        #             'date_start': item.date_start,
+        #             'date_end': item.date_end,
+        #             'justification': item.justification,
+        #             'price_surcharge': item.price_surcharge,
+        #         }
+        #         id = model.create(cr, uid, vals, context=context)
 
 
-#     def print_pricelist_version(self):
-#         cr, uid, context = self.env.args
-#         for obj in self:
-#             return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray.report_pricelist_version', context=context)
-
-
-#     def action_dupliquer(self, cr, uid, ids, context=None):
-#         for obj in self.browse(cr, uid, ids, dict(context, active_test=False)):
-#             date_end=datetime.datetime.strptime(obj.date_end, '%Y-%m-%d')
-#             date_start = date_end   + datetime.timedelta(days=1)
-#             date_end = date_start + relativedelta(years=1)
-#             date_end = date_end   + datetime.timedelta(days=-1)
-#             name=str(int(obj.name)+1)
-#             vals = {
-#                 'pricelist_id' : obj.pricelist_id.id,
-#                 'name': name,
-#                 'active': obj.active,
-#                 'date_start': date_start,
-#                 'date_end': date_end ,
-#             }
-#             model = self.pool.get('product.pricelist.version')
-#             new_id = model.create(cr, uid, vals, context=context)
-
-
-#             model = self.pool.get('product.pricelist.item')
-#             for item in obj.items_id:
-#                 start=item.date_start
-#                 if start:
-#                     start=date_start
-#                 end=item.date_end
-#                 if end:
-#                     end=date_end
-#                 vals = {
-#                     'price_version_id': new_id,
-#                     'name' : name,
-#                     'product_id': item.product_id.id,
-#                     'min_quantity': item.min_quantity,
-#                     'sequence': item.sequence,
-#                     'date_start': item.date_start,
-#                     'date_end': item.date_end,
-#                     'justification': item.justification,
-#                     'price_surcharge': item.price_surcharge,
-#                 }
-#                 id = model.create(cr, uid, vals, context=context)
-
-
-#         return {
-#             'name': "Liste de prix",
-#             'view_mode': 'form',
-#             'view_type': 'form',
-#             'res_model': 'product.pricelist',
-#             'type': 'ir.actions.act_window',
-#             'res_id': obj.pricelist_id.id,
-#         }
+        # return {
+        #     'name': "Liste de prix",
+        #     'view_mode': 'form',
+        #     'res_model': 'product.pricelist',
+        #     'type': 'ir.actions.act_window',
+        #     'res_id': obj.pricelist_id.id,
+        # }
 
 
 
@@ -135,8 +141,11 @@ class product_pricelist(models.Model):
     _inherit = "product.pricelist"
     
     partner_id = fields.Many2one('res.partner', 'Partenaire')
-
-
+    type       = fields.Selection([
+            ("purchase", "Liste de prix d'achat"), 
+            ("sale"    , "Liste de prix de vente"), 
+        ], " Type de liste de prix ", required=True, default="purchase")
+    version_id = fields.One2many('product.pricelist.version', 'pricelist_id', 'Versions', copy=True)
 
 
     

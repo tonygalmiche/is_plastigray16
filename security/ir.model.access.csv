@@ -279,11 +279,13 @@ access_is_dossier_article_type_article,access_is_dossier_article_type_article,mo
 access_is_dossier_article_combustion,access_is_dossier_article_combustion,model_is_dossier_article_combustion,base.group_user,1,1,1,1
 access_is_dossier_article_code_recyclage,access_is_dossier_article_code_recyclage,model_is_dossier_article_code_recyclage,base.group_user,1,1,1,1
 
-
 access_is_product_packaging,access_is_product_packaging,model_is_product_packaging,base.group_user,1,1,1,1
 
 access_is_encres_utilisees,access_is_encres_utilisees,model_is_encres_utilisees,base.group_user,1,0,0,0
 
-
 access_is_cas_emploi_wizard_new,access_is_cas_emploi_wizard_new,model_is_cas_emploi_wizard_new,base.group_user,1,1,1,1
 access_is_cas_emploi_line,access_is_cas_emploi_line,model_is_cas_emploi_line,base.group_user,1,1,1,1
+
+access_mrp_routing,access_mrp_routing,model_mrp_routing,base.group_user,1,1,1,1
+
+access_product_pricelist_version,access_product_pricelist_version,model_product_pricelist_version,base.group_user,1,1,1,1

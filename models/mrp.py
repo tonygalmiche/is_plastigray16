@@ -8,7 +8,7 @@ class mrp_bom(models.Model):
     _order    = 'product_tmpl_id'
     _rec_name = 'product_tmpl_id'
 
-    #is_gamme_generique_id = fields.Many2one('mrp.routing', 'Gamme générique', help="Gamme générique utilisée dans le plan directeur")
+    is_gamme_generique_id = fields.Many2one('mrp.routing', 'Gamme générique', help="Gamme générique utilisée dans le plan directeur")
     is_sous_traitance     = fields.Boolean('Nomenclature de sous-traitance')
     is_negoce             = fields.Boolean('Nomenclature de négoce')
     is_inactive           = fields.Boolean('Nomenclature inactive')
@@ -16,6 +16,7 @@ class mrp_bom(models.Model):
     is_qt_um              = fields.Integer("Qt par UM", compute='_compute')
     segment_id            = fields.Many2one('is.product.segment', 'Segment'  , related='product_tmpl_id.segment_id'        , readonly=True)
     is_gestionnaire_id    = fields.Many2one('is.gestionnaire', 'Gestionnaire', related='product_tmpl_id.is_gestionnaire_id', readonly=True)
+    routing_id            = fields.Many2one('mrp.routing', 'Gamme', index=True) # Ce champ n'existait plus dans Odoo 16
  
 
     @api.depends('product_tmpl_id')
@@ -81,63 +82,78 @@ class mrp_bom_line(models.Model):
                 }
 
 
-# class mrp_routing(models.Model):
-#     _name = 'mrp.routing'
-#     _inherit = 'mrp.routing'
+class mrp_routing(models.Model):
+    """Ce modele n'existe plus dans Odoo 16 => Il faut le recréer"""
+    _name = 'mrp.routing'
+    _description = "Gamme"
+    _order = "name"
     
-#     @api.depends('name')
-#     def _compute(self):
-#         for obj in self:
-#             boms = self.env['mrp.bom'].search([('routing_id','=',obj.id)])
-#             val=False
-#             if len(boms)>0:
-#                 val=True
-#             obj.is_presse_affectee=val
-#             boms = self.env['mrp.bom'].search([('is_gamme_generique_id','=',obj.id)])
-#             val=False
-#             if len(boms)>0:
-#                 val=True
-#             obj.is_presse_generique=val
+    @api.depends('name')
+    def _compute(self):
+        for obj in self:
+            boms = self.env['mrp.bom'].search([('routing_id','=',obj.id)])
+            val=False
+            if len(boms)>0:
+                val=True
+            obj.is_presse_affectee=val
+            boms = self.env['mrp.bom'].search([('is_gamme_generique_id','=',obj.id)])
+            val=False
+            if len(boms)>0:
+                val=True
+            obj.is_presse_generique=val
 
-#     is_presse_affectee  = fields.Boolean("Presse affectée" , store=False, readonly=True, compute='_compute')
-#     is_presse_generique = fields.Boolean("Presse générique", store=False, readonly=True, compute='_compute')
-#     is_nb_empreintes    = fields.Integer("Nombre d'empreintes par pièce", help="Nombre d'empreintes pour cette pièce dans le moule")
-#     is_coef_theia       = fields.Float("Coefficient Theia", help="Nombre de pièces différentes dans le moule", digits=(14,2))
-#     is_reprise_humidite = fields.Boolean("Reprise d'humidité")
+    name                = fields.Char("Nom", required=True)
+    active              = fields.Boolean("Active", default=True)
+    company_id          = fields.Many2one('res.company', 'Company' , default=1)
+    workcenter_lines    = fields.One2many('mrp.routing.workcenter', 'routing_id', 'Opérations', copy=True)
 
-#     _defaults = {
-#         'is_nb_empreintes': 1,
-#         'is_coef_theia': 1,
-#     }
+    is_presse_affectee  = fields.Boolean("Presse affectée" , store=False, readonly=True, compute='_compute')
+    is_presse_generique = fields.Boolean("Presse générique", store=False, readonly=True, compute='_compute')
+    is_nb_empreintes    = fields.Integer("Nombre d'empreintes par pièce", default=1, help="Nombre d'empreintes pour cette pièce dans le moule")
+    is_coef_theia       = fields.Float("Coefficient Theia"              , default=1, help="Nombre de pièces différentes dans le moule", digits=(14,2))
+    is_reprise_humidite = fields.Boolean("Reprise d'humidité")
 
 
-# class mrp_routing_workcenter(models.Model):
-#     _name    = 'mrp.routing.workcenter'
-#     _inherit = 'mrp.routing.workcenter'
-#     _order   = 'routing_id,sequence'
+
+class mrp_routing_workcenter(models.Model):
+    _inherit = 'mrp.routing.workcenter'
+    _order   = 'routing_id,sequence'
     
-#     @api.depends('is_nb_secondes')
-#     def _hour_nbr(self):
-#         for obj in self:
-#             v = 0.0
-#             obj.hour_nbr=obj.is_nb_secondes/float(3600)
+    @api.depends('is_nb_secondes')
+    def _hour_nbr(self):
+        for obj in self:
+            v = 0.0
+            obj.hour_nbr=obj.is_nb_secondes/float(3600)
 
-#     hour_nbr         = fields.Float("Nombre d'heures"      , digits=(12,6), method=True, type='float', store=True, readonly=True, compute='_hour_nbr')
-#     is_nb_secondes   = fields.Float("Nombre de secondes"   , digits=(12,2), required=False, help="Nombre de secondes")
-#     is_nb_mod        = fields.Selection([
-#         ('0.25', '0.25'), 
-#         ('0.3' , '0.3'), 
-#         ('0.5' , '0.5'), 
-#         ('0.75', '0.75'), 
-#         ('1'   , '1'), 
-#         ('1.25', '1.25'), 
-#         ('1.5' , '1.5'), 
-#         ('1.75', '1.75'), 
-#         ('2'   , '2'),
-#         ('2.5' , '2.5'),
-#         ('3'   , '3'),
-#         ('4'   , '4'),
-#     ], 'Nombre de MOD', help='Donnée utilisée en particlier pour le planning')
+    routing_id = fields.Many2one('mrp.routing', 'Gamme'   , index=True, required=True)                 # Ce champ n'existait plus dans Odoo 16
+    bom_id     = fields.Many2one('mrp.bom', 'Nomenclature', index=True, ondelete='set null', required=False, check_company=False) # Ce nouveau champ est obligatoire dans Odoo 16
+    company_id = fields.Many2one('res.company', 'Company' , related='routing_id.company_id')
+
+
+ #   company_id = fields.Many2one('res.company', 'Company', related='bom_id.company_id')
+
+    # bom_id = fields.Many2one(
+    #     'mrp.bom', 'Bill of Material',
+    #     index=True, ondelete='cascade', required=True, check_company=True)
+
+
+
+    hour_nbr         = fields.Float("Nombre d'heures"      , digits=(12,6), store=True, readonly=True, compute='_hour_nbr')
+    is_nb_secondes   = fields.Float("Nombre de secondes"   , digits=(12,2), required=False, help="Nombre de secondes")
+    is_nb_mod        = fields.Selection([
+        ('0.25', '0.25'), 
+        ('0.3' , '0.3'), 
+        ('0.5' , '0.5'), 
+        ('0.75', '0.75'), 
+        ('1'   , '1'), 
+        ('1.25', '1.25'), 
+        ('1.5' , '1.5'), 
+        ('1.75', '1.75'), 
+        ('2'   , '2'),
+        ('2.5' , '2.5'),
+        ('3'   , '3'),
+        ('4'   , '4'),
+    ], 'Nombre de MOD', help='Donnée utilisée en particlier pour le planning')
 
 
 class is_atelier(models.Model):
