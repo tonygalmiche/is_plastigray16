@@ -674,7 +674,6 @@
             ref('is_employes_hors_production_group')
         ])]"/>
     </record>
-    <!--
     <record id="menu_is_ventes_cde_entete" model="ir.ui.menu" >
         <field name="name">Commandes</field>
         <field name="sequence">10</field>
@@ -685,6 +684,10 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
+
+
+        <!--
+
     <record id="menu_is_ventes_cde_ligne" model="ir.ui.menu" >
         <field name="name">Lignes de commandes</field>
         <field name="sequence">20</field>

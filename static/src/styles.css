@@ -1,4 +1,11 @@
 
+.o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+  max-width: 1600px;
+}
+
+.o_FormRenderer_chatterContainer.o-aside {
+  --Chatter-max-width: 300px;
+}
 
 .o_form_view .o_form_sheet_bg {
     background-color: #f7f9f9;

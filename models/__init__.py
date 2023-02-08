@@ -67,6 +67,7 @@ from . import is_preventif
 from . import is_preventif_equipement
 from . import is_proforma_chine
 from . import is_reach                # TODO A revoir après stock_picking
+from . import is_resource
 from . import is_rgpd
 from . import is_tarif_cial
 from . import is_theia
@@ -95,7 +96,6 @@ from . import is_pic_3ans
 # import auditlog                       TODO : A revoir avec l'installation du moule auditlog quant il sera dispo
 
 # TODO : is_plastigray
-# import is_resource                 TODO : Voir s'il faut migrer ce module ou pas
 # import is_demande_achat            TODO : N'est plus utilisé => Ne pas migrer
 # import is_moyen_fabrication        TODO : N'est plus utilisé => Ne pas migrer
 # import is_moyen_fabrication_autre  TODO : N'est plus utilisé => Ne pas migrer

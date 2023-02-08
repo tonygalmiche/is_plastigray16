@@ -117,7 +117,7 @@
                 <xpath expr="//page[@name='sales_purchases']" position="attributes">
                     <attribute name="attrs">{'invisible':[('is_company', '=', False)]}</attribute> 
                 </xpath>
-                <!-- <xpath expr="//page[@name='sales_purchases']" position="after"> 
+                <xpath expr="//page[@name='sales_purchases']" position="after"> 
                     <page name='is_calendar' string="Calendrier" attrs="{'invisible':[('is_company', '=', False)]}">
                         <field name="calendar_line">
                             <form string="Leaves">
@@ -145,7 +145,7 @@
                             <field name="is_horizon_besoins"/>
                         </group>
                     </page>
-                </xpath> -->
+                </xpath>
 
                 <xpath expr="//page[@name='contact_addresses']" position="attributes">
                     <attribute name="attrs">{'invisible':True}</attribute>

@@ -38,7 +38,7 @@ class sale_order(models.Model):
     is_info_client         = fields.Text("Information client complèmentaire")
     is_nb_lignes           = fields.Integer("Nb lignes", store=True, compute='_compute')
     is_date_envoi_mail     = fields.Datetime("Mail envoyé le", readonly=False)
-    is_incoterm            = fields.Many2one('stock.incoterms', 'Incoterm / Conditions de livraison', related='partner_id.is_incoterm', readonly=True)
+    is_incoterm            = fields.Many2one('account.incoterms', 'Incoterm / Conditions de livraison', related='partner_id.is_incoterm', readonly=True)
     is_lieu                = fields.Char('Lieu', related='partner_id.is_lieu', readonly=True)
     is_ar_commentaire      = fields.Text("Commentaire AR de commande")
     is_message             = fields.Text("Message", compute='_compute_message')
@@ -203,7 +203,14 @@ class sale_order(models.Model):
                     obj.pricelist_id.id, 
                     obj.company_id.id, 
                     obj.id)
+                
+
+
                 price=res['value']['price_unit']
+
+                print(line,res,price)
+
+
                 if price:
                     line.price_unit=price
 
@@ -215,9 +222,6 @@ class sale_order(models.Model):
             for line in lines:
                 sequence=sequence+1
                 line.sequence=sequence
-
-
-
 
 
     def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
@@ -279,27 +283,28 @@ class sale_order(models.Model):
 
 
     def _verif_tarif(self,vals):
-        if 'is_type_commande' in vals and 'is_article_commande_id' in vals and 'pricelist_id' in vals :
-            if vals['is_type_commande']=='ouverte':
-                product_id=vals['is_article_commande_id']
-                product   = self.env['product.product'].browse([product_id])
-                partner   = self.env['res.partner'].browse(vals['partner_id'])
-                pricelist_id=vals['pricelist_id']
-                context={}
-                if pricelist_id:
-                    pricelist=self.env['product.pricelist'].browse(pricelist_id)
-                    qty = self.env['product.template'].get_lot_livraison(product.product_tmpl_id, partner)
-                    #date = time.strftime('%Y-%m-%d')
-                    date = vals['date_order']
-                    ctx = dict(
-                        context,
-                        uom=product.uom_id.id,
-                        date=date,
-                    )
-                    price = self.pool.get('product.pricelist').price_get(self._cr, self._uid, pricelist_id,
-                            product_id, qty, vals['partner_id'], ctx)[pricelist_id]
-                    if price is False:
-                        raise ValidationError("Il n'existe pas de tarif (liste de prix) pour l'article '"+str(product.is_code)+"' / qt="+str(qty)+ " / date="+str(date))
+        print("A REVOIR")
+        # if 'is_type_commande' in vals and 'is_article_commande_id' in vals and 'pricelist_id' in vals :
+        #     if vals['is_type_commande']=='ouverte':
+        #         product_id=vals['is_article_commande_id']
+        #         product   = self.env['product.product'].browse([product_id])
+        #         partner   = self.env['res.partner'].browse(vals['partner_id'])
+        #         pricelist_id=vals['pricelist_id']
+        #         context={}
+        #         if pricelist_id:
+        #             pricelist=self.env['product.pricelist'].browse(pricelist_id)
+        #             qty = self.env['product.template'].get_lot_livraison(product.product_tmpl_id, partner)
+        #             #date = time.strftime('%Y-%m-%d')
+        #             date = vals['date_order']
+        #             ctx = dict(
+        #                 context,
+        #                 uom=product.uom_id.id,
+        #                 date=date,
+        #             )
+        #             price = self.pool.get('product.pricelist').price_get(self._cr, self._uid, pricelist_id,
+        #                     product_id, qty, vals['partner_id'], ctx)[pricelist_id]
+        #             if price is False:
+        #                 raise ValidationError("Il n'existe pas de tarif (liste de prix) pour l'article '"+str(product.is_code)+"' / qt="+str(qty)+ " / date="+str(date))
 
 
     def _verif_existe(self,vals):
@@ -334,31 +339,31 @@ class sale_order(models.Model):
 
 
 
-    def create(self, vals):
-        self._verif_tarif(vals)
-        obj = super(sale_order, self).create(vals)
-        self._verif_existe(vals)
-        self._client_order_ref(obj)
-        self._verif_article_livrable(obj)
-        return obj
+    # def create(self, vals):
+    #     self._verif_tarif(vals)
+    #     obj = super(sale_order, self).create(vals)
+    #     self._verif_existe(vals)
+    #     self._client_order_ref(obj)
+    #     self._verif_article_livrable(obj)
+    #     return obj
 
 
-    def write(self,vals):
-        res=super(sale_order, self).write(vals)
-        for obj in self:
-            vals2={
-                'is_type_commande'       : obj.is_type_commande,
-                'is_article_commande_id' : obj.is_article_commande_id.id,
-                'pricelist_id'           : obj.pricelist_id.id,
-                'partner_id'             : obj.partner_id.id,
-                'partner_invoice_id'     : obj.partner_invoice_id.id,
-                'date_order'             : obj.date_order,
-            }
-            self._verif_tarif(vals2)
-            self._verif_existe(vals2)
-            self._client_order_ref(obj)
-            self._verif_article_livrable(obj)
-        return res
+    # def write(self,vals):
+    #     res=super(sale_order, self).write(vals)
+    #     for obj in self:
+    #         vals2={
+    #             'is_type_commande'       : obj.is_type_commande,
+    #             'is_article_commande_id' : obj.is_article_commande_id.id,
+    #             'pricelist_id'           : obj.pricelist_id.id,
+    #             'partner_id'             : obj.partner_id.id,
+    #             'partner_invoice_id'     : obj.partner_invoice_id.id,
+    #             'date_order'             : obj.date_order,
+    #         }
+    #         self._verif_tarif(vals2)
+    #         self._verif_existe(vals2)
+    #         self._client_order_ref(obj)
+    #         self._verif_article_livrable(obj)
+    #     return res
 
 
 
@@ -410,7 +415,7 @@ class sale_order_line(models.Model):
                 res_partner = self.env['res.partner']
                 delai_transport = order.order_id.partner_id.is_delai_transport
                 date_expedition = order.is_date_livraison
-                date_expedition = datetime.datetime.strptime(date_expedition, '%Y-%m-%d')
+                #date_expedition = datetime.datetime.strptime(date_expedition, '%Y-%m-%d')
                 #Delai de transport en jour ouvrés (sans samedi et dimanches)
                 if delai_transport:
                     while delai_transport>0:
@@ -425,9 +430,11 @@ class sale_order_line(models.Model):
                 #date_expedition = date_expedition - datetime.timedelta(days=delai_transport)
                 new_date = date_expedition
                 while True:
-                    date_txt=new_date.strftime('%Y-%m-%d')
-                    num_day = int(time.strftime('%w', time.strptime( date_txt, '%Y-%m-%d')))
-                    if (num_day in jours_fermes or date_txt in leave_dates):
+                    #date_txt=new_date.strftime('%Y-%m-%d')
+                    #num_day = int(time.strftime('%w', time.strptime( date_txt, '%Y-%m-%d')))
+                    num_day = new_date.strftime('%w')
+
+                    if (num_day in jours_fermes or new_date in leave_dates):
                         new_date = new_date - datetime.timedelta(days=1)
                     else:
                         break
@@ -493,7 +500,7 @@ class sale_order_line(models.Model):
             #jours_feries=res_partner.get_jours_feries(partner)
 
             # num de jour dans la semaine de la date de livraison
-            num_day = time.strftime('%w', time.strptime(date_livraison, '%Y-%m-%d'))
+            num_day = date_livraison.strftime("%w")
             
             if int(num_day) in jours_fermes or date_livraison in leave_dates:
                 return False
