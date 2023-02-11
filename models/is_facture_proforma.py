@@ -81,10 +81,12 @@ class is_facture_proforma_line(models.Model):
         prix = 0
         product_id   = self.product_id.id
         if product_id:
-            pricelist_id = self.proforma_id.pricelist_id.id
-            partner_id   = self.proforma_id.adresse_liv_id.id
-            #price = self.proforma_id.pricelist_id.price_get(product_id, self.quantite, partner_id)
-            #prix = price[pricelist_id]
+            pricelist = self.proforma_id.pricelist_id
+            prix, justifcation = pricelist.price_get(
+                product = self.product_id,
+                qty     = self.quantite, 
+                date    = self.proforma_id.date_facture
+            )
         self.prix = prix
 
 

@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError
 # from lxml import etree
 # import xml.etree.ElementTree as ET
 # from tempfile import TemporaryFile
-# import base64
+import base64
 # import os
 # import time
 # import math
@@ -45,7 +45,7 @@ class is_edi_cde_cli_line(models.Model):
 
 
     def action_acceder_commande(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('sale', 'view_order_form')
+        view_id = self.env.ref('sale.view_order_form').id
         for obj in self:
             return {
                 'name': "Commande",
@@ -105,18 +105,11 @@ class is_edi_cde_cli(models.Model):
     file_ids        = fields.Many2many('ir.attachment', 'is_doc_attachment_rel', 'doc_id', 'file_id', 'Fichiers')
     create_id       = fields.Many2one('res.users', 'Importe par', readonly=True)
     create_date     = fields.Datetime("Date d'importation")
-    state           = fields.Selection([('analyse', u'Analyse'),('traite', u'Traité')], u"État", readonly=True, index=True, default="analyse")
+    state           = fields.Selection([('analyse', u'Analyse'),('traite', u'Traité')], u"État", index=True, default="analyse")
     line_ids        = fields.One2many('is.edi.cde.cli.line', 'edi_cde_cli_id', u"Commandes a importer")
     nb_lignes       = fields.Integer("Nombre de lignes"  , compute='_compute'          , readonly=True, store=False)
     nb_fichiers     = fields.Integer("Nombre de fichier" , compute='_compute_nb_file'  , readonly=True, store=False)
     nb_anomalies    = fields.Integer("Nombre d'anomalies", compute='_compute'          , readonly=True, store=False)
-
-
-
-
-
-
-
 
 
     def action_analyser_fichiers(self):
@@ -126,7 +119,6 @@ class is_edi_cde_cli(models.Model):
             line_obj = self.env['is.edi.cde.cli.line']
             for attachment in obj.file_ids:
                 datas = self.get_data(obj.import_function, attachment)
-
                 for row in datas:
                     num_commande_client = row["num_commande_client"]
                     ref_article_client  = row["ref_article_client"]
@@ -148,31 +140,20 @@ class is_edi_cde_cli(models.Model):
                             ('state'             , '=', 'draft'),
                         ])
                     anomalie1   = "Cde non trouvée"
+                    pricelist=False
                     if len(order):
                         anomalie1=False
                         order_id     = order[0].id
                         partner_id   = order[0].partner_id.id
-                        pricelist_id = order[0].pricelist_id.id
-
-
-                                
-
-
-
-
+                        pricelist    = order[0].pricelist_id
                     for ligne in row["lignes"]:
                         product_id = False
                         prix       = 0
                         anomalie2  = []
-
-
                         if len(order):
                             if point_dechargement:
                                 if point_dechargement!=order[0].is_point_dechargement:
                                     anomalie2.append(u"Point de déchargement modifié (%s<>%s)"%(point_dechargement,order[0].is_point_dechargement))
-
-
-
                         if "anomalie" in ligne:
                             if ligne["anomalie"]:
                                 anomalie2.append(ligne["anomalie"])
@@ -192,35 +173,36 @@ class is_edi_cde_cli(models.Model):
 
                             #** Date de livraison sur le jour indiqué **********
                             date_livraison=ligne["date_livraison"]
+
                             if ligne["type_commande"]=='previsionnel' and date_livraison and obj.jour_semaine:
-                                d=datetime.strptime(date_livraison, '%Y-%m-%d')
+                                d=date_livraison
                                 jour_semaine_client = d.weekday() + 1
                                 jour_semaine        = int(obj.jour_semaine)
                                 delta = jour_semaine - jour_semaine_client
                                 if delta:
                                     d = d + timedelta(days=delta)
-                                    date_livraison = d.strftime('%Y-%m-%d')
+                                    date_livraison = d
                             #***************************************************
 
                             #** Recherche du prix ******************************
                             if quantite>0:
                                 context={}
-                                if pricelist_id:
-                                    #date = ligne["date_livraison"]
+                                if pricelist:
                                     ctx = dict(
                                         context,
                                         uom=product.uom_id.id,
                                         date=date_livraison,
                                     )
-                                    prix = self.pool.get('product.pricelist').price_get(
-                                        self._cr, self._uid,
-                                        pricelist_id, product.id, quantite, partner_id, ctx)[pricelist_id]
+                                    prix, justifcation = pricelist.price_get(
+                                        product = product,
+                                        qty     = quantite, 
+                                        date    = date_livraison
+                                    )
                                 if prix==0:
                                     anomalie2.append("Prix à 0")
                             #***************************************************
 
                             #** Vérification que qt >= lot livraison ***********
-                            #lot=self.env['product.template'].get_lot_livraison(product.product_tmpl_id, obj.partner_id)
                             lot=self.env['product.template'].get_lot_livraison(product.product_tmpl_id, order.partner_id)
 
                             if quantite<lot and quantite>0:
@@ -228,16 +210,14 @@ class is_edi_cde_cli(models.Model):
                             #***************************************************
 
                             #** Vérification mutliple du lot *******************
-                            #arrondi_lot=self.env['product.template'].get_arrondi_lot_livraison(product.id, obj.partner_id.id, quantite)
-                            arrondi_lot=self.env['product.template'].get_arrondi_lot_livraison(product.id, order.partner_id.id, quantite)
+                            arrondi_lot=self.env['product.template'].get_arrondi_lot_livraison(product, order.partner_id, quantite)
                             if quantite!=arrondi_lot and quantite>0:
                                 anomalie2.append("Quantité non multiple du lot ("+str(int(arrondi_lot))+")")
                             #***************************************************
 
                             #** Vérification de la date de livraison livraison *
-                            #date_livraison=ligne["date_livraison"]
                             if date_livraison:
-                                check_date = self.env['sale.order.line'].check_date_livraison(date_livraison, partner_id)
+                                check_date = self.env['sale.order.line'].check_date_livraison(date_livraison, order.partner_id)
                                 if not check_date:
                                     anomalie2.append("Date de livraison pendant la fermeture du client")
                             else:
@@ -311,7 +291,8 @@ class is_edi_cde_cli(models.Model):
             #*******************************************************************
 
             #** Suppression des anciennes commandes ****************************
-            date_jour=time.strftime('%Y-%m-%d')
+            #date_jour=time.strftime('%Y-%m-%d')
+            date_jour = datetime.now()
             for order_id in order_ids:
                 filtre=[
                     ('order_id', '=', order_id),
@@ -1398,7 +1379,8 @@ class is_edi_cde_cli(models.Model):
     def get_data_Odoo(self, attachment):
         res = []
         for obj in self:
-            csvfile=base64.decodestring(attachment.datas)
+            #csvfile=base64.decodestring(attachment.datas)
+            csvfile=base64.b64decode(attachment.datas).decode("utf-8") 
             csvfile=csvfile.split("\n")
             tab=[]
             ct=0
@@ -1433,8 +1415,8 @@ class is_edi_cde_cli(models.Model):
                     if lig[5]=='prev':
                         type_commande="previsionnel"
                     date_livraison=lig[4].strip()
-                    d=datetime.strptime(date_livraison, '%Y-%m-%d')
-                    date_livraison=d.strftime('%Y-%m-%d')
+                    date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d').date()
+                    #date_livraison=d.strftime('%Y-%m-%d')
                     quantite=str(lig[6])
                     qt=0
                     try:

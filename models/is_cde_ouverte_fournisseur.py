@@ -243,7 +243,7 @@ class is_cde_ouverte_fournisseur(models.Model):
             paths=[]
             for order in orders:
                 pdfreport_id, pdfreport_path = tempfile.mkstemp(suffix='.pdf', prefix='order.tmp.')
-                pdf = self.env['report'].get_pdf(order, 'is_plastigray.is_report_purchaseorder')
+                pdf = self.env['report'].get_pdf(order, 'is_plastigray16.is_report_purchaseorder')
                 f = open(pdfreport_path,'wb')
                 f.write(pdf)
                 f.close()
@@ -309,7 +309,7 @@ class is_cde_ouverte_fournisseur(models.Model):
     def print_commande_ouverte(self):
         for obj in self:
             self.set_histo(obj.id, u'Impression commande ouverte')
-        return self.env['report'].get_action(self, 'is_plastigray.report_cde_ouverte_fournisseur')
+        return self.env['report'].get_action(self, 'is_plastigray6.report_cde_ouverte_fournisseur')
 
 
 
@@ -323,7 +323,7 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ******************************************************************
 
             # ** Creation ou modification de la pièce jointe *******************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray.report_cde_ouverte_fournisseur')
+            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_cde_ouverte_fournisseur')
             vals = {
                 'name':        name,
                 'datas_fname': name,
@@ -356,7 +356,7 @@ class is_cde_ouverte_fournisseur(models.Model):
             #*******************************************************************
 
             #** Génération du PDF de l'Horizon des besoins *********************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray.report_appel_de_livraison')
+            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_appel_de_livraison')
             #*******************************************************************
 
             #** Ajout des commandes fermes à l'horizon *************************
@@ -445,7 +445,7 @@ class is_cde_ouverte_fournisseur(models.Model):
     def print_relance(self):
         for obj in self:
             self.set_histo(obj.id, u'Impression Relance fournisseur')
-        return self.env['report'].get_action(self, 'is_plastigray.report_relance_fournisseur')
+        return self.env['report'].get_action(self, 'is_plastigray16.report_relance_fournisseur')
 
 
     def mail_relance(self):
@@ -458,7 +458,7 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ******************************************************************
 
             # ** Creation ou modification de la pièce jointe *******************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray.report_relance_fournisseur')
+            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_relance_fournisseur')
             vals = {
                 'name':        name,
                 'datas_fname': name,

@@ -77,7 +77,7 @@ class is_mold_project(models.Model):
         
     @api.model
     def _get_group_chef_de_projet(self):
-        ids = self.env.ref('is_plastigray.is_chef_projet_group').ids
+        ids = self.env.ref('is_plastigray16.is_chef_projet_group').ids
         return [('groups_id','in',ids)]
 
 

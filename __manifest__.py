@@ -119,7 +119,7 @@ Module Odoo 16 pour Plastigray
         "report/is_product_packaging.xml",
 
         "wizard/is_cas_emploi_wizard_new.xml",
-
+        "wizard/is_liste_servir_wizard_view.xml",
 
         "views/menu.xml",
 
@@ -186,7 +186,6 @@ Module Odoo 16 pour Plastigray
         # "calendar_view.xml",
         # "wizard/is_gestion_lot_view.xml",
         # "wizard/is_stock_mise_rebut_view.xml",
-        # "wizard/is_liste_servir_wizard_view.xml",
         # "wizard/generate_previsions_view.xml",
         # "wizard/mrp_product_produce_view.xml",
         # "wizard/is_export_seriem_view.xml",

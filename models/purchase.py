@@ -145,7 +145,7 @@ class purchase_order(models.Model):
 
             #** Génération du PDF **********************************************
             name=u'commande-'+obj.name+u'.pdf'
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray.is_report_purchaseorder')
+            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_purchaseorder')
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************

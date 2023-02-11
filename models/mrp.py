@@ -70,7 +70,7 @@ class mrp_bom_line(models.Model):
             nomenclatures=self.env['mrp.bom'].search([['product_tmpl_id', '=', product_tmpl_id]])
             if len(nomenclatures)>0:
                 res_id=nomenclatures[0].id
-                view_id=self.env.ref('is_plastigray.is_mrp_bom_form_view')
+                view_id=self.env.ref('is_plastigray16.is_mrp_bom_form_view')
                 return {
                     'name': obj.product_id.name,
                     'view_mode': 'form',

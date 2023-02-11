@@ -87,7 +87,7 @@ class is_facture_proforma_outillage(models.Model):
         user = self.env['res.users'].browse(uid)
         if user.email==False:
             raise Warning(u"Votre mail n'est pas renseigné !")
-        if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray.is_comptable_group'):
+        if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray16.is_comptable_group'):
             raise Warning(u"Accès non autorisé !")
         partners={}
         for obj in self:
@@ -108,7 +108,7 @@ class is_facture_proforma_outillage(models.Model):
                 # *****************************************************************
 
                 # ** Creation ou modification de la pièce jointe *******************
-                pdf = self.env['report'].get_pdf(obj, 'is_pg_2019.report_is_facture_proforma_outillage')
+                pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_is_facture_proforma_outillage')
 
                 vals = {
                     'name':        name,

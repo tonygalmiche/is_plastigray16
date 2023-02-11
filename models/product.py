@@ -718,10 +718,10 @@ class product_template(models.Model):
         return lot_livraison
 
 
-    def get_arrondi_lot_livraison(self, product_id, partner_id, qty):
-        product=self.env['product.product'].browse(product_id)
+    def get_arrondi_lot_livraison(self, product, partner, qty):
+        #product=self.env['product.product'].browse(product_id)
         product_client=self.env['is.product.client'].search([
-            ('client_id'    , '=', partner_id),
+            ('client_id'    , '=', partner.id),
             ('product_id'   , '=', product.product_tmpl_id.id),
         ])
         if len(product_client)>0:
@@ -813,23 +813,24 @@ class product_product(models.Model):
 #         return super(product_product, self).search(cr, uid, args, offset=offset, limit=limit, order=order, context=context, count=count)
  
 
-#     def get_stock(self, product_id, control_quality=False, location=False):
-#         cr=self._cr
-#         SQL="""
-#             select sum(sq.qty) 
-#             from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
-#             where sq.product_id="""+str(product_id)+""" 
-#                   and sl.usage='internal' and sl.active='t' """
-#         if control_quality:
-#             SQL=SQL+" and sl.control_quality='"+str(control_quality)+"' "
-#         if location:
-#             SQL=SQL+" and sl.name='"+str(location)+"' "
-#         cr.execute(SQL)
-#         result = cr.fetchall()
-#         stock=0
-#         for row in result:
-#             stock=row[0]
-#         return stock
+    #def get_stock(self, product_id, control_quality=False, location=False):
+    def get_stock(self, control_quality=False, location=False):
+        cr=self._cr
+        SQL="""
+            select sum(sq.quantity) 
+            from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
+            where sq.product_id="""+str(self.id)+""" 
+                  and sl.usage='internal' and sl.active='t' """
+        if control_quality:
+            SQL=SQL+" and sl.control_quality='"+str(control_quality)+"' "
+        if location:
+            SQL=SQL+" and sl.name='"+str(location)+"' "
+        cr.execute(SQL)
+        result = cr.fetchall()
+        stock=0
+        for row in result:
+            stock=row[0] or 0
+        return stock
 
     
 

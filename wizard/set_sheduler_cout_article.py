@@ -28,15 +28,9 @@ class shedule_cout_article_report(models.TransientModel):
 
     @api.multi
     def set_sheduler_cout_article(self):
-
-
-
-
-        user = self.env['res.users'].browse(self._uid)
-        data_obj = self.env['ir.model.data']
-        model, res_id = data_obj.get_object_reference('is_plastigray', 'cron_cout_article_report')
-        if res_id:
-            sheduler_brw = self.env['ir.cron'].browse(res_id)
+        view_id = self.env.ref('is_plastigray16.cron_cout_article_report').id
+        if view_id:
+            sheduler_brw = self.env['ir.cron'].browse(view_id)
             if sheduler_brw.active:
                 utc = sheduler_brw.nextcall
                 datetime_format = tools.misc.DEFAULT_SERVER_DATETIME_FORMAT
@@ -46,7 +40,6 @@ class shedule_cout_article_report(models.TransientModel):
                 local = pytz.timezone(user_tz)
                 display_date_result = datetime.datetime.strftime(pytz.utc.localize(datetime.datetime.strptime(utc, datetime_format)).astimezone(local),u"%d/%m/%Y à %H:%M") 
                 raise Warning(u"Cette action est déjà plannifiée le "+display_date_result)
-
             sheduler_brw.sudo().write({
                 'active':True, 
                 'nextcall':self.next_call, 'numbercall':1,

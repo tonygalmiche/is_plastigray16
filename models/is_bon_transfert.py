@@ -46,36 +46,37 @@ class is_bon_transfert(models.Model):
 
     def creation_facture_proforma_action(self):
         for obj in self:
-            vals={
-                'adresse_liv_id'  : obj.partner_id.id,
-                'bon_transfert_id': obj.id,
-            }
-            proforma=self.env['is.facture.proforma'].create(vals)
-            poids_net = poids_brut = 0
-            sequence=0
-            for line in obj.line_ids:
-                sequence += 10
+            if obj.partner_id:
                 vals={
-                    'proforma_id': proforma.id,
-                    'sequence'   : sequence,
-                    'product_id' : line.product_id.id,
-                    'designation': line.product_id.name,
-                    'uom_id'     : line.uom_id.id,
-                    'quantite'   : line.quantite,
+                    'adresse_liv_id'  : obj.partner_id.id,
+                    'bon_transfert_id': obj.id,
                 }
-                res=self.env['is.facture.proforma.line'].create(vals)
-                res._onchange_product_id()
-            proforma.calcul_poids()
-            proforma._compute()
-            return {
-                'name': "Facture proforma",
-                'view_mode': 'form',
-                'view_type': 'form',
-                'res_model': 'is.facture.proforma',
-                'type': 'ir.actions.act_window',
-                'res_id': proforma.id,
-                'domain': '[]',
-            }
+                proforma=self.env['is.facture.proforma'].create(vals)
+                poids_net = poids_brut = 0
+                sequence=0
+                for line in obj.line_ids:
+                    sequence += 10
+                    vals={
+                        'proforma_id': proforma.id,
+                        'sequence'   : sequence,
+                        'product_id' : line.product_id.id,
+                        'designation': line.product_id.name,
+                        'uom_id'     : line.uom_id.id,
+                        'quantite'   : line.quantite,
+                    }
+                    res=self.env['is.facture.proforma.line'].create(vals)
+                    res._onchange_product_id()
+                proforma.calcul_poids()
+                proforma._compute()
+                return {
+                    'name': "Facture proforma",
+                    'view_mode': 'form',
+                    'view_type': 'form',
+                    'res_model': 'is.facture.proforma',
+                    'type': 'ir.actions.act_window',
+                    'res_id': proforma.id,
+                    'domain': '[]',
+                }
 
 
     @api.model_create_multi
@@ -85,13 +86,18 @@ class is_bon_transfert(models.Model):
         return super().create(vals_list)
 
 
-    def on_change(self, location_id, date_fin):
+
+
+    @api.onchange('location_id','date_fin')
+    def onchange_location_id_date_fin(self):
         cr = self._cr
+        location_id = self.location_id.id
+        date_fin = self.date_fin
         value = {}
         lines = []
         if location_id and date_fin==False:
             SQL="""
-                select sq.product_id, sum(sq.qty)
+                select sq.product_id, sum(sq.quantity)
                 from stock_quant sq
                 where sq.location_id="""+str(location_id)+"""
                 group by sq.product_id
@@ -105,7 +111,10 @@ class is_bon_transfert(models.Model):
                     'product_id': row[0],
                     'quantite'  : row[1],
                 }
-                lines.append(vals)
+                #lines.append(vals)
+                lines.append([0,False,vals]) 
+
+
         if location_id and date_fin:
             SQL="""
                 select sm.product_id, sum(sm.product_uom_qty)
@@ -124,9 +133,16 @@ class is_bon_transfert(models.Model):
                     'product_id': row[0],
                     'quantite'  : row[1],
                 }
-                lines.append(vals)
-        value.update({'line_ids': lines})
-        return {'value': value}
+                #lines.append(vals)
+                lines.append([0,False,vals]) 
+
+
+        #self.write({'line_ids': lines})
+        self.line_ids =  [[6, False, []]]
+        self.line_ids = lines
+        #vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
+        #value.update({'line_ids': lines})
+        #return {'value': value}
 
 
     def get_is_code_rowspan(self,product_id):
@@ -258,7 +274,6 @@ class is_bon_transfert(models.Model):
 
     def affecter_uc_aux_lignes_bt_action(self):
         for obj in self:
-            print(obj.name)
             ucs = self.env['is.galia.base.uc'].search([('bon_transfert_id','=',obj.id)])
             for uc in ucs:
                 uc.bt_line_id=False
@@ -298,7 +313,7 @@ class is_bon_transfert_line(models.Model):
                             pt.is_mold_id, 
                             pt.is_ref_client, 
                             pt.uom_id
-                    from product_product pp left outer join product_packaging pa on pp.product_tmpl_id=pa.product_tmpl_id 
+                    from product_product pp left outer join product_packaging pa on pp.product_tmpl_id=pa.product_id 
                                             inner join product_template       pt on pp.product_tmpl_id=pt.id
                     where pp.id="""+str(obj.product_id.id)+"""
                     limit 1

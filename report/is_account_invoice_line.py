@@ -76,7 +76,7 @@ class is_account_invoice_line(models.Model):
         cr = self._cr
         cr.execute("REFRESH MATERIALIZED VIEW is_account_invoice_line;")
         now = datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S')
-        view_id=self.env.ref('is_plastigray.is_account_invoice_line_customer_tree_view').id
+        view_id=self.env.ref('is_plastigray16.is_account_invoice_line_customer_tree_view').id
         return {
             'name': u'Lignes des factures client actualisées à '+str(now),
             'view_mode': 'tree,form,graph',
@@ -93,7 +93,7 @@ class is_account_invoice_line(models.Model):
         cr = self._cr
         cr.execute("REFRESH MATERIALIZED VIEW is_account_invoice_line;")
         now = datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S')
-        view_id=self.env.ref('is_plastigray.is_account_invoice_line_supplier_tree_view').id
+        view_id=self.env.ref('is_plastigray16.is_account_invoice_line_supplier_tree_view').id
         return {
             'name': u'Lignes des factures fournisseur actualisées à '+str(now),
             'view_mode': 'tree,form,graph',
@@ -111,7 +111,7 @@ class is_account_invoice_line(models.Model):
         cr = self._cr
         cr.execute("REFRESH MATERIALIZED VIEW is_account_invoice_line;")
         now = datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S')
-        view_id=self.env.ref('is_plastigray.is_indicateur_ca_facture_tree_view').id
+        view_id=self.env.ref('is_plastigray16.is_indicateur_ca_facture_tree_view').id
         return {
             'name': u'CA factures client actualisé à '+str(now),
             'view_mode': 'tree,form,graph',

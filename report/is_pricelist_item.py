@@ -68,10 +68,10 @@ class is_pricelist_item(models.Model):
             print obj.price_version_id.pricelist_id
 
             if obj.price_version_id.pricelist_id.type=='sale':
-                view_id=self.env.ref('is_plastigray.is_product_pricelist_item_sale_tree_view').id
+                view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_sale_tree_view').id
                 pricelist_type='sale'
             else:
-                view_id=self.env.ref('is_plastigray.is_product_pricelist_item_purchase_tree_view').id
+                view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_purchase_tree_view').id
                 pricelist_type='purchase'
 
             return {

@@ -289,3 +289,5 @@ access_is_cas_emploi_line,access_is_cas_emploi_line,model_is_cas_emploi_line,bas
 access_mrp_routing,access_mrp_routing,model_mrp_routing,base.group_user,1,1,1,1
 
 access_product_pricelist_version,access_product_pricelist_version,model_product_pricelist_version,base.group_user,1,1,1,1
+
+access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servir_wizard,base.group_user,1,1,1,1

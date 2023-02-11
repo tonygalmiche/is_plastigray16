@@ -128,7 +128,7 @@ class sale_order(models.Model):
 
             #** Génération du PDF **********************************************
             name=u'ar_commande-' + obj.client_order_ref + u'.pdf'
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray.report_ar_commande')
+            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_ar_commande')
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************
@@ -203,14 +203,7 @@ class sale_order(models.Model):
                     obj.pricelist_id.id, 
                     obj.company_id.id, 
                     obj.id)
-                
-
-
                 price=res['value']['price_unit']
-
-                print(line,res,price)
-
-
                 if price:
                     line.price_unit=price
 
@@ -254,7 +247,7 @@ class sale_order(models.Model):
 
 
     def action_acceder_client(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('base', 'view_partner_form')
+        view_id = self.env.ref('base.view_partner_form').id
         for obj in self:
             return {
                 'name': "Client",
@@ -443,7 +436,7 @@ class sale_order_line(models.Model):
 
 
     def action_acceder_commande(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('sale', 'view_order_form')
+        view_id = self.env.ref('sale.view_order_form').id
         for obj in self:
             return {
                 'name': "Commande",
@@ -457,7 +450,7 @@ class sale_order_line(models.Model):
             }
 
     def action_acceder_client(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('base', 'view_partner_form')
+        view_id = self.env.ref('base.view_partner_form').id
         for obj in self:
             return {
                 'name': "Client",
@@ -472,7 +465,7 @@ class sale_order_line(models.Model):
 
 
     def action_acceder_article(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_product', 'is_product_template_only_form_view')
+        view_id = self.env.ref('is_plastigray16.is_product_template_only_form_view').id
         for obj in self:
             return {
                 'name': "Article",
@@ -486,115 +479,83 @@ class sale_order_line(models.Model):
             }
 
 
-
-    def check_date_livraison(self, date_livraison,  partner_id, context=None):
-        res_partner = self.env['res.partner']
-        if partner_id:
-            partner = self.env['res.partner'].browse(partner_id)
+    def check_date_livraison(self, date_livraison,  partner):
+        if partner:
             # jours de fermeture de la société
-            jours_fermes = res_partner.num_closing_days(partner)
+            jours_fermes = partner.num_closing_days(partner)
             # Jours de congé de la société
-            leave_dates = res_partner.get_leave_dates(partner,avec_jours_feries=True)
-
-            # Jours fériés du pays du client 
-            #jours_feries=res_partner.get_jours_feries(partner)
-
+            leave_dates = partner.get_leave_dates(partner,avec_jours_feries=True)
             # num de jour dans la semaine de la date de livraison
-            num_day = date_livraison.strftime("%w")
-            
+            num_day = date_livraison.strftime("%w")            
             if int(num_day) in jours_fermes or date_livraison in leave_dates:
                 return False
         return True
 
 
-    def onchange_date_livraison(self, date_livraison, product_id, qty, uom, partner_id, pricelist, company_id, order_id=False):
-        context=self._context
-        v = {}
-        warning = {}
-        if order_id:
-            order = self.env['sale.order'].browse(order_id)
-            if order:
-                partner_id=order.partner_id.id
-                company_id=order.company_id.id
+    def set_price_justification(self):
+        """Recherche prix et justifcation dans liste de prix pour date et qt et mise à jour"""
+        price = 0
+        justifcation = False
+        if self.order_id.pricelist_id:
+            price, justifcation = self.order_id.pricelist_id.price_get(
+                product = self.product_id,
+                qty     = self.product_uom_qty, 
+                date    = self.is_date_livraison
+            )
+        self.price_unit = price
+        self.is_justification = justifcation
 
 
-        if partner_id and date_livraison:
-            partner     = self.env['res.partner'].browse(partner_id)
-            company     = self.env['res.company'].browse(company_id)
-            res_partner = self.env['res.partner']
-
-
-        
-            check_date = self.check_date_livraison(date_livraison, partner_id, context=context)
+    @api.onchange('is_date_livraison')
+    def onchange_date_livraison(self):
+        if self.order_id:
+            self.set_price_justification()
+            partner=self.order_id.partner_id
+            check_date = self.check_date_livraison(self.is_date_livraison, partner)
             if not check_date:
                 warning = {
-                            'title': _('ValidationError!'),
-                            'message' : 'La date de livraison tombe pendant la fermeture du client.'
+                    'title': 'Attention!',
+                    'message' : 'La date de livraison tombe pendant la fermeture du client.'
                 }
+                return {'warning': warning}
 
 
-            #** Recherche prix dans liste de prix pour la date et qt ***********
-            if pricelist and product_id:
-                ctx = dict(
-                    context,
-                    uom=uom,
-                    date=date_livraison,
-                )
-                price = self.pool.get('product.pricelist').price_get(self._cr, self._uid, [pricelist],
-                        product_id, qty or 1.0, partner_id, ctx)[pricelist]
-                v['price_unit'] = price
-                # mettre à jour is_justification
-                if product_id is not False and pricelist is not False and date_livraison is not False:
-                    SQL="SELECT get_pricelist_justif('sale', {}, {}, {}, '{}') FROM product_product WHERE id={}".format(pricelist, product_id, qty or 1.0, date_livraison, product_id)
-                    self._cr.execute(SQL)
-                    result = self._cr.fetchone()
-
-                    v['is_justification'] = result[0];
-            #*******************************************************************
-
-        
-        return {'value': v,
-                'warning': warning}
+    @api.onchange('product_id')
+    def product_id_change(self):
+        #** Arrondir au lot et au multiple du lot *****************************
+        qty = self.env['product.template'].get_arrondi_lot_livraison(self.product_id, self.order_id.partner_id, self.product_uom_qty)
+        self.product_uom_qty = qty
+        #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
+        self.set_price_justification()
 
 
-    # Arrondir au lot et au multiple du lot dans la saisie des commandes
-    #def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
-    def product_id_change(self, pricelist_id, product_id, qty=0,
-            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
-            lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
-        qty=self.env['product.template'].get_arrondi_lot_livraison(product_id, partner_id, qty)
-        vals = super(sale_order_line, self).product_id_change(pricelist_id, product_id, qty,
-                                                                     uom, qty_uos, uos, name, partner_id,
-                                                                     lang, update_tax, date_order, packaging,
-                                                                     fiscal_position, flag, context=context)
-        vals['value']['product_uom_qty'] = qty
-        if date_order is False:
-            if 'warning' in vals:
-                vals['warning']=False
-            return vals
+    @api.depends('product_id', 'product_uom', 'product_uom_qty')
+    def _compute_price_unit(self):
+        for line in self:
+            self.set_price_justification()
 
-        #** Recherche prix dans liste de prix pour la date et qt ***********
-        price=0
-        if date_order:
-            if len(date_order)==10:
-                if pricelist_id:
-                    ctx = dict(
-                        context,
-                        uom=uom,
-                        date=date_order,
-                    )
-                    price = self.pool.get('product.pricelist').price_get(self._cr, self._uid, [pricelist_id],
-                            product_id, qty or 1.0, partner_id, ctx)[pricelist_id]
-        #*******************************************************************
-        vals['value']['price_unit'] = price
-        # mettre à jour is_justification
-        if product_id is not False and pricelist_id is not False and date_order is not False:
-            SQL="SELECT get_pricelist_justif('sale', {}, {}, {}, '{}') FROM product_product WHERE id={}".format(pricelist_id, product_id, qty, date_order, product_id)
-            self._cr.execute(SQL)
-            result = self._cr.fetchone()
 
-            vals['value']['is_justification'] = result[0];
-        return vals
+
+            # # check if there is already invoiced amount. if so, the price shouldn't change as it might have been
+            # # manually edited
+            # if line.qty_invoiced > 0:
+            #     continue
+            # if not line.product_uom or not line.product_id or not line.order_id.pricelist_id:
+            #     line.price_unit = 0.0
+            # else:
+            #     price = line.with_company(line.company_id)._get_display_price()
+            #     line.price_unit = line.product_id._get_tax_included_unit_price(
+            #         line.company_id,
+            #         line.order_id.currency_id,
+            #         line.order_id.date_order,
+            #         'sale',
+            #         fiscal_position=line.order_id.fiscal_position_id,
+            #         product_price_unit=price,
+            #         product_currency=line.currency_id
+            #     )
+
+
+
 
 
 class is_vente_message(models.Model):

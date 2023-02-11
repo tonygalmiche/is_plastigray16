@@ -756,122 +756,40 @@ class res_partner(models.Model):
         return active
 
 
-    # def _get_name(self):
-    #     """ Utility method to allow name_get to be overrided without re-browse the partner """
-    #     partner = self
-    #     name = partner.name or ''
+    def _get_name(self):
+        """ Utility method to allow name_get to be overrided without re-browse the partner """
+        partner = self
+        name = partner.name or ''
 
-    #     if partner.company_name or partner.parent_id:
-    #         if not name and partner.type in ['invoice', 'delivery', 'other']:
-    #             name = dict(self.fields_get(['type'])['type']['selection'])[partner.type]
-    #         if not partner.is_company:
-    #             name = self._get_contact_name(partner, name)
+        if partner.is_company:
+            if partner.is_code and partner.is_adr_code:
+                name =  "%s (%s/%s)" % (name, partner.is_code, partner.is_adr_code)
+            if partner.is_code and not partner.is_adr_code:
+                name =  "%s (%s)" % (name, partner.is_code)
 
-    #         if partner.is_company:
-    #             if partner.is_code and partner.is_adr_code:
-    #                 name =  "%s (%s/%s)" % (name, partner.is_code, partner.is_adr_code)
-    #             if partner.is_code and not partner.is_adr_code:
-    #                 name =  "%s (%s)" % (name, partner.is_code)
-
-    #     if self._context.get('show_address_only'):
-    #         name = partner._display_address(without_company=True)
-    #     if self._context.get('show_address'):
-    #         name = name + "\n" + partner._display_address(without_company=True)
-    #     name = name.replace('\n\n', '\n')
-    #     name = name.replace('\n\n', '\n')
-    #     if self._context.get('partner_show_db_id'):
-    #         name = "%s (%s)" % (name, partner.id)
-    #     if self._context.get('address_inline'):
-    #         splitted_names = name.split("\n")
-    #         name = ", ".join([n for n in splitted_names if n.strip()])
-    #     if self._context.get('show_email') and partner.email:
-    #         name = "%s <%s>" % (name, partner.email)
-    #     if self._context.get('html_format'):
-    #         name = name.replace('\n', '<br/>')
-    #     if self._context.get('show_vat') and partner.vat:
-    #         name = "%s ‒ %s" % (name, partner.vat)
-    #     return name
-
-
-    def name_get(self):
-        res = []
-        for partner in self:
-            name = partner.name
-            if partner.is_company:
-                if partner.is_code and partner.is_adr_code:
-                    name =  "%s (%s/%s)" % (name, partner.is_code, partner.is_adr_code)
-                if partner.is_code and not partner.is_adr_code:
-                    name =  "%s (%s)" % (name, partner.is_code)
-
-
-            res.append((partner.id,name))
-        return res
-
-
-    # def name_get(self):
-    #     context=self._context
-    #     if not len(self.ids):
-    #         return []
-    #     res = []
-    #     if context is None:
-    #         context = {}
-    #     for record in self:
-    #         name = record.name
-    #         if record.parent_id and not record.is_company:
-    #             name =  "%s, %s" % (record.parent_id.name, name)
-    #         if record.is_company:
-    #             if record.is_code and record.is_adr_code:
-    #                 name =  "%s (%s/%s)" % (name, record.is_code, record.is_adr_code)
-    #             if record.is_code and not record.is_adr_code:
-    #                 name =  "%s (%s)" % (name, record.is_code)
-    #         if context.get('show_address_only'):
-    #             name = self._display_address(record, without_company=True, context=context)
-    #         #Affiche l'adresse complète (ex dans les commandes)
-    #         if context.get('show_address'):
-    #             name = name + "\n" + self._display_address(record, without_company=True, context=context)
-    #         name = name.replace('\n\n','\n')
-    #         name = name.replace('\n\n','\n')
-    #         if context.get('show_email') and record.email:
-    #             name = "%s <%s>" % (name, record.email)
-    #         res.append((record.id, name))
-    #     return res
-
-
-    # def _get_name(self):
-    #     """ Utility method to allow name_get to be overrided without re-browse the partner """
-    #     partner = self
-    #     name = partner.name or ''
-
-    #     if partner.company_name or partner.parent_id:
-    #         if not name and partner.type in ['invoice', 'delivery', 'other']:
-    #             name = dict(self.fields_get(['type'])['type']['selection'])[partner.type]
-    #         if not partner.is_company:
-    #             name = self._get_contact_name(partner, name)
-
-    #         if partner.is_company:
-    #             if partner.is_code and partner.is_adr_code:
-    #                 name =  "%s (%s/%s)" % (name, partner.is_code, partner.is_adr_code)
-    #             if partner.is_code and not partner.is_adr_code:
-    #                 name =  "%s (%s)" % (name, partner.is_code)
-
-    #     if self._context.get('show_address_only'):
-    #         name = partner._display_address(without_company=True)
-    #     if self._context.get('show_address'):
-    #         name = name + "\n" + partner._display_address(without_company=True)
-    #     name = name.replace('\n\n', '\n')
-    #     name = name.replace('\n\n', '\n')
-    #     if self._context.get('partner_show_db_id'):
-    #         name = "%s (%s)" % (name, partner.id)
-    #     if self._context.get('address_inline'):
-    #         splitted_names = name.split("\n")
-    #         name = ", ".join([n for n in splitted_names if n.strip()])
-    #     if self._context.get('show_email') and partner.email:
-    #         name = "%s <%s>" % (name, partner.email)
-    #     if self._context.get('html_format'):
-    #         name = name.replace('\n', '<br/>')
-    #     if self._context.get('show_vat') and partner.vat:
-    #         name = "%s ‒ %s" % (name, partner.vat)
-    #     return name
+        if partner.company_name or partner.parent_id:
+            if not name and partner.type in ['invoice', 'delivery', 'other']:
+                name = dict(self.fields_get(['type'])['type']['selection'])[partner.type]
+            if not partner.is_company:
+                name = self._get_contact_name(partner, name)
+        if self._context.get('show_address_only'):
+            name = partner._display_address(without_company=True)
+        if self._context.get('show_address'):
+            name = name + "\n" + partner._display_address(without_company=True)
+        name = name.replace('\n\n', '\n')
+        name = name.replace('\n\n', '\n')
+        if self._context.get('partner_show_db_id'):
+            name = "%s (%s)" % (name, partner.id)
+        if self._context.get('address_inline'):
+            splitted_names = name.split("\n")
+            name = ", ".join([n for n in splitted_names if n.strip()])
+        if self._context.get('show_email') and partner.email:
+            name = "%s <%s>" % (name, partner.email)
+        if self._context.get('html_format'):
+            name = name.replace('\n', '<br/>')
+        if self._context.get('show_vat') and partner.vat:
+            name = "%s ‒ %s" % (name, partner.vat)
+        return name
 
 
     def action_view_partner(self):
@@ -1096,7 +1014,7 @@ class res_partner(models.Model):
                 ids.append(order.id)
 
             # ** Récupération du fichier PDF du rapport indiqué ****************
-            pdf = self.pool.get('report').get_pdf(self._cr, self._uid, ids, 'is_plastigray.report_cde_ouverte_fournisseur', context=self._context)
+            pdf = self.pool.get('report').get_pdf(self._cr, self._uid, ids, 'is_plastigray16.report_cde_ouverte_fournisseur', context=self._context)
             # ******************************************************************
 
             # Enregistrement du PDF sur le serveur *****************************

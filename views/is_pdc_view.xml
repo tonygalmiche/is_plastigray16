@@ -91,7 +91,7 @@
                         <button name="action_importer_cbn"    type="object" string="Importer les données du CBN" class="oe_highlight" states="creation" />
                         <button name="action_recalculer"      type="object" string="Recalculer" class="oe_highlight"                  states="analyse"  />
                         <button name="%(is_pdc_mold_action)d" type="action" string="Détail par moule et par section"                  states="analyse"  />
-                        <field name="state" widget="statusbar"  clickable="True" />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
                         <group>

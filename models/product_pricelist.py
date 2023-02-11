@@ -55,6 +55,8 @@ class product_pricelist_version(models.Model):
     date_end     =  fields.Date('Date de fin'  , index=True)
     pricelist_id = fields.Many2one('product.pricelist', 'Liste de prix',  required=True)
     active       =  fields.Boolean('Active', default=1)
+    item_ids     = fields.One2many('product.pricelist.item', 'price_version_id', 'Items', copy=True)
+
   
     def action_liste_items(self):
         for obj in self:
@@ -69,72 +71,56 @@ class product_pricelist_version(models.Model):
                 'type': 'ir.actions.act_window',
                 'view_id': view_id.id,
                 'domain': [('price_version_id','=',obj.id)],
-                'context': {'default_price_version_id': obj.id }
+                'context': {
+                    'default_price_version_id': obj.id,
+                    'default_company_id': 1,
+                }
             }
 
 
     def print_pricelist_version(self):
         cr, uid, context = self.env.args
         for obj in self:
-            return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray.report_pricelist_version', context=context)
+            return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray16.report_pricelist_version', context=context)
 
 
     def action_dupliquer(self):
         for obj in self:
-            print(obj)
-
-        # for obj in self.browse(cr, uid, ids, dict(context, active_test=False)):
-        #     date_end=datetime.datetime.strptime(obj.date_end, '%Y-%m-%d')
-        #     date_start = date_end   + datetime.timedelta(days=1)
-        #     date_end = date_start + relativedelta(years=1)
-        #     date_end = date_end   + datetime.timedelta(days=-1)
-        #     name=str(int(obj.name)+1)
-        #     vals = {
-        #         'pricelist_id' : obj.pricelist_id.id,
-        #         'name': name,
-        #         'active': obj.active,
-        #         'date_start': date_start,
-        #         'date_end': date_end ,
-        #     }
-        #     model = self.pool.get('product.pricelist.version')
-        #     new_id = model.create(cr, uid, vals, context=context)
-
-
-        #     model = self.pool.get('product.pricelist.item')
-        #     for item in obj.items_id:
-        #         start=item.date_start
-        #         if start:
-        #             start=date_start
-        #         end=item.date_end
-        #         if end:
-        #             end=date_end
-        #         vals = {
-        #             'price_version_id': new_id,
-        #             'name' : name,
-        #             'product_id': item.product_id.id,
-        #             'min_quantity': item.min_quantity,
-        #             'sequence': item.sequence,
-        #             'date_start': item.date_start,
-        #             'date_end': item.date_end,
-        #             'justification': item.justification,
-        #             'price_surcharge': item.price_surcharge,
-        #         }
-        #         id = model.create(cr, uid, vals, context=context)
-
-
-        # return {
-        #     'name': "Liste de prix",
-        #     'view_mode': 'form',
-        #     'res_model': 'product.pricelist',
-        #     'type': 'ir.actions.act_window',
-        #     'res_id': obj.pricelist_id.id,
-        # }
-
-
-
-
-
-
+            date_end = obj.date_end
+            date_start = date_end   + datetime.timedelta(days=1)
+            date_end = date_start + relativedelta(years=1)
+            date_end = date_end   + datetime.timedelta(days=-1)
+            name=str(int(obj.name)+1)
+            vals = {
+                'pricelist_id' : obj.pricelist_id.id,
+                'name': name,
+                'active': obj.active,
+                'date_start': date_start,
+                'date_end': date_end ,
+            }
+            new_id = self.env['product.pricelist.version'].create(vals)
+            for item in obj.item_ids:
+                start=item.date_start
+                if start:
+                    start=date_start
+                end=item.date_end
+                if end:
+                    end=date_end
+                vals = {
+                    'price_version_id': new_id.id,
+                    'name' : name,
+                    'product_id': item.product_id.id,
+                    'min_quantity': item.min_quantity,
+                    'sequence': item.sequence,
+                    'date_start': item.date_start,
+                    'date_end': item.date_end,
+                    'justification': item.justification,
+                    'price_surcharge': item.price_surcharge,
+                    'company_id': item.company_id.id,
+                    'applied_on': item.applied_on,
+                    'compute_price': item.compute_price,
+                }
+                id = self.env['product.pricelist.item'].create(vals)
 
 
 class product_pricelist(models.Model):
@@ -148,26 +134,41 @@ class product_pricelist(models.Model):
     version_id = fields.One2many('product.pricelist.version', 'pricelist_id', 'Versions', copy=True)
 
 
-    
-    # def _price_rule_get_multi(self, cr, uid, pricelist, products_by_qty_by_partner, context=None):
+    def price_get(self, product=False, qty=False, date=False):
+        price=0
+        justification=False
 
+
+
+        if product and qty and date:
+            for version in self.version_id:
+                if (version.date_start==False or version.date_start<=date) and (version.date_end==False or version.date_end>=date):
+                    for item in version.item_ids:
+                        if item.product_id==product:
+                            if (item.date_start==False or item.date_start<=date) and (item.date_end==False or item.date_end>=date):
+                                price = item.price_surcharge
+                                justification = item.justification
+                                break
+                    break
+        return [price, justification]
+
+
+
+
+
+
+    # def _price_rule_get_multi(self, cr, uid, pricelist, products_by_qty_by_partner, context=None):
     #     context = context or {}
     #     date = context.get('date') or time.strftime('%Y-%m-%d')
     #     date = date[0:10]
-
     #     products = map(lambda x: x[0], products_by_qty_by_partner)
     #     currency_obj = self.pool.get('res.currency')
     #     product_obj = self.pool.get('product.template')
     #     product_uom_obj = self.pool.get('product.uom')
     #     price_type_obj = self.pool.get('product.price.type')
-
-
-
     #     for product in products:
     #         if product.id==False:
     #             return {}
-
-
 
     #     version = False
     #     for v in pricelist.version_id:
@@ -347,10 +348,6 @@ class product_pricelist(models.Model):
     #         price = product_uom_obj._compute_price(cr, uid, price_uom_id, price, qty_uom_id)
     #         results[product.id] = (price, rule_id)
     #     return results
-
-
-
-
 
 
 # class product_uom(osv.osv):

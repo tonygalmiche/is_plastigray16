@@ -57,10 +57,11 @@
                         <group>
                             <group>
                                 <field name="name" />
-                                <field 
+                                <field name="location_id" />
+                                <!-- <field 
                                     name="location_id" 
                                     on_change="on_change(location_id, date_fin)" 
-                                    domain="[('usage','=','internal')]"  />
+                                    domain="[('usage','=','internal')]"  /> -->
                                 <field name="date_fin"    on_change="on_change(location_id, date_fin)"/>
                                 <field name="partner_id" domain="[('customer','=',True),('is_company','=',True)]" />
                                 <field name="transporteur_id" domain="[('supplier','=',True),('is_company','=',True)]" /> 

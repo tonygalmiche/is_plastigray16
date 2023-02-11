@@ -53,7 +53,7 @@
 
                         <button name="action_calcul_prix_revient"  type="object" string="Calcul des prix de revient" class="oe_highlight" states="prix_achat" confirm2="Voulez-vous vraiment lancer le calcul des prix de revient ?"/>
 
-                        <field name="state" widget="statusbar"  clickable="True" />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
 
                     <sheet>

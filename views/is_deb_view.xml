@@ -35,7 +35,7 @@
                             type="object"
                             attrs="{'invisible': ['|',('state', '!=', 'modification'),('soc', '==', 'odoo0')]}"
                         />
-                        <field name="state" widget="statusbar" clickable="True"/>
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
                         <group>

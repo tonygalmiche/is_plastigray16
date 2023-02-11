@@ -74,7 +74,7 @@ class is_preventif_equipement_zone(models.Model):
             paths=[]
 
             # ** Ajout du rapport *********************************************
-            result = self.env['report'].get_pdf(obj, 'is_pg_2019.preventif_equipement_zone_report')
+            result = self.env['report'].get_pdf(obj, 'is_plastigray16.preventif_equipement_zone_report')
             file_name = path + '/zone.pdf'
             fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
             try:

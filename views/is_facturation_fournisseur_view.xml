@@ -23,7 +23,7 @@
                             string="Afficher les lignes"
                             type="object"
                         />
-                        <field name="state" widget="statusbar"  clickable="True" />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
                         <group>

@@ -76,17 +76,18 @@ class is_bl_manuel(models.Model):
             }
 
 
-    def destinataire_id_change(self, destinataire_id):
+    @api.onchange('destinataire_id')
+    def onchange_destinataire_id(self):
         values = {}
-        if destinataire_id:
-            partner = self.env['res.partner'].browse(destinataire_id)
+        if self.destinataire_id:
+            partner=self.destinataire_id
             values['raison_sociale'] = partner.name
             values['adresse1']       = partner.street
             values['adresse2']       = partner.street2
             values['code_postal']    = partner.zip
             values['ville']          = partner.city
             values['pays_id']        = partner.country_id.id
-        return {'value': values}
+        self.write(values)
 
 
     @api.model_create_multi
@@ -166,30 +167,32 @@ class is_bl_manuel_line(models.Model):
     poids_brut             = fields.Float("Poids brut")
 
 
-    def product_id_change(self, product_id):
+    @api.onchange('product_id')
+    def product_id_change(self):
         values = {}
-        if product_id:
-            product = self.env['product.product'].browse(product_id)
+        if self.product_id:
+            product = self.product_id
             values['description']            = product.name
             values['ref_client']             = product.is_ref_client
             values['origine_id']             = product.is_origine_produit_id.id
             values['nomenclature_douaniere'] = product.is_nomenclature_douaniere
             values['qt_par_colis']           = product.is_uc_qt
             values['uom_id']                 = product.uom_id.id
-        return {'value': values}
+        self.write(values)
 
 
-    def qt_change(self, product_id,qt_livree,qt_par_colis):
+    @api.onchange('qt_livree','qt_par_colis')
+    def qt_change(self):
         values = {}
-        if product_id:
-            product = self.env['product.product'].browse(product_id)
-            values['poids_net']  = product.weight_net*qt_livree
-            values['poids_brut'] = product.weight*qt_livree
+        if self.product_id:
+            product = self.product_id
+            values['poids_net']  = product.weight_net*self.qt_livree
+            values['poids_brut'] = product.weight*self.qt_livree
         nb_colis=0
-        if qt_par_colis>0:
-            nb_colis=qt_livree/qt_par_colis
+        if self.qt_par_colis>0:
+            nb_colis=self.qt_livree/self.qt_par_colis
         values['nb_colis'] = nb_colis
-        return {'value': values}
+        self.write(values)
 
 
 

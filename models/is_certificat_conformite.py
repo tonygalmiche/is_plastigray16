@@ -72,7 +72,7 @@ class is_bon_transfert(models.Model):
                         certificat.num_lot          = lot
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         certificat.qt_liv           = lots[lot]["qt"]
-                        result = self.env['report'].get_pdf(certificat, 'is_pg_2019.is_certificat_conformite_report')
+                        result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
                         file_name = path + '/'+str(line.id) + '-' + str(x) + '.pdf'
                         fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                         try:
@@ -146,7 +146,7 @@ class is_bon_transfert_line(models.Model):
 
 
     def imprimer_certificat_action(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_2019', 'is_certificat_conformite_form_view')
+        view_id = self.env.ref('is_plastigray16.is_certificat_conformite_form_view').id
         for obj in self:
             certificat = self.env['is.certificat.conformite'].GetCertificat(obj.bon_transfert_id.partner_id, obj.product_id.id)
             if certificat:
@@ -267,7 +267,7 @@ class stock_picking(models.Model):
                         certificat.num_lot          = lot
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         x+=1
-                        result = self.env['report'].get_pdf(certificat, 'is_pg_2019.is_certificat_conformite_report')
+                        result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
                         file_name = path + '/'+str(move.id) + '-' + str(x) + '.pdf'
                         fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                         try:
@@ -336,7 +336,7 @@ class stock_move(models.Model):
 
 
     def imprimer_certificat_action(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_2019', 'is_certificat_conformite_form_view')
+        view_id = self.env.ref('is_plastigray16.is_certificat_conformite_form_view').id
         for obj in self:
             certificat = self.env['is.certificat.conformite'].GetCertificat(obj.picking_id.partner_id, obj.product_id.id)
             if certificat:

@@ -36,15 +36,15 @@
                     <field name="ref_article_client"  readonly="1"/>
                     <field name="num_commande_client" readonly="1"/>
                     <field name="product_id"          readonly="0" widget="many2one_clickable"/>
-                    <field name="quantite"            sum="Total"/>
                     <field name="date_livraison"/>
-                    <field name="point_dechargement"/>
+                    <field name="quantite"            sum="Total"/>
+                    <field name="point_dechargement"  optional="show" />
                     <field name="type_commande"/>
                     <field name="prix"/>
                     <field name="order_id"            readonly="0" widget="many2one_clickable"/>
                     <field name="anomalie"/>
-                    <field name="file_id"             readonly="1"/>
-                    <field name="write_date"          readonly="1" string="Date de modification"/>
+                    <field name="file_id"             optional="hide" readonly="1"/>
+                    <field name="write_date"          optional="hide" readonly="1" string="Date de modification"/>
                 </tree>
             </field>
         </record>
@@ -93,7 +93,7 @@
                             string='Importer les commandes' 
                             name="action_importer_commandes" type="object" states="analyse" 
                             confirm="Voulez-vous vraiment importer les commandes ?" />
-                        <field name="state" widget="statusbar"  clickable="True" />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
                         <group>

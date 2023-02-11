@@ -124,6 +124,17 @@
                         )"
                     />
                 </xpath> -->
+
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree/field[@name='product_packaging_qty']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree/field[@name='product_packaging_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                
+
+
+
                 <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree/field[@name='price_unit']" position="before">
                     <field  name="is_date_livraison"  
                             on_change="onchange_date_livraison(
@@ -255,44 +266,42 @@
                 </field>
             </field>
         </record>
-
+        
         <record model="ir.ui.view" id="is_order_line_tree_view">
             <field name="name">is_order_line_tree_view</field>
             <field name="model">sale.order.line</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree editable="top" create="0">
-                    <field name="product_id"          readonly="1" widget="many2one_clickable"/>
-                    <field name="is_ref_client"       readonly="1"/>
-                    <field name="product_uom_qty"     readonly="1" sum="Total"/>
-                    <field name="is_date_livraison"   readonly="1" />
-                    <field name="is_date_expedition"  readonly="1"/>
-                    <field name="is_type_commande"    readonly="1" />
-                    <button string="Client"    name="action_acceder_client"   type="object" icon="gtk-home" />
-                    <field name="order_id"            readonly="1" widget="many2one_clickable"/>
-                    <field name="is_client_order_ref" readonly="1"/>
-                    <field name="price_unit"          readonly="1"/>
-                    <field name="price_subtotal"      readonly="1" sum="Total"/>
-                    <field name="is_justification"    readonly="1"/>
-                    <field name="is_date_confirmation"/>
-                    <field name="is_comment_confirm"/>
-                    <field name="state"               readonly="1"/>
+                    <field name="product_id"          readonly="1" optional="show" widget="many2one_clickable"/>
+                    <field name="is_ref_client"       readonly="1" optional="show"/>
+                    <field name="product_uom_qty"     readonly="1" optional="show" sum="Total"/>
+                    <field name="is_date_livraison"   readonly="1" optional="show"/>
+                    <field name="is_date_expedition"  readonly="1" optional="show"/>
+                    <field name="is_type_commande"    readonly="1" optional="show" />
+                    <button title="Client"    name="action_acceder_client"   type="object" icon="fa-home" />
+                    <field name="order_id"            readonly="1" optional="show" widget="many2one_clickable"/>
+                    <field name="is_client_order_ref" readonly="1" optional="show"/>
+                    <field name="price_unit"          readonly="1" optional="show"/>
+                    <field name="price_subtotal"      readonly="1" optional="show" sum="Total"/>
+                    <field name="is_justification"    readonly="1" optional="show"/>
+                    <field name="is_date_confirmation"             optional="show"/>
+                    <field name="is_comment_confirm"               optional="show"/>
+                    <field name="state"               readonly="1" optional="show"/>
                 </tree>
             </field>
         </record>
-
-        <!-- <record id="is_sale_order_line_graph_view1" model="ir.ui.view">
+        <record id="is_sale_order_line_graph_view1" model="ir.ui.view">
              <field name="name">is_sale_order_line_graph_view1</field>
              <field name="model">sale.order.line</field>
              <field name="arch" type="xml">
-                 <graph type="pivot">
+                 <pivot>
                      <field name="product_id"         type="row"/>
                      <field name="is_date_expedition" type="col"/>
                      <field name="product_uom_qty"    type="measure"/>
-                 </graph>
+                 </pivot>
              </field>
-        </record> -->
-
+        </record>
         <record id="is_view_sales_order_line_filter" model="ir.ui.view">
             <field name="name">is_view_sales_order_line_filter</field>
             <field name="model">sale.order.line</field>

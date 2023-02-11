@@ -20,7 +20,7 @@
                 <button string="Remettre au stock"
                         type="action"
                         name="%(action_is_reverse_mise_rebut)d"
-                        icon="gtk-index" />
+                        icon="fa-list" />
            </tree>
         </field>
     </record>

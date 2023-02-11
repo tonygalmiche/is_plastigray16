@@ -557,7 +557,7 @@ class is_cout_calcul(models.Model):
                 for cout in couts:
                     path=tmp+"/"+str(ct)+".pdf"
                     ct=ct+1
-                    pdf = self.env['report'].get_pdf(cout, 'is_plastigray.report_is_cout')
+                    pdf = self.env['report'].get_pdf(cout, 'is_plastigray16.report_is_cout')
                     f = open(path,'wb')
                     f.write(pdf)
                     f.close()
@@ -1121,7 +1121,7 @@ class is_cout(models.Model):
             cout_calcul=self.env['is.cout.calcul'].create(vals)
             cout_calcul.action_calcul_prix_achat_thread(nb_threads=0)
             cout_calcul.action_calcul_prix_revient()
-            dummy, view_id = self.env['ir.model.data'].get_object_reference('is_plastigray', 'is_cout_pk_form_view')
+            view_id = self.env.ref('is_plastigray16.is_cout_pk_form_view').id
             return {
                 'name': obj.name.name,
                 'view_mode': 'form',
@@ -1193,7 +1193,7 @@ class is_cout(models.Model):
         with api.Environment.manage():
             new_cr = self.pool.cursor()
             self = self.with_env(self.env(cr=new_cr))
-            report_service = 'is_plastigray.report_is_cout'
+            report_service = 'is_plastigray16.report_is_cout'
             db=self._cr.dbname
             path="/tmp/couts-" + db
             cde="rm -Rf " + path

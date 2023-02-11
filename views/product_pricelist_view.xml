@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- product.pricelist -->
         <record id="is_product_pricelist_view" model="ir.ui.view">
             <field name="name">is_product_pricelist_view</field>
             <field name="model">product.pricelist</field>
@@ -8,6 +9,12 @@
             <field name="arch" type="xml">
                 <field name="currency_id" position="before">
                     <field name="type" />
+                    <field 
+                        name="partner_id" 
+                        string="Client"       
+                        domain="[('customer','=',True),('is_company','=',True)]" 
+                        attrs="{'invisible': ['|',('type', '=' , 'purchase'),('type', '=' , False)]}"
+                    />
                 </field>
                 <page name="pricelist_rules" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -15,7 +22,6 @@
                 <page name="pricelist_config" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </page>
-
                 <page name="pricelist_rules" position="before">
                     <page string="Versions">
                         <field name="version_id" context="{'type':type}">
@@ -39,138 +45,91 @@
             <field name="arch" type="xml">
                 <field name="currency_id" position="before">
                     <field name="type" />
+                    <field name="partner_id" />
                 </field>
             </field>
         </record>
+        <record model="ir.actions.act_window" id="is_pricelist_vente_action">
+            <field name="name">Lite de prix de vente</field>
+            <field name="res_model">product.pricelist</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type','=','sale')]</field>
+        </record>
+        <record model="ir.actions.act_window" id="is_pricelist_achat_action">
+            <field name="name">Lite de prix d'achat</field>
+            <field name="res_model">product.pricelist</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type','=','purchase')]</field>
+        </record>
     
-        <!-- Permet d'ajouter la quantité minimum dans l'unité ?? -->
-        <!--
-        <record id="product_uom_form_view_inherit" model="ir.ui.view">
-            <field name="name">product.uom.inherit.form</field>
-            <field name="model">product.uom</field>
-            <field name="inherit_id" ref="product.product_uom_form_view" />
+    
+
+
+
+
+
+        <!-- product.pricelist.item -->
+        <record id="is_product_pricelist_item_sale_tree_view" model="ir.ui.view">
+            <field name="name">is_product_pricelist_item_sale_tree_view</field>
+            <field name="model">product.pricelist.item</field>
             <field name="arch" type="xml">
-                <field name="rounding" position="after">
-                    <field name="min_quantity" />
-                    <field name="amount" />
-                </field>
-            </field>
-        </record>            
-        -->
-
-
-
-    <!-- <record id="product.product_pricelist_view" model="ir.ui.view">
-        <field name="name">product.pricelist.form</field>
-        <field name="model">product.pricelist</field>
-        <field name="arch" type="xml">
-            <form string="Products Price List">
-                <group>
-                    <group>
-                        <field name="name"/>
-                        <field name="type"/>
-
-                        <field 
-                            name="partner_id" 
-                            string="Client"       
-                            domain="[('customer','=',True),('is_company','=',True)]" 
-                            attrs="{'invisible': ['|',('type', '=' , 'purchase'),('type', '=' , False)]}"
-                        />
-
-                    </group>
-                    <group>
-                        <field name="active"/>
-                        <field name="currency_id" groups="base.group_multi_currency"/>
-                        <field name="company_id"  groups="base.group_multi_company" widget="selection"/>
-                    </group>
-                </group>
-                <field name="version_id" context="{'type':type}">
-                    <tree editable="bottom">
-                        <field name="name"/>
-                        <button title="Liste des prix"                          name="action_liste_items"      type="object" icon="fa-list"/>
-                        <button title="Imprimer cette version de liste de prix" name="print_pricelist_version" type="object" icon="fa-print" />
-                        <field name="active"/>
-                        <field name="date_start"/>
-                        <field name="date_end"/>
-                        <button title="Dupliquer" name= "action_dupliquer" type="object" icon="fa-copy"/>
-                    </tree>
-                </field>
-            </form>
-        </field>
-    </record>
- -->
-
-
-
-
-    <!-- Permet d'ajouter l'unité d'achat dans la liste de prix -->
-    <!-- <record id="product_pricelist_item_form_view_inherit" model="ir.ui.view">
-        <field name="name">product.pricelist.item.inherit.form</field>
-        <field name="model">product.pricelist.item</field>
-        <field name="inherit_id" ref="product.product_pricelist_item_form_view" />
-        <field name="arch" type="xml">
-            <field name="sequence" position="after">
-                <field name="date_start" />
-                <field name="date_end" />
-                <field name="product_po_uom_id" />
-            </field>
-            <field name="product_id" position="attributes">
-                <attribute name="on_change">on_change_product_id(product_id)</attribute>
-            </field>
-        </field>
-    </record> -->
-
-
-
-
-
-
-    <!-- tree view product.pricelist.item -->
-    <!--
-    <record id="is_product_pricelist_item_tree_view" model="ir.ui.view">
-        <field name="name">product.pricelist.item.tree</field>
-        <field name="model">product.pricelist.item</field>
-        <field name="inherit_id" ref="product.product_pricelist_item_tree_view" />
-        <field name="arch" type="xml">
-            <xpath expr="//tree" position="replace">
                 <tree editable="top">
                     <field name="product_id" on_change="on_change_product_id(product_id)" required="1"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="is_ref_client"/>
+                    <field name="is_mold_dossierf"/>
                     <field name="sequence"/>
-                    <field name="sequence"/>
+                    <field name="min_quantity"    required="1"/>
                     <field name="product_uom_id"/>
-                    <field name="product_po_uom_id"/>
-                    <field name="min_quantity"    required="1" digits="(14, 4)"/>
                     <field name="price_surcharge" required="1" string="Prix" />
+                    <field name="justification"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                     <field name="base" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
                 </tree>
-            </xpath>
-        </field>
-    </record>
-    -->
+            </field>
+        </record>
+        <record id="is_product_pricelist_item_purchase_tree_view" model="ir.ui.view">
+            <field name="name">is_product_pricelist_item_purchase_tree_view</field>
+            <field name="model">product.pricelist.item</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="product_id" required="1" on_change="on_change_product_id(product_id)"/>
+                    <field name="product_po_uom_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="sequence"/>
+                    <field name="min_quantity"    required="1"/> 
+                    <field name="price_surcharge" required="1" string="Prix" />
+                    <field name="justification"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="base" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_product_pricelist_item_view_search">
+            <field name="name">is_product_pricelist_item_view_search</field>
+            <field name="model">product.pricelist.item</field>
+            <field name="inherit_id" ref="product.product_pricelist_item_view_search" />
+            <field name="arch" type="xml">
+                <field name="pricelist_id" position="before">
+                    <field name="product_id" />
+                    <field name="is_gestionnaire_id"/>
+                    <field name="price_version_id" />
+                    <field name="is_ref_client"/>
+                    <field name="is_mold_dossierf"/>
+                </field>
+            </field>
+        </record>
 
 
-    <!-- <record id="is_product_pricelist_item_sale_tree_view" model="ir.ui.view">
-        <field name="name">is_product_pricelist_item_sale_tree_view</field>
-        <field name="model">product.pricelist.item</field>
-        <field name="arch" type="xml">
-            <tree editable="top">
-                <field name="product_id" on_change="on_change_product_id(product_id)" required="1"/>
-                <field name="is_gestionnaire_id"/>
-                <field name="is_ref_client"/>
-                <field name="is_mold_dossierf"/>
-                <field name="sequence"/>
-                <field name="min_quantity"    required="1" digits="(14, 4)"/>
-                <field name="product_uom_id"/>
-                <field name="price_surcharge" required="1" string="Prix" />
-                <field name="justification"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
-                <field name="base" invisible="1"/>
-            </tree>
-        </field>
-    </record> -->
+
+
+
+
+
     <!--
     <record model="ir.actions.act_window" id="is_product_pricelist_item_sale_action">
         <field name="name">Lignes liste de prix</field>
@@ -182,47 +141,6 @@
     </record>
     -->
 
-
-    <record id="is_product_pricelist_item_purchase_tree_view" model="ir.ui.view">
-        <field name="name">is_product_pricelist_item_purchase_tree_view</field>
-        <field name="model">product.pricelist.item</field>
-        <field name="arch" type="xml">
-            <tree editable="top">
-                <field name="product_id" required="1" on_change="on_change_product_id(product_id)"/>
-                <field name="product_po_uom_id"/>
-                <field name="is_gestionnaire_id"/>
-                <field name="sequence"/>
-                <field name="min_quantity"    required="1"/> 
-                <field name="price_surcharge" required="1" string="Prix" />
-                <field name="justification"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
-                <field name="base" invisible="1"/>
-                <field name="company_id" invisible="1"/>
-            </tree>
-        </field>
-    </record>
-
-
-
-
-
-
-    <!-- search view product.pricelist.item -->
-    <!-- <record model="ir.ui.view" id="is_product_pricelist_item_search_view">
-        <field name="name">product.pricelist.item.search</field>
-        <field name="model">product.pricelist.item</field>
-        <field name="arch" type="xml">
-            <search string="Products Price Item Search">
-                <field name="product_id" />
-                <field name="is_gestionnaire_id"/>
-                <field name="price_version_id" />
-                <field name="is_ref_client"/>
-                <field name="is_mold_dossierf"/>
-            </search>
-        </field>
-    </record>
- -->
 
     <!-- tree view product.pricelist.item -->
     <!--
@@ -260,6 +178,66 @@
     -->
 
 
+
+    <!-- tree view product.pricelist.item -->
+    <!--
+    <record id="is_product_pricelist_item_tree_view" model="ir.ui.view">
+        <field name="name">product.pricelist.item.tree</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_tree_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="replace">
+                <tree editable="top">
+                    <field name="product_id" on_change="on_change_product_id(product_id)" required="1"/>
+                    <field name="sequence"/>
+                    <field name="sequence"/>
+                    <field name="product_uom_id"/>
+                    <field name="product_po_uom_id"/>
+                    <field name="min_quantity"    required="1" digits="(14, 4)"/>
+                    <field name="price_surcharge" required="1" string="Prix" />
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="base" invisible="1"/>
+                </tree>
+            </xpath>
+        </field>
+    </record>
+    -->
+
+
+
+        
+        <!-- Permet d'ajouter la quantité minimum dans l'unité ?? -->
+        <!--
+        <record id="product_uom_form_view_inherit" model="ir.ui.view">
+            <field name="name">product.uom.inherit.form</field>
+            <field name="model">product.uom</field>
+            <field name="inherit_id" ref="product.product_uom_form_view" />
+            <field name="arch" type="xml">
+                <field name="rounding" position="after">
+                    <field name="min_quantity" />
+                    <field name="amount" />
+                </field>
+            </field>
+        </record>            
+        -->
+
+    <!-- Permet d'ajouter l'unité d'achat dans la liste de prix -->
+    <!-- <record id="product_pricelist_item_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.pricelist.item.inherit.form</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view" />
+        <field name="arch" type="xml">
+            <field name="sequence" position="after">
+                <field name="date_start" />
+                <field name="date_end" />
+                <field name="product_po_uom_id" />
+            </field>
+            <field name="product_id" position="attributes">
+                <attribute name="on_change">on_change_product_id(product_id)</attribute>
+            </field>
+        </field>
+    </record> -->
 
 
 

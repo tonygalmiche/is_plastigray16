@@ -150,7 +150,7 @@ class is_facture_pk(models.Model):
 
     def afficher_lignes(self):
         for obj in self:
-            view_id=self.env.ref('is_plastigray.is_facture_pk_line_tree_view')
+            view_id=self.env.ref('is_plastigray16.is_facture_pk_line_tree_view')
             return {
                 'name': u'Lignes '+obj.num_facture,
                 'view_mode': 'tree',

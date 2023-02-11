@@ -34,7 +34,7 @@
                     <button 
                         string="Certificat" 
                         name="imprimer_certificat_action"  
-                        type="object" icon="gtk-print" 
+                        type="object" icon="fa-print" 
                         attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
                     />
                     <button 
@@ -68,7 +68,7 @@
                     <button 
                         string="Certificat" 
                         name="imprimer_certificat_action"  
-                        type="object" icon="gtk-print" 
+                        type="object" icon="fa-print" 
                         attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
                     />
                     <button 
@@ -117,7 +117,7 @@
                     <button 
                         string="Certificat" 
                         name="imprimer_certificat_action"  
-                        type="object" icon="gtk-print" 
+                        type="object" icon="fa-print" 
                         attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
                     />
                     <button 

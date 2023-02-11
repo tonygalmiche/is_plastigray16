@@ -20,7 +20,7 @@
                         <button name="action_lignes_inventaire"           type="object" string="Lignes inventaire"/>
                         <button name="action_ecarts_inventaire"           type="object" string="Ecarts inventaire"           states="traite"/>
                         <button name="action_anomalies_import_inventaire" type="object" string="Anomalies import inventaire" states="traite"/>
-                        <field name="state" widget="statusbar"  clickable="True" />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
 
                     <sheet>

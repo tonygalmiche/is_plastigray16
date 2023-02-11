@@ -1,60 +1,29 @@
 # -*- coding: utf-8 -*-
-
-from openerp.osv import osv, fields
-import datetime
+from odoo import api, fields, models, _
+from datetime import date, timedelta
 import time
 
-
-#TODO : 
-# - Creer la table 'is_liste_servir_client
-# - Créer une requete pour lister les clients ayant des commandes à livrer sur la periode indiquée
-# - Remplir la table avec les données de la requetes
-# - Depuis chaque ligne de la table, un bouton permettra de générer la liste à servir ou d'afficher la liste existante
-# - Si une liste existe déja, il ne sera pas possible d'en créer une nouvelle
-# - Mettre un verrou égalment dans la création des listes pour ne pas avoir 2 liste en même temps sur la même période
-
-
-
-class is_liste_servir_wizard(osv.osv_memory):
+class is_liste_servir_wizard(models.TransientModel):
     _name = "is.liste.servir.wizard"
     _description = "Listes a servir des clients"  
     
-    _columns = {
-        'date_debut': fields.date(u"Date de début d'expédition", required=False),
-        'date_fin':   fields.date(u"Date de fin d'expédition", required=True),
-        'livrable':   fields.boolean("Livrable (avec stock)"),
-    }
+    date_debut = fields.Date(u"Date de début d'expédition", required=False)
+    date_fin   = fields.Date(u"Date de fin d'expédition", required=True, default=lambda self: self._date_fin())
+    livrable   = fields.Boolean("Livrable (avec stock)", default=False)
 
 
-    def _date_fin():
-        now = datetime.date.today()                 # Date du jour
-        date_fin = now + datetime.timedelta(days=1) # J+1
-        return date_fin.strftime('%Y-%m-%d')        # Formatage
+    def _date_fin(self):
+        now = date.today()                 # Date du jour
+        date_fin = now + timedelta(days=1) # J+1
+        return date_fin
 
 
-    _defaults={
-        'livrable': False,
-        'date_fin': _date_fin(),
-    }
-
-
-
-    def generer_liste_servir_client(self, cr, uid, ids, context=None):
-        data = self.read(cr, uid, ids)[0]
-        if data:
+    def generer_liste_servir_client(self):
+        cr = self._cr
+        for obj in self:
+            print(obj)
             SQL="delete from is_liste_servir_client"
             cr.execute(SQL)
-#            SQL="""
-#                select so.partner_id, rp.zip, rp.city, rp.is_delai_transport, sum(sol.product_uom_qty)
-#                from sale_order so inner join sale_order_line sol on so.id=sol.order_id
-#                                   inner join res_partner rp on so.partner_id=rp.id
-#                where sol.is_date_expedition<='"""+str(data['date_fin'])+"""' 
-#                      and so.state='draft' """
-#            if data['date_debut']:
-#                SQL=SQL+" and sol.is_date_expedition>='"+str(data['date_debut'])+"' "
-#            SQL=SQL+"group by so.partner_id, rp.zip, rp.city, rp.is_delai_transport"
-
-
             SQL="""
                 select  so.partner_id, 
                         rp.zip, 
@@ -65,21 +34,21 @@ class is_liste_servir_wizard(osv.osv_memory):
                                    inner join res_partner       rp  on so.partner_id=rp.id
                                    inner join product_product   pp  on sol.product_id=pp.id
                                    inner join  product_template pt  on pp.product_tmpl_id=pt.id
-                where sol.is_date_expedition<='"""+str(data['date_fin'])+"""' 
+                where sol.is_date_expedition<='"""+str(obj.date_fin)+"""' 
                       and so.state='draft' 
                       and sol.is_type_commande='ferme' 
                       and so.is_type_commande!='ls'
             """
-            if data['livrable']:
+            if obj.livrable:
                 SQL=SQL+"""
                       and (
-                        select sum(sq.qty) 
+                        select sum(sq.quantity) 
                         from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
                         where sq.product_id=pp.id and sl.usage='internal' and sl.active='t'
                       )>=sol.product_uom_qty
                 """
-            if data['date_debut']:
-                SQL=SQL+" and sol.is_date_expedition>='"+str(data['date_debut'])+"' "
+            if obj.date_debut:
+                SQL=SQL+" and sol.is_date_expedition>='"+str(obj.date_debut)+"' "
             SQL=SQL+"group by so.partner_id, rp.zip, rp.city, rp.is_delai_transport"
             cr.execute(SQL)
             result = cr.fetchall()
@@ -102,24 +71,19 @@ class is_liste_servir_wizard(osv.osv_memory):
                     'zip'             : row[1],
                     'city'            : row[2],
                     'delai_transport' : row[3],
-                    'date_debut'      : data['date_debut'],
-                    'date_fin'        : data['date_fin'],
-                    'livrable'        : data['livrable'],
+                    'date_debut'      : obj.date_debut,
+                    'date_fin'        : obj.date_fin,
+                    'livrable'        : obj.livrable,
                 }
-                new_id=self.pool.get('is.liste.servir.client').create(cr, uid, vals, context=context)
+                new_id=self.env['is.liste.servir.client'].create(vals)
             return {
                 'name': "Clients à livrer",
                 'type': 'ir.actions.act_window',
-                'view_type': 'form',
                 'view_mode': 'tree',
                 'res_model': 'is.liste.servir.client',
                 'target': 'current',
             }
-
-
-
-
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_product', 'is_product_template_only_form_view')
+        view_id = self.env.ref('is_plastigray16.is_product_template_only_form_view').id
         for obj in self:
             return {
                 'name': "Article",

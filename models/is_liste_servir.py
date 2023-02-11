@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,api
-#from openerp.exceptions import ValidationError
+from odoo.exceptions import ValidationError
 import datetime
 import time
 import psycopg2
@@ -9,7 +9,7 @@ import sys
 
 
 def _acceder_commande(self,id):
-    dummy, view_id = self.env['ir.model.data'].get_object_reference('sale', 'view_order_form')
+    view_id = self.env.ref('sale.view_order_form').id
     return {
         'name': "Commande",
         'view_mode': 'form',
@@ -127,7 +127,7 @@ class is_liste_servir(models.Model):
             ('analyse', u'Analyse'),
             ('traite', u'Traité')
         ], u"État", readonly=True, index=True, default="creation")
-    #order_ids              = fields.One2many('sale.order', 'is_liste_servir_id', 'Commandes générées', readonly=False)
+    order_ids              = fields.One2many('sale.order', 'is_liste_servir_id', 'Commandes générées', readonly=False)
     line_ids               = fields.One2many('is.liste.servir.line', 'liste_servir_id', u"Lignes")
     uc_ids                 = fields.One2many('is.liste.servir.uc', 'liste_servir_id', u"UCs")
     um_ids                 = fields.One2many('is.liste.servir.um', 'liste_servir_id', u"UMs")
@@ -187,20 +187,21 @@ class is_liste_servir(models.Model):
         return vals
 
 
-    def create(self, vals):
-        if "partner_id" in vals:
-            vals=self._message(vals["partner_id"], vals)
-        data_obj = self.pool.get('ir.model.data')
-        sequence_ids = data_obj.search(self._cr, self._uid, [('name','=','is_liste_servir_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(self._cr, self._uid, sequence_ids[0]).res_id
-            vals['name'] = self.pool.get('ir.sequence').get_id(self._cr, self._uid, sequence_id, 'id')
-        new_id = super(is_liste_servir, self).create(vals)
-
-        return new_id
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if "partner_id" in vals:
+                vals=self._message(vals["partner_id"], vals)
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.liste.servir')
+        res=super().create(vals_list)
+        return res
 
 
     def write(self,vals):
+
+        print("write",self)
+
+
         cr = self._cr
         if "partner_id" in vals:
             vals=self._message(vals["partner_id"], vals)
@@ -326,11 +327,12 @@ class is_liste_servir(models.Model):
             for row in result:
                 sequence=sequence+1
                 product_id=row[1]
+                product=self.env['product.product'].browse(product_id)
+
 
                 #** Recherche du certificat matière ****************************
                 certificat_matiere=False
                 if obj.partner_id.is_certificat_matiere:
-                    product=self.env['product.product'].browse(product_id)
                     SQL="""
                         select id
                         from doc69106
@@ -342,9 +344,9 @@ class is_liste_servir(models.Model):
                         certificat_matiere=row2[0]
                 #***************************************************************
 
-                stock01 = self.env['product.product'].get_stock(product_id,'f', '01')
-                stocka  = self.env['product.product'].get_stock(product_id,'f')
-                stockq  = self.env['product.product'].get_stock(product_id,'t')
+                stock01 = product.get_stock('f', '01')
+                stocka  = product.get_stock('f')
+                stockq  = product.get_stock('t')
                 qt=row[5]
 
                 livrable=False
@@ -408,8 +410,8 @@ class is_liste_servir(models.Model):
                     key2=str(order[0])+"-"+str(order[1])
                     if key1==key2:
                         anomalie=""
-                        if line.quantite>order[3]:
-                            anomalie="Qt en commande = "+ str(order[3])
+                        if line.quantite>order[5]:
+                            anomalie="Qt en commande = "+ str(order[5])
                 line.anomalie=anomalie
                 if anomalie!="":
                     Test=False
@@ -438,8 +440,7 @@ class is_liste_servir(models.Model):
         uid = self._uid
         ids = self._ids
         context = self._context
-        order_line_obj = self.pool.get('sale.order.line')
-        order_obj = self.pool.get('sale.order')
+        order_obj = self.env['sale.order']
         vals={}
         lines = []
         mem=''
@@ -462,39 +463,35 @@ class is_liste_servir(models.Model):
                     lines = []
                 mem=key
 
-
-            quotation_line = order_line_obj.product_id_change(cr, uid, ids, obj.partner_id.property_product_pricelist.id, 
-                                                              line.product_id.id, 0, False, 0, False, '', obj.partner_id.id, 
-                                                             False, True, False, False, False, False, context=context)['value']
-            if 'tax_id' in quotation_line:
-                quotation_line.update({'tax_id': [[6, False, quotation_line['tax_id']]]})
-            quotation_line.update({
-                'product_id'          : line.product_id.id, 
-                'product_uom_qty'     : line.quantite,
-                'is_date_livraison'   : line.date_livraison,
-                'is_type_commande'    : 'ferme',
-                'is_client_order_ref' : line.client_order_ref,
-                'price_unit'          : line.prix,
-                'is_justification'    : line.justification,
-            })
+            quotation_line={
+                "product_id"     : line.product_id.id,
+                "sequence"       : 1,
+                #"name"           : name,
+                "product_uom_qty": line.quantite,
+                "price_unit"     : line.prix,
+                "product_uom"    : line.product_id.uom_id.id,
+            }
             lines.append([0,False,quotation_line]) 
 
             values = {
                 'partner_id': obj.partner_id.id,
                 'is_source_location_id': obj.is_source_location_id.id,
                 'client_order_ref'     : obj.name,
-                #'is_liste_servir_id'   : obj.id,
+                'is_liste_servir_id'   : obj.id,
                 'origin'               : obj.name,
                 'order_line'           : lines,
                 'picking_policy'       : 'direct',
-                'order_policy'         : 'picking',
                 'is_transporteur_id'   : obj.transporteur_id.id,
                 'is_type_commande'     : 'ls',
                 'is_info_client'       : obj.info_client,
             }
             vals.update(values)
+
+        print(vals)
+
         if vals:
-            new_id = order_obj.create(cr, uid, vals, context=context)
+            new_id = order_obj.create(vals)
+            print("new_di =",new_id)
 
         #** Supprimer les lignes des commandes d'origine ***********************
         SQL="""
@@ -697,15 +694,13 @@ class is_liste_servir_line(models.Model):
 
                 SQL="""
                     select pa.ul,pa.qty,pa.ul_container,pa.rows*pa.ul_qty
-                    from product_product pp left outer join product_packaging pa on pp.product_tmpl_id=pa.product_tmpl_id 
+                    from product_product pp left outer join product_packaging pa on pp.id=pa.product_id 
                     where pp.id="""+str(obj.product_id.id)+"""
                     limit 1
                 """
                 cr.execute(SQL)
                 result = cr.fetchall()
                 for row in result:
-
-
                     if row[0]:
                         qt=obj.quantite
                         stock01_uc = obj.stock01
@@ -783,7 +778,7 @@ class is_liste_servir_line(models.Model):
 
 
     def imprimer_certificat_action(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_2019', 'is_certificat_conformite_form_view')
+        view_id = self.env.ref('is_plastigray16.is_certificat_conformite_form_view').id
         for obj in self:
             certificat = self.env['is.certificat.conformite'].GetCertificat(obj.liste_servir_id.partner_id, obj.product_id.id)
             if certificat:
@@ -811,7 +806,7 @@ class is_liste_servir_line(models.Model):
 
 
     def action_acceder_commande(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('sale', 'view_order_tree')
+        view_id = self.env.ref('sale.view_order_tree').id
         for obj in self:
             ids=[]
             for id in obj.order_ids:
@@ -820,7 +815,7 @@ class is_liste_servir_line(models.Model):
 
 
     def action_acceder_article(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('is_pg_product', 'is_product_template_only_form_view')
+        view_id = self.env.ref('is_plastigray16.is_product_template_only_form_view').id
         for obj in self:
             return {
                 'name': "Article",

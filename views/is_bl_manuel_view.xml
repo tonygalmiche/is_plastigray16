@@ -55,10 +55,11 @@
                                 <field name="motif_expedition"/>
                             </group>
                             <group string="Adresse de destinataire">
-                                <field 
+                                <field name="destinataire_id"/>
+                                <!-- <field 
                                     name="destinataire_id" 
                                     on_change="destinataire_id_change(destinataire_id)" 
-                                />
+                                /> -->
                                 <field name="raison_sociale"/> 
                                 <field name="adresse1"/> 
                                 <field name="adresse2"/> 
@@ -72,22 +73,25 @@
                             <tree editable="bottom">
                                 <field name="sequence" />
                                 <field name="num_commande" />
-                                <field 
+                                <field name="product_id"/>
+                                <!-- <field 
                                     name="product_id" 
                                     on_change="product_id_change(product_id)" 
-                                />
+                                /> -->
                                 <field name="description" />
                                 <field name="ref_client" />
                                 <field name="nomenclature_douaniere" />
-                                <field 
+                                <field name="qt_livree" sum="Total"/>
+                                <!-- <field 
                                     name="qt_livree" sum="Total" 
                                     on_change="qt_change(product_id,qt_livree,qt_par_colis)" 
-                                />
+                                /> -->
                                 <field name="uom_id" />
-                                <field 
+                                <field name="qt_par_colis"/>
+                                <!-- <field 
                                     name="qt_par_colis" 
                                     on_change="qt_change(product_id,qt_livree,qt_par_colis)" 
-                                />
+                                /> -->
                                 <field name="nb_colis"   sum="Total"/>
                                 <field name="poids_net"  sum="Total"/>
                                 <field name="poids_brut" sum="Total"/>

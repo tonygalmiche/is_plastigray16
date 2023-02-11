@@ -59,12 +59,7 @@ class is_galia_base_um(models.Model):
 
 
     def acceder_um_action(self):
-        #dummy, view_id = self.env['ir.model.data'].get_object_reference('is_plastigray', 'is_galia_base_um_form_view')
-
         view_id = self.env.ref('is_plastigray16.is_galia_base_um_form_view').id
-
-
-
         for obj in self:
             return {
                 'name': "Etiquettes UM",

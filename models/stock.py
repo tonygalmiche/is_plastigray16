@@ -933,7 +933,7 @@ class stock_move(models.Model):
 
 
     def action_acceder_mouvement_stock(self):
-        dummy, view_id = self.env['ir.model.data'].get_object_reference('stock', 'view_move_form')
+        view_id = self.env.ref('stock.view_move_form').id
         for obj in self:
             return {
                 'name': "Mouvement de stock",

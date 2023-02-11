@@ -644,17 +644,15 @@
                                 <field name="is_um_egale_uc" attrs="{'invisible': [('is_um_egale_uc_vsb', '=', True)]}"/>
                               </group>
                         </group>
-                        <group>
-                            <field name="is_client_ids_vsb" invisible="1"/>
-                            <field name="is_client_ids" nolabel="1" attrs="{'invisible': [('is_client_ids_vsb', '=', True)]}">
-                                <tree editable="bottom"  create="true">
-                                    <field name="client_id" widget="many2one_clickable"/>
-                                    <field name="client_defaut"/>
-                                    <field name="lot_livraison"/>
-                                    <field name="multiple_livraison"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="is_client_ids_vsb" invisible="1"/>
+                        <field name="is_client_ids" nolabel="1" attrs="{'invisible': [('is_client_ids_vsb', '=', True)]}">
+                            <tree editable="bottom"  create="true">
+                                <field name="client_id" widget="many2one_clickable"/>
+                                <field name="client_defaut"/>
+                                <field name="lot_livraison"/>
+                                <field name="multiple_livraison"/>
+                            </tree>
+                        </field>
                     </page>
                     <page string="Emballage" attrs="{'invisible': [('is_emb_vsb', '=', True)]}">
                         <group>

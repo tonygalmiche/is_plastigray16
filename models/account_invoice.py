@@ -103,7 +103,7 @@ class account_invoice(models.Model):
 
     def voir_facture_client_action(self):
         for obj in self:
-            view_id=self.env.ref('is_plastigray.is_invoice_form')
+            view_id=self.env.ref('is_plastigray16.is_invoice_form')
             res= {
                 'name': 'Facture Client',
                 'view_mode': 'form',
@@ -120,7 +120,7 @@ class account_invoice(models.Model):
 
     def voir_facture_fournisseur_action(self):
         for obj in self:
-            view_id=self.env.ref('is_plastigray.is_invoice_supplier_form')
+            view_id=self.env.ref('is_plastigray16.is_invoice_supplier_form')
             res= {
                 'name': 'Facture Client',
                 'view_mode': 'form',
@@ -138,7 +138,7 @@ class account_invoice(models.Model):
     def invoice_print(self):
         assert len(self) == 1, 'This option should only be used for a single id at a time.'
         self.sent = True
-        res = self.env['report'].get_action(self, 'is_plastigray.is_report_invoice')
+        res = self.env['report'].get_action(self, 'is_plastigray16.is_report_invoice')
         return res
 
 
@@ -180,7 +180,7 @@ class account_invoice(models.Model):
             msg = str(ct)+'/'+str(nb)+' - Imprimer en simple ou double exemplaire : '+str(obj.number)
             _logger.info(msg)
             ct+=1
-            result = self.env['report'].get_pdf(obj, 'is_plastigray.is_report_invoice')
+            result = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_invoice')
             r = range(1, 2)
             if obj.is_mode_envoi_facture=='courrier2':
                 r = range(1, 3)
@@ -236,7 +236,7 @@ class account_invoice(models.Model):
     def envoi_par_mail(self):
         """Envoi du mail directement sans passer par le wizard"""
         cr , uid, context = self.env.args
-        if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray.is_comptable_group'):
+        if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray16.is_comptable_group'):
             raise ValidationError(u"Accès non autorisé !")
         ids=[]
         for obj in self:

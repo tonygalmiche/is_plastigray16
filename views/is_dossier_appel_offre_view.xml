@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <form string="Form" create="1">
                     <header>
-                        <field name="state" widget="statusbar" clickable="True"/>
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
                         <group>

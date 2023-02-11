@@ -165,7 +165,7 @@ class is_cde_ferme_cadencee(models.Model):
             # ******************************************************************
 
             # ** Creation ou modification de la pièce jointe *******************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray.report_cde_ferme_cadencee')
+            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_cde_ferme_cadencee')
             vals = {
                 'name':        name,
                 'datas_fname': name,

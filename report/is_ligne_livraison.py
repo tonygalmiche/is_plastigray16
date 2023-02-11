@@ -59,7 +59,7 @@ class is_ligne_livraison(models.Model):
     def refresh_materialized_view_action(self):
         cr = self._cr
         cr.execute("REFRESH MATERIALIZED VIEW is_ligne_livraison;")
-        view_id=self.env.ref('is_plastigray.is_ligne_livraison_tree_view').id
+        view_id=self.env.ref('is_plastigray16.is_ligne_livraison_tree_view').id
         now = datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S')
         return {
             'name'     : u'Lignes des livraisons actualisées à '+str(now),
