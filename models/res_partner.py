@@ -207,6 +207,7 @@ class is_norme_certificats(models.Model):
 class is_certifications_qualite(models.Model):
     _name = 'is.certifications.qualite'
     _description = u'Certifications qualité'
+    _rec_name = 'is_norme'
     
     is_norme           = fields.Many2one('is.norme.certificats', u'Norme Certificat qualité', required=True)
     is_date_validation = fields.Date(u'Date de validité du certificat', required=True)

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
 
 
 class is_certifications_qualite_suivi(models.Model):
     _name='is.certifications.qualite.suivi'
+    _description="Suivi validité des certificats"
     _order='partner_id,is_norme'
     _auto = False
 
     partner_id         = fields.Many2one('res.partner', 'Fournisseur')
     is_segment_achat   = fields.Many2one('is.segment.achat', "Segment d'achat")
-    is_norme           = fields.Many2one('is.norme.certificats', u'Norme Certificat qualité')
-    is_date_validation = fields.Date(u'Date de validité du certificat')
-    certificat_id      = fields.Many2one('is.certifications.qualite', u'Norme Certificat qualité')
+    is_norme           = fields.Many2one('is.norme.certificats', 'Norme')
+    is_date_validation = fields.Date('Date de validité du certificat')
+    certificat_id      = fields.Many2one('is.certifications.qualite', 'Certificat qualité')
 
 
-
-
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_certifications_qualite_suivi')
         cr.execute("""
             CREATE OR REPLACE view is_certifications_qualite_suivi AS (

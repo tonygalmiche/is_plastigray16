@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
 
 
 class is_pricelist_item(models.Model):
     _name='is.pricelist.item'
+    _description = "is_pricelist_item"
     _order='pricelist_name,price_version_id,sequence,product_id'
     _auto = False
 
@@ -22,20 +20,21 @@ class is_pricelist_item(models.Model):
     ref_fournisseur    = fields.Char('Référence fournisseur')
     moule              = fields.Char('Moule ou Dossier F')
     sequence           = fields.Integer('Sequence')
-    product_uom_id     = fields.Many2one('product.uom', "Unité")
-    product_po_uom_id  = fields.Many2one('product.uom', "Unité d'achat")
+    product_uom_id     = fields.Many2one('uom.uom', "Unité")
+    product_po_uom_id  = fields.Many2one('uom.uom', "Unité d'achat")
     min_quantity       = fields.Float('Quantité min.')
     price_surcharge    = fields.Float('Prix')
     item_date_start    = fields.Date('Date début ligne')
     item_date_end      = fields.Date('Date fin ligne')
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_pricelist_item')
         cr.execute("""
             CREATE OR REPLACE view is_pricelist_item AS (
                 SELECT 
                     ppi.id                as id,
-                    pl.name               as pricelist_name,
+                    pl.name->>'en_US'     as pricelist_name,
                     pl.type               as pricelist_type,
                     ppi.base              as base,
                     ppi.price_version_id  as price_version_id,
@@ -62,10 +61,8 @@ class is_pricelist_item(models.Model):
         """)
 
 
-    @api.multi
     def action_liste_items(self):
         for obj in self:
-            print obj.price_version_id.pricelist_id
 
             if obj.price_version_id.pricelist_id.type=='sale':
                 view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_sale_tree_view').id
@@ -80,7 +77,6 @@ class is_pricelist_item(models.Model):
                 'view_type': 'form',
                 'res_model': 'product.pricelist.item',
                 'type': 'ir.actions.act_window',
-                #'view_id': view_id.id,
                 'view_id'  : False,
                 'views'    : [(view_id, 'tree')],
                 'domain': [('price_version_id','=',obj.price_version_id.id)],
@@ -91,22 +87,6 @@ class is_pricelist_item(models.Model):
             }
 
 
-#        return {
-#            'name': u'Lignes des factures client actualisées à '+str(now),
-#            'view_mode': 'tree,form,graph',
-#            'view_type': 'form',
-#            'view_id'  : False,
-#            'views'    : [(view_id, 'tree'),(False, 'form'),(False, 'graph')],
-#            'res_model': 'is.account.invoice.line',
-#            'domain'   : [('type','=', 'out_invoice')],
-#            'type': 'ir.actions.act_window',
-#        }
-
-
-
-
-
-    @api.multi
     def corriger_anomalie_pricelist(self):
         for obj in self:
             base=False

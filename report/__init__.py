@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from . import is_res_partner
+from . import is_certifications_qualite_suivi
 from . import is_encres_utilisees
+from . import is_pricelist_item
 from . import is_product_packaging
+from . import is_res_partner
 
 # import is_create_postgres_function
 # import stock_bloquer_lot
@@ -16,7 +18,6 @@ from . import is_product_packaging
 # import is_comparatif_uc_lot
 # import is_article_sans_nomenclature
 # import is_article_sans_fournisseur
-# import is_pricelist_item
 # import is_nomenclature_sans_gamme
 # import is_comparatif_uc_lot_mini
 # import is_comparatif_lot_prix
@@ -43,7 +44,6 @@ from . import is_product_packaging
 # import is_sale_order_line
 # import is_mrp_production_workcenter_line
 # import is_livraison_gefco
-# import is_certifications_qualite_suivi
 # import is_anomalie_declar_prod
 # import is_comparatif_cout_pk_tarif
 

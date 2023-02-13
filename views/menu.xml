@@ -272,7 +272,7 @@
     <!-- Achats / Fournisseurs -->
     <menuitem id="menu_is_achats_fournisseurs"     sequence="10" name="Fournisseurs"  parent="menu_is_achats" />
     <menuitem id="menu_is_achats_fournisseurs_10"  sequence="10" name="Fournisseurs"  parent="menu_is_achats_fournisseurs" action="fournisseur_action" />
-    <!-- <record id="is_certifications_qualite_suivi_menu" model="ir.ui.menu">
+    <record id="is_certifications_qualite_suivi_menu" model="ir.ui.menu">
         <field name="name">Suivi validité certificats</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('menu_is_achats_fournisseurs')"/>
@@ -281,7 +281,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
             ref('is_rsp_achats_group'),
         ])]"/>
-    </record> -->
+    </record>
 
 
     <!-- Achats / Liste de prix -->
@@ -308,7 +308,7 @@
             ref('is_rsp_achats_group'),
         ])]"/>
     </record>
-    <!-- <menuitem id="menu_is_achats_prix_20" sequence="20" name="Lignes liste de prix"  parent="menu_is_achats_prix" action="is_pricelist_item_purchase_action" /> -->
+    <menuitem id="menu_is_achats_prix_20" sequence="20" name="Lignes liste de prix"  parent="menu_is_achats_prix" action="is_pricelist_item_purchase_action" />
 
 
     <!-- Achats / Demandes d'achats -->

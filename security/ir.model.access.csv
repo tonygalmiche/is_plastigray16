@@ -291,3 +291,7 @@ access_mrp_routing,access_mrp_routing,model_mrp_routing,base.group_user,1,1,1,1
 access_product_pricelist_version,access_product_pricelist_version,model_product_pricelist_version,base.group_user,1,1,1,1
 
 access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servir_wizard,base.group_user,1,1,1,1
+
+access_is_certifications_qualite_suivi,access_is_certifications_qualite_suivi,model_is_certifications_qualite_suivi,base.group_user,1,0,0,0
+
+access_is_pricelist_item,access_is_pricelist_item,model_is_pricelist_item,base.group_user,1,0,0,0

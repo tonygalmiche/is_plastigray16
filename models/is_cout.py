@@ -24,8 +24,6 @@ def duree(debut):
     ms=int(ms)
     return ms
 
-# def _now(debut):
-#     return str(int(duree(debut)/100.0)/10.0)+"s"
 
 def _now(debut):
     return datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S') + ' : '+ str(int(duree(debut)/100.0)/10.0)+"s"
