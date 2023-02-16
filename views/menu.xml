@@ -354,7 +354,7 @@
 
 
     <!-- Achats / Commandes -->
-    <!-- <record id="menu_is_achats_cde" model="ir.ui.menu">
+    <record id="menu_is_achats_cde" model="ir.ui.menu">
         <field name="name">Commandes</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('menu_is_achats')"/>
@@ -369,8 +369,8 @@
             ref('is_centrale_matiere_group'),
         ])]"/>
     </record>
-    <menuitem id="menu_is_achats_cde_10" sequence="10" name="Devis"               parent="menu_is_achats_cde" action="purchase.purchase_rfq" />
-    <menuitem id="menu_is_achats_cde_20" sequence="20" name="Lignes de commandes" parent="menu_is_achats_cde" action="is_purchase_order_line_action" /> -->
+    <menuitem id="menu_is_achats_cde_10" sequence="10" name="Demandes de prix"    parent="menu_is_achats_cde" action="is_demande_de_prix_action"/>
+    <menuitem id="menu_is_achats_cde_20" sequence="20" name="Lignes de commandes" parent="menu_is_achats_cde" action="is_purchase_order_line_action" /> 
 
     <!-- Achats / Commandes prévisionnelles -->
     <record id="menu_is_achats_cde_ouverte" model="ir.ui.menu">

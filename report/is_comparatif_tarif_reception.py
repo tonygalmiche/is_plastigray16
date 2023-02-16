@@ -50,27 +50,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION is_unit_coef(uom1 integer, uom2 integer) RETURNS float AS $$
-DECLARE
-    factor1 float := 1;
-    factor2 float := 1;
-BEGIN
-
-    factor1 := (
-        select factor 
-        from product_uom
-        where id=uom1
-    );
-    factor2 := (
-        select factor 
-        from product_uom
-        where id=uom2
-    );
-    RETURN factor1/factor2;
-END;
-$$ LANGUAGE plpgsql;
-
-
 
 
 CREATE OR REPLACE view is_comparatif_tarif_reception AS (

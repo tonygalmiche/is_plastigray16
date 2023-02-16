@@ -28,6 +28,11 @@ Module Odoo 16 pour Plastigray
         "security/ir.model.access.csv",
         "security/is_demande_conges_security.xml",
 
+        "report/is_purchase_order_line.xml",
+
+
+        "views/purchase_view.xml",
+
 
         "views/sale_view.xml",   # TODO : Il faut tout revoir dans les vues
         "views/resource_view.xml",
@@ -180,7 +185,6 @@ Module Odoo 16 pour Plastigray
         # "stock_view.xml",
         # "mrp_production_view.xml",
         # "account_invoice_sequence.xml",
-        # "purchase_view.xml",
         # "log_view.xml",
         # "purchase_workflow.xml",
         # "email_template.xml",
@@ -263,7 +267,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_model_groups.xml",
         # "report/is_stock_move.xml",
         # "report/is_stock_quant.xml",
-        # "report/is_purchase_order_line.xml",
         # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_livraison_facture.xml",
         # "report/is_comparatif_cde_draft_done.xml",

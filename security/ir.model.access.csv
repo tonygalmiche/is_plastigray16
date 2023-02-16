@@ -295,3 +295,6 @@ access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servi
 access_is_certifications_qualite_suivi,access_is_certifications_qualite_suivi,model_is_certifications_qualite_suivi,base.group_user,1,0,0,0
 
 access_is_pricelist_item,access_is_pricelist_item,model_is_pricelist_item,base.group_user,1,0,0,0
+
+
+is_plastigray16.access_is_purchase_order_line,access_is_purchase_order_line,is_plastigray16.model_is_purchase_order_line,base.group_user,1,1,1,1

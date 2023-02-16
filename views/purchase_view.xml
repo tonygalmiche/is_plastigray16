@@ -1,49 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
     <data>
-
-        <!-- Actualiser prix commande -->
+        <!-- purchase.order -->
         <record id="actualiser_prix_commande_action_server" model="ir.actions.server">
              <field name="name">Actualiser prix commande</field>
             <field name="model_id" ref="model_purchase_order"/>
-            <field name="code">action = self.actualiser_prix_commande(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_purchase_order"/>
+            <field name="state">code</field>
+            <field name="code">action = records.actualiser_prix_commande()</field>
         </record>
-        <record id="actualiser_prix_commande_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'purchase.order'" name="model"/>
-            <field name="name">Actualiser prix commande</field>
-            <field eval="'ir.actions.server,%d'%actualiser_prix_commande_action_server" name="value"/>
-        </record>
-
-        <!-- Actualiser Taxes commande -->
-        <record id="actualiser_taxes_commande_action_server" model="ir.actions.server">
+       <record id="actualiser_taxes_commande_action_server" model="ir.actions.server">
              <field name="name">Actualiser taxes commande</field>
             <field name="model_id" ref="model_purchase_order"/>
-            <field name="code">action = self.actualiser_taxes_commande(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_purchase_order"/>
+            <field name="state">code</field>
+            <field name="code">action = records.actualiser_taxes_commande()</field>
         </record>
-        <record id="actualiser_taxes_commande_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'purchase.order'" name="model"/>
-            <field name="name">Actualiser taxes commande</field>
-            <field eval="'ir.actions.server,%d'%actualiser_taxes_commande_action_server" name="value"/>
-        </record>
-
-
-
         <record id="is_purchase_order_form" model="ir.ui.view">
             <field name="name">is_purchase_order_form</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form" />
             <field name="arch" type="xml">
-                <xpath expr="//header/button[@name='purchase_confirm']" position="after">
+                <!-- <xpath expr="//header/button[@name='purchase_confirm']" position="after">
                     <button
                         name="envoyer_par_mail"
                         string="Envoyer par mail"
                         type="object"
                         confirm="Voulez-vous vraiment envoyer ce document par mail ?"
                     />
-                </xpath>
-                <xpath expr="//sheet" position="attributes">
+                </xpath> -->
+                <!-- <xpath expr="//sheet" position="attributes">
                     <attribute name="class">oe_form_sheet_width_wider</attribute>
                 </xpath>
                 <button string="Send RFQ by Email" position="attributes" > 
@@ -60,7 +46,7 @@
                 </button>
                 <button string="Send PO by Email" position="attributes" > 
                     <attribute name="invisible">1</attribute>
-                </button>
+                </button> -->
 
                 <field name="date_order" position="after">
                     <field name="is_date_envoi_mail"/>
@@ -70,9 +56,9 @@
                     <field name="is_modified"/>
                 </field>
                 <field name="picking_type_id" position="replace"/>
-                <field name="location_id" position="after">
+                <!-- <field name="location_id" position="after">
                     <field name="picking_type_id" on_change="onchange_picking_type_id(picking_type_id, context)" domain="[('code','=','incoming')]" options="{'no_create': True}" context="{'special_shortened_wh_name': True}" groups="stock.group_locations"/>
-                </field>
+                </field> -->
                 <field name="date_planned" position="replace">
                     <field 
                         name="date_planned"
@@ -83,9 +69,9 @@
                         )" 
                     />
                 </field>
-                <xpath expr="/form/sheet/notebook/page[@string='Products']/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
-                    <field name="is_justification" />
-                    <field name="is_num_chantier" />
+                <xpath expr="//page[@name='products']/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                    <field name="is_justification" optional="show"/>
+                    <field name="is_num_chantier" optional="show"/>
                 </xpath>
                 <field name="partner_ref" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -95,7 +81,7 @@
                     <field name="is_num_da" />
                     <field name="is_demandeur_id" />
                 </field>
-                <field name="minimum_planned_date" position="after">
+                <field name="date_planned" position="after">
                     <field name="is_date_confirmation" />
                     <field name="is_commentaire" />
                 </field>
@@ -103,16 +89,45 @@
                     <field name="is_lieu"/>
                 </field>
             </field>
-        </record>
+        </record> 
+
 
         <record id="is_purchase_order_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_tree</field>
+            <field name="model">purchase.order</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state=='cancel'">
+                    <field name="name"/>
+                    <field name="date_order"/>
+                    <field name="date_planned"   optional="hide"/>
+                    <field name="partner_id"/>
+                    <field name="partner_ref"    optional="hide"/>
+                    <field name="origin"         optional="hide"/>
+                    <field name="amount_untaxed" optional="show" sum="Total"/>
+                    <field name="amount_total"   optional="show" sum="Total"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_demande_de_prix_action" model="ir.actions.act_window">
+            <field name="name">Demandes de prix</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_purchase_order_tree"/>
+            <field name="domain">[('state','in',('draft','sent','to_approve'))]</field>  
+        </record>
+ 
+
+
+
+        <!-- <record id="is_purchase_order_tree" model="ir.ui.view">
             <field name="name">is_purchase_order_tree</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_tree" />
             <field name="arch" type="xml">
                 <field name="partner_id" position="after">
                     <field name="is_num_da" />
-                    <!--<field name="is_document" />-->
                     <field name="is_demandeur_id" />
                 </field>
                 <field name="minimum_planned_date" position="after">
@@ -133,10 +148,9 @@
                     <field name="is_num_chantier" />
                 </field>
             </field>
-        </record>
+        </record> -->
+
+
 
     </data>
-</openerp>
-
-
-
+</odoo>

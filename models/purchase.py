@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
-#from openerp.exceptions import ValidationError
+from odoo.exceptions import ValidationError
 #from math import *
-#from openerp.addons.purchase import purchase
 from datetime import datetime
 
 

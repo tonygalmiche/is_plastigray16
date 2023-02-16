@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
    <record id="is_purchase_order_line_form_view" model="ir.ui.view">
         <field name="name">is_purchase_order_line_form_view</field>
@@ -15,11 +15,10 @@
                             <field name="partner_id" />
                             <field name="date_order" />
                             <field name="is_num_da" />
-                            <!--<field name="is_document" />-->
                             <field name="commande_ouverte" />
                             <field name="is_num_chantier" />
                             <field name="is_demandeur_id" />
-                            <field name="minimum_planned_date" />
+                            <!-- <field name="minimum_planned_date" /> -->
                             <field name="is_date_confirmation" />
                             <field name="is_commentaire" />
                             <field name="product_id" />
@@ -47,9 +46,9 @@
         <field name="model">is.purchase.order.line</field>
         <field name="arch" type="xml">
             <search string="Recherche">
-                <filter string="En cours"                   domain="[('qt_reste', '!=', 0)]" name="en_cours"/>
+                <!-- <filter string="En cours"                   domain="[('qt_reste', '!=', 0)]" name="en_cours"/>
                 <filter string="En attente de confirmation" domain="['&amp;', ('is_date_confirmation','=', False)  , ('qt_reste', '!=', 0)]" />
-                <filter string="Retard"                     domain="['&amp;', ('date_planned','&lt;', current_date), ('qt_reste', '!=', 0)]" />
+                <filter string="Retard"                     domain="['&amp;', ('date_planned','&lt;', current_date), ('qt_reste', '!=', 0)]" /> -->
                 <field name="order_id" />
                 <field name="is_cfc_id" />
                 <field name="partner_id" />
@@ -57,14 +56,13 @@
                 <field name="is_ref_fournisseur" />
                 <field name="is_num_da" />
                 <field name="commande_ouverte" />
-                <!--<field name="is_document" />-->
                 <field name="is_num_chantier" />
                 <field name="is_demandeur_id" />
-                <group expand="0" string="Regrouper par...">
+                <!-- <group expand="0" string="Regrouper par...">
                     <filter string="Fournisseur"      context="{'group_by':'partner_id'}"/>
                     <filter string="Article"          context="{'group_by':'product_id'}"/>
                     <filter string="Demandeur"        context="{'group_by':'is_demandeur_id'}"/>
-                </group>
+                </group> -->
             </search>
         </field>
     </record>
@@ -72,51 +70,36 @@
         <field name="name">is_purchase_order_line_tree_view</field>
         <field name="model">is.purchase.order.line</field>
         <field name="arch" type="xml">
-            <tree create="false" colors="green:qt_reste == 0; red:date_planned&lt;current_date and qt_reste != 0;">
-                <field name="order_id"           widget="many2one_clickable"  />
-                <field name="is_cfc_id"           widget="many2one_clickable"  />
-                <field name="partner_id"         widget="many2one_clickable"  />
-                <field name="date_order" />
-                <field name="is_num_da" />
-                <field name="commande_ouverte" />
-                <!--<field name="is_document" />-->
-                <field name="is_num_chantier" />
-                <field name="is_demandeur_id" />
-                <field name="minimum_planned_date" />
-                <field name="is_date_confirmation" />
-                <field name="is_commentaire" />
-                <field name="product_id"         widget="many2one_clickable"  />
-                <field name="is_ref_fournisseur" />
-                <field name="date_planned" />
-                <field name="uom_po_id" />
-                <field name="price_unit_uom_po" />
-                <field name="product_qty_uom_po" sum="Total"/>
-                <field name="qt_rcp"             sum="Total"/>
-                <field name="qt_reste"           sum="Total"/>
+            <!-- <tree create="false" colors="green:qt_reste == 0; red:date_planned&lt;current_date and qt_reste != 0;"> -->
+            <tree>
+                <field name="order_id"                             widget="many2one_clickable"  />
+                <field name="is_cfc_id"            optional="show" widget="many2one_clickable"  />
+                <field name="partner_id"                           widget="many2one_clickable"  />
+                <field name="date_order"           optional="show" />
+                <field name="is_num_da"            optional="show" />
+                <field name="commande_ouverte"     optional="show" />
+                <field name="is_num_chantier"      optional="show" />
+                <field name="is_demandeur_id"      optional="show" />
+                <!-- <field name="minimum_planned_date" /> -->
+                <field name="is_date_confirmation" optional="show" />
+                <field name="is_commentaire"       optional="show" />
+                <field name="product_id"           optional="show" widget="many2one_clickable"  />
+                <field name="is_ref_fournisseur"   optional="show" />
+                <field name="date_planned"         optional="show" />
+                <field name="uom_po_id"            optional="show" />
+                <field name="price_unit_uom_po"    optional="show"/>
+                <field name="product_qty_uom_po"   optional="show" sum="Total"/>
+                <field name="qt_rcp"               optional="show" sum="Total"/>
+                <field name="qt_reste"             optional="show" sum="Total"/>
            </tree>
         </field>
     </record>
 
     <record id="is_purchase_order_line_action" model="ir.actions.server">
         <field name="name">Lignes commandes achat</field>
-        <field name="condition">True</field>
-        <field name="type">ir.actions.server</field>
         <field name="model_id" ref="model_is_purchase_order_line"/>
         <field name="state">code</field>
-        <field name="code">action = self.refresh_purchase_order_line_action(cr, uid, context.get('active_ids', []), context=context)</field>
+        <field name="code">action = model.refresh_purchase_order_line_action()</field>
     </record>
-
-    <!--
-    <record id="is_purchase_order_line_action" model="ir.actions.act_window">
-        <field name="name">Lignes commandes achat</field>
-        <field name="res_model">is.purchase.order.line</field>
-        <field name="domain">[]</field>
-        <field name="context">{"search_default_en_cours":1}</field>
-        <field name="view_type">form</field>
-        <field name="view_id" ref="is_purchase_order_line_tree_view"/>
-        <field name="view_mode">tree,form</field>
-    </record>
-    -->
-
 </data>
-</openerp>
+</odoo>
