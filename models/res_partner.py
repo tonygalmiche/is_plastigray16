@@ -478,6 +478,9 @@ class res_partner(models.Model):
     close_saturday  = fields.Boolean('Saturday')
     close_sunday    = fields.Boolean('Sunday')
     
+    pricelist_purchase_id = fields.Many2one('product.pricelist',"Liste de prix d'achat")
+
+
     
     # _defaults = {
     #     'close_saturday': True,
@@ -884,11 +887,14 @@ class res_partner(models.Model):
         """
         res=True
         if date:
-            num_day = int(time.strftime('%w', time.strptime(date, '%Y-%m-%d'))) #Jour de la semaine (avec dimanche=0)
+            #num_day = int(time.strftime('%w', time.strptime(date, '%Y-%m-%d'))) #Jour de la semaine (avec dimanche=0)
+            num_day=int(date.strftime('%w'))
+            print(num_day, self.num_closing_days(partner))
             if num_day in self.num_closing_days(partner):
                 res=False
             if date in self.get_leave_dates(partner, avec_jours_feries):
                 res=False
+        print('res =',res)
         return res
 
 

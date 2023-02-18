@@ -301,9 +301,9 @@ class product_template(models.Model):
     def _compute_is_fournisseur_id(self):
         for obj in self:
             fournisseur_id=False
-            for line in obj.seller_ids:
-                fournisseur_id=line.name
-                break
+            # for line in obj.seller_ids:
+            #     fournisseur_id=line.name
+            #     break
             obj.is_fournisseur_id=fournisseur_id
 
 
@@ -657,12 +657,17 @@ class product_template(models.Model):
     #     return res
 
 
+    def _name_get(self):
+        for obj in self:
+            name = "%s %s"%(obj.is_code, obj.name)
+            return name
+
 
     def name_get(self):
         res = []
         for obj in self:
             print(obj)
-            name=obj.is_code+" "+obj.name
+            name=obj._name_get() #is_code+" "+obj.name
             res.append((obj.id,name))
         return res
 
@@ -742,14 +747,27 @@ class product_product(models.Model):
     _inherit = 'product.product'
     _order   = 'is_code'
 
+    # def name_get(self):
+    #     res = []
+    #     for obj in self:
+    #         name=obj.is_code+" "+obj.name
+    #         res.append((obj.id,name))
+    #     return res
+
+
+    def _name_get(self):
+        for obj in self:
+            name = "%s %s"%(obj.is_code, obj.name)
+            return name
+
+
     def name_get(self):
         res = []
         for obj in self:
-            name=obj.is_code+" "+obj.name
+            print(obj)
+            name=obj._name_get() #is_code+" "+obj.name
             res.append((obj.id,name))
         return res
-
-
 
 
 

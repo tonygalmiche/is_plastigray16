@@ -197,18 +197,19 @@ class is_demande_achat_invest(models.Model):
                         raise ValidationError('N° du chantier sur 6 chiffres obligatoire sur toutes les lignes de la commande !')
 
 
-            if partner.property_product_pricelist_purchase.id == False:
+
+            if partner.pricelist_purchase_id==False:
                 raise ValidationError('Liste de prix non renseignée pour ce fournisseur')
             else:
                 is_document=False
                 vals={
                     'partner_id'      : partner.id,
                     'is_livre_a_id'   : obj.lieu_livraison_id.id,
-                    'location_id'     : partner.is_source_location_id.id,
-                    'fiscal_position' : partner.property_account_position.id,
-                    'payment_term_id' : partner.property_supplier_payment_term.id,
-                    'pricelist_id'    : partner.property_product_pricelist_purchase.id,
-                    'currency_id'     : partner.property_product_pricelist_purchase.currency_id.id,
+                    #'location_id'     : partner.is_source_location_id.id,
+                    'fiscal_position_id': partner.property_account_position_id.id,
+                    'payment_term_id' : partner.property_supplier_payment_term_id.id,
+                    'pricelist_id'    : partner.pricelist_purchase_id.id,
+                    'currency_id'     : partner.pricelist_purchase_id.currency_id.id,
                     'is_num_da'       : obj.name,
                     'is_demandeur_id' : obj.createur_id.id,
                     'incoterm_id'     : partner.is_incoterm.id,
@@ -219,23 +220,25 @@ class is_demande_achat_invest(models.Model):
                 if order:
                     for line in obj.line_ids:
                         vals={}
-                        res=order_line_obj.onchange_product_id(
-                            order.pricelist_id.id, 
-                            line.product_id.id, 
-                            line.quantite, 
-                            line.uom_id.id, 
-                            partner.id, 
-                            date_order         = False, 
-                            fiscal_position_id = partner.property_account_position.id, 
-                            date_planned       = False, 
-                            name               = False, 
-                            price_unit         = line.prix, 
-                            state              = 'draft'
-                        )
-                        vals=res['value']
-                        vals['order_id']        = order.id
-                        vals['date_planned']    = obj.delai_livraison
-                        vals['product_id']      = line.product_id.id
+                        # res=order_line_obj.onchange_product_id(
+                        #     order.pricelist_id.id, 
+                        #     line.product_id.id, 
+                        #     line.quantite, 
+                        #     line.uom_id.id, 
+                        #     partner.id, 
+                        #     date_order         = False, 
+                        #     fiscal_position_id = partner.property_account_position.id, 
+                        #     date_planned       = False, 
+                        #     name               = False, 
+                        #     price_unit         = line.prix, 
+                        #     state              = 'draft'
+                        # )
+                        # vals=res['value']
+                        vals['order_id']     = order.id
+                        vals['date_planned'] = obj.delai_livraison
+                        vals['product_id']   = line.product_id.id
+                        vals['product_qty']  = line.quantite
+                        vals['price_unit']   = line.prix
                         vals['is_num_chantier'] = u'M0000/'+str(line.num_chantier)
                         name=[]
                         if line.product_id.id:
@@ -245,13 +248,14 @@ class is_demande_achat_invest(models.Model):
                         if line.designation2:
                             name.append(line.designation2)
                         vals['name']='\n'.join(name)
-                        if 'taxes_id' in vals:
-                            vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
+                        #if 'taxes_id' in vals:
+                        #    vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
                         order_line=order_line_obj.create(vals)
-                    order.wkf_bid_received() 
-                    res=order.wkf_confirm_order()
-                    order.action_picking_create() 
-                    order.wkf_approve_order()
+                    #order.wkf_bid_received() 
+                    ##res=order.wkf_confirm_order()
+                    #order.action_picking_create() 
+                    #order.wkf_approve_order()
+                    order.button_confirm()
                     obj.sudo().state="solde"
 
 
@@ -272,7 +276,7 @@ class is_demande_achat_invest(models.Model):
                 'subject'       : subject,
                 'body_html'     : body_html, 
             }
-            email=self.env['mail.mail'].create(vals)
+            email=self.env['mail.mail'].sudo().create(vals)
             if email:
                 self.env['mail.mail'].send(email)
 

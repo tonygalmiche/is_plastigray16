@@ -215,10 +215,16 @@
 
             </field>
         </record>
-        
-
-
-
+        <record id="is_product_view_partner_property_form" model="ir.ui.view">
+            <field name="name">is_product_view_partner_property_form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="product.view_partner_property_form" />
+            <field name="arch" type="xml">
+                <field name="property_product_pricelist" position="after">
+                    <field name="pricelist_purchase_id"/>
+                </field>
+            </field>
+        </record>
         <record id="is_view_partner_property_form" model="ir.ui.view">
             <field name="name">is_view_partner_property_form</field>
             <field name="model">res.partner</field>
@@ -352,7 +358,11 @@
             <field name="arch" type="xml">
                 <field name="email" position="after">
                     <field name="is_type_contact"        optional="hide"/>
-                    <field name="is_database_origine_id" optional="hide"/>
+                </field>
+                <field name="active" position="after">
+                    <field name="property_product_pricelist" optional="hide"/>
+                    <field name="pricelist_purchase_id"      optional="hide"/>
+                    <field name="is_database_origine_id"     optional="hide"/>
                 </field>
             </field>
         </record>
@@ -382,11 +392,12 @@
                     <field name="city"/>
                     <field name="zip"/>
                     <field name="is_type_cde_fournisseur"/>
-                    <!-- <field 
-                        name="property_product_pricelist_purchase"  
+                    <field 
+                        name="pricelist_purchase_id"  
                         widget="many2one_clickable"
-                        groups="is_plastigray.is_gestionnaire_donnees_techniques_group"
-                    /> -->
+                        groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"
+                        optional="hide"
+                    />
                     <field 
                         name="is_database_origine_id" 
                         groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"

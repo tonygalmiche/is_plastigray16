@@ -790,27 +790,27 @@ class stock_move(models.Model):
         return ids
 
 
-    def create(self, vals):
-        obj = super(stock_move, self).create(vals)
-        if obj.purchase_line_id and obj.picking_id:
-            obj.picking_id.is_purchase_order_id=obj.purchase_line_id.order_id.id
+    # def create(self, vals):
+    #     obj = super(stock_move, self).create(vals)
+    #     if obj.purchase_line_id and obj.picking_id:
+    #         obj.picking_id.is_purchase_order_id=obj.purchase_line_id.order_id.id
 
-        obj.update_pg_stock_move()
-        vals=obj.update_amortissement_moule()
-        obj.write(vals)
+    #     obj.update_pg_stock_move()
+    #     vals=obj.update_amortissement_moule()
+    #     obj.write(vals)
 
-        return obj
+    #     return obj
 
 
-    def write(self, vals):
-        v=self.update_amortissement_moule()
-        if v:
-            vals.update(v)
+    # def write(self, vals):
+    #     v=self.update_amortissement_moule()
+    #     if v:
+    #         vals.update(v)
 
-        res=super(stock_move, self).write(vals)
-        for obj in self:
-            obj.update_pg_stock_move()
-        return res
+    #     res=super(stock_move, self).write(vals)
+    #     for obj in self:
+    #         obj.update_pg_stock_move()
+    #     return res
 
 
     def update_amortissement_moule(self):

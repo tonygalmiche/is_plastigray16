@@ -143,21 +143,22 @@ class is_demande_achat_serie(models.Model):
             order_obj      = self.env['purchase.order']
             order_line_obj = self.env['purchase.order.line']
             partner=obj.fournisseur_id
-            if partner.property_product_pricelist_purchase:
+            if partner.pricelist_purchase_id:
                 vals={
                     'partner_id'      : partner.id,
                     'is_livre_a_id'   : obj.lieu_livraison_id.id,
-                    'location_id'     : partner.is_source_location_id.id,
-                    'fiscal_position' : partner.property_account_position.id,
-                    'payment_term_id' : partner.property_supplier_payment_term.id,
-                    'pricelist_id'    : partner.property_product_pricelist_purchase.id,
-                    'currency_id'     : partner.property_product_pricelist_purchase.currency_id.id,
+                    #'location_id'     : partner.is_source_location_id.id,
+                    'fiscal_position_id': partner.property_account_position_id.id,
+                    'payment_term_id' : partner.property_supplier_payment_term_id.id,
+                    'pricelist_id'    : partner.pricelist_purchase_id.id,
+                    'currency_id'     : partner.pricelist_purchase_id.currency_id.id,
                     'is_num_da'       : obj.name,
                     'is_demandeur_id' : obj.createur_id.id,
                     'incoterm_id'     : partner.is_incoterm.id,
                     'is_lieu'         : partner.is_lieu,
                 }
                 order=order_obj.create(vals)
+                print(order,vals)
                 obj.order_id=order.id
                 line=False
                 if len(obj.line_ids)==1:
@@ -165,38 +166,14 @@ class is_demande_achat_serie(models.Model):
                 test=True
                 if order and line:
                     vals={}
-                    try:
-                        res=order_line_obj.onchange_product_id(
-                            order.pricelist_id.id, 
-                            line.product_id.id, 
-                            line.quantite, 
-                            line.uom_id.id, 
-                            partner.id, 
-                            #date_order         = False, 
-                            date_order         = str(obj.delai_livraison)+' 12:00:00', 
-                            fiscal_position_id = partner.property_account_position.id, 
-                            date_planned       = False, 
-                            name               = False, 
-                            price_unit         = False, 
-                            state              = 'draft'
-                        )
-                        vals=res['value']
-                    except:
-                        test=False
                     vals['product_qty']  = line.quantite
                     vals['price_unit']   = line.prix
                     vals['order_id']     = order.id
                     vals['date_planned'] = obj.delai_livraison
                     vals['product_id']   = line.product_id.id
-                    if 'taxes_id' in vals:
-                        vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
                     order_line=order_line_obj.create(vals)
-                    order.wkf_bid_received() 
-                    order.wkf_confirm_order()
-                    order.action_picking_create() 
-                    order.wkf_approve_order()
+                    order.button_confirm()
                     obj.state="solde"
-
                     subject=u'['+obj.name+u'] Soldé ('+line.product_id.is_code+u' / '+line.product_id.name+u')'
                     email_to=obj.createur_id.email
                     user  = self.env['res.users'].browse(self._uid)
@@ -227,7 +204,7 @@ class is_demande_achat_serie(models.Model):
                 'subject'       : subject,
                 'body_html'     : body_html, 
             }
-            email=self.env['mail.mail'].create(vals)
+            email=self.env['mail.mail'].sudo().create(vals)
             if email:
                 self.env['mail.mail'].send(email)
 

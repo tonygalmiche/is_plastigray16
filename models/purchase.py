@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
-#from math import *
+from math import ceil
 from datetime import datetime
 
 
@@ -10,45 +10,32 @@ class purchase_order_line(models.Model):
 
     is_justification = fields.Char("Justification" , help="Ce champ est obligatoire si l'article n'est pas renseigné ou le prix à 0")
     is_num_chantier  = fields.Char("N° du chantier", help="Champ utilisé pour la gestion des investissements sous la forme Mxxxx/xxxxx")
-
-#     def init(self, cr):
-#         cr.execute("""
-# CREATE OR REPLACE FUNCTION get_pricelist_justif(pricelisttype text, pricelistid integer, productid integer, qt float, date date) RETURNS text AS $$
-# BEGIN
-#     RETURN (
-#         select justification
-#         from product_pricelist ppl inner join product_pricelist_version ppv on ppv.pricelist_id=ppl.id
-#                                    inner join product_pricelist_item    ppi on ppi.price_version_id=ppv.id
-#         where ppi.product_id=productid
-#             and ppl.id=pricelistid
-#             and min_quantity<=qt
-#             and ppl.type=pricelisttype and ppl.active='t'
-#             and (ppv.date_end   is null or ppv.date_end   >= date)
-#             and (ppv.date_start is null or ppv.date_start <= date)
-
-#             and (ppi.date_end   is null or ppi.date_end   >= date)
-#             and (ppi.date_start is null or ppi.date_start <= date)
-#         order by ppi.sequence limit 1
-#     );
-# END;
-# $$ LANGUAGE plpgsql;
-#         """)
+    date_planned     = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
 
 
-    def onchange_product_id(self, pricelist_id, product_id, qty, uom_id,
-            partner_id, date_order=False, fiscal_position_id=False, date_planned=False,
-            name=False, price_unit=False, state='draft'):
-        res = super(purchase_order_line, self).onchange_product_id(pricelist_id, product_id, qty, uom_id,
-            partner_id, date_order=date_order, fiscal_position_id=fiscal_position_id, date_planned=date_planned,
-            name=name, price_unit=price_unit, state=state)
-        if product_id:
-            product = self.env['product.product'].browse(product_id)
-            product_uom_obj = self.env['product.uom']
-            if not uom_id:
-                uom_id=product.uom_po_id.id
-            qty = product_uom_obj._compute_qty(uom_id, qty, product.uom_id.id)
-            lot      = product.lot_mini
-            multiple = product.multiple
+    def set_price_justification(self):
+        """Recherche prix et justifcation dans liste de prix pour date et qt et mise à jour"""
+        price = 0
+        justifcation = False
+        if self.order_id.pricelist_id:
+            price, justifcation = self.order_id.pricelist_id.price_get(
+                product = self.product_id,
+                qty     = self.product_qty, 
+                date    = self.date_planned
+            )
+        self.price_unit = price
+        self.is_justification = justifcation
+
+
+    @api.onchange('product_id','product_uom')
+    def onchange_product_id(self):
+        if not self.product_uom:
+            self.product_uom = self.product_id.uom_po_id.id
+        if self.product_id and self.product_uom:
+            self.name        = self.product_id._name_get()
+            qty      = self.product_qty 
+            lot      = self.product_id.lot_mini
+            multiple = self.product_id.multiple
             if multiple==0:
                 multiple=1
             if qty<lot:
@@ -56,42 +43,29 @@ class purchase_order_line(models.Model):
             else:
                 delta=round(qty-lot,8)
                 qty=lot+multiple*ceil(delta/multiple)
-            qty = product_uom_obj._compute_qty(product.uom_id.id, qty, uom_id)
-            res['value']['product_qty'] = qty
-            if pricelist_id is not False and date_order is not False:
-                # supression de l'heure à la date
-                date = date_order.split()[0]
-                SQL="SELECT get_pricelist_justif('purchase', {}, {}, {}, '{}') FROM product_product WHERE id={}".format(pricelist_id, product_id, qty, date, product_id)
-                self._cr.execute(SQL)
-                result = self._cr.fetchone()
-                res['value']['is_justification'] = result[0];
-        return res
+            qty = self.product_id.uom_id._compute_quantity(qty, self.product_uom, round=True, rounding_method='UP', raise_if_failure=True)
+            self.product_qty = qty
+            self.set_price_justification()
+        self._compute_tax_id()
 
 
-    def onchange_date_planned(self, date_planned, partner_id, company_id):
-        v = {}
-        warning = {}
+    @api.onchange('date_planned')
+    def onchange_date_planned(self):
         res=True
-        partner_obj=self.env['res.partner']
         #** Recherche si le partner est ouvert cette journée avec les jours fériés du pays
-        if partner_id:
-            partner = partner_obj.browse(partner_id)
-            if partner:
-                res = partner_obj.test_date_dispo(date_planned, partner, avec_jours_feries=True)
+        partner=self.order_id.partner_id
+        if partner:
+            res = partner.test_date_dispo(self.date_planned, partner, avec_jours_feries=True)
         #** Recherche si plastigray est ouvert cette journée sans les jours fériés du pays
-        if company_id and res:
-            partner = self.env['res.company'].browse(company_id).partner_id
-            if partner:
-                res = partner_obj.test_date_dispo(date_planned, partner, avec_jours_feries=False)
+        partner_company = self.env.user.company_id.partner_id
+        if partner_company and res:
+            res = partner_company.test_date_dispo(self.date_planned, partner, avec_jours_feries=False)
         if res==False:
             warning = {
-                'title': _('ValidationError!'),
-                'message' : 'La date prévue tombe pendant la fermeture du fournisseur ou de plastigray !'
+                'title'  : 'Attention!',
+                'message': 'La date prévue tombe pendant la fermeture du fournisseur ou de plastigray !'
             }
-        return {
-            'value': v,
-            'warning': warning,
-        }
+            return {'warning': warning}
 
 
 class purchase_order(models.Model):
@@ -111,6 +85,9 @@ class purchase_order(models.Model):
     is_date_end_cfc      = fields.Date("Date de fin de la cde ferme cadencée", readonly=True)
     is_lieu              = fields.Char("Lieu")
     is_modified          = fields.Boolean('Commande modifiée')
+    pricelist_id         = fields.Many2one('product.pricelist','Liste de prix')
+    date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
+
 
 
     def envoyer_par_mail(self):
@@ -208,18 +185,24 @@ class purchase_order(models.Model):
             obj.is_date_envoi_mail=datetime.now()
 
 
-    def onchange_partner_id(self, partner_id, context=None):
-        cr , uid, context = self.env.args
-        res = super(purchase_order, self).onchange_partner_id(partner_id)
-
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        if self.partner_id:
+            partner = self.partner_id
+            self.pricelist_id  = partner.pricelist_purchase_id.id
+            self.is_livre_a_id = partner.is_livre_a_id.id
+            self.incoterm_id   = partner.is_incoterm.id
+            self.is_lieu       = partner.is_lieu
+            #self.location_id   = partner.is_source_location_id.id
 
         #** Recherche du contact logistique ************************************
-        if partner_id:
+        cr = self._cr
+        if self.partner_id:
             SQL="""
                 select rp.id, rp.is_type_contact, itc.name
                 from res_partner rp inner join is_type_contact itc on rp.is_type_contact=itc.id
                 where 
-                    rp.parent_id="""+str(partner_id)+""" and 
+                    rp.parent_id="""+str(self.partner_id.id)+""" and 
                     rp.active='t' and
                     itc.name ilike '%logistique%' 
                 limit 1
@@ -227,22 +210,8 @@ class purchase_order(models.Model):
             cr.execute(SQL)
             result = cr.fetchall()
             for row in result:
-                if 'value' in res:
-                    res['value'].update({
-                        'is_contact_id': row[0]
-                    })
+                self.is_contact_id = row[0]
         #***********************************************************************
-
-
-        if 'value' in res:
-            partner = self.env['res.partner'].browse(partner_id)
-            res['value'].update({
-                'is_livre_a_id': partner.is_livre_a_id.id,
-                'incoterm_id'  : partner.is_incoterm.id,
-                'is_lieu'      : partner.is_lieu,
-                'location_id'  : partner.is_source_location_id.id,
-            })
-        return res
 
 
     def actualiser_prix_commande(self):
@@ -265,46 +234,29 @@ class purchase_order(models.Model):
 
     def actualiser_taxes_commande(self):
         for obj in self:
-            order_line_obj = self.env['purchase.order.line']
-            obj.fiscal_position = obj.partner_id.property_account_position.id
-            obj.payment_term_id = obj.partner_id.property_supplier_payment_term.id
-
             for line in obj.order_line:
-                res=order_line_obj.onchange_product_id(
-                    obj.pricelist_id.id, 
-                    line.product_id.id, 
-                    line.product_qty, 
-                    line.product_uom.id, 
-                    obj.partner_id.id, 
-                    date_order         = line.date_order, 
-                    fiscal_position_id = obj.partner_id.property_account_position.id, 
-                    date_planned       = line.date_planned, 
-                    name               = line.name, 
-                    price_unit         = line.price_unit, 
-                )
-                taxes_id=[]
-                for taxe_id in res['value']['taxes_id']:
-                    taxes_id.append(taxe_id)
-                line.taxes_id=[(6,0,taxes_id)]
+                line._compute_tax_id()
 
 
-    def test_prix0(self,obj):
-        for line in obj.order_line:
-            if not line.is_justification and not line.price_unit:
-                raise ValidationError(u"Prix à 0 sans justification pour l'article "+str(line.product_id.is_code))
+    def test_prix0(self):
+        for obj in self:
+            for line in obj.order_line:
+                if not line.is_justification and not line.price_unit:
+                    raise ValidationError("Prix à 0 sans justification pour l'article "+str(line.product_id.is_code))
 
 
     def write(self,vals):
-        res=super(purchase_order, self).write(vals)
+        res=super().write(vals)
         for obj in self:
-            self.test_prix0(obj)
+            obj.test_prix0()
         return res
 
 
-    def create(self, vals):
-        obj = super(purchase_order, self).create(vals)
-        self.test_prix0(obj)
-        return obj
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.test_prix0()
+        return res
 
 
     def get_da(self):
