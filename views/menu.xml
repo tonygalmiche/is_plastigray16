@@ -600,7 +600,7 @@
 
     <!-- Ventes / Clients -->
     <menuitem id="menu_is_ventes_clients"     sequence="10" name="Clients"            parent="menu_is_ventes"/>
-    <menuitem id="menu_is_ventes_clients_10"  sequence="10" name="Clients"            parent="menu_is_ventes_clients" action="base.action_partner_customer_form" /> 
+    <menuitem id="menu_is_ventes_clients_10"  sequence="10" name="Clients"            parent="menu_is_ventes_clients" action="res_partner_client_action" /> 
 
 
     <!-- Ventes / Tarif commercial -->
@@ -1254,8 +1254,8 @@
 
 
     <!-- Production / Stock -->
-    <!-- <menuitem id="menu_is_production_stock"    sequence="20" name="Stock"                    parent="menu_is_production"  />
-    <menuitem id="menu_is_production_stock_10" sequence="10" name="Stocks détaillés"         parent="menu_is_production_stock"  action="is_stock_quant_action"/>
+    <menuitem id="menu_is_production_stock"    sequence="20" name="Stock"                    parent="menu_is_production"  />
+    <!-- <menuitem id="menu_is_production_stock_10" sequence="10" name="Stocks détaillés"         parent="menu_is_production_stock"  action="is_stock_quant_action"/>
 
     <menuitem id="menu_is_production_stock_25" sequence="25" name="Mouvements de stock"       parent="menu_is_production_stock"  action="is_refresh_stock_move_action" />
     <menuitem id="pg_stock_move_menu"          sequence="26" name="Mouvements de stock (new)" parent="menu_is_production_stock"  action="pg_stock_move_action" />
@@ -1271,7 +1271,7 @@
             ref('is_magasiniers_group'),
             ref('is_inventaire_jour_group'),
         ])]"/>
-    </record>
+    </record> -->
     <record id="is_stock_production_lot_menu" model="ir.ui.menu" >
         <field name="name">Numéros de lots</field>
         <field name="sequence">40</field>
@@ -1280,7 +1280,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_administration_vente_group'),
         ])]"/>
-    </record> -->
+    </record>
 
 
     <!-- Production / Contrôle Qualité -->

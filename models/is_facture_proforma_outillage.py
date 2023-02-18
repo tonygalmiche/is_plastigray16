@@ -38,17 +38,17 @@ class is_facture_proforma_outillage(models.Model):
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
-        self.term_id = self.partner_id.property_payment_term.id
+        self.term_id = self.partner_id.property_payment_term_id.id
 
 
     @api.onchange('term_id','date_facture')
     def onchange_payment_term_date_invoice(self):
         date_due = self.date_facture
-        if self.term_id and self.date_facture:
-            pterm = self.env['account.payment.term'].browse(self.term_id.id)
-            pterm_list = pterm.compute(value=1, date_ref=self.date_facture)[0]
-            if pterm_list:
-                date_due = max(line[0] for line in pterm_list)
+        # if self.term_id and self.date_facture:
+        #     pterm = self.env['account.payment.term'].browse(self.term_id.id)
+        #     pterm_list = pterm.compute(value=1, date_ref=self.date_facture)[0]
+        #     if pterm_list:
+        #         date_due = max(line[0] for line in pterm_list)
         self.date_due = date_due
 
 
@@ -71,15 +71,12 @@ class is_facture_proforma_outillage(models.Model):
     commentaire  = fields.Text(u'Commentaire')
     line_ids     = fields.One2many('is.facture.proforma.outillage.line', 'proforma_id', u"Lignes", copy=True)
 
-    
-    def create(self, vals):
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','is_facture_proforma_outillage_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-        obj = super(is_facture_proforma_outillage, self).create(vals)
-        return obj
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.facture.proforma.outillage')
+        return super().create(vals_list)
 
 
     def envoyer_par_mail_action(self):
