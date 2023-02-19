@@ -6,9 +6,8 @@ from . import is_pricelist_item
 from . import is_product_packaging
 from . import is_purchase_order_line
 from . import is_res_partner
+from . import stock_bloquer_lot
 
-
-# import stock_bloquer_lot
 # import stock_debloquer_lot
 # import stock_change_location_lot
 # import stock_rebut_lot

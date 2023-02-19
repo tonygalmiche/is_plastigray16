@@ -296,5 +296,7 @@ access_is_certifications_qualite_suivi,access_is_certifications_qualite_suivi,mo
 
 access_is_pricelist_item,access_is_pricelist_item,model_is_pricelist_item,base.group_user,1,0,0,0
 
+access_is_purchase_order_line,access_is_purchase_order_line,model_is_purchase_order_line,base.group_user,1,1,1,1
 
-is_plastigray16.access_is_purchase_order_line,access_is_purchase_order_line,is_plastigray16.model_is_purchase_order_line,base.group_user,1,1,1,1
+access_is_gestion_lot,access_is_gestion_lot,model_is_gestion_lot,base.group_user,1,1,1,1
+access_is_gestion_lot_report,access_is_gestion_lot_report,model_is_gestion_lot_report,base.group_user,1,1,1,1

@@ -67,8 +67,8 @@ class is_product_ul(models.Model):
 class product_packaging(models.Model):
     _inherit = 'product.packaging'
 
-    name = fields.Char("Conditionnement",required=False)
-
+    name         = fields.Char("Conditionnement",required=False)
+    product_id   = fields.Many2one('product.product', string='Product', check_company=True, index=True)
     qty          = fields.Integer('Quantité par colis')
     rows         = fields.Integer('Nombre de couches')
     ul           = fields.Many2one('is.product.ul', 'Unité logistique colis')
@@ -648,15 +648,6 @@ class product_template(models.Model):
                     inventory.action_done()
 
 
-
-    # def name_get(self, cr, uid, ids, context=None):
-    #     res = []
-    #     for product in self.browse(cr, uid, ids, context=context):
-    #         name=product.is_code+" "+product.name
-    #         res.append((product.id,name))
-    #     return res
-
-
     def _name_get(self):
         for obj in self:
             name = "%s %s"%(obj.is_code, obj.name)
@@ -666,8 +657,7 @@ class product_template(models.Model):
     def name_get(self):
         res = []
         for obj in self:
-            print(obj)
-            name=obj._name_get() #is_code+" "+obj.name
+            name=obj._name_get()
             res.append((obj.id,name))
         return res
 
@@ -747,13 +737,6 @@ class product_product(models.Model):
     _inherit = 'product.product'
     _order   = 'is_code'
 
-    # def name_get(self):
-    #     res = []
-    #     for obj in self:
-    #         name=obj.is_code+" "+obj.name
-    #         res.append((obj.id,name))
-    #     return res
-
 
     def _name_get(self):
         for obj in self:
@@ -764,11 +747,9 @@ class product_product(models.Model):
     def name_get(self):
         res = []
         for obj in self:
-            print(obj)
             name=obj._name_get() #is_code+" "+obj.name
             res.append((obj.id,name))
         return res
-
 
 
     def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):

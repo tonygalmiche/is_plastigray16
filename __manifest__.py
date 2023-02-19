@@ -28,6 +28,11 @@ Module Odoo 16 pour Plastigray
         "security/ir.model.access.csv",
         "security/is_demande_conges_security.xml",
 
+        "views/is_gestion_lot_view.xml",
+
+
+        "report/stock_bloquer_lot.xml",
+
 
         "views/stock_view.xml",
 
@@ -193,7 +198,6 @@ Module Odoo 16 pour Plastigray
         # "email_template.xml",
         # "is_taux_rotation_stock_view.xml",
         # "calendar_view.xml",
-        # "wizard/is_gestion_lot_view.xml",
         # "wizard/is_stock_mise_rebut_view.xml",
         # "wizard/generate_previsions_view.xml",
         # "wizard/mrp_product_produce_view.xml",
@@ -246,7 +250,6 @@ Module Odoo 16 pour Plastigray
         # 'views/report_is_livraison_gefbox_tree.xml',
         # 'views/report_galia_base.xml',
         # "views/report.xml",
-        # "report/stock_bloquer_lot.xml",
         # "report/stock_debloquer_lot.xml",
         # "report/stock_change_location_lot.xml",
         # "report/stock_rebut_lot.xml",

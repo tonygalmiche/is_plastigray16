@@ -4,7 +4,6 @@ from . import is_cas_emploi_wizard_new
 from . import is_liste_servir_wizard
 
 
-# import is_gestion_lot
 # import is_stock_mise_rebut
 # import mrp_product_produce
 # import stock_transfer_details

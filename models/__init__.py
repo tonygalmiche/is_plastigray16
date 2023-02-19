@@ -45,6 +45,11 @@ from . import is_fiche_tampographie
 from . import is_gabarit_controle
 from . import is_galia_base
 from . import is_gestion_des_absences
+
+from . import is_gestion_lot
+
+
+
 from . import is_historique_controle
 from . import is_import_budget_pk
 from . import is_indicateur_revue_jalon
