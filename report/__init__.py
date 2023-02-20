@@ -6,6 +6,8 @@ from . import is_pricelist_item
 from . import is_product_packaging
 from . import is_purchase_order_line
 from . import is_res_partner
+from . import is_stock_quant
+
 
 # import stock_debloquer_lot
 # import stock_change_location_lot
@@ -29,7 +31,6 @@ from . import is_res_partner
 # import is_users_groups
 # import is_model_groups
 # import is_stock_move
-# import is_stock_quant
 # import is_comparatif_tarif_reception
 # import is_comparatif_livraison_facture
 # import is_comparatif_cde_draft_done

@@ -28,6 +28,10 @@ Module Odoo 16 pour Plastigray
         "security/ir.model.access.csv",
         "security/is_demande_conges_security.xml",
 
+
+        "report/is_stock_quant.xml",
+
+
         "views/is_gestion_lot_view.xml",
 
 
@@ -271,7 +275,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_users_groups.xml",
         # "report/is_model_groups.xml",
         # "report/is_stock_move.xml",
-        # "report/is_stock_quant.xml",
         # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_livraison_facture.xml",
         # "report/is_comparatif_cde_draft_done.xml",
