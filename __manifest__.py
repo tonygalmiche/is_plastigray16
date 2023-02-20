@@ -31,7 +31,6 @@ Module Odoo 16 pour Plastigray
         "views/is_gestion_lot_view.xml",
 
 
-        "report/stock_bloquer_lot.xml",
 
 
         "views/stock_view.xml",

@@ -22,7 +22,8 @@ class is_gestion_lot(models.Model):
         ('bloque'         , 'Bloquer un lot'),
         ('debloque'       , 'Débloqué'),
         ('change_location', 'Changement emplacement'),
-        ('rebut'          , 'Mise au rebut')
+        ('rebut'          , 'Mise au rebut'),
+        ('remettre'       , 'Remettre en stock'),
     ], 'Operation', readonly=True)   
     
     
@@ -79,7 +80,7 @@ class is_gestion_lot(models.Model):
                 location_dest_id = data.location_dest_bloq_id.id
             if data.operation == 'debloque':
                 location_dest_id = data.location_dest_debloq_id.id
-            if data.operation == 'change_location':
+            if data.operation in ['change_location', 'remettre']:
                 location_dest_id = data.location_dest_change_id.id
             if data.operation == 'rebut':
                 location_dest_id = data.location_dest_rebut_id.id
@@ -131,12 +132,13 @@ class is_gestion_lot_report(models.Model):
     mold            = fields.Char('Moule'                             , readonly=True)
     location_id     = fields.Many2one('stock.location', 'Emplacement' , readonly=True)
     control_quality = fields.Boolean('Contrôle qualité'               , readonly=True)
+    scrap_location  = fields.Boolean('Emplacement de rebut'           , readonly=True)
     usage           = fields.Char("Type d'emplacement"                , readonly=True)
-    qty         = fields.Float(u'Quantité'                        , readonly=True)
-    qty_par_uc  = fields.Integer(u'UC'                            , readonly=True)
-    qty_uc      = fields.Float(u'Nb UC'                           , readonly=True)
-    lot_id      = fields.Many2one('stock.lot', 'Lot'              , readonly=True)
-    in_date     = fields.Datetime("Date d'entrée"                 , readonly=True)
+    qty         = fields.Float('Quantité'                             , readonly=True)
+    qty_par_uc  = fields.Integer('UC'                                 , readonly=True)
+    qty_uc      = fields.Float('Nb UC'                                , readonly=True)
+    lot_id      = fields.Many2one('stock.lot', 'Lot'                  , readonly=True)
+    in_date     = fields.Datetime("Date d'entrée"                     , readonly=True)
     
 
     def init(self):
@@ -167,6 +169,7 @@ class is_gestion_lot_report(models.Model):
                         quant.location_id  as location_id,
                         location.usage            as usage,
                         location.control_quality  as control_quality,
+                        location.scrap_location   as scrap_location,
                         -- 'bloque'           as operation,
                         max(quant.in_date) as in_date
 
@@ -175,7 +178,7 @@ class is_gestion_lot_report(models.Model):
                                           INNER JOIN product_template pt     ON pp.product_tmpl_id = pt.id
                                           LEFT OUTER JOIN is_mold im         ON pt.is_mold_id=im.id 
                 WHERE   quant.lot_id is not Null
-                GROUP BY quant.lot_id, quant.product_id, pp.id, quant.location_id, im.name, location.usage, location.control_quality 
+                GROUP BY quant.lot_id, quant.product_id, pp.id, quant.location_id, im.name, location.usage, location.control_quality , location.scrap_location 
                 HAVING     sum(quant.quantity) > 0
                 ORDER BY quant.product_id
                )
@@ -189,6 +192,22 @@ class is_gestion_lot_report(models.Model):
             new_context["operation"] = 'bloque'
             return {
                 'name': "Bloquer un lot",
+                'view_mode': 'form',
+                'res_model': 'is.gestion.lot',
+                'type': 'ir.actions.act_window',
+                "context": new_context,
+                'domain': '[]',
+                'target': 'new',
+            }
+
+
+    def debloquer_lot_action(self):
+        for obj in self:
+            print(obj)
+            new_context = dict(self.env.context).copy()
+            new_context["operation"] = 'debloque'
+            return {
+                'name': "Débloquer un lot",
                 'view_mode': 'form',
                 'res_model': 'is.gestion.lot',
                 'type': 'ir.actions.act_window',
@@ -214,234 +233,38 @@ class is_gestion_lot_report(models.Model):
             }
 
 
-
-#    operation               = fields.Selection([
-#         ('bloque', u'Bloqué'),
-#         ('debloque', u'Débloqué'),
-#         ('change_location', 'Changement emplacement'),
-#         ('rebut', 'Mise au rebut')
-
-
-
-        # <!-- <record id="action_is_gestion_lot" model="ir.actions.act_window">
-        #     <field name="name">Gestion de lot</field>
-        #     <field name="res_model">is.gestion.lot</field>
-        #     <field name="view_mode">tree,form</field>
-        #    <field name="view_id" ref="view_is_gestion_lot_form"/>
-        #    <field name="target">new</field>
-        # </record> -->
+    def change_emplacement_action(self):
+        for obj in self:
+            print(obj)
+            new_context = dict(self.env.context).copy()
+            new_context["operation"] = 'change_location'
+            return {
+                'name': "Bloquer un lot",
+                'view_mode': 'form',
+                'res_model': 'is.gestion.lot',
+                'type': 'ir.actions.act_window',
+                "context": new_context,
+                'domain': '[]',
+                'target': 'new',
+            }
 
 
+    def remettre_stock_action(self):
+        for obj in self:
+            print(obj)
+            new_context = dict(self.env.context).copy()
+            new_context["operation"] = 'remettre'
+            return {
+                'name': "Remettre en stock",
+                'view_mode': 'form',
+                'res_model': 'is.gestion.lot',
+                'type': 'ir.actions.act_window',
+                "context": new_context,
+                'domain': '[]',
+                'target': 'new',
+            }
 
 
 
-# class report_stock_lot_bloque(models.Model):
-#     _name = "report.stock.lot.bloque"
-#     _description = "stock des produits par lot"
-#     _order = "product_id,location_id,lot_id"
-#     _auto = False
-
-#     product_id  = fields.Many2one('product.product', 'Article'    , readonly=True)
-#     mold        = fields.Char('Moule'                             , readonly=True)
-#     location_id = fields.Many2one('stock.location', 'Emplacement' , readonly=True)
-#     qty         = fields.Float(u'Quantité'                        , readonly=True)
-#     qty_par_uc  = fields.Integer(u'UC'                            , readonly=True)
-#     qty_uc      = fields.Float(u'Nb UC'                           , readonly=True)
-#     lot_id      = fields.Many2one('stock.lot', 'Lot'              , readonly=True)
-#     in_date     = fields.Datetime("Date d'entrée"                 , readonly=True)
-#     operation   = fields.Selection([
-#         ('bloque', u'Bloqué'),
-#         ('debloque', u'Débloqué'),
-#         ('change_location', 'Changement emplacement'),
-#         ('rebut', 'Mise au rebut')
-#     ], 'Operation', readonly=True)
     
-
-#     def init(self):
-#         cr = self._cr
-#         tools.drop_view_if_exists(cr, 'report_stock_lot_bloque')
-#         cr.execute("""
-#                 CREATE OR REPLACE FUNCTION is_qt_par_uc2(productid integer, OUT uc int) RETURNS int AS $$
-#                 BEGIN
-#                     uc:=cast((select qty from product_packaging where product_id=productid order by id limit 1) as int);
-#                     IF uc=0 THEN
-#                         uc:=1;
-#                     END IF;
-#                     IF   uc IS NULL THEN
-#                         uc:=1;
-#                     END IF;
-#                 END;
-#                 $$ LANGUAGE plpgsql;
-
-#                 CREATE OR REPLACE view report_stock_lot_bloque AS (
-#                 SELECT
-#                         min(quant.id)      as id,
-#                         sum(quant.quantity)     as qty,
-#                         is_qt_par_uc2(pp.id) as qty_par_uc,
-#                         (sum(quant.quantity) / is_qt_par_uc2(pp.id))  as qty_uc,
-#                         quant.lot_id       as lot_id,
-#                         quant.product_id   as product_id,
-#                         im.name            as mold,
-#                         quant.location_id  as location_id,
-#                         'bloque'           as operation,
-#                         max(quant.in_date) as in_date
-
-#                 FROM    stock_quant quant INNER JOIN stock_location location ON quant.location_id = location.id
-#                                           INNER JOIN product_product pp      ON quant.product_id  = pp.id
-#                                           INNER JOIN product_template pt     ON pp.product_tmpl_id = pt.id
-#                                           LEFT OUTER JOIN is_mold im         ON pt.is_mold_id=im.id 
-
-#                 WHERE   quant.lot_id is not Null
-#                 AND     (location.control_quality = False or location.control_quality is Null)
-#                 AND     location.usage = 'internal'
-#                 GROUP BY quant.lot_id, quant.product_id, pp.id, quant.location_id, im.name
-#                 HAVING     sum(quant.quantity) > 0
-#                 ORDER BY quant.product_id
-#                )
-#         """)
-
-
-
-
-
-
-# class is_stock_mise_rebut(models.Model):
-#     _name = 'is.stock.mise.rebut'
-#     _description = "Mise au rebut"
-    
-#     product_id         = fields.Many2one('product.product', 'Article', readonly=True)
-#     is_uc_qt           = fields.Integer('Qt/UC', related='product_id.is_uc_qt', readonly=True)
-#     product_qty        = fields.Float('Quantité', required=True)
-#     location_rebut_id  = fields.Many2one('stock.location', 'Emplacement de destination rebut')
-#     location_revert_id = fields.Many2one('stock.location', 'Emplacement de destination')
-#     prod_lot_id        = fields.Many2one('stock.lot', 'Lot', readonly=True)
-#     location_src_id    = fields.Many2one('stock.location', 'Emplacement source', readonly=True)
-#     operation          = fields.Selection([
-#         ('bloque'  , 'Bloqué'),
-#         ('debloque', 'Débloqué'),
-#         ('change_location', 'Changement emplacement'),
-#         ('rebut', 'Mise au rebut')
-#     ], 'Operation', readonly=True)
-
-
-#     @api.model
-#     def default_get(self, fields):
-#         res = super().default_get(fields)
-#         context      = self._context
-#         active_model = context.get('active_model')
-#         active_id    = context.get('active_id')
-#         line = self.env[active_model].browse(active_id)
-#         if 'operation' in fields:
-#             res.update(operation=line.operation)
-#         if 'product_id' in fields:
-#             res.update(product_id=line.product_id.id)
-#         if 'prod_lot_id' in fields:
-#             res.update(prod_lot_id=line.lot_id.id)
-#         if 'product_qty' in fields:
-#             res.update(product_qty=line.qty)
-#         if 'location_src_id' in fields:
-#             res.update(location_src_id=line.location_id.id)
-#         return res
-
-
-#     def create_stock_move(self):
-#         for data in self:
-#             move_obj = self.env["stock.move"]
-#             location_dest_id = False
-
-#             if data.operation in ('bloque', 'debloque', 'change_location'):
-#                 location_dest_id = data.location_rebut_id.id
-#             line_vals={
-#                 "location_id"     : data.location_src_id.id,
-#                 "location_dest_id": location_dest_id,
-#                 "lot_id"          : data.prod_lot_id.id,
-#                 "qty_done"        : data.product_qty,
-#                 "product_id"      : data.product_id.id,
-#             }
-#             move_vals={
-#                 "location_id"     : data.location_src_id.id,
-#                 "location_dest_id": location_dest_id,
-#                 "product_uom_qty" : data.product_qty,
-#                 "product_id"      : data.product_id.id,
-#                 "name"            : data.product_id.name,
-#                 #"move_line_ids"   : [[0,False,line_vals]],
-#             }
-#             #move=self.env['stock.move'].create(move_vals)
-#             #move._action_confirm()
-#             #TODO : La création du picking est facultative, mais je la garde pour avoir un exemple complet
-#             filtre=[('code', '=', 'internal')]
-#             picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
-#             picking_vals={
-#                 "picking_type_id" : picking_type_id.id,
-#                 "location_id"     : data.location_src_id.id,
-#                 "location_dest_id": location_dest_id,
-#                 'move_line_ids'   : [[0,False,line_vals]],
-#                 'move_ids'        : [[0,False,move_vals]],
-#             }
-#             picking=self.env['stock.picking'].create(picking_vals)
-#             picking.action_confirm()
-#             picking._action_done()
-#         return picking
-
-#     def validate_scrap(self):
-#         for obj in self:
-#             print(obj)
-#             move = self.create_stock_move()
-
-
-
-
-# class report_stock_lot_debloque(models.Model):
-#     _name = "report.stock.lot.debloque"
-#     _description = "stock des produits par lot"
-#     _order = "product_id,location_id,lot_id"
-#     _auto = False
-
-#     product_id  = fields.Many2one('product.product', 'Article'    , readonly=True)
-#     mold        = fields.Char('Moule'                             , readonly=True)
-#     location_id = fields.Many2one('stock.location', 'Emplacement' , readonly=True)
-#     qty         = fields.Float('Quantité'                         , readonly=True)
-#     qty_par_uc  = fields.Integer('UC'                             , readonly=True)
-#     qty_uc      = fields.Float('Nb UC'                            , readonly=True)
-#     lot_id      = fields.Many2one('stock.lot', 'Lot'              , readonly=True)
-#     in_date     = fields.Datetime('Incoming Date', readonly=True)
-#     operation   = fields.Selection([
-#         ('bloque', u'Bloqué'),
-#         ('debloque', u'Débloqué'),
-#         ('change_location', 'Changement emplacement'),
-#         ('rebut', 'Mise au rebut')
-#     ], 'Operation', readonly=True)
-    
-#     def init(self):
-#         cr = self._cr
-#         tools.drop_view_if_exists(cr, 'report_stock_lot_debloque')
-#         cr.execute("""
-#                 CREATE OR REPLACE view report_stock_lot_debloque AS (
-#                 SELECT
-#                         min(quant.id) as id,
-#                         sum(quant.quantity) as qty,
-#                         is_qt_par_uc2(pp.product_tmpl_id) as qty_par_uc,
-#                         (sum(quant.quantity) / is_qt_par_uc2(pp.product_tmpl_id))  as qty_uc,
-#                         quant.lot_id as lot_id,
-#                         quant.product_id as product_id,
-#                         im.name            as mold,
-#                         quant.location_id as location_id,
-#                         'debloque' as operation,
-#                         max(quant.in_date) as in_date
-#                 FROM
-#                         stock_quant quant INNER JOIN stock_location location ON (quant.location_id = location.id)
-#                                           INNER JOIN product_product pp      ON quant.product_id  = pp.id
-#                                           INNER JOIN product_template pt     ON pp.product_tmpl_id = pt.id
-#                                           LEFT OUTER JOIN is_mold im         ON pt.is_mold_id=im.id 
-#                 WHERE   quant.lot_id is not Null
-#                 AND     location.control_quality = True
-#                 AND     location.usage = 'internal'
-#                 GROUP BY quant.lot_id, quant.product_id, pp.product_tmpl_id, im.name, quant.location_id
-#                 HAVING     sum(quant.quantity) > 0
-#                 ORDER BY quant.product_id
-#                )
-#         """)
-    
-
-
     

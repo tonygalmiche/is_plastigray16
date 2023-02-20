@@ -1290,17 +1290,6 @@
         <field name="parent_id" eval="ref('menu_is_production')"/>
         <field name="groups_id" eval="[(6,0,[])]"/>
     </record>
-    <record id="is_gestion_lot_report_menu" model="ir.ui.menu" >
-        <field name="name">Gestion des lots</field>
-        <field name="sequence">10</field>
-        <field name="parent_id" eval="ref('menu_is_production_qualite')"/>
-        <field name="action"    ref="is_gestion_lot_report_action"/>
-        <field name="groups_id" eval="[(6,0,[
-            ref('is_rsp_production_group'),
-            ref('is_homme_flux_group'),
-            ref('is_magasiniers_group'),
-        ])]"/>
-    </record>
     <record id="is_gestion_lot_bloquer_menu" model="ir.ui.menu" >
         <field name="name">Bloquer un lot</field>
         <field name="sequence">20</field>
@@ -1311,39 +1300,36 @@
             ref('is_homme_flux_group'),
             ref('is_magasiniers_group'),
         ])]"/>
-    </record> -->
-    <!-- <record id="is_debloquer_lot_menu" model="ir.ui.menu" >
+    </record>
+    <record id="is_gestion_lot_debloquer_menu" model="ir.ui.menu" >
         <field name="name">Débloquer un lot</field>
-        <field name="sequence">50</field>
+        <field name="sequence">30</field>
         <field name="parent_id" eval="ref('menu_is_production_qualite')"/>
-        <field name="action"    ref="action_stock_lot_debloque_report"/>
+        <field name="action"    ref="is_gestion_lot_debloquer_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_qualite_group'),
         ])]"/>
-    </record> -->
-    <!-- 
-    <record id="is_changement_emplacement_lot_menu" model="ir.ui.menu" >
+    </record>
+    <record id="is_gestion_lot_change_emplacement_menu" model="ir.ui.menu" >
         <field name="name">Changement d'emplacement</field>
-        <field name="sequence">60</field>
+        <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_is_production_qualite')"/>
-        <field name="action"    ref="action_stock_lot_change_location_report"/>
+        <field name="action"    ref="is_gestion_lot_change_emplacement_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_rsp_production_group'),
             ref('is_homme_flux_group'),
             ref('is_magasiniers_group'),
         ])]"/>
     </record>
-    <record id="is_lot_rebut_menu" model="ir.ui.menu" >
+    <record id="is_gestion_lot_rebut_menu" model="ir.ui.menu" >
         <field name="name">Lots au rebut</field>
-        <field name="sequence">70</field>
+        <field name="sequence">50</field>
         <field name="parent_id" eval="ref('menu_is_production_qualite')"/>
-        <field name="action"    ref="action_stock_lot_rebut_report"/>
+        <field name="action"    ref="is_gestion_lot_rebut_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_qualite_group'),
         ])]"/>
-    </record> -->
-
-
+    </record>
 
 
     <!-- Production / Gestion des étuves -->

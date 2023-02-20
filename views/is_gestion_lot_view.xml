@@ -41,7 +41,10 @@
                                 domain="[
                                     ('usage','=','internal')
                                 ]" 
-                                attrs="{'invisible':[('operation','!=','change_location')], 'required':[('operation','=','change_location')]}"
+                                attrs="{
+                                    'invisible':[('operation','not in',['change_location','remettre'])], 
+                                    'required': [('operation','in'    ,['change_location','remettre'])], 
+                                }"
                             /> 
                             <field 
                                 name="location_dest_rebut_id" 
@@ -64,16 +67,6 @@
                 </form>
             </field>
         </record>
-        <!-- <record id="action_is_gestion_lot" model="ir.actions.act_window">
-            <field name="name">Gestion de lot</field>
-            <field name="res_model">is.gestion.lot</field>
-            <field name="view_mode">tree,form</field>
-           <field name="view_id" ref="view_is_gestion_lot_form"/>
-           <field name="target">new</field>
-        </record> -->
-                
-
-
 
 
         <!-- is.gestion.lot.report -->
@@ -87,6 +80,76 @@
                     <field name="location_id" widget="many2one_clickable"/>
                     <field name="usage"           optional="hide"/>
                     <field name="control_quality" optional="hide"/>
+                    <field name="scrap_location"  optional="hide"/>
+                    <field name="lot_id"      widget="many2one_clickable"/>
+                    <field name="in_date" />
+                    <field name="qty" sum="Total" />
+                    <field name="qty_par_uc" />
+                    <field name="qty_uc" sum="Total"/>
+                    <!--
+                    <button 
+                        title="Bloquer lot"
+                        type="object"
+                        name="bloquer_lot_action"
+                        icon="fa-ban"
+                    />
+                    <button 
+                        title="Débloquer lot"
+                        type="object"
+                        name="debloquer_lot_action"
+                        icon="fa-play"
+                    />
+                    <button 
+                        title="Mise au rebut"
+                        type="object"
+                        name="mise_au_rebut_action"
+                        icon="fa-trash"
+                        groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_qualite_group"
+                    />
+                    <button 
+                        title="Changer d'emplacement"
+                        type="object"
+                        name="change_emplacement_action"
+                        icon="fa-random"
+                    />
+                    <button 
+                        title="Remettre en stock"
+                        type="object"
+                        name="remettre_stock_action"
+                        icon="fa-undo"
+                    />
+                    -->
+                </tree>
+            </field>
+        </record>
+        <record id="is_gestion_lot_report_search_view" model="ir.ui.view">
+            <field name="name">is_gestion_lot_report_search_view</field>
+            <field name="model">is.gestion.lot.report</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id" />
+                    <field name="mold" />
+                    <field name="lot_id" />
+                    <field name="location_id" />
+                    <field name="usage" />
+                    <field name="control_quality" />
+                </search>
+            </field>
+        </record>
+
+        <!-- Bloquer un lot -->
+        <record id="is_gestion_lot_bloquer_tree" model="ir.ui.view">
+            <field name="name">is_gestion_lot_bloquer_tree_view</field>
+            <field name="model">is.gestion.lot.report</field>
+            <field name="inherit_id" ref="is_gestion_lot_report_tree_view" />
+            <field name="arch" type="xml">
+                <tree create="false">
+                    <field name="product_id"  widget="many2one_clickable"/>
+                    <field name="mold"/>
+                    <field name="location_id" widget="many2one_clickable"/>
+                    <field name="usage"           optional="hide"/>
+                    <field name="control_quality" optional="hide"/>
+                    <field name="scrap_location"  optional="hide"/>
                     <field name="lot_id"      widget="many2one_clickable"/>
                     <field name="in_date" />
                     <field name="qty" sum="Total" />
@@ -105,49 +168,14 @@
                         icon="fa-trash"
                         groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_qualite_group"
                     />
-                    <!-- <field name="operation" invisible="1"/> -->
-                    <!-- <button 
-                        title="Bloquer lot"
-                        type="action"
-                        name="(action_is_gestion_lot)d"
-                        icon="fa-ban"
-                    />
-                    <button 
-                        title="Mise au rebut"
-                        type="action"
-                        name="(action_is_mise_rebut)d"
-                        icon="fa-trash" 
-                        groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_qualite_group"
-                    /> -->
                 </tree>
             </field>
         </record>
-        <record id="is_gestion_lot_report_search_view" model="ir.ui.view">
-            <field name="name">is_gestion_lot_report_search_view</field>
-            <field name="model">is.gestion.lot.report</field>
-            <field name="arch" type="xml">
-                <search>
-                    <field name="product_id" />
-                    <field name="mold" />
-                    <field name="lot_id" />
-                    <field name="location_id" />
-                    <field name="usage" />
-                    <field name="control_quality" />
-                </search>
-            </field>
-        </record>
-        <record id="is_gestion_lot_report_action" model="ir.actions.act_window">
-            <field name="name">Gestion des lots</field>
-            <field name="res_model">is.gestion.lot.report</field>
-            <field name="view_mode">tree</field>
-            <!-- <field name="context">{'operation': 'bloque'}</field> -->
-            <!-- <field name="search_view_id" ref="view_stock_lot_bloque_search" /> -->
-        </record>
-
         <record id="is_gestion_lot_bloquer_action" model="ir.actions.act_window">
             <field name="name">Bloquer un lot</field>
             <field name="res_model">is.gestion.lot.report</field>
             <field name="view_mode">tree</field>
+            <field name="view_id" ref="is_gestion_lot_bloquer_tree"/>
             <field name="domain">[
                 ('usage'          , '=', 'internal'),
                 ('control_quality', '=', False),
@@ -155,159 +183,125 @@
             ]</field>
         </record>
 
-
-
-
-        <!--  Mise au rebut -->
-        <!-- <record id="view_is_stock_mise_rebut_wizard" model="ir.ui.view">
-            <field name="name">Gestion de rebut</field>
-            <field name="model">is.stock.mise.rebut</field>
+        <!-- Déloquer un lot -->
+        <record id="is_gestion_lot_debloquer_tree" model="ir.ui.view">
+            <field name="name">is_gestion_lot_debloquer_tree_view</field>
+            <field name="model">is.gestion.lot.report</field>
             <field name="arch" type="xml">
-                <form string="Gestion de rebut">
-                    <group>
-                        <field name="product_id" />
-                        <field name="is_uc_qt"  />
-                        <field name="product_qty"/>
-                        <field name="prod_lot_id"  />
-                        <field name="location_src_id" invisible="1" />
-                        <field name="operation" invisible="1" />
-                        <field 
-                            name="location_rebut_id" 
-                            widget="selection"
-                            domain="[('usage','!=','view'),('scrap_location','=',True)]" 
-                            attrs="{'invisible': [('operation','=','rebut')], 'required':[('operation','!=','rebut')]}"
-                        />
-                        <field 
-                            name="location_revert_id" 
-                            widget="selection"
-                            domain="[('usage','=','internal')]" 
-                            attrs="{'invisible': [('operation','!=','rebut')], 'required':[('operation','=','rebut')]}"
-                        />
-                    </group>
-                    <footer>
-                        <button name="validate_scrap" string="Valider" type="object" default_focus="1" class="btn-primary"/>
-                        <button string="Annuler" class="btn-secondary" special="cancel"/>
-                    </footer>
-                </form>
-            </field>
-        </record>
-        <record id="action_is_mise_rebut" model="ir.actions.act_window">
-            <field name="name">Mettre au rebut</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">is.stock.mise.rebut</field>
-            <field name="view_id" ref="view_is_stock_mise_rebut_wizard"/>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
-        <record id="action_is_reverse_mise_rebut" model="ir.actions.act_window">
-            <field name="name">Remettre au stock</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">is.stock.mise.rebut</field>
-            <field name="view_id" ref="view_is_stock_mise_rebut_wizard"/>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record> -->
-
-
-        <!-- Bloquer lot -->
-        <!-- <record id="view_stock_lot_bloque_tree" model="ir.ui.view">
-            <field name="name">report.stock.lot.bloque.tree</field>
-            <field name="model">report.stock.lot.bloque</field>
-            <field name="arch" type="xml">
-                <tree string="Bloquer lots" create="false">
-                    <field name="product_id" widget="many2one_clickable"/>
+                <tree create="false">
+                    <field name="product_id"  widget="many2one_clickable"/>
                     <field name="mold"/>
-                    <field name="location_id"/>
-                    <field name="lot_id" widget="many2one_clickable"/>
+                    <field name="location_id" widget="many2one_clickable"/>
+                    <field name="usage"           optional="hide"/>
+                    <field name="control_quality" optional="hide"/>
+                    <field name="scrap_location"  optional="hide"/>
+                    <field name="lot_id"      widget="many2one_clickable"/>
                     <field name="in_date" />
                     <field name="qty" sum="Total" />
                     <field name="qty_par_uc" />
                     <field name="qty_uc" sum="Total"/>
-                    <field name="operation" invisible="1"/>
                     <button 
-                        title="Bloquer lot"
-                        type="action"
-                        name="%(action_is_gestion_lot)d"
-                        icon="fa-ban"
+                        title="Débloquer lot"
+                        type="object"
+                        name="debloquer_lot_action"
+                        icon="fa-play"
                     />
                     <button 
                         title="Mise au rebut"
-                        type="action"
-                        name="%(action_is_mise_rebut)d"
-                        icon="fa-trash" 
+                        type="object"
+                        name="mise_au_rebut_action"
+                        icon="fa-trash"
                         groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_qualite_group"
                     />
                 </tree>
             </field>
         </record>
-        <record id="view_stock_lot_bloque_search" model="ir.ui.view">
-            <field name="name">report.stock.lot.bloque.search</field>
-            <field name="model">report.stock.lot.bloque</field>
-            <field name="arch" type="xml">
-                <search string="Bloquer lot">
-                    <field name="product_id" />
-                    <field name="mold" />
-                    <field name="lot_id" />
-                    <field name="location_id" />
-                </search>
-            </field>
-        </record>
-        <record id="action_stock_lot_bloque_report" model="ir.actions.act_window">
-            <field name="name">Bloquer lot</field>
-            <field name="res_model">report.stock.lot.bloque</field>
+        <record id="is_gestion_lot_debloquer_action" model="ir.actions.act_window">
+            <field name="name">Déloquer un lot</field>
+            <field name="res_model">is.gestion.lot.report</field>
             <field name="view_mode">tree</field>
-            <field name="context">{'operation': 'bloque'}</field>
-            <field name="search_view_id" ref="view_stock_lot_bloque_search" />
-        </record> -->
+            <field name="view_id" ref="is_gestion_lot_debloquer_tree"/>
+            <field name="domain">[
+                ('usage'          , '=', 'internal'),
+                ('control_quality', '=', True),
+                ('qty'            , '>', 0.01),
+            ]</field>
+        </record>
 
-
-
-        <!-- Debloquer lot -->
-        <!-- <record id="view_stock_lot_debloque_tree" model="ir.ui.view">
-            <field name="name">report.stock.lot.debloque.tree</field>
-            <field name="model">report.stock.lot.debloque</field>
+        <!-- Changement d'emplacement -->
+        <record id="is_gestion_lot_change_emplacement_tree" model="ir.ui.view">
+            <field name="name">is_gestion_lot_change_emplacement_tree_view</field>
+            <field name="model">is.gestion.lot.report</field>
             <field name="arch" type="xml">
-                <tree string="Déloquer lots" create="false">
-                    <field name="product_id"/>
-                    <field name="location_id"/>
+                <tree create="false">
+                    <field name="product_id"  widget="many2one_clickable"/>
                     <field name="mold"/>
-                    <field name="lot_id" />
+                    <field name="location_id" widget="many2one_clickable"/>
+                    <field name="usage"           optional="hide"/>
+                    <field name="control_quality" optional="hide"/>
+                    <field name="scrap_location"  optional="hide"/>
+                    <field name="lot_id"      widget="many2one_clickable"/>
+                    <field name="in_date" />
                     <field name="qty" sum="Total" />
                     <field name="qty_par_uc" />
                     <field name="qty_uc" sum="Total"/>
-                    <field name="in_date" />
-                    <field name="operation" invisible="1"/>
-                    <button title="Débloquer lot"
-                            type="action"
-                            name="%(action_is_gestion_lot)d"
-                            icon="fa-play" />
-                    <button title="Mise au rebut"
-                            type="action"
-                            name="%(action_is_mise_rebut)d"
-                            icon="fa-trash" />
-            </tree>
+                    <button 
+                        title="Changer d'emplacement"
+                        type="object"
+                        name="change_emplacement_action"
+                        icon="fa-random"
+                    />
+                </tree>
             </field>
         </record>
-        
-        <record id="view_stock_lot_debloque_search" model="ir.ui.view">
-            <field name="name">report.stock.lot.debloque.search</field>
-            <field name="model">report.stock.lot.debloque</field>
-            <field name="arch" type="xml">
-                <search string="Débloquer lot">
-                    <field name="product_id" />
-                    <field name="mold" />
-                    <field name="lot_id" />
-                    <field name="location_id" />
-                </search>
-            </field>
-        </record>
-        <record id="action_stock_lot_debloque_report" model="ir.actions.act_window">
-            <field name="name">Débloquer lot</field>
-            <field name="res_model">report.stock.lot.debloque</field>
+        <record id="is_gestion_lot_change_emplacement_action" model="ir.actions.act_window">
+            <field name="name">Changement d'emplacement</field>
+            <field name="res_model">is.gestion.lot.report</field>
             <field name="view_mode">tree</field>
-            <field name="context">{'operation': 'debloque'}</field>
-            <field name="search_view_id" ref="view_stock_lot_debloque_search" />
-        </record> -->
+            <field name="view_id" ref="is_gestion_lot_change_emplacement_tree"/>
+            <field name="domain">[
+                ('usage'          , '=', 'internal'),
+                ('qty'            , '>', 0.01),
+            ]</field>
+        </record>
 
+
+        <!-- Lots au rebut -->
+        <record id="is_gestion_lot_rebut_tree" model="ir.ui.view">
+            <field name="name">is_gestion_lot_rebut_tree_view</field>
+            <field name="model">is.gestion.lot.report</field>
+            <field name="arch" type="xml">
+                <tree create="false">
+                    <field name="product_id"  widget="many2one_clickable"/>
+                    <field name="mold"/>
+                    <field name="location_id" widget="many2one_clickable"/>
+                    <field name="usage"           optional="hide"/>
+                    <field name="control_quality" optional="hide"/>
+                    <field name="scrap_location"  optional="hide"/>
+                    <field name="lot_id"      widget="many2one_clickable"/>
+                    <field name="in_date" />
+                    <field name="qty" sum="Total" />
+                    <field name="qty_par_uc" />
+                    <field name="qty_uc" sum="Total"/>
+                    <button 
+                        title="Remettre en stock"
+                        type="object"
+                        name="remettre_stock_action"
+                        icon="fa-undo"
+                    />
+                </tree>
+            </field>
+        </record>
+        <record id="is_gestion_lot_rebut_action" model="ir.actions.act_window">
+            <field name="name">Lots au rebut</field>
+            <field name="res_model">is.gestion.lot.report</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="is_gestion_lot_rebut_tree"/>
+            <field name="domain">[
+                ('usage'          , '!=', 'view'),
+                ('qty'            , '>', 0.01),
+                ('scrap_location' , '=', True),
+            ]</field>
+        </record>
     </data>
 </odoo>
