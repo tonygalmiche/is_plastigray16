@@ -71,7 +71,7 @@
                         <group string="Coûts actualisés"/>
                         <field name="cout_actualise_ids" nolabel="1">
                             <tree editable="bottom"  create="true">
-                                <button string="Coût article" name= "action_acces_cout" type="object" icon="fa-list" />
+                                <button title="Coût article" name= "action_acces_cout" type="object" icon="fa-list" />
                                 <field name="product_id" widget="many2one_clickable"/>
                                 <field name="cout_act_matiere"/>
                                 <field name="cout_act_machine"/>

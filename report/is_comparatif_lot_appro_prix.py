@@ -24,20 +24,24 @@ class is_comparatif_lot_appro_prix(models.Model):
 
 
     def init(self, cr):
+
+        # TODO Cette fonction n'est plus necessaire car la liste de prix est dans un champ et non plus dans une property
+        #    CREATE OR REPLACE FUNCTION get_product_pricelist_purchase(partner_id integer) RETURNS integer AS $$
+        #     BEGIN
+        #         RETURN (
+        #             select substring(value_reference, 19)::int pricelist_id
+        #             from ir_property ip 
+        #             where ip.name='property_product_pricelist_purchase' and res_id=concat('res.partner,',partner_id)
+        #             limit 1
+        #         );
+        #     END;
+        #     $$ LANGUAGE plpgsql;
+
+
+
         tools.drop_view_if_exists(cr, 'is_comparatif_lot_appro_prix')
         cr.execute("""
-            CREATE OR REPLACE FUNCTION get_product_pricelist_purchase(partner_id integer) RETURNS integer AS $$
-            BEGIN
-                RETURN (
-                    select substring(value_reference, 19)::int pricelist_id
-                    from ir_property ip 
-                    where ip.name='property_product_pricelist_purchase' and res_id=concat('res.partner,',partner_id)
-                    limit 1
-                );
-            END;
-            $$ LANGUAGE plpgsql;
-
-            CREATE OR REPLACE view is_comparatif_lot_appro_prix AS (
+             CREATE OR REPLACE view is_comparatif_lot_appro_prix AS (
                 select
                     pt.id         id,
                     pt.id         product_id,

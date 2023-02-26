@@ -1260,18 +1260,18 @@
     <!-- <menuitem id="menu_is_production_stock_25" sequence="25" name="Mouvements de stock"       parent="menu_is_production_stock"  action="is_refresh_stock_move_action" /> -->
     <!-- <menuitem id="pg_stock_move_menu"          sequence="26" name="Mouvements de stock (new)" parent="menu_is_production_stock"  action="pg_stock_move_action" /> -->
 
-    <!--
+    
     <record id="is_entrees_sorties_stocks_menu" model="ir.ui.menu" >
         <field name="name">Entrées-sorties de stocks</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('menu_is_production_stock')"/>
-        <field name="action"    ref="stock.action_move_form2"/>
+        <field name="action"    ref="is_entrees_sorties_stock_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_administration_vente_group'),
             ref('is_magasiniers_group'),
             ref('is_inventaire_jour_group'),
         ])]"/>
-    </record> -->
+    </record>
     <record id="is_stock_production_lot_menu" model="ir.ui.menu" >
         <field name="name">Numéros de lots</field>
         <field name="sequence">40</field>

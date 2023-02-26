@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from odoo import models,fields,api
+from odoo import models,fields,api,registry
 from odoo.exceptions import ValidationError
 import datetime
 import time
@@ -30,9 +29,24 @@ def _now(debut):
 
 
 class is_cout_calcul(models.Model):
+    __slots__= [
+        "detail_nomenclature",
+        "detail_gamme_ma",
+        "detail_gamme_mo",
+        "detail_gamme_ma_pk",
+        "detail_gamme_mo_pk",
+        "mem_couts",
+        "cursors",
+    ]
+
+
+
     _name='is.cout.calcul'
     _description="is_cout_calcul"
     _order='name desc'
+
+
+
 
     name               = fields.Datetime('Date', required=True     , readonly=True, default=lambda *a: fields.datetime.now())
     user_id            = fields.Many2one('res.users', 'Responsable', readonly=True, default=lambda self: self.env.uid)
@@ -49,19 +63,28 @@ class is_cout_calcul(models.Model):
         ], u"État", readonly=True, index=True, default="creation")
 
 
-    detail_nomenclature=[]
-    detail_gamme_ma=[]
-    detail_gamme_mo=[]
 
-    detail_gamme_ma_pk=[]
-    detail_gamme_mo_pk=[]
 
-    mem_couts={}
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args, **kwargs)
+
+
+        self.detail_nomenclature=[]
+        self.detail_gamme_ma=[]
+        self.detail_gamme_mo=[]
+
+        self.detail_gamme_ma_pk=[]
+        self.detail_gamme_mo_pk=[]
+
+        self.mem_couts={}
 
 
     ###########################################################################
     ###################### PARTIE VENANT DE is_cout2 ##########################
     ###########################################################################
+
+
 
 
     def nomenclature2(self, cout_calcul_obj, product, niveau, multiniveaux=True):
@@ -101,23 +124,23 @@ class is_cout_calcul(models.Model):
 
     def _creation_couts_thread(self,obj_id,rows,thread,nb_threads=0):
         #_logger.info('len(mem_couts)='+str(len(self.mem_couts))+', thread='+str(thread))
-        with api.Environment.manage():
-            if nb_threads>0:
-                new_cr = registry(self._cr.dbname).cursor()
-                self.cursors.append(new_cr)
-                self = self.with_env(self.env(cr=new_cr))
-                self.mem_couts={}
-            obj=self.env['is.cout.calcul'].search([('id', '=', obj_id)])[0]
-            nb=len(rows)
-            ct=0
-            for row in rows:
-                ct=ct+1
-                product_id = row[0]
-                niveau     = row[1]
-                product = self.env['product.product'].browse(product_id)
-                _logger.info('creation_cout : thread : '+str(thread)+' - '+str(ct)+'/'+str(nb)+' : '+str(product.is_code))
-                type_article=self.type_article(product)
-                cout=self.creation_cout(obj, product, type_article, niveau=niveau)
+        #with api.Environment.manage():
+        if nb_threads>0:
+            new_cr = registry(self._cr.dbname).cursor()
+            self.cursors.append(new_cr)
+            self = self.with_env(self.env(cr=new_cr))
+            self.mem_couts={}
+        obj=self.env['is.cout.calcul'].search([('id', '=', obj_id)])[0]
+        nb=len(rows)
+        ct=0
+        for row in rows:
+            ct=ct+1
+            product_id = row[0]
+            niveau     = row[1]
+            product = self.env['product.product'].browse(product_id)
+            _logger.info('creation_cout : thread : '+str(thread)+' - '+str(ct)+'/'+str(nb)+' : '+str(product.is_code))
+            type_article=self.type_article(product)
+            cout=self.creation_cout(obj, product, type_article, niveau=niveau)
 
 
     def _creation_couts(self,nb_threads=0):
@@ -171,22 +194,23 @@ class is_cout_calcul(models.Model):
 
     def _get_pricelist(self,product):
         """Recherche pricelist du fournisseur par défaut"""
-        cr = self._cr
-        seller=False
-        if product.seller_ids:
-            seller=product.seller_ids[0]
         pricelist=False
-        if seller:
-            partner=seller.name
-            SQL="""
-                SELECT get_product_pricelist_purchase(id)
-                FROM res_partner
-                WHERE id="""+str(partner.id)+"""
-            """
-            cr.execute(SQL)
-            result = cr.fetchall()
-            for row in result:
-                pricelist=self.env['product.pricelist'].browse(row[0])
+        if product.seller_ids:
+            pricelist=product.seller_ids[0].partner_id.pricelist_purchase_id
+
+        print("### TEST _get_pricelist",self,product,product.seller_ids, pricelist)
+
+        # if seller:
+        #     partner=seller.partner_id
+        #     SQL="""
+        #         SELECT get_product_pricelist_purchase(id)
+        #         FROM res_partner
+        #         WHERE id="""+str(partner.id)+"""
+        #     """
+        #     cr.execute(SQL)
+        #     result = cr.fetchall()
+        #     for row in result:
+        #         pricelist=self.env['product.pricelist'].browse(row[0])
         return pricelist
 
 
@@ -196,9 +220,15 @@ class is_cout_calcul(models.Model):
         product=cout.name
         prix_tarif=0
         date=time.strftime('%Y-%m-%d') # Date du jour
+
+        print("### TEST _get_prix_tarif ###",self,cout,pricelist)
+
+
         if pricelist:
             #Convertion du lot_mini de US vers UA
-            min_quantity = self.env['product.uom']._compute_qty(cout.name.uom_id.id, cout.name.lot_mini, cout.name.uom_po_id.id)
+            #min_quantity = self.env['uom.uom']._compute_qty(cout.name.uom_id.id, cout.name.lot_mini, cout.name.uom_po_id.id)
+            min_quantity = cout.name.uom_id._compute_quantity(cout.name.lot_mini, cout.name.uom_po_id)
+
             #TODO : Pour contourner un bug d'arrondi (le 31/01/2017)
             min_quantity=min_quantity+0.00000000001
             #TODO en utilisant la fonction repr à la place de str, cela ne tronque pas les décimales
@@ -234,7 +264,7 @@ class is_cout_calcul(models.Model):
         cr = self._cr
         SQL="""
             select pol.price_unit*pu.factor
-            from purchase_order_line pol inner join product_uom pu on pol.product_uom=pu.id
+            from purchase_order_line pol inner join uom_uom pu on pol.product_uom=pu.id
             where pol.product_id="""+str(product.id)+ """ 
                   and state in('confirmed','done')
             order by pol.id desc limit 1
@@ -252,10 +282,10 @@ class is_cout_calcul(models.Model):
         cr = self._cr
         SQL="""
             select ail.price_unit*pu.factor
-            from account_invoice_line ail inner join product_uom pu on ail.uos_id=pu.id
-                                          inner join account_invoice ai on ail.invoice_id=ai.id
+            from account_move_line ail inner join uom_uom pu on ail.product_uom_id=pu.id
+                                          inner join account_move ai on ail.move_id=ai.id
             where ail.product_id="""+str(product.id)+ """ 
-                  and ai.state in('open','paid') and ai.type='in_invoice'
+                  and ai.state in('open','paid') and ai.move_type='in_invoice'
             order by ail.id desc limit 1
         """
         cr.execute(SQL)
@@ -268,7 +298,7 @@ class is_cout_calcul(models.Model):
 
     def _maj_couts_thread(self,obj_id,rows,thread,nb_threads):
 
-        with api.Environment.manage():
+        #with api.Environment.manage():
             if nb_threads>0:
                 new_cr = registry(self._cr.dbname).cursor()
                 self.cursors.append(new_cr)
@@ -357,21 +387,21 @@ class is_cout_calcul(models.Model):
             t=0
             res={}
             #TODO : Nouvelle environnement pour avoir un cr  contenant les dernières modifications des threads précédents
-            with api.Environment.manage():
-                if nb_threads>0:
-                    new_cr = registry(self._cr.dbname).cursor()
-                    self = self.with_env(self.env(cr=new_cr))
-                couts=self.env['is.cout'].search([('cout_calcul_id', '=', obj.id)])
-                for cout in couts:
-                    if not t in res:
-                        res[t]=[]
-                    res[t].append(cout.id)
-                    t=t+1
-                    if t>=nb_threads:
-                        t=0
-                if nb_threads>0:
-                    new_cr.commit()
-                    new_cr.close()
+            #with api.Environment.manage():
+            if nb_threads>0:
+                new_cr = registry(self._cr.dbname).cursor()
+                self = self.with_env(self.env(cr=new_cr))
+            couts=self.env['is.cout'].search([('cout_calcul_id', '=', obj.id)])
+            for cout in couts:
+                if not t in res:
+                    res[t]=[]
+                res[t].append(cout.id)
+                t=t+1
+                if t>=nb_threads:
+                    t=0
+            if nb_threads>0:
+                new_cr.commit()
+                new_cr.close()
             #*******************************************************************
 
             #** Lancement des threads ******************************************
@@ -482,27 +512,27 @@ class is_cout_calcul(models.Model):
 
 
 
-    def nomenclature(self, cout_calcul_obj, product, niveau, multiniveaux=True):
-        cr = self._cr
-        type_article=self.type_article(product)
-        cout=self.creation_cout(cout_calcul_obj, product, type_article)
-        if type_article!='A' and multiniveaux==True:
-            if niveau>10:
-                raise ValidationError(u"Trop de niveaux (>10) dans la nomenclature du "+product.is_code)
-            SQL="""
-                select mbl.product_id, mbl.id, mbl.sequence, mb.id
-                from mrp_bom mb inner join mrp_bom_line mbl on mbl.bom_id=mb.id
-                                inner join product_product pp on pp.product_tmpl_id=mb.product_tmpl_id
-                where pp.id="""+str(product.id)+ """ 
-                order by mbl.sequence, mbl.id
-            """
-            #TODO : Voir si ce filtre est necessaire : and (mb.is_sous_traitance='f' or mb.is_sous_traitance is null)
-            cr.execute(SQL)
-            result = cr.fetchall()
-            niv=niveau+1
-            for row2 in result:
-                composant=self.env['product.product'].browse(row2[0])
-                self.nomenclature(cout_calcul_obj, composant, niv)
+    # def nomenclature(self, cout_calcul_obj, product, niveau, multiniveaux=True):
+    #     cr = self._cr
+    #     type_article=self.type_article(product)
+    #     cout=self.creation_cout(cout_calcul_obj, product, type_article)
+    #     if type_article!='A' and multiniveaux==True:
+    #         if niveau>10:
+    #             raise ValidationError(u"Trop de niveaux (>10) dans la nomenclature du "+product.is_code)
+    #         SQL="""
+    #             select mbl.product_id, mbl.id, mbl.sequence, mb.id
+    #             from mrp_bom mb inner join mrp_bom_line mbl on mbl.bom_id=mb.id
+    #                             inner join product_product pp on pp.product_tmpl_id=mb.product_tmpl_id
+    #             where pp.id="""+str(product.id)+ """ 
+    #             order by mbl.sequence, mbl.id
+    #         """
+    #         #TODO : Voir si ce filtre est necessaire : and (mb.is_sous_traitance='f' or mb.is_sous_traitance is null)
+    #         cr.execute(SQL)
+    #         result = cr.fetchall()
+    #         niv=niveau+1
+    #         for row2 in result:
+    #             composant=self.env['product.product'].browse(row2[0])
+    #             self.nomenclature(cout_calcul_obj, composant, niv)
 
 
     def type_article(self, product):
@@ -740,7 +770,7 @@ class is_cout_calcul(models.Model):
 
             #** Composants de la nomenclature **********************************
             SQL="""
-                select mbl.product_id, mbl.product_uom, mbl.product_qty, ic.prix_calcule
+                select mbl.product_id, mbl.product_uom_id, mbl.product_qty, ic.prix_calcule
                 from mrp_bom mb inner join mrp_bom_line mbl on mbl.bom_id=mb.id
                                 inner join product_product pp on pp.product_tmpl_id=mb.product_tmpl_id
                                 inner join is_cout ic on ic.name=mbl.product_id
@@ -1073,10 +1103,19 @@ class is_cout(models.Model):
                 ('indice_prix', '=', 999),
                 ('partner_id.is_code', '=', code_client)
             ])
+
+
+            amortissement_moule = surcout_pre_serie = prix_vente = 0
             for tarif in tarifs:
-                obj.amortissement_moule = tarif.amortissement_moule
-                obj.surcout_pre_serie   = tarif.surcout_pre_serie
-                obj.prix_vente          = tarif.prix_vente
+                amortissement_moule = tarif.amortissement_moule
+                surcout_pre_serie   = tarif.surcout_pre_serie
+                prix_vente          = tarif.prix_vente
+
+            obj.amortissement_moule = amortissement_moule
+            obj.surcout_pre_serie   = surcout_pre_serie
+            obj.prix_vente          = prix_vente
+
+
 
 
     def write(self, vals):
@@ -1188,38 +1227,38 @@ class is_cout(models.Model):
 
     def save_cout_report(self):
         user = self.env['res.users'].browse(self._uid)
-        with api.Environment.manage():
-            new_cr = self.pool.cursor()
-            self = self.with_env(self.env(cr=new_cr))
-            report_service = 'is_plastigray16.report_is_cout'
-            db=self._cr.dbname
-            path="/tmp/couts-" + db
-            cde="rm -Rf " + path
-            os.popen(cde).readlines()
-            if not os.path.exists(path):
-                os.makedirs(path)
-            recs=self.search([], order="name",limit=50000)
-            nb=len(recs)
-            _logger.info("#### Début sauvegarde Coûts ####")
-            ct=0
-            for rec in recs:
-                ct=ct+1
-                code_pg=rec.name.is_code
-                _logger.info('- '+str(ct)+'/'+str(nb)+' : '+str(code_pg))
-                result, format = self.env['report'].get_pdf(rec, report_service), 'pdf'
-                file_name = path + '/'+str(code_pg) +'.pdf'
-                fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
-                try:
-                    os.write(fd, result)
-                finally:
-                    os.close(fd)
-            filename="/var/www/odoo/couts/"+db+".zip"
-            cde="rm -f " + filename + " && cd /tmp && zip -r " + filename + " couts-" +db+" && chmod 755 "+filename
-            os.popen(cde).readlines()
-            self.send_mail_notyfy_user()
-            new_cr.close()
-            _logger.info("#### Fin sauvegarde Coûts ####")
-            return {}
+        #with api.Environment.manage():
+        new_cr = self.pool.cursor()
+        self = self.with_env(self.env(cr=new_cr))
+        report_service = 'is_plastigray16.report_is_cout'
+        db=self._cr.dbname
+        path="/tmp/couts-" + db
+        cde="rm -Rf " + path
+        os.popen(cde).readlines()
+        if not os.path.exists(path):
+            os.makedirs(path)
+        recs=self.search([], order="name",limit=50000)
+        nb=len(recs)
+        _logger.info("#### Début sauvegarde Coûts ####")
+        ct=0
+        for rec in recs:
+            ct=ct+1
+            code_pg=rec.name.is_code
+            _logger.info('- '+str(ct)+'/'+str(nb)+' : '+str(code_pg))
+            result, format = self.env['report'].get_pdf(rec, report_service), 'pdf'
+            file_name = path + '/'+str(code_pg) +'.pdf'
+            fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
+            try:
+                os.write(fd, result)
+            finally:
+                os.close(fd)
+        filename="/var/www/odoo/couts/"+db+".zip"
+        cde="rm -f " + filename + " && cd /tmp && zip -r " + filename + " couts-" +db+" && chmod 755 "+filename
+        os.popen(cde).readlines()
+        self.send_mail_notyfy_user()
+        new_cr.close()
+        _logger.info("#### Fin sauvegarde Coûts ####")
+        return {}
 
     def send_mail_notyfy_user(self):
         db=self._cr.dbname

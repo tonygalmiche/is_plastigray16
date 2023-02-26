@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api
+from odoo import models,fields,tools
 import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -151,7 +151,6 @@ class product_pricelist(models.Model):
                                 break
                     break
         return [price, justification]
-
 
 
 
