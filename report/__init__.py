@@ -2,6 +2,7 @@
 #from . import is_create_postgres_function => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
 from . import is_certifications_qualite_suivi
 from . import is_encres_utilisees
+from . import is_ligne_reception
 from . import is_pricelist_item
 from . import is_product_packaging
 from . import is_purchase_order_line
@@ -26,7 +27,6 @@ from . import is_stock_quant
 # import is_comparatif_tarif_commande
 # import is_stock_valorise
 # import is_mouvement_stock
-# import is_ligne_reception
 # import is_ligne_livraison
 # import is_users_groups
 # import is_model_groups

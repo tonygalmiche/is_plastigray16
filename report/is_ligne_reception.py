@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
 
 
 class is_ligne_reception(models.Model):
     _name='is.ligne.reception'
+    _description="Ligne réception"
     _order='date_mouvement desc'
     _auto = False
 
@@ -26,7 +24,7 @@ class is_ligne_reception(models.Model):
     is_facturable        = fields.Boolean('Article facturable')
     ref_fournisseur      = fields.Char('Référence fournisseur')
     commande_ouverte     = fields.Char('Commande ouverte')
-    product_uom          = fields.Many2one('product.uom', 'Unité')
+    product_uom          = fields.Many2one('uom.uom', 'Unité')
     price_unit           = fields.Float('Prix commande'             , digits=(14,4))
     qt_receptionnee      = fields.Float('Quantité réceptionnée'     , digits=(14,4))
     qt_facturee          = fields.Float('Quantité facturée'         , digits=(14,4))
@@ -49,7 +47,7 @@ class is_ligne_reception(models.Model):
         ('assigned'            , u'Prêt à transférer'),
         ('partially_availlable', u'Partiellement disponible'),
         ('done'                , u'Transféré'),
-    ], u"État réception", readonly=True, select=True)
+    ], u"État réception", readonly=True, index=True)
     state              = fields.Selection([
         ('draft'    , u'Nouveau'),
         ('cancel'   , u'Annulé'),
@@ -57,21 +55,20 @@ class is_ligne_reception(models.Model):
         ('confirmed', u'Confirmé'),
         ('assigned' , u'Disponible'),
         ('done'     , u'Terminé')
-    ], u"État Mouvement", readonly=True, select=True)
+    ], u"État Mouvement", readonly=True, index=True)
 
-    invoice_state = fields.Selection([
-        ('2binvoiced', u'à Facturer'),
-        ('none'      , u'Annulé'),
-        ('invoiced'  , u'Facturé'),
-    ], u"État facturation", readonly=True, select=True)
+    # invoice_state = fields.Selection([
+    #     ('2binvoiced', u'à Facturer'),
+    #     ('none'      , u'Annulé'),
+    #     ('invoiced'  , u'Facturé'),
+    # ], u"État facturation", readonly=True, index=True)
 
-    is_piece_jointe = fields.Boolean(u"Pièce jointe", store=False, readonly=True, compute='_compute_is_piece_jointe')
+    is_piece_jointe = fields.Boolean("Pièce jointe", store=False, readonly=True, compute='_compute_is_piece_jointe')
 
 
-    @api.multi
     def pj_action(self):
         for obj in self:
-            print obj
+            print(obj)
 
     def _compute_is_piece_jointe(self):
         for obj in self:
@@ -82,10 +79,13 @@ class is_ligne_reception(models.Model):
             obj.is_piece_jointe=pj
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_ligne_reception')
         cr.execute("""
             CREATE OR REPLACE view is_ligne_reception AS (
+            
+
                 select  sm.id,
                         pol.date_planned,
                         sp.id                 as picking_id, 
@@ -109,12 +109,12 @@ class is_ligne_reception(models.Model):
                         pt.is_ref_fournisseur    as ref_fournisseur,
                         sm.product_uom           as product_uom,
                         sm.product_uom_qty       as qt_receptionnee,
-                        coalesce((select sum(quantity) from account_invoice_line ail where ail.is_move_id=sm.id ),0) as qt_facturee,
-                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_invoice_line ail where ail.is_move_id=sm.id ),0),4) as reste_a_facturer,
-                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_invoice_line ail where ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
+                        coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0) as qt_facturee,
+                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as reste_a_facturer,
+                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
                         sm.state              as state,
                         sp.state              as picking_state,
-                        sm.invoice_state      as invoice_state,
+                        -- sm.invoice_state      as invoice_state,
                         sm.write_uid          as user_id,
                         sm.id                 as move_id,
                         sm.is_dosmat_ctrl_qual as is_dosmat_ctrl_qual,
@@ -122,15 +122,14 @@ class is_ligne_reception(models.Model):
                         (select icof.name from is_cde_ouverte_fournisseur icof where sp.partner_id=icof.partner_id limit 1) as commande_ouverte,
                         (
                             select spl.is_lot_fournisseur 
-                            from stock_quant_move_rel sqmr inner join stock_quant           sq on sqmr.quant_id=sq.id
-                                                           inner join stock_production_lot spl on sq.lot_id = spl.id
-                            where sqmr.move_id=sm.id limit 1
+                            from stock_move_line sml inner join stock_lot spl on sml.lot_id = spl.id
+                            where sml.move_id=sm.id limit 1
                         )  as lot_fournisseur
                 from stock_picking sp inner join stock_move                sm on sm.picking_id=sp.id 
-                                      inner join product_product           pp on sm.product_id=pp.id
-                                      inner join product_template          pt on pp.product_tmpl_id=pt.id
-                                      left outer join purchase_order       po on sp.is_purchase_order_id=po.id
-                                      left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
+                                    inner join product_product           pp on sm.product_id=pp.id
+                                    inner join product_template          pt on pp.product_tmpl_id=pt.id
+                                    left outer join purchase_order       po on sp.is_purchase_order_id=po.id
+                                    left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
                 where sp.picking_type_id=1
             )
         """)

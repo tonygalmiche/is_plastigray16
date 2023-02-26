@@ -142,20 +142,20 @@
             <field name="arch" type="xml">
                 <form string="Form" create="0">
                     <header>
-                        <!-- <button 
+                        <button 
                             name="vers_valide"
                             string="vers Validé"
                             attrs="{'invisible': [('state', '=', 'valide')]}"
                             type="object"
-                            groups="is_qualite_group"
+                            groups="is_plastigray16.is_qualite_group"
                         />
                         <button 
                             name="vers_creation"
                             string="vers Création"
                             attrs="{'invisible': [('state', '=', 'creation')]}"
                             type="object"
-                            groups="is_qualite_group"
-                        /> -->
+                            groups="is_plastigray16.is_qualite_group"
+                        />
                         <field name="state" widget="statusbar" />
                     </header>
                     <sheet class="oe_form_sheet_width_wider">

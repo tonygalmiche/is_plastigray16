@@ -177,7 +177,8 @@ class stock_picking(models.Model):
             msg = False
             if obj.partner_id.is_certificat_matiere:
                 nb=0
-                for line in obj.move_lines:
+                #for line in obj.move_lines:
+                for line in obj.move_ids_without_package:
                     certificat = self.env['is.certificat.conformite'].GetCertificat(obj.partner_id, line.product_id.id)
                     if not certificat:
                         nb+=1
@@ -393,11 +394,6 @@ class is_certificat_conformite(models.Model):
     picking_id       = fields.Many2one('stock.picking', u'N°BL', domain=[('picking_type_id','=',2)])
     bon_transfert_id = fields.Many2one('is.bon.transfert', u'Bon de transfert')
     date_bl          = fields.Date(u"Date d'expédition", compute='_compute_date_bl', store=False, readonly=True)
-
-
-
-
-
     qt_liv           = fields.Float(u"Quantité livrée")
     num_lot          = fields.Char(u"N° de lot")
     date_fabrication = fields.Date(u"Date de fabrication")

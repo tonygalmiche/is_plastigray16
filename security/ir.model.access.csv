@@ -302,3 +302,5 @@ access_is_gestion_lot,access_is_gestion_lot,model_is_gestion_lot,base.group_user
 access_is_gestion_lot_report,access_is_gestion_lot_report,model_is_gestion_lot_report,base.group_user,1,1,1,1
 
 access_is_stock_quant,access_is_stock_quant,model_is_stock_quant,base.group_user,1,0,0,0
+
+access_is_ligne_reception,access_is_ligne_reception,model_is_ligne_reception,base.group_user,1,0,0,0

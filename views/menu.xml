@@ -400,7 +400,7 @@
         ])]"/>
     </record>
 
-    <!--
+    
     <record id="is_cde_ouverte_fournisseur_message_menu" model="ir.ui.menu">
         <field name="name">Message cde  prévisionnelles</field>
         <field name="sequence">50</field>
@@ -410,7 +410,7 @@
             ref('is_rsp_achats_group'),
             ref('is_rsp_production_group'),
         ])]"/>
-    </record> -->
+    </record>
 
 
 
@@ -429,7 +429,6 @@
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
-    <!--     
     <record id="is_ligne_reception_a_traiter_menu" model="ir.ui.menu">
         <field name="name">Réceptions à traiter</field>
         <field name="sequence">10</field>
@@ -469,7 +468,7 @@
             ref('is_rsp_production_group'),
             ref('is_magasiniers_group'),
         ])]"/>
-    </record> -->
+    </record> 
 
 
     <!-- Achats / Facturation -->
@@ -821,10 +820,11 @@
         ])]"/> -->
     </record>
 
-    <!-- 
 
 
-    <menuitem id="menu_is_ventes_liv"      sequence="40" name="Livraisons"            parent="menu_is_ventes" groups="is_employes_hors_production_group" />
+    <menuitem id="menu_is_ventes_liv" sequence="40" name="Livraisons" parent="menu_is_ventes" groups="is_employes_hors_production_group"/>
+
+
     <record id="is_livraisons_a_traiter_menu" model="ir.ui.menu" >
         <field name="name">Livraisons à traiter</field>
         <field name="sequence">10</field>
@@ -848,6 +848,8 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
+
+    <!-- 
     <record id="is_ligne_livraison_menu" model="ir.ui.menu" >
         <field name="name">Lignes des livraisons</field>
         <field name="sequence">30</field>
@@ -1476,7 +1478,6 @@
     </record>
  
 
-
     <!-- Production / Intranet -->
     <!-- <record id="menu_is_intranet" model="ir.ui.menu" >
         <field name="name">Intranet</field>
@@ -1487,7 +1488,7 @@
         ])]"/>
     </record>
     <menuitem id="menu_is_intranet_30"       sequence="30" name="Wiki"                parent="menu_is_intranet"  action="is_url_wiki_action"      groups="is_employes_hors_production_group" />
- -->
+    -->
 
     <!-- Comptabilité -->
     <!-- <record id="account.menu_finance" model="ir.ui.menu" >
@@ -2276,51 +2277,51 @@
 
 
         <!-- Production / Etiquettes GALIA -->
-        <!-- <record id="is_galia_base_main_menu" model="ir.ui.menu" >
+        <record id="is_galia_base_main_menu" model="ir.ui.menu" >
             <field name="name">Étiquettes GALIA</field>
             <field name="sequence">110</field>
-            <field name="parent_id" eval="ref('is_plastigray.menu_is_production')"/>
-            <field name="groups_id" eval="[(6,0,[ref('is_pg_2019.is_base_principale_grp')])]"/>
+            <field name="parent_id" eval="ref('menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_principale_grp')])]"/>
         </record>
-        <menuitem id="is_galia_base_menu" sequence="10" parent="is_pg_2019.is_galia_base_main_menu" name="Étiquettes GALIA" action="is_plastigray.is_galia_base_action"/>
- -->
+        <menuitem id="is_galia_base_menu" sequence="10" parent="is_galia_base_main_menu" name="Étiquettes GALIA" action="is_galia_base_action"/>
+ 
 
         <!-- Production / Traçabilité -->
-        <!-- <record id="is_tracabilite_main_menu" model="ir.ui.menu" >
+        <record id="is_tracabilite_main_menu" model="ir.ui.menu" >
             <field name="name">Traçabilité</field>
             <field name="sequence">120</field>
-            <field name="parent_id" eval="ref('is_plastigray.menu_is_production')"/>
-            <field name="groups_id" eval="[(6,0,[ref('is_pg_2019.is_base_secondaire_grp')])]"/>
+            <field name="parent_id" eval="ref('menu_is_production')"/>
+            <field name="groups_id" eval="[(6,0,[ref('is_base_secondaire_grp')])]"/>
         </record>
         <record id="is_galia_base_uc_menu" model="ir.ui.menu" >
             <field name="name">UCs</field>
             <field name="sequence">10</field>
-            <field name="action"    ref="is_plastigray.is_galia_base_uc_action"/>
-            <field name="parent_id" eval="ref('is_pg_2019.is_tracabilite_main_menu')"/>
+            <field name="action"    ref="is_galia_base_uc_action"/>
+            <field name="parent_id" eval="ref('is_tracabilite_main_menu')"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_rsp_production_group'),
-                ref('is_plastigray.is_magasiniers_group'),
-                ref('is_plastigray.is_administration_vente_group'),
+                ref('is_rsp_production_group'),
+                ref('is_magasiniers_group'),
+                ref('is_administration_vente_group'),
             ])]"/>
         </record>
         <record id="is_galia_base_um_menu" model="ir.ui.menu" >
             <field name="name">UMs</field>
             <field name="sequence">20</field>
-            <field name="action"    ref="is_plastigray.is_galia_base_um_action"/>
-            <field name="parent_id" eval="ref('is_pg_2019.is_tracabilite_main_menu')"/>
+            <field name="action"    ref="is_galia_base_um_action"/>
+            <field name="parent_id" eval="ref('is_tracabilite_main_menu')"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_rsp_production_group'),
-                ref('is_plastigray.is_magasiniers_group'),
-                ref('is_plastigray.is_administration_vente_group'),
+                ref('is_rsp_production_group'),
+                ref('is_magasiniers_group'),
+                ref('is_administration_vente_group'),
             ])]"/>
-        </record> -->
+        </record>
 
 
         <!-- Tables Moules -->
         <record id="menu_tables_moules" model="ir.ui.menu" >
             <field name="name">Tables Moules</field>
             <field name="sequence">130</field>
-            <field name="parent_id" eval="ref('is_plastigray16.menu_is_donnees_techniques')"/>
+            <field name="parent_id" eval="ref('menu_is_donnees_techniques')"/>
             <field name="groups_id" eval="[(6,0,[
                 ref('is_base_principale_grp'),
             ])]"/>
@@ -2549,19 +2550,17 @@
                 ref('is_gestionnaire_mode_operatoire_grp'),
             ])]"/>
         </record>
-
-        <!--
         <record id="is_certificat_conformite_menu" model="ir.ui.menu" >
             <field name="name">Certificat de conformité</field>
             <field name="sequence">50</field>
-            <field name="parent_id" eval="ref('is_plastigray.menu_is_ventes_liv')"/>
+            <field name="parent_id" eval="ref('menu_is_ventes_liv')"/>
             <field name="action"    ref="is_certificat_conformite_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('is_plastigray.is_administration_vente_group'),
-                ref('is_plastigray.is_qualite_group'),
+                ref('is_administration_vente_group'),
+                ref('is_qualite_group'),
             ])]"/>
         </record>
-         -->
+        
 
 
        <record id="is_indicateur_bei_menu" model="ir.ui.menu" >

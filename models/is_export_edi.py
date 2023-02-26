@@ -3,10 +3,11 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import os
-
+import base64
 
 class is_export_edi(models.Model):
     _name='is.export.edi'
+    # _inherit=['mail.thread']
     _description="Export EDI"
     _order='name desc'
 
@@ -27,6 +28,7 @@ class is_export_edi(models.Model):
     contact_id      = fields.Many2one('res.partner', 'Contact Logistique')
     date_fin        = fields.Date("Date de fin", required=True)
     historique_ids  = fields.One2many('is.export.edi.histo'  , 'edi_id', u"Historique")
+    attachment_ids  = fields.Many2many('ir.attachment', 'is_export_edi_attachment_rel', 'export_id', 'attachment_id', u'Pièces jointes')
 
 
     def code_on_change(self,code):
@@ -98,17 +100,33 @@ class is_export_edi(models.Model):
             model=self._name
             attachments = attachment_obj.search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)]).unlink()
             vals = {
-                'name':        name,
-                'datas_fname': name,
-                'type':        'binary',
-                'file_type':   'text/csv',
-                'res_model':   model,
-                'res_id':      obj.id,
-                'datas':       datas.encode('base64'),
+                'name'       : name,
+                #'datas_fname': name,
+                'type'       : 'binary',
+                #'file_type'  : 'text/csv',
+                'mimetype'  : 'text/csv',
+                'res_model'  : model,
+                'res_id'     : obj.id,
+                #'datas'     : datas.encode('base64'),
+                'datas'      : base64.b64encode(bytes(datas, 'utf-8')) # bytes,
             }
-            attachment_obj.create(vals)
+
+            #b = base64.b64encode(bytes('your string', 'utf-8')) # bytes
+
+
+            attachment = attachment_obj.create(vals)
+            print(attachment)
+
+            obj.attachment_ids = [(6, 0, [attachment.id])] 
+
+
+
             self.set_histo(obj.id, 'Création fichier EDI')
             #*******************************************************************
+
+
+
+
 
 
     def envoyer_par_mail_action(self):
