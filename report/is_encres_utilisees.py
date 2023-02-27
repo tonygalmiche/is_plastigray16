@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_encres_utilisees(models.Model):
@@ -23,6 +26,7 @@ class is_encres_utilisees(models.Model):
 
 
     def init(self):
+        start = time.time()
         cr = self.env.cr
         tools.drop_view_if_exists(cr, 'is_encres_utilisees')
         cr.execute("""
@@ -43,4 +47,5 @@ class is_encres_utilisees(models.Model):
                 left join product_template as tmpl on tmpl.id=product_product.product_tmpl_id
             )
         """)
+        _logger.info('## init is_livraison_gefco en %.2fs'%(time.time()-start))
 

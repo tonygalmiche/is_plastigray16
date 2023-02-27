@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_certifications_qualite_suivi(models.Model):
@@ -17,6 +20,7 @@ class is_certifications_qualite_suivi(models.Model):
 
 
     def init(self):
+        start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_certifications_qualite_suivi')
         cr.execute("""
@@ -32,4 +36,5 @@ class is_certifications_qualite_suivi(models.Model):
                 where rp.supplier='t' and rp.is_company='t' and active='t'
             )
         """)
+        _logger.info('## init is_certifications_qualite_suivi en %.2fs'%(time.time()-start))
 

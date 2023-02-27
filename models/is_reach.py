@@ -20,7 +20,7 @@ class is_reach(models.Model):
 
  
     def calcul_action(self):
-        cr, uid, context = self.env.args
+        cr = self._cr
         for obj in self:
 
             #** Liste des clients indiquée *************************************
@@ -185,15 +185,27 @@ class is_reach(models.Model):
             res=self.env['is.reach.product.cas'].create(vals)
         #***********************************************************************
 
-        bom_obj = self.env['mrp.bom']
-        bom_id = bom_obj._bom_find(product.product_tmpl_id.id, properties=None)
-        bom = bom_obj.browse(bom_id)
-        res= bom_obj._bom_explode(bom, product, 1)
-        for line in res[0]:
-            ordre=ordre+1
-            line_product  = self.env['product.product'].browse(line['product_id'])
-            line_quantite = quantite*line['product_qty']
-            self.cbb_multi_niveaux(reach_product,line_product, line_quantite, niveau+1)
+        filtre=[
+            ('product_tmpl_id','=',product.product_tmpl_id.id)
+        ]
+        boms = self.env['mrp.bom'].search(filtre)
+        if len(boms)>0:
+            bom = boms[0]
+            for line in bom.bom_line_ids:
+                ordre=ordre+1
+                line_product  = line.product_id
+                line_quantite = quantite*line.product_qty
+                self.cbb_multi_niveaux(reach_product,line_product, line_quantite, niveau+1)
+
+        # bom_obj = self.env['mrp.bom']
+        # bom_id = bom_obj._bom_find(product.product_tmpl_id.id, properties=None)
+        # bom = bom_obj.browse(bom_id)
+        # res= bom_obj._bom_explode(bom, product, 1)
+        # for line in res[0]:
+        #     ordre=ordre+1
+        #     line_product  = self.env['product.product'].browse(line['product_id'])
+        #     line_quantite = quantite*line['product_qty']
+        #     self.cbb_multi_niveaux(reach_product,line_product, line_quantite, niveau+1)
 
 
     def produits_livres_action(self):

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class is_stock_quant(models.Model):
     _name='is.stock.quant'
@@ -26,6 +30,7 @@ class is_stock_quant(models.Model):
 
 
     def init(self):
+        start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_stock_quant')
         cr.execute("""
@@ -91,6 +96,7 @@ class is_stock_quant(models.Model):
                     isq.client_id
             )
         """)
+        _logger.info('## init is_stock_quant en %.2fs'%(time.time()-start))
 
 
 

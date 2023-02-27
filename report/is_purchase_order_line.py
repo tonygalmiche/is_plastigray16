@@ -86,6 +86,7 @@ class is_purchase_order_line(models.Model):
 
 
         cr.execute("""
+            DROP VIEW  IF EXISTS is_anomalie_position_fiscale;
             DROP MATERIALIZED VIEW IF EXISTS is_purchase_order_line;
             CREATE MATERIALIZED VIEW is_purchase_order_line AS (
                 select  pol.id,

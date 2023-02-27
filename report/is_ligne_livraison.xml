@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
 
     <record id="is_refresh_ligne_livraison_action" model="ir.actions.server">
         <field name="name">Lignes des livraisons</field>
-        <field name="condition">True</field>
-        <field name="type">ir.actions.server</field>
+        <!-- <field name="condition">True</field> -->
+        <!-- <field name="type">ir.actions.server</field> -->
         <field name="model_id" ref="model_is_ligne_livraison" />
         <field name="state">code</field>
-        <field name="code">action = self.refresh_materialized_view_action(cr, uid, context.get('active_ids', []), context=context)</field>
+        <field name="code">action = model.refresh_materialized_view_action()</field>
     </record>
-
     <record id="is_ligne_livraison_form_view" model="ir.ui.view">
         <field name="name">is_ligne_livraison_form_view</field>
         <field name="model">is.ligne.livraison</field>
@@ -61,27 +60,27 @@
         <field name="model">is.ligne.livraison</field>
         <field name="arch" type="xml">
             <tree create="false">
-                <field name="date_expedition" />
-                <field name="date_livraison" />
-                <field name="picking_id"        widget="many2one_clickable" />
-                <field name="order_id"          widget="many2one_clickable" />
-                <field name="client_order_ref" />
-                <field name="family_id" />
-                <field name="partner_id"        widget="many2one_clickable" />
-                <field name="product_id"        widget="many2one_clickable" />
-                <field name="ref_client" />
-                <field name="is_mold_dossierf" />
-                <field name="product_uom_qty"   sum="Total"/>
-                <field name="product_uom" />
-                <field name="nb_uc"             sum="Total"/>
-                <field name="qt_par_uc" />
-                <field name="price_unit"/>
-                <field name="price_subtotal"    sum="Total"/>
+                <field name="date_expedition"   optional="show"/>
+                <field name="date_livraison"    optional="show" />
+                <field name="picking_id"        optional="show" widget="many2one_clickable" />
+                <field name="order_id"          optional="show" widget="many2one_clickable" />
+                <field name="client_order_ref"  optional="hide" />
+                <field name="family_id"         optional="show" />
+                <field name="partner_id"        optional="show" widget="many2one_clickable" />
+                <field name="product_id"        optional="show" widget="many2one_clickable" />
+                <field name="ref_client"        optional="hide" />
+                <field name="is_mold_dossierf"  optional="show"/>
+                <field name="product_uom_qty"   optional="show" sum="Total"/>
+                <field name="product_uom"       optional="hide" />
+                <field name="nb_uc"             optional="hide" sum="Total"/>
+                <field name="qt_par_uc"         optional="hide"/>
+                <field name="price_unit"        optional="hide"/>
+                <field name="price_subtotal"    optional="hide" sum="Total"/>
            </tree>
         </field>
     </record>
 
-    <record id="is_account_invoice_line_graph_view" model="ir.ui.view">
+    <!-- <record id="is_account_invoice_line_graph_view" model="ir.ui.view">
         <field name="name">is_account_invoice_line_graph_view</field>
         <field name="model">is.account.invoice.line</field>
         <field name="arch" type="xml">
@@ -91,7 +90,7 @@
                 <field name="total"              type="measure"/>
             </graph>
         </field>
-    </record>
+    </record> -->
 
     <record id="is_ligne_livraison_search_view" model="ir.ui.view">
         <field name="name">is_ligne_livraison_search_view</field>
@@ -109,7 +108,7 @@
                 <field name="is_category_id" />
                 <field name="is_gestionnaire_id" />
                 <field name="family_id" />
-                <group expand="0" string="Regrouper par...">
+                <!-- <group expand="0" string="Regrouper par...">
                     <filter string="Client"       context="{'group_by':'partner_id'}"/>
                     <filter string="Moule"        context="{'group_by':'is_mold_dossierf'}"/>
                     <filter string="Article"      context="{'group_by':'product_id'}"/>
@@ -119,7 +118,7 @@
                     <filter string="Commande Client"   context="{'group_by':'client_order_ref'}"/>
                     <filter string="Mois d'expédition" context="{'group_by':'date_expedition:month'}"/>
                     <filter string="Mois d'arrivé chez le client" context="{'group_by':'date_livraison:month'}"/>
-                </group>
+                </group> -->
             </search>
         </field>
     </record>
@@ -128,7 +127,6 @@
         <field name="name">Lignes de livraisons</field>
         <field name="res_model">is.ligne.livraison</field>
         <field name="domain">[]</field>
-        <field name="view_type">form</field>
         <field name="view_id" ref="is_ligne_livraison_tree_view"/>
         <field name="view_mode">tree,form,graph</field>
     </record>
@@ -140,25 +138,25 @@
         <field name="model">is.ligne.livraison</field>
         <field name="arch" type="xml">
             <tree create="false">
-                <field name="date_expedition" />
-                <field name="picking_id"        widget="many2one_clickable" />
-                <field name="partner_id"        widget="many2one_clickable" />
-                <field name="product_id"        widget="many2one_clickable" />
-                <field name="is_mold_dossierf" />
-                <field name="segment_id" />
-                <field name="is_category_id" />
-                <field name="is_gestionnaire_id" />
-                <field name="product_uom_qty"   sum="Total"/>
-                <field name="product_uom" />
-                <field name="price_unit" />
-                <field name="amortissement_moule" />
-                <field name="amt_interne" />
-                <field name="cagnotage" />
-                <field name="price_subtotal"      sum="Total"/>
-                <field name="montant_amt_moule"   sum="Total"/>
-                <field name="montant_amt_interne" sum="Total"/>
-                <field name="montant_cagnotage"   sum="Total"/>
-                <field name="montant_matiere"     sum="Total"/>
+                <field name="date_expedition"     optional="show" />
+                <field name="picking_id"          optional="show" widget="many2one_clickable" />
+                <field name="partner_id"          optional="show" widget="many2one_clickable" />
+                <field name="product_id"          optional="show" widget="many2one_clickable" />
+                <field name="is_mold_dossierf"    optional="show" />
+                <field name="segment_id"          optional="hide"/>
+                <field name="is_category_id"      optional="hide" />
+                <field name="is_gestionnaire_id"  optional="hide"/>
+                <field name="product_uom_qty"     optional="show" sum="Total"/>
+                <field name="product_uom"         optional="hide" />
+                <field name="price_unit"          optional="show"/>
+                <field name="amortissement_moule" optional="hide" />
+                <field name="amt_interne"         optional="hide"/>
+                <field name="cagnotage"           optional="hide" />
+                <field name="price_subtotal"      optional="show" sum="Total"/>
+                <field name="montant_amt_moule"   optional="hide" sum="Total"/>
+                <field name="montant_amt_interne" optional="hide" sum="Total"/>
+                <field name="montant_cagnotage"   optional="hide" sum="Total"/>
+                <field name="montant_matiere"     optional="hide" sum="Total"/>
            </tree>
         </field>
     </record>
@@ -166,13 +164,13 @@
         <field name="name">is_indicateur_ca_livraison_graph_view</field>
         <field name="model">is.ligne.livraison</field>
         <field name="arch" type="xml">
-            <graph type="pivot">
+            <pivot>
                 <field name="partner_id"        type="row"/>
                 <field name="date_expedition"   type="col"/>
                 <field name="price_subtotal"    type="measure"/>
                 <field name="montant_amt_moule" type="measure"/>
                 <field name="montant_matiere"   type="measure"/>
-            </graph>
+            </pivot>
         </field>
     </record>
 
@@ -181,7 +179,6 @@
         <field name="name">CA sur livraisons</field>
         <field name="res_model">is.ligne.livraison</field>
         <field name="domain">[]</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form,graph</field>
     </record>
     <record id="is_indicateur_ca_livraison_action_tree" model="ir.actions.act_window.view" >
@@ -200,4 +197,4 @@
 
 
 </data>
-</openerp>
+</odoo>

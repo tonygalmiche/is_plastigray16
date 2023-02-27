@@ -821,10 +821,8 @@
     </record>
 
 
-
+    <!-- Ventes / Livraisons -->
     <menuitem id="menu_is_ventes_liv" sequence="40" name="Livraisons" parent="menu_is_ventes" groups="is_employes_hors_production_group"/>
-
-
     <record id="is_livraisons_a_traiter_menu" model="ir.ui.menu" >
         <field name="name">Livraisons à traiter</field>
         <field name="sequence">10</field>
@@ -848,8 +846,6 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-
-    <!-- 
     <record id="is_ligne_livraison_menu" model="ir.ui.menu" >
         <field name="name">Lignes des livraisons</field>
         <field name="sequence">30</field>
@@ -864,7 +860,6 @@
             ref('is_chef_projet_group'),
         ])]"/>
     </record>
-
     <record id="is_livraison_gefco_menu" model="ir.ui.menu" >
         <field name="name">Livraison GEFBOX</field>
         <field name="sequence">40</field>
@@ -874,8 +869,7 @@
             ref('is_rsp_production_group'),
             ref('is_administration_vente_group'),
         ])]"/>
-    </record> -->
-
+    </record>
 
 
     <!-- Ventes / Facturation Client -->
@@ -891,7 +885,6 @@
         ])]"/>
     </record>
 
-    <!-- 
     <record id="is_livraisons_a_facturer_menu" model="ir.ui.menu" >
         <field name="name">Livraisons à facturer</field>
         <field name="sequence">10</field>
@@ -910,6 +903,10 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+
+    <!-- 
+
+
     <record id="is_comparatif_tarif_facture_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Tarif / Facture</field>
         <field name="sequence">15</field>
@@ -1513,8 +1510,9 @@
         ])]"/>
     </record>
 
-    <!-- 
     <menuitem id="is_indicateur_ca_menu" sequence="10" name="Chiffre d'affaire" parent="is_indicateurs_menu"/>
+
+    <!-- 
     <record id="is_sale_order_line_menu" model="ir.ui.menu" >
         <field name="name">CA commandes client</field>
         <field name="sequence">10</field>
@@ -1524,6 +1522,7 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
+    -->
 
     <record id="is_indicateur_ca_livraison_menu" model="ir.ui.menu" >
         <field name="name">CA livraisons</field>
@@ -1534,6 +1533,8 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
+
+    <!--
     <record id="is_indicateur_ca_facture_menu" model="ir.ui.menu" >
         <field name="name">CA factures client</field>
         <field name="sequence">30</field>
@@ -1543,7 +1544,7 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
- -->
+    -->
 
 
 

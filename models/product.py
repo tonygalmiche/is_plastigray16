@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import re
 from math import *
-from odoo import models,fields,api
+from odoo import models,fields,api,tools
 from odoo.exceptions import ValidationError
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_config_champ(models.Model):
@@ -775,6 +778,38 @@ class product_product(models.Model):
 
 
 
+    #def get_stock(self, product_id, control_quality=False, location=False):
+    def get_stock(self, control_quality=False, location=False):
+        cr=self._cr
+        SQL="""
+            select sum(sq.quantity) 
+            from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
+            where sq.product_id="""+str(self.id)+""" 
+                  and sl.usage='internal' and sl.active='t' """
+        if control_quality:
+            SQL=SQL+" and sl.control_quality='"+str(control_quality)+"' "
+        if location:
+            SQL=SQL+" and sl.name='"+str(location)+"' "
+        cr.execute(SQL)
+        result = cr.fetchall()
+        stock=0
+        for row in result:
+            stock=row[0] or 0
+        return stock
+
+
+    def init(self):
+        start = time.time()
+        cr = self._cr
+        cr.execute("""
+            CREATE OR REPLACE FUNCTION is_qt_par_uc(productid integer) RETURNS float AS $$
+            BEGIN
+                RETURN (select qty from product_packaging where product_id=productid order by id limit 1);
+            END;
+            $$ LANGUAGE plpgsql;
+        """)
+        _logger.info('## init product.product is_qt_par_uc en %.2fs'%(time.time()-start))
+
 
     # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
     #     if not args:
@@ -811,28 +846,6 @@ class product_product(models.Model):
             
 #         return super(product_product, self).search(cr, uid, args, offset=offset, limit=limit, order=order, context=context, count=count)
  
-
-    #def get_stock(self, product_id, control_quality=False, location=False):
-    def get_stock(self, control_quality=False, location=False):
-        cr=self._cr
-        SQL="""
-            select sum(sq.quantity) 
-            from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
-            where sq.product_id="""+str(self.id)+""" 
-                  and sl.usage='internal' and sl.active='t' """
-        if control_quality:
-            SQL=SQL+" and sl.control_quality='"+str(control_quality)+"' "
-        if location:
-            SQL=SQL+" and sl.name='"+str(location)+"' "
-        cr.execute(SQL)
-        result = cr.fetchall()
-        stock=0
-        for row in result:
-            stock=row[0] or 0
-        return stock
-
-    
-
 
 
 

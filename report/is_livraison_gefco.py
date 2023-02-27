@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_livraison_gefco(models.Model):
     _name='is.livraison.gefco'
+    _description="Livraison GEFBOX"
     _order='is_date_expedition desc, name desc, product_id'
     _auto = False
 
@@ -23,7 +24,9 @@ class is_livraison_gefco(models.Model):
     nb_uc               = fields.Float("Nb UC")
     nb_um               = fields.Float("Nb UM")
 
-    def init(self, cr):
+    def init(self):
+        start = time.time()
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_livraison_gefco')
         cr.execute("""
             CREATE OR REPLACE view is_livraison_gefco AS (
@@ -39,29 +42,29 @@ class is_livraison_gefco(models.Model):
                     sm.product_uom_qty,
                     sm.product_uom_qty/coalesce(
                         (
-                            select qty from product_packaging pack where pack.product_tmpl_id=pt.id and qty>0 limit 1
+                            select qty from product_packaging pack where pack.product_id=pp.id and qty>0 limit 1
                         )
                     ,1) nb_uc,
                     sm.product_uom_qty/coalesce(
                         (
-                            select qty*rows*ul_qty from product_packaging pack where pack.product_tmpl_id=pt.id and qty>0 limit 1
+                            select qty*rows*ul_qty from product_packaging pack where pack.product_id=pp.id and qty>0 limit 1
                         )
                     ,1) nb_um,
                     (
                         select ul.name 
-                        from product_packaging pack inner join product_ul ul on pack.ul=ul.id
-                        where pack.product_tmpl_id=pt.id limit 1
+                        from product_packaging pack inner join is_product_ul ul on pack.ul=ul.id
+                        where pack.product_id=pp.id limit 1
                     ) uc,
                     (
                         select ul2.name 
-                        from product_packaging pack2 inner join product_ul ul2 on pack2.ul_container=ul2.id
-                        where pack2.product_tmpl_id=pt.id limit 1
+                        from product_packaging pack2 inner join is_product_ul ul2 on pack2.ul_container=ul2.id
+                        where pack2.product_id=pp.id limit 1
                     ) um
                 from stock_picking sp inner join stock_move            sm on sp.id=sm.picking_id
-                                      inner join product_product       pp on sm.product_id=pp.id
-                                      inner join product_template      pt on pp.product_tmpl_id=pt.id
-                                      inner join res_partner           rp on sp.partner_id=rp.id
-                                      left outer join sale_order_line  sol on sm.is_sale_line_id=sol.id
+                                    inner join product_product       pp on sm.product_id=pp.id
+                                    inner join product_template      pt on pp.product_tmpl_id=pt.id
+                                    inner join res_partner           rp on sp.partner_id=rp.id
+                                    left outer join sale_order_line  sol on sm.is_sale_line_id=sol.id
                 where 
                     pt.is_livraison_gefbox='t' and
                     sm.state='done' and
@@ -69,3 +72,6 @@ class is_livraison_gefco(models.Model):
                     sp.picking_type_id=2 
             )
         """)
+        _logger.info('## init is_livraison_gefco en %.2fs'%(time.time()-start))
+
+

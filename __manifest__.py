@@ -38,6 +38,7 @@ Module Odoo 16 pour Plastigray
 
 
         "views/stock_view.xml",
+        "views/stock_move_view.xml",
 
 
         "report/is_purchase_order_line.xml",
@@ -99,6 +100,8 @@ Module Odoo 16 pour Plastigray
         "views/is_galia_base_view.xml",
         "views/is_historique_controle_view.xml",
         "views/is_liste_servir_view.xml",
+
+
         "views/is_mem_var_view.xml",
         "views/is_mini_delta_dore_view.xml",
         "views/is_mode_operatoire_view.xml",
@@ -134,7 +137,9 @@ Module Odoo 16 pour Plastigray
 
         "report/is_certifications_qualite_suivi.xml",
         "report/is_encres_utilisees_view.xml",
+        "report/is_ligne_livraison.xml",
         "report/is_ligne_reception.xml",
+        "report/is_livraison_gefco.xml",
         "report/is_pricelist_item.xml",
         "report/is_product_packaging.xml",
 
@@ -271,7 +276,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_nomenclature_sans_gamme.xml",
         # "report/is_stock_valorise.xml",
         # "report/is_mouvement_stock.xml",
-        # "report/is_ligne_livraison.xml",
         # "report/is_users_groups.xml",
         # "report/is_model_groups.xml",
         # "report/is_stock_move.xml",
@@ -288,7 +292,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_anomalie_position_fiscale.xml",
         # "report/is_sale_order_line.xml",
         # "report/is_mrp_production_workcenter_line.xml",
-        # "report/is_livraison_gefco.xml",
         # "report/is_anomalie_declar_prod.xml",
         # "report/is_comparatif_cout_pk_tarif.xml",
 

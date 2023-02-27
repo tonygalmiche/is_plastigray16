@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_pricelist_item(models.Model):
@@ -28,6 +31,7 @@ class is_pricelist_item(models.Model):
     item_date_end      = fields.Date('Date fin ligne')
 
     def init(self):
+        start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_pricelist_item')
         cr.execute("""
@@ -59,6 +63,7 @@ class is_pricelist_item(models.Model):
                 WHERE ppi.id>0 
             )
         """)
+        _logger.info('## init is_pricelist_item en %.2fs'%(time.time()-start))
 
 
     def action_liste_items(self):

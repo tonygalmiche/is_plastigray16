@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_ligne_reception(models.Model):
@@ -80,12 +83,11 @@ class is_ligne_reception(models.Model):
 
 
     def init(self):
+        start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_ligne_reception')
         cr.execute("""
             CREATE OR REPLACE view is_ligne_reception AS (
-            
-
                 select  sm.id,
                         pol.date_planned,
                         sp.id                 as picking_id, 
@@ -133,4 +135,5 @@ class is_ligne_reception(models.Model):
                 where sp.picking_type_id=1
             )
         """)
+        _logger.info('## init is_ligne_reception en %.2fs'%(time.time()-start))
 

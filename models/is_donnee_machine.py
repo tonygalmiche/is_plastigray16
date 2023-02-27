@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_donnee_machine(models.Model):
@@ -41,6 +44,7 @@ class is_donnee_machine_line_report(models.Model):
     of_valeur_id = fields.Many2one("mrp.production", "OF Valeur", index=True)
 
     def init(self):
+        start = time.time()
         cr=self._cr
         tools.drop_view_if_exists(cr, 'is_donnee_machine_line_report')
         cr.execute("""
@@ -57,6 +61,7 @@ class is_donnee_machine_line_report(models.Model):
                 from is_donnee_machine e inner join is_donnee_machine_line l on l.donnee_id=e.id 
             )
         """)
+        _logger.info('## init is_donnee_machine_line_report en %.2fs'%(time.time()-start))
 
 
 

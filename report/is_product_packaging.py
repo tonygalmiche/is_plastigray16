@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class is_product_packaging(models.Model):
     _name='is.product.packaging'
@@ -22,6 +26,7 @@ class is_product_packaging(models.Model):
     ul_container       = fields.Many2one('is.product.ul', 'Unité logistique palette')
 
     def init(self):
+        start = time.time()
         cr = self.env.cr
         tools.drop_view_if_exists(cr, 'is_product_packaging')
         cr.execute("""
@@ -45,6 +50,7 @@ class is_product_packaging(models.Model):
                                          join product_packaging pack on pp.id=pack.product_id
             );
         """)
+        _logger.info('## init is_product_packaging en %.2fs'%(time.time()-start))
 
 
 

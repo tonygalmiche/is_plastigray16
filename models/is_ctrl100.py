@@ -2,6 +2,10 @@
 
 from odoo import models, fields, api, tools
 from odoo.exceptions import ValidationError
+import time
+import logging
+_logger = logging.getLogger(__name__)
+
 #from collections import defaultdict
 #from datetime import datetime, timedelta
 #import matplotlib
@@ -569,6 +573,7 @@ class is_ctrl100_ligne_saisie(models.Model):
 
 
     def init(self):
+        start = time.time()
         cr=self._cr
         tools.drop_view_if_exists(cr, 'is_ctrl100_ligne_saisie')
         cr.execute("""
@@ -598,6 +603,8 @@ class is_ctrl100_ligne_saisie(models.Model):
                                               inner join is_ctrl100_defaut s      on l.defautid=s.id 
             )
         """)
+        _logger.info('## init is_ctrl100_ligne_saisie en %.2fs'%(time.time()-start))
+
 
 
 class is_ctrl100_rapport_controle(models.Model):

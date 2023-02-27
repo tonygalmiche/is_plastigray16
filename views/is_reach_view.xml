@@ -172,19 +172,19 @@
                 <tree>
                     <field name="partner_id"       widget="many2one_clickable"/>
                     <field name="name"             widget="many2one_clickable"/>
-                    <field name="moule"/>
-                    <field name="ref_client"/>
-                    <field name="category_id"/>
-                    <field name="gestionnaire_id"/>
-                    <field name="qt_livree"        sum="Total"/>
-                    <field name="poids_produit_unitaire"/>
-                    <field name="poids_produit"    sum="Total"/>
-                    <field name="interdit"/>
-                    <field name="poids_substances" sum="Total"/>
-                    <field name="pourcentage_substances"/>
-                    <field name="codes_cas"/>
+                    <field name="moule"                  optional="show"/>
+                    <field name="ref_client"             optional="show"/>
+                    <field name="category_id"            optional="hide"/>
+                    <field name="gestionnaire_id"        optional="hide"/>
+                    <field name="qt_livree"              optional="show"    sum="Total"/>
+                    <field name="poids_produit_unitaire" optional="hide"/>
+                    <field name="poids_produit"          optional="show"  sum="Total"/>
+                    <field name="interdit"               optional="show"/>
+                    <field name="poids_substances"       optional="show" sum="Total"/>
+                    <field name="pourcentage_substances" optional="show" />
+                    <field name="codes_cas"              optional="show"/>
                     <button 
-                        string="Liste des substances livrées" 
+                        title="Liste des substances livrées" 
                         name= "substances_livrees_action" type="object" icon="fa-list-alt"
                     />
                 </tree>
@@ -314,19 +314,19 @@
                 <tree>
                     <field name="partner_id"       widget="many2one_clickable"/>
                     <field name="product_id"       widget="many2one_clickable"/>
-                    <field name="moule"/>
-                    <field name="ref_client"/>
-                    <field name="category_id"/>
-                    <field name="gestionnaire_id"/>
-                    <field name="qt_livree"/>
-                    <field name="poids_produit_unitaire"/>
-                    <field name="poids_produit"/>
-                    <field name="matiere_id"       widget="many2one_clickable"/>
-                    <field name="name"             widget="many2one_clickable"/>
-                    <field name="interdit"/>
-                    <field name="poids_substance"  sum="Total"/>
-                    <field name="pourcentage_substance"/>
-                    <field name="poids_autorise"/>
+                    <field name="moule"                  optional="show"/>
+                    <field name="ref_client"             optional="show"/>
+                    <field name="category_id"            optional="hide"/>
+                    <field name="gestionnaire_id"        optional="hide"/>
+                    <field name="qt_livree"              optional="show"/>
+                    <field name="poids_produit_unitaire" optional="hide"/>
+                    <field name="poids_produit"          optional="show"/>
+                    <field name="matiere_id"             optional="show"    widget="many2one_clickable"/>
+                    <field name="name"                   optional="show"     widget="many2one_clickable"/>
+                    <field name="interdit"               optional="show"/>
+                    <field name="poids_substance"        optional="show" sum="Total"/>
+                    <field name="pourcentage_substance"  optional="show"/>
+                    <field name="poids_autorise"         optional="show"/>
                 </tree>
             </field>
         </record>

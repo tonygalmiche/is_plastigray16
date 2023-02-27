@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools,api
 import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_gestion_lot(models.Model):
@@ -142,6 +144,7 @@ class is_gestion_lot_report(models.Model):
     
 
     def init(self):
+        start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_gestion_lot_report')
         cr.execute("""
@@ -183,6 +186,7 @@ class is_gestion_lot_report(models.Model):
                 ORDER BY quant.product_id
                )
         """)
+        _logger.info('## init is_gestion_lot_report en %.2fs'%(time.time()-start))
 
 
     def bloquer_lot_action(self):

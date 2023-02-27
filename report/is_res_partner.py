@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from odoo import tools
-from odoo import models,fields,api
+from odoo import models,fields
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_res_partner(models.Model):
@@ -18,6 +21,7 @@ class is_res_partner(models.Model):
     customer              = fields.Boolean('Est un client')
 
     def init(self):
+        start = time.time()
         cr=self._cr
         tools.drop_view_if_exists(cr, 'is_res_partner')
         cr.execute("""
@@ -46,6 +50,7 @@ class is_res_partner(models.Model):
                 where is_company='t' and active='t' and isa.name not in ('frais généraux','mouliste','Transport')
             )
         """)
+        _logger.info('## init is_res_partner en %.2fs'%(time.time()-start))
 
 
 

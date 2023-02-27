@@ -594,6 +594,7 @@ class is_theia_habilitation_operateur_etat(models.Model):
     heure_debut  = fields.Datetime(u'Heure de début'          , required=True , index=True)
 
     def init(self):
+        start = time.time()
         cr=self._cr
         tools.drop_view_if_exists(cr, 'is_theia_habilitation_operateur_etat')
         cr.execute("""
@@ -617,6 +618,7 @@ class is_theia_habilitation_operateur_etat(models.Model):
                 group by a.presse_id,a.moule,a.operateur_id
             )
         """)
+        _logger.info('## init is_theia_habilitation_operateur_etat en %.2fs'%(time.time()-start))
 
 
 class is_theia_lecture_ip(models.Model):

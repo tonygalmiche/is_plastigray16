@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+        <record id="is_view_stock_move_line_detailed_operation_tree" model="ir.ui.view">
+            <field name="name">is_view_stock_move_line_detailed_operation_tree</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_detailed_operation_tree"/>
+            <field name="arch" type="xml">
+                <field name="lot_id" position="replace">
+                    <field name="lot_id"/>
+                </field>
+                <field name="lot_name" position="replace"/>
+
+                <!-- <xpath expr="//field[@name='package_id'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//field[@name='result_package_id'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath> -->
+                <xpath expr="//field[@name='package_id'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//field[@name='result_package_id'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//field[@name='reserved_uom_qty']" position="attributes">
+                    <attribute name="optional">hide</attribute> 
+                </xpath>
+            </field>
+        </record> 
+
+
+
+        <!-- stock.
+
+        <field name="product_id" required="1" context="{'default_detailed_type': 'product'}" attrs="{'readonly': ['|', ('state', '=', 'done'), ('move_id', '!=', False)]}"/>
+        <field name="company_id" invisible="1"/>
+        <field name="move_id" invisible="1"/>
+        <field name="picking_id" invisible="1"/>
+        <field name="product_uom_category_id" invisible="1"/>
+        <field name="package_id" invisible="1"/>
+        <field name="result_package_id" invisible="1"/>
+        <field name="location_id" invisible="1"/>
+        <field name="location_dest_id" invisible="1"/>
+        <field name="location_id" options="{'no_create': True}" attrs="{'column_invisible': [('parent.picking_type_code', '=', 'incoming')]}" groups="stock.group_stock_multi_locations" domain="[('id', 'child_of', parent.location_id), '|', ('company_id', '=', False), ('company_id', '=', company_id), ('usage', '!=', 'view')]"/>
+        <field name="location_dest_id" options="{'no_create': True}" attrs="{'column_invisible': [('parent.picking_type_code', '=', 'outgoing')]}" groups="stock.group_stock_multi_locations" domain="[('id', 'child_of', parent.location_dest_id), '|', ('company_id', '=', False), ('company_id', '=', company_id), ('usage', '!=', 'view')]"/>
+        <field name="package_id" groups="stock.group_tracking_lot"/>
+        <field name="result_package_id" groups="stock.group_tracking_lot"/>
+        <field name="lots_visible" invisible="1"/>
+        <field name="owner_id" groups="stock.group_tracking_owner" attrs="{'column_invisible': [('parent.picking_type_code', '=', 'incoming')]}"/>
+        <field name="state" invisible="1"/>
+        <field name="lot_id" groups="stock.group_production_lot" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)], 'invisible': [('lots_visible', '=', False)]}" context="{'default_product_id': product_id, 'default_company_id': company_id, 'active_picking_id': picking_id}" optional="show"/>
+        <field name="lot_name" groups="stock.group_production_lot" attrs="{'column_invisible': [('parent.show_lots_text', '=', False)], 'invisible': [('lots_visible', '=', False)]}" context="{'default_product_id': product_id}"/>
+        <field name="is_initial_demand_editable" invisible="1"/>
+        <field name="reserved_uom_qty" readonly="1" attrs="{'column_invisible': ['|',('parent.immediate_transfer', '=', True),('parent.picking_type_code','=','incoming')]}" optional="show"/>
+        <field name="is_locked" invisible="1"/>
+        <field name="qty_done" attrs="{'readonly': [('state', 'in', ('done', 'cancel')), ('is_locked', '=', True)]}" force_save="1"/>
+        <field name="product_uom_id" force_save="1" attrs="{'readonly': [('state', '!=', 'draft'), ('id', '!=', False)]}" groups="uom.group_uom"/>
+ -->
+
+
+
+        <!-- stock.move --> 
+        <record id="is_entrees_sorties_stock_action" model="ir.actions.act_window">
+            <field name="name">Entrées-sorties de stocks</field>
+            <field name="res_model">stock.move</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    
+        <!-- <record id="is_view_move_form" model="ir.ui.view">
+            <field name="name">stock.move.form</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="group_id" position="after">
+                    <field name="restrict_lot_id" />
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="is_employee_theia_id"/>
+                </field>
+                <group name="destination_grp" position="after">
+                    <group string="Amortissement Moule">
+                        <field name="is_amortissement_moule"/>
+                        <field name="is_amt_interne"/>
+                        <field name="is_cagnotage"/>
+                        <field name="is_montant_amt_moule"/>
+                        <field name="is_montant_amt_interne"/>
+                        <field name="is_montant_cagnotage"/>
+                        <field name="is_montant_matiere"/>
+                    </group>
+                </group>
+            </field>
+        </record> -->
+
+        <!-- <record id="is_view_move_tree" model="ir.ui.view">
+            <field name="name">is_view_move_tree</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </field>
+                <field name="date_expected" position="after">
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="is_employee_theia_id"/>
+                </field>
+                <field name="date" position="replace">
+                    <field name="date" />
+                </field>
+                <button string="Scrap Products" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <button name="action_done" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+            </field>
+        </record> -->
+
+        <!-- Liste des mouvements terminés --> 
+        <!-- <record id="is_mouvements_termines_tree" model="ir.ui.view">
+            <field name="name">is_mouvements_termines_tree</field>
+            <field name="model">stock.move</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="location_dest_id"/>
+                    <field name="product_uom_qty" digits="(14,2)" sum="Total"/>
+                    <field name="product_uom" string="Unité"/>
+                    <field name="picking_type_id"/>
+                    <field name="picking_id"/>
+                    <field name="origin"/>
+                    <field name="write_uid"/>
+                    <field name="state" invisible="1"/>
+                </tree>
+            </field>
+        </record> -->
+
+
+
+        <!-- Mouvements en cours -->
+        <!-- <record id="is_mouvements_en_cours_action" model="ir.actions.act_window">
+            <field name="name">Mouvements en cours</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[('state','in',['draft','waiting','confirmed','assigned'])]</field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_view_move_tree"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record> -->
+        <!-- Mouvements Terminés -->
+        <!-- <record id="is_mouvements_termines_action" model="ir.actions.act_window">
+            <field name="name">Mouvements terminés</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[('state','in',['done'])]</field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_mouvements_termines_tree"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record> -->
+        <!-- Tous les mouvements -->
+        <!-- <record id="is_mouvements_tous_action" model="ir.actions.act_window">
+            <field name="name">Tous les mouvements</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[]</field>
+            <field name="limit">200</field>
+            <field name="view_id" ref="is_view_move_tree"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+ -->
+
+        <!-- <record id="is_view_move_picking_tree" model="ir.ui.view">
+            <field name="name">is_view_move_picking_tree</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_picking_tree"/>
+            <field name="arch" type="xml">
+                <button string="Scrap Products" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </button>
+                <field name="product_id" position="after">
+                    <field name="name" />
+                    <field name="is_lots"/>
+                    <field name="is_point_dechargement"/>
+                    <field name="is_dosmat_ctrl_qual"/>
+                    <field name="is_dosmat_conditions_stockage"/>
+                </field>
+            </field>
+        </record> -->
+
+
+
+    </data>
+</odoo>
