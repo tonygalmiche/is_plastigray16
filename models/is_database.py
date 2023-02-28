@@ -37,13 +37,32 @@ class is_database(models.Model):
                 _logger.info("copy_other_database : DB=%s : DB_SERVER=%s : DB_PORT=%s : model=%s"%(DB,DB_SERVER,DB_PORT,model))
 
                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
+
+                _logger.info("xmlrpclib.ServerProxy : DB_SERVER=%s : DB_PORT=%s : sock=%s"%(DB_SERVER,DB_PORT,sock))
+
+
+
                 vals = obj.get_copy_other_database_vals(DB, USERID, USERPASS, sock)
+
+
+
+
+
                 try:
                     getattr(obj, 'active')
                     filtre_origine_id=[('is_database_origine_id', '=', obj.id),'|',('active','=',True),('active','=',False)]
                 except AttributeError as e:
                     filtre_origine_id=[('is_database_origine_id', '=', obj.id)]
+
+
+                _logger.info("xmlrpclib.ServerProxy : DB=%s : USERID=%s : USERPASS=%s : model=%s"%(DB,USERID,USERPASS,model))
+
+
                 ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
+
+
+
+
                 if not ids:
                     ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre)
 
