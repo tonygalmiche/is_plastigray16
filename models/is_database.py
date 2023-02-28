@@ -28,7 +28,7 @@ class is_database(models.Model):
             if obj and database.ip_server and database.database and database.port_server and database.login and database.password:
                 model     = obj._name
                 DB        = database.database
-                #USERID    = SUPERUSER_ID
+                USERID    = 2
                 DBLOGIN   = database.login
                 USERPASS  = database.password
                 DB_SERVER = database.ip_server
@@ -36,61 +36,16 @@ class is_database(models.Model):
 
                 _logger.info("copy_other_database : DB=%s : DB_SERVER=%s : DB_PORT=%s : model=%s"%(DB,DB_SERVER,DB_PORT,model))
 
-
-                common = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/common' % (DB_SERVER, DB_PORT))
-                USERID = common.authenticate(DB, DBLOGIN, USERPASS, {})
-
-                _logger.info("copy_other_database : common=%s : uid=%s"%(common,USERID))
-
-
-                #sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/object' % (DB_SERVER, DB_PORT))
-
-                _logger.info("copy_other_database : sock=%s : uid=%s"%(sock,USERID))
-
-
-                #_logger.info("xmlrpclib.ServerProxy : DB_SERVER=%s : DB_PORT=%s : sock=%s"%(DB_SERVER,DB_PORT,sock))
-
-
-
+                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
                 vals = obj.get_copy_other_database_vals(DB, USERID, USERPASS, sock)
-
-
-# common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
-# uid    = common.authenticate(db, username, password, {})
-# models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
-# report = xmlrpc.client.ServerProxy('{}/xmlrpc/2/report'.format(url))
-#ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[],0,100,'name'])
-
-
-
-
-
                 try:
                     getattr(obj, 'active')
                     filtre_origine_id=[('is_database_origine_id', '=', obj.id),'|',('active','=',True),('active','=',False)]
                 except AttributeError as e:
                     filtre_origine_id=[('is_database_origine_id', '=', obj.id)]
-
-
-                _logger.info("xmlrpclib.ServerProxy : DB=%s : USERID=%s : USERPASS=%s : model=%s"%(DB,USERID,USERPASS,model))
-
-
-                #ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
-                ids = sock.execute_kw(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
-
-                _logger.info("copy_other_database : model=%s : ids=%s"%(model,ids))
-
-
-
+                ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
                 if not ids:
                     ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre)
-
-                _logger.info("copy_other_database : model=%s : ids=%s"%(model,ids))
-
-
-
-
                 if ids:
                     res=sock.execute(DB, USERID, USERPASS, model, 'write', ids, vals)
                     _logger.info("write : database=%s : model=%s : ids=%s : vals=%s : res=%s"%(DB,model,ids,vals,res))
@@ -98,8 +53,6 @@ class is_database(models.Model):
                     res=sock.execute(DB, USERID, USERPASS, model, 'create', vals)
                     _logger.info("create : database=%s : model=%s : vals=%s : id=%s"%(DB,model,vals,res))
         return True
-
-
 
 
     # def unlink_other_database(self, objs):
