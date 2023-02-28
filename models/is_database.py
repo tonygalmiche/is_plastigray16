@@ -36,13 +36,31 @@ class is_database(models.Model):
 
                 _logger.info("copy_other_database : DB=%s : DB_SERVER=%s : DB_PORT=%s : model=%s"%(DB,DB_SERVER,DB_PORT,model))
 
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
 
-                _logger.info("xmlrpclib.ServerProxy : DB_SERVER=%s : DB_PORT=%s : sock=%s"%(DB_SERVER,DB_PORT,sock))
+                common = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/common' % (DB_SERVER, DB_PORT))
+                uid    = common.authenticate(DB, DBLOGIN, USERPASS, {})
+
+                _logger.info("copy_other_database : common=%s : uid=%s"%(sock,uid))
+
+
+                #sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
+                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/object' % (DB_SERVER, DB_PORT))
+
+                _logger.info("copy_other_database : common=%s : uid=%s"%(sock,uid))
+
+
+                #_logger.info("xmlrpclib.ServerProxy : DB_SERVER=%s : DB_PORT=%s : sock=%s"%(DB_SERVER,DB_PORT,sock))
 
 
 
                 vals = obj.get_copy_other_database_vals(DB, USERID, USERPASS, sock)
+
+
+# common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
+# uid    = common.authenticate(db, username, password, {})
+# models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+# report = xmlrpc.client.ServerProxy('{}/xmlrpc/2/report'.format(url))
+#ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[],0,100,'name'])
 
 
 
@@ -58,8 +76,10 @@ class is_database(models.Model):
                 _logger.info("xmlrpclib.ServerProxy : DB=%s : USERID=%s : USERPASS=%s : model=%s"%(DB,USERID,USERPASS,model))
 
 
-                ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
+                #ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
+                ids = sock.execute_kw(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
 
+                _logger.info("copy_other_database : model=%s : ids=%s"%(model,ids))
 
 
 
@@ -78,13 +98,6 @@ class is_database(models.Model):
                     res=sock.execute(DB, USERID, USERPASS, model, 'create', vals)
                     _logger.info("create : database=%s : model=%s : vals=%s : id=%s"%(DB,model,vals,res))
         return True
-
-
-# common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
-# uid    = common.authenticate(db, username, password, {})
-# models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
-# report = xmlrpc.client.ServerProxy('{}/xmlrpc/2/report'.format(url))
-#ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[],0,100,'name'])
 
 
 
