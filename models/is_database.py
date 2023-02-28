@@ -40,13 +40,13 @@ class is_database(models.Model):
                 common = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/common' % (DB_SERVER, DB_PORT))
                 uid    = common.authenticate(DB, DBLOGIN, USERPASS, {})
 
-                _logger.info("copy_other_database : common=%s : uid=%s"%(sock,uid))
+                _logger.info("copy_other_database : common=%s : uid=%s"%(common,uid))
 
 
                 #sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/object' % (DB_SERVER, DB_PORT))
 
-                _logger.info("copy_other_database : common=%s : uid=%s"%(common,uid))
+                _logger.info("copy_other_database : sock=%s : uid=%s"%(sock,uid))
 
 
                 #_logger.info("xmlrpclib.ServerProxy : DB_SERVER=%s : DB_PORT=%s : sock=%s"%(DB_SERVER,DB_PORT,sock))
