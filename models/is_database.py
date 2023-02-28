@@ -46,7 +46,7 @@ class is_database(models.Model):
                 #sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/object' % (DB_SERVER, DB_PORT))
 
-                _logger.info("copy_other_database : common=%s : uid=%s"%(sock,uid))
+                _logger.info("copy_other_database : common=%s : uid=%s"%(common,uid))
 
 
                 #_logger.info("xmlrpclib.ServerProxy : DB_SERVER=%s : DB_PORT=%s : sock=%s"%(DB_SERVER,DB_PORT,sock))
