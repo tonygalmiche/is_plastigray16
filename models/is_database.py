@@ -46,6 +46,12 @@ class is_database(models.Model):
                 ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre_origine_id)
                 if not ids:
                     ids = sock.execute(DB, USERID, USERPASS, model, 'search', filtre)
+
+                _logger.info("copy_other_database : model=%s : ids=%s"%(model,ids))
+
+
+
+
                 if ids:
                     res=sock.execute(DB, USERID, USERPASS, model, 'write', ids, vals)
                     _logger.info("write : database=%s : model=%s : ids=%s : vals=%s : res=%s"%(DB,model,ids,vals,res))
@@ -53,6 +59,18 @@ class is_database(models.Model):
                     res=sock.execute(DB, USERID, USERPASS, model, 'create', vals)
                     _logger.info("create : database=%s : model=%s : vals=%s : id=%s"%(DB,model,vals,res))
         return True
+
+
+# common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
+# uid    = common.authenticate(db, username, password, {})
+# models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+# report = xmlrpc.client.ServerProxy('{}/xmlrpc/2/report'.format(url))
+
+
+
+ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[],0,100,'name'])
+
+
 
 
     # def unlink_other_database(self, objs):
