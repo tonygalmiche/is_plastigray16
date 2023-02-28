@@ -308,3 +308,7 @@ access_is_ligne_livraison,access_is_ligne_livraison,model_is_ligne_livraison,bas
 access_is_ligne_livraison_refresh,access_is_ligne_livraison_refresh,model_is_ligne_livraison,base.group_system,1,1,1,1
 
 access_is_livraison_gefco,access_is_livraison_gefco,model_is_livraison_gefco,base.group_user,1,0,0,0
+
+
+access_pg_stock_move,access_pg_stock_move,model_pg_stock_move,base.group_user,1,0,0,0
+access_is_stock_move,access_is_stock_move,model_is_stock_move,base.group_user,1,1,1,1

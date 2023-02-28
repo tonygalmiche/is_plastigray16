@@ -142,6 +142,10 @@ Module Odoo 16 pour Plastigray
         "report/is_livraison_gefco.xml",
         "report/is_pricelist_item.xml",
         "report/is_product_packaging.xml",
+        "report/is_stock_move.xml",
+
+
+
 
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
@@ -278,7 +282,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_mouvement_stock.xml",
         # "report/is_users_groups.xml",
         # "report/is_model_groups.xml",
-        # "report/is_stock_move.xml",
         # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_livraison_facture.xml",
         # "report/is_comparatif_cde_draft_done.xml",

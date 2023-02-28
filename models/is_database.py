@@ -33,6 +33,9 @@ class is_database(models.Model):
                 USERPASS  = database.password
                 DB_SERVER = database.ip_server
                 DB_PORT   = database.port_server
+
+                _logger.info("copy_other_database : DB=%s : DB_SERVER=%s : DB_PORT=%s : model=%s"%(DB,DB_SERVER,DB_PORT,model))
+
                 sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
                 vals = obj.get_copy_other_database_vals(DB, USERID, USERPASS, sock)
                 try:
