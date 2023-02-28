@@ -65,10 +65,7 @@ class is_database(models.Model):
 # uid    = common.authenticate(db, username, password, {})
 # models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 # report = xmlrpc.client.ServerProxy('{}/xmlrpc/2/report'.format(url))
-
-
-
-ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[],0,100,'name'])
+#ids = models.execute_kw(db, uid, password, 'res.partner', 'search', [[],0,100,'name'])
 
 
 
