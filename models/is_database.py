@@ -28,7 +28,7 @@ class is_database(models.Model):
             if obj and database.ip_server and database.database and database.port_server and database.login and database.password:
                 model     = obj._name
                 DB        = database.database
-                USERID    = SUPERUSER_ID
+                #USERID    = SUPERUSER_ID
                 DBLOGIN   = database.login
                 USERPASS  = database.password
                 DB_SERVER = database.ip_server
@@ -38,7 +38,7 @@ class is_database(models.Model):
 
 
                 common = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/2/common' % (DB_SERVER, DB_PORT))
-                uid    = common.authenticate(DB, DBLOGIN, USERPASS, {})
+                USERID = common.authenticate(DB, DBLOGIN, USERPASS, {})
 
                 _logger.info("copy_other_database : common=%s : uid=%s"%(common,uid))
 
