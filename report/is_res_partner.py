@@ -21,36 +21,37 @@ class is_res_partner(models.Model):
     customer              = fields.Boolean('Est un client')
 
     def init(self):
-        start = time.time()
-        cr=self._cr
-        tools.drop_view_if_exists(cr, 'is_res_partner')
-        cr.execute("""
-            CREATE OR REPLACE view is_res_partner AS (
-                select
-                    rp.id,
-                    rp.id               partner_id,
-                    rp.is_segment_achat segment_id,
-                    rp.supplier,
-                    rp.customer,
-                    isa.name,
-                    (
-                        select icof.id
-                        from is_cde_ouverte_fournisseur icof
-                        where icof.partner_id=rp.id
-                        limit 1
-                    ) cde_ouverte_id,
+        if self.env.company.is_activer_init:
+            start = time.time()
+            cr=self._cr
+            tools.drop_view_if_exists(cr, 'is_res_partner')
+            cr.execute("""
+                CREATE OR REPLACE view is_res_partner AS (
+                    select
+                        rp.id,
+                        rp.id               partner_id,
+                        rp.is_segment_achat segment_id,
+                        rp.supplier,
+                        rp.customer,
+                        isa.name,
+                        (
+                            select icof.id
+                            from is_cde_ouverte_fournisseur icof
+                            where icof.partner_id=rp.id
+                            limit 1
+                        ) cde_ouverte_id,
 
-                    (
-                        select icfc.id
-                        from is_cde_ferme_cadencee icfc
-                        where icfc.partner_id=rp.id
-                        limit 1
-                    ) cde_ferme_cadencee_id
-                from res_partner rp  left outer join is_segment_achat isa on rp.is_segment_achat=isa.id
-                where is_company='t' and active='t' and isa.name not in ('frais généraux','mouliste','Transport')
-            )
-        """)
-        _logger.info('## init is_res_partner en %.2fs'%(time.time()-start))
+                        (
+                            select icfc.id
+                            from is_cde_ferme_cadencee icfc
+                            where icfc.partner_id=rp.id
+                            limit 1
+                        ) cde_ferme_cadencee_id
+                    from res_partner rp  left outer join is_segment_achat isa on rp.is_segment_achat=isa.id
+                    where is_company='t' and active='t' and isa.name not in ('frais généraux','mouliste','Transport')
+                )
+            """)
+            _logger.info('## init is_res_partner en %.2fs'%(time.time()-start))
 
 
 

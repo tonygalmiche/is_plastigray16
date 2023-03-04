@@ -480,7 +480,7 @@ class sale_order_line(models.Model):
 
 
     def check_date_livraison(self, date_livraison,  partner):
-        if partner:
+        if partner and date_livraison:
             # jours de fermeture de la société
             jours_fermes = partner.num_closing_days(partner)
             # Jours de congé de la société
@@ -494,16 +494,17 @@ class sale_order_line(models.Model):
 
     def set_price_justification(self):
         """Recherche prix et justifcation dans liste de prix pour date et qt et mise à jour"""
-        price = 0
-        justifcation = False
-        if self.order_id.pricelist_id:
-            price, justifcation = self.order_id.pricelist_id.price_get(
-                product = self.product_id,
-                qty     = self.product_uom_qty, 
-                date    = self.is_date_livraison
-            )
-        self.price_unit = price
-        self.is_justification = justifcation
+        for obj in self:
+            price = 0
+            justifcation = False
+            if obj.order_id.pricelist_id:
+                price, justifcation = obj.order_id.pricelist_id.price_get(
+                    product = obj.product_id,
+                    qty     = obj.product_uom_qty, 
+                    date    = obj.is_date_livraison
+                )
+            obj.price_unit = price
+            obj.is_justification = justifcation
 
 
     @api.onchange('is_date_livraison')

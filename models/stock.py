@@ -41,6 +41,7 @@ class stock_lot(models.Model):
 
     is_date_peremption = fields.Date("Date de péremption")
     is_lot_fournisseur = fields.Char("Lot fournisseur")
+    company_id = fields.Many2one('res.company', 'Company', required=True, store=True, index=True, default=1) #J'ai ajouté default=1, sinon, impossible de créer des lots
 
 
 # class stock_inventory(models.Model):
@@ -68,6 +69,23 @@ class stock_picking(models.Model):
     is_mode_envoi_facture  = fields.Selection(related="partner_id.is_mode_envoi_facture", string="Mode d'envoi des factures")
     is_traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
     is_date_traitement_edi = fields.Datetime("Date traitement EDI")
+
+    
+    def preparer_action(self):
+        for obj in self:
+            print(self,self.purchase_id)
+            for move in obj.move_ids:
+                for line in move.move_line_ids:
+                    line.qty_done         = line.reserved_qty
+                    line.location_dest_id = line.picking_id.location_dest_id.id
+                    if not line.lot_id:
+                        name=datetime.date.today().strftime('%y%m%d')+obj.name
+                        vals={
+                            "name"      : name,
+                            "product_id": line.product_id.id,
+                        }
+                        lot = self.env["stock.lot"].create(vals)
+                        line.lot_id           = lot.id
 
 
     def pj_action(self):
@@ -619,10 +637,10 @@ class stock_picking(models.Model):
     #     return (need_rereserve, all_op_processed)
 
 
-    @api.onchange('location_id')
-    def onchange_location(self):
-        for move in self.move_lines:
-            move.location_id = self.location_id
+    # @api.onchange('location_id')
+    # def onchange_location(self):
+    #     for move in self.move_lines:
+    #         move.location_id = self.location_id
 
 
     def action_invoice_create(self, cr, uid, ids, journal_id, group=False, type='out_invoice', context=None):
@@ -811,6 +829,28 @@ class stock_move(models.Model):
     #     for obj in self:
     #         obj.update_pg_stock_move()
     #     return res
+
+
+    def access_stock_move_action(self):
+        for obj in self:
+            print(obj)
+            res= {
+                'name': 'Mouvement',
+                'view_mode': 'form',
+                'res_model': 'stock.move',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res
+
+    def valider_action(self):
+        for obj in self:
+            print(obj, obj.state)
+            obj._action_done()
+            #obj._action_confirm()
+            #obj._action_cancel() => OK
+
+
 
 
     def update_amortissement_moule(self):

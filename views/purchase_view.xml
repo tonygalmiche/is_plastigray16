@@ -51,6 +51,7 @@
                 <field name="date_order" position="after">
                     <field name="is_date_envoi_mail"/>
                     <field name="is_livre_a_id"  domain="[('is_company','=',True)]"/>
+                    <field name="location_id"/>
                     <field name="is_cfc_id" attrs="{'invisible': [('is_cfc_id', '=', False)]}"/>
                     <field name="is_date_end_cfc" attrs="{'invisible': [('is_cfc_id', '=', False)]}"/>
                     <field name="is_modified"/>

@@ -205,7 +205,7 @@ class is_demande_achat_invest(models.Model):
                 vals={
                     'partner_id'      : partner.id,
                     'is_livre_a_id'   : obj.lieu_livraison_id.id,
-                    #'location_id'     : partner.is_source_location_id.id,
+                    'location_id'     : partner.is_source_location_id.id,
                     'fiscal_position_id': partner.property_account_position_id.id,
                     'payment_term_id' : partner.property_supplier_payment_term_id.id,
                     'pricelist_id'    : partner.pricelist_purchase_id.id,

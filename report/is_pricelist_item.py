@@ -31,39 +31,40 @@ class is_pricelist_item(models.Model):
     item_date_end      = fields.Date('Date fin ligne')
 
     def init(self):
-        start = time.time()
-        cr = self._cr
-        tools.drop_view_if_exists(cr, 'is_pricelist_item')
-        cr.execute("""
-            CREATE OR REPLACE view is_pricelist_item AS (
-                SELECT 
-                    ppi.id                as id,
-                    pl.name->>'en_US'     as pricelist_name,
-                    pl.type               as pricelist_type,
-                    ppi.base              as base,
-                    ppi.price_version_id  as price_version_id,
-                    ppv.date_start        as version_date_start,
-                    ppv.date_end          as version_date_end,
-                    ppi.product_id        as product_id,
-                    pt.is_gestionnaire_id as gestionnaire_id,
-                    pt.is_ref_client      as ref_client,
-                    pt.is_ref_fournisseur as ref_fournisseur,
-                    pt.is_mold_dossierf   as moule,
-                    ppi.sequence          as sequence,
-                    pt.uom_id             as product_uom_id,
-                    pt.uom_po_id          as product_po_uom_id,
-                    ppi.min_quantity      as min_quantity,
-                    ppi.price_surcharge   as price_surcharge,
-                    ppi.date_start        as item_date_start,
-                    ppi.date_end          as item_date_end
-                FROM product_pricelist_item ppi inner join product_product   pp on ppi.product_id=pp.id
-                                                inner join product_template pt on pp.product_tmpl_id=pt.id
-                                                inner join product_pricelist_version ppv on ppi.price_version_id=ppv.id
-                                                inner join product_pricelist pl on ppv.pricelist_id = pl.id
-                WHERE ppi.id>0 
-            )
-        """)
-        _logger.info('## init is_pricelist_item en %.2fs'%(time.time()-start))
+        if self.env.company.is_activer_init:
+            start = time.time()
+            cr = self._cr
+            tools.drop_view_if_exists(cr, 'is_pricelist_item')
+            cr.execute("""
+                CREATE OR REPLACE view is_pricelist_item AS (
+                    SELECT 
+                        ppi.id                as id,
+                        pl.name->>'en_US'     as pricelist_name,
+                        pl.type               as pricelist_type,
+                        ppi.base              as base,
+                        ppi.price_version_id  as price_version_id,
+                        ppv.date_start        as version_date_start,
+                        ppv.date_end          as version_date_end,
+                        ppi.product_id        as product_id,
+                        pt.is_gestionnaire_id as gestionnaire_id,
+                        pt.is_ref_client      as ref_client,
+                        pt.is_ref_fournisseur as ref_fournisseur,
+                        pt.is_mold_dossierf   as moule,
+                        ppi.sequence          as sequence,
+                        pt.uom_id             as product_uom_id,
+                        pt.uom_po_id          as product_po_uom_id,
+                        ppi.min_quantity      as min_quantity,
+                        ppi.price_surcharge   as price_surcharge,
+                        ppi.date_start        as item_date_start,
+                        ppi.date_end          as item_date_end
+                    FROM product_pricelist_item ppi inner join product_product   pp on ppi.product_id=pp.id
+                                                    inner join product_template pt on pp.product_tmpl_id=pt.id
+                                                    inner join product_pricelist_version ppv on ppi.price_version_id=ppv.id
+                                                    inner join product_pricelist pl on ppv.pricelist_id = pl.id
+                    WHERE ppi.id>0 
+                )
+            """)
+            _logger.info('## init is_pricelist_item en %.2fs'%(time.time()-start))
 
 
     def action_liste_items(self):

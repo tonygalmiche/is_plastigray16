@@ -51,6 +51,10 @@ class res_company(models.Model):
     is_responsable_rh_id = fields.Many2one('res.users', string='Responsable RH')
     is_zebra_id = fields.Many2one('is.raspberry.zebra', u"Imprimante Zebra par défaut", help=u"Utilisé pour imprimer les étiquettes des équipements")
 
+    is_activer_init = fields.Boolean('Activer les fonctions init des modèles', default=True, help="Désactiver cette option en mode développement pour accélérer la mise à jour du module")
+
+
+
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')
         principale_grp_id = self.env.ref('is_plastigray16.is_base_principale_grp')

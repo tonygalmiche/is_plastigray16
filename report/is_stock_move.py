@@ -234,14 +234,15 @@ class is_stock_move(models.Model):
 
 
     def init(self):
-        start = time.time()
-        cr = self._cr
-        cr.execute("""
-            DROP MATERIALIZED VIEW IF EXISTS is_stock_move;
-            CREATE MATERIALIZED view is_stock_move AS ("""+_SELECT_STOCK_MOVE+"""
-            );
-        """)
-        _logger.info('## init is_stock_move en %.2fs'%(time.time()-start))
+        if self.env.company.is_activer_init:
+            start = time.time()
+            cr = self._cr
+            cr.execute("""
+                DROP MATERIALIZED VIEW IF EXISTS is_stock_move;
+                CREATE MATERIALIZED view is_stock_move AS ("""+_SELECT_STOCK_MOVE+"""
+                );
+            """)
+            _logger.info('## init is_stock_move en %.2fs'%(time.time()-start))
 
 
 

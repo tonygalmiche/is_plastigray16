@@ -10,7 +10,7 @@ class purchase_order_line(models.Model):
 
     is_justification = fields.Char("Justification" , help="Ce champ est obligatoire si l'article n'est pas renseigné ou le prix à 0")
     is_num_chantier  = fields.Char("N° du chantier", help="Champ utilisé pour la gestion des investissements sous la forme Mxxxx/xxxxx")
-    date_planned     = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
+    #date_planned     = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
 
 
     def set_price_justification(self):
@@ -21,7 +21,7 @@ class purchase_order_line(models.Model):
             price, justifcation = self.order_id.pricelist_id.price_get(
                 product = self.product_id,
                 qty     = self.product_qty, 
-                date    = self.date_planned
+                date    = self.date_planned.date()
             )
         self.price_unit = price
         self.is_justification = justifcation
@@ -86,7 +86,29 @@ class purchase_order(models.Model):
     is_lieu              = fields.Char("Lieu")
     is_modified          = fields.Boolean('Commande modifiée')
     pricelist_id         = fields.Many2one('product.pricelist','Liste de prix')
-    date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
+    #date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
+    location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
+
+
+
+
+
+    def button_confirm(self):
+        res = super().button_confirm()
+
+        print(res,self)
+
+        if self.location_id:
+            for picking in self.picking_ids:
+                print(picking, picking.state)
+                if picking.state=="assigned":
+                    picking.location_dest_id = self.location_id.id
+
+
+        return res
+
+
+
 
 
 
@@ -193,7 +215,7 @@ class purchase_order(models.Model):
             self.is_livre_a_id = partner.is_livre_a_id.id
             self.incoterm_id   = partner.is_incoterm.id
             self.is_lieu       = partner.is_lieu
-            #self.location_id   = partner.is_source_location_id.id
+            self.location_id   = partner.is_source_location_id.id
 
         #** Recherche du contact logistique ************************************
         cr = self._cr

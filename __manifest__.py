@@ -22,11 +22,18 @@ Module Odoo 16 pour Plastigray
         "l10n_fr_fec",
     ],
     "data" : [
+    
+    
         "security/res.groups.xml",
         #"security/res.groups.csv",
 
         "security/ir.model.access.csv",
         "security/is_demande_conges_security.xml",
+
+
+        "views/mrp_production_view.xml",
+
+
 
 
         "report/is_stock_quant.xml",
@@ -204,7 +211,6 @@ Module Odoo 16 pour Plastigray
         # "assets.xml",
         # "account_invoice_view.xml",
         # "sale_picking_view.xml",
-        # "mrp_production_view.xml",
         # "account_invoice_sequence.xml",
         # "log_view.xml",
         # "purchase_workflow.xml",

@@ -83,8 +83,8 @@
 
 
         <!-- stock.picking -->
-        <record id="is_view_picking_form" model="ir.ui.view">
-            <field name="name">stock.picking.form</field>
+        <record id="is_view_picking_certificat_form" model="ir.ui.view">
+            <field name="name">is_view_picking_certificat_form</field>
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="arch" type="xml">

@@ -14,36 +14,45 @@ class MrpProduction(models.Model):
     _order="name desc"
 
     def _compute(self):
-        package_qty = is_qt_prevue = is_qt_fabriquee = is_qt_rebut = is_qt_reste = 0
-        for line in self.move_created_ids2:
-            if line.location_dest_id.scrap_location and line.state=='done':
-                is_qt_rebut=is_qt_rebut+line.product_uom_qty
-            else:
-                if line.location_dest_id.usage=='internal' and line.state=='done':
-                    is_qt_fabriquee=is_qt_fabriquee+line.product_uom_qty
-        for line in self.move_created_ids2:
-            if line.location_id.usage=='internal' and line.state=='done':
-                is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
+        for obj in self:
+            package_qty = is_qt_prevue = is_qt_fabriquee = is_qt_rebut = is_qt_reste = 0
+            # for line in self.move_created_ids2:
+            #     if line.location_dest_id.scrap_location and line.state=='done':
+            #         is_qt_rebut=is_qt_rebut+line.product_uom_qty
+            #     else:
+            #         if line.location_dest_id.usage=='internal' and line.state=='done':
+            #             is_qt_fabriquee=is_qt_fabriquee+line.product_uom_qty
+            # for line in self.move_created_ids2:
+            #     if line.location_id.usage=='internal' and line.state=='done':
+            #         is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
 
-        product_package = False
-        if self.product_id and self.product_id.packaging_ids:
-            pack_brw        = self.product_id.packaging_ids[0]
-            product_package = pack_brw.ul and pack_brw.ul.id or False
-            package_qty     = pack_brw.qty
-            is_qt_prevue    = self.product_qty 
-        if package_qty==0:
-            package_qty=1
-        self.product_package     = product_package
-        self.package_qty         = package_qty
+            #TODO : A revoir
+            is_qt_fabriquee = 0
+            is_qt_rebut     = 0
 
-        self.is_qt_fabriquee_uom = is_qt_fabriquee 
-        self.is_qt_rebut_uom     = is_qt_rebut
-        self.is_qt_reste_uom     = self.product_qty - self.is_qt_fabriquee_uom
+            product_package = False
+            if obj.product_id and obj.product_id.packaging_ids:
 
-        self.is_qt_prevue        = is_qt_prevue / package_qty
-        self.is_qt_fabriquee     = is_qt_fabriquee / package_qty
-        self.is_qt_rebut         = is_qt_rebut / package_qty
-        self.is_qt_reste         = self.is_qt_prevue - self.is_qt_fabriquee
+
+
+
+                pack_brw        = obj.product_id.packaging_ids[0]
+                product_package = pack_brw.ul and pack_brw.ul.id or False
+                package_qty     = pack_brw.qty
+                is_qt_prevue    = obj.product_qty 
+            if package_qty==0:
+                package_qty=1
+            obj.product_package     = product_package
+            obj.package_qty         = package_qty
+
+            obj.is_qt_fabriquee_uom = is_qt_fabriquee 
+            obj.is_qt_rebut_uom     = is_qt_rebut
+            obj.is_qt_reste_uom     = obj.product_qty - obj.is_qt_fabriquee_uom
+
+            obj.is_qt_prevue        = is_qt_prevue / package_qty
+            obj.is_qt_fabriquee     = is_qt_fabriquee / package_qty
+            obj.is_qt_rebut         = is_qt_rebut / package_qty
+            obj.is_qt_reste         = obj.is_qt_prevue - obj.is_qt_fabriquee
 
 
     product_qty               = fields.Float('Product Quantity', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')
@@ -51,19 +60,19 @@ class MrpProduction(models.Model):
     is_qt_fabriquee_uom       = fields.Float(string="Qt fabriquée"     , compute="_compute")
     is_qt_rebut_uom           = fields.Float(string="Qt rebut"         , compute="_compute")
     is_qt_reste_uom           = fields.Float(string="Qt reste"         , compute="_compute")
-    #product_package           = fields.Many2one('product.ul'           , compute="_compute", string="Unité de conditionnement")
+    product_package           = fields.Many2one('is.product.ul'        , compute="_compute", string="Unité de conditionnement")
     package_qty               = fields.Float(string='Qt par UC'        , compute="_compute")
     is_qt_prevue              = fields.Float(string="Qt prévue (UC)"   , compute="_compute")
     is_qt_fabriquee           = fields.Float(string="Qt fabriquée (UC)", compute="_compute")
     is_qt_rebut               = fields.Float(string="Qt rebut (UC)"    , compute="_compute")
     is_qt_reste               = fields.Float(string="Qt reste (UC)"    , compute="_compute")
-    date_planned              = fields.Datetime(string='Date plannifiée', required=True, readonly=False)
+    #date_planned              = fields.Datetime(string='Date plannifiée', required=True, readonly=False)
     is_done                   = fields.Boolean(string="Is done ?", default=False)
     mrp_product_suggestion_id = fields.Many2one('mrp.prevision','MRP Product Suggestion')
-    is_mold_id                = fields.Many2one('is.mold', 'Moule', related='product_id.is_mold_id'      , readonly=True)
-    is_mold_dossierf          = fields.Char('Moule ou Dossier F'  , related='product_id.is_mold_dossierf', readonly=True)
+    #is_mold_id                = fields.Many2one('is.mold', 'Moule', related='product_id.is_mold_id'      , readonly=True)
+    is_mold_dossierf          = fields.Char("Moule", help='Moule ou Dossier F', related='product_id.is_mold_dossierf', readonly=True)
     is_num_essai              = fields.Char("N°Essai")
-    is_prioritaire            = fields.Boolean("Ordre de fabrication prioritaire")
+    is_prioritaire            = fields.Boolean("Prioritaire", help="Ordre de fabrication prioritaire")
     move_lines2               = fields.One2many('stock.move', 'raw_material_production_id', 'Consumed Products',domain=[('state', '=', 'done')], readonly=True)
 
 
@@ -77,12 +86,31 @@ class MrpProduction(models.Model):
         return result
 
 
-    def action_confirm(self):
-        res=super(MrpProduction, self).action_confirm()
+    def fabriquer_action(self):
         for obj in self:
-            obj.force_production()
-            obj.action_in_production()
-        return res
+            #print(obj, obj.move_dest_ids, obj.move_finished_ids, obj.move_lines2, obj.move_raw_ids)
+            for move in obj.move_raw_ids:
+                print(move, move.product_id.is_code,move.state, move.move_line_ids)
+
+#mrp.production(43771,) 
+# stock.move() 
+# stock.move(2370315,) 
+# stock.move() 
+# stock.move(2370299, 2370301, 2370304, 2370310, 2370311, 2370312, 2370313, 2370314)
+
+
+# move_dest_ids
+# move_finished_ids	
+# move_lines2
+#move_raw_ids
+
+
+    # def action_confirm(self):
+    #     res=super(MrpProduction, self).action_confirm()
+    #     for obj in self:
+    #         obj.force_production()
+    #         obj.action_in_production()
+    #     return res
 
 
     def action_produce(self, production_id, qty, production_mode, wiz=False, is_employee_theia_id=False):

@@ -82,6 +82,7 @@
                                     widget="image" class="oe_center oe_avatar" 
                                     options='{"preview_image": "is_cachet_plastigray", "size": [150, 150]}'
                                 />
+                                <field name="is_activer_init"/>
                             </group>
                         </group>
                     </page>

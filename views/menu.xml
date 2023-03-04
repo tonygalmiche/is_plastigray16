@@ -1175,9 +1175,6 @@
 
     <!-- Production / Production -->
     <menuitem id="menu_is_production_production" sequence="10" name="Production"                 parent="menu_is_production"/>
-
-
-     <!--
     <record id="menu_is_ordre_fabrication" model="ir.ui.menu" >
         <field name="name">Ordres de fabrication</field>
         <field name="sequence">10</field>
@@ -1200,6 +1197,9 @@
             ref('is_chef_equipe_group'),
         ])]"/>
     </record>
+
+     <!--
+
 
     <record id="is_mrp_production_workcenter_line_menu" model="ir.ui.menu" >
         <field name="name">Ordres de travaux</field>
