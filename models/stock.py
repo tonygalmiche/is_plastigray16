@@ -833,23 +833,132 @@ class stock_move(models.Model):
 
     def access_stock_move_action(self):
         for obj in self:
-            print(obj)
+
+            location_dest_id = 12 # WH/01
+            location_id      = 15 # Production/Output
+            product_id       = obj.product_id.id
+            qty              = 5
+            production_id    = 43813
+
+            #** Création lot **************************************************
+            name=obj.name
+            lots = self.env['stock.lot'].search([('name','=',name),('product_id','=',product_id)])
+            if len(lots)>0:
+                lot=lots[0]
+            else:
+                vals={
+                    "name"      : name,
+                    "product_id": product_id,
+                }
+                lot = self.env["stock.lot"].create(vals)
+            #******************************************************************
+
+            #** Création stock.move et stock.move.line ************************
+            line_vals={
+                "location_id"     : location_id,
+                "location_dest_id": location_dest_id,
+                "lot_id"          : lot.id,
+                "qty_done"        : qty,
+                "product_id"      : product_id,
+            }
+            move_vals={
+                #"production_id"   : production_id, # Si j'indique ce champ avant la création du lot, j'ai message => La quantité de xxx débloquée ne peut pas être supérieure à la quantité en stock
+                "location_id"     : location_id,
+                "location_dest_id": location_dest_id,
+                "product_uom_qty" : qty,
+                "product_id"      : product_id,
+                "name"            : name,
+                "move_line_ids"   : [[0,False,line_vals]],
+            }
+            move=self.env['stock.move'].create(move_vals)
+            move._action_done()
+            move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
+            #******************************************************************
+
+            obj.production_id.state="done"
+
+            print(move)
             res= {
                 'name': 'Mouvement',
                 'view_mode': 'form',
                 'res_model': 'stock.move',
-                'res_id': obj.id,
+                'res_id': move.id,
                 'type': 'ir.actions.act_window',
             }
             return res
 
-    def valider_action(self):
-        for obj in self:
-            print(obj, obj.state)
-            obj._action_done()
-            #obj._action_confirm()
-            #obj._action_cancel() => OK
 
+    def is_confirm_action(self):
+        for obj in self:
+            print(obj)
+            obj._action_confirm()
+
+
+    def is_assign_action(self):
+        for obj in self:
+            obj._action_assign()
+            print(obj)
+
+
+    def is_fait_reserve_action(self):
+        for obj in self:
+            for line in obj.move_line_ids:
+                line.qty_done = line.reserved_uom_qty
+
+
+    def is_creer_lot_action(self):
+        for obj in self:
+            name=obj.name
+            lots = self.env['stock.lot'].search([('name','=',name),('product_id','=',obj.product_id.id)])
+            if len(lots)>0:
+                lot=lots[0]
+            else:
+                vals={
+                    "name"      : name,
+                    "product_id": obj.product_id.id,
+                }
+                lot = self.env["stock.lot"].create(vals)
+            vals = obj._prepare_move_line_vals(1)
+            # vals.update({
+            #     "lot_id"   : lot.id,
+            #     #"reserved_uom_qty": 0,
+            # })
+            line=self.env['stock.move.line'].create(vals)
+            obj.production_id.lot_producing_id = lot.id
+
+
+    def is_done_action(self):
+        for obj in self:
+            print(obj)
+            obj._action_done()
+            for line in obj.move_line_ids:
+                line._action_done()
+
+
+            #obj._action_assign(force_qty=True)
+
+
+            # # obj._action_confirm()
+            # # obj._action_assign(force_qty=True)
+            # # print(obj,obj.state)
+
+
+
+            # obj.move_line_ids.unlink()
+
+            # obj._action_confirm()
+            # for line in obj.move_line_ids:
+            #     line.qty_done = line.reserved_uom_qty
+
+
+
+
+
+
+
+            #obj._action_done()
+
+    #def _action_assign(self, force_qty=False):
 
 
 

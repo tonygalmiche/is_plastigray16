@@ -1,12 +1,113 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
+from odoo import models, fields, api, Command
+
 import time
 from datetime import datetime, timedelta
 #import odoo.addons.decimal_precision as dp
 #from openerp.exceptions import ValidationError
 import logging
 _logger = logging.getLogger(__name__)
+
+
+
+
+class IsMrpProductionWizardLine(models.TransientModel):
+    _name = "is.mrp.production.wizard.line"
+    _description = "Lignes du Wizard de déclaration de production"
+
+    wizard_id   = fields.Many2one('is.mrp.production.wizard', 'Wizard', required=True, ondelete='cascade')
+    product_id  = fields.Many2one("product.product", "Article", required=True)
+    qt          = fields.Float("Quantité", required=1, digits='Product Unit of Measure')
+    bom_line_id = fields.Many2one("mrp.bom.line", "Ligne")
+
+
+class IsMrpProductionWizard(models.TransientModel):
+    _name = "is.mrp.production.wizard"
+    _description = "Wizard de déclaration de production"
+
+    product_id       = fields.Many2one("product.product", "Article", readonly=True)
+    bom_id           = fields.Many2one("mrp.bom", "Nomenclature", readonly=True)
+    ul_id            = fields.Many2one("is.product.ul", "Conditionnement (UC)", readonly=True)
+    package_qty      = fields.Float("Quantité par UC", readonly=True)
+    nb_uc            = fields.Float("Nombre d'UC à déclarer", required=1)
+    product_qty      = fields.Float("Quantité à déclarer"   , required=1)
+    location_dest_id = fields.Many2one("stock.location", "Emplacement des produits finis", required=1)
+    line_ids         = fields.One2many('is.mrp.production.wizard.line', 'wizard_id', "Lignes")
+
+
+    def ok_action(self):
+        print(self.env.context)
+        print(self)
+        for line in self.line_ids:
+            print(line, line.product_id.is_code, line.bom_line_id)
+
+
+    @api.onchange('nb_uc')
+    def onchange_nb_uc(self):
+        self.product_qty = self.nb_uc *  self.package_qty
+
+
+    @api.onchange('product_qty')
+    def onchange_qt(self):
+        nb_uc = 0
+        if self.package_qty>0:
+            nb_uc = self.product_qty/self.package_qty
+        self.nb_uc = nb_uc
+        lines = self._get_bom_lines()
+
+        print(lines)
+
+
+        #self.line_ids = False
+        self.line_ids =  [[6, False, []]]
+
+
+        if lines:
+            self.line_ids = lines
+
+
+    def _get_bom_lines(self):
+        bom_lines = []
+        if self.bom_id:
+            factor = self.product_id.uom_id._compute_quantity(self.product_qty, self.bom_id.product_uom_id) / self.bom_id.product_qty
+            boms, lines = self.bom_id.explode(self.product_id, factor, picking_type=self.bom_id.picking_type_id)
+            for bom_line, line_data in lines:
+                if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
+                        bom_line.product_id.type not in ['product', 'consu']:
+                    continue
+
+                print(bom_line, bom_line.id)
+
+
+                vals={
+                    "product_id" : bom_line.product_id.id,
+                    "qt"         : bom_line.product_qty * self.product_qty,
+                    "bom_line_id": bom_line.id,
+                }
+                bom_lines.append([0, False, vals])
+        return bom_lines
+
+
+            #     moves_raw_values = production._get_moves_raw_values()
+            #     move_raw_dict = {move.bom_line_id.id: move for move in production.move_raw_ids.filtered(lambda m: m.bom_line_id)}
+            #     for move_raw_values in moves_raw_values:
+            #         if move_raw_values['bom_line_id'] in move_raw_dict:
+            #             # update existing entries
+            #             list_move_raw += [Command.update(move_raw_dict[move_raw_values['bom_line_id']].id, move_raw_values)]
+            #         else:
+            #             # add new entries
+            #             list_move_raw += [Command.create(move_raw_values)]
+            #     production.move_raw_ids = list_move_raw
+            # else:
+            #     production.move_raw_ids = [Command.delete(move.id) for move in production.move_raw_ids.filtered(lambda m: m.bom_line_id)]
+
+
+
+
+
+
+
 
 
 class MrpProduction(models.Model):
@@ -88,9 +189,60 @@ class MrpProduction(models.Model):
 
     def fabriquer_action(self):
         for obj in self:
-            #print(obj, obj.move_dest_ids, obj.move_finished_ids, obj.move_lines2, obj.move_raw_ids)
-            for move in obj.move_raw_ids:
-                print(move, move.product_id.is_code,move.state, move.move_line_ids)
+            new_context = dict(self.env.context).copy()
+            new_context.update({
+                "default_product_id"      : obj.product_id.id,
+                "default_bom_id"          : obj.bom_id.id,
+                "default_ul_id"           : obj.product_package.id,
+                "default_location_dest_id": obj.location_dest_id.id,
+                "default_package_qty"     : obj.package_qty,
+                "default_product_qty"     : obj.product_qty,
+                #"default_nb_uc"           : obj.is_qt_prevue,
+            })
+    # ul_id            = fields.Many2one("is.product.ul", "Conditionnement (UC)")
+    # package_qty      = fields.Float("Quantité par UC")
+    # nb_uc            = fields.Float("Nombre d'UC à déclarer")
+    # qt               = fields.Float("Quantité à déclarer")
+    # location_dest_id = fields.Many2one("stock.location", "Emplacement des produits finis")
+
+
+
+            return {
+                'name': "Déclaration de production %s"%(obj.name),
+                'view_mode': 'form',
+                'res_model': 'is.mrp.production.wizard',
+                'type': 'ir.actions.act_window',
+                "context": new_context,
+                #'domain': '[]',
+                'target': 'new',
+            }
+
+            # for move in obj.move_raw_ids:
+            #     if move.state=="draft":
+            #         copy = move.copy()
+            #         copy._action_confirm()
+            #         for line in copy.move_line_ids:
+            #             line.qty_done = line.reserved_uom_qty
+            #         copy._action_done()
+
+
+            # print(obj.move_dest_ids, obj.move_finished_ids)
+            # for move in obj.move_finished_ids:
+            #     if move.state=="draft":
+            #         copy = move.copy()
+            #         break
+            #         # copy._action_confirm()
+            #         # for line in copy.move_line_ids:
+            #         #     line.qty_done = line.reserved_uom_qty
+            #         # copy._action_done()
+
+
+
+
+
+#move_dest_ids
+#move_finished_ids
+
 
 #mrp.production(43771,) 
 # stock.move() 

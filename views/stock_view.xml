@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="is_view_stock_quant_tree_inventory_editable" model="ir.ui.view">
+            <field name="name">is_view_stock_quant_tree_inventory_editable</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_tree_inventory_editable"/>
+            <field name="arch" type="xml">
+                <button name="action_inventory_history" position="before">
+                    <field name="create_date" optional="hide"/>
+                    <field name="write_date"  optional="hide"/>
+                </button>
+            </field>
+        </record>
+
 
         <!-- Fiche Emplacement de stock -->
         <!-- <record id="is_stock_location_view_form" model="ir.ui.view">
@@ -81,7 +93,10 @@
                     <field name="purchase_id" />
                     <field name="location_id" />
                 </xpath>
-            </field>
+                <xpath expr="//page[2]/button[@name='action_put_in_pack']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+             </field>
         </record>
 
         <!-- <header>
@@ -272,6 +287,8 @@
                 <field name="ref" position="after">
                     <field name="is_lot_fournisseur" />
                     <field name="is_date_peremption" />
+                    <field name="create_date"/>
+                    <field name="write_date"/>
                 </field>
             </field>
         </record>

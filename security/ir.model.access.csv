@@ -312,3 +312,6 @@ access_is_livraison_gefco,access_is_livraison_gefco,model_is_livraison_gefco,bas
 
 access_pg_stock_move,access_pg_stock_move,model_pg_stock_move,base.group_user,1,0,0,0
 access_is_stock_move,access_is_stock_move,model_is_stock_move,base.group_user,1,1,1,1
+
+access_is_mrp_production_wizard,access_is_mrp_production_wizard,model_is_mrp_production_wizard,base.group_user,1,1,1,1
+access_is_mrp_production_wizard_line,access_is_mrp_production_wizard_line,model_is_mrp_production_wizard_line,base.group_user,1,1,1,1

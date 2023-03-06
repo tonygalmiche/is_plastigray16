@@ -76,10 +76,16 @@
             <field name="inherit_id" ref="stock.view_move_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//header/field[@name='state']" position="before">
-                    <button string="Valider" name="valider_action" type="object"/>
+                    <button string="Confirm"      name="is_confirm_action"      type="object"/>
+                    <button string="Asign"        name="is_assign_action"       type="object"/>
+                    <button string="Fait=Réservé" name="is_fait_reserve_action" type="object"/>
+                    <button string="Créer Lot"    name="is_creer_lot_action"    type="object"/>
+                    <button string="Done"         name="is_done_action"         type="object"/>
+                    <!-- states="draft,proforma2,sale,open" -->
                 </xpath>
                 <field name="group_id" position="after">
                     <field name="picking_id"                 attrs="{'invisible':[('picking_id','=',False)]}"/>
+                    <field name="picking_type_id"/>
                     <field name="production_id"              attrs="{'invisible':[('production_id','=',False)]}"/>
                     <field name="raw_material_production_id" attrs="{'invisible':[('raw_material_production_id','=',False)]}"/>
                     <field name="is_employee_theia_id"       attrs="{'invisible':[('is_employee_theia_id','=',False)]}"/>
@@ -98,7 +104,30 @@
                     </group>
                 </group>
                 <group name="linked_group" position="before">
-                    <field name="move_line_ids"/>
+                    <field name="move_line_ids">
+                        <tree>
+                            <field name="product_id"/>
+                            <field name="location_id"      optional="show"/>
+                            <field name="location_dest_id" optional="show"/>
+                            <field name="lot_id"           optional="show"/>
+                            <field name="lot_name"         optional="hide"/>
+                            <field name="reserved_uom_qty" optional="show"/>
+                            <field name="qty_done"         optional="show"/>
+                            <field name="product_uom_id"   optional="show"/>
+                            <field name="is_locked"        optional="hide"/>
+                            <field name="lots_visible"     optional="hide"/>
+                            <field name="state" widget="badge" optional="show" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                            <field name="company_id"                 invisible="1"/>
+                            <field name="move_id"                    invisible="1"/>
+                            <field name="picking_id"                 invisible="1"/>
+                            <field name="product_uom_category_id"    invisible="1"/>
+                            <field name="package_id"                 invisible="1"/>
+                            <field name="result_package_id"          invisible="1"/>
+                            <field name="owner_id"                   invisible="1"/>
+                            <field name="is_initial_demand_editable" invisible="1"/>
+                        </tree>
+                    </field>
+
                 </group>
             </field>
         </record>
