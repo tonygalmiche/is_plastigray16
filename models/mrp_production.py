@@ -42,6 +42,56 @@ class IsMrpProductionWizard(models.TransientModel):
         for line in self.line_ids:
             print(line, line.product_id.is_code, line.bom_line_id)
 
+        active_id = self.env.context.get("active_id")
+        if active_id:
+            production       = self.env['mrp.production'].browse(active_id)
+            location_dest_id = self.location_dest_id.id
+            location_id      = self.product_id.property_stock_production.id
+            product_id       = self.product_id.id
+            qty              = self.product_qty
+            production_id    = production.id
+
+            #** Création lot **************************************************
+            name=production.name
+            lots = self.env['stock.lot'].search([('name','=',name),('product_id','=',product_id)])
+            if len(lots)>0:
+                lot=lots[0]
+            else:
+                vals={
+                    "name"      : name,
+                    "product_id": product_id,
+                }
+                lot = self.env["stock.lot"].create(vals)
+            #******************************************************************
+
+            #** Création stock.move et stock.move.line ************************
+            line_vals={
+                "location_id"     : location_id,
+                "location_dest_id": location_dest_id,
+                "lot_id"          : lot.id,
+                "qty_done"        : qty,
+                "product_id"      : product_id,
+            }
+            move_vals={
+                #"production_id"   : production_id, # Si j'indique ce champ avant la création du lot, j'ai message => La quantité de xxx débloquée ne peut pas être supérieure à la quantité en stock
+                "location_id"     : location_id,
+                "location_dest_id": location_dest_id,
+                "product_uom_qty" : qty,
+                "product_id"      : product_id,
+                "name"            : name,
+                "move_line_ids"   : [[0,False,line_vals]],
+            }
+            move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
+            move._action_done()
+            move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
+            # #******************************************************************
+
+
+            #** modification du reste a fabriquer *******************************
+            #production.with_context({}).write({"product_qty" : production.product_qty - qty})
+
+
+
 
     @api.onchange('nb_uc')
     def onchange_nb_uc(self):
@@ -188,6 +238,12 @@ class MrpProduction(models.Model):
 
 
     def fabriquer_action(self):
+
+        #self.product_qty = self.product_qty - 1
+
+        #return
+
+
         for obj in self:
             new_context = dict(self.env.context).copy()
             new_context.update({

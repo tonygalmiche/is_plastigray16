@@ -833,56 +833,11 @@ class stock_move(models.Model):
 
     def access_stock_move_action(self):
         for obj in self:
-
-            location_dest_id = 12 # WH/01
-            location_id      = 15 # Production/Output
-            product_id       = obj.product_id.id
-            qty              = 5
-            production_id    = 43813
-
-            #** Création lot **************************************************
-            name=obj.name
-            lots = self.env['stock.lot'].search([('name','=',name),('product_id','=',product_id)])
-            if len(lots)>0:
-                lot=lots[0]
-            else:
-                vals={
-                    "name"      : name,
-                    "product_id": product_id,
-                }
-                lot = self.env["stock.lot"].create(vals)
-            #******************************************************************
-
-            #** Création stock.move et stock.move.line ************************
-            line_vals={
-                "location_id"     : location_id,
-                "location_dest_id": location_dest_id,
-                "lot_id"          : lot.id,
-                "qty_done"        : qty,
-                "product_id"      : product_id,
-            }
-            move_vals={
-                #"production_id"   : production_id, # Si j'indique ce champ avant la création du lot, j'ai message => La quantité de xxx débloquée ne peut pas être supérieure à la quantité en stock
-                "location_id"     : location_id,
-                "location_dest_id": location_dest_id,
-                "product_uom_qty" : qty,
-                "product_id"      : product_id,
-                "name"            : name,
-                "move_line_ids"   : [[0,False,line_vals]],
-            }
-            move=self.env['stock.move'].create(move_vals)
-            move._action_done()
-            move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
-            #******************************************************************
-
-            obj.production_id.state="done"
-
-            print(move)
             res= {
                 'name': 'Mouvement',
                 'view_mode': 'form',
                 'res_model': 'stock.move',
-                'res_id': move.id,
+                'res_id': obj.id,
                 'type': 'ir.actions.act_window',
             }
             return res
