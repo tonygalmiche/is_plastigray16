@@ -198,7 +198,6 @@ class is_cout_calcul(models.Model):
         if product.seller_ids:
             pricelist=product.seller_ids[0].partner_id.pricelist_purchase_id
 
-        print("### TEST _get_pricelist",self,product,product.seller_ids, pricelist)
 
         # if seller:
         #     partner=seller.partner_id
@@ -221,7 +220,6 @@ class is_cout_calcul(models.Model):
         prix_tarif=0
         date=time.strftime('%Y-%m-%d') # Date du jour
 
-        print("### TEST _get_prix_tarif ###",self,cout,pricelist)
 
 
         if pricelist:

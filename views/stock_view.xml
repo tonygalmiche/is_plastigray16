@@ -10,6 +10,16 @@
                     <field name="create_date" optional="hide"/>
                     <field name="write_date"  optional="hide"/>
                 </button>
+                <field name="lot_id" position="replace">
+                    <field 
+                        name="lot_id" 
+                        attrs="{}"
+                        invisible="0"
+                        context="{'default_product_id': product_id, 'default_company_id': company_id}" 
+                        decoration-warning="sn_duplicated" 
+                        force_save="1"/>
+                </field>
+                <field name="package_id" position="replace"/>
             </field>
         </record>
 

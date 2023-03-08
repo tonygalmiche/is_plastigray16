@@ -10,7 +10,6 @@ class change_production_qty(models.TransientModel):
 
     @api.one
     def change_prod_qty(self):
-        print "### TEST ###"
         for obj in self:
             print obj, obj.product_qty
             #obj.product_qty=88

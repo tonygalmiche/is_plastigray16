@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, Command
-
+from odoo.tools import float_compare, float_round
 import time
 from datetime import datetime, timedelta
 #import odoo.addons.decimal_precision as dp
@@ -37,22 +37,53 @@ class IsMrpProductionWizard(models.TransientModel):
 
 
     def ok_action(self):
-        print(self.env.context)
-        print(self)
-        for line in self.line_ids:
-            print(line, line.product_id.is_code, line.bom_line_id)
-
         active_id = self.env.context.get("active_id")
         if active_id:
             production       = self.env['mrp.production'].browse(active_id)
-            location_dest_id = self.location_dest_id.id
-            location_id      = self.product_id.property_stock_production.id
+            name             = production.name
             product_id       = self.product_id.id
-            qty              = self.product_qty
+            product_qty      = self.product_qty
             production_id    = production.id
 
+            #** Sorties des composants ****************************************
+            location_id      = production.location_src_id.id
+            location_dest_id = self.product_id.property_stock_production.id
+            if product_qty<0:
+                location_id      = self.product_id.property_stock_production.id
+                location_dest_id = production.location_src_id.id
+            for line in self.line_ids:
+                qty = float_round(line.qt, precision_rounding=line.product_id.uom_id.rounding)
+                move_vals={
+                    "raw_material_production_id": production_id,
+                    "location_id"     : location_id,
+                    "location_dest_id": location_dest_id,
+                    "product_uom_qty" : abs(qty),
+                    "product_id"      : line.product_id.id,
+                    "name"            : name,
+                }
+                move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
+                move._action_confirm()
+                if product_qty<0:
+                    move.location_dest_id = location_dest_id # Il faut forcer location_dest_id, sinon il met la même chose que location_id
+                    move_lines = self.env['stock.move.line'].search([('product_id','=',line.product_id.id),('lot_id','!=', False)], limit=1, order="id desc")
+                    if len(move_lines)>0:
+                        lot=move_lines[0].lot_id
+                        for l in move.move_line_ids:
+                            l.lot_id = lot.id
+                            l.location_dest_id = location_dest_id
+                move.quantity_done = move.product_uom_qty
+                move._action_done()
+            #******************************************************************
+
+            qty              = product_qty
+            location_id      = self.product_id.property_stock_production.id
+            location_dest_id = self.location_dest_id.id
+            if product_qty<0:
+                location_id      = self.location_dest_id.id
+                location_dest_id = self.product_id.property_stock_production.id
+                qty = - qty
+
             #** Création lot **************************************************
-            name=production.name
             lots = self.env['stock.lot'].search([('name','=',name),('product_id','=',product_id)])
             if len(lots)>0:
                 lot=lots[0]
@@ -62,6 +93,7 @@ class IsMrpProductionWizard(models.TransientModel):
                     "product_id": product_id,
                 }
                 lot = self.env["stock.lot"].create(vals)
+            production.lot_producing_id = lot.id
             #******************************************************************
 
             #** Création stock.move et stock.move.line ************************
@@ -84,13 +116,7 @@ class IsMrpProductionWizard(models.TransientModel):
             move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
             move._action_done()
             move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
-            # #******************************************************************
-
-
-            #** modification du reste a fabriquer *******************************
-            #production.with_context({}).write({"product_qty" : production.product_qty - qty})
-
-
+            #******************************************************************
 
 
     @api.onchange('nb_uc')
@@ -105,14 +131,8 @@ class IsMrpProductionWizard(models.TransientModel):
             nb_uc = self.product_qty/self.package_qty
         self.nb_uc = nb_uc
         lines = self._get_bom_lines()
-
-        print(lines)
-
-
-        #self.line_ids = False
-        self.line_ids =  [[6, False, []]]
-
-
+        self.line_ids = False
+        #self.line_ids =  [[6, False, []]]
         if lines:
             self.line_ids = lines
 
@@ -126,38 +146,14 @@ class IsMrpProductionWizard(models.TransientModel):
                 if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
                         bom_line.product_id.type not in ['product', 'consu']:
                     continue
-
-                print(bom_line, bom_line.id)
-
-
+                qt = float_round(bom_line.product_qty * self.product_qty, precision_rounding=bom_line.product_id.uom_id.rounding)
                 vals={
                     "product_id" : bom_line.product_id.id,
-                    "qt"         : bom_line.product_qty * self.product_qty,
+                    "qt"         : qt,
                     "bom_line_id": bom_line.id,
                 }
                 bom_lines.append([0, False, vals])
         return bom_lines
-
-
-            #     moves_raw_values = production._get_moves_raw_values()
-            #     move_raw_dict = {move.bom_line_id.id: move for move in production.move_raw_ids.filtered(lambda m: m.bom_line_id)}
-            #     for move_raw_values in moves_raw_values:
-            #         if move_raw_values['bom_line_id'] in move_raw_dict:
-            #             # update existing entries
-            #             list_move_raw += [Command.update(move_raw_dict[move_raw_values['bom_line_id']].id, move_raw_values)]
-            #         else:
-            #             # add new entries
-            #             list_move_raw += [Command.create(move_raw_values)]
-            #     production.move_raw_ids = list_move_raw
-            # else:
-            #     production.move_raw_ids = [Command.delete(move.id) for move in production.move_raw_ids.filtered(lambda m: m.bom_line_id)]
-
-
-
-
-
-
-
 
 
 class MrpProduction(models.Model):
@@ -166,27 +162,20 @@ class MrpProduction(models.Model):
 
     def _compute(self):
         for obj in self:
-            package_qty = is_qt_prevue = is_qt_fabriquee = is_qt_rebut = is_qt_reste = 0
-            # for line in self.move_created_ids2:
-            #     if line.location_dest_id.scrap_location and line.state=='done':
-            #         is_qt_rebut=is_qt_rebut+line.product_uom_qty
-            #     else:
-            #         if line.location_dest_id.usage=='internal' and line.state=='done':
-            #             is_qt_fabriquee=is_qt_fabriquee+line.product_uom_qty
-            # for line in self.move_created_ids2:
-            #     if line.location_id.usage=='internal' and line.state=='done':
-            #         is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
+            package_qty = is_qt_prevue = is_qt_fabriquee = is_qt_rebut = 0
+            for line in self.move_lines_produits_finis:
+                if line.location_dest_id.scrap_location and line.state=='done':
+                    is_qt_rebut=is_qt_rebut+line.product_uom_qty
+                else:
+                    if line.location_dest_id.usage=='internal' and line.state=='done':
+                        is_qt_fabriquee=is_qt_fabriquee+line.product_uom_qty
+            for line in self.move_lines_produits_finis:
+                if line.location_id.usage=='internal' and line.state=='done':
+                    is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
 
-            #TODO : A revoir
-            is_qt_fabriquee = 0
-            is_qt_rebut     = 0
 
             product_package = False
             if obj.product_id and obj.product_id.packaging_ids:
-
-
-
-
                 pack_brw        = obj.product_id.packaging_ids[0]
                 product_package = pack_brw.ul and pack_brw.ul.id or False
                 package_qty     = pack_brw.qty
@@ -206,7 +195,8 @@ class MrpProduction(models.Model):
             obj.is_qt_reste         = obj.is_qt_prevue - obj.is_qt_fabriquee
 
 
-    product_qty               = fields.Float('Product Quantity', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')
+    product_qty = fields.Float('Product Quantity', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')
+    state       = fields.Selection(compute=False, default="draft") #Desactive la fonction compute pour gérer cela autrement
     #product_lines             = fields.One2many('mrp.production.product.line', 'production_id', 'Scheduled goods', readonly=False)
     is_qt_fabriquee_uom       = fields.Float(string="Qt fabriquée"     , compute="_compute")
     is_qt_rebut_uom           = fields.Float(string="Qt rebut"         , compute="_compute")
@@ -224,9 +214,12 @@ class MrpProduction(models.Model):
     is_mold_dossierf          = fields.Char("Moule", help='Moule ou Dossier F', related='product_id.is_mold_dossierf', readonly=True)
     is_num_essai              = fields.Char("N°Essai")
     is_prioritaire            = fields.Boolean("Prioritaire", help="Ordre de fabrication prioritaire")
-    move_lines2               = fields.One2many('stock.move', 'raw_material_production_id', 'Consumed Products',domain=[('state', '=', 'done')], readonly=True)
 
+    move_lines_composants_prevus    = fields.One2many('stock.move', 'raw_material_production_id', 'Composants prévus'   , domain=[('state', '=' , 'draft')], readonly=True)
+    move_lines_composants_consommes = fields.One2many('stock.move', 'raw_material_production_id', 'Composants consommés', domain=[('state', '!=', 'draft')], readonly=True)
+    move_lines_produits_finis       = fields.One2many('stock.move', 'production_id', 'Produits dinis', readonly=True)
 
+ 
     def product_id_change(self, cr, uid, ids, product_id, product_qty=0, context=None):
         result = super(MrpProduction, self).product_id_change(cr, uid, ids, product_id, product_qty=product_qty, context=context)
         if product_id:
@@ -237,13 +230,32 @@ class MrpProduction(models.Model):
         return result
 
 
+    @api.depends('product_id', 'bom_id', 'product_qty', 'product_uom_id', 'location_dest_id', 'date_planned_finished')
+    def _compute_move_finished_ids(self):
+        print("Désactive cette fonction standard, car il n'est pas utile de mettre à jour le champ move_finished_ids",self)
+
+
+    def liste_mouvements_action(self):
+        for obj in self:
+            tree_view=self.env.ref('is_plastigray16.is_mouvements_termines_tree')
+            return {
+                'name': "Mouvements %s"%(obj.name),
+                'view_mode': 'tree,form',
+                'views': [[tree_view.id, "list"], [False, "form"]],
+                'res_model': 'stock.move',
+                'type': 'ir.actions.act_window',
+                #'domain': ['|',('production_id','=',obj.id),('raw_material_production_id','=',obj.id),('state','!=','draft')],
+                'domain': ['|',('production_id','=',obj.id),('raw_material_production_id','=',obj.id)],
+                'limit': 1000,
+            }
+
+    def vers_done_action(self):
+        for obj in self:
+            obj.move_lines_composants_prevus.unlink()
+            obj.state="done"
+
+
     def fabriquer_action(self):
-
-        #self.product_qty = self.product_qty - 1
-
-        #return
-
-
         for obj in self:
             new_context = dict(self.env.context).copy()
             new_context.update({
@@ -252,65 +264,16 @@ class MrpProduction(models.Model):
                 "default_ul_id"           : obj.product_package.id,
                 "default_location_dest_id": obj.location_dest_id.id,
                 "default_package_qty"     : obj.package_qty,
-                "default_product_qty"     : obj.product_qty,
-                #"default_nb_uc"           : obj.is_qt_prevue,
+                "default_product_qty"     : obj.package_qty,
             })
-    # ul_id            = fields.Many2one("is.product.ul", "Conditionnement (UC)")
-    # package_qty      = fields.Float("Quantité par UC")
-    # nb_uc            = fields.Float("Nombre d'UC à déclarer")
-    # qt               = fields.Float("Quantité à déclarer")
-    # location_dest_id = fields.Many2one("stock.location", "Emplacement des produits finis")
-
-
-
             return {
                 'name': "Déclaration de production %s"%(obj.name),
                 'view_mode': 'form',
                 'res_model': 'is.mrp.production.wizard',
                 'type': 'ir.actions.act_window',
                 "context": new_context,
-                #'domain': '[]',
                 'target': 'new',
             }
-
-            # for move in obj.move_raw_ids:
-            #     if move.state=="draft":
-            #         copy = move.copy()
-            #         copy._action_confirm()
-            #         for line in copy.move_line_ids:
-            #             line.qty_done = line.reserved_uom_qty
-            #         copy._action_done()
-
-
-            # print(obj.move_dest_ids, obj.move_finished_ids)
-            # for move in obj.move_finished_ids:
-            #     if move.state=="draft":
-            #         copy = move.copy()
-            #         break
-            #         # copy._action_confirm()
-            #         # for line in copy.move_line_ids:
-            #         #     line.qty_done = line.reserved_uom_qty
-            #         # copy._action_done()
-
-
-
-
-
-#move_dest_ids
-#move_finished_ids
-
-
-#mrp.production(43771,) 
-# stock.move() 
-# stock.move(2370315,) 
-# stock.move() 
-# stock.move(2370299, 2370301, 2370304, 2370310, 2370311, 2370312, 2370313, 2370314)
-
-
-# move_dest_ids
-# move_finished_ids	
-# move_lines2
-#move_raw_ids
 
 
     # def action_confirm(self):

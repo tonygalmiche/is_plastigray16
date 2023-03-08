@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
-
+        <!-- stock.move.line -->
+        <record id="is_view_stock_move_line_operation_tree" model="ir.ui.view">
+            <field name="name">is_view_stock_move_line_operation_tree</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"/>
+            <field name="arch" type="xml">
+                <field name="lot_id" position="replace">
+                    <field name="lot_id"/>
+                </field>
+                <field name="lot_name"          position="replace"/>
+                <field name="result_package_id" position="replace"/>
+                <xpath expr="//field[@name='package_id'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+            </field>
+        </record>
         <record id="is_view_stock_move_line_detailed_operation_tree" model="ir.ui.view">
             <field name="name">is_view_stock_move_line_detailed_operation_tree</field>
             <field name="model">stock.move.line</field>
@@ -12,13 +26,6 @@
                     <field name="lot_id"/>
                 </field>
                 <field name="lot_name" position="replace"/>
-
-                <!-- <xpath expr="//field[@name='package_id'][1]" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='result_package_id'][1]" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath> -->
                 <xpath expr="//field[@name='package_id'][2]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -33,36 +40,8 @@
 
 
 
-        <!-- stock.
-
-        <field name="product_id" required="1" context="{'default_detailed_type': 'product'}" attrs="{'readonly': ['|', ('state', '=', 'done'), ('move_id', '!=', False)]}"/>
-        <field name="company_id" invisible="1"/>
-        <field name="move_id" invisible="1"/>
-        <field name="picking_id" invisible="1"/>
-        <field name="product_uom_category_id" invisible="1"/>
-        <field name="package_id" invisible="1"/>
-        <field name="result_package_id" invisible="1"/>
-        <field name="location_id" invisible="1"/>
-        <field name="location_dest_id" invisible="1"/>
-        <field name="location_id" options="{'no_create': True}" attrs="{'column_invisible': [('parent.picking_type_code', '=', 'incoming')]}" groups="stock.group_stock_multi_locations" domain="[('id', 'child_of', parent.location_id), '|', ('company_id', '=', False), ('company_id', '=', company_id), ('usage', '!=', 'view')]"/>
-        <field name="location_dest_id" options="{'no_create': True}" attrs="{'column_invisible': [('parent.picking_type_code', '=', 'outgoing')]}" groups="stock.group_stock_multi_locations" domain="[('id', 'child_of', parent.location_dest_id), '|', ('company_id', '=', False), ('company_id', '=', company_id), ('usage', '!=', 'view')]"/>
-        <field name="package_id" groups="stock.group_tracking_lot"/>
-        <field name="result_package_id" groups="stock.group_tracking_lot"/>
-        <field name="lots_visible" invisible="1"/>
-        <field name="owner_id" groups="stock.group_tracking_owner" attrs="{'column_invisible': [('parent.picking_type_code', '=', 'incoming')]}"/>
-        <field name="state" invisible="1"/>
-        <field name="lot_id" groups="stock.group_production_lot" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)], 'invisible': [('lots_visible', '=', False)]}" context="{'default_product_id': product_id, 'default_company_id': company_id, 'active_picking_id': picking_id}" optional="show"/>
-        <field name="lot_name" groups="stock.group_production_lot" attrs="{'column_invisible': [('parent.show_lots_text', '=', False)], 'invisible': [('lots_visible', '=', False)]}" context="{'default_product_id': product_id}"/>
-        <field name="is_initial_demand_editable" invisible="1"/>
-        <field name="reserved_uom_qty" readonly="1" attrs="{'column_invisible': ['|',('parent.immediate_transfer', '=', True),('parent.picking_type_code','=','incoming')]}" optional="show"/>
-        <field name="is_locked" invisible="1"/>
-        <field name="qty_done" attrs="{'readonly': [('state', 'in', ('done', 'cancel')), ('is_locked', '=', True)]}" force_save="1"/>
-        <field name="product_uom_id" force_save="1" attrs="{'readonly': [('state', '!=', 'draft'), ('id', '!=', False)]}" groups="uom.group_uom"/>
- -->
 
 
-
-        <!-- stock.move --> 
         <record id="is_entrees_sorties_stock_action" model="ir.actions.act_window">
             <field name="name">Entrées-sorties de stocks</field>
             <field name="res_model">stock.move</field>
@@ -76,12 +55,15 @@
             <field name="inherit_id" ref="stock.view_move_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//header/field[@name='state']" position="before">
-                    <button string="Confirm"      name="is_confirm_action"      type="object"/>
-                    <button string="Asign"        name="is_assign_action"       type="object"/>
-                    <button string="Fait=Réservé" name="is_fait_reserve_action" type="object"/>
-                    <button string="Créer Lot"    name="is_creer_lot_action"    type="object"/>
-                    <button string="Done"         name="is_done_action"         type="object"/>
-                    <!-- states="draft,proforma2,sale,open" -->
+                    <button string="Raz"          name="is_raz_action"          type="object" groups="base.group_no_one" states="futur"/>
+                    <button string="Confirm"      name="is_confirm_action"      type="object" groups="base.group_no_one"/>
+                    <button string="Asign"        name="is_assign_action"       type="object" groups="base.group_no_one"/>
+                    <!-- <button string="Fait=Réservé" name="is_fait_reserve_action" type="object" groups="base.group_no_one"/> -->
+                    <!-- <button string="Créer Lot"    name="is_creer_lot_action"    type="object" groups="base.group_no_one"/> -->
+                    <button string="Done"         name="is_done_action"         type="object" groups="base.group_no_one"/>
+                </xpath>
+                <xpath expr="//group[@name='main_grp_col2']/field[@name='name']" position="before">
+                    <field name="quantity_done"/>
                 </xpath>
                 <field name="group_id" position="after">
                     <field name="picking_id"                 attrs="{'invisible':[('picking_id','=',False)]}"/>
@@ -185,25 +167,37 @@
         </record> -->
 
         <!-- Liste des mouvements terminés --> 
-        <!-- <record id="is_mouvements_termines_tree" model="ir.ui.view">
+        <record id="is_mouvements_termines_tree" model="ir.ui.view">
             <field name="name">is_mouvements_termines_tree</field>
             <field name="model">stock.move</field>
             <field name="arch" type="xml">
                 <tree>
                     <field name="date"/>
-                    <field name="product_id"/>
-                    <field name="location_id"/>
-                    <field name="location_dest_id"/>
-                    <field name="product_uom_qty" digits="(14,2)" sum="Total"/>
-                    <field name="product_uom" string="Unité"/>
-                    <field name="picking_type_id"/>
-                    <field name="picking_id"/>
-                    <field name="origin"/>
-                    <field name="write_uid"/>
-                    <field name="state" invisible="1"/>
+                    <field name="product_id" widget="many2one_clickable"/>
+                    <field name="location_id" optional="show"/>
+                    <field name="location_dest_id" optional="show"/>
+                    <field name="product_uom_qty" optional="show" sum="Total"/>
+                    <field name="product_uom" optional="show" string="Unité"/>
+                    <field name="lot_ids"               optional="show" widget="many2many_tags"/>
+                    <field name="write_uid" optional="show"/>
+                    <field name="picking_type_id" optional="hide"/>
+                    <field name="picking_id" optional="hide"/>
+                    <field name="origin" optional="hide"/>
+                    <button 
+                        name="action_show_details" 
+                        type="object" title="Show Details" icon="fa-list" 
+                    />
+                    <field 
+                        name="state" 
+                        decoration-success="state in ('done')" 
+                        decoration-muted="state == 'cancel'" 
+                        optional="show" 
+                        widget="badge" 
+                        class="text-dark"
+                    />
                 </tree>
             </field>
-        </record> -->
+        </record>
 
 
 

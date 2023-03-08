@@ -710,6 +710,35 @@ class stock_quant(models.Model):
     is_mold_id          = fields.Many2one('is.mold'    , 'Moule'            , related='product_id.is_mold_id'         , readonly=True)
 
 
+    @api.onchange('location_id', 'product_id', 'lot_id', 'package_id', 'owner_id')
+    def _onchange_location_or_product_id(self):
+        vals = {}
+
+        # Once the new line is complete, fetch the new theoretical values.
+        if self.product_id and self.location_id:
+            # Sanity check if a lot has been set.
+            #if self.lot_id:
+            #    if self.tracking == 'none' or self.product_id != self.lot_id.product_id:
+            #        vals['lot_id'] = None
+
+            quant = self._gather(
+                self.product_id, self.location_id, lot_id=self.lot_id,
+                package_id=self.package_id, owner_id=self.owner_id, strict=True)
+            if quant:
+                self.quantity = quant.quantity
+
+            # Special case: directly set the quantity to one for serial numbers,
+            # it'll trigger `inventory_quantity` compute.
+            if self.lot_id and self.tracking == 'serial':
+                vals['inventory_quantity'] = 1
+                vals['inventory_quantity_auto_apply'] = 1
+
+        if vals:
+            self.update(vals)
+
+
+
+
 class stock_move(models.Model):
     _inherit = "stock.move"
     _order   = "date desc, id"
@@ -843,10 +872,16 @@ class stock_move(models.Model):
             return res
 
 
+    def is_raz_action(self):
+        for obj in self:
+            obj.move_line_ids.unlink()
+
+
     def is_confirm_action(self):
         for obj in self:
             print(obj)
             obj._action_confirm()
+            obj.quantity_done = obj.product_uom_qty
 
 
     def is_assign_action(self):
