@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
    <record id="is_sale_order_line_form_view" model="ir.ui.view">
         <field name="name">is_sale_order_line_form_view</field>
@@ -44,21 +44,21 @@
         <field name="model">is.sale.order.line</field>
         <field name="arch" type="xml">
             <tree create="false">
-                <field name="date_expedition" />
-                <field name="date_livraison" />
-                <field name="order_id"          widget="many2one_clickable" />
-                <field name="client_order_ref" />
-                <field name="partner_id"        widget="many2one_clickable" />
-                <field name="product_id"        widget="many2one_clickable" />
-                <field name="ref_client" />
-                <field name="mold_id" />
-                <field name="product_uom_qty"     sum="Total"/>
-                <field name="product_uom" />
-                <field name="price_subtotal"      sum="Total"/>
-                <field name="montant_amt_moule"   sum="Total"/>
-                <field name="montant_amt_interne" sum="Total"/>
-                <field name="montant_cagnotage"   sum="Total"/>
-                <field name="montant_matiere"     sum="Total"/>
+                <field name="date_expedition"     optional="show"/>
+                <field name="date_livraison"      optional="show" />
+                <field name="order_id"            optional="show"         widget="many2one_clickable" />
+                <field name="client_order_ref"    optional="show" />
+                <field name="partner_id"          optional="show"  widget="many2one_clickable" />
+                <field name="product_id"          optional="show"  widget="many2one_clickable" />
+                <field name="ref_client"          optional="show" />
+                <field name="mold_id"             optional="show"/>
+                <field name="product_uom_qty"     optional="show"  sum="Total"/>
+                <field name="product_uom"         optional="hide" />
+                <field name="price_subtotal"      optional="show"  sum="Total"/>
+                <field name="montant_amt_moule"   optional="show" sum="Total"/>
+                <field name="montant_amt_interne" optional="show" sum="Total"/>
+                <field name="montant_cagnotage"   optional="show" sum="Total"/>
+                <field name="montant_matiere"     optional="show"  sum="Total"/>
            </tree>
         </field>
     </record>
@@ -76,14 +76,14 @@
                 <field name="segment_id" />
                 <field name="is_category_id" />
                 <field name="is_gestionnaire_id" />
-                <group expand="0" string="Regrouper par...">
+                <!-- <group expand="0" string="Regrouper par...">
                     <filter string="Client"       context="{'group_by':'partner_id'}"/>
                     <filter string="Moule"        context="{'group_by':'product_id'}"/>
                     <filter string="Article"      context="{'group_by':'mold_id'}"/>
                     <filter string="Segment"      context="{'group_by':'segment_id'}"/>
                     <filter string="Catégorie"    context="{'group_by':'is_category_id'}"/>
                     <filter string="Gestionnaire" context="{'group_by':'is_gestionnaire_id'}"/>
-                </group>
+                </group> -->
             </search>
         </field>
     </record>
@@ -91,7 +91,7 @@
         <field name="name">is_sale_order_line_graph_view</field>
         <field name="model">is.sale.order.line</field>
         <field name="arch" type="xml">
-            <graph type="pivot">
+            <pivot>
                 <field name="partner_id"          type="row"/>
                 <field name="date_expedition"     type="col"/>
                 <field name="price_subtotal"      type="measure"/>
@@ -99,7 +99,7 @@
                 <field name="montant_amt_interne" type="measure"/>
                 <field name="montant_cagnotage"   type="measure"/>
                 <field name="montant_matiere"     type="measure"/>
-            </graph>
+            </pivot>
         </field>
     </record>
 
@@ -108,7 +108,6 @@
         <field name="name">CA cde client</field>
         <field name="res_model">is.sale.order.line</field>
         <field name="domain">[]</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,graph,form</field>
     </record>
     <record id="is_sale_order_line_action_tree" model="ir.actions.act_window.view" >
@@ -119,11 +118,11 @@
     </record>
     <record id="is_sale_order_line_action_graph" model="ir.actions.act_window.view" >
         <field name="sequence" eval="2"/>
-        <field name="view_mode">graph</field>
+        <field name="view_mode">pivot</field>
         <field name="view_id" ref="is_sale_order_line_graph_view"/>
         <field name="act_window_id" ref="is_sale_order_line_action"/>
     </record>
 
 
 </data>
-</openerp>
+</odoo>

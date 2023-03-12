@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields, tools
 
 
 class is_sale_order_line(models.Model):
     _name='is.sale.order.line'
+    _description="Lignes des commandes"
     _order='date_expedition desc'
     _auto = False
 
@@ -19,7 +17,7 @@ class is_sale_order_line(models.Model):
     ref_client          = fields.Char('Référence client')
     mold_id             = fields.Many2one('is.mold', 'Moule')
     product_uom_qty     = fields.Float('Quantité livrée', digits=(14,2))
-    product_uom         = fields.Many2one('product.uom', 'Unité')
+    product_uom         = fields.Many2one('uom.uom', 'Unité')
     date_expedition     = fields.Date("Date d'expédition")
     date_livraison      = fields.Date("Date d'arrivée chez le client")
     price_unit          = fields.Float('Prix unitaire', digits=(14,4))
@@ -37,9 +35,10 @@ class is_sale_order_line(models.Model):
     montant_matiere     = fields.Float('Montant matière livrée', digits=(14,2))
     order_id            = fields.Many2one('sale.order', 'Commande')
     order_line_id       = fields.Many2one('sale.order.line', 'Ligne de commande')
-    state               = fields.Char(u"État", readonly=True, select=True)
+    state               = fields.Char(u"État", readonly=True, index=True)
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_sale_order_line')
         cr.execute("""
             CREATE OR REPLACE view is_sale_order_line AS (

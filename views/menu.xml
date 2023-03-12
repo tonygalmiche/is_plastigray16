@@ -1512,7 +1512,7 @@
 
     <menuitem id="is_indicateur_ca_menu" sequence="10" name="Chiffre d'affaire" parent="is_indicateurs_menu"/>
 
-    <!-- 
+    
     <record id="is_sale_order_line_menu" model="ir.ui.menu" >
         <field name="name">CA commandes client</field>
         <field name="sequence">10</field>
@@ -1522,7 +1522,7 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
-    -->
+   
 
     <record id="is_indicateur_ca_livraison_menu" model="ir.ui.menu" >
         <field name="name">CA livraisons</field>

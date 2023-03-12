@@ -9,6 +9,7 @@ from . import is_pricelist_item
 from . import is_product_packaging
 from . import is_purchase_order_line
 from . import is_res_partner
+from . import is_sale_order_line
 from . import is_stock_move
 from . import is_stock_quant
 
@@ -42,7 +43,6 @@ from . import is_stock_quant
 # import is_comparatif_article_tarif_cial
 # import is_article_sans_cde_ouverte_fou
 # import is_anomalie_position_fiscale
-# import is_sale_order_line
 # import is_mrp_production_workcenter_line
 # import is_anomalie_declar_prod
 # import is_comparatif_cout_pk_tarif

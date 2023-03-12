@@ -129,14 +129,9 @@ class mrp_routing_workcenter(models.Model):
     bom_id     = fields.Many2one('mrp.bom', 'Nomenclature', index=True, ondelete='set null', required=False, check_company=False) # Ce nouveau champ est obligatoire dans Odoo 16
     company_id = fields.Many2one('res.company', 'Company' , related='routing_id.company_id')
 
-
- #   company_id = fields.Many2one('res.company', 'Company', related='bom_id.company_id')
-
     # bom_id = fields.Many2one(
     #     'mrp.bom', 'Bill of Material',
     #     index=True, ondelete='cascade', required=True, check_company=True)
-
-
 
     hour_nbr         = fields.Float("Nombre d'heures"      , digits=(12,6), store=True, readonly=True, compute='_hour_nbr')
     is_nb_secondes   = fields.Float("Nombre de secondes"   , digits=(12,2), required=False, help="Nombre de secondes")
@@ -186,14 +181,49 @@ class mrp_workcenter(models.Model):
         ], "Type de ressource", required=True, default="material")
 
 
+#TODO : Le modele mrp_production_workcenter_line dans Odoo 8 est devenu mrp.workorder dans Odoo 16
+class mrp_production_workcenter_line(models.Model):
+    _inherit = 'mrp.workorder'
+
+    is_ordre         = fields.Integer("Ordre", help="Ordre sur le planning")
+    is_qt_restante   = fields.Integer("Quantité restante", help="Quantité restante pour le planning")
+    is_tps_restant   = fields.Float("Temps restant", help="Temps restant pour le planning")
+    is_date_planning = fields.Datetime('Date planning', help="Date plannifiée sur le planning")
+    is_date_tri      = fields.Datetime('Date tri', help="Date de tri du planning")
 
 
-# class mrp_production_workcenter_line(models.Model):
-#     _inherit = 'mrp.production.workcenter.line'
 
-#     is_ordre         = fields.Integer("Ordre", help="Ordre sur le planning")
-#     is_qt_restante   = fields.Integer("Quantité restante", help="Quantité restante pour le planning")
-#     is_tps_restant   = fields.Float("Temps restant", help="Temps restant pour le planning")
-#     is_date_planning = fields.Datetime('Date planning', help="Date plannifiée sur le planning")
-#     is_date_tri      = fields.Datetime('Date tri', help="Date de tri du planning")
+
+# class mrp_production_workcenter_line(osv.osv):
+#     _columns = {
+#         'name': fields.char('Work Order', required=True),
+#         'workcenter_id': fields.many2one('mrp.workcenter', 'Work Center', required=True),
+#         'cycle': fields.float('Number of Cycles', digits=(16, 2)),
+#         'hour': fields.float('Number of Hours', digits=(16, 2)),
+#         'sequence': fields.integer('Sequence', required=True, help="Gives the sequence order when displaying a list of work orders."),
+#         'production_id': fields.many2one('mrp.production', 'Manufacturing Order',
+#             track_visibility='onchange', select=True, ondelete='cascade', required=True),
+#     }
+
+#     _columns = {
+#        'state': fields.selection([('draft','Draft'),('cancel','Cancelled'),('pause','Pending'),('startworking', 'In Progress'),('done','Finished')],'Status', readonly=True, copy=False,
+#                                  help="* When a work order is created it is set in 'Draft' status.\n" \
+#                                        "* When user sets work order in start mode that time it will be set in 'In Progress' status.\n" \
+#                                        "* When work order is in running mode, during that time if user wants to stop or to make changes in order then can set in 'Pending' status.\n" \
+#                                        "* When the user cancels the work order it will be set in 'Canceled' status.\n" \
+#                                        "* When order is completely processed that time it is set in 'Finished' status."),
+#        'date_planned': fields.datetime('Scheduled Date', select=True),
+#        'date_planned_end': fields.function(_get_date_end, string='End Date', type='datetime'),
+#        'date_start': fields.datetime('Start Date'),
+#        'date_finished': fields.datetime('End Date'),
+#        'delay': fields.float('Working Hours',help="The elapsed time between operation start and stop in this Work Center",readonly=True),
+#        'production_state':fields.related('production_id','state',
+#             type='selection',
+#             selection=[('draft','Draft'),('confirmed','Waiting Goods'),('ready','Ready to Produce'),('in_production','In Production'),('cancel','Canceled'),('done','Done')],
+#             string='Production Status', readonly=True),
+#        'product':fields.related('production_id','product_id',type='many2one',relation='product.product',string='Product',
+#             readonly=True),
+#        'qty':fields.related('production_id','product_qty',type='float',string='Qty',readonly=True, store=True),
+#        'uom':fields.related('production_id','product_uom',type='many2one',relation='product.uom',string='Unit of Measure',readonly=True),
+#     }
 

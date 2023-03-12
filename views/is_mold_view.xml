@@ -95,6 +95,7 @@
                                 <field name="garantie_outillage" required="1"/>
                                 <field name="numero_plaquette_interne"/>
                                 <field name="dateur_ids_vsb" invisible="1"/>
+                                <field name="is_database_id"/>
                             </group>
                         </group>
                         <group  string="Dateurs" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}"/>
@@ -234,30 +235,22 @@
                                 <group string="Nombre de circuits d'eau">
                                     <group>
                                         <field name="nb_circuit_eau_fixe"/>
-                                    </group>
-                                    <group>
-                                        <field name="nb_circuit_eau_fixe_commentaire" attrs="{'invisible': [('nb_circuit_eau_fixe', '==', False)]}"  nolabel="1"/>
+                                        <field name="nb_circuit_eau_fixe_commentaire" attrs="{'invisible': [('nb_circuit_eau_fixe', '==', False)]}"/>
                                     </group>
                                     <group>
                                         <field name="nb_circuit_eau_mobile"/>
-                                    </group>
-                                    <group>
-                                        <field name="nb_circuit_eau_mobile_commentaire" attrs="{'invisible': [('nb_circuit_eau_mobile', '==', False)]}"  nolabel="1"/>
+                                        <field name="nb_circuit_eau_mobile_commentaire" attrs="{'invisible': [('nb_circuit_eau_mobile', '==', False)]}"/>
                                     </group>
                                 </group>
 
                                 <group string="Nombre de noyaux">
                                     <group>
                                         <field name="nb_noyaux_fixe"/>
-                                    </group>
-                                    <group>
-                                        <field name="nb_noyaux_fixe_commentaire" attrs="{'invisible': [('nb_noyaux_fixe', 'in', [False,'0'])]}"  nolabel="1"/>
+                                        <field name="nb_noyaux_fixe_commentaire" attrs="{'invisible': [('nb_noyaux_fixe', 'in', [False,'0'])]}"/>
                                     </group>
                                     <group>
                                         <field name="nb_noyaux_mobile"/>
-                                    </group>
-                                    <group>
-                                        <field name="nb_noyaux_mobile_commentaire" attrs="{'invisible': [('nb_noyaux_mobile', 'in', [False,'0'])]}"  nolabel="1"/>
+                                        <field name="nb_noyaux_mobile_commentaire" attrs="{'invisible': [('nb_noyaux_mobile', 'in', [False,'0'])]}"/>
                                     </group>
                                 </group>
 
@@ -307,6 +300,7 @@
                     <field name="mouliste_id"      optional="show"  /> 
                     <field name="carcasse"         optional="show"/>
                     <field name="emplacement"      optional="show"/>
+                    <field name="is_database_id"   optional="show"/>
                     <field name="create_date" optional="hide"/>
                     <field name="create_uid"  optional="hide"/>
                     <field name="write_date"  optional="hide"/>

@@ -1298,6 +1298,25 @@ class is_cout(models.Model):
                 obj.cout_std_prix_vente = cout.cout_std_prix_vente
 
 
+    def init(self):
+        cr = self._cr
+        cr.execute("""
+            CREATE OR REPLACE FUNCTION get_cout_act_matiere_st(pp_id  integer) RETURNS float AS $$
+            BEGIN
+                RETURN (
+                    COALESCE(
+                        (
+                            select ic.cout_act_matiere+ic.cout_act_st 
+                            from is_cout ic
+                            where ic.name=pp_id limit 1
+                        )
+                    ,0)
+                );
+            END;
+            $$ LANGUAGE plpgsql;
+        """)
+
+
 class is_cout_nomenclature(models.Model):
     _name='is.cout.nomenclature'
     _description="is_cout_nomenclature"

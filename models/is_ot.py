@@ -110,8 +110,8 @@ class is_ot(models.Model):
             if data.instrument_id:
                 count += 1
             if count == 0 or count > 1:
-                raise except_orm(_('Configuration!'),
-                                 _("Il est obligatoire de saisir un équipement, un moule, un dossier F, un gabarit ou un instrument (un seul choix possible)"))
+                msg="Il est obligatoire de saisir un équipement, un moule, un dossier F, un gabarit ou un instrument (un seul choix possible)"
+                raise ValidationError(msg)
         return res
 
 
