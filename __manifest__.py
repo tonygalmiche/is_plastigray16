@@ -70,7 +70,7 @@ Module Odoo 16 pour Plastigray
         "views/is_cde_ferme_cadencee_view.xml",
         "views/is_cde_ouverte_fournisseur_view.xml",
         "views/is_certificat_conformite_view.xml",
-        #"views/is_consigne_journaliere_view.xml", TODO : Liens avec odoo0, dynacase et les ordres de travaux => A revoir plus tard
+        "views/is_consigne_journaliere_view.xml",
         "views/is_cout_view.xml",
         "views/is_ctrl100_view.xml",
         "views/is_ctrl_budget_ana_view.xml",
@@ -147,6 +147,7 @@ Module Odoo 16 pour Plastigray
         "report/is_ligne_livraison.xml",
         "report/is_ligne_reception.xml",
         "report/is_livraison_gefco.xml",
+        "report/is_mrp_production_workcenter_line.xml",
         "report/is_pricelist_item.xml",
         "report/is_product_packaging.xml",
         "report/is_sale_order_line.xml",
@@ -300,7 +301,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_res_partner.xml",
         # "report/is_article_sans_cde_ouverte_fou.xml",
         # "report/is_anomalie_position_fiscale.xml",
-        # "report/is_mrp_production_workcenter_line.xml",
         # "report/is_anomalie_declar_prod.xml",
         # "report/is_comparatif_cout_pk_tarif.xml",
 

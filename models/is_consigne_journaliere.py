@@ -50,10 +50,10 @@ class is_consigne_journaliere_inj(models.Model):
     _order='consigne_id,sequence'
 
     consigne_id    = fields.Many2one('is.consigne.journaliere', 'Consigne journaliere', required=True, ondelete='cascade', readonly=True)
-    sequence       = fields.Integer('Ordre')
+    sequence       = fields.Integer('Tri')
     presse_id      = fields.Many2one('mrp.workcenter', 'Presse', 
                     domain=[('resource_type','=','material'),('code','<','9000'),('name','not ilike','GENERIQUE')])
-    #of1_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF en cours')
+    of1_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF en cours')
     mod1           = fields.Float('MOD 1')
     operateur      = fields.Char('Opérateur')
     moule1         = fields.Char('Moule 1')
@@ -61,17 +61,16 @@ class is_consigne_journaliere_inj(models.Model):
     matiere1       = fields.Char('Matière 1')
     tps_arret      = fields.Char('Tps arrêt matière')
     heure          = fields.Char('Heure')
-    #of2_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF suivant')
+    of2_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF suivant')
     mod2           = fields.Float('MOD 2')
     moule2         = fields.Char('Moule 2')
     matiere2       = fields.Char('Matière 2')
     remarque       = fields.Text('Remarques / Consignes')
 
 
-    #@api.depends('sequence','presse_id','of1_id','remarque')
-    @api.depends('sequence','presse_id','remarque')
+    @api.depends('sequence','presse_id','of1_id','remarque')
     def _compute_info_planning1(self):
-        cr , uid, context = self.env.args
+        cr=self._cr
         company = self.env.user.company_id
         base0="odoo0"
         cr0 = False
@@ -305,13 +304,13 @@ class is_consigne_journaliere_ass(models.Model):
     _order='consigne_id,sequence'
 
     consigne_id    = fields.Many2one('is.consigne.journaliere', 'Consigne journaliere', required=True, ondelete='cascade', readonly=True)
-    sequence       = fields.Integer('Ordre')
+    sequence       = fields.Integer('Tri')
     poste_id       = fields.Many2one('mrp.workcenter', 'Poste', 
                     domain=[('resource_type','=','material'),('code','>=','9000'),('name','not ilike','GENERIQUE')])
     priorite       = fields.Char('Priorité')
     mod            = fields.Float('MOD')
     operateur      = fields.Char('Opérateur')
-    #of1_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF en cours')
-    #of2_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF suivant')
+    of1_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF en cours')
+    of2_id         = fields.Many2one('is.mrp.production.workcenter.line', 'OF suivant')
     remarque       = fields.Text('Remarques / Consignes')
 

@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
         <record id="is_consigne_journaliere_form_view" model="ir.ui.view">
             <field name="name">is_consigne_journaliere_from_view</field>
             <field name="model">is.consigne.journaliere</field>
             <field name="arch" type="xml">
                 <form>
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                        .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: 1800px;
+                        }
+                    </style>
                     <sheet class="oe_form_sheet_width_wider">
                         <group>
                             <group>
@@ -21,77 +29,73 @@
                         </group>
                         <notebook>
                             <page string="Injection">
-                                <group>
-                                    <field name="injection_ids" nolabel="1" >
-                                        <tree editable="bottom">
-                                             <field name="sequence"/>
-                                             <field name="presse_id"/>
-                                             <field 
-                                                name="of1_id" 
-                                                on_change="of1_id_change(of1_id)" 
-                                                domain="[
-                                                    ('workcenter_id','=',presse_id),
-                                                    ('state','=','in_production'),
-                                                    ('is_date_planning','!=',False)
-                                                ]"
-                                                widget="many2one_clickable"
-                                            />
-                                            <field name="mod1"/>
-                                            <field name="operateur"/>
-                                            <field name="moule1"/>
-                                            <field name="info_planning1"/>
-                                            <field name="matiere1"/>
-                                            <field name="tps_arret"/>
-                                            <field name="heure"/>
-                                            <field 
-                                                name="of2_id" 
-                                                on_change="of2_id_change(of2_id)" 
-                                                domain="[
-                                                    ('workcenter_id','=',presse_id),
-                                                    ('state','=','in_production'),
-                                                    ('is_date_planning','!=',False)
-                                                ]"
-                                                widget="many2one_clickable"
-                                            />
-                                            <field name="mod2"/>
-                                            <field name="moule2"/>
-                                            <field name="matiere2"/>
-                                            <field name="remarque"/>
-                                        </tree>
-                                    </field>
-                                </group>
+                                <field name="injection_ids" nolabel="1" >
+                                    <tree editable="bottom">
+                                        <field name="sequence"/>
+                                        <field name="presse_id"/>
+                                        <field 
+                                            name="of1_id" 
+                                            on_change="of1_id_change(of1_id)" 
+                                            domain="[
+                                                ('workcenter_id','=',presse_id),
+                                                ('state','=','draft'),
+                                                ('is_date_planning','!=',False)
+                                            ]"
+                                            widget="many2one_clickable"
+                                        />
+                                        <field name="mod1"/>
+                                        <field name="operateur"/>
+                                        <field name="moule1"/>
+                                        <field name="info_planning1"/>
+                                        <field name="matiere1"/>
+                                        <field name="tps_arret" optional="hide"/>
+                                        <field name="heure"/>
+                                        <field 
+                                            name="of2_id" 
+                                            on_change="of2_id_change(of2_id)" 
+                                            domain="[
+                                                ('workcenter_id','=',presse_id),
+                                                ('state','=','draft'),
+                                                ('is_date_planning','!=',False)
+                                            ]"
+                                            widget="many2one_clickable"
+                                        />
+                                        <field name="mod2"/>
+                                        <field name="moule2"/>
+                                        <field name="matiere2"/>
+                                        <field name="remarque"/>
+                                    </tree>
+                                </field>
                             </page>
                             <page string="Assemblage">
-                                <group>
-                                    <field name="assemblage_ids" nolabel="1" >
-                                        <tree editable="bottom">
-                                            <field name="sequence"/>
-                                            <field name="poste_id"/>
-                                            <field name="priorite"/>
-                                            <field name="mod"/>
-                                            <field name="operateur"/>
-                                            <field 
-                                                name="of1_id" 
-                                                domain="[
-                                                    ('workcenter_id','=',poste_id),
-                                                    ('state','=','in_production'),
-                                                    ('is_date_planning','!=',False)
-                                                ]"
-                                                widget="many2one_clickable"
-                                            />
-                                            <field 
-                                                name="of2_id" 
-                                                domain="[
-                                                    ('workcenter_id','=',poste_id),
-                                                    ('state','=','in_production'),
-                                                    ('is_date_planning','!=',False)
-                                                ]"
-                                                widget="many2one_clickable"
-                                            />
-                                            <field name="remarque"/>
-                                        </tree>
-                                    </field>
-                                </group>
+                                <field name="assemblage_ids" nolabel="1" >
+                                    <tree editable="bottom">
+                                        <field name="sequence"/>
+                                        <field name="poste_id"/>
+                                        <field name="priorite"/>
+                                        <field name="mod"/>
+                                        <field name="operateur"/>
+                                        <field 
+                                            name="of1_id" 
+                                            domain="[
+                                                ('workcenter_id','=',poste_id),
+                                                ('state','=','draft'),
+                                                ('is_date_planning','!=',False)
+                                            ]"
+                                            widget="many2one_clickable"
+                                        />
+                                        <field 
+                                            name="of2_id" 
+                                            domain="[
+                                                ('workcenter_id','=',poste_id),
+                                                ('state','=','draft'),
+                                                ('is_date_planning','!=',False)
+                                            ]"
+                                            widget="many2one_clickable"
+                                        />
+                                        <field name="remarque"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -117,8 +121,7 @@
         <record id="is_consigne_journaliere_action" model="ir.actions.act_window">
             <field name="name">Consignes journalières</field>
             <field name="res_model">is.consigne.journaliere</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
     </data>
-</openerp>
+</odoo>

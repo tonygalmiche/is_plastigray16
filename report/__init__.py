@@ -5,6 +5,7 @@ from . import is_encres_utilisees
 from . import is_ligne_livraison
 from . import is_ligne_reception
 from . import is_livraison_gefco
+from . import is_mrp_production_workcenter_line
 from . import is_pricelist_item
 from . import is_product_packaging
 from . import is_purchase_order_line
@@ -43,7 +44,6 @@ from . import is_stock_quant
 # import is_comparatif_article_tarif_cial
 # import is_article_sans_cde_ouverte_fou
 # import is_anomalie_position_fiscale
-# import is_mrp_production_workcenter_line
 # import is_anomalie_declar_prod
 # import is_comparatif_cout_pk_tarif
 

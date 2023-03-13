@@ -124,6 +124,7 @@ class mrp_routing_workcenter(models.Model):
         for obj in self:
             v = 0.0
             obj.hour_nbr=obj.is_nb_secondes/float(3600)
+            obj.time_cycle_manual = obj.is_nb_secondes/float(60)
 
     routing_id = fields.Many2one('mrp.routing', 'Gamme'   , index=True, required=True)                 # Ce champ n'existait plus dans Odoo 16
     bom_id     = fields.Many2one('mrp.bom', 'Nomenclature', index=True, ondelete='set null', required=False, check_company=False) # Ce nouveau champ est obligatoire dans Odoo 16
@@ -185,6 +186,7 @@ class mrp_workcenter(models.Model):
 class mrp_production_workcenter_line(models.Model):
     _inherit = 'mrp.workorder'
 
+    sequence         = fields.Integer('Sequence')
     is_ordre         = fields.Integer("Ordre", help="Ordre sur le planning")
     is_qt_restante   = fields.Integer("Quantité restante", help="Quantité restante pour le planning")
     is_tps_restant   = fields.Float("Temps restant", help="Temps restant pour le planning")

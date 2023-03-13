@@ -235,6 +235,52 @@ class MrpProduction(models.Model):
         print("Désactive cette fonction standard, car il n'est pas utile de mettre à jour le champ move_finished_ids",self)
 
 
+
+
+
+    @api.depends('bom_id', 'product_id', 'product_qty', 'product_uom_id')
+    def _compute_workorder_ids(self):
+        for production in self:
+            if production.state != 'draft':
+                continue
+            workorders_list = [Command.link(wo.id) for wo in production.workorder_ids.filtered(lambda wo: not wo.operation_id)]
+            if not production.bom_id and not production._origin.product_id:
+                production.workorder_ids = workorders_list
+            if production.product_id != production._origin.product_id:
+                production.workorder_ids = [Command.clear()]
+            if production.bom_id and production.product_id and production.product_qty > 0:
+                # keep manual entries
+                workorders_values = []
+                product_qty = production.product_uom_id._compute_quantity(production.product_qty, production.bom_id.product_uom_id)
+                exploded_boms, dummy = production.bom_id.explode(production.product_id, product_qty / production.bom_id.product_qty, picking_type=production.bom_id.picking_type_id)
+                for bom, bom_data in exploded_boms:
+                    # If the operations of the parent BoM and phantom BoM are the same, don't recreate work orders.
+                    #if not (bom.operation_ids and (not bom_data['parent_line'] or bom_data['parent_line'].bom_id.operation_ids != bom.operation_ids)):
+                    #    continue
+                    for operation in bom.routing_id.workcenter_lines:
+                        if operation._skip_operation_line(bom_data['product']):
+                            continue
+                        workorders_values += [{
+                            'name': operation.name,
+                            'production_id': production.id,
+                            'workcenter_id': operation.workcenter_id.id,
+                            'product_uom_id': production.product_uom_id.id,
+                            'operation_id': operation.id,
+                            'state': 'pending',
+                        }]
+                workorders_dict = {wo.operation_id.id: wo for wo in production.workorder_ids.filtered(lambda wo: wo.operation_id)}
+                for workorder_values in workorders_values:
+                    if workorder_values['operation_id'] in workorders_dict:
+                        # update existing entries
+                        workorders_list += [Command.update(workorders_dict[workorder_values['operation_id']].id, workorder_values)]
+                    else:
+                        # add new entries
+                        workorders_list += [Command.create(workorder_values)]
+                production.workorder_ids = workorders_list
+            else:
+                production.workorder_ids = [Command.delete(wo.id) for wo in production.workorder_ids.filtered(lambda wo: wo.operation_id)]
+
+
     def liste_mouvements_action(self):
         for obj in self:
             tree_view=self.env.ref('is_plastigray16.is_mouvements_termines_tree')
@@ -667,6 +713,59 @@ class MrpProduction(models.Model):
             res={"err": err}
         return res
     
+
+
+
+
+
+# class MrpWorkorder(models.Model):
+#     _inherit = 'mrp.workorder'
+
+#     def _get_duration_expected(self, alternative_workcenter=False, ratio=1):
+
+#         print("#### TEST _get_duration_expected",self)
+
+#         qty_production = self.production_id.product_uom_id._compute_quantity(self.qty_production, self.production_id.product_id.uom_id)
+#         capacity = self.workcenter_id._get_capacity(self.product_id)
+#         cycle_number = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
+#         time_cycle = self.operation_id.time_cycle
+
+#         duration = self.workcenter_id._get_expected_duration(self.product_id) + cycle_number * time_cycle * 100.0 / self.workcenter_id.time_efficiency
+
+
+#         duration =  time_cycle
+        
+
+
+#         print("#### TEST time_cycle = ",self,self.operation_id,time_cycle)
+
+
+
+#         return duration
+
+#         self.ensure_one()
+#         if not self.workcenter_id:
+#             return self.duration_expected
+#         if not self.operation_id:
+#             duration_expected_working = (self.duration_expected - self.workcenter_id.time_start - self.workcenter_id.time_stop) * self.workcenter_id.time_efficiency / 100.0
+#             if duration_expected_working < 0:
+#                 duration_expected_working = 0
+#             return self.workcenter_id._get_expected_duration(self.product_id) + duration_expected_working * ratio * 100.0 / self.workcenter_id.time_efficiency
+#         qty_production = self.production_id.product_uom_id._compute_quantity(self.qty_production, self.production_id.product_id.uom_id)
+#         capacity = self.workcenter_id._get_capacity(self.product_id)
+#         cycle_number = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
+#         if alternative_workcenter:
+#             # TODO : find a better alternative : the settings of workcenter can change
+#             duration_expected_working = (self.duration_expected - self.workcenter_id.time_start - self.workcenter_id.time_stop) * self.workcenter_id.time_efficiency / (100.0 * cycle_number)
+#             if duration_expected_working < 0:
+#                 duration_expected_working = 0
+#             capacity = alternative_workcenter._get_capacity(self.product_id)
+#             alternative_wc_cycle_nb = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
+#             return alternative_workcenter._get_expected_duration(self.product_id) + alternative_wc_cycle_nb * duration_expected_working * 100.0 / alternative_workcenter.time_efficiency
+#         time_cycle = self.operation_id.time_cycle
+#         return self.workcenter_id._get_expected_duration(self.product_id) + cycle_number * time_cycle * 100.0 / self.workcenter_id.time_efficiency
+
+
 
 # class mrp_production_product_line(models.Model):
 #     _inherit = 'mrp.production.product.line'

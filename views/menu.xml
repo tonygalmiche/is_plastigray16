@@ -1198,7 +1198,6 @@
         ])]"/>
     </record>
 
-     <!--
 
 
     <record id="is_mrp_production_workcenter_line_menu" model="ir.ui.menu" >
@@ -1211,6 +1210,9 @@
         ])]"/>
     </record>
 
+
+         
+
     <record id="is_consigne_journaliere_menu" model="ir.ui.menu" >
         <field name="name">Consignes journalières</field>
         <field name="sequence">25</field>
@@ -1220,7 +1222,7 @@
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
--->
+
 
 
     <record id="is_instruction_particuliere_menu" model="ir.ui.menu" >
