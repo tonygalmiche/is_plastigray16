@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
                 <tree editable="top">
                     <field name="user_id"/> 
+                    <field name="login_ip"/> 
                     <field name="name"/> 
                     <field name="valeur"/> 
                 </tree>
@@ -20,6 +21,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="user_id"/> 
+                    <field name="login_ip"/> 
                     <field name="name"/> 
                     <field name="valeur"/> 
                 </search>

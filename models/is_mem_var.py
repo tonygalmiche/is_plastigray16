@@ -8,9 +8,10 @@ class is_mem_var(models.Model):
     _description="Mem Var"
     _order='user_id,name'
 
-    name    = fields.Char('Variable', required=True)
-    user_id = fields.Many2one('res.users', 'Utilisateur', required=True)
-    valeur  = fields.Char('Valeur')
+    name     = fields.Char('Variable', required=True)
+    login_ip = fields.Char('Login / IP', help="Permet de remplacer la table cookies de MySQL")
+    user_id  = fields.Many2one('res.users', 'Utilisateur', required=True)
+    valeur   = fields.Char('Valeur')
 
 
     def get(self,user_id,variable):
