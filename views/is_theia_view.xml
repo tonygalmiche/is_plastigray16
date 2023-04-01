@@ -43,39 +43,23 @@
         <field name="url">http://localhost</field>
         <field name="type">ir.actions.act_url</field>
     </record>
-
-
-
-
     <menuitem action="is_theia_presse_action" 
               id="is_theia_presse_menu" 
               parent="is_theia_presse_main_menu" 
               sequence="10"/>
-
-
-
-
-
-    <!-- <menuitem 
-        name="Parc des presses (ancien)" 
-        id="is_url_parc_presses_menu" 
-        action="is_url_parc_presses_action"
-        parent="is_theia_presse_main_menu"
-        sequence="15"
-    />
- -->
-    <record model="ir.actions.act_url" id="is_url_parc_presses_new_action">
-        <field name="name">is_url_parc_presses_new_action</field>
-        <field name="url">http://localhost</field>
-        <field name="type">ir.actions.act_url</field>
+    <record id="is_parc_presses_url_action_server" model="ir.actions.server">
+        <field name="name">Parc des presses</field>
+       <field name="model_id" ref="model_is_raspberry"/>
+       <field name="state">code</field>
+       <field name="code">action = model.is_parc_presses_url_action()</field>
     </record>
-    <!-- <menuitem 
+    <menuitem 
         name="Parc des presses" 
         id="is_url_parc_presses_new_menu" 
-        action="is_url_parc_presses_new_action"
+        action="is_parc_presses_url_action_server"
         parent="is_theia_presse_main_menu"
         sequence="16"
-    /> -->
+    />
 
     <record model="ir.actions.act_url" id="is_url_parc_assemblage_action">
         <field name="name">is_url_parc_assemblage_action</field>
@@ -101,14 +85,24 @@
     <!-- <menuitem name="Rebuts" id="is_url_indicateur_rebuts_menu" action="is_url_indicateur_rebuts_action"
               parent="menu_is_cpi_indicateurs" sequence="10" /> -->
 
-    <record model="ir.actions.act_url" id="is_url_indicateur_trs_action">
+    <!-- <record model="ir.actions.act_url" id="is_url_indicateur_trs_action">
         <field name="name">is_url_indicateur_trs_action</field>
         <field name="url">http://localhost</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="target">new</field>
+    </record> -->
+
+
+
+    <record id="is_indicateur_trs_url_action_server" model="ir.actions.server">
+        <field name="name">TRS</field>
+       <field name="model_id" ref="model_is_raspberry"/>
+       <field name="state">code</field>
+       <field name="code">action = model.is_indicateur_trs_url_action()</field>
     </record>
 
-    <!-- <menuitem name="TRS" id="is_url_indicateur_trs_menu" action="is_url_indicateur_trs_action"
-              parent="menu_is_cpi_indicateurs" sequence="20" /> -->
+
+    <menuitem name="TRS" id="is_url_indicateur_trs_menu" action="is_indicateur_trs_url_action_server"
+              parent="menu_is_cpi_indicateurs" sequence="20" />
 
 
     <!--

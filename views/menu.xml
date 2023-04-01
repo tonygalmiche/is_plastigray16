@@ -3,20 +3,28 @@
 <odoo>
     <data>
 
+
+
+
+
+
     <!-- ir.actions.act_url -->
     <!-- <record model="ir.actions.act_url" id="is_url_analyse_cbn_action">
         <field name="name">is_url_analyse_cbn_action</field>
         <field name="type">ir.actions.act_url</field>
     </record>
+    -->
     <record model="ir.actions.act_url" id="is_url_pic_3_ans_action">
         <field name="name">is_url_pic_3_ans_action</field>
         <field name="url">http://localhost</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="target">new</field>
     </record>
     <record model="ir.actions.act_url" id="is_url_planning_action">
         <field name="name">is_url_planning_action</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="url">http://localhost</field>
+        <field name="target">new</field>
     </record>
+    <!-- 
     <record model="ir.actions.act_url" id="is_url_wiki_action">
         <field name="name">http://odoowiki</field>
         <field name="url">http://odoowiki</field>
@@ -26,32 +34,34 @@
         <field name="name">http://odoo/odoo-erp/analyses/articles-prodstar-odoo.php</field>
         <field name="url">http://odoo/odoo-erp/analyses/articles-prodstar-odoo.php</field>
         <field name="type">ir.actions.act_url</field>
-    </record>
+    </record> -->
     <record model="ir.actions.act_url" id="is_url_pic_3_mois">
         <field name="name">is_url_pic_3_mois</field>
-        <field name="url">http://odoo/odoo-erp/analyses/pic-3-mois.php</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="url">http://odoo16/odoo-erp/analyses/pic-3-mois.php</field>
+        <field name="target">new</field>
     </record>
+
+    
     <record model="ir.actions.act_url" id="is_url_theia_action">
         <field name="name">is_url_theia</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="target">new</field>
         <field name="url">http://localhost</field>
     </record>
     <record model="ir.actions.act_url" id="is_url_theia_suivi_prod_action">
         <field name="name">is_url_theia_suivi_prod</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="target">new</field>
         <field name="url">http://localhost</field>
     </record>
     <record model="ir.actions.act_url" id="is_url_theia_trs_action">
         <field name="name">is_url_theia_trs</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="target">new</field>
         <field name="url">http://localhost</field>
     </record>
     <record model="ir.actions.act_url" id="is_url_theia_rebuts_action">
         <field name="name">is_url_theia_rebuts</field>
-        <field name="type">ir.actions.act_url</field>
+        <field name="target">new</field>
         <field name="url">http://localhost</field>
-    </record> -->
+    </record> 
 
 
 
@@ -707,7 +717,7 @@
         ])]"/>
     </record>
 
-    <!--
+    
     <record id="is_pic_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 mois</field>
         <field name="sequence">40</field>
@@ -716,7 +726,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
-    </record>-->
+    </record>
     <record id="is_sale_order_proforma_menu" model="ir.ui.menu" >
         <field name="name">Factures Proforma</field>
         <field name="sequence">50</field>
@@ -1080,7 +1090,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    <!-- <record id="is_pic_3ans_menu" model="ir.ui.menu" >
+    <record id="is_pic_3ans_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 ans</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_pic_3ans_main_menu')"/>
@@ -1088,7 +1098,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
-    </record> -->
+    </record>
     <record id="is_pic_3ans_desactive_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 ans désactivé</field>
         <field name="sequence">40</field>
@@ -1875,7 +1885,9 @@
     <menuitem id="is_users_groups_menu"       sequence="91" name="Utilisateurs / Groupe"   parent="base.menu_users" action="is_users_groups_action" />
     <menuitem id="is_model_groups_menu"       sequence="92" name="Modèles / Groupe"        parent="base.menu_users" action="is_model_groups_action" />
     <menuitem id="is_ir_module_category_menu" sequence="93" name="Applications"            parent="base.menu_users" action="is_ir_module_category_action" />
-    <menuitem id="is_res_users_menu"          sequence="94" name="Historique de connexion" parent="base.menu_users" action="is_res_users_action" /> -->
+ -->
+
+    <menuitem id="is_res_users_menu"          sequence="94" name="Historique de connexion" parent="base.menu_users" action="is_res_users_action" />
 
 
     <!--     Outillages -->
