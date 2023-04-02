@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api, SUPERUSER_ID
-
-
-
+from odoo.http import request
+from datetime import datetime
 
 
 class is_res_users(models.Model):
@@ -45,12 +44,6 @@ class res_users(models.Model):
         return True
 
 
-    # def create(self, vals):
-    #     res = super(res_users, self).create(vals)
-    #     res.update_group()
-    #     return res
-
-
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
@@ -58,27 +51,20 @@ class res_users(models.Model):
         return res
 
 
-
-
-
-    # def _login(self, db, login, password):
-    #     """Permet d'ajouter l'adresse IP de la personne qui se connecte
-    #     cela est utilise par les programmes externes"""
-    #     user_id = super(res_users, self)._login(db, login, password)
-    #     if request:
-    #         ip=request.httprequest.environ.get('REMOTE_ADDR',False)
-    #         if ip:
-    #             cr = self.pool.cursor()
-    #             cr.autocommit(True)
-    #             if user_id and ip:
-    #                 SQL="""
-    #                     INSERT INTO is_res_users (user_id, heure_connexion, adresse_ip)
-    #                     VALUES ("""+str(user_id)+""", now() at time zone 'UTC', '"""+str(ip)+"""')
-    #                 """
-    #                 res=cr.execute(SQL)
-    #                 #res=cr.execute("UPDATE res_users SET is_adresse_ip='"+str(ip)+"' WHERE id="+str(user_id))
-    #                 cr.close()
-    #     return user_id
+    @classmethod
+    def _login(cls, db, login, password, user_agent_env):
+        "Permet d'ajouter l'adresse IP de la personne qui se connecte cela est utilise par les programmes externes"
+        user_id = super()._login(db, login, password, user_agent_env)
+        ip = request.httprequest.environ['REMOTE_ADDR']
+        with cls.pool.cursor() as cr:
+            self = api.Environment(cr, SUPERUSER_ID, {})[cls._name]
+            vals={
+                'user_id'        : user_id,
+                'heure_connexion': datetime.now(),
+                'adresse_ip'     : ip,
+            }
+            res=self.env['is.res.users'].create(vals)
+        return user_id
 
 
     # def get_site_ids(self):
