@@ -2,71 +2,7 @@
 
 <odoo>
     <data>
-
-
-
-
-
-
-    <!-- ir.actions.act_url -->
-    <!-- <record model="ir.actions.act_url" id="is_url_analyse_cbn_action">
-        <field name="name">is_url_analyse_cbn_action</field>
-        <field name="type">ir.actions.act_url</field>
-    </record>
-    -->
-    <record model="ir.actions.act_url" id="is_url_pic_3_ans_action">
-        <field name="name">is_url_pic_3_ans_action</field>
-        <field name="url">http://localhost</field>
-        <field name="target">new</field>
-    </record>
-    <record model="ir.actions.act_url" id="is_url_planning_action">
-        <field name="name">is_url_planning_action</field>
-        <field name="url">http://localhost</field>
-        <field name="target">new</field>
-    </record>
-    <!-- 
-    <record model="ir.actions.act_url" id="is_url_wiki_action">
-        <field name="name">http://odoowiki</field>
-        <field name="url">http://odoowiki</field>
-        <field name="type">ir.actions.act_url</field>
-    </record>
-    <record model="ir.actions.act_url" id="is_url_articles_prodstar_odoo_action">
-        <field name="name">http://odoo/odoo-erp/analyses/articles-prodstar-odoo.php</field>
-        <field name="url">http://odoo/odoo-erp/analyses/articles-prodstar-odoo.php</field>
-        <field name="type">ir.actions.act_url</field>
-    </record> -->
-    <record model="ir.actions.act_url" id="is_url_pic_3_mois">
-        <field name="name">is_url_pic_3_mois</field>
-        <field name="url">http://odoo16/odoo-erp/analyses/pic-3-mois.php</field>
-        <field name="target">new</field>
-    </record>
-
-    
-    <record model="ir.actions.act_url" id="is_url_theia_action">
-        <field name="name">is_url_theia</field>
-        <field name="target">new</field>
-        <field name="url">http://localhost</field>
-    </record>
-    <record model="ir.actions.act_url" id="is_url_theia_suivi_prod_action">
-        <field name="name">is_url_theia_suivi_prod</field>
-        <field name="target">new</field>
-        <field name="url">http://localhost</field>
-    </record>
-    <record model="ir.actions.act_url" id="is_url_theia_trs_action">
-        <field name="name">is_url_theia_trs</field>
-        <field name="target">new</field>
-        <field name="url">http://localhost</field>
-    </record>
-    <record model="ir.actions.act_url" id="is_url_theia_rebuts_action">
-        <field name="name">is_url_theia_rebuts</field>
-        <field name="target">new</field>
-        <field name="url">http://localhost</field>
-    </record> 
-
-
-
     <menuitem id="menu_is_donnees_techniques"  sequence="1"  name="Données techniques"/>
-
 
     <!-- Cette méthode de création de menu, permet de bien initialiser et remplacer le champ groups_id -->
     <record id="menu_is_moules" model="ir.ui.menu" >
@@ -78,9 +14,6 @@
     <menuitem id="menu_is_moules_10" sequence="10" name="Projets"    parent="menu_is_moules" action="is_mold_project_action" />
     <menuitem id="menu_is_moules_20" sequence="20" name="Dossiers F" parent="menu_is_moules" action="is_dossierf_action" />
     <menuitem id="menu_is_moules_30" sequence="30" name="Moules"     parent="menu_is_moules" action="is_mold_action" />
-
-
-
 
     <!-- Articles -->
     <menuitem id="menu_is_articles"       sequence="15" name="Articles"           parent="menu_is_donnees_techniques"/>
@@ -717,16 +650,23 @@
         ])]"/>
     </record>
 
-    
-    <record id="is_pic_menu" model="ir.ui.menu" >
+    <!-- PIC à 3 mois -->
+    <record id="is_pic_3mois_url_action_server" model="ir.actions.server">
+        <field name="name">PIC à 3 mois</field>
+        <field name="model_id" ref="model_ir_actions_act_url"/>
+        <field name="state">code</field>
+        <field name="code">action = model.is_pic_3mois_url_action()</field>
+    </record>
+    <record id="is_pic_3mois_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 mois</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_is_ventes_cde')"/>
-        <field name="action"    ref="is_url_pic_3_mois"/>
+        <field name="action"    ref="is_pic_3mois_url_action_server"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
+
     <record id="is_sale_order_proforma_menu" model="ir.ui.menu" >
         <field name="name">Factures Proforma</field>
         <field name="sequence">50</field>
@@ -1090,15 +1030,24 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
+
+    <!-- PIC à 3 ans -->
+    <record id="is_pic_3ans_url_action_server" model="ir.actions.server">
+        <field name="name">PIC à 3 ans</field>
+        <field name="model_id" ref="model_ir_actions_act_url"/>
+        <field name="state">code</field>
+        <field name="code">action = model.is_pic_3ans_url_action()</field>
+    </record>
     <record id="is_pic_3ans_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 ans</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_pic_3ans_main_menu')"/>
-        <field name="action"    ref="is_url_pic_3_ans_action"/>
+        <field name="action"    ref="is_pic_3ans_url_action_server"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
+
     <record id="is_pic_3ans_desactive_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 ans désactivé</field>
         <field name="sequence">40</field>
@@ -1219,10 +1168,7 @@
             ref('is_rsp_production_group'),
         ])]"/>
     </record>
-
-
-         
-
+    
     <record id="is_consigne_journaliere_menu" model="ir.ui.menu" >
         <field name="name">Consignes journalières</field>
         <field name="sequence">25</field>
@@ -1232,8 +1178,6 @@
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
-
-
 
     <record id="is_instruction_particuliere_menu" model="ir.ui.menu" >
         <field name="name">Instructions particulières</field>
@@ -1246,11 +1190,18 @@
         ])]"/>
     </record>
 
-    <!-- <record id="menu_is_planning_production" model="ir.ui.menu" >
+    <!-- Production / Planning -->
+    <record id="is_planning_url_action_server" model="ir.actions.server">
+        <field name="name">Planning</field>
+        <field name="model_id" ref="model_ir_actions_act_url"/>
+        <field name="state">code</field>
+        <field name="code">action = model.is_planning_url_action()</field>
+    </record>
+    <record id="menu_is_planning_production" model="ir.ui.menu" >
         <field name="name">Planning</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_is_production_production')"/>
-        <field name="action"    ref="is_url_planning_action"/>
+        <field name="action"    ref="is_planning_url_action_server"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_rsp_production_group'),
             ref('is_homme_flux_group'),
@@ -1259,11 +1210,8 @@
             ref('is_chef_equipe_group'),
             ref('is_employes_hors_production_group'),
         ])]"/>
-    </record> -->
+    </record>
  
-
-
-
     <!-- Production / Stock -->
     <menuitem id="menu_is_production_stock"    sequence="20" name="Stock"                    parent="menu_is_production"  />
     <menuitem id="menu_is_production_stock_10" sequence="10" name="Stocks détaillés"         parent="menu_is_production_stock"  action="is_stock_quant_action"/>

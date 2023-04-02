@@ -201,23 +201,6 @@ class is_raspberry(models.Model):
 
 
 
-    def is_indicateur_trs_url_action(self):
-        url = "http://scan-exp-16"
-        return {
-            'type': 'ir.actions.act_url',
-            'target': 'new',
-            'url'      : url,
-        }
-
-    def is_parc_presses_url_action(self):
-        url = "http://raspberry-theia4-16/atelier.php?atelier=inj&soc=1&uid=1"
-        return {
-            'type': 'ir.actions.act_url',
-            'target': 'new',
-            'url'      : url,
-        }
-
-
 
 
 class is_of(models.Model):
