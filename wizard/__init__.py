@@ -2,6 +2,7 @@
 
 from . import is_cas_emploi_wizard_new
 from . import is_liste_servir_wizard
+from . import assistent_report
 
 
 # import is_stock_mise_rebut
@@ -15,6 +16,5 @@ from . import is_liste_servir_wizard
 # import is_cas_emploi_wizard
 # import is_cas_emploi_wizard_new
 # import set_sheduler_cout_article
-# import assistent_report
 # import is_change_emplacement_wizard
 

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
-
-
         <record id="is_pointage_report1_view" model="ir.ui.view">
             <field name="name">Assistent Report1</field>
             <field name="model">assistent.report1</field>
@@ -21,19 +19,17 @@
                         <field name="saut_page"/>
                         <field name="detail"/>
                     </group>
+
                     <footer>
-                        <button name="assistent_report1" string="OK" type="object" class="oe_highlight" />
-                        or
-                        <button string="Annuler" class="oe_link" special="cancel" />
+                        <button name="assistent_report1" string="OK" type="object" default_focus="1" class="btn-primary" data-hotkey="q"/>
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
                     </footer>
                 </form>
             </field>
         </record>
         <record id="is_pointage_report1_action" model="ir.actions.act_window">
             <field name="name">Rapport</field>
-            <field name="type">ir.actions.act_window</field>
             <field name="res_model">assistent.report1</field>
-            <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="is_pointage_report1_view"/>
             <field name="target">new</field>
@@ -42,4 +38,4 @@
         <menuitem id="menu_is_pointage_report"  sequence="25" parent="hr.menu_hr_root" name="Rapport" />
         <menuitem id="menu_is_pointage_report1" sequence="10" action="is_pointage_report1_action" parent="menu_is_pointage_report"/>
     </data>
-</openerp>
+</odoo>

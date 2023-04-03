@@ -155,7 +155,7 @@ Module Odoo 16 pour Plastigray
 
 
 
-
+        "wizard/assistent_report_view.xml",
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
 
@@ -227,7 +227,6 @@ Module Odoo 16 pour Plastigray
         # "wizard/audit_log_wizard.xml",
         # "wizard/is_cas_emploi_wizard.xml",
         # "wizard/set_sheduler_cout_article.xml",
-        # "wizard/assistent_report_view.xml",
         # "wizard/is_change_emplacement_wizard_view.xml",
         # "views/web_view.xml",
         # "views/layouts.xml",

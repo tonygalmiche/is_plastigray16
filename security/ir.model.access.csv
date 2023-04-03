@@ -319,3 +319,5 @@ access_is_mrp_production_wizard_line,access_is_mrp_production_wizard_line,model_
 access_is_sale_order_line,access_is_sale_order_line,model_is_sale_order_line,base.group_user,1,1,1,1
 
 access_is_mrp_production_workcenter_line,access_is_mrp_production_workcenter_line,model_is_mrp_production_workcenter_line,base.group_user,1,0,0,0
+
+access_assistent_report1,access_assistent_report1,model_assistent_report1,base.group_user,1,1,1,1
