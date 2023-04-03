@@ -101,6 +101,7 @@ from . import is_pic_3ans
 # import auditlog                       TODO : A revoir avec l'installation du moule auditlog quant il sera dispo
 
 # TODO : is_plastigray
+# is_type_equipement                 TODO : N'est plus utilisé => Ne pas migrer
 # import is_demande_achat            TODO : N'est plus utilisé => Ne pas migrer
 # import is_moyen_fabrication        TODO : N'est plus utilisé => Ne pas migrer
 # import is_moyen_fabrication_autre  TODO : N'est plus utilisé => Ne pas migrer

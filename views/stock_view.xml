@@ -338,14 +338,13 @@
 
 
 
-<!-- 
+
         <record id="is_stock_incoterms_action" model="ir.actions.act_window">
             <field name="name">Incoterm</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.incoterms</field>
-            <field name="view_type">form</field>
+            <field name="res_model">account.incoterms</field>
             <field name="view_mode">tree,form</field>
-        </record>  -->
+        </record> 
 
 
         <!-- Stocks détaillés -->

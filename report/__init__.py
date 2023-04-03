@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 #from . import is_create_postgres_function => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
+from . import is_article_sans_fournisseur
+from . import is_article_sans_nomenclature
 from . import is_certifications_qualite_suivi
 from . import is_encres_utilisees
 from . import is_ligne_livraison
@@ -14,7 +16,6 @@ from . import is_sale_order_line
 from . import is_stock_move
 from . import is_stock_quant
 
-
 # import stock_debloquer_lot
 # import stock_change_location_lot
 # import stock_rebut_lot
@@ -24,8 +25,6 @@ from . import is_stock_quant
 # import is_comparatif_tps_article_gamme
 # import is_comparatif_tarif_cial_vente
 # import is_comparatif_uc_lot
-# import is_article_sans_nomenclature
-# import is_article_sans_fournisseur
 # import is_nomenclature_sans_gamme
 # import is_comparatif_uc_lot_mini
 # import is_comparatif_lot_prix

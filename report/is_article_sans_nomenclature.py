@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
-
+from odoo import models,fields,tools
 
 class is_article_sans_nomenclature(models.Model):
     _name='is.article.sans.nomenclature'
+    _description="Articles sans nomenclature"
     _order='is_code'
     _auto = False
 
@@ -14,10 +11,10 @@ class is_article_sans_nomenclature(models.Model):
     is_code        = fields.Char('Code Article')
     designation    = fields.Char('Désignation')
     is_category_id = fields.Many2one('is.category', 'Catégorie')
+    nb             = fields.Integer('Nb nomenclatures')
 
-    nb          = fields.Integer('Nb nomenclatures')
-
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_article_sans_nomenclature')
         cr.execute("""
             CREATE OR REPLACE view is_article_sans_nomenclature AS (
