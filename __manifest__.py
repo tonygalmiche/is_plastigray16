@@ -310,15 +310,20 @@ Module Odoo 16 pour Plastigray
     ],
     "assets": {
          'web.assets_backend': [
-            'is_plastigray16/static/src/styles.css',
-            'is_plastigray16/static/src/scripts.js',
-            'is_plastigray16/static/src/templates.xml',
+            #'is_plastigray16/static/src/styles.css',
+            #'is_plastigray16/static/src/scripts.js',
+            #'is_plastigray16/static/src/templates.xml',
+            'is_plastigray16/static/src/**/*',
          ]
     },
     "installable": True,
     "application": True,
     "license": "LGPL-3",
 }
+
+
+            
+            
 
 
         #"views/is_prechauffeur_view.xml",        TODO : Ce model est migré dans is_equipement

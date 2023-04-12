@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="is_pic_3ans.pic_3ans_template" owl="1">
+        <style>
+            .pic3ans {
+                border-bottom: 1px solid #dee2e6;
+                padding-top: 0.5rem;
+                padding-right: 16px;
+                padding-bottom: 0.5rem;
+                margin-right: 16px;
+                margin-left: 16px;
+                background-color: #f2f3f4;
+              }
+    
+        </style>
+        <Layout display="display">
+            <t t-set-slot="control-panel-bottom-left">
+                <div class="d-flex flex-row">
+                    <input name="pic3ans_client"        t-att-value="state.pic3ans_client"        placeholder="Client Article" style="width:100px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/>
+                    <input name="pic3ans_fournisseur"   t-att-value="state.pic3ans_fournisseur"   placeholder="Code Fourn"     style="width:100px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="pic3ans_codepg"        t-att-value="state.pic3ans_codepg"        placeholder="CodePG(Début)"  style="width:150px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="pic3ans_cat"           t-att-value="state.pic3ans_cat"           placeholder="Cat"            style="width:50px"  t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="pic3ans_gest"          t-att-value="state.pic3ans_gest"          placeholder="Gest"           style="width:50px"  t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="pic3ans_moule"         t-att-value="state.pic3ans_moule"         placeholder="Moule(Début)"   style="width:120px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="pic3ans_annee_realise" t-att-value="state.pic3ans_annee_realise" placeholder="Année Réalisé"  style="width:100px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="pic3ans_annee_prev"    t-att-value="state.pic3ans_annee_prev"    placeholder="Année Prev."    style="width:100px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button>
+                </div>
+            </t>
+            <div class="row pic3ans">
+                <table class="table table-sm" style="width:40%">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Code</th>
+                            <th>Désignation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.lines" t-as="line" t-key="line.id">
+                            <tr><td t-esc="line.id"/><td t-esc="line.code"/><td t-esc="line.designation"/></tr>
+                        </t>
+                        </tbody>
+                </table>
+
+
+            </div>
+        </Layout>
+    </t>
+</templates>

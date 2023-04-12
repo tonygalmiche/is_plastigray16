@@ -484,6 +484,77 @@ class is_pic_3ans(models.Model):
             res.append((obj.id, name))
         return res
 
+        #     this.state.pic3ans_soc           = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_soc"]);
+        #     this.state.pic3ans_client        = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_client"]);
+        #     this.state.pic3ans_fournisseur   = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_fournisseur"]);
+        #     this.state.pic3ans_codepg        = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_codepg"]);
+        #     this.state.pic3ans_cat           = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_cat"]);
+        #     this.state.pic3ans_gest          = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_gest"]);
+        #     this.state.pic3ans_moule         = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_moule"]);
+        #     this.state.pic3ans_annee_realise = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_annee_realise"]);
+        #     this.state.pic3ans_annee_prev    = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_annee_prev"]);
+
+
+    def get_pic_3ans(self,client,fournisseur,codepg,cat,gest,moule,annee_realise,annee_prev):
+        cr = self._cr
+        SQL="""
+            select 
+                pic.id,
+                pt.id,
+                pt.is_code               code,
+                pt.name->>'fr_FR'        designation,
+                ic.name                  cat,
+                ig.name                  gest,
+                pu.name->>'fr_FR'        us,
+                pt.is_mold_dossierf      moule,
+                pic.type_donnee          type_donnee,
+                pic.annee                annee,
+                pic.mois                 mois,
+                pic.quantite             quantite
+            from product_product pp inner join product_template     pt on pp.product_tmpl_id=pt.id
+                                    inner join uom_uom          pu on pt.uom_id=pu.id
+                                    left outer join is_pic_3ans    pic on pp.id=pic.product_id
+                                    left outer join is_category     ic on pt.is_category_id=ic.id
+                                    left outer join is_gestionnaire ig on pt.is_gestionnaire_id=ig.id
+                                    left outer join res_partner    cli on pt.is_client_id=cli.id
+                                    left outer join res_partner    fou on pt.is_fournisseur_id=fou.id
+            where pt.id>0 
+        """
+        if annee_prev:
+            SQL+=" AND (pic.annee='%s' or pic.annee is null) "%(annee_prev)
+        if client:
+            SQL+=" AND cli.is_code LIKE '%%%s%%' "%(client) 
+        if fournisseur:
+            SQL+=" AND fou.is_code='%s' "%(fournisseur) 
+        if codepg:
+            SQL+=" AND pt.is_code LIKE '%s%%' "%(codepg) 
+        if cat:
+            SQL+=" AND ic.name='%s' "%(cat) 
+        if gest:
+            SQL+=" AND ig.name='%s' "%(gest); 
+        if moule:
+            SQL+=" AND pt.is_mold_dossierf LIKE '%s%%' "%(moule) 
+        # if PicPdp=="PIC":
+        #     SQL+=" AND (pic.type_donnee='pic' or pic.type_donnee is null) "
+        # # if ($PicPdp=="PDP") $SQL="$SQL AND pic.type_donnee='pdp' "; 
+
+        SQL+=" order by pt.is_code,pic.mois limit 10"
+
+        print(SQL)
+
+        cr.execute(SQL)
+        result = cr.fetchall()
+        res=[]
+        for row in result:
+            res.append({
+                'id'         : row[0],
+                'code'       : row[2],
+                'designation': row[3],
+            })
+        print(res)
+        return res
+
+
 
 class is_pic_3ans_desactive(models.Model):
     _name='is.pic.3ans.desactive'
