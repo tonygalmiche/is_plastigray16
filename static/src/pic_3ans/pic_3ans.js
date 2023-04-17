@@ -83,9 +83,14 @@ class Pic3Ans extends Component {
         ]);
         this.state.lines=lines;
         this.state.lines.forEach(function (line) {
-            console.log("line=",line, line.id, line.code, line.designation);
+            console.log("line=",line);
         });
     }
+
+
+
+
+    
 
 
 }
