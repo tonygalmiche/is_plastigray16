@@ -18,6 +18,7 @@ from . import is_res_partner
 from . import is_sale_order_line
 from . import is_stock_move
 from . import is_stock_quant
+from . import is_users_groups
 
 # import stock_debloquer_lot
 # import stock_change_location_lot
@@ -32,7 +33,6 @@ from . import is_stock_quant
 # import is_comparatif_tarif_commande
 # import is_stock_valorise
 # import is_mouvement_stock
-# import is_users_groups
 # import is_model_groups
 # import is_comparatif_tarif_reception
 # import is_comparatif_livraison_facture

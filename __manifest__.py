@@ -158,6 +158,7 @@ Module Odoo 16 pour Plastigray
         "report/is_res_partner.xml",
         "report/is_sale_order_line.xml",
         "report/is_stock_move.xml",
+        "report/is_users_groups.xml",
 
 
 
@@ -289,7 +290,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_nomenclature_sans_gamme.xml",
         # "report/is_stock_valorise.xml",
         # "report/is_mouvement_stock.xml",
-        # "report/is_users_groups.xml",
         # "report/is_model_groups.xml",
         # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_livraison_facture.xml",

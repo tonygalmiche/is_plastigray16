@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_users_groups(models.Model):
     _name='is.users.groups'
+    _description='is.users.groups'
     _order='service,login,category,group'
     _auto = False
 
@@ -20,7 +19,8 @@ class is_users_groups(models.Model):
     active_user     = fields.Boolean('Utilisateur actif')
     active_group    = fields.Boolean('Group actif')
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_users_groups')
         cr.execute("""
             CREATE OR REPLACE view is_users_groups AS (
