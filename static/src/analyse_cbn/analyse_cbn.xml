@@ -15,12 +15,23 @@
         <Layout display="display">
             <t t-set-slot="control-panel-bottom-left">
                 <div class="d-flex flex-row">
-                    <input name="analyse_cbn_codepg" t-att-value="state.analyse_cbn_codepg" placeholder="CodePG(Début)"  style="width:150px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_code_pg"      t-att-value="state.analyse_cbn_code_pg"      placeholder="Code PG (Début)" style="width:130px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_gest"         t-att-value="state.analyse_cbn_gest"         placeholder="Gest"            style="width:50px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_cat"          t-att-value="state.analyse_cbn_cat"          placeholder="Cat"             style="width:50px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_moule"        t-att-value="state.analyse_cbn_moule"        placeholder="Moule (Liste avec virgule)"  style="width:180px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_projet"       t-att-value="state.analyse_cbn_projet"       placeholder="Projet"          style="width:70px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_client"       t-att-value="state.analyse_cbn_client"       placeholder="Client"          style="width:70px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_fournisseur"  t-att-value="state.analyse_cbn_fournisseur"  placeholder="Fournisseur"     style="width:90px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_semaines"     t-att-value="state.analyse_cbn_semaines"     placeholder="Semaines"        style="width:80px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_type_cde"     t-att-value="state.analyse_cbn_type_cde"     placeholder="Type Cde"        style="width:80px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_type_rapport" t-att-value="state.analyse_cbn_type_rapport" placeholder="Rapport"         style="width:80px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_calage"       t-att-value="state.analyse_cbn_calage"       placeholder="Calage"          style="width:70px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
+                    <input name="analyse_cbn_val"          t-att-value="state.analyse_cbn_val"          placeholder="Val"             style="width:50px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
                     <button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button>
                 </div>
             </t>
             <div class="analysecbn" style="width:99%; height:99vh; overflow: auto;">
-                <!-- <table style="width:100%">
+                <table style="width:100%">
                     <tbody>
                         <t t-foreach="state.lines" t-as="line" t-key="line.id">
                             <tr>
@@ -28,13 +39,6 @@
                                 <td style="text-align:left" t-esc="line.is_code"/>
                                 <td style="text-align:left" t-esc="line.designation"/>
                             </tr>
-                        </t>
-                    </tbody>
-                </table> -->
-                <table style="width:100%">
-                    <tbody>
-                        <t t-foreach="state.lines" t-as="line" t-key="line.id">
-                            <AnalyseCbnTr id="line.id" is_code="line.is_code" designation="line.designation"/>
                         </t>
                     </tbody>
                 </table>
