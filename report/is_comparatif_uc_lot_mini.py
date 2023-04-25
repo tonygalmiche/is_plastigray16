@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_uc_lot_mini(models.Model):
@@ -19,34 +17,29 @@ class is_comparatif_uc_lot_mini(models.Model):
     test_multiple      = fields.Float("Test Multiple")
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_uc_lot_mini')
         cr.execute("""
-
-CREATE OR REPLACE FUNCTION is_qt_par_uc(product_template_id integer) RETURNS float AS $$
-BEGIN
-    RETURN (select qty from product_packaging where product_tmpl_id=product_template_id order by id limit 1);
-END;
-$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE view is_comparatif_uc_lot_mini AS (
     select 
         pt.id                   as id,
         pt.id                   as product_id, 
         pt.is_category_id       as is_category_id, 
-        is_qt_par_uc(pt.id)     as uc,
+        is_qt_par_uc(pp.id)     as uc,
         pt.lot_mini             as lot_mini,
         pt.multiple             as multiple,
-        round(cast(pt.lot_mini      / is_qt_par_uc(pt.id) as numeric),4) as test_lot_mini,
-        round(cast(pt.multiple      / is_qt_par_uc(pt.id) as numeric),4) as test_multiple
-    from product_template pt 
+        round(cast(pt.lot_mini      / is_qt_par_uc(pp.id) as numeric),4) as test_lot_mini,
+        round(cast(pt.multiple      / is_qt_par_uc(pp.id) as numeric),4) as test_multiple
+    from product_template pt inner join product_product  pp on pt.id=pp.product_tmpl_id
     where 
         pt.id>0
-        and is_qt_par_uc(pt.id)!=0
+        and is_qt_par_uc(pp.id)!=0
         and (
-            round(cast(pt.lot_mini/is_qt_par_uc(pt.id) as numeric),0) != round(cast(pt.lot_mini/is_qt_par_uc(pt.id) as numeric),4) 
+            round(cast(pt.lot_mini/is_qt_par_uc(pp.id) as numeric),0) != round(cast(pt.lot_mini/is_qt_par_uc(pp.id) as numeric),4) 
             or
-            (round(cast(pt.multiple/is_qt_par_uc(pt.id) as numeric),0) != round(cast(pt.multiple/is_qt_par_uc(pt.id) as numeric),4) and multiple>1)
+            (round(cast(pt.multiple/is_qt_par_uc(pp.id) as numeric),0) != round(cast(pt.multiple/is_qt_par_uc(pp.id) as numeric),4) and multiple>1)
         )
 )
 

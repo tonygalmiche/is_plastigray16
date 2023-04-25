@@ -3,6 +3,9 @@
 from . import is_article_sans_fournisseur
 from . import is_article_sans_nomenclature
 from . import is_certifications_qualite_suivi
+from . import is_comparatif_article_tarif_cial
+from . import is_comparatif_uc_lot
+from . import is_comparatif_uc_lot_mini
 from . import is_encres_utilisees
 from . import is_ligne_livraison
 from . import is_ligne_reception
@@ -24,9 +27,7 @@ from . import is_stock_quant
 # import is_comparatif_gamme_standard_generique
 # import is_comparatif_tps_article_gamme
 # import is_comparatif_tarif_cial_vente
-# import is_comparatif_uc_lot
 # import is_nomenclature_sans_gamme
-# import is_comparatif_uc_lot_mini
 # import is_comparatif_lot_prix
 # import is_comparatif_tarif_commande
 # import is_stock_valorise
@@ -40,7 +41,6 @@ from . import is_stock_quant
 # import is_marge_contributive
 # import is_suivi_budget_analytique
 # import is_comparatif_lot_appro_prix
-# import is_comparatif_article_tarif_cial
 # import is_article_sans_cde_ouverte_fou
 # import is_anomalie_position_fiscale
 # import is_anomalie_declar_prod

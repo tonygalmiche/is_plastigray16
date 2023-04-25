@@ -1480,7 +1480,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
-    </record>
+    </record-->
 
     <record id="is_poids_brut_0_menu" model="ir.ui.menu" >
         <field name="name">Poids brut à 0</field>
@@ -1527,7 +1527,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    <record id="is_comparatif_lot_prix_menu" model="ir.ui.menu" >
+    <!--record id="is_comparatif_lot_prix_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Lot liv / Prix</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('is_analyse_article_menu')"/>

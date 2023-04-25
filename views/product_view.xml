@@ -1062,7 +1062,7 @@
 
 
         <!-- Poids brut à 0 pour les segment 'Produit fini et semi-fini -->
-        <!-- <record id="is_poids_brut_0_tree_view" model="ir.ui.view">
+        <record id="is_poids_brut_0_tree_view" model="ir.ui.view">
             <field name="name">is_liste_stock_negatif_tree_view</field>
             <field name="model">product.template</field>
             <field name="priority" eval="90" />
@@ -1089,15 +1089,15 @@
             ]</field>
             <field name="limit">200</field>
             <field name="view_id" ref="is_poids_brut_0_tree_view"/>
-            <field name="view_type">form</field>
+            <!--field name="view_type">form</field-->
             <field name="view_mode">tree,form</field>
-        </record> -->
+        </record>
 
 
 
 
         <!-- Poids net supérieur au poids brut -->
-        <!-- <record id="is_poids_brut_poids_net_tree_view" model="ir.ui.view">
+        <record id="is_poids_brut_poids_net_tree_view" model="ir.ui.view">
             <field name="name">is_poids_brut_poids_net_tree_view</field>
             <field name="model">product.template</field>
             <field name="priority" eval="90" />
@@ -1122,10 +1122,8 @@
             <field name="domain">[('weight','&gt;', 0),('weight_net','&gt;', 0),('is_weight_delta','&lt;=', 0)]</field>
             <field name="limit">200</field>
             <field name="view_id" ref="is_poids_brut_poids_net_tree_view"/>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record> -->
-
+        </record>
 
         <!-- Articles achetés-->
         <record id="is_article_achete_tree_view" model="ir.ui.view">

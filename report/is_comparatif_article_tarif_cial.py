@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
 
 
 class is_comparatif_article_tarif_cial(models.Model):
@@ -17,7 +15,8 @@ class is_comparatif_article_tarif_cial(models.Model):
     client_id          = fields.Many2one('res.partner'       , 'Client')
     tarif_cial_id      = fields.Many2one('is.tarif.cial'     , 'Tarif commercial')
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_article_tarif_cial')
         cr.execute("""
             CREATE OR REPLACE view is_comparatif_article_tarif_cial AS (
