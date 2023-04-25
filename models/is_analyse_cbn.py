@@ -10,6 +10,51 @@ class product_product(models.Model):
     _inherit = "product.product"
 
 
+    def get_analyse_cbn(self,code_pg):
+        cr = self._cr
+        SQL="""
+            select 
+                pp.id,
+                pt.is_code,
+                pt.name->>'fr_FR' designation
+            from product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
+            where pt.is_code like '%s%%' limit 20
+        """%(code_pg)
+        cr.execute(SQL)
+        result = cr.dictfetchall()
+        ids=[]
+        for row in result:
+            vals={
+                "id"         : row["id"],
+                "is_code"    : "",
+                "designation": "",
+            }
+            ids.append(vals)
+        print(ids)
+        return ids
+
+
+    def get_analyse_cbn_tr(self,product_id):
+        cr = self._cr
+        SQL="""
+            select 
+                pp.id,
+                pt.is_code,
+                pt.name->>'fr_FR' designation
+            from product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
+            where pp.id=%s
+        """
+        cr.execute(SQL,[product_id])
+        result = cr.dictfetchall()
+        print(result)
+        if len(result)>0:
+            return result[0]
+        return False
+
+
+
+
+
     def analyse_cbn(self,filter=False):
         cr, uid, context = self.env.args
 
