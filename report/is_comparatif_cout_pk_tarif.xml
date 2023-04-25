@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
        <record id="is_comparatif_cout_pk_tarif_form_view" model="ir.ui.view">
             <field name="name">is_comparatif_cout_pk_tarif_form_view</field>
@@ -54,8 +54,7 @@
         <record id="is_comparatif_cout_pk_tarif_action" model="ir.actions.act_window">
             <field name="name">Comparatif Coût PK Tarif Achat</field>
             <field name="res_model">is.comparatif.cout.pk.tarif</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
     </data>
-</openerp>
+</odoo>

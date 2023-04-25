@@ -1673,6 +1673,7 @@
         ])]"/>
     </record>
 
+    -->
     <menuitem id="is_analyse_fournisseur_menu" sequence="50" name="Analyses Fournisseurs" parent="menu_is_analyse"/>
     <record id="is_res_partner_menu" model="ir.ui.menu" >
         <field name="name">Fournisseurs sans Cde</field>
@@ -1683,10 +1684,10 @@
             ref('is_gestionnaire_donnees_techniques_group'),
             ref('is_rsp_production_group'),
         ])]"/>
-    </record> -->
+    </record>
 
     <!-- Analyse des couts -->
-    <!-- <menuitem id="is_analyse_cout_menu" sequence="60" name="Analyses Coûts" parent="menu_is_analyse"/>
+    <menuitem id="is_analyse_cout_menu" sequence="60" name="Analyses Coûts" parent="menu_is_analyse"/>
     <record id="is_prix_vente_standard_0_menu" model="ir.ui.menu" >
         <field name="name">Prix vente standard à 0</field>
         <field name="sequence">10</field>
@@ -1705,7 +1706,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    <record id="is_comparatif_cout_pk_tarif_menu" model="ir.ui.menu" >
+    <!--record id="is_comparatif_cout_pk_tarif_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Coût PK Tarif</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_analyse_cout_menu')"/>

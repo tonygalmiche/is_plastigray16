@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_cout_pk_tarif(models.Model):
     _name='is.comparatif.cout.pk.tarif'
+    _description='is.comparatif.cout.pk.tarif'
     _order='product_id'
     _auto = False
 
@@ -20,7 +19,8 @@ class is_comparatif_cout_pk_tarif(models.Model):
     cout_total           = fields.Float(u'Coût Total'  , digits=(14,4))
     prix_achat           = fields.Float(u'Tarif achat' , digits=(14,4))
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_cout_pk_tarif')
         cr.execute("""
             CREATE OR REPLACE view is_comparatif_cout_pk_tarif AS (

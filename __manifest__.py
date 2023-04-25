@@ -155,6 +155,7 @@ Module Odoo 16 pour Plastigray
         "report/is_mrp_production_workcenter_line.xml",
         "report/is_pricelist_item.xml",
         "report/is_product_packaging.xml",
+        "report/is_res_partner.xml",
         "report/is_sale_order_line.xml",
         "report/is_stock_move.xml",
 
@@ -297,7 +298,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_marge_contributive.xml",
         # "report/is_suivi_budget_analytique.xml",
         # "report/is_comparatif_lot_appro_prix.xml",
-        # "report/is_res_partner.xml",
         # "report/is_article_sans_cde_ouverte_fou.xml",
         # "report/is_anomalie_position_fiscale.xml",
         # "report/is_anomalie_declar_prod.xml",
