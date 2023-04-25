@@ -5,6 +5,7 @@ from odoo import tools,models,fields
 
 class is_comparatif_uc_lot(models.Model):
     _name='is.comparatif.uc.lot'
+    _description='is.comparatif.uc.lot'
     _order='product_id'
     _auto = False
 

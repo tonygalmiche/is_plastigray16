@@ -5,6 +5,7 @@ from odoo import models,fields,tools
 
 class is_comparatif_article_tarif_cial(models.Model):
     _name='is.comparatif.article.tarif.cial'
+    _description='is.comparatif.article.tarif.cial'
     _order='product_id'
     _auto = False
 
