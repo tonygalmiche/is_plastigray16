@@ -3,12 +3,14 @@ import { registry } from "@web/core/registry";
 import { Layout } from "@web/search/layout";
 import { getDefaultConfig } from "@web/views/view";
 import { useService } from "@web/core/utils/hooks";
+//import { memoize } from "@web/core/utils/functions";
 
 const { Component, useSubEnv, useState, onWillStart } = owl;
 
+
 class Pic3Ans extends Component {
     setup() {
-        //this.action  = useService("action");
+        this.action  = useService("action");
         this.user_id = useService("user").context.uid;
         this.orm     = useService("orm");
         this.state   = useState({
@@ -44,6 +46,7 @@ class Pic3Ans extends Component {
             this.state.pic3ans_moule         = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_moule"]);
             this.state.pic3ans_annee_realise = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_annee_realise"]);
             this.state.pic3ans_annee_prev    = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_annee_prev"]);
+            //const memoized1 = memoize(this.getPic3ans());
             this.getPic3ans();
 
         });
@@ -54,6 +57,42 @@ class Pic3Ans extends Component {
         this.getPic3ans();
     }
 
+    OKclickQt(ev) {
+        const product_id = parseInt(ev.target.attributes.productid.value);
+        const mois       = ev.target.attributes.mois.value;
+        console.log("OKclickQt",ev,product_id,mois);
+
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: product_id,
+            target: 'current',
+            res_model: 'is.pic.3ans',
+            views: [[false, 'tree'],[false, 'form']],
+            domain: [
+                ['mois'       ,'=',mois],
+                ['product_id' ,'=',product_id],
+                ['type_donnee','=','pic'],
+            ],
+        });
+    }
+
+    OKclickCode(ev) {
+        console.log("OKclickCode",ev);
+        console.log("OKclickQt",ev.target.attributes.productid);
+
+        const product_id = parseInt(ev.target.attributes.productid.value);
+
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: product_id,
+            target: 'current',
+            res_id: product_id,
+            res_model: 'product.template',
+            views: [[false, 'form']],
+        });
+
+    }
+
     onChangeInput(ev) {
         console.log("onChangeInput",ev);
         this.state[ev.target.name] = ev.target.value;
@@ -61,12 +100,38 @@ class Pic3Ans extends Component {
     }
 
     OKkey(ev) {
-        //if  (ev.target.id=='input1') this.state.input1 = ev.target.value;
         if (ev.keyCode === 13) {
-            console.log("OKkey", ev.target.id, ev.target.value);
             this.getPic3ans();
         }
     }
+
+    TrMouseLeave(ev) {
+        const click=ev.target.attributes.click.value;
+        if (click!="1"){
+            const memstyle = ev.target.attributes.memstyle.value;
+            ev.target.style=memstyle;
+        }
+    }
+
+    TrMouseEnter(ev) {
+        const click=ev.target.attributes.click.value;
+        if (click!="1"){
+            ev.target.style="background-color:#FFFF00";
+        }
+    }
+
+    TrClick(ev) {
+        var click=parseInt(ev.target.parentElement.attributes.click.value);
+        click=-click
+        if (click==1){
+            ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
+        } else {
+            const memstyle = ev.target.parentElement.attributes.memstyle.value;
+            ev.target.parentElement.style=memstyle;
+        }
+        ev.target.parentElement.attributes.click.value=click;
+    }
+
 
 
     async getPic3ans(){
@@ -82,9 +147,11 @@ class Pic3Ans extends Component {
             this.state.pic3ans_annee_prev,
         ]);
         this.state.lines=lines;
+        
         this.state.lines.forEach(function (line) {
             console.log("line=",line);
         });
+        
     }
 
 

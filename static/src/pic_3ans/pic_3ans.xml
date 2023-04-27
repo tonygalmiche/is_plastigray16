@@ -4,14 +4,17 @@
         <style>
             .pic3ans {
                 border-bottom: 1px solid #dee2e6;
-                padding-top: 0.5rem;
+                padding-top: 0;
                 padding-right: 16px;
                 padding-bottom: 0.5rem;
                 margin-right: 16px;
                 margin-left: 16px;
                 background-color: #f2f3f4;
-              }
-    
+            }
+            .link {
+                cursor: pointer;
+                color: #564b79;
+            }
         </style>
         <Layout display="display">
             <t t-set-slot="control-panel-bottom-left">
@@ -55,8 +58,27 @@
                     </thead>
                     <tbody>
                         <t t-foreach="state.lines" t-as="line" t-key="line.key">
-                            <tr>
-                                <td style="text-align:left" t-esc="line.code"/>
+                            <tr 
+                                t-att-style="line.trstyle"
+                                t-att-memstyle="line.trstyle"
+                                t-on-mouseenter="TrMouseEnter" 
+                                t-on-click="TrClick" 
+                                t-on-mouseleave="TrMouseLeave" 
+                                t-att-productid="line.product_tmpl_id"
+                                t-att-click="-1"
+                            >
+
+                                <td 
+                                    style="text-align:left" 
+                                    t-esc="line.code" 
+                                    class="link" 
+                                    t-on-click="OKclickCode" 
+                                    t-att-productid="line.product_tmpl_id"
+                                />
+
+
+
+
                                 <td style="text-align:center" t-esc="line.cat"/>
                                 <td style="text-align:center" t-esc="line.gest"/>
                                 <td style="text-align:center" t-esc="line.moule"/>
@@ -64,18 +86,35 @@
                                 <td style="text-align:center" t-esc="line.us"/>
                                 <td style="text-align:center" t-esc="line.annee"/>
                                 <td style="text-align:right"/>
-                                <td style="text-align:right" t-esc="line.m01"/>
-                                <td style="text-align:right" t-esc="line.m02"/>
-                                <td style="text-align:right" t-esc="line.m03"/>
-                                <td style="text-align:right" t-esc="line.m04"/>
-                                <td style="text-align:right" t-esc="line.m05"/>
-                                <td style="text-align:right" t-esc="line.m06"/>
-                                <td style="text-align:right" t-esc="line.m07"/>
-                                <td style="text-align:right" t-esc="line.m08"/>
-                                <td style="text-align:right" t-esc="line.m09"/>
-                                <td style="text-align:right" t-esc="line.m10"/>
-                                <td style="text-align:right" t-esc="line.m11"/>
-                                <td style="text-align:right" t-esc="line.m12"/>
+
+                                <t t-foreach="line.listcols" t-as="col" t-key="col.key">
+                                    <!-- <td style="text-align:right" t-esc="col.quantite"/> -->
+                                    <td 
+                                        style="text-align:right" 
+                                        t-esc="col.quantite" 
+                                        class="link" 
+                                        t-on-click="OKclickQt" 
+                                        t-att-mois="col.mois" 
+                                        t-att-productid="line.product_id"
+                                    />
+                                </t>
+                                
+                                <!-- 
+                                <td style="text-align:right" t-esc="line.m01" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m02" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m03" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m04" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m05" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m06" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m07" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m08" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m09" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m10" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m11" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                <td style="text-align:right" t-esc="line.m12" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
+                                -->
+
+
                                 <td/>
                             </tr>
                         </t>

@@ -500,7 +500,8 @@ class is_pic_3ans(models.Model):
         SQL="""
             select 
                 pic.id,
-                pt.id,
+                pt.id                    product_tmpl_id,
+                pp.id                    product_id,
                 pt.is_code               code,
                 pt.name->>'fr_FR'        designation,
                 ic.name                  cat,
@@ -541,38 +542,46 @@ class is_pic_3ans(models.Model):
         cr.execute(SQL)
         result = cr.dictfetchall()
         TabTmp1={}
-        #TabTmp2={}
-        #res=[]
+        trcolor=""
         for row in result:
             code  = row["code"][0:6]
             annee = row["annee"]
             key = "%s-%s"%(code,annee)
             mois  = row["mois"] and "m"+row["mois"][-2:] or ''
             if key not in TabTmp1:
+                if trcolor=="#ffffff":
+                    trcolor="#f2f3f4"
+                else:
+                    trcolor="#ffffff"
+                trstyle="background-color:%s"%(trcolor)
                 vals={
-                    "key"        : key,
-                    "id"         : row["id"],
-                    "code"       : row["code"],
-                    "cat"        : row["cat"],
-                    "gest"       : row["gest"],
-                    "designation": row["designation"],
-                    "moule"      : row["moule"],
-                    "us"         : row["us"],
-                    "annee"      : row["annee"],
+                    "key"            : key,
+                    "product_tmpl_id": row["product_tmpl_id"],
+                    "product_id"     : row["product_id"],
+                    "code"           : row["code"],
+                    "cat"            : row["cat"],
+                    "gest"           : row["gest"],
+                    "designation"    : row["designation"],
+                    "moule"          : row["moule"],
+                    "us"             : row["us"],
+                    "annee"          : row["annee"],
+                    "mois"           : row["mois"],
+                    "trstyle"        : trstyle,
                 }
+                cols={}
                 for x in range(1, 13):
                     col="m%02d"%(x)
                     vals[col]=''
+                    cols[col] = {"key":col, "quantite":"", "mois":""}
+
+                vals["cols"]=cols
                 TabTmp1[key]=vals
 
-
-            if mois in TabTmp1[key]:
+            if row["quantite"]:
                 quantite = "{:,.0f}".format(row["quantite"]).replace(",", " ")
-                TabTmp1[key][mois]=quantite
-
-        res=[]
-        for key in TabTmp1:
-            res.append(TabTmp1[key])
+                TabTmp1[key]["cols"][mois] = {"key":mois, "mois":row["mois"], "quantite":quantite}
+            TabTmp1[key]["listcols"] = list(TabTmp1[key]["cols"].values())
+        res = list(TabTmp1.values())
         return res
 
 
