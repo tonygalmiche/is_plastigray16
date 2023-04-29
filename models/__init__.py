@@ -45,11 +45,7 @@ from . import is_fiche_tampographie
 from . import is_gabarit_controle
 from . import is_galia_base
 from . import is_gestion_des_absences
-
 from . import is_gestion_lot
-
-
-
 from . import is_historique_controle
 from . import is_import_budget_pk
 from . import is_indicateur_revue_jalon
@@ -65,6 +61,8 @@ from . import is_mold
 from . import is_mold_project
 from . import is_ot
 from . import is_pdc
+from . import is_pic_3ans
+from . import is_pic_3mois
 from . import is_piece_montabilite
 from . import is_plaquette_etalon
 from . import is_pointage
@@ -89,9 +87,6 @@ from . import res_partner
 from . import res_users
 from . import sale
 from . import stock
-
-from . import is_pic_3ans
-
 
 
 
