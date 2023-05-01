@@ -3,8 +3,8 @@ import { registry } from "@web/core/registry";
 import { Layout } from "@web/search/layout";
 import { getDefaultConfig } from "@web/views/view";
 import { useService } from "@web/core/utils/hooks";
-
 import { memoize } from "@web/core/utils/functions";
+
 export const Pic3MoisService = {
     dependencies: ["rpc"],
     async: ["loadPic3Mois"],
@@ -17,60 +17,17 @@ export const Pic3MoisService = {
 registry.category("services").add("Pic3MoisService", Pic3MoisService);
 
 
-
 const { Component, useSubEnv, useState, onWillStart } = owl;
-
 
 class Pic3Mois extends Component {
     setup() {
         this.action  = useService("action");
         this.user_id = useService("user").context.uid;
         this.orm     = useService("orm");
-
         this.Pic3MoisService = useService("Pic3MoisService"); // Cache network calls with a service 
-
-        /*
-        const options = [10,50,100,200,300,400,500,1000,2000];
-        var nb_lig_options=[];
-        var selected=false;
-        options.forEach((o) => {
-            console.log(o);
-            selected=false;
-            if (o==100){
-                selected=true;
-            }
-            nb_lig_options.push({
-                "id": o,
-                "name": o,
-                "selected": selected,
-            });
-        });
-        */
-
         this.state   = useState({
-            // 'pic3mois_client': false,
-            // 'pic3mois_fournisseur': false,
-            // 'pic3mois_code_pg': false,
-            // 'pic3mois_cat': false,
-            // 'pic3mois_gest': false,
-            // 'pic3mois_moule': false,
-            // 'pic3mois_annee_realise': false,
-            // 'pic3mois_annee_prev': false,
-            //'nb_lig_options': nb_lig_options,
             'lines': [],
         });
-        
-
-
-    //     <t t-foreach="state.nb_lig_options or []" t-as="o">
-    //     <option t-att-value="o.id" t-att-selected="o.selected">
-    //         <t t-esc="o.name" />
-    //     </option>
-    // </t>
-
-
-
-
         useSubEnv({
             config: {
                 ...getDefaultConfig(),
@@ -90,11 +47,9 @@ class Pic3Mois extends Component {
 
     OKclick(ev) {
         //const res = $("[name='pic3mois_client']"); //$() permet de passer par jquery pour accèder au DOM, mais ce n'est pas conseillé
-        //console.log("res3=",res, res[0].value);
         this.getPic3mois(true);
     }
 
- 
     clickCode(ev) {
         const product_id = parseInt(ev.target.attributes.productid.value);
         this.action.doAction({
@@ -111,7 +66,6 @@ class Pic3Mois extends Component {
     onChangeInput(ev) {
         console.log("onChangeInput",ev.target.name,ev.target.value);
         this.state[ev.target.name] = ev.target.value;
-        //this.orm.call("is.mem.var", 'set', [false, this.user_id, ev.target.name, ev.target.value]);
     }
 
     OKkey(ev) {
@@ -147,7 +101,6 @@ class Pic3Mois extends Component {
         ev.target.parentElement.attributes.click.value=click;
     }
 
-
     async getPic3mois(ok=false){
         const params={
             "code_cli"        : this.state.pic3mois_code_cli,
@@ -169,6 +122,7 @@ class Pic3Mois extends Component {
         }
         var res = await this.orm.call("sale.order", 'get_pic_3mois', [false],params);
         this.state.lines                     = res.lines;
+        this.state.date_cols                 = res.date_cols;
         this.state.pic3mois_code_cli         = res.code_cli;
         this.state.pic3mois_adr_cli          = res.adr_cli;
         this.state.pic3mois_code_pg          = res.code_pg;
@@ -177,7 +131,6 @@ class Pic3Mois extends Component {
         this.state.pic3mois_ref_cli          = res.ref_cli;
         this.state.pic3mois_moule            = res.moule;
         this.state.pic3mois_projet           = res.projet;
-
         this.state.pic3mois_type_cde          = res.type_cde;
         this.state.pic3mois_type_client       = res.type_client;
         this.state.pic3mois_prod_st           = res.prod_st;
@@ -185,9 +138,6 @@ class Pic3Mois extends Component {
         this.state.pic3mois_periodicite       = res.periodicite;
         this.state.pic3mois_affiche_col_vide  = res.affiche_col_vide;
         this.state.pic3mois_nb_lig            = res.nb_lig;
-
-
-
         this.state.type_cde_options          = res.type_cde_options;
         this.state.type_client_options       = res.type_client_options;
         this.state.prod_st_options           = res.prod_st_options;
@@ -196,8 +146,6 @@ class Pic3Mois extends Component {
         this.state.affiche_col_vide_options  = res.affiche_col_vide_options;
         this.state.nb_lig_options            = res.nb_lig_options;
     }
-
-
 }
 Pic3Mois.components = {
     Layout,

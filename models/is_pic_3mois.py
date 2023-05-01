@@ -10,6 +10,17 @@ class Pic3Mois(http.Controller):
         return http.request.env['sale.order'].get_pic_3mois()
 
 
+#TODO : 
+# - Lot mini
+# - Masquer les colonnes vides
+# - Page suivantes
+# - Totaux
+# - Mettre les chiffres dans les bonnes colonnes
+# - Faire fonctionner le clic sur la référence et sur les quanités
+# - Qt ferme en gras 
+# - Faire fonctionner le service de cache et la mise à jour des données
+
+
 class sale_order(models.Model):
     _inherit = "sale.order"
 
@@ -63,7 +74,8 @@ class sale_order(models.Model):
             nb_semaines      = self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_semaines')
             periodicite      = self.env['is.mem.var'].get(self._uid, 'pic3mois_periodicite')
             affiche_col_vide = self.env['is.mem.var'].get(self._uid, 'pic3mois_affiche_col_vide')
-            nb_lig           = self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_lig')
+            nb_lig           = int(self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_lig'))
+
 
         #Liste de choix *******************************************************
         options = ["Ferme", "Prev", "Toutes"]
@@ -137,7 +149,7 @@ class sale_order(models.Model):
                 "selected": selected,
             })
 
-        options = [10,50,100,200,300,400,500,1000,2000]
+        options = [10,20,50,100,200,300,400,500,1000,2000]
         nb_lig_options=[]
         for o in options:
             selected=False
@@ -151,13 +163,8 @@ class sale_order(models.Model):
         #**********************************************************************
 
 
-
+        #** Requête ***********************************************************
         cr = self._cr
-
-
-
-
-
         SQL="""
             SELECT 
                 sol.id,
@@ -204,59 +211,59 @@ class sale_order(models.Model):
             WHERE so.state in('draft','sent') 
         """
 
-        # code_cli         = self.env['is.mem.var'].get(self._uid, 'pic3mois_code_cli')
-        # adr_cli          = self.env['is.mem.var'].get(self._uid, 'pic3mois_adr_cli')
-        # code_pg          = self.env['is.mem.var'].get(self._uid, 'pic3mois_code_pg')
-        # cat              = self.env['is.mem.var'].get(self._uid, 'pic3mois_cat')
-        # gest             = self.env['is.mem.var'].get(self._uid, 'pic3mois_gest')
-        # ref_cli          = self.env['is.mem.var'].get(self._uid, 'pic3mois_ref_cli')
-        # moule            = self.env['is.mem.var'].get(self._uid, 'pic3mois_moule')
-        # projet           = self.env['is.mem.var'].get(self._uid, 'pic3mois_projet')
-        # type_cde         = self.env['is.mem.var'].get(self._uid, 'pic3mois_type_cde')
-        # type_client      = self.env['is.mem.var'].get(self._uid, 'pic3mois_type_client')
-        # prod_st          = self.env['is.mem.var'].get(self._uid, 'pic3mois_prod_st')
-        # nb_semaines      = self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_semaines')
-        # periodicite      = self.env['is.mem.var'].get(self._uid, 'pic3mois_periodicite')
-        # affiche_col_vide = self.env['is.mem.var'].get(self._uid, 'pic3mois_affiche_col_vide')
-        # nb_lig           = self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_lig')
+
+
 
         if code_cli:
-            SQL+=" AND rp.is_code='%s' "%(code_cli) 
-        # if ($AdrCli!="")     $SQL="$SQL AND rp.is_adr_code='$AdrCli' "; 
+            SQL+=" AND rp.is_code='%s' "%code_cli
+        if adr_cli:
+            SQL+=" AND rp.is_adr_code='%s' "%adr_cli 
         if code_pg:
-            SQL+=" AND pt.is_code LIKE '%s%%' "%(code_pg) 
-        # if ($Cat!="")        $SQL="$SQL AND ic.name='$Cat' "; 
-        # if ($Gest!="")       $SQL="$SQL AND ig.name='$Gest' "; 
-        # if ($RefCli!="")     $SQL="$SQL AND pt.is_ref_client LIKE '%$RefCli%' "; 
-        # if ($ProdST=="ST")   $SQL="$SQL AND ig.name IN     ('03', '06', '07', '10', '12', '14') "; 
-        # if ($ProdST=="PROD") $SQL="$SQL AND ig.name NOT IN ('03', '06', '07', '10', '12', '14') "; 
+            SQL+=" AND pt.is_code LIKE '%s%%' "%code_pg
+        if cat:
+            SQL+=" AND ic.name='%s' "%cat 
+        if gest:
+            SQL+=" AND ig.name='%s' "%gest; 
+        if ref_cli:
+            SQL+=" AND pt.is_ref_client LIKE '%%%s%%' "%ref_cli 
+        rMoules=[]
+        if moule:
+            moule=moule.strip()
+            tmoule=moule.split(",")
+            for m in tmoule:
+                rMoules.append("'%s'"%m.strip())
+            moules = ",".join(rMoules)
+            SQL+=" AND (im.name IN (%s) or id.name IN (%s)) "%(moules,moules)
+
+        # affiche_col_vide = self.env['is.mem.var'].get(self._uid, 'pic3mois_affiche_col_vide')
 
 
-        # if ($Moule!="") {
-        #     $Moule=trim($Moule);
-        #     $tMoule=explode(",",$Moule);
-        #     for ($i=0;$i<count($tMoule);$i++) {
-        #         $rMoule=$rMoule."'".$tMoule[$i]."',";
-        #     }
-        #     $rMoule=substr($rMoule,0,strlen($r)-1);
-        #     $SQL="$SQL AND (im.name IN ($rMoule) or id.name IN ($rMoule)) ";
-        # }
+        if projet:
+            SQL+=" AND (imp.name ilike '%%%s%%' or imp2.name ilike '%%%s%%') "%(projet,projet)
+        if type_cde=="Ferme":
+            SQL+=" AND sol.is_type_commande='ferme' "
+        if type_cde=="Prev":
+            SQL+=" AND sol.is_type_commande='previsionnel' "
 
-        # if ($Projet!="")      { $SQL="$SQL AND (imp.name ilike '%$Projet%' or imp2.name ilike '%$Projet%') "; }
-        # if ($TypeFP=="Ferme") { $SQL="$SQL AND sol.is_type_commande='ferme' "; }
-        # if ($TypeFP=="Prev")  { $SQL="$SQL AND sol.is_type_commande='previsionnel' "; }
+        if type_client=="50xx":
+            SQL+=" AND rp.is_code>='500000' AND rp.is_code<='599999' "
+        if type_client=="70xx":
+            SQL+=" AND rp.is_code>='700000' AND rp.is_code<='799999' "
+        if type_client=="80xx":
+            SQL+=" AND rp.is_code>='800000' AND rp.is_code<='899999' "
+        if type_client=="90xx":
+            SQL+=" AND rp.is_code>='900000' AND rp.is_code<='999999' "
+        if type_client=="SaufPMTC":
+            SQL+=" AND rp.is_code>='900000' AND rp.is_code<>'907480' "
 
-        # if ($TypeClient=="50xx")     $SQL="$SQL AND rp.is_code>='500000' AND rp.is_code<='599999' ";
-        # if ($TypeClient=="70xx")     $SQL="$SQL AND rp.is_code>='700000' AND rp.is_code<='799999' ";
-        # if ($TypeClient=="80xx")     $SQL="$SQL AND rp.is_code>='800000' AND rp.is_code<='899999' ";
-        # if ($TypeClient=="90xx")     $SQL="$SQL AND rp.is_code>='900000' AND rp.is_code<='999999' ";
-        # if ($TypeClient=="SaufPMTC") $SQL="$SQL AND rp.is_code>='900000' AND rp.is_code<>'907480' ";
+        if prod_st=="ST":
+            SQL+=" AND ig.name IN     ('03', '06', '07', '10', '12', '14') "
+        if prod_st=="PROD":
+            SQL+=" AND ig.name NOT IN ('03', '06', '07', '10', '12', '14') "
 
-        SQL+=" ORDER BY rp.is_code, im.name, pt.is_code limit 500"
+        SQL+=" ORDER BY rp.is_code, im.name, pt.is_code limit %s"%(int(nb_lig)*100)
+        #**********************************************************************
 
-
-
-        # $lig=0; $MemCodePG=""; $Qt=array(); $TotalCol=array();
 
         NbColMax = math.floor(int(nb_semaines)*7/int(periodicite))
         LaDate = datetime.now()
@@ -264,18 +271,17 @@ class sale_order(models.Model):
         DebSem = LaDate
         if periodicite!=1:
             DebSem = LaDate - timedelta(days=JourSem)
-        #print(nb_semaines, periodicite, NbColMax, LaDate, JourSem, DebSem, DebSem.strftime("%Y%m%d"))
+
+
 
         lig=0
         key=""
-        
-
         cr.execute(SQL)
         result = cr.dictfetchall()
         lines={}
         trcolor=""
-        #odoo={}
 
+        TotalCol={}
         for row in result:
             DebSemTxt = DebSem.strftime("%Y%m%d")
             if key!=row['is_code']:
@@ -287,7 +293,7 @@ class sale_order(models.Model):
                     trcolor="#ffffff"
                 trstyle="background-color:%s"%(trcolor)
 
-                moule    = "LeMoule"
+                #moule    = "LeMoule"
                 lot_mini = "LotMini"
                 vals={
                     "key"        : key,
@@ -295,7 +301,7 @@ class sale_order(models.Model):
                     "trstyle"    : trstyle,
                     "trstyle"    : trstyle,
                     "row"        : row,
-                    "moule"      : moule,
+                    "moule"      : row["moule"],
                     "lot_mini"   : lot_mini,
                 }
                 cols={}
@@ -303,7 +309,7 @@ class sale_order(models.Model):
                     cols[col] = {"key":col, "qt":""}
                 vals["cols"] = cols
                 lines[key]=vals
-
+                lig+=1
 
             DateCde = row["is_date_livraison"] or datetime.now().date()
             DateCdeTxt =  DateCde.strftime("%Y%m%d")
@@ -312,80 +318,38 @@ class sale_order(models.Model):
             else:
                 nb_jours = (DateCde-DebSem.date()).days
                 col=math.floor(nb_jours/int(periodicite))
-                #print( DateCde,DebSem,nb_jours,col)
 
             if col<NbColMax:
                 qt = row['product_uom_qty']
                 lines[key]["cols"][col] =  {"key":col, "qt":qt}
 
+                if col not in TotalCol:
+                    TotalCol[col]=0
+                TotalCol[col]+=qt
+
             lines[key]["listcols"] = list(lines[key]["cols"].values())
 
+            if lig>int(nb_lig):
+                break
 
 
+        #** Titres des colonnes ***********************************************
+        date_cols=[]
+        DateCol = DebSem
+        for o in range(0,NbColMax):
+            DebSem.strftime("%Y%m%d")
+            date_cols.append({
+                "id": o,
+                "jour": DateCol.strftime("%d"),
+                "mois": DateCol.strftime("%m"),
+            })
+            DateCol = DateCol + timedelta(days=int(periodicite))
+        #**********************************************************************
 
-            # $T=$row['is_type_commande'];
-            # $TheQt=$row['product_uom_qty']; // TODO: L'ancien programme tient compte des commandes déja livrées
-            # $Qt[$lig][$col][$T]=$Qt[$lig][$col][$T]+$TheQt;
-            # $Total=$Total+$TheQt;
-            # $TotalCol[$col]=$TotalCol[$col]+$TheQt;
-            # $TotalCol[$NbColMax]=$TotalCol[$NbColMax]+$TheQt;
-
-
-            # $odoo[$i]['code_client']." / ".
-            # $odoo[$i]['is_ref_client']." / ".
-            # $odoo[$i]['client_order_ref']."<br />".
-            # $Moule." / ".
-            # $odoo[$i]['is_code']." / ".
-            # $odoo[$i]['gestionnaire'].
-            # " / <B>".number_format($odoo[$i]['stocka'],0,'.',' ')."</B> / ".
-            # " / <B>".number_format($odoo[$i]['stockq'],0,'.',' ')."</B> / ".
-            # number_format($lot_mini,0,'.',' ')." / ".
-            # number_format($odoo[$i]['is_stock_secu'],0,'.',' ')." / ".
-            # number_format($odoo[$i]['is_delai_transport'],0,'.',' ')."<br />".
-            # $odoo[$i]['designation']."</td>";
-
-
-
-            # code  = row["code"][0:6]
-            # annee = row["annee"]
-            # key = "%s-%s"%(code,annee)
-            # mois  = row["mois"] and "m"+row["mois"][-2:] or ''
-            # if key not in TabTmp1:
-            #     if trcolor=="#ffffff":
-            #         trcolor="#f2f3f4"
-            #     else:
-            #         trcolor="#ffffff"
-            #     trstyle="background-color:%s"%(trcolor)
-            #     vals={
-            #         "key"            : key,
-            #         "product_tmpl_id": row["product_tmpl_id"],
-            #         "product_id"     : row["product_id"],
-            #         "code"           : row["code"],
-            #         "cat"            : row["cat"],
-            #         "gest"           : row["gest"],
-            #         "designation"    : row["designation"],
-            #         "moule"          : row["moule"],
-            #         "us"             : row["us"],
-            #         "annee"          : row["annee"],
-            #         "mois"           : row["mois"],
-            #         "trstyle"        : trstyle,
-            #     }
-            #     cols={}
-            #     for x in range(1, 13):
-            #         col="m%02d"%(x)
-            #         vals[col]=''
-            #         cols[col] = {"key":col, "quantite":"", "mois":""}
-
-            #     vals["cols"]=cols
-            #     TabTmp1[key]=vals
-
-            # if row["quantite"]:
-            #     quantite = "{:,.0f}".format(row["quantite"]).replace(",", " ")
-            #     TabTmp1[key]["cols"][mois] = {"key":mois, "mois":row["mois"], "quantite":quantite}
-            # TabTmp1[key]["listcols"] = list(TabTmp1[key]["cols"].values())
 
         res={
             "lines"           : list(lines.values()),
+            "date_cols"       : date_cols,
             "code_cli"        : code_cli,
             "adr_cli"         : adr_cli,
             "code_pg"         : code_pg,

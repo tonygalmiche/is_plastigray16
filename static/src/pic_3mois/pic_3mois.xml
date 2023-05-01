@@ -5,20 +5,14 @@
             .o_control_panel{
                 display: none;
             }
-
             .filtre_pic{
                 margin-bottom: 0.5rem;
             }
-
-
             table.filtre_pic thead tr:nth-child(1) th {
                 background-color: white;
                 font-size: 1rem;
                 color: gray;
             }
-
-
-
             .pic3mois {
                 border-bottom: 1px solid #dee2e6;
                 padding-top: 0;
@@ -34,7 +28,7 @@
             }
         </style>
         <Layout display="display">
-            <table style="width:100%" class="filtre_pic">
+            <table style="width:98%;margin-left:1%;margin-right:1%" class="filtre_pic">
                 <thead>
                     <tr>
                         <th>Client Liv</th>
@@ -50,8 +44,8 @@
                         <th>Prod/ST*</th>
                         <th>Horizon<br />(Semaines)</th>
                         <th>Périodicité<br />(Jours)</th>
-                        <th>Colonnes<br />vides</th>
-                        <th>Nb Lignes<br />par page</th>
+                        <!-- <th>Colonnes<br />vides</th> -->
+                        <th>Nb<br />Lignes</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -65,12 +59,6 @@
                         <td><input name="pic3mois_ref_cli" t-att-value="state.pic3mois_ref_cli" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
                         <td><input name="pic3mois_moule" t-att-value="state.pic3mois_moule" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
                         <td><input name="pic3mois_projet" t-att-value="state.pic3mois_projet" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <!-- <td><input name="pic3mois_type_cde" t-att-value="state.pic3mois_type_cde" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
-                        <!-- <td><input name="pic3mois_type_client" t-att-value="state.pic3mois_type_client" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
-                        <!-- <td><input name="pic3mois_prod_st" t-att-value="state.pic3mois_prod_st" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
-                        <!-- <td><input name="pic3mois_nb_semaines" t-att-value="state.pic3mois_nb_semaines" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
-                        <!-- <td><input name="pic3mois_periodicite" t-att-value="state.pic3mois_periodicite" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
-                        <!-- <td><input name="pic3mois_affiche_col_vide" t-att-value="state.pic3mois_affiche_col_vide" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
                         <td>
                             <select name="pic3mois_type_cde" class="form-select" t-on-change="onChangeInput">
                                 <t t-foreach="state.type_cde_options or []" t-as="o"  t-key="o.id">
@@ -116,7 +104,7 @@
                                 </t>
                             </select>
                         </td>
-                        <td>
+                        <!-- <td>
                             <select name="pic3mois_affiche_col_vide" class="form-select" t-on-change="onChangeInput">
                                 <t t-foreach="state.affiche_col_vide_options or []" t-as="o"  t-key="o.id">
                                     <option t-att-value="o.id" t-att-selected="o.selected">
@@ -124,7 +112,7 @@
                                     </option>
                                 </t>
                             </select>
-                        </td>
+                        </td> -->
                         <td>
                             <select name="pic3mois_nb_lig" class="form-select" t-on-change="onChangeInput">
                                 <t t-foreach="state.nb_lig_options or []" t-as="o"  t-key="o.id">
@@ -138,37 +126,23 @@
                     </tr>
                 </tbody>
             </table>
-
-            <div class="pic3mois" style="width:100%; height:99vh; overflow: auto;">
+            <div class="pic3mois" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%">
                 <table style="width:100%;overflow-y:auto">
                     <thead>
                         <tr>
-                            <th style="text-align:left">Code</th>
-                            <th style="text-align:center">Cat</th>
-                            <th style="text-align:center">Gest</th>
-                            <th style="text-align:center">Moule</th>
-                            <th style="text-align:left">Désignation</th>
-                            <th style="text-align:center">US</th>
-                            <th style="text-align:center">Année</th>
-                            <th style="text-align:right">Dest</th>
-                            <th style="text-align:right">01</th>
-                            <th style="text-align:right">02</th>
-                            <th style="text-align:right">03</th>
-                            <th style="text-align:right">04</th>
-                            <th style="text-align:right">05</th>
-                            <th style="text-align:right">06</th>
-                            <th style="text-align:right">07</th>
-                            <th style="text-align:right">08</th>
-                            <th style="text-align:right">09</th>
-                            <th style="text-align:right">10</th>
-                            <th style="text-align:right">11</th>
-                            <th style="text-align:right">12</th>
+                            <th style="text-align:left">
+                                Client / Ref Client / Cde Client<br />
+                                Moule / Code / Gest / Stock A / Stock Q / Lot / StockSecu / Délai
+                            </th>
+                            <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
+                                <th style="text-align:right">
+                                    <t t-esc="o.jour"/><br /><t t-esc="o.mois"/>
+                                </th>
+                            </t>
+                            <th style="width:1%"/>
                         </tr>
                     </thead>
                     <tbody>
-
-
-
                         <t t-foreach="state.lines" t-as="line" t-key="line.key">
                             <tr 
                                 t-att-style="line.trstyle"
@@ -197,8 +171,6 @@
                                     <span t-esc="line.row.is_delai_transport"/><br />
                                     <span t-esc="line.row.designation"/>
                                 </td>
-
-
                                 <t t-foreach="line.listcols" t-as="col" t-key="col.key">
                                     <td 
                                         style="text-align:right" 
@@ -207,63 +179,9 @@
                                         t-on-click="OKclickQt" 
                                     />
                                 </t>
-                                
-
-
                                 <td/>
                             </tr>
                         </t> 
-
-        
-<!-- 
-                        <t t-foreach="state.lines" t-as="line" t-key="line.key">
-                            <tr 
-                                t-att-style="line.trstyle"
-                                t-att-memstyle="line.trstyle"
-                                t-on-mouseenter="TrMouseEnter" 
-                                t-on-click="TrClick" 
-                                t-on-mouseleave="TrMouseLeave" 
-                                t-att-productid="line.product_tmpl_id"
-                                t-att-click="-1"
-                            >
-
-                                <td 
-                                    style="text-align:left" 
-                                    t-esc="line.code" 
-                                    class="link" 
-                                    t-on-click="clickCode" 
-                                    t-att-productid="line.product_tmpl_id"
-                                />
-
-
-
-
-                                <td style="text-align:center" t-esc="line.cat"/>
-                                <td style="text-align:center" t-esc="line.gest"/>
-                                <td style="text-align:center" t-esc="line.moule"/>
-                                <td style="text-align:left" t-esc="line.designation"/>
-                                <td style="text-align:center" t-esc="line.us"/>
-                                <td style="text-align:center" t-esc="line.annee"/>
-                                <td style="text-align:right"/>
-
-                                <t t-foreach="line.listcols" t-as="col" t-key="col.key">
-                                    <td 
-                                        style="text-align:right" 
-                                        t-esc="col.quantite" 
-                                        class="link" 
-                                        t-on-click="OKclickQt" 
-                                        t-att-mois="col.mois" 
-                                        t-att-productid="line.product_id"
-                                    />
-                                </t>
-                                
-                               
-                                <td/>
-                            </tr>
-                        </t> -->
-
-
-
                     </tbody>
                 </table>
             </div>
