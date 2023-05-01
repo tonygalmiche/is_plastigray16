@@ -23,32 +23,15 @@ class sale_order(models.Model):
                       ref_cli=False,
                       moule=False,
                       projet=False,
-                      type_cde=False,
-                      type_client=False,
-                      prod_st=False,
-                      nb_semaines=False,
-                      periodicite=False,
-                      affiche_col_vide=False,
-                      nb_lig=False):
+                      type_cde="Toutes",
+                      type_client="90xx",
+                      prod_st="",
+                      nb_semaines=12,
+                      periodicite=7,
+                      affiche_col_vide="Oui",
+                      nb_lig=100):
 
-
-        # this.state.pic3mois_code_cli         = res.code_cli;
-        # this.state.pic3mois_adr_cli          = res.adr_cli;
-        # this.state.pic3mois_code_pg          = res.code_pg;
-        # this.state.pic3mois_cat              = res.cat;
-        # this.state.pic3mois_gest             = res.gest;
-        # this.state.pic3mois_ref_cli          = res.ref_cli;
-        # this.state.pic3mois_moule            = res.moule;
-        # this.state.pic3mois_projet           = res.projet;
-        # this.state.pic3mois_type_cde         = res.type_cde;
-        # this.state.pic3mois_type_client      = res.type_client;
-        # this.state.pic3mois_prod_st          = res.prod_st;
-        # this.state.pic3mois_nb_semaines      = res.nb_semaines;
-        # this.state.pic3mois_periodicite      = res.periodicite;
-        # this.state.pic3mois_affiche_col_vide = res.affiche_col_vide;
-        # this.state.pic3mois_nb_lig           = res.nb_lig;
-
-
+        
         if ok:
             self.env['is.mem.var'].set(self._uid, 'pic3mois_code_cli'        , code_cli)
             self.env['is.mem.var'].set(self._uid, 'pic3mois_adr_cli'         , adr_cli)
@@ -81,6 +64,93 @@ class sale_order(models.Model):
             periodicite      = self.env['is.mem.var'].get(self._uid, 'pic3mois_periodicite')
             affiche_col_vide = self.env['is.mem.var'].get(self._uid, 'pic3mois_affiche_col_vide')
             nb_lig           = self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_lig')
+
+        #Liste de choix *******************************************************
+        options = ["Ferme", "Prev", "Toutes"]
+        type_cde_options=[]
+        for o in options:
+            selected=False
+            if o==type_cde:
+                selected=True
+            type_cde_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = ["50xx","70xx","80xx","90xx","Tous","SaufPMTC"]
+        type_client_options=[]
+        for o in options:
+            selected=False
+            if o==type_client:
+                selected=True
+            type_client_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = ["","PROD","ST"]
+        prod_st_options=[]
+        for o in options:
+            selected=False
+            if o==prod_st:
+                selected=True
+            prod_st_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        nb_semaines_options=[]
+        for o in range(1,31):
+            selected=False
+            if o==int(nb_semaines):
+                selected=True
+            nb_semaines_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = [1,7,14,28]
+        periodicite_options=[]
+        for o in options:
+            selected=False
+            if o==int(periodicite):
+                selected=True
+            periodicite_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = ["Oui","Non"]
+        affiche_col_vide_options=[]
+        for o in options:
+            selected=False
+            if o==affiche_col_vide:
+                selected=True
+            affiche_col_vide_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = [10,50,100,200,300,400,500,1000,2000]
+        nb_lig_options=[]
+        for o in options:
+            selected=False
+            if o==int(nb_lig):
+                selected=True
+            nb_lig_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+        #**********************************************************************
+
+
 
         cr = self._cr
 
@@ -194,7 +264,7 @@ class sale_order(models.Model):
         DebSem = LaDate
         if periodicite!=1:
             DebSem = LaDate - timedelta(days=JourSem)
-        print(nb_semaines, periodicite, NbColMax, LaDate, JourSem, DebSem, DebSem.strftime("%Y%m%d"))
+        #print(nb_semaines, periodicite, NbColMax, LaDate, JourSem, DebSem, DebSem.strftime("%Y%m%d"))
 
         lig=0
         key=""
@@ -242,7 +312,7 @@ class sale_order(models.Model):
             else:
                 nb_jours = (DateCde-DebSem.date()).days
                 col=math.floor(nb_jours/int(periodicite))
-                print( DateCde,DebSem,nb_jours,col)
+                #print( DateCde,DebSem,nb_jours,col)
 
             if col<NbColMax:
                 qt = row['product_uom_qty']
@@ -324,6 +394,7 @@ class sale_order(models.Model):
             "ref_cli"         : ref_cli,
             "moule"           : moule,
             "projet"          : projet,
+
             "type_cde"        : type_cde,
             "type_client"     : type_client,
             "prod_st"         : prod_st,
@@ -331,6 +402,14 @@ class sale_order(models.Model):
             "periodicite"     : periodicite,
             "affiche_col_vide": affiche_col_vide,
             "nb_lig"          : nb_lig,
+
+            "type_cde_options"        : type_cde_options,
+            "type_client_options"     : type_client_options,
+            "prod_st_options"         : prod_st_options,
+            "nb_semaines_options"     : nb_semaines_options,
+            "periodicite_options"     : periodicite_options,
+            "affiche_col_vide_options": affiche_col_vide_options,
+            "nb_lig_options"          : nb_lig_options,
         }
         return res
 

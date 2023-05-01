@@ -48,9 +48,9 @@
                         <th>Type Cde</th>
                         <th>Type Client</th>
                         <th>Prod/ST*</th>
-                        <th>Horizon<br />(Nb Semaines)</th>
-                        <th>Périodicité<br />(Nb Jours)</th>
-                        <th>Affiche<br />colonne vide</th>
+                        <th>Horizon<br />(Semaines)</th>
+                        <th>Périodicité<br />(Jours)</th>
+                        <th>Colonnes<br />vides</th>
                         <th>Nb Lignes<br />par page</th>
                         <th></th>
                     </tr>
@@ -65,13 +65,75 @@
                         <td><input name="pic3mois_ref_cli" t-att-value="state.pic3mois_ref_cli" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
                         <td><input name="pic3mois_moule" t-att-value="state.pic3mois_moule" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
                         <td><input name="pic3mois_projet" t-att-value="state.pic3mois_projet" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_type_cde" t-att-value="state.pic3mois_type_cde" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_type_client" t-att-value="state.pic3mois_type_client" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_prod_st" t-att-value="state.pic3mois_prod_st" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_nb_semaines" t-att-value="state.pic3mois_nb_semaines" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_periodicite" t-att-value="state.pic3mois_periodicite" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_affiche_col_vide" t-att-value="state.pic3mois_affiche_col_vide" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
-                        <td><input name="pic3mois_nb_lig" t-att-value="state.pic3mois_nb_lig" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <!-- <td><input name="pic3mois_type_cde" t-att-value="state.pic3mois_type_cde" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
+                        <!-- <td><input name="pic3mois_type_client" t-att-value="state.pic3mois_type_client" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
+                        <!-- <td><input name="pic3mois_prod_st" t-att-value="state.pic3mois_prod_st" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
+                        <!-- <td><input name="pic3mois_nb_semaines" t-att-value="state.pic3mois_nb_semaines" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
+                        <!-- <td><input name="pic3mois_periodicite" t-att-value="state.pic3mois_periodicite" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
+                        <!-- <td><input name="pic3mois_affiche_col_vide" t-att-value="state.pic3mois_affiche_col_vide" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td> -->
+                        <td>
+                            <select name="pic3mois_type_cde" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.type_cde_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="pic3mois_type_client" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.type_client_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="pic3mois_prod_st" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.prod_st_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="pic3mois_nb_semaines" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.nb_semaines_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="pic3mois_periodicite" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.periodicite_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="pic3mois_affiche_col_vide" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.affiche_col_vide_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="pic3mois_nb_lig" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.nb_lig_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
                         <td><button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button></td>
                     </tr>
                 </tbody>

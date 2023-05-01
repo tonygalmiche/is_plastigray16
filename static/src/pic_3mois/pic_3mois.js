@@ -29,6 +29,24 @@ class Pic3Mois extends Component {
 
         this.Pic3MoisService = useService("Pic3MoisService"); // Cache network calls with a service 
 
+        /*
+        const options = [10,50,100,200,300,400,500,1000,2000];
+        var nb_lig_options=[];
+        var selected=false;
+        options.forEach((o) => {
+            console.log(o);
+            selected=false;
+            if (o==100){
+                selected=true;
+            }
+            nb_lig_options.push({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            });
+        });
+        */
+
         this.state   = useState({
             // 'pic3mois_client': false,
             // 'pic3mois_fournisseur': false,
@@ -38,9 +56,20 @@ class Pic3Mois extends Component {
             // 'pic3mois_moule': false,
             // 'pic3mois_annee_realise': false,
             // 'pic3mois_annee_prev': false,
+            //'nb_lig_options': nb_lig_options,
             'lines': [],
         });
         
+
+
+    //     <t t-foreach="state.nb_lig_options or []" t-as="o">
+    //     <option t-att-value="o.id" t-att-selected="o.selected">
+    //         <t t-esc="o.name" />
+    //     </option>
+    // </t>
+
+
+
 
         useSubEnv({
             config: {
@@ -138,8 +167,6 @@ class Pic3Mois extends Component {
             "nb_lig"          : this.state.pic3mois_nb_lig,
             "ok"              : ok,
         }
-        console.log(params);
-
         var res = await this.orm.call("sale.order", 'get_pic_3mois', [false],params);
         this.state.lines                     = res.lines;
         this.state.pic3mois_code_cli         = res.code_cli;
@@ -150,17 +177,24 @@ class Pic3Mois extends Component {
         this.state.pic3mois_ref_cli          = res.ref_cli;
         this.state.pic3mois_moule            = res.moule;
         this.state.pic3mois_projet           = res.projet;
-        this.state.pic3mois_type_cde         = res.type_cde;
-        this.state.pic3mois_type_client      = res.type_client;
-        this.state.pic3mois_prod_st          = res.prod_st;
-        this.state.pic3mois_nb_semaines      = res.nb_semaines;
-        this.state.pic3mois_periodicite      = res.periodicite;
-        this.state.pic3mois_affiche_col_vide = res.affiche_col_vide;
-        this.state.pic3mois_nb_lig           = res.nb_lig;
-        console.log("getPic3mois")
-        // this.state.lines.forEach(function (line) {
-        //     console.log("line=",line);
-        // });
+
+        this.state.pic3mois_type_cde          = res.type_cde;
+        this.state.pic3mois_type_client       = res.type_client;
+        this.state.pic3mois_prod_st           = res.prod_st;
+        this.state.pic3mois_nb_semaines       = res.nb_semaines;
+        this.state.pic3mois_periodicite       = res.periodicite;
+        this.state.pic3mois_affiche_col_vide  = res.affiche_col_vide;
+        this.state.pic3mois_nb_lig            = res.nb_lig;
+
+
+
+        this.state.type_cde_options          = res.type_cde_options;
+        this.state.type_client_options       = res.type_client_options;
+        this.state.prod_st_options           = res.prod_st_options;
+        this.state.nb_semaines_options       = res.nb_semaines_options;
+        this.state.periodicite_options       = res.periodicite_options;
+        this.state.affiche_col_vide_options  = res.affiche_col_vide_options;
+        this.state.nb_lig_options            = res.nb_lig_options;
     }
 
 
