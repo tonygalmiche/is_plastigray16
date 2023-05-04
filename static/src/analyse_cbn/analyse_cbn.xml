@@ -2,35 +2,182 @@
 <templates xml:space="preserve">
     <t t-name="is_plastigray16.analyse_cbn_template" owl="1">
         <style>
+            .o_control_panel{
+                display: none;
+            }
+            .filtre_pic{
+                margin-bottom: 0.5rem;
+            }
+            table.filtre_pic thead tr:nth-child(1) th {
+                background-color: white;
+                font-size: 1rem;
+                color: gray;
+            }
+            .link {
+                cursor: pointer;
+                color: #564b79;
+            }
+ 
             .analysecbn {
                 border-bottom: 1px solid #dee2e6;
-                padding-top: 0.5rem;
-                padding-right: 16px;
+                padding-top: 0;
+                /*padding-right: 16px;*/
                 padding-bottom: 0.5rem;
-                margin-right: 16px;
-                margin-left: 16px;
+                /*margin-right: 16px;*/
+                /*margin-left: 16px;*/
                 background-color: #f2f3f4;
-              }
+            }
+
+
+
         </style>
         <Layout display="display">
-            <t t-set-slot="control-panel-bottom-left">
-                <div class="d-flex flex-row">
-                    <input name="analyse_cbn_code_pg"      t-att-value="state.analyse_cbn_code_pg"      placeholder="Code PG (Début)" style="width:130px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_gest"         t-att-value="state.analyse_cbn_gest"         placeholder="Gest"            style="width:50px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_cat"          t-att-value="state.analyse_cbn_cat"          placeholder="Cat"             style="width:50px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_moule"        t-att-value="state.analyse_cbn_moule"        placeholder="Moule (Liste avec virgule)"  style="width:180px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_projet"       t-att-value="state.analyse_cbn_projet"       placeholder="Projet"          style="width:70px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_client"       t-att-value="state.analyse_cbn_client"       placeholder="Client"          style="width:70px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_fournisseur"  t-att-value="state.analyse_cbn_fournisseur"  placeholder="Fournisseur"     style="width:90px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_semaines"     t-att-value="state.analyse_cbn_semaines"     placeholder="Semaines"        style="width:80px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_type_cde"     t-att-value="state.analyse_cbn_type_cde"     placeholder="Type Cde"        style="width:80px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_type_rapport" t-att-value="state.analyse_cbn_type_rapport" placeholder="Rapport"         style="width:80px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_calage"       t-att-value="state.analyse_cbn_calage"       placeholder="Calage"          style="width:70px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <input name="analyse_cbn_val"          t-att-value="state.analyse_cbn_val"          placeholder="Val"             style="width:50px" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control ms-2"/>
-                    <button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button>
-                </div>
-            </t>
-            <div class="analysecbn" style="width:99%; height:99vh; overflow: auto;">
+            <h2 style="margin-left:1%;margin-right:1%;color:gray">Analyse CBN</h2>
+            <table style="width:98%;margin-left:1%;margin-right:1%" class="filtre_pic">
+                <thead>
+                    <tr>
+                        <th>Code PG (Début)</th>
+                        <th>Gest</th>
+                        <th>Cat</th>
+                        <th>Moule (Liste avec virgule)</th>
+                        <th>Projet</th>
+                        <th>Client</th>
+                        <th>Fournisseur</th>
+                        <th>Semaines</th>
+                        <th>Type Cde</th>
+                        <th>Rapport</th>
+                        <th>Calage</th>
+                        <th>Val</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input name="analyse_cbn_code_pg"      t-att-value="state.analyse_cbn_code_pg" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td>
+                            <select name="analyse_cbn_gest" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.gest_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td><input name="analyse_cbn_cat"          t-att-value="state.analyse_cbn_cat" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="analyse_cbn_moule"        t-att-value="state.analyse_cbn_moule" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="analyse_cbn_projet"       t-att-value="state.analyse_cbn_projet" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="analyse_cbn_client"       t-att-value="state.analyse_cbn_client" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                       <td>
+                            <select name="analyse_cbn_fournisseur" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.fournisseur_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="analyse_cbn_semaines" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.semaines_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="analyse_cbn_type_cde" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.type_cde_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="analyse_cbn_type_rapport" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.type_rapport_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="analyse_cbn_calage" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.calage_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="analyse_cbn_val" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.val_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td><button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <div class="analysecbn" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%">
+                <table style="width:100%;overflow-y:auto">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left">
+                                Sécu / Délai / Lot / Multi / Stock A/Q
+                            </th>
+                            <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
+                                <th style="text-align:right">
+                                    <t t-esc="o.jour"/><br /><t t-esc="o.mois"/>
+                                </th>
+                            </t>
+                            <th style="width:1%"/>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.lines" t-as="line" t-key="line.key">
+                            <tr 
+                                t-att-style="line.trstyle"
+                                t-att-memstyle="line.trstyle"
+                                t-on-mouseenter="TrMouseEnter" 
+                                t-on-click="TrClick" 
+                                t-on-mouseleave="TrMouseLeave" 
+                                t-att-productid="line.id"
+                                t-att-click="-1"
+                            >
+                                <td 
+                                    style="text-align:left" 
+                                    t-att-productid="line.id"
+                                >
+                                    <span t-esc="line.is_code"/><br />
+                                    <span t-esc="line.designation"/>
+                                </td>
+                                <!-- <t t-foreach="line.listcols" t-as="col" t-key="col.key">
+                                    <td 
+                                        style="text-align:right" 
+                                        t-esc="col.qt" 
+                                        class="link" 
+                                        t-on-click="OKclickQt" 
+                                    />
+                                </t> -->
+                                <td/>
+                            </tr>
+                        </t> 
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            <!-- <div class="analysecbn" style="width:99%; height:99vh; overflow: auto;">
                 <table style="width:100%">
                     <tbody>
                         <t t-foreach="state.lines" t-as="line" t-key="line.id">
@@ -42,7 +189,7 @@
                         </t>
                     </tbody>
                 </table>
-            </div>
+            </div> -->
         </Layout>
     </t>
 </templates>

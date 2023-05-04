@@ -23,6 +23,356 @@ class product_product(models.Model):
     _inherit = "product.product"
 
 
+
+
+    def get_analyse_cbn(self, 
+            ok=False,
+            code_pg=False, 
+            gest=False, 
+            cat=False, 
+            moule=False, 
+            projet=False, 
+            client=False, 
+            fournisseur=False, 
+            semaines=False, 
+            type_cde=False, 
+            type_rapport=False, 
+            calage=False, 
+            val=False
+    ):
+        cr = self._cr
+        if ok:
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_code_pg'     , code_pg)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_gest'        , gest)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_cat'         , cat)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_moule'       , moule)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_projet'      , projet)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_client'      , client)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_fournisseur' , fournisseur)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_semaines'    , semaines)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_type_cde'    , type_cde)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_type_rapport', type_rapport)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_calage'      , calage)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_val'         , val)
+        else:
+            code_pg      = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_code_pg')
+            gest         = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_gest')
+            cat          = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_cat')
+            moule        = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_moule')
+            projet       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_projet')
+            client       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_client')
+            fournisseur  = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_fournisseur')
+            semaines     = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_semaines')
+            type_cde     = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_type_cde')
+            type_rapport = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_type_rapport')
+            calage       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_calage')
+            val          = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_val')
+
+
+
+
+        #Liste de choix *******************************************************
+        options = ["01", "02", "03"]
+        gest_options=[]
+        for o in options:
+            selected=False
+            if o==gest:
+                selected=True
+            gest_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = ["F1", "F2", "F3"]
+        fournisseur_options=[]
+        for o in options:
+            selected=False
+            if o==fournisseur:
+                selected=True
+            fournisseur_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+        options = [2,4,6,10,20]
+        semaines_options=[]
+        for o in options:
+            selected=False
+            if o==int(semaines):
+                selected=True
+            semaines_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+        options = ["Ferme", "Prev", "Toutes"]
+        type_cde_options=[]
+        for o in options:
+            selected=False
+            if o==type_cde:
+                selected=True
+            type_cde_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+        options = ["Achat", "Fabrication"]
+        type_rapport_options=[]
+        for o in options:
+            selected=False
+            if o==type_rapport:
+                selected=True
+            type_rapport_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = ["Date de fin", "Date de début"]
+        calage_options=[]
+        for o in options:
+            selected=False
+            if o==calage:
+                selected=True
+            calage_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+
+        options = ["Non", "Oui"]
+        val_options=[]
+        for o in options:
+            selected=False
+            if o==val:
+                selected=True
+            val_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+        # **********************************************************************
+
+
+
+
+
+
+       # ** Recherche des catégories ******************************************
+        SQL="""
+            select id, name
+            from is_category 
+            where id>0
+        """
+        cr.execute(SQL)
+        result = cr.fetchall()
+        cat2id={}
+        for row in result:
+            cat2id[row[1]]=row[0]
+        # **********************************************************************
+ 
+        # ** Recherche des couts ***********************************************
+        SQL="""
+            select name, cout_act_total
+            from is_cout 
+        """
+        cr.execute(SQL)
+        result = cr.fetchall()
+        Couts={}
+        for row in result:
+            Couts[row[0]]=row[1]
+        # **********************************************************************
+
+        # ** Filtre pour les requêtes ******************************************
+        filtre=""
+        if code_pg:
+            filtre=filtre+" and pt.is_code ilike '"+code_pg+"%' "
+        if type_rapport=="Achat":
+            filtre=filtre+" and pt.purchase_ok=true "
+        else:
+            filtre=filtre+" and pt.purchase_ok<>true "
+        if cat:
+            filtre=filtre+" and ic.name='"+cat+"' "
+        if moule:
+            filtre=filtre+" and (im.name='"+moule+"' or id.name='"+moule+"' )"
+        if projet:
+            filtre=filtre+" and (imp1.name ilike '%"+projet+"%' or imp2.name ilike '%"+projet+"%') "
+        if client:
+            filtre=filtre+" and rp.is_code='"+client+"' "
+        print("filtre =",filtre)
+        # **********************************************************************
+
+
+        # ** Recherche du type de commandes d'achat ****************************
+        TypeCde={}
+        if type_rapport=="Achat":
+            SQL="""
+                SELECT 
+                    cof.type_commande, 
+                    cof.partner_id, 
+                    rp.is_code, 
+                    rp.is_adr_code, 
+                    cofp.product_id
+                FROM is_cde_ouverte_fournisseur cof inner join is_cde_ouverte_fournisseur_product cofp on cofp.order_id=cof.id
+                                                    inner join res_partner rp on cof.partner_id=rp.id
+            """
+            cr.execute(SQL)
+            result = cr.fetchall()
+            for row in result:
+                cle=('0000'+row[2])[-4:]+'-'+row[3]+'/'+str(row[4])
+                TypeCde[cle]=row[0]
+            SQL="""
+                SELECT 
+                    rp.is_code, 
+                    rp.is_adr_code, 
+                    product_id
+                FROM is_cde_ferme_cadencee cfc inner join res_partner rp on cfc.partner_id=rp.id
+            """
+            cr.execute(SQL)
+            result = cr.fetchall()
+            for row in result:
+                cle=('0000'+row[0])[-4:]+'-'+row[1]+'/'+str(row[2])
+                TypeCde[cle]=u'cadencée'
+        #print(TypeCde)
+        # **********************************************************************
+
+
+
+        # ** Recherche de la liste des gestionnaires ***************************
+        SQL="""
+            SELECT distinct ig.name gest
+            FROM product_product pp inner join product_template      pt   on pp.product_tmpl_id=pt.id
+                                    left outer join is_mold          im   on pt.is_mold_id=im.id
+                                    left outer join is_dossierf      id   on pt.is_dossierf_id=id.id
+                                    inner join      is_gestionnaire  ig   on pt.is_gestionnaire_id=ig.id
+                                    left outer join is_category      ic   on pt.is_category_id=ic.id
+                                    left outer join is_mold_project  imp1 on im.project=imp1.id
+                                    left outer join is_mold_project  imp2 on id.project=imp2.id
+                                    left outer join res_partner      rp   on pt.is_client_id=rp.id
+            WHERE pp.id>0 """+filtre+"""
+        """
+        if fournisseur:
+            code=fournisseur.split('-')[0]
+            SQL=SQL+""" 
+                and (
+                    (
+                        select rp2.is_code 
+                        from product_supplierinfo ps inner join res_partner rp2 on ps.partner_id=rp2.id   
+                        where ps.product_tmpl_id=pt.id order by ps.sequence,ps.id limit 1
+                    )='"""+code+"""'
+                )
+            """
+        SQL=SQL+""" ORDER BY ig.name """
+        cr.execute(SQL)
+        result = cr.fetchall()
+        SelectGestionnaires={}
+        for row in result:
+            SelectGestionnaires[row[0]]=1
+        SelectGestionnaires=OrderedDict(sorted(SelectGestionnaires.items(), key=lambda t: t[0]))
+
+        select_gest=[]
+        select_gest.append('')
+        for x in SelectGestionnaires:
+            select_gest.append(x)
+
+        print("SelectGestionnaires = ",SelectGestionnaires)
+
+        # **********************************************************************
+
+
+
+
+
+
+        SQL="""
+            select 
+                pp.id,
+                pp.product_tmpl_id,
+                pt.is_code,
+                pt.name->>'fr_FR' designation
+            from product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
+            where pt.is_code like '%s%%' limit 50
+        """%(code_pg)
+        cr.execute(SQL)
+        result = cr.dictfetchall()
+        #lines=[]
+
+
+        lig=0
+        key=""
+        lines={}
+        trcolor=""
+        for row in result:
+            # vals={
+            #     "id"         : row["id"],
+            #     "is_code"    : row["is_code"],
+            #     "designation": row["designation"],
+            # }
+            # lines.append(vals)
+
+            if key!=row['is_code']:
+                key=row['is_code']
+
+                if trcolor=="#ffffff":
+                    trcolor="#f2f3f4"
+                else:
+                    trcolor="#ffffff"
+                trstyle="background-color:%s"%(trcolor)
+
+                vals={
+                    "key"        : key,
+                    "product_tmpl_id": row["product_tmpl_id"],
+                    "trstyle"    : trstyle,
+                    "trstyle"    : trstyle,
+                    "is_code"    : row["is_code"],
+                    "designation": row["designation"],
+                }
+                # cols={}
+                # for col in range(1, NbColMax):
+                #     cols[col] = {"key":col, "qt":""}
+                # vals["cols"] = cols
+                lines[key]=vals
+                lig+=1
+
+        res={
+            "lines"       : list(lines.values()),
+            "code_pg"     : code_pg,
+            "gest"        : gest,
+            "cat"         : cat,
+            "moule"       : moule,
+            "projet"      : projet,
+            "client"      : client,
+            "fournisseur" : fournisseur,
+            "semaines"    : semaines,
+            "type_cde"    : type_cde,
+            "type_rapport": type_rapport,
+            "calage"      : calage,
+            "val"         : val,
+            "gest_options"        : gest_options,
+            "fournisseur_options" : fournisseur_options,
+            "semaines_options"    : semaines_options,
+            "type_cde_options"    : type_cde_options,
+            "type_rapport_options": type_rapport_options,
+            "calage_options"      : calage_options,
+            "val_options"         : val_options,
+        }
+        return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def load_tr(self,filter,trcolor,trid):
         product_id=filter.get('product_id')
         res=self.analyse_cbn2(filter,trcolor,trid)
