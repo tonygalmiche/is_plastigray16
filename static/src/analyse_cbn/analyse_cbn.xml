@@ -32,7 +32,7 @@
 
         </style>
         <Layout display="display">
-            <h2 style="margin-left:1%;margin-right:1%;color:gray">Analyse CBN</h2>
+            <h2 style="margin-left:1%;margin-right:1%;color:gray"><t t-esc="state.titre"/></h2>
             <table style="width:98%;margin-left:1%;margin-right:1%" class="filtre_pic">
                 <thead>
                     <tr>
@@ -113,8 +113,8 @@
                             </select>
                         </td>
                         <td>
-                            <select name="analyse_cbn_val" class="form-select" t-on-change="onChangeInput">
-                                <t t-foreach="state.val_options or []" t-as="o"  t-key="o.id">
+                            <select name="analyse_cbn_valorisation" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.valorisation_options or []" t-as="o"  t-key="o.id">
                                     <option t-att-value="o.id" t-att-selected="o.selected">
                                         <t t-esc="o.name" />
                                     </option>
@@ -134,15 +134,38 @@
                             <th style="text-align:left">
                                 Sécu / Délai / Lot / Multi / Stock A/Q
                             </th>
-                            <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
-                                <th style="text-align:right">
-                                    <t t-esc="o.jour"/><br /><t t-esc="o.mois"/>
-                                </th>
-                            </t>
+                            <th>Type</th>
                             <th style="width:1%"/>
                         </tr>
                     </thead>
                     <tbody>
+                        <t t-foreach="state.lines or []" t-as="line" t-key="line.key">
+                           <tr 
+                                t-att-style="line.trstyle"
+                                t-att-memstyle="line.trstyle"
+                                t-on-mouseenter="TrMouseEnter" 
+                                t-on-click="TrClick" 
+                                t-on-mouseleave="TrMouseLeave" 
+                                t-att-productid="line.product_id"
+                                t-att-click="-1"
+                            >
+                                <td 
+                                    style="text-align:left" 
+                                >
+                                    <span t-esc="line.code_pg"/> (<span t-esc="line.key"/>)<br />
+                                    <span t-esc="line.designation"/> 
+                                </td>
+                                <td 
+                                    style="text-align:left" 
+                                >
+                                    <span t-esc="line.TypeOD"/>
+                                </td>
+                                <td/>
+                                 <td/>
+                            </tr>
+                        </t> 
+                    </tbody>
+                    <!-- <tbody>
                         <t t-foreach="state.lines" t-as="line" t-key="line.key">
                             <tr 
                                 t-att-style="line.trstyle"
@@ -160,6 +183,21 @@
                                     <span t-esc="line.is_code"/><br />
                                     <span t-esc="line.designation"/>
                                 </td>
+                                <td/>
+                                <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
+                                    <td></td>
+                                </t>
+                                <td/>
+                            </tr>
+                        </t> 
+                    </tbody> -->
+                </table>
+            </div>
+
+
+
+
+
                                 <!-- <t t-foreach="line.listcols" t-as="col" t-key="col.key">
                                     <td 
                                         style="text-align:right" 
@@ -168,13 +206,6 @@
                                         t-on-click="OKclickQt" 
                                     />
                                 </t> -->
-                                <td/>
-                            </tr>
-                        </t> 
-                    </tbody>
-                </table>
-            </div>
-
 
 
             <!-- <div class="analysecbn" style="width:99%; height:99vh; overflow: auto;">

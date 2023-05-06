@@ -115,7 +115,7 @@ class AnalyseCbn extends Component {
             "type_cde"    : this.state.analyse_cbn_type_cde,
             "type_rapport": this.state.analyse_cbn_type_rapport,
             "calage"      : this.state.analyse_cbn_calage,
-            "val"         : this.state.analyse_cbn_val,
+            "valorisation": this.state.analyse_cbn_valorisation,
             "ok"          : ok,
         }
         var res = await this.orm.call("product.product", 'get_analyse_cbn', [false],params);
@@ -136,7 +136,10 @@ class AnalyseCbn extends Component {
         //     this.state.analyse_cbn_val,
         // ]);
 
+        this.state.titre                    = res.titre;
         this.state.lines                    = res.lines;
+        //this.state.TabIni                   = res.TabIni;
+        this.state.date_cols                = res.date_cols;
         this.state.analyse_cbn_code_pg      = res.code_pg;
         this.state.analyse_cbn_gest         = res.gest;
         this.state.analyse_cbn_cat          = res.cat;
@@ -148,7 +151,7 @@ class AnalyseCbn extends Component {
         this.state.analyse_cbn_type_cde     = res.type_cde;
         this.state.analyse_cbn_type_rapport = res.type_rapport;
         this.state.analyse_cbn_calage       = res.calage;
-        this.state.analyse_cbn_val          = res.val;
+        this.state.analyse_cbn_valorisation = res.valorisation;
 
         this.state.gest_options             = res.gest_options;
         this.state.fournisseur_options      = res.fournisseur_options;
@@ -156,7 +159,14 @@ class AnalyseCbn extends Component {
         this.state.type_cde_options         = res.type_cde_options;
         this.state.type_rapport_options     = res.type_rapport_options;
         this.state.calage_options           = res.calage_options;
-        this.state.val_options              = res.val_options;
+        this.state.valorisation_options     = res.valorisation_options;
+
+
+        console.log("lines = ",this.state.lines);
+        console.log("TabIni = ",this.state.TabIni  );
+        console.log("state = ",this.state  );
+
+        
     }
 }
 

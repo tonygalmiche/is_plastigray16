@@ -5,7 +5,7 @@ from . import ir_actions_act_url
 
 # TODO : Il faudra supprimer l'ancienne version
 from . import is_analyse_cbn
-from . import is_analyse_cbn2
+#from . import is_analyse_cbn2
 
 from . import is_article
 from . import is_bl_manuel
