@@ -15,7 +15,6 @@
             }
             .link {
                 cursor: pointer;
-                color: #564b79;
             }
  
             .analysecbn {
@@ -27,6 +26,35 @@
                 /*margin-left: 16px;*/
                 background-color: #f2f3f4;
             }
+
+
+            span.info {
+                position: relative;
+                text-decoration: none;
+                /*border-bottom: 1px gray dotted; */ /* on souligne le texte */
+            }
+            span.info pre {
+                display: none; /* on masque l'infobulle */
+            }
+            span.info:hover {
+                background: none; /* correction d'un bug IE */
+                z-index: 500; /* on définit une valeur pour l'ordre d'affichage */
+            }
+            span.info:hover pre {
+                display: inline; /* on affiche l'infobulle */
+                position: absolute;
+                white-space: nowrap; /* on change la valeur de la propriété white-space pour qu'il n'y ait pas de retour à la ligne non-désiré */
+                top: 20px; /* on positionne notre infobulle */
+                left: 0px;
+                background: white;
+                color: blue;
+                padding: 3px;
+                border: 1px solid blue;
+                border-left: 4px solid blue;
+                text-align: left;
+            }
+
+
 
 
 
@@ -128,15 +156,27 @@
 
 
             <div class="analysecbn" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%">
+
+        <!-- TODO : Test sans succès pour utiliser directmement un dictionnaire et non pas une liste -->
+        <!-- <t t-foreach="props.group_vals.items_vals" t-as="item_vals" t-key="item_vals_index"> -->
+                <!-- <t t-foreach="state.TabSemaines" t-as="semaine">
+                    <div><t t-esc="semaine.key"/>Test</div>
+                </t> -->
+
+            <!-- TabSemaines[key] = {
+                "key": key,
+                "semaine": d.strftime("S%W"),
+                "date": d.strftime("%d.%m"),
+            } -->
+
+
                 <table style="width:100%;overflow-y:auto">
                     <thead>
                         <tr>
                             <th style="text-align:left">
                                 Sécu / Délai / Lot / Multi / Stock A/Q
                             </th>
-                            <th>rowspan</th>
                             <th>Type</th>
-
                             <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
                                 <th style="text-align:right">
                                     <span t-esc="col.semaine"/><br /><span t-esc="col.date"/>
@@ -162,11 +202,9 @@
                                         style="text-align:left" 
                                         t-att-rowspan="line.rowspan"
                                     >
-                                        <span t-esc="line.code_pg"/> (<span t-esc="line.key"/>)<br />
-                                        <span t-esc="line.designation"/> 
-                                    </td>
-                                    <td>
-                                        <span t-esc="line.rowspan"/>
+                                        <span t-esc="line.Code"/><br />
+                                        <span t-esc="line.designation"/> <br />
+                                        <span t-esc="line.StockSecu"/> / <span t-esc="line.Delai"/> / <span t-esc="line.lot_mini"/> / <span t-esc="line.multiple"/> / <span t-esc="line.StockA"/> / <span t-esc="line.StockQ"/>
                                     </td>
                                     <td>
                                         <span t-esc="t.name_typeod"/>
@@ -174,7 +212,16 @@
                                     <t t-foreach="t.colslist or []" t-as="col" t-key="col.key">
                                         <td style="text-align:right">
                                             <!-- <span t-esc="col.qt_txt" t-att-style="col.style"/> -->
-                                            <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt"/>
+                                            <!-- <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt"/> -->
+                                            <span class="info">
+                                                <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt" class="link"/>
+                                                <!-- <pre t-esc="col.od_txt"/> -->
+                                                <pre>
+                                                    <t t-foreach="col.od or []" t-as="o" t-key="o">
+                                                        <t t-esc="o"/><br />
+                                                    </t>
+                                                </pre>
+                                            </span>
                                         </td>
                                     </t>
                                     <td/>

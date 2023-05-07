@@ -4,10 +4,12 @@ from datetime import datetime, timedelta
 import json 
 
 #TODO : 
-# - Ajouter les données manquantes dans la premiere colonne
 # - Calculer le stock et le sotck valorisé
 # - Ajouter les liens pour accèder aux ODs
+# - Ajouter les infobulles pour afficher les ODs sur les liens
 # - Optimiser le temps de traitement (convertir dict en list) et supprimer les données tranférées inutilement (dict)
+# - Faire fonctionner le cache lors de la modificiation des ODs
+# - Mesurer le temps de traitement de chaque partie pour optimiser le temps
 
 
 class product_product(models.Model):
@@ -30,6 +32,11 @@ class product_product(models.Model):
             product_id=False,
     ):
         cr = self._cr
+
+
+        print("ok=",ok)
+
+
         if ok:
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_code_pg'     , code_pg)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_gest'        , gest)
@@ -57,6 +64,11 @@ class product_product(models.Model):
             calage       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_calage')
             valorisation = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_valorisation')
         semaines = int(semaines)
+
+
+        print("ok=",ok,code_pg)
+
+
 
 
         # ** Filtre pour les requêtes ******************************************
@@ -87,8 +99,8 @@ class product_product(models.Model):
         # **********************************************************************
 
         titre              = self._get_titre(type_rapport,valorisation)
-        cat2id             = self._get_cat2id()                          # Catégories
-        Couts              = self._get_Couts()                           # Coûts
+        #cat2id             = self._get_cat2id()                          # Catégories
+        #Couts              = self._get_Couts()                           # Coûts
         TypeCde            = self._get_TypeCde(type_rapport)             # Type de commande d'achat
         select_gest        = self._get_select_gest(filtre,fournisseur)   # Liste des gestionnaires
         select_fournisseur = self._get_select_fournisseur(filtre,gest)   # Liste des fournisseurs
@@ -232,13 +244,38 @@ class product_product(models.Model):
         result = result1+result2+result3+result4+result5
         res={}
         for row in result:
-            key = row["code_pg"]
+            code    = row["code_pg"]
+            if type_rapport=='Achat':
+                code_fournisseur=Fournisseurs.get(product_id,"0000")
+                key="%s/%s"%(code_fournisseur,code)
+                k = code_fournisseur+'/'+str(product_id)
+                t=TypeCde.get(k)
+                if t:
+                    Code = "%s / %s (%s)"%(code_fournisseur,code,t)
+                else:
+                    Code = "%s / %s"%(code_fournisseur,code)
+            else:
+                key="%s/%s"%(row["moule"],code)
+                Code = "%s / %s"%(row["moule"],code)
             if key not in res:
+                product_id = row["product_id"]
+                if type_rapport=='Achat':
+                    Delai=Delai_Fournisseurs.get(product_id,0)
+                else:
+                    Delai=row["produce_delay"]
                 res[key] = {
-                    "key": key,
-                    "product_id" : row["product_id"],
+                    "key"        : key,
+                    "Code"       : Code,
+                    "product_id" : product_id,
                     "code_pg"    : row["code_pg"],
                     "designation": row["designation"],
+                    "lot_mini"   : row["lot_mini"],
+                    "multiple"   : row["multiple"],
+                    "StockSecu"  : row["is_stock_secu"],
+                    "Delai"      : Delai,
+                    "StockA"     : int(StocksA.get(product_id,0)),
+                    "StockQ"     : int(StocksQ.get(product_id,0)),
+                    "StockQ"     : int(StocksQ.get(product_id,0)),
                     "typeod"     : {},
                 }
             typeod = row["typeod"]
@@ -255,6 +292,7 @@ class product_product(models.Model):
                         "key"   : d,
                         "qt"    : 0,
                         "qttxt" : "",
+                        "od"    : []
                     }
             res[key]["typeodlist"] = list(res[key]["typeod"].values())
             res[key]["rowspan"] = len(res[key]["typeodlist"])
@@ -270,12 +308,17 @@ class product_product(models.Model):
                     qt_txt=""
                     if qt>0:
                         qt_txt = int(qt_signe)
+
+                    res[key]["typeod"][key2]["cols"][DateLundi]["od"].append(row["name"])
+                    od_txt = ", ".join(res[key]["typeod"][key2]["cols"][DateLundi]["od"])
+
                     res[key]["typeod"][key2]["cols"][DateLundi].update({
                         "qt"      : qt,
                         "color_qt": color_qt,
                         #"style"   : "color:%s"%color_qt,
                         "qt_txt"  : qt_txt,
                         "qt_signe": qt_signe,
+                        "od_txt"  : od_txt,
                     })
             res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
 
@@ -314,6 +357,7 @@ class product_product(models.Model):
             "newlines"    : newlines,
             #"lines"       : lines,
             "date_cols"   : list(TabSemaines.values()),
+            "TabSemaines" : TabSemaines,
             "code_pg"     : code_pg,
             "gest"        : gest,
             "cat"         : cat,

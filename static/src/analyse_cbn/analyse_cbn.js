@@ -141,6 +141,7 @@ class AnalyseCbn extends Component {
         this.state.newlines                 = res.newlines;
         //this.state.TabIni                   = res.TabIni;
         this.state.date_cols                = res.date_cols;
+        this.state.TabSemaines                = res.TabSemaines;
         this.state.analyse_cbn_code_pg      = res.code_pg;
         this.state.analyse_cbn_gest         = res.gest;
         this.state.analyse_cbn_cat          = res.cat;
