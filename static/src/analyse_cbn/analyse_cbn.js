@@ -137,7 +137,7 @@ class AnalyseCbn extends Component {
         // ]);
 
         this.state.titre                    = res.titre;
-        this.state.lines                    = res.lines;
+        //this.state.lines                    = res.lines;
         this.state.newlines                 = res.newlines;
         //this.state.TabIni                   = res.TabIni;
         this.state.date_cols                = res.date_cols;

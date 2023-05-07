@@ -169,19 +169,14 @@
                                         <span t-esc="line.rowspan"/>
                                     </td>
                                     <td>
-                                        <span t-esc="t.typeod"/>
+                                        <span t-esc="t.name_typeod"/>
                                     </td>
-
                                     <t t-foreach="t.colslist or []" t-as="col" t-key="col.key">
                                         <td style="text-align:right">
-                                            <!-- <span t-esc="col.key"/><br /> -->
-                                            <!-- <span t-esc="col.qt" /> -->
-                                             <t t-esc="col.qttxt"/>
+                                            <!-- <span t-esc="col.qt_txt" t-att-style="col.style"/> -->
+                                            <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt"/>
                                         </td>
                                     </t>
-
-
-
                                     <td/>
                                     <td/>
                                 </tr>
@@ -189,64 +184,8 @@
                             </t> 
                         </t>
                     </tbody>
-                   <!-- <tbody>
-                        <t t-foreach="state.lines or []" t-as="line" t-key="line.key">
-                           <tr 
-                                t-att-style="line.trstyle"
-                                t-att-memstyle="line.trstyle"
-                                t-on-mouseenter="TrMouseEnter" 
-                                t-on-click="TrClick" 
-                                t-on-mouseleave="TrMouseLeave" 
-                                t-att-productid="line.product_id"
-                                t-att-click="-1"
-                            >
-                                <td 
-                                    style="text-align:left" 
-                                >
-                                    <span t-esc="line.code_pg"/> (<span t-esc="line.key"/>)<br />
-                                    <span t-esc="line.designation"/> 
-                                </td>
-                                <td 
-                                    style="text-align:left" 
-                                >
-                                    <span t-esc="line.TypeOD"/>
-                                </td>
-                                <td/>
-                                 <td/>
-                            </tr>
-                        </t> 
-                    </tbody> -->
-
                 </table>
             </div>
-
-
-
-
-
-                                <!-- <t t-foreach="line.listcols" t-as="col" t-key="col.key">
-                                    <td 
-                                        style="text-align:right" 
-                                        t-esc="col.qt" 
-                                        class="link" 
-                                        t-on-click="OKclickQt" 
-                                    />
-                                </t> -->
-
-
-            <!-- <div class="analysecbn" style="width:99%; height:99vh; overflow: auto;">
-                <table style="width:100%">
-                    <tbody>
-                        <t t-foreach="state.lines" t-as="line" t-key="line.id">
-                            <tr>
-                                <td style="text-align:left" t-esc="line.id"/>
-                                <td style="text-align:left" t-esc="line.is_code"/>
-                                <td style="text-align:left" t-esc="line.designation"/>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
-            </div> -->
         </Layout>
     </t>
 </templates>
