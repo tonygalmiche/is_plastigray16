@@ -134,11 +134,62 @@
                             <th style="text-align:left">
                                 Sécu / Délai / Lot / Multi / Stock A/Q
                             </th>
+                            <th>rowspan</th>
                             <th>Type</th>
+
+                            <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
+                                <th style="text-align:right">
+                                    <span t-esc="col.semaine"/><br /><span t-esc="col.date"/>
+                                </th>
+                            </t>
                             <th style="width:1%"/>
                         </tr>
                     </thead>
                     <tbody>
+                        <t t-foreach="state.newlines or []" t-as="line" t-key="line.key">
+                            <t t-set="test" t-value="1" />
+                            <t t-foreach="line.typeodlist or []" t-as="t" t-key="t.key">
+                                <tr 
+                                    t-att-style="line.trstyle"
+                                    t-att-memstyle="line.trstyle"
+                                    t-on-mouseenter="TrMouseEnter" 
+                                    t-on-click="TrClick" 
+                                    t-on-mouseleave="TrMouseLeave" 
+                                    t-att-productid="line.product_id"
+                                    t-att-click="-1"
+                                >
+                                    <td t-if="test"
+                                        style="text-align:left" 
+                                        t-att-rowspan="line.rowspan"
+                                    >
+                                        <span t-esc="line.code_pg"/> (<span t-esc="line.key"/>)<br />
+                                        <span t-esc="line.designation"/> 
+                                    </td>
+                                    <td>
+                                        <span t-esc="line.rowspan"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="t.typeod"/>
+                                    </td>
+
+                                    <t t-foreach="t.colslist or []" t-as="col" t-key="col.key">
+                                        <td style="text-align:right">
+                                            <!-- <span t-esc="col.key"/><br /> -->
+                                            <!-- <span t-esc="col.qt" /> -->
+                                             <t t-esc="col.qttxt"/>
+                                        </td>
+                                    </t>
+
+
+
+                                    <td/>
+                                    <td/>
+                                </tr>
+                                <t t-set="test" t-value="0"/>
+                            </t> 
+                        </t>
+                    </tbody>
+                   <!-- <tbody>
                         <t t-foreach="state.lines or []" t-as="line" t-key="line.key">
                            <tr 
                                 t-att-style="line.trstyle"
@@ -164,33 +215,8 @@
                                  <td/>
                             </tr>
                         </t> 
-                    </tbody>
-                    <!-- <tbody>
-                        <t t-foreach="state.lines" t-as="line" t-key="line.key">
-                            <tr 
-                                t-att-style="line.trstyle"
-                                t-att-memstyle="line.trstyle"
-                                t-on-mouseenter="TrMouseEnter" 
-                                t-on-click="TrClick" 
-                                t-on-mouseleave="TrMouseLeave" 
-                                t-att-productid="line.id"
-                                t-att-click="-1"
-                            >
-                                <td 
-                                    style="text-align:left" 
-                                    t-att-productid="line.id"
-                                >
-                                    <span t-esc="line.is_code"/><br />
-                                    <span t-esc="line.designation"/>
-                                </td>
-                                <td/>
-                                <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
-                                    <td></td>
-                                </t>
-                                <td/>
-                            </tr>
-                        </t> 
                     </tbody> -->
+
                 </table>
             </div>
 

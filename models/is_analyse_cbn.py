@@ -2,6 +2,7 @@
 from odoo import models,fields,api
 #import time
 from datetime import datetime, timedelta
+import json 
 #from collections import OrderedDict
 #import tempfile
 
@@ -246,47 +247,141 @@ class product_product(models.Model):
 
         # ** Recherche des Prévisions du CBN  ******************************
         TabIni={}
-        result = self._get_FS_SA(filtre)
-        TabIni=self.RemplitTab2(TabIni, result, TabSemaines, type_rapport, 
+        result1 = self._get_FS_SA(filtre)
+        TabIni=self.RemplitTab2(TabIni, result1, TabSemaines, type_rapport, 
             StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
             calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
         # ******************************************************************
 
         # ** Recherche des commandes client ********************************
-        result = self._get_CF_CP(filtre)
-        TabIni=self.RemplitTab2(TabIni, result, TabSemaines, type_rapport, 
+        result2 = self._get_CF_CP(filtre)
+        TabIni=self.RemplitTab2(TabIni, result2, TabSemaines, type_rapport, 
             StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
             calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
         # ******************************************************************
 
         # ** Recherche des OF **********************************************
-        result = self._get_FL(filtre)
-        TabIni=self.RemplitTab2(TabIni, result, TabSemaines, type_rapport, 
+        result3 = self._get_FL(filtre)
+        TabIni=self.RemplitTab2(TabIni, result3, TabSemaines, type_rapport, 
             StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
             calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
         # ******************************************************************
 
         # ** Recherche des composants des OF *******************************
-        result = self._get_FM(filtre)
-        TabIni=self.RemplitTab2(TabIni, result, TabSemaines, type_rapport, 
+        result4 = self._get_FM(filtre)
+        TabIni=self.RemplitTab2(TabIni, result4, TabSemaines, type_rapport, 
             StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
             calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
         # ******************************************************************
 
         # ** Recherche des commandes fournisseurs  *************************
-        result = self._get_SF(filtre)
-        TabIni=self.RemplitTab2(TabIni, result, TabSemaines, type_rapport, 
+        result5 = self._get_SF(filtre)
+        TabIni=self.RemplitTab2(TabIni, result5, TabSemaines, type_rapport, 
             StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
             calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
         # ******************************************************************
 
         # ** Recherche pour avoir tous les articles dans le résultat  ******
         if valorisation:
-            result = self._get_stock(filtre)
-            TabIni=self.RemplitTab2(TabIni, result, TabSemaines, type_rapport, 
+            result6 = self._get_stock(filtre)
+            TabIni=self.RemplitTab2(TabIni, result6, TabSemaines, type_rapport, 
                 StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
                 calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
         # ******************************************************************
+
+
+        result = result1+result2+result3+result4+result5
+        res={}
+        for row in result:
+            key = row["code_pg"]
+            if key not in res:
+                res[key] = {
+                    "key": key,
+                    "product_id" : row["product_id"],
+                    "code_pg"    : row["code_pg"],
+                    "designation": row["designation"],
+                    "typeod"     : {},
+                }
+
+            key2=row["typeod"]
+            if key2 not in res[key]["typeod"]:
+                res[key]["typeod"][key2] = {
+                    "key"   : key2,
+                    "typeod": row["typeod"],
+                    "cols"  : {}
+                }
+                for d in TabSemaines:
+                    res[key]["typeod"][key2]["cols"][d]={
+                        "key"   : d,
+                        "qt"    : 0,
+                        "qttxt" : "",
+                    }
+
+            res[key]["typeodlist"] = list(res[key]["typeod"].values())
+            res[key]["rowspan"] = len(res[key]["typeodlist"])
+
+
+
+
+
+
+            if calage=='' or calage=='Date de fin':
+                DateLundi=self.datelundi(row["date_fin"], TabSemaines)
+            else:
+                DateLundi=self.datelundi(row["date_fin"], TabSemaines)
+            
+            if DateLundi:
+                print(DateLundi)
+                if DateLundi in TabSemaines:
+                    qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+row["qt"]
+                    res[key]["typeod"][key2]["cols"][DateLundi]["qt"]= qt
+                    if qt>0:
+                        qttxt = int(qt)
+                        res[key]["typeod"][key2]["cols"][DateLundi]["qttxt"] = qttxt
+                    print(DateLundi, row["qt"])
+
+
+
+            res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
+
+
+            # if row["qt"]>0:
+            #    print(DateLundi, row["qt"])
+
+
+
+                # if typeod=='FL' and qt<0:
+                #     qt=-0.01
+
+                # qt = qt or 0 #NoneType
+
+                # # if DateLundi not in Tab[Cle]:
+                # #    Tab[Cle][DateLundi]=0
+                # # Tab[Cle][DateLundi]=Tab[Cle][DateLundi]+round(Sens*qt,2);
+
+
+
+
+
+        #print(json.dumps(res, indent = 4))
+
+                # mp.id as numod, 
+                # mp.start_date as date_debut, 
+                # mp.start_date_cq as date_fin, 
+                # mp.quantity as qt, 
+                # mp.type as typeod, 
+                # mp.product_id,
+                # pt.is_code as code_pg, 
+                # pt.name->>'fr_FR' designation,
+                # pt.is_stock_secu, 
+                # pt.produce_delay, 
+                # pt.lot_mini, 
+                # pt.multiple,
+                # pt.is_mold_dossierf as moule,
+                # mp.name as name,
+                # ig.name as gest
+
+
 
 
 
@@ -393,17 +488,17 @@ class product_product(models.Model):
         date_cols=[]
         for o in range(0,int(semaines)):
             date_cols.append({
-                "id": o,
+                "key": o,
                 "semaine": DateCol.strftime("S%W"),
                 "date": DateCol.strftime("%d.%m"),
             })
             DateCol = DateCol + timedelta(days=7)
         #**********************************************************************
 
-        sorted_dict = dict(sorted(TabIni.items())) 
 
 
         #** Ajout de la couleur des lignes ************************************
+        sorted_dict = dict(sorted(TabIni.items())) 
         trcolor=""
         for k in sorted_dict:
             if trcolor=="#ffffff":
@@ -412,14 +507,29 @@ class product_product(models.Model):
                 trcolor="#ffffff"
             trstyle="background-color:%s"%(trcolor)
             sorted_dict[k]["trstyle"] = trstyle
+        lines = list(sorted_dict.values())
         #**********************************************************************
 
 
-        lines = list(sorted_dict.values())
+        #** Ajout de la couleur des lignes (newlines) *************************
+        sorted_dict = dict(sorted(res.items())) 
+        trcolor=""
+        for k in sorted_dict:
+            if trcolor=="#ffffff":
+                trcolor="#f2f3f4"
+            else:
+                trcolor="#ffffff"
+            trstyle="background-color:%s"%(trcolor)
+            sorted_dict[k]["trstyle"] = trstyle
+        newlines = list(sorted_dict.values())
+        #**********************************************************************
 
+
+        print(date_cols)
 
         res={
             "titre"       : titre,
+            "newlines"    : newlines,
             "lines"       : lines,
             "date_cols"   : date_cols,
             "code_pg"     : code_pg,
