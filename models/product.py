@@ -360,6 +360,7 @@ class product_template(models.Model):
             obj.is_emb_vsb=vsb
             #*******************************************************************
 
+    purchase_ok                   = fields.Boolean(index=True) #Ajour d'un index sur ce champ
 
     is_code                       = fields.Char('Code PG', index=True, required=True)
     segment_id                    = fields.Many2one('is.product.segment', 'Segment', required=True)

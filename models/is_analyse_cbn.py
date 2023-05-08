@@ -2,11 +2,11 @@
 from odoo import models,fields,api
 from datetime import datetime, timedelta
 import json 
+import logging
+_logger = logging.getLogger(__name__)
 
 #TODO : 
-# - Calculer le stock et le sotck valorisé
-# - Ajouter les liens pour accèder aux ODs
-# - Ajouter les infobulles pour afficher les ODs sur les liens
+# - Générer un fichie Excel pour la valorisation
 # - Optimiser le temps de traitement (convertir dict en list) et supprimer les données tranférées inutilement (dict)
 # - Faire fonctionner le cache lors de la modificiation des ODs
 # - Mesurer le temps de traitement de chaque partie pour optimiser le temps
@@ -33,10 +33,11 @@ class product_product(models.Model):
     ):
         cr = self._cr
 
+        debut=datetime.now()
+        _logger.info('Début')
 
-        print("ok=",ok)
-
-
+        #** set/get var *****************************************************
+        debut2=datetime.now()
         if ok:
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_code_pg'     , code_pg)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_gest'        , gest)
@@ -64,14 +65,11 @@ class product_product(models.Model):
             calage       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_calage')
             valorisation = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_valorisation')
         semaines = int(semaines)
-
-
-        print("ok=",ok,code_pg)
-
-
+        _logger.info("set/get var (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
 
 
         # ** Filtre pour les requêtes ******************************************
+        debut2=datetime.now()
         filtre=""
         if product_id:
             filtre=filtre+" and pp.id="+str(product_id)+" "
@@ -96,16 +94,35 @@ class product_product(models.Model):
             filtre=filtre+" and (imp1.name ilike '%"+projet+"%' or imp2.name ilike '%"+projet+"%') "
         if client:
             filtre=filtre+" and rp.is_code='"+client+"' "
-        # **********************************************************************
+        _logger.info("Filtre pour les requêtes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        # *********************************************************************
 
+
+        #** Titre, TypeCde, Gest et Fournisseur *******************************
         titre              = self._get_titre(type_rapport,valorisation)
         #cat2id             = self._get_cat2id()                          # Catégories
-        #Couts              = self._get_Couts()                           # Coûts
+        if valorisation=="Oui":
+            debut2=datetime.now()
+            Couts = self._get_Couts()                           # Coûts
+            _logger.info("TypeCde (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+            print(Couts)
+
+        debut2=datetime.now()
         TypeCde            = self._get_TypeCde(type_rapport)             # Type de commande d'achat
+        _logger.info("TypeCde (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         select_gest        = self._get_select_gest(filtre,fournisseur)   # Liste des gestionnaires
+        _logger.info("select_gest (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         select_fournisseur = self._get_select_fournisseur(filtre,gest)   # Liste des fournisseurs
+        _logger.info("select_fournisseur (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        # *********************************************************************
+
 
         #Liste de choix *******************************************************
+        debut2=datetime.now()
         options = select_gest
         gest_options=[]
         for o in options:
@@ -183,10 +200,12 @@ class product_product(models.Model):
                 "name": o,
                 "selected": selected,
             })
+        _logger.info("Liste de choix (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # **********************************************************************
 
 
         # ** Filtre sur le fournisseur (partner_id) ****************************
+        debut2=datetime.now()
         partner_id=False
         if fournisseur:
             tab=fournisseur.split('-')
@@ -206,10 +225,12 @@ class product_product(models.Model):
                     )
             """
         filtre=filtre+" AND ic.name!='80' "
+        _logger.info("Filtre sur le fournisseur (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # **********************************************************************
 
 
         #** Titres des colonnes ***********************************************
+        debut2=datetime.now()
         now = datetime.now()
         d = now - timedelta(days=now.weekday())
         TabSemaines={}
@@ -222,17 +243,34 @@ class product_product(models.Model):
             }
             d = d + timedelta(days=7)
         #print(json.dumps(TabSemaines, indent = 4))
+        _logger.info("Titres des colonnes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
 
-        #TabSemaines = self._get_TabSemaines(semaines)    # Tableau des semaines
+        #** Stock *************************************************************
+        #TabSemaines = self._get_TabSemaines(semaines)   # Tableau des semaines
+
+        debut2=datetime.now()
         StocksA     = self._get_Stocks('f')              # StocksA (control_quality=f)
+        _logger.info("StocksA (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         StocksQ     = self._get_Stocks('t')              # StocksQ (control_quality=t)
+        _logger.info("StocksQ (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         StocksSecu  = self._get_StocksSecu()             # StocksSecu
+        _logger.info("StocksSecu (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         Fournisseurs, Delai_Fournisseurs = self._get_Fournisseurs_Delai_Fournisseurs() # Fournisseurs + Delai_Fournisseurs
+        _logger.info("Fournisseurs (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        #**********************************************************************
+
 
 
         #** Résultat **********************************************************
+        debut2=datetime.now()
         result1 = self._get_FS_SA(filtre)
         result2 = self._get_CF_CP(filtre)
         result3 = self._get_FL(filtre)
@@ -257,6 +295,12 @@ class product_product(models.Model):
             else:
                 key="%s/%s"%(row["moule"],code)
                 Code = "%s / %s"%(row["moule"],code)
+
+            cout=0
+            if valorisation=="Oui":
+                cout = Couts.get(product_id,0)
+                Code = "%s (%s)"%(Code, cout)
+
             if key not in res:
                 product_id = row["product_id"]
                 if type_rapport=='Achat':
@@ -269,15 +313,51 @@ class product_product(models.Model):
                     "product_id" : product_id,
                     "code_pg"    : row["code_pg"],
                     "designation": row["designation"],
+                    "cout"       : cout,
                     "lot_mini"   : row["lot_mini"],
                     "multiple"   : row["multiple"],
                     "StockSecu"  : row["is_stock_secu"],
                     "Delai"      : Delai,
                     "StockA"     : int(StocksA.get(product_id,0)),
                     "StockQ"     : int(StocksQ.get(product_id,0)),
-                    "StockQ"     : int(StocksQ.get(product_id,0)),
                     "typeod"     : {},
                 }
+
+                #Ajout des colonnes pour le stock *****************************
+                res[key]["typeod"]["90-Stock"]={
+                    "key"        : "90-Stock",
+                    "typeod"     : "90-Stock",
+                    "name_typeod": "Stock",
+                    "cols"  : {}
+                }
+                for d in TabSemaines:
+                    res[key]["typeod"]["90-Stock"]["cols"][d]={
+                        "key"     : d,
+                        "qt_signe": 0,
+                        "qt_txt"  : "",
+                        "od"       : []
+                    }
+                #**************************************************************
+
+                #Ajout des colonnes pour le stock valorisé ********************
+                if valorisation=="Oui":
+                    lig="92-Stock Valorisé"
+                    res[key]["typeod"][lig]={
+                        "key"        : lig,
+                        "typeod"     : lig,
+                        "name_typeod": "Valorisation",
+                        "cols"  : {}
+                    }
+                    for d in TabSemaines:
+                        res[key]["typeod"][lig]["cols"][d]={
+                            "key"     : d,
+                            "qt": 0,
+                            "qt_signe": 0,
+                            "qt_txt"  : "",
+                            "od"       : []
+                        }
+                #**************************************************************
+
             typeod = row["typeod"]
             key2   = self._get_name_typeod(typeod)
             if key2 not in res[key]["typeod"]:
@@ -292,10 +372,9 @@ class product_product(models.Model):
                         "key"   : d,
                         "qt"    : 0,
                         "qttxt" : "",
-                        "od"    : []
+                        "od"    : [],
+                        "ids"   : [],
                     }
-            res[key]["typeodlist"] = list(res[key]["typeod"].values())
-            res[key]["rowspan"] = len(res[key]["typeodlist"])
             if calage=='' or calage=='Date de fin':
                 DateLundi=self.datelundi(row["date_fin"], TabSemaines)
             else:
@@ -309,18 +388,34 @@ class product_product(models.Model):
                     if qt>0:
                         qt_txt = int(qt_signe)
 
-                    res[key]["typeod"][key2]["cols"][DateLundi]["od"].append(row["name"])
+                    if row["numod"] not in res[key]["typeod"][key2]["cols"][DateLundi]["ids"]:
+                        res[key]["typeod"][key2]["cols"][DateLundi]["ids"].append(row["numod"])
+                    if row["name"] not in res[key]["typeod"][key2]["cols"][DateLundi]["od"]:
+                        res[key]["typeod"][key2]["cols"][DateLundi]["od"].append(row["name"])
                     od_txt = ", ".join(res[key]["typeod"][key2]["cols"][DateLundi]["od"])
-
                     res[key]["typeod"][key2]["cols"][DateLundi].update({
                         "qt"      : qt,
                         "color_qt": color_qt,
-                        #"style"   : "color:%s"%color_qt,
                         "qt_txt"  : qt_txt,
                         "qt_signe": qt_signe,
                         "od_txt"  : od_txt,
                     })
             res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
+        _logger.info("Résultat (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        #**********************************************************************
+
+
+
+
+        #Convertir un dictionnaire en list (pour owl) avec un tri sur les clés => Voir pour optimiser le temps de traitement
+        debut2=datetime.now()
+        for key in res:
+            res[key]["typeodlist"]=[]
+            for line in dict(sorted(res[key]["typeod"].items())):
+                res[key]["typeodlist"].append(res[key]["typeod"][line])
+            res[key]["rowspan"]    = len(res[key]["typeodlist"])
+        _logger.info("Convertir un dictionnaire en list (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        #**********************************************************************
 
 
         # #TODO : Tentatvie d'optimisation convertion dictionnaire en liste *****
@@ -338,7 +433,61 @@ class product_product(models.Model):
         # #**********************************************************************
 
 
-        #** Ajout de la couleur des lignes (newlines) *************************
+        #** Calcul du total des besoins par date ******************************
+        debut2=datetime.now()
+        totaux={}
+        for p in res:
+            totaux[p]={}
+            for t in res[p]["typeod"]:
+                if t not in["90-Stock","92-Stock Valorisé"]:
+                    typeod = res[p]["typeod"][t]["typeod"]
+                    for c in TabSemaines:
+                        qt=res[p]["typeod"][t]["cols"][c]["qt"]
+                        qt_signe = qt * self._get_sens(typeod)
+                        if c not in totaux[p]:
+                            totaux[p][c]=0
+                        totaux[p][c]+=qt_signe
+        #print(json.dumps(totaux, indent = 4))
+        _logger.info("Calcul du total des besoins par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        #**********************************************************************
+
+
+        #** Calcul du stock cumulé par date ***********************************
+        debut2=datetime.now()
+        for p in totaux:
+            ct=0
+            cumul=0
+            for c in TabSemaines:
+                if ct==0:
+                    if valorisation=="Oui":
+                        cumul = res[p]["StockA"]+res[p]["StockQ"]
+                    else:
+                        cumul = res[p]["StockA"]-res[p]["StockSecu"]
+                cumul+=totaux[p][c]
+
+                val = cumul*res[p]["cout"]
+                if val<0:
+                    val=0
+
+                color="Gray"
+                if cumul<0:
+                    color='Red'
+                res[p]["typeod"]["90-Stock"]["cols"][c]["qt_signe"]=cumul
+                res[p]["typeod"]["90-Stock"]["cols"][c]["color_qt"]=color
+                res[p]["typeod"]["90-Stock"]["cols"][c]["qt_txt"] = int(res[p]["typeod"]["90-Stock"]["cols"][c]["qt_signe"])
+                if valorisation=="Oui":
+                    res[p]["typeod"]["92-Stock Valorisé"]["cols"][c]["qt_txt"] = int(val)
+
+                ct+=1
+            res[p]["typeod"]["90-Stock"]["colslist"] = list(res[p]["typeod"]["90-Stock"]["cols"].values())
+            if valorisation=="Oui":
+                res[p]["typeod"]["92-Stock Valorisé"]["colslist"] = list(res[p]["typeod"]["92-Stock Valorisé"]["cols"].values())
+        _logger.info("Calcul du stock cumulé par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        #**********************************************************************
+
+
+        #** Ajout de la couleur des lignes ************************************
+        debut2=datetime.now()
         sorted_dict = dict(sorted(res.items())) 
         trcolor=""
         for k in sorted_dict:
@@ -348,16 +497,22 @@ class product_product(models.Model):
                 trcolor="#ffffff"
             trstyle="background-color:%s"%(trcolor)
             sorted_dict[k]["trstyle"] = trstyle
-        newlines = list(sorted_dict.values())
+        lines = list(sorted_dict.values())
+        _logger.info("Ajout de la couleur des lignes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
+
+
+
+        duree = datetime.now()-debut
+
+
+        _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
 
 
         res={
             "titre"       : titre,
-            "newlines"    : newlines,
-            #"lines"       : lines,
+            "lines"       : lines,
             "date_cols"   : list(TabSemaines.values()),
-            "TabSemaines" : TabSemaines,
             "code_pg"     : code_pg,
             "gest"        : gest,
             "cat"         : cat,
@@ -488,8 +643,6 @@ class product_product(models.Model):
         SelectGestionnaires={}
         for row in result:
             SelectGestionnaires[row[0]]=1
-        #SelectGestionnaires=OrderedDict(sorted(SelectGestionnaires.items(), key=lambda t: t[0]))
-
         select_gest=[]
         select_gest.append('')
         for x in SelectGestionnaires:
@@ -506,11 +659,36 @@ class product_product(models.Model):
         #debut=datetime.datetime.now()
         #_logger.info('Début')
         #_logger.info('Fin '+_now(debut))
+
+        _logger.info("filtre=%s"%(filtre))
+
+
+
+        debut2=datetime.now()
         r1=self._get_FS_SA(filtre)
+        _logger.info("_get_FS_SA (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+
+        debut2=datetime.now()
         r2=self._get_CF_CP(filtre)
+        _logger.info("_get_CF_CP (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         r3=self._get_FL(filtre)
+        _logger.info("_get_FL (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         r4=self._get_FM(filtre)
+        _logger.info("_get_FM (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
         r5=self._get_SF(filtre)
+        _logger.info("_get_SF (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+
+
+
+
         product_ids=[]
         for row in (r1+r2+r3+r4+r5):
             product_id=str(row["product_id"])
@@ -619,7 +797,6 @@ class product_product(models.Model):
             ORDER BY sol.name
         """
         cr.execute(SQL)
-        #result = cr.fetchall()
         result = cr.dictfetchall()
         return result
 
@@ -656,7 +833,6 @@ class product_product(models.Model):
             ORDER BY sm.name 
         """
         cr.execute(SQL)
-        #result = cr.fetchall()
         result = cr.dictfetchall()
         return result
 
@@ -693,7 +869,6 @@ class product_product(models.Model):
             ORDER BY sm.name
         """
         cr.execute(SQL)
-        #result = cr.fetchall()
         result = cr.dictfetchall()
         return result
 
@@ -732,7 +907,6 @@ class product_product(models.Model):
               ORDER BY pol.name
         """
         cr.execute(SQL)
-        #result = cr.fetchall()
         result = cr.dictfetchall()
         return result
 
@@ -839,7 +1013,6 @@ class product_product(models.Model):
             ORDER BY pt.is_code
         """
         cr.execute(SQL)
-        #result = cr.fetchall()
         result = cr.dictfetchall()
         return result
 
@@ -916,122 +1089,6 @@ class product_product(models.Model):
         return color
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            # if row["qt"]>0:
-            #    print(DateLundi, row["qt"])
-                # if typeod=='FL' and qt<0:
-                #     qt=-0.01
-
-                # qt = qt or 0 #NoneType
-
-                # # if DateLundi not in Tab[Cle]:
-                # #    Tab[Cle][DateLundi]=0
-                # # Tab[Cle][DateLundi]=Tab[Cle][DateLundi]+round(Sens*qt,2);
-
-
-        #print(json.dumps(res, indent = 4))
-
-                # mp.id as numod, 
-                # mp.start_date as date_debut, 
-                # mp.start_date_cq as date_fin, 
-                # mp.quantity as qt, 
-                # mp.type as typeod, 
-                # mp.product_id,
-                # pt.is_code as code_pg, 
-                # pt.name->>'fr_FR' designation,
-                # pt.is_stock_secu, 
-                # pt.produce_delay, 
-                # pt.lot_mini, 
-                # pt.multiple,
-                # pt.is_mold_dossierf as moule,
-                # mp.name as name,
-                # ig.name as gest
-
-        # print(TabIni)
-        # lig=1
-        # nb=len(TabIni)
-        # for line in TabIni:
-        #     print(lig,'/',nb,line, TabIni[line])
-        #     lig+=1
-
-
-        # #** RemplitTab2Sho *************************************************
-        # TabSho={}
-        # lig=0
-        # Tab=TabIni
-        # #for key, val in Tab.iteritems():
-        # for key, val in Tab.items():
-        #     Type=Tab[key]['TypeOD']
-        #     if Type!='99-Stock':
-        #         color=self.color_cel(Type)
-        #         if 0 not in TabSho:
-        #             TabSho[0]={}
-        #         if 1 not in TabSho:
-        #             TabSho[1]={}
-        #         TabSho[0][lig]=Tab[key]["Code"]
-        #         TabSho[1][lig]=Type
-        #         Type=Type[3:]
-        #         for i in range(0, semaines):
-        #             k=TabSemaines[i]
-        #             if k in Tab[key]:
-        #                 Qt=round(Tab[key][k],2)
-        #             else:
-        #                 Qt=0
-        #             Lien="#"
-        #             k=TabSemaines[i]+'OT'
-        #             if k in Tab[key]:
-        #                 OT=Tab[key][k]
-        #                 OT=OT[0:len(OT)-1]
-        #             else:
-        #                 OT=''
-        #             k=TabSemaines[i]+'INFO'
-        #             if k in Tab[key]:
-        #                 INFO=Tab[key][k]
-        #             else:
-        #                 INFO=''
-        #             docid=''
-        #             if Type=='FS' or Type=='SA' or Type=='CF' or Type=='CP' or Type=='FL' or Type=='SF':
-        #                 Lien="Modif_FS_Liste.php?zzTypeOD="+Type.lower()+"&zzNumOD="+str(OT)
-        #                 docid=str(OT)
-        #             k=i+2
-        #             if k not in TabSho:
-        #                 TabSho[k]={}
-
-        #             if Qt==0 and color!='Black':
-        #                 val=''
-        #             else:
-        #                 val="{0:10.0f}".format(Qt)
-        #             TabSho[k][lig]="<a style=\"color:"+color+";\" class=\"info\" type='"+Type+"' docid='"+str(docid)+"'>"+val+"<span>"+INFO+"</span></a>"
-
-        #             #** Calcul du stock theorique **************************
-        #             if Tab[key]['TypeOD']=='90-Stock':
-        #                 if i==0:
-        #                     Stock=Tab[key][0]+Qt
-        #                 else:
-        #                     q=TabSho[1+i][lig]
-        #                     Stock=TabSho[1+i][lig]+Qt
-        #                 TabSho[2+i][lig]=Stock
-
-        #             #*******************************************************
-
         #             #** Calcul du stock valorisé ***************************
         #             if Tab[key]['TypeOD']=='92-Stock Valorisé':
         #                 if i==0:
@@ -1040,287 +1097,7 @@ class product_product(models.Model):
         #                     Stock=TabSho[1+i][lig]+Qt;
         #                 TabSho[2+i][lig]=round(Stock,2)
         #             #*******************************************************
-        #         lig+=1
-        # Tab=TabSho
-        # # ******************************************************************
-
-
-        # lig=1
-        # nb=len(Tab)
-        # for line in Tab:
-        #     print(lig,'/',nb,line, Tab[line])
-        #     lig+=1
-
-
-
-
-
-
-        # # ** Recherche des Prévisions du CBN  ******************************
-        # TabIni={}
-        # result1 = self._get_FS_SA(filtre)
-        # TabIni=self.RemplitTab2(TabIni, result1, TabSemaines, type_rapport, 
-        #     StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
-        #     calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
-        # # ******************************************************************
-
-        # # ** Recherche des commandes client ********************************
-        # result2 = self._get_CF_CP(filtre)
-        # TabIni=self.RemplitTab2(TabIni, result2, TabSemaines, type_rapport, 
-        #     StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
-        #     calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
-        # # ******************************************************************
-
-        # # ** Recherche des OF **********************************************
-        # result3 = self._get_FL(filtre)
-        # TabIni=self.RemplitTab2(TabIni, result3, TabSemaines, type_rapport, 
-        #     StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
-        #     calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
-        # # ******************************************************************
-
-        # # ** Recherche des composants des OF *******************************
-        # result4 = self._get_FM(filtre)
-        # TabIni=self.RemplitTab2(TabIni, result4, TabSemaines, type_rapport, 
-        #     StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
-        #     calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
-        # # ******************************************************************
-
-        # # ** Recherche des commandes fournisseurs  *************************
-        # result5 = self._get_SF(filtre)
-        # TabIni=self.RemplitTab2(TabIni, result5, TabSemaines, type_rapport, 
-        #     StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
-        #     calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
-        # # ******************************************************************
-
-        # # ** Recherche pour avoir tous les articles dans le résultat  ******
-        # if valorisation:
-        #     result6 = self._get_stock(filtre)
-        #     TabIni=self.RemplitTab2(TabIni, result6, TabSemaines, type_rapport, 
-        #         StocksA, StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, 
-        #         calage, valorisation, Couts, fournisseur, TypeCde, type_cde)
-        # # ******************************************************************
-
-
-
-
-
-        # #** Requête ***********************************************************
-        # SQL="""
-        #     select 
-        #         pp.id,
-        #         pp.product_tmpl_id,
-        #         pt.is_code,
-        #         pt.name->>'fr_FR' designation
-        #     from product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
-        #     where pt.is_code like '%s%%' limit 50
-        # """%(code_pg)
-        # cr.execute(SQL)
-        # result = cr.dictfetchall()
-        # lig=0
-        # key=""
-        # lines={}
-        # trcolor=""
-        # for row in result:
-        #     if key!=row['is_code']:
-        #         key=row['is_code']
-
-        #         if trcolor=="#ffffff":
-        #             trcolor="#f2f3f4"
-        #         else:
-        #             trcolor="#ffffff"
-        #         trstyle="background-color:%s"%(trcolor)
-
-        #         vals={
-        #             "key"        : key,
-        #             "product_tmpl_id": row["product_tmpl_id"],
-        #             "trstyle"    : trstyle,
-        #             "trstyle"    : trstyle,
-        #             "is_code"    : row["is_code"],
-        #             "designation": row["designation"],
-        #         }
-        #         lines[key]=vals
-        #         lig+=1
-        # #**********************************************************************
-
-
-
-
-
-
-
-
-    # def RemplitTab2(self,Tab, result, TabSemaines, type_rapport, StocksA, 
-    #         StocksQ, StocksSecu, Fournisseurs, Delai_Fournisseurs, calage, 
-    #         valorisation, Couts, fournisseur, TypeCde, type_commande):
-
-    #     for row in result:
-    #         numod         = row["numod"]
-    #         date_debut    = row["date_debut"]
-    #         date_fin      = row["date_fin"]
-    #         qt            = row["qt"]
-    #         typeod        = (row["typeod"] or '').strip()
-    #         product_id    = row["product_id"]
-    #         code_pg       = row["code_pg"]
-    #         designation   = row["designation"]
-    #         is_stock_secu = row["is_stock_secu"]
-    #         produce_delay = row["produce_delay"]
-    #         lot_mini      = row["lot_mini"]
-    #         multiple      = row["multiple"]
-    #         moule         = row["moule"] or ''
-    #         name          = row["name"]
-
-    #         test=True
-    #         if type_rapport=='Achat':
-    #             is_code=''
-    #             if product_id in Fournisseurs:
-    #                 is_code    = Fournisseurs[product_id]
-    #             cle        = is_code+'/'+str(product_id);
-    #             t=''
-    #             if cle in TypeCde:
-    #                 t=TypeCde[cle]
-    #                 Code=code_pg+' ('+t+')'
-    #             if type_commande!='' and type_commande!=t:
-    #                 test=False
-    #         StockA=0
-    #         StockQ=0
-    #         if product_id in StocksA:
-    #             StockA=StocksA[product_id]
-    #         if product_id in StocksQ:
-    #             StockQ=StocksQ[product_id]
-    #         if typeod=='stock' and StockA==0 and StockQ==0:
-    #             test=False
-
-    #         if test:
-    #             Tri=moule
-    #             if type_rapport=='Achat':
-    #                 if product_id in Fournisseurs:
-    #                     Fournisseur=Fournisseurs[product_id]
-    #                 else:
-    #                     Fournisseur='0000'
-    #                 Tri=Fournisseur
-    #             if typeod=='':
-    #                 typeod='ferme'
-    #             Cle=code_pg+typeod
-
-    #             Code=Tri+' / <b>'+code_pg+'</b> '
-    #             if type_rapport=='Achat' and moule!='':
-    #                 Code=Code+' / '+moule
-    #             if type_rapport=='Achat':
-    #                 k       = is_code+'/'+str(product_id)
-    #                 if k in TypeCde:
-    #                     t=TypeCde[k]
-    #                     Code=Code+' ('+t+')'
-    #             if type_rapport=='Achat':
-    #                 Delai=0
-    #                 if product_id in Delai_Fournisseurs:
-    #                     Delai=Delai_Fournisseurs[product_id]
-    #             else:
-    #                 Delai=produce_delay
-
-    #             Code=Code+'<a href="#" title="Rafraichir cette ligne"><img productid="'+str(product_id)+'" src="/is_plastigray/static/src/img/refresh-icon.png" style="max-height: 16px;"/></a>'
-    #             Code=Code+\
-    #                 '<br />'+\
-    #                 designation+'<br />'+\
-    #                 "{0:10.0f}".format(is_stock_secu)+' / '+\
-    #                 "{0:10.0f}".format(Delai)+' / '+\
-    #                 "{0:10.0f}".format(lot_mini)+' / '+\
-    #                 "{0:10.0f}".format(multiple)+' / '+\
-    #                 "{0:10.0f}".format(StockA)+' / '+\
-    #                 "{0:10.0f}".format(StockQ)
-                
-    #             Code = designation
-
-
-    #             if Cle not in Tab:
-    #                 Tab[Cle]={}
-
-    #             Tab[Cle]["key"] = Cle
-
-
-    #             Tab[Cle]["product_id"]  = product_id
-    #             Tab[Cle]["code_pg"]     = code_pg
-    #             Tab[Cle]["designation"] = designation
-
-
-
-
-    #             #** Les chiffres permettent de trier les lignes ****************
-    #             t={
-    #                 "ferme"        : "10-CF",
-    #                 "previsionnel" : "20-CP",
-    #                 "FL"           : "30-FL",
-    #                 "FM"           : "40-FM",
-    #                 "SF"           : "50-SF",
-    #                 "ft"           : "60-FT",
-    #                 "fs"           : "70-FS",
-    #                 "sa"           : "80-SA",
-    #                 "stock"        : "99-Stock",
-    #             }
-    #             Tab[Cle]["TypeOD"] = typeod
-    #             if typeod in t:
-    #                 Tab[Cle]["TypeOD"] = t[typeod]
-    #             #***************************************************************
-
-
-    #             #** Permet de déterminer le sens dans le calcul du stock *******
-    #             t={
-    #                 "ferme"        : -1,
-    #                 "previsionnel" : -1,
-    #                 "FL"           : 1,
-    #                 "FM"           : -1,
-    #                 "SF"           : 1,
-    #                 "fs"           : 1,
-    #                 "ft"           : -1,
-    #                 "sa"           : 1,
-    #                 "stock"        : 1,
-    #             }
-    #             Sens=1
-    #             if typeod in t:
-    #                 Sens = t[typeod]
-    #             #***************************************************************
-
-    #             if calage=='' or calage=='Date de fin':
-    #                 DateLundi=self.datelundi(date_fin, TabSemaines)
-    #             else:
-    #                 DateLundi=self.datelundi(date_debut, TabSemaines)
-            
-    #             if typeod=='FL' and qt<0:
-    #                 qt=-0.01
-
-    #             qt = qt or 0 #NoneType
-
-    #             # if DateLundi not in Tab[Cle]:
-    #             #    Tab[Cle][DateLundi]=0
-    #             # Tab[Cle][DateLundi]=Tab[Cle][DateLundi]+round(Sens*qt,2);
-
-    #             # if DateLundi+'OT' not in Tab[Cle]:
-    #             #    Tab[Cle][DateLundi+'OT']=''
-    #             # Tab[Cle][DateLundi+'OT']=Tab[Cle][DateLundi+'OT']+str(numod)+","
-
-    #             # if DateLundi+'INFO' not in Tab[Cle]:
-    #             #    Tab[Cle][DateLundi+'INFO']=''
-
-    #             # Tab[Cle][DateLundi+'INFO']=Tab[Cle][DateLundi+'INFO']+name+" : "+str(round(qt,2))+'<br />'
-
-    #             # #** Calcul du stock theorique **********************************
-    #             # Cle=code_pg+'90-Stock'
-    #             # if Cle not in Tab:
-    #             #     Tab[Cle]={}
-    #             # Tab[Cle]['Code'] = Code
-    #             # Tab[Cle]['TypeOD'] = '90-Stock'
-    #             # StockSecu=0
-    #             # if product_id in StocksSecu:
-    #             #     StockSecu=StocksSecu[product_id]
-
-    #             # if valorisation:
-    #             #     Tab[Cle][0]=StockA+StockQ
-    #             # else:
-    #             #     Tab[Cle][0]=StockA-StockSecu
-
-    #             # if DateLundi not in Tab[Cle]:
-    #             #     Tab[Cle][DateLundi]=0
-    #             # Tab[Cle][DateLundi]=Tab[Cle][DateLundi]+round(Sens*qt,2);
-    #             # #***************************************************************
+ 
 
     #             # #** Valorisation stock *****************************************
     #             # if valorisation:
@@ -1336,27 +1113,3 @@ class product_product(models.Model):
     #             #     Tab[Cle2][0]=Tab[Cle1][0]*Cout
     #             #     Tab[Cle2][DateLundi]=Tab[Cle1][DateLundi]*Cout
     #             # #***************************************************************
-
-    #     return Tab
-
-
-
-
-
-
-        # #** Ajout de la couleur des lignes ************************************
-        # sorted_dict = dict(sorted(TabIni.items())) 
-        # trcolor=""
-        # for k in sorted_dict:
-        #     if trcolor=="#ffffff":
-        #         trcolor="#f2f3f4"
-        #     else:
-        #         trcolor="#ffffff"
-        #     trstyle="background-color:%s"%(trcolor)
-        #     sorted_dict[k]["trstyle"] = trstyle
-        # lines = list(sorted_dict.values())
-        # #**********************************************************************
-
-
-
-        #print(date_cols)

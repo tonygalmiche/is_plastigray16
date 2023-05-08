@@ -9,6 +9,7 @@ const { Component, useSubEnv, useState, onWillStart } = owl;
 class AnalyseCbn extends Component {
     setup() {
         this.user_id = useService("user").context.uid;
+        this.action  = useService("action");
         this.orm     = useService("orm");
         this.state   = useState({
             // 'analyse_cbn_code_pg': false,
@@ -87,19 +88,56 @@ class AnalyseCbn extends Component {
     }
 
     TrClick(ev) {
-        var click=parseInt(ev.target.parentElement.attributes.click.value);
-        click=-click
-        if (click==1){
-            ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
-        } else {
-            const memstyle = ev.target.parentElement.attributes.memstyle.value;
-            ev.target.parentElement.style=memstyle;
+        //var click=parseInt(ev.target.parentElement.attributes.click.value);
+        var click=ev.target.parentElement.attributes.click;
+        if (click!==undefined){
+            click.value=-click.value
+            if (click.value==1){
+                ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
+            } else {
+                const memstyle = ev.target.parentElement.attributes.memstyle.value;
+                ev.target.parentElement.style=memstyle;
+            }
+            ev.target.parentElement.attributes.click.value=click.value;
         }
-        ev.target.parentElement.attributes.click.value=click;
     }
 
 
-
+    QtClick(ev) {
+        const typeod = ev.target.attributes.name_typeod.value;
+        const ids = ev.target.attributes.ids.value;
+        const tids = ids.split(","); 
+        const dict = {
+            "CF": "sale.order",
+            "CP": "sale.order",
+            "FL": "mrp.production",
+            "SF": "purchase.order",
+            "FS": "mrp.prevision",
+            "FM": "mrp.prevision",
+            "FT": "mrp.prevision",
+            "SA": "mrp.prevision",
+        };
+        const model = dict[typeod];
+        if (model!==undefined){
+            if(tids.length>1){
+                this.action.doAction({
+                    type: 'ir.actions.act_window',
+                    target: 'current',
+                    res_model: model,
+                    views: [[false, 'list'], [false, 'form']],
+                    domain: [['id', 'in', tids]],
+                });
+            } else {
+                this.action.doAction({
+                    type: 'ir.actions.act_window',
+                    target: 'current',
+                    res_id: parseInt(tids[0]),
+                    res_model: model,
+                    views: [[false, 'form']],
+                });
+            }
+        }
+    }
 
 
     async getAnalyseCbn(ok=false){
@@ -137,11 +175,8 @@ class AnalyseCbn extends Component {
         // ]);
 
         this.state.titre                    = res.titre;
-        //this.state.lines                    = res.lines;
-        this.state.newlines                 = res.newlines;
-        //this.state.TabIni                   = res.TabIni;
+        this.state.lines                    = res.lines;
         this.state.date_cols                = res.date_cols;
-        this.state.TabSemaines                = res.TabSemaines;
         this.state.analyse_cbn_code_pg      = res.code_pg;
         this.state.analyse_cbn_gest         = res.gest;
         this.state.analyse_cbn_cat          = res.cat;

@@ -186,7 +186,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <t t-foreach="state.newlines or []" t-as="line" t-key="line.key">
+                        <t t-foreach="state.lines or []" t-as="line" t-key="line.key">
                             <t t-set="test" t-value="1" />
                             <t t-foreach="line.typeodlist or []" t-as="t" t-key="t.key">
                                 <tr 
@@ -214,9 +214,15 @@
                                             <!-- <span t-esc="col.qt_txt" t-att-style="col.style"/> -->
                                             <!-- <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt"/> -->
                                             <span class="info">
-                                                <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt" class="link"/>
-                                                <!-- <pre t-esc="col.od_txt"/> -->
-                                                <pre>
+                                                <span 
+                                                    t-esc="col.qt_txt" 
+                                                    t-att-style="'color:'+col.color_qt" 
+                                                    class="link"
+                                                    t-on-click="QtClick" 
+                                                    t-att-ids="(col.ids or []).join(',')"
+                                                    t-att-name_typeod="t.name_typeod"
+                                                />
+                                                <pre t-if="(col.od or []).length>0">
                                                     <t t-foreach="col.od or []" t-as="o" t-key="o">
                                                         <t t-esc="o"/><br />
                                                     </t>
