@@ -6,7 +6,12 @@ import logging
 _logger = logging.getLogger(__name__)
 
 #TODO : 
-# - Générer un fichie Excel pour la valorisation
+# - Générer un fichie CSV / Excel pour la valorisation (Ajouter un bouton en haut à droite pour télécharger le fichier généré)
+# - Ajouter le bouton pour rafraichier une ligne
+# - Ajouter un bouton pour supprimer une ligne (juste à l'affichage)
+# - Rechercher la liste des fournisseurs uniquement sur la base article pour gagner 1 à 2s par recherche
+# - Supprumer les données inutiles transférr au code javascip (ex : supprimer les dictionnaires remplacés par des liste )
+# - Continuer à rechercher si il est possible d'envoyer un dictionnaire dans un foreach (t-key = xxx_index)
 # - Optimiser le temps de traitement (convertir dict en list) et supprimer les données tranférées inutilement (dict)
 # - Faire fonctionner le cache lors de la modificiation des ODs
 # - Mesurer le temps de traitement de chaque partie pour optimiser le temps
@@ -484,6 +489,135 @@ class product_product(models.Model):
                 res[p]["typeod"]["92-Stock Valorisé"]["colslist"] = list(res[p]["typeod"]["92-Stock Valorisé"]["cols"].values())
         _logger.info("Calcul du stock cumulé par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
+
+
+
+        # if valorisation=="Oui":
+        #     name = "test.csv"
+        #     path = "/tmp/%s"%name
+        #     f = open(path,'w',encoding='utf-8')
+
+        #     for p in totaux:
+        #         line=p
+        #         f.write("%s\n"%line)
+        #         print(p, totaux[p])
+        #     f.close()
+
+
+
+            # #** Génération du fichier CSV **************************************
+            # attachment_id=''
+            # if valorisation:
+            #     csv={};
+            #     for lig in range(0,len(Tab[0])):
+            #         #** Recherche du CodePG et de la désignation ***************
+            #         Key=Tab[0][lig]
+            #         Key=Key.split('</b>')
+            #         Key=Key[0]
+            #         Key=Key.split('<b>')
+            #         Key=Key[1]
+            #         CodePG=Key
+            #         Key=Tab[0][lig]
+            #         Key=Key.split('<br />')
+            #         Key=Key[1]
+            #         Designation=Key
+            #         #***********************************************************
+
+            #         if CodePG not in csv:
+            #             csv[CodePG]={}
+            #         csv[CodePG][0]=CodePG
+            #         csv[CodePG][1]=Designation
+            #         Type=Tab[1][lig]
+            #         if Type=='90-Stock':
+            #             for col in range(2,len(Tab)):
+            #                 csv[CodePG][col*1000+1]=Tab[col][lig]
+            #         if Type=='92-Stock Valorisé':
+            #             for col in range(2,len(Tab)):
+            #                 csv[CodePG][col*1000+2]=Tab[col][lig]
+
+
+            #     #** Ecriture fichier CSV  **************************************
+            #     user  = self.env['res.users'].browse(uid)
+            #     name  = 'analyse-cbn-'+user.login+'.csv'
+            #     path='/tmp/'+name
+            #     f = open(path,'wb')
+            #     txt=[];
+            #     txt.append('CodePG')
+            #     txt.append('Désignation')
+            #     date=datetime.datetime.now()
+            #     jour=date.weekday()
+            #     date = date - datetime.timedelta(days=jour)
+            #     for i in range(0,int(nb_semaines)):
+            #         v='Stock S'+str(date.isocalendar()[1])+' '+date.strftime('%d.%m')
+            #         txt.append(v)
+            #         v='Valorisé S'+str(date.isocalendar()[1])+' '+date.strftime('%d.%m')
+            #         txt.append(v)
+            #         date = date + datetime.timedelta(days=7)
+
+            #     f.write(u'\t'.join(txt)+'\r\n')
+            #     for k, v in csv.iteritems():
+            #         v=self.ksort(v)
+            #         txt=[]
+            #         for k2, v2 in v:
+            #             txt.append(str(v2).replace('.',','))
+            #         f.write(u'\t'.join(txt)+'\r\n')
+            #     f.close()
+            #     #***************************************************************
+
+
+            #     # ** Creation ou modification de la pièce jointe *******************
+            #     attachment_obj = self.env['ir.attachment']
+            #     attachments = attachment_obj.search([('res_id','=',user.id),('name','=',name)])
+            #     csv = open(path,'rb').read()
+            #     vals = {
+            #         'name':        name,
+            #         'datas_fname': name,
+            #         'type':        'binary',
+            #         'res_id':      user.id,
+            #         'datas':       csv.encode('base64'),
+            #     }
+            #     attachment_id=False
+            #     if attachments:
+            #         for attachment in attachments:
+            #             attachment.write(vals)
+            #             attachment_id=attachment.id
+            #     else:
+            #         attachment = attachment_obj.create(vals)
+            #         attachment_id=attachment.id
+            #     #*******************************************************************
+
+
+            # #*******************************************************************
+
+
+
+
+# file1 = open("myfile.txt","w")
+# L = ["This is Delhi \n","This is Paris \n","This is London \n"]
+ 
+# # \n is placed to indicate EOL (End of Line)
+# file1.write("Hello \n")
+# file1.writelines(L)
+# file1.close() #to change file access modes
+ 
+
+
+#0684/271092 {'20230508': 0.0, '20230515': 0, '20230522': 0, '20230529': 0, '20230605': 0, '20230612': 0, '20230619': 0, '20230626': 0, '20230703': 0, '20230710': 0, '20230717': 0, '20230724': 0, '20230731': 0, '20230807': 0, '20230814': 0, '20230821': 0, '20230828': 0, '20230904': 0, '20230911': 0, '20230918': 0}
+
+
+        #    name='export-cegid-'+obj.journal+'-'+obj.name+'.TRA'
+        #     model='is.export.cegid'
+        #     attachments = self.env['ir.attachment'].search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)])
+        #     attachments.unlink()
+        #     dest     = '/tmp/'+name
+        #     f = codecs.open(dest,'wb',encoding='utf-8')
+        #     f.write('!\r\n')
+        #     for l in obj.ligne_ids:
+        #         f.write(s(l.journal,3))
+        #         f.write(date2txt(l.datecomptable))
+        #         f.write(s(l.type_piece,2))
+
+
 
 
         #** Ajout de la couleur des lignes ************************************
