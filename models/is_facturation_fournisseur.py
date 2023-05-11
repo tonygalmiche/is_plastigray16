@@ -4,7 +4,7 @@ from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import math
 from decimal import getcontext, Decimal
-#import numpy as np
+import numpy as np
 
 
 #TODO : Cette fonction permet de résoudre les problèmes d'arrondi avec les float et le nombre de décimales
@@ -67,16 +67,24 @@ class is_facturation_fournisseur(models.Model):
                     total=_total(line.quantite,line.prix)
 
                     ht=ht+total
-                    tva=tva+total*line.taxe_taux
-                    ttc=ttc+total*(1+line.taxe_taux)
+                    tva=tva+total*line.taxe_taux/100
+                    ttc=ttc+total*(1+line.taxe_taux/100)
             ht  = round(ht,2)
             tva = round(tva,2)
             ttc = round(ttc,2)
             ecart_ht  = round(obj.total_ht-ht,2)
             ecart_tva = round(obj.total_tva-tva,2)
+
+
+
             bon_a_payer=True
             if ecart_ht or ecart_tva:
                 bon_a_payer=False
+
+            print(ecart_ht, ecart_tva, bon_a_payer)
+
+
+
             obj.total_ht_calcule  = ht
             obj.ecart_ht          = ecart_ht
             obj.total_tva_calcule = tva
@@ -90,99 +98,98 @@ class is_facturation_fournisseur(models.Model):
                         bon_a_payer=False
             obj.bon_a_payer       = bon_a_payer
 
-    def cherche_receptions(self, partner_id, partner_ids, date_fin,masquer_montant_0):
-        ids=partner_ids[0][2]
-        ids.append(partner_id)
-        partners=[]
-        for id in ids:
-            partners.append(str(id))
+
+    @api.onchange('masquer_montant_0','name','partner_ids','date_fin')
+    def cherche_receptions(self):
         cr=self._cr
-        value = {}
-        lines = []
-        if partner_id and date_fin:
-            sql="""
-                select  sp.name, 
-                        sp.is_num_bl, 
-                        sp.is_date_reception, 
-                        sm.product_id,
-                        pt.is_ref_fournisseur,
+        for obj in self:
+            lines = []
+            if obj.name and obj.date_fin:
+                partner_ids=[str(obj.name._origin.id)]
+                for partner in obj.partner_ids:
+                    partner_ids.append(str(partner._origin.id))
+                sql="""
+                    select  sp.name as num_reception, 
+                            sp.is_num_bl, 
+                            sp.is_date_reception, 
+                            sm.product_id,
+                            pt.is_ref_fournisseur,
+                            round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as qty,
+                            sm.product_uom, 
+                            pol.price_unit,
+                            sm.id as move_id,
+                            pol.id as pol_id,
+                            sm.name as description
+                    from stock_picking sp inner join stock_move                sm on sp.id=sm.picking_id
+                                        inner join product_product           pp on sm.product_id=pp.id
+                                        inner join product_template          pt on pp.product_tmpl_id=pt.id 
+                                        left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
+                    where 
+                        sm.state='done' and 
+                        sp.state='done' and
+                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
+                        sp.picking_type_id=1 and
+                        pt.is_facturable='t' and
+                        sm.invoice_state='2binvoiced'
+                        and sp.is_date_reception<='%s'
+                        and sp.partner_id in(%s)
+                    order by sp.name, pol.id
+                """%(obj.date_fin, ",".join(partner_ids))
+                cr.execute(sql)
+                result=cr.dictfetchall()
+                for row in result:
+                    #** Recherche des taxes ****************************************
+                    taxe_ids  = []
+                    taxe_taux = 0
+                    pol_id=row["pol_id"]
+                    if pol_id:
+                        sql="""
+                            select pot.account_tax_id, at.amount
+                            from account_tax_purchase_order_line_rel pot left outer join account_tax at on pot.account_tax_id=at.id 
+                            where pot.purchase_order_line_id=%s
+                        """
+                        cr.execute(sql,[pol_id])
+                        result2=cr.dictfetchall()
+                        for row2 in result2:
+                            taxe_ids.append(row2["account_tax_id"])
+                            taxe_taux=taxe_taux+row2["amount"]
+                    #***************************************************************
 
-                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_invoice_line ail where ail.is_move_id=sm.id ),0),4),
-                        sm.product_uom, 
-                        pol.price_unit,
-                        sm.id,
-                        pol.id,
-                        sm.name as description
-                from stock_picking sp inner join stock_move                sm on sp.id=sm.picking_id
-                                      inner join product_product           pp on sm.product_id=pp.id
-                                      inner join product_template          pt on pp.product_tmpl_id=pt.id 
-                                      left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
-                where 
-                    sm.state='done' and 
-                    sp.state='done' and
-                    round(sm.product_uom_qty-coalesce((select sum(quantity) from account_invoice_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
-                    sp.picking_type_id=1 and
-                    pt.is_facturable='t' and
-                    sm.invoice_state='2binvoiced'
-            """
-            sql=sql+" and sp.partner_id in("+','.join(partners)+") "
-            sql=sql+" and sp.is_date_reception<='"+str(date_fin)+"' "
-            sql=sql+' order by sp.name, pol.id '
+                    #** Recherche du compte d'achat associé au mouvement de stock **
+                    #move_id=row["move_id"]
+                    #move=self.env['stock.move'].browse(move_id)
+                    product_id=row["product_id"]
+                    product=self.env['product.product'].browse(product_id)
+                    account_id = product.property_account_expense_id.id
+                    #***************************************************************
 
-
-            cr.execute(sql)
-            result=cr.fetchall()
-            for row in result:
-                #** Recherche des taxes ****************************************
-                taxe_ids  = []
-                taxe_taux = 0
-                pol_id=row[9]
-                if pol_id:
-                    sql="""
-                        select pot.tax_id, at.amount
-                        from purchase_order_taxe pot left outer join account_tax at on pot.tax_id=at.id 
-                        where pot.ord_id="""+str(pol_id)
-                    cr.execute(sql)
-                    result2=cr.fetchall()
-                    for row2 in result2:
-                        taxe_ids.append(row2[0])
-                        taxe_taux=taxe_taux+row2[1]
-                #***************************************************************
-
-                #** Recherche du compte d'achat associé au mouvement de stock **
-                move_id=row[8]
-                move=self.env['stock.move'].browse(move_id)
-
-                account_id = move.product_id.property_account_expense.id
-                #***************************************************************
-
-                total = row[5]*(row[7] or 0)
-                test=True
-                if masquer_montant_0 and total==0:
-                    test=False
-                if test:
-                    vals = {
-                        'num_reception'     : row[0],
-                        'num_bl_fournisseur': row[1],
-                        'date_reception'    : row[2],
-                        'product_id'        : row[3],
-                        'description'       : row[10],
-                        'account_id'        : account_id,
-                        'ref_fournisseur'   : row[4],
-                        'quantite'          : row[5],
-                        'uom_id'            : row[6],
-                        'prix'              : row[7],
-                        'prix_origine'      : row[7],
-                        'total'             : total,
-                        'taxe_ids'          : [(6,0,taxe_ids)],
-                        'taxe_taux'         : taxe_taux,
-                        'move_id'           : row[8],
-                        'selection'         : False,
-                    }
-                    lines.append(vals)
-        value.update({'line_ids': lines})
-        return {'value': value}
-
+                    total = row["qty"]*(row["price_unit"] or 0)
+                    test=True
+                    if obj.masquer_montant_0 and total==0:
+                        test=False
+                    if test:
+                        vals = {
+                            'num_reception'     : row["num_reception"],
+                            'num_bl_fournisseur': row["is_num_bl"],
+                            'date_reception'    : row["is_date_reception"],
+                            'product_id'        : row["product_id"],
+                            'description'       : row["description"],
+                            'account_id'        : account_id,
+                            'ref_fournisseur'   : row["is_ref_fournisseur"],
+                            'quantite'          : row["qty"],
+                            'uom_id'            : row["product_uom"],
+                            'prix'              : row["price_unit"],
+                            'prix_origine'      : row["price_unit"],
+                            'total'             : total,
+                            'taxe_ids'          : [(6,0,taxe_ids)],
+                            'taxe_taux'         : taxe_taux,
+                            'move_id'           : row["move_id"],
+                            'selection'         : False,
+                        }
+                        lines.append([0,0,vals])
+                obj.line_ids = False
+                obj.line_ids = lines
+      
 
     def action_afficher_lignes(self):
         for obj in self:
@@ -208,31 +215,34 @@ class is_facturation_fournisseur(models.Model):
                 bon_a_payer=True
             if obj.forcer_bon_a_payer=='non':
                 bon_a_payer=False
-            date_invoice=datetime.date.today().strftime('%Y-%m-%d')
-            res=self.env['account.invoice'].onchange_partner_id('in_invoice', obj.name.id, date_invoice)
-            vals=res['value']
-            vals.update({
-                'partner_id'  : obj.name.id,
-                'account_id'  : obj.name.property_account_payable.id,
-                'journal_id'  : 2,
-                'type'        : 'in_invoice',
-                'date_invoice': obj.date_facture,
-                'supplier_invoice_number': obj.num_facture,
-                'is_bon_a_payer': bon_a_payer,
-                'is_masse_nette': obj.is_masse_nette,
-            })
+            #date_invoice=datetime.date.today().strftime('%Y-%m-%d')
+            #res=self.env['account.invoice'].onchange_partner_id('in_invoice', obj.name.id, date_invoice)
+            #vals=res['value']
+            vals = {
+                'partner_id'      : obj.name.id,
+                #'account_id'     : obj.name.property_account_payable_id.id,
+                'journal_id'      : 2,
+                'move_type'       : 'in_invoice',
+                'invoice_date'    : obj.date_facture,
+                'date'            : obj.date_facture,
+                'invoice_date_due': obj.date_facture,
+                #'supplier_invoice_number': obj.num_facture,
+                'is_bon_a_payer'  : bon_a_payer,
+                'is_masse_nette'  : obj.is_masse_nette,
+            }
+            print(vals)
             lines = []
             invoice_line_tax_id=[]
             for line in obj.line_ids:
                 if line.selection:
                     product_id      = line.product_id.id
                     description     = line.description
-                    uom_id          = line.uom_id.id 
+                    #uom_id          = line.uom_id.id 
                     quantite        = line.quantite
-                    name            = line.product_id.name
-                    invoice_type    = 'in_invoice'
-                    partner_id      = obj.name.id
-                    fiscal_position = vals['fiscal_position']
+                    #name            = line.product_id.name
+                    #invoice_type    = 'in_invoice'
+                    #partner_id      = obj.name.id
+                    #fiscal_position = vals['fiscal_position']
 
                     invoice_line_tax_id=[]
                     for taxe_id in line.taxe_ids:
@@ -240,76 +250,189 @@ class is_facturation_fournisseur(models.Model):
 
                     if len(invoice_line_tax_id)==0:
                         invoice_line_tax_id=False
-                    res=self.env['account.invoice.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
-                    v=res['value']
+                    #res=self.env['account.move.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
+                    #v=res['value']
 
                     is_document=line.move_id.purchase_line_id.is_num_chantier
                     if is_document==False:
                         is_document=line.move_id.purchase_line_id.order_id.is_document
 
-                    v.update({
-                        'product_id'          : product_id,
-                        'name'                : description,
-                        'quantity'            : quantite,
-                        'price_unit'          : line.prix,
-                        'invoice_line_tax_id' : [(6,0,invoice_line_tax_id)],
-                        'is_document'         : is_document,
-                        'is_move_id'          : line.move_id.id,
-                    })
+                    v = {
+                        'product_id' : product_id,
+                        'name'       : description,
+                        'quantity'   : quantite,
+                        'price_unit' : line.prix,
+                        'tax_ids'    : [(6,0,invoice_line_tax_id)],
+                        'is_document': is_document,
+                        'is_move_id' : line.move_id.id,
+                    }
                     lines.append([0,False,v]) 
 
 
-            #** Ajout de la ligne pour l'écart de facturation ******************
-            if obj.ecart_ht_compte_id:
-                product_id      = obj.ecart_ht_compte_id.id
-                uom_id          = obj.ecart_ht_compte_id.uom_id.id
-                name            = obj.ecart_ht_compte_id.name
-                invoice_type    = 'in_invoice'
-                partner_id      = obj.name.id
-                fiscal_position = vals['fiscal_position']
-                res=self.env['account.invoice.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
-                v=res['value']
-                v.update({
-                    'product_id'          : product_id,
-                    'quantity'            : 1,
-                    'price_unit'          : obj.ecart_ht,
-                    'invoice_line_tax_id' : [(6,0,invoice_line_tax_id)],
-                })
-                lines.append([0,False,v]) 
-            #*******************************************************************
+            # #** Ajout de la ligne pour l'écart de facturation ******************
+            # if obj.ecart_ht_compte_id:
+            #     product_id      = obj.ecart_ht_compte_id.id
+            #     uom_id          = obj.ecart_ht_compte_id.uom_id.id
+            #     name            = obj.ecart_ht_compte_id.name
+            #     invoice_type    = 'in_invoice'
+            #     partner_id      = obj.name.id
+            #     fiscal_position = vals['fiscal_position']
+            #     res=self.env['account.invoice.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
+            #     v=res['value']
+            #     v.update({
+            #         'product_id'          : product_id,
+            #         'quantity'            : 1,
+            #         'price_unit'          : obj.ecart_ht,
+            #         'invoice_line_tax_id' : [(6,0,invoice_line_tax_id)],
+            #     })
+            #     lines.append([0,False,v]) 
+            # #*******************************************************************
 
             vals.update({
-                'invoice_line': lines,
+                'invoice_line_ids': lines,
             })
-            res=self.env['account.invoice'].create(vals)
-            res.button_reset_taxes()
-            #res.repartir_frais_de_port()
-            view_id = self.env.ref('account.invoice_supplier_form').id
-            obj.state='termine'
+            res=self.env['account.move'].create(vals)
+            # res.button_reset_taxes()
+            # #res.repartir_frais_de_port()
+            # view_id = self.env.ref('account.invoice_supplier_form').id
+            # obj.state='termine'
 
-            #** Changement d'état des réceptions et des lignes *****************
-            for line in obj.line_ids:
-                if line.selection:
-                    if line.move_id:
-                        line.move_id.invoice_state='invoiced'
-                        test=True
-                        for l in line.move_id.picking_id.move_lines:
-                            if l.invoice_state=='2binvoiced':
-                                test=False
-                        if test:
-                            line.move_id.picking_id.invoice_state='invoiced'
-            #*******************************************************************
+            # #** Changement d'état des réceptions et des lignes *****************
+            # for line in obj.line_ids:
+            #     if line.selection:
+            #         if line.move_id:
+            #             line.move_id.invoice_state='invoiced'
+            #             test=True
+            #             for l in line.move_id.picking_id.move_lines:
+            #                 if l.invoice_state=='2binvoiced':
+            #                     test=False
+            #             if test:
+            #                 line.move_id.picking_id.invoice_state='invoiced'
+            # #*******************************************************************
 
-            return {
-                'name': "Facture Fournisseur",
-                'view_mode': 'form',
-                'view_id': view_id,
-                'view_type': 'form',
-                'res_model': 'account.invoice',
-                'type': 'ir.actions.act_window',
-                'res_id': res.id,
-                'domain': '[]',
-            }
+            # return {
+            #     'name': "Facture Fournisseur",
+            #     'view_mode': 'form',
+            #     'view_id': view_id,
+            #     'view_type': 'form',
+            #     'res_model': 'account.invoice',
+            #     'type': 'ir.actions.act_window',
+            #     'res_id': res.id,
+            #     'domain': '[]',
+            # }
+
+
+
+
+    # def action_creer_facture(self):
+    #     for obj in self:
+    #         bon_a_payer=obj.bon_a_payer
+    #         if obj.forcer_bon_a_payer=='oui':
+    #             bon_a_payer=True
+    #         if obj.forcer_bon_a_payer=='non':
+    #             bon_a_payer=False
+    #         date_invoice=datetime.date.today().strftime('%Y-%m-%d')
+    #         res=self.env['account.invoice'].onchange_partner_id('in_invoice', obj.name.id, date_invoice)
+    #         vals=res['value']
+    #         vals.update({
+    #             'partner_id'  : obj.name.id,
+    #             'account_id'  : obj.name.property_account_payable.id,
+    #             'journal_id'  : 2,
+    #             'type'        : 'in_invoice',
+    #             'date_invoice': obj.date_facture,
+    #             'supplier_invoice_number': obj.num_facture,
+    #             'is_bon_a_payer': bon_a_payer,
+    #             'is_masse_nette': obj.is_masse_nette,
+    #         })
+    #         lines = []
+    #         invoice_line_tax_id=[]
+    #         for line in obj.line_ids:
+    #             if line.selection:
+    #                 product_id      = line.product_id.id
+    #                 description     = line.description
+    #                 uom_id          = line.uom_id.id 
+    #                 quantite        = line.quantite
+    #                 name            = line.product_id.name
+    #                 invoice_type    = 'in_invoice'
+    #                 partner_id      = obj.name.id
+    #                 fiscal_position = vals['fiscal_position']
+
+    #                 invoice_line_tax_id=[]
+    #                 for taxe_id in line.taxe_ids:
+    #                     invoice_line_tax_id.append(taxe_id.id)
+
+    #                 if len(invoice_line_tax_id)==0:
+    #                     invoice_line_tax_id=False
+    #                 res=self.env['account.invoice.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
+    #                 v=res['value']
+
+    #                 is_document=line.move_id.purchase_line_id.is_num_chantier
+    #                 if is_document==False:
+    #                     is_document=line.move_id.purchase_line_id.order_id.is_document
+
+    #                 v.update({
+    #                     'product_id'          : product_id,
+    #                     'name'                : description,
+    #                     'quantity'            : quantite,
+    #                     'price_unit'          : line.prix,
+    #                     'invoice_line_tax_id' : [(6,0,invoice_line_tax_id)],
+    #                     'is_document'         : is_document,
+    #                     'is_move_id'          : line.move_id.id,
+    #                 })
+    #                 lines.append([0,False,v]) 
+
+
+    #         #** Ajout de la ligne pour l'écart de facturation ******************
+    #         if obj.ecart_ht_compte_id:
+    #             product_id      = obj.ecart_ht_compte_id.id
+    #             uom_id          = obj.ecart_ht_compte_id.uom_id.id
+    #             name            = obj.ecart_ht_compte_id.name
+    #             invoice_type    = 'in_invoice'
+    #             partner_id      = obj.name.id
+    #             fiscal_position = vals['fiscal_position']
+    #             res=self.env['account.invoice.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
+    #             v=res['value']
+    #             v.update({
+    #                 'product_id'          : product_id,
+    #                 'quantity'            : 1,
+    #                 'price_unit'          : obj.ecart_ht,
+    #                 'invoice_line_tax_id' : [(6,0,invoice_line_tax_id)],
+    #             })
+    #             lines.append([0,False,v]) 
+    #         #*******************************************************************
+
+    #         vals.update({
+    #             'invoice_line': lines,
+    #         })
+    #         res=self.env['account.invoice'].create(vals)
+    #         res.button_reset_taxes()
+    #         #res.repartir_frais_de_port()
+    #         view_id = self.env.ref('account.invoice_supplier_form').id
+    #         obj.state='termine'
+
+    #         #** Changement d'état des réceptions et des lignes *****************
+    #         for line in obj.line_ids:
+    #             if line.selection:
+    #                 if line.move_id:
+    #                     line.move_id.invoice_state='invoiced'
+    #                     test=True
+    #                     for l in line.move_id.picking_id.move_lines:
+    #                         if l.invoice_state=='2binvoiced':
+    #                             test=False
+    #                     if test:
+    #                         line.move_id.picking_id.invoice_state='invoiced'
+    #         #*******************************************************************
+
+    #         return {
+    #             'name': "Facture Fournisseur",
+    #             'view_mode': 'form',
+    #             'view_id': view_id,
+    #             'view_type': 'form',
+    #             'res_model': 'account.invoice',
+    #             'type': 'ir.actions.act_window',
+    #             'res_id': res.id,
+    #             'domain': '[]',
+    #         }
 
 
 class is_facturation_fournisseur_line(models.Model):

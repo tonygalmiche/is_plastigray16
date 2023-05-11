@@ -33,7 +33,7 @@
                             <field name="lot_fournisseur"/>
                             <field name="state"/>
                             <field name="picking_state"/>
-                            <!-- <field name="invoice_state"/> -->
+                            <field name="invoice_state"/>
                         </group>
                         <group>
                             <field name="picking_id"/>
@@ -142,7 +142,7 @@
                 <field name="lot_fournisseur"   optional="hide"/>
                 <field name="user_id"           optional="hide"/>
                 <field name="picking_state"     optional="hide"/>
-                <!-- <field name="invoice_state"/> -->
+                <field name="invoice_state"     optional="show"/>
                 <field name="is_facturable" invisible="1"/>
            </tree>
         </field>
@@ -168,12 +168,15 @@
             ('reste_a_facturer','&gt;', 0),
             ('state','=', 'done'),
             ('picking_state','!=', 'cancel'),
-            #('invoice_state','!=', 'cancel'),
-            ('is_facturable','=',True)
+            ('is_facturable','=',True),
+            ('invoice_state','!=', 'cancel'),
         ]</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>
     </record>
+
+
+
 
 </data>
 </odoo>

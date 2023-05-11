@@ -10,6 +10,9 @@
                         .o_form_label{
                             white-space: nowrap;
                         }
+                        .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: 1800px;
+                        }
                     </style>
                     <header>
                         <button 
@@ -31,26 +34,22 @@
                                 <field name="afficher_lignes"/>
                                 <field 
                                     name="masquer_montant_0"
-                                    on_change="cherche_receptions(name, partner_ids, date_fin,masquer_montant_0)"
                                     attrs="{'readonly':[('state','=','termine')]}"
                                 />
                                 <field 
                                     name="name" 
                                     domain="[('supplier','=',True),('is_company','=',True)]"
-                                    on_change="cherche_receptions(name, partner_ids, date_fin,masquer_montant_0)"
                                     attrs="{'readonly':[('state','=','termine')]}"
                                 />
                                 <field name="is_incoterm"/>
                                 <field 
                                     name="partner_ids" 
                                     domain="[('supplier','=',True),('is_company','=',True)]"
-                                    on_change="cherche_receptions(name, partner_ids, date_fin,masquer_montant_0)"
                                     attrs="{'readonly':[('state','=','termine')]}"
                                     widget="many2many_tags"
                                 />
                                 <field 
                                     name="date_fin" 
-                                    on_change="cherche_receptions(name, partner_ids, date_fin,masquer_montant_0)"
                                     attrs="{'readonly':[('state','=','termine')]}"
                                 />
                                 <field name="is_masse_nette"  />
@@ -90,21 +89,21 @@
                             "
                         >
                             <tree editable="bottom">
-                                <field name="num_bl_fournisseur"/>
-                                <field name="num_reception"/>
-                                <field name="date_reception"/>
-                                <field name="product_id"/>
-                                <field name="description"/>
-                                <field name="ref_fournisseur"/>
-                                <field name="account_id"/>
-                                <field name="quantite"/>
-                                <field name="uom_id"/>
-                                <field name="prix_origine" readonly="1"/>
-                                <field name="prix"/>
-                                <field name="total"/>
-                                <field name="taxe_ids" widget="many2many_tags"/>
+                                <field name="num_bl_fournisseur" optional="show"/>
+                                <field name="num_reception" optional="show"/>
+                                <field name="date_reception" optional="show"/>
+                                <field name="product_id" optional="show"/>
+                                <field name="description" optional="show"/>
+                                <field name="ref_fournisseur" optional="show"/>
+                                <field name="account_id" optional="show"/>
+                                <field name="quantite" optional="show"/>
+                                <field name="uom_id" optional="show"/>
+                                <field name="prix_origine" optional="show"/>
+                                <field name="prix" optional="show"/>
+                                <field name="total" optional="show" sum="Total"/>
+                                <field name="taxe_ids" widget="many2many_tags" optional="show"/>
                                 <field name="taxe_taux" invisible="1"/>
-                                <field name="selection"/>
+                                <field name="selection" optional="show" widget="boolean_toggle"/>
                                 <field name="move_id" invisible="1"/>
                             </tree>
                         </field>
@@ -195,12 +194,12 @@
                             <field name="account_id"/>
                             <field name="quantite"/>
                             <field name="uom_id"/>
-                            <field name="prix_origine" readonly="1"/>
+                            <field name="prix_origine"/>
                             <field name="prix"/>
                             <field name="total"/>
                             <field name="taxe_ids" widget="many2many_tags"/>
                             <field name="taxe_taux" invisible="1"/>
-                            <field name="selection"/>
+                            <field name="selection" widget="boolean_toggle"/>
                             <field name="move_id" invisible="1"/>
                         </group>
                     </sheet>
@@ -213,22 +212,22 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <tree editable="bottom"  create="false">
-                    <field name="facturation_id"  invisible="1"/>
-                    <field name="num_bl_fournisseur"/>
-                    <field name="num_reception"/>
-                    <field name="date_reception"/>
-                    <field name="product_id"/>
-                    <field name="description"/>
-                    <field name="ref_fournisseur"/>
-                    <field name="account_id"/>
-                    <field name="quantite"/>
-                    <field name="uom_id"/>
-                    <field name="prix_origine" readonly="1"/>
-                    <field name="prix"/>
-                    <field name="total" sum="Total"/>
-                    <field name="taxe_ids" widget="many2many_tags"/>
+                    <field name="facturation_id"  invisible="1" optional="show"/>
+                    <field name="num_bl_fournisseur" optional="show"/>
+                    <field name="num_reception" optional="show"/>
+                    <field name="date_reception" optional="show"/>
+                    <field name="product_id" optional="show"/>
+                    <field name="description" optional="show"/>
+                    <field name="ref_fournisseur" optional="show"/>
+                    <field name="account_id" optional="show"/>
+                    <field name="quantite" optional="show"/>
+                    <field name="uom_id" optional="show"/>
+                    <field name="prix_origine" optional="show"/>
+                    <field name="prix" optional="show"/>
+                    <field name="total" sum="Total" optional="show"/>
+                    <field name="taxe_ids" widget="many2many_tags" optional="show"/>
                     <field name="taxe_taux" invisible="1"/>
-                    <field name="selection"/>
+                    <field name="selection" widget="boolean_toggle" optional="show"/>
                     <field name="move_id" invisible="1"/>
                 </tree>
             </field>

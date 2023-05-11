@@ -60,11 +60,11 @@ class is_ligne_reception(models.Model):
         ('done'     , u'Terminé')
     ], u"État Mouvement", readonly=True, index=True)
 
-    # invoice_state = fields.Selection([
-    #     ('2binvoiced', u'à Facturer'),
-    #     ('none'      , u'Annulé'),
-    #     ('invoiced'  , u'Facturé'),
-    # ], u"État facturation", readonly=True, index=True)
+    invoice_state = fields.Selection([
+        ('2binvoiced', u'à Facturer'),
+        ('none'      , u'Annulé'),
+        ('invoiced'  , u'Facturé'),
+    ], u"État facturation", readonly=True, index=True)
 
     is_piece_jointe = fields.Boolean("Pièce jointe", store=False, readonly=True, compute='_compute_is_piece_jointe')
 
@@ -116,7 +116,7 @@ class is_ligne_reception(models.Model):
                         round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
                         sm.state              as state,
                         sp.state              as picking_state,
-                        -- sm.invoice_state      as invoice_state,
+                        sm.invoice_state      as invoice_state,
                         sm.write_uid          as user_id,
                         sm.id                 as move_id,
                         sm.is_dosmat_ctrl_qual as is_dosmat_ctrl_qual,

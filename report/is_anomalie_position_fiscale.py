@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
 import time
 import logging
 _logger = logging.getLogger(__name__)
 
 
-
 class is_anomalie_position_fiscale(models.Model):
     _name='is.anomalie.position.fiscale'
+    _description='Anomalies position fiscale'
     _order='partner_id,order_id'
     _auto = False
 
     order_id                = fields.Many2one('purchase.order', 'Commande')
     partner_id              = fields.Many2one('res.partner', 'Fournisseur')
     product_id              = fields.Many2one('product.template', 'Article')
-    product_uom             = fields.Many2one('product.uom', 'Unité Cde')
+    product_uom             = fields.Many2one('uom.uom', 'Unité Cde')
     product_qty_uom_po      = fields.Float('Qt Cde (UA)'  , digits=(14,3))
     qt_rcp                  = fields.Float('Qt Rcp (UA)'  , digits=(14,3))
     qt_reste                = fields.Float('Qt Reste (UA)', digits=(14,3))
     position_id             = fields.Many2one('account.fiscal.position', 'Position fiscale Fournisseur')
-    fiscal_position         = fields.Many2one('account.fiscal.position', 'Position fiscale Commande')
+    fiscal_position_id      = fields.Many2one('account.fiscal.position', 'Position fiscale Commande')
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         if self.env.company.is_activer_init:
             start = time.time()
 
@@ -53,13 +51,13 @@ class is_anomalie_position_fiscale(models.Model):
                         ipol.qt_rcp , 
                         ipol.qt_reste, 
                         get_account_position_id(rp.id) position_id,
-                        po.fiscal_position
+                        po.fiscal_position_id
                     from is_purchase_order_line ipol inner join res_partner    rp on ipol.partner_id=rp.id
                                                     inner join purchase_order po on ipol.order_id=po.id
                     where 
                         ipol.qt_reste>0 and 
-                        coalesce(po.fiscal_position,0)!=coalesce(get_account_position_id(rp.id),0)
+                        coalesce(po.fiscal_position_id,0)!=coalesce(get_account_position_id(rp.id),0)
                 );
             """)
-            _logger.info('## init is_ligne_livraison en %.2fs'%(time.time()-start))
+            _logger.info('## init is_anomalie_position_fiscale en %.2fs'%(time.time()-start))
 

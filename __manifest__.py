@@ -142,6 +142,7 @@ Module Odoo 16 pour Plastigray
         "views/is_donnee_machine_view.xml",
         "views/is_capteur_view.xml",
 
+        "report/is_anomalie_position_fiscale.xml",
         "report/is_article_sans_fournisseur.xml",
         "report/is_article_sans_nomenclature.xml",
         "report/is_certifications_qualite_suivi.xml",
@@ -299,7 +300,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_suivi_budget_analytique.xml",
         # "report/is_comparatif_lot_appro_prix.xml",
         # "report/is_article_sans_cde_ouverte_fou.xml",
-        # "report/is_anomalie_position_fiscale.xml",
         # "report/is_anomalie_declar_prod.xml",
         # "report/is_comparatif_cout_pk_tarif.xml",
 

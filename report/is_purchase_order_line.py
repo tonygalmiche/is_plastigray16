@@ -116,21 +116,9 @@ class is_purchase_order_line(models.Model):
 
                             
                             is_unit_coef(pt.uom_po_id, pol.product_uom)*pol.product_qty product_qty_uom_po,
-                            (
-                                select sum(sm1.product_uom_qty*is_unit_coef(pt1.uom_po_id, sm1.product_uom))
-                                from stock_picking sp1 inner join stock_move           sm1 on sp1.id=sm1.picking_id
-                                                    inner join product_product      pp1 on sm1.product_id=pp1.id
-                                                    inner join product_template     pt1 on pp1.product_tmpl_id=pt1.id
-                                where sp1.is_purchase_order_id=po.id and sm1.purchase_line_id=pol.id and sp1.state='done' and sm1.state='done'
-                            ) qt_rcp,
 
-                        (
-                            select sum(sm.product_uom_qty*is_unit_coef(pt.uom_po_id, sm.product_uom))
-                            from stock_picking sp inner join stock_move           sm on sp.id=sm.picking_id
-                                                    inner join product_product      pp on sm.product_id=pp.id
-                                                    inner join product_template     pt on pp.product_tmpl_id=pt.id
-                            where sp.is_purchase_order_id=po.id and sm.purchase_line_id=pol.id and sp.state not in ('done','cancel') 
-                        ) qt_reste
+                            pol.qty_received as qt_rcp,
+                            (pol.product_qty-pol.qty_received) qt_reste
 
 
                     from purchase_order po inner join purchase_order_line pol on po.id=pol.order_id
@@ -143,3 +131,18 @@ class is_purchase_order_line(models.Model):
 
 
 
+                        #     (
+                        #         select sum(sm1.product_uom_qty*is_unit_coef(pt1.uom_po_id, sm1.product_uom))
+                        #         from stock_picking sp1 inner join stock_move           sm1 on sp1.id=sm1.picking_id
+                        #                             inner join product_product      pp1 on sm1.product_id=pp1.id
+                        #                             inner join product_template     pt1 on pp1.product_tmpl_id=pt1.id
+                        #         where sp1.is_purchase_order_id=po.id and sm1.purchase_line_id=pol.id and sp1.state='done' and sm1.state='done'
+                        #     ) qt_rcp,
+
+                        # (
+                        #     select sum(sm.product_uom_qty*is_unit_coef(pt.uom_po_id, sm.product_uom))
+                        #     from stock_picking sp inner join stock_move           sm on sp.id=sm.picking_id
+                        #                             inner join product_product      pp on sm.product_id=pp.id
+                        #                             inner join product_template     pt on pp.product_tmpl_id=pt.id
+                        #     where sp.is_purchase_order_id=po.id and sm.purchase_line_id=pol.id and sp.state not in ('done','cancel') 
+                        # ) qt_reste
