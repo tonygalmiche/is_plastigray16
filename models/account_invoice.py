@@ -530,11 +530,10 @@ class account_invoice(models.Model):
 class account_invoice_line(models.Model):
     _inherit = "account.move.line"
 
-    is_section_analytique_id = fields.Many2one('is.section.analytique', 'Section analytique')
-    is_move_id               = fields.Many2one('stock.move', 'Mouvement de stock', index=True)
-    is_document              = fields.Char("N° du chantier")
-    #is_account_invoice_line_id = fields.Many2one('account.invoice.line', 'Ligne de facture')
-
+    is_section_analytique_id   = fields.Many2one('is.section.analytique', 'Section analytique')
+    is_move_id                 = fields.Many2one('stock.move', 'Mouvement de stock', index=True)
+    is_document                = fields.Char("N° du chantier")
+    is_account_invoice_line_id = fields.Integer('Lien entre account_invoice_line et account_move_line pour la migration', index=True)
 
 
     @api.depends('move_id.state')
