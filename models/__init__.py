@@ -41,7 +41,14 @@ from . import is_fiche_tampographie
 from . import is_gabarit_controle
 from . import is_galia_base
 from . import is_gestion_des_absences
-from . import is_gestion_lot
+
+
+from . import is_mold
+from . import is_mold_project
+
+from . import product
+
+
 from . import is_historique_controle
 from . import is_import_budget_pk
 from . import is_indicateur_revue_jalon
@@ -53,8 +60,6 @@ from . import is_liste_servir
 from . import is_mem_var
 from . import is_mini_delta_dore      # TODO à finaliser
 from . import is_mode_operatoire
-from . import is_mold
-from . import is_mold_project
 from . import is_ot
 from . import is_pdc
 from . import is_pic_3ans
@@ -74,7 +79,6 @@ from . import is_taux_rotation_stock  # TODO A revoir plus tard
 from . import mrp
 from . import mrp_prevision
 from . import mrp_production
-from . import product
 from . import product_pricelist
 from . import purchase
 from . import res_company
@@ -84,6 +88,9 @@ from . import res_users
 from . import sale
 from . import stock
 from . import stock_move
+
+
+from . import is_gestion_lot
 
 
 
