@@ -2429,5 +2429,60 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
+
+
+
+
+    <record id="is_dossier_appel_offre_menu" model="ir.ui.menu" >
+        <field name="name">Dossier appels d'offres</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('is_indicateur_commercial_menu')"/>
+        <field name="action"    ref="is_dossier_appel_offre_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_chef_projet_group'),
+            ref('is_administration_vente_group'),
+        ])]"/>
+    </record>
+
+
+
+    <!-- Masquer les menus des utilisateurs -->
+    <record id="base.menu_management" model="ir.ui.menu" >
+        <field name="name">Applications</field>
+        <field name="groups_id" eval="[(6,0,[
+            ref('base.group_system'),
+        ])]"/>
+    </record>
+    <record id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" model="ir.ui.menu" >
+        <field name="name">Tableaux de bord</field>
+        <field name="groups_id" eval="[(6,0,[
+            ref('base.group_system'),
+        ])]"/>
+    </record>
+    <record id="base.menu_board_root" model="ir.ui.menu" >
+        <field name="name">Tableaux de bord</field>
+        <field name="groups_id" eval="[(6,0,[
+            ref('base.group_system'),
+        ])]"/>
+    </record>
+    <record id="hr.menu_hr_root" model="ir.ui.menu" >
+        <field name="name">Employés</field>
+        <field name="groups_id" eval="[(6,0,[
+            ref('base.group_system'),
+            ref('hr.group_hr_user'),
+        ])]"/>
+    </record>
+
+
+
+
+
+
+
+
+
+
+
+
     </data>
 </odoo>
