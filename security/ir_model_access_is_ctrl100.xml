@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- is.ctrl100.gamme.mur.qualite.formation -->
+        <record id="is_ctrl100_gamme_mur_qualite_formation_operateur_rule" model="ir.rule">
+            <field name="name">Accès en modification pour l'opérateur référent</field>
+            <field name="model_id" ref="model_is_ctrl100_gamme_mur_qualite_formation"/>
+            <field name="domain_force">[('operateur_referent_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+        <record id="is_ctrl100_gamme_mur_qualite_formation_ctrl100_grp_rule" model="ir.rule">
+            <field name="name">Accès en modification au groupe Contrôle 100%</field>
+            <field name="model_id" ref="model_is_ctrl100_gamme_mur_qualite_formation"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('is_ctrl100_grp'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+        <record id="is_ctrl100_gamme_mur_qualite_formation_operateurs_rule" model="ir.rule">
+            <field name="name">Accès en lecture aux opérateurs autorisés</field>
+            <field name="model_id" ref="model_is_ctrl100_gamme_mur_qualite_formation"/>
+            <field name="domain_force">[('operateur_ids','in',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+
+
+
+
+        <!-- is.ctrl100.gamme.mur.qualite -->
+        <record id="is_ctrl100_gamme_mur_qualite_referent_rule" model="ir.rule">
+            <field name="name">Accès en lecture au referent uniquement aux gammes autorisées</field>
+            <field name="model_id" ref="model_is_ctrl100_gamme_mur_qualite"/>
+            <field name="domain_force">[('formation_id.operateur_referent_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+        <record id="is_ctrl100_gamme_mur_qualite_operateur_rule" model="ir.rule">
+            <field name="name">Accès en lecture aux opérateurs uniquement aux gammes autorisées</field>
+            <field name="model_id" ref="model_is_ctrl100_gamme_mur_qualite"/>
+            <field name="domain_force">[('formation_id.operateur_ids','in',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+
+ 
+
+        <record id="is_ctrl100_gamme_mur_qualite_ctrl100_grp_rule" model="ir.rule">
+            <field name="name">Accès en modification au groupe Contrôle 100%</field>
+            <field name="model_id" ref="model_is_ctrl100_gamme_mur_qualite"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('is_ctrl100_grp'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+
+
+        <!-- is.ctrl100.defaut -->
+        <record id="is_ctrl100_defaut_operateur_rule" model="ir.rule">
+            <field name="name">Accès en création aux opérateurs autorisés et au référent</field>
+            <field name="model_id" ref="model_is_ctrl100_defaut"/>
+            <field name="domain_force">['|',('gamme_id.formation_id.operateur_ids','in',user.id),('gamme_id.formation_id.operateur_referent_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_ctrl100_defaut_ctrl100_grp_rule" model="ir.rule">
+            <field name="name">Accès en modification au groupe Contrôle 100%</field>
+            <field name="model_id" ref="model_is_ctrl100_defaut"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('is_ctrl100_grp'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+
+        <!-- model_is_ctrl100_rapport_controle -->
+        <record id="is_ctrl100_rapport_controle_createur_rule" model="ir.rule">
+            <field name="name">Rapport de contrôle: Createur see own record</field>
+            <field name="model_id" ref="model_is_ctrl100_rapport_controle"/>
+            <field name="domain_force">[('createur_id','=',user.id)]</field>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+
+
+
+    </data>
+</openerp>

@@ -2,20 +2,6 @@
 <openerp>
     <data>
 
-        <!-- Gestionnaire des absences group -->
-        <record model="res.groups" id="is_gestionnaire_des_absences_group" >
-            <field name="name">Gestionnaire des absences</field>
-            <field name="comment"></field>
-            <field name="category_id" ref="is_groupe_plastigray_module_category"/>
-        </record>
-
-        <!-- Manager des absences group -->
-        <record model="res.groups" id="is_manager_des_absences_group" >
-            <field name="name">Manager des absences</field>
-            <field name="comment">Donne accès aux demandes collectives, aux absences et au calendrier des absences</field>
-            <field name="category_id" ref="is_groupe_plastigray_module_category"/>
-        </record>
-
 
         <!-- hr_employee -->
         <record id="is_hr_employe_user_write_rule" model="ir.rule">

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>       
+        <!-- is.bon.achat.ville -->
+        <record id="is_bon_achat_ville_brouillon_rule" model="ir.rule">
+            <field name="name">Accès en modification à l'état 'Brouillon' pour le demandeur et le responsable</field>
+            <field name="model_id" ref="model_is_bon_achat_ville"/>
+            <field name="domain_force">[('state','=','brouillon'),'|',('createur_id','=',user.id),('responsable_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_bon_achat_ville_en_cours_rule" model="ir.rule">
+            <field name="name">Accès en modification à l'état 'En cours de validation' par le Responsable</field>
+            <field name="model_id" ref="model_is_bon_achat_ville"/>
+            <field name="domain_force">[('state','=','en_cours'),('responsable_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_bon_achat_ville_lecture_rule" model="ir.rule">
+            <field name="name">Accès en lecture seule pour tout le monde</field>
+            <field name="model_id" ref="model_is_bon_achat_ville"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+    </data>
+</openerp>

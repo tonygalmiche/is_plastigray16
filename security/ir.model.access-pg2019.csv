@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_user_is_head_model_form_view,access_is_head_model_form_view,model_is_head_model_form_view,base.group_user,1,1,1,1
+access_system_is_head_model_form_view,access_is_head_model_form_view,model_is_head_model_form_view,base.group_system,1,1,1,1
+access_gestionnaire_is_raspberry,access_gestionnaire_is_raspberry,model_is_raspberry,is_plastigray.group_gestionnaire_cpi_raspberry,1,1,1,1
+access_is_report_rebuts,access_is_report_rebuts,model_is_report_rebuts,,1,0,0,0

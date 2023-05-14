@@ -22,46 +22,32 @@ Module Odoo 16 pour Plastigray
         "l10n_fr_fec",
     ],
     "data" : [
-    
-    
         "security/res.groups.xml",
-        #"security/res.groups.csv",
-
+        #"security/res.groups.csv", #TODO : Permet de réorgnaiser les groupes mais ralenti fortement la mise à jour du module => Voir pour ne pas faire
         "security/ir.model.access.csv",
+        "security/ir.model.access.xml", 
+        "security/ir.model.access.is.liste.servir.xml",
+        "security/ir.model.access.is.demande.achat.xml",
+        "security/ir_model_access_is_bon_achat_ville.xml",
+        "security/ir_model_access_is_fiche_tampographie.xml",
+        "security/ir_model_access_is_ctrl100.xml",
+        "security/ot_security_view.xml",
+
+
+
         "security/is_demande_conges_security.xml",
 
 
         "views/mrp_production_view.xml",
-
-
-
-
         "report/is_stock_quant.xml",
-
-
         "views/is_gestion_lot_view.xml",
-
-
-
-
         "views/stock_view.xml",
         "views/stock_move_view.xml",
-
-
         "report/is_purchase_order_line.xml",
-
-
         "views/purchase_view.xml",
-
-
         "views/sale_view.xml",   # TODO : Il faut tout revoir dans les vues
         "views/resource_view.xml",
-
-
-
         "views/hr_view.xml",
-
-
         "views/is_article_view.xml",
         "views/is_bl_manuel_view.xml",
         "views/is_bon_achat_ville_view.xml",
@@ -176,10 +162,6 @@ Module Odoo 16 pour Plastigray
         # TODO is_pg_2019
         # "data/sequence.xml",
         # "security/res_groups.xml",
-        # "security/ir_model_access_is_fiche_tampographie.xml",
-        # "security/ir_model_access_is_ctrl100.xml",
-        # "security/ot_security_view.xml",
-        # "security/ir_model_access_is_bon_achat_ville.xml",
         # "views/auditlog_view.xml",
         # "views/bilan_fin_of_report.xml",
         # 'views/is_head_model_view.xml',
@@ -215,9 +197,6 @@ Module Odoo 16 pour Plastigray
 
         # TODO is_plastigray
         # "security/ir.model.access.csv",
-        # "security/ir.model.access.xml", 
-        # "security/ir.model.access.is.demande.achat.xml",
-        # "security/ir.model.access.is.liste.servir.xml",
         # "assets.xml",
         # "account_invoice_view.xml",
         # "sale_picking_view.xml",

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="is_ot_user_site_rule" model="ir.rule">
+            <field name="name">OT: Accès pour le site de production et les autres sites autorisés</field>
+            <field name="model_id" ref="model_is_ot"/>
+            <field name="domain_force">['|',('site_id','=',user.is_site_id.id),('site_id','in',user.get_site_ids())]</field>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+        <record id="is_ot_user_creation_state_rule" model="ir.rule">
+            <field name="name">OT Creation State: Access user</field>
+            <field name="model_id" ref="model_is_ot"/>
+            <field name="domain_force">[('state','=','creation'),('demandeur_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="0" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_ot_user_analyse_ot_state_rule" model="ir.rule">
+            <field name="name">OT Analyse State: Access user</field>
+            <field name="model_id" ref="model_is_ot"/>
+            <field name="domain_force">[('state','=','analyse_ot')]</field>
+            <field name="groups" eval="[(4, ref('is_gestionnaire_ot_group'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="0" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_ot_user_travaux_a_realiser_state_rule" model="ir.rule">
+            <field name="name">OT travaux_a_realiser State : Access user</field>
+            <field name="model_id" ref="model_is_ot"/>
+            <field name="domain_force">[('state','=','travaux_a_realiser')]</field>
+            <field name="groups" eval="[(4, ref('is_technicien_maintenance_group'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="0" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_ot_user_travaux_a_valider_state_rule" model="ir.rule">
+            <field name="name">OT travaux_a_valider State: Access user</field>
+            <field name="model_id" ref="model_is_ot"/>
+            <field name="domain_force">[('state','=','travaux_a_valider')]</field>
+            <field name="groups" eval="[(4, ref('is_gestionnaire_ot_group'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="0" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+    </data>
+</openerp>

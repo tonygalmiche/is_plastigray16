@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- is.fiche.tampographie -->
+        <record id="is_fiche_tampographie_redaction_rule" model="ir.rule">
+            <field name="name">Tampographie: Access group user to 'Redaction' state</field>
+            <field name="model_id" ref="model_is_fiche_tampographie"/>
+            <field name="domain_force">[('state','=','redaction')]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_fiche_tampographie_redaction_redacteur_rule" model="ir.rule">
+            <field name="name">Tampographie: Access group user to redacteur user in 'Redaction' state</field>
+            <field name="model_id" ref="model_is_fiche_tampographie"/>
+            <field name="domain_force">[('state','=','redaction'),('redacteur_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+        <record id="is_fiche_tampographie_approbation_rule" model="ir.rule">
+            <field name="name">Tampographie: Access group user to 'Approbation' state</field>
+            <field name="model_id" ref="model_is_fiche_tampographie"/>
+            <field name="domain_force">[('state','=','approbation')]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_fiche_tampographie_approbation_approbateur_rule" model="ir.rule">
+            <field name="name">Tampographie: Access group user to Approbateur user in 'Approbation' state</field>
+            <field name="model_id" ref="model_is_fiche_tampographie"/>
+            <field name="domain_force">[('state','=','approbation'),('approbateur_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+        <record id="is_fiche_tampographie_valide_rule" model="ir.rule">
+            <field name="name">Tampographie: Access group user to 'valide' state</field>
+            <field name="model_id" ref="model_is_fiche_tampographie"/>
+            <field name="domain_force">[('state','=','valide')]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+
+    </data>
+</openerp>
