@@ -38,6 +38,9 @@ class product_product(models.Model):
     ):
         cr = self._cr
 
+
+
+
         debut=datetime.now()
         _logger.info('Début')
 
@@ -71,6 +74,34 @@ class product_product(models.Model):
             valorisation = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_valorisation')
         semaines = int(semaines)
         _logger.info("set/get var (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+
+        semaines = semaines or 18
+
+
+        print("semaines = ",semaines)
+
+
+        # #** Valeur par défaut **************************************************
+        # code_pg_debut = code_pg_debut  or ''
+        # gest          = gest           or ''
+        # cat           = cat            or ''
+        # moule         = moule          or ''
+        # projet        = projet         or ''
+        # client        = client         or ''
+        # fournisseur   = fournisseur    or ''
+        # type_commande = type_commande  or ''
+        # type_rapport  = type_rapport   or 'Fabrication'
+        # calage        = calage         or 'Date de fin'
+        # nb_semaines   = nb_semaines    or 18
+        # nb_semaines   = int(nb_semaines)
+        # height        = filter.get('height')
+        # #***********************************************************************
+
+
+
+
+
 
 
         # ** Filtre pour les requêtes ******************************************
@@ -234,6 +265,9 @@ class product_product(models.Model):
         # **********************************************************************
 
 
+        print("semaines=",semaines)
+
+
         #** Titres des colonnes ***********************************************
         debut2=datetime.now()
         now = datetime.now()
@@ -247,9 +281,13 @@ class product_product(models.Model):
                 "date": d.strftime("%d.%m"),
             }
             d = d + timedelta(days=7)
-        #print(json.dumps(TabSemaines, indent = 4))
+        print(json.dumps(TabSemaines, indent = 4))
         _logger.info("Titres des colonnes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
+
+
+
+
 
 
         #** Stock *************************************************************

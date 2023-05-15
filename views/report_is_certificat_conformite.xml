@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+        <template id="report_is_certificat_conformite_style">
+            .header h1{
+                text-align:center;
+                font-size:14pt;
+                font-weight: bold;
+                margin-top:0;
+                margin-bottom:0;
+            }
+            .footer {
+                font-size:9pt;
+            }
+            .page {
+                font-size:10pt;
+            }
+            table{
+                border:0px solid black;
+            }
+            td{
+                padding:4pt;
+                border:1px solid black;
+                vertical-align: middle;
+            }
+            th{
+                padding:4pt;
+                border:1px solid black;
+                vertical-align: middle;
+                font-weight: normal;
+            }
+            .entete th{
+                text-align:left;
+            }
+            .lignes th{
+                text-align:center;
+            }
+        </template>
+        <template id="report_is_certificat_conformite_layout" inherit_id="web.layout" primary="True">
+            <xpath expr="//html" position="attributes">
+                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
+                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
+                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
+            </xpath>
+            <xpath expr="//head" position="inside">
+                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
+                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
+                <style type="text/css">
+                    <t t-call="report.style"/>
+                    <t t-call="is_pg_2019.report_is_certificat_conformite_style"/>
+                </style>
+            </xpath>
+            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
+        </template>
+        <template id="report_is_certificat_conformite_html_container">
+            <t t-set="body_classname" t-value="'container'"/>
+            <t t-call="is_pg_2019.report_is_certificat_conformite_layout">
+                <t t-raw="0"/>
+            </t>
+        </template>
+        <template id="report_is_certificat_conformite_external_layout_header">
+            <div class="header">
+                <table style="width:100%">
+                    <tr>
+                        <td style="width:30%;font-size:1pt;"><img t-att-src="'data:image/png;base64,%s' % res_company.is_logo" style="height: 60px;"/></td>
+                        <td style="width:70%;text-align:center">
+                            <h1>CERTIFICAT DE CONFORMITE MATIERE PLASTIQUE</h1>
+                            <div><i>Certificate of Compliance / Plastic Material</i></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </template>
+        <template id="report_is_certificat_conformite_external_layout_footer">
+            <div class="footer">
+                <div class="row" style="border-top: 1px solid black">
+                    <div class="col-xs-5  text-left">
+                        FO-0-MQ-36 - Imprimé le <t t-usertime="%d/%m/%Y"/> à <t t-usertime="%H:%M"/>
+                    </div>
+                    <div class="col-xs-2" />
+                    <div class="col-xs-5 text-right">
+                        Page <span class="page" style="font-size:9pt;"/> / <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+            <br />
+        </template>
+        <template id="report_is_certificat_conformite_external_layout">
+            <t t-if="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id"/>
+            </t>
+            <t t-if="not o or not 'company_id' in o">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+            <t t-call="is_pg_2019.report_is_certificat_conformite_external_layout_header"/>
+            <t t-raw="0"/>
+            <t t-call="is_pg_2019.report_is_certificat_conformite_external_layout_footer"/>
+        </template>
+        <template id="is_certificat_conformite_report">
+            <t t-call="is_pg_2019.report_is_certificat_conformite_html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="is_pg_2019.report_is_certificat_conformite_external_layout">
+                        <div class="page">
+                            <table style="width:100%" class="entete">
+                                <tr>
+                                    <th style="width:50mm"><b>Fournisseur : </b></th>
+                                    <td><span t-field="res_company.name"/></td>
+                                </tr>
+                                <tr>
+                                    <th><b>Adresse : </b></th>
+                                    <td><span t-field="res_company.street2"/> <span t-field="res_company.zip"/> <span t-field="res_company.city"/></td>
+                                </tr>
+                                <tr>
+                                    <th style="width:50mm"><b>Client </b><i>Customer</i> : </th>
+                                    <td><span t-field="o.client_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <th style="width:50mm"><b>Produit </b><i>Product</i> : </th>
+                                    <td><span t-field="o.product_id.is_code"/> - <span t-field="o.product_id.name"/></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table style="width:100%" class="entete">
+                                <tr>
+                                    <th style="width:25%"><b>Référence</b> <i>Part number</i> : </th>
+                                    <td style="width:25%"><span t-field="o.product_id.is_ref_client"/></td>
+                                    <th style="width:25%"><b>Indice</b> <i>Index : </i></th>
+                                    <td style="width:25%"><span t-field="o.product_id.is_ind_plan"/></td>
+                                </tr>
+                                <tr>
+                                    <th style="width:25%"><b>N° de commande : </b><br /><i>Order number</i></th>
+                                    <td style="width:25%"><span t-field="o.client_order_ref"/></td>
+                                    <td style="width:25%"><b>Plan : </b><br /><i>Plan</i></td>
+                                    <td style="width:25%"><span t-field="o.product_id.is_ref_plan"/></td>
+                                </tr>
+                                <tr>
+                                    <th style="width:25%"><b>N° bon de livraison :  </b><br /><i>Delivery form number</i></th>
+                                    <t t-if="o.picking_id">
+                                        <td style="width:25%"><span t-field="o.picking_id.name"/> du <span t-field="o.date_bl"/></td>
+                                    </t>
+                                    <t t-if="not o.picking_id">
+                                        <td style="width:25%"><span t-field="o.bon_transfert_id.name"/> du <span t-field="o.date_bl"/></td>
+                                    </t>
+                                    <th style="width:25%"><b>Quantité livrée :  </b><br /><i>Qty delivered</i></th>
+                                    <td style="width:25%"><span t-field="o.qt_liv"/></td>
+                                </tr>
+                                <tr>
+                                    <th style="width:25%"><b>N° de lot :  </b><br /><i>Lot number</i></th>
+                                    <td style="width:25%"><span t-field="o.num_lot"/></td>
+                                    <th style="width:25%"><b>Date de fabrication :  </b><br /><i>Manufacturing date</i></th>
+                                    <td style="width:25%"><span t-field="o.date_fabrication"/></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <t t-if="o.reference_ids">
+                                <table style="width:100%" class="lignes">
+                                    <thead>
+                                        <tr>
+                                            <th><b>Réf. client de chaque élément (*) </b><br /><i>customer ref. of each part</i></th>
+                                            <th><b>Fabricant de la matière de base </b><br /><i>Material manufacturer</i></th>
+                                            <th><b>Référence précise de la matière de base </b><br /><i>Material designation</i></th>
+                                            <th><b>Epaisseur minimale mesurable sur la pièce </b><br /><i>Min. thickness of part</i></th>
+                                            <th><b>Classe d'inflammabilité de la matière dans l'épaisseur mini. </b><br /><i>Flame class in min. thickness</i></th>
+                                        </tr>
+                                    </thead>
+                                    <tboby>
+                                        <tr t-foreach="o.reference_ids" t-as="l" >
+                                            <td style="text-align:center"><span t-field="l.reference"/></td>
+                                            <td style="text-align:center"><span t-field="l.fabricant"/></td>
+                                            <td style="text-align:center"><span t-field="l.ref_precise"/></td>
+                                            <td style="text-align:center"><span t-field="l.epaisseur"/></td>
+                                            <td style="text-align:center"><span t-field="l.classe"/></td>
+                                        </tr>
+                                    </tboby>
+                                </table>
+                                <br />
+                                <div>
+                                    <b>Les pièces plastiques colorées sont  réalisées avec des matières pigmentées par le fabriquant de la matière.</b><br />
+                                    <i>Colored parts are made of material pigmented by the material manufacturer.</i>
+                                </div>
+                            </t>
+                            <t t-if="o.pourcentage_maxi">
+                                <br />
+                                <div>
+                                    <b>Le pourcentage maximum de matière plastique réutilisée/rebroyée contenue dans les pièces injectées est de <span t-field="o.pourcentage_maxi"/>.</b><br />
+                                    <i>The maximum percentage of reprocessed/regrind thermoplastic material used in the molding process is <span t-field="o.pourcentage_maxi"/>.</i>
+                                </div>
+                            </t>
+                            <t t-if="o.autre_ids">
+                                <br />
+                                <table style="width:100%" class="lignes">
+                                    <thead>
+                                        <tr>
+                                            <th><b>Autres conformités</b><br /><i>other</i></th>
+                                            <th><b>Epaisseur mini mesurable sur la pièce </b><br /><i>min.thinckness of part</i></th>
+                                            <th><b>Classe d'inflammabilité de la matière dans l'épaisseur mini </b><br /><i>flame class in min.thickness</i></th>
+                                        </tr>
+                                    </thead>
+                                    <tboby>
+                                        <tr t-foreach="o.autre_ids" t-as="l" >
+                                            <td style="text-align:center"><span t-field="l.autre_conformite"/></td>
+                                            <td style="text-align:center"><span t-field="l.epaisseur_mini"/></td>
+                                            <td style="text-align:center"><span t-field="l.classe_inflammabilite"/></td>
+                                        </tr>
+                                    </tboby>
+                                </table>
+                            </t>
+                            <t t-if="o.autre2_ids">
+                                <br />
+                                <table style="width:100%" class="lignes">
+                                    <thead>
+                                        <tr>
+                                            <th><b>Autre</b> / <i>other</i></th>
+                                        </tr>
+                                    </thead>
+                                    <tboby>
+                                        <tr t-foreach="o.autre2_ids" t-as="l" >
+                                            <td style="text-align:center"><span t-field="l.autre"/></td>
+                                        </tr>
+                                    </tboby>
+                                </table>
+                            </t>
+                            <t t-if="o.fabricant_ids">
+                                <br />
+                                <table style="width:100%" class="lignes">
+                                    <thead>
+                                        <tr>
+                                            <th><b>Fabricant de la matière pigmentée</b><br /><i>Coloured Material manufacturer</i></th>
+                                            <th><b>% de la matière pigmentée</b><br /><i>% Coloured Material</i></th>
+                                        </tr>
+                                    </thead>
+                                    <tboby>
+                                        <tr t-foreach="o.fabricant_ids" t-as="l" >
+                                            <td style="text-align:center"><span t-field="l.fabricant"/></td>
+                                            <td style="text-align:center"><span t-field="l.pourcentage"/></td>
+                                        </tr>
+                                    </tboby>
+                                </table>
+                            </t>
+                            <br />
+                            <table style="width:100%" class="lignes">
+                                <thead>
+                                    <tr>
+                                        <th style="width:10%"><b>Date</b><br /><i>(Date)</i></th>
+                                        <th style="width:30%"><b>Cachet du fournisseur</b><br /><i>Supplier's stamp</i></th>
+                                        <th style="width:30%"><b>Nom et signature</b><br /><i>Name and signature</i></th>
+                                        <th style="width:30%"><b>Fonction</b><br /><i>Title</i></th>
+                                     </tr>
+                                </thead>
+                                <tboby>
+                                    <tr>
+                                        <td style="text-align:center">
+                                            <div t-field="o.date_bl"/>
+                                            <br />
+                                        </td>
+                                        <td style="text-align:center">
+                                            <img 
+                                                t-att-src="'data:image/png;base64,%s' % res_company.is_cachet_plastigray" 
+                                                style="max-height: 40mm;max-width: 50mm;"
+                                            />
+                                            <br />
+                                        </td>
+                                        <td style="text-align:center">
+                                            <div t-field="o.rsp_livraison.name"/>
+                                            <img 
+                                                t-att-src="'data:image/png;base64,%s' % o.rsp_livraison.is_signature" 
+                                                style="max-height: 40mm;max-width: 50mm;"
+                                            />
+                                            <br />
+                                        </td>
+                                        <td style="text-align:center"><div t-field="o.job_id.name"/></td>
+                                     </tr>
+                                </tboby>
+                            </table>
+                            <div>
+                                <b>Ce document doit impérativement accompagner chaque livraison</b><br />
+                                <i>This certificate has to be enclosed with every delivery</i>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>
+
+

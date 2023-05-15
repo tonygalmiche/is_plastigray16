@@ -32,10 +32,12 @@ Module Odoo 16 pour Plastigray
         "security/ir_model_access_is_fiche_tampographie.xml",
         "security/ir_model_access_is_ctrl100.xml",
         "security/ot_security_view.xml",
-
-
-
         "security/is_demande_conges_security.xml",
+
+
+        "views/report_fiche_description_moule.xml",
+
+
 
 
         "views/mrp_production_view.xml",
@@ -176,7 +178,6 @@ Module Odoo 16 pour Plastigray
         # "views/report_is_fiche_tampographie.xml",
         # "views/report_maintenance_preventive_niv2_a.xml",
         # "views/report_maintenance_preventive_niv2_b.xml",
-        # "views/report_fiche_description_moule.xml",
         # "views/report_is_ctrl100_pareto.xml",
         # "views/report_is_bon_achat_ville.xml",
         # "views/report_is_facture_proforma.xml",
