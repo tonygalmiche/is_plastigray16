@@ -77,6 +77,12 @@ class sale_order(models.Model):
             nb_lig           = int(self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_lig'))
 
 
+        nb_semaines = nb_semaines or 12
+        periodicite = periodicite or 7
+        nb_lig      = nb_lig or 100
+
+
+
         #Liste de choix *******************************************************
         options = ["Ferme", "Prev", "Toutes"]
         type_cde_options=[]
