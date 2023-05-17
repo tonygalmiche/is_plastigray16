@@ -289,12 +289,17 @@ Module Odoo 16 pour Plastigray
     "qweb": [
     ],
     "assets": {
-         'web.assets_backend': [
+        'web.assets_backend': [
             #'is_plastigray16/static/src/styles.css',
             #'is_plastigray16/static/src/scripts.js',
             #'is_plastigray16/static/src/templates.xml',
             'is_plastigray16/static/src/**/*',
-         ]
+         ],
+        'web.report_assets_common': [
+            'is_plastigray16/static/src/scss/plastigray_report.scss',
+
+        ]
+
     },
     "installable": True,
     "application": True,
