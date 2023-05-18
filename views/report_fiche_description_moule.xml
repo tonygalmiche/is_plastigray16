@@ -1,70 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-<!-- 
-    
-
-        <template id="fiche_description_moule_a_report">
-            <t t-call="fiche_description_moule_a_report_html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="fiche_description_moule_a_report_external_layout">
-                    <t t-call="report.internal_layout">
-                   
-                    </t>
-                </t>
-            </t>
-            </t>
-        </template> -->
-
-
-
-        <record id="fiche_description_moule_paperformat" model="report.paperformat">
-            <field name="name">Fiche de description moule</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">30</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">10</field>
-            <field name="margin_right">10</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">20</field>
-            <field name="dpi">90</field>
-        </record>
-
-        <record id="fiche_description_moule_report" model="ir.actions.report">
-            <field name="name">Fiche de description moule</field>
-            <field name="model">is.mold</field>
-            <field name="binding_model_id" ref="model_is_mold"/>
-            <field name="paperformat_id" ref="fiche_description_moule_paperformat"/>
-            <field name="report_type">qweb-pdf</field>
-            <field name="report_name">is_plastigray16.fiche_description_moule_template</field>
-            <field name="report_file">is_plastigray16.fiche_description_moule_template</field>
-        </record>
-
         <template id="fiche_description_moule_template">
             <t t-set="company" t-value="res_company"/>
             <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
             <t t-call="web.basic_layout">
-                <STYLE>
-                    .titre{
-                        background-color:#dcdcdc;
-                        padding:1pt;
-                        margin:1pt;
-                        padding-left:2mm;
-                        padding-right:2mm;
-                    }
-                    .titretd{
-                        text-align:center;
-                        padding-top:4mm;
-                        padding-bottom:1mm;
-                    }
-                </STYLE>
                 <t t-foreach="docs" t-as="o">
                     <!-- header -->
-                    <div class="header test_blue">
+                    <div class="header">
                         <div class="row">
                             <table width="100%">
                                 <tr>
@@ -91,92 +34,86 @@
                     </div>
 
                     <!-- page -->
-                    <div class="page test_green" style="border: 1px solid black;font-size:11pt">
-                        <!-- <div class="row" style="border: 1px solid black;font-size:11pt"> -->
-                            <table style="border-collapse: collapse;" width="100%">
-                                <tr>
-                                    <td style="width:50%;vertical-align:top">
+                    <div class="page" style="border: 1px solid black;font-size:11pt">
+                        <table style="border-collapse: collapse;" width="100%">
+                            <tr>
+                                <td style="width:50%;vertical-align:top">
 
-                                        <table style="border-collapse: collapse;width:120mm">
-                                            <tr><td colspan="2" class="titretd"><b class="titre">Dimensions / <i>Size</i></b></td></tr>
-                                            <tr><td style="height:2mm"></td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm;width:65mm;">Largeur / <i>Width</i> :   </td><td><b><span t-field="o.largeur" /></b> mm</td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Hauteur / <i>Height</i> :              </td><td><b><span t-field="o.hauteur" /></b> mm</td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Epaisseur / <i>Thikness</i> :          </td><td><b><span t-field="o.epaisseur" /></b> mm</td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Poids / <i>Weight</i> :                </td><td><b><span t-field="o.poids" /></b> Kg</td></tr>
-                                            <tr><td colspan="2" class="titretd"><b class="titre">Dimensions hors tout / <i>Overall size</i></b></td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Largeur / <i>Width</i> :               </td><td><b><span t-field="o.largeur_hors_tout" /></b> mm</td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Hauteur / <i>Height</i> :              </td><td><b><span t-field="o.hauteur_hors_tout" /></b> mm</td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Epaisseur / <i>Thikness</i> :          </td><td><b><span t-field="o.epaisseur_hors_tout" /></b> mm</td></tr>
-                                            <tr><td colspan="2" class="titretd"><b class="titre">Autres informations / <i>Other informations</i></b></td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Nbr emp / <i>Cav nbr</i> :             </td><td><b><span t-field="o.nb_empreintes" /></b></td></tr>
-                                            <tr t-if="o.nb_zones_utiles"><td style="text-align:right;padding-right:2mm">Nombre de zones utiles sur le bloc chaud :</td><td><b><span t-field="o.nb_zones_utiles" /></b></td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">Reçu de buse :                         </td><td><b><span t-field="o.recu_de_buse" /></b> <span t-field="o.recu_de_buse_specifique" /></td></tr>
-                                            <tr><td style="text-align:right;padding-right:2mm">d= entrée cheminée :                   </td><td><b><span t-field="o.diametre_entree_cheminee" /></b> <span t-field="o.diametre_entree_cheminee_specifique" /></td></tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <img src="is_plastigray16/static/img/dimensions-moule.png" style="max-height:70mm;max-width:90mm"/>
-                                    </td>
-                                </tr>
-                            </table>
-
-
-                            <table style="border-collapse: collapse;width:100%">
-                                <tr><td colspan="2" class="titretd"><b class="titre">Bridage / <i>Clamping of mold</i> : </b></td></tr>
-                                <tr>
-                                    <td style="text-align:right;padding-right:2mm">Bridage / <i>Clamping of mold : </i></td>
-                                    <td>
-                                        <t t-foreach="o.bridage_ids" t-as="p">
-                                            <div t-field="p.name" style="padding-right:2mm;font-weight:bold"/>
-                                        </t>
-                                        <div t-if="o.bridage_specifique" t-field="o.bridage_specifique"/>
-                                    </td>
-                                </tr>
-                                <tr><td style="text-align:right;padding-right:2mm">Ejection / <i>Ejection</i> :                   </td><td><b><span t-field="o.ejection"/></b></td></tr>
-                                
-                                <tr t-if="(o.diametre_passage_matiere or o.type_matiere_transformee or o.embout_buse_longueur or o.type_de_portee)">  <td colspan="2" class="titretd"><b class="titre">Embout de buse standard 7/8</b></td></tr>
-                                <tr t-if="o.diametre_passage_matiere"> <td style="text-align:right;padding-right:2mm">Ø de passage matière        : </td><td><b><span t-field="o.diametre_passage_matiere"/></b> </td></tr>
-                                <tr t-if="o.type_matiere_transformee"> <td style="text-align:right;padding-right:2mm">Type de matière transformée : </td><td><b><span t-field="o.type_matiere_transformee"/></b> </td></tr>
-                                <tr t-if="o.embout_buse_longueur">     <td style="text-align:right;padding-right:2mm">Longueur                    : </td><td><b><span t-field="o.embout_buse_longueur"/></b>     </td></tr>
-                                <tr t-if="o.type_de_portee">           <td style="text-align:right;padding-right:2mm">Type de portée              : </td><td><b><span t-field="o.type_de_portee"/></b>           </td></tr>
-                                
-                                <tr><td colspan="2" class="titretd"><b class="titre">Rondelle de centrage / <i>Washer centring</i></b></td></tr>
-                                <tr><td style="text-align:right;padding-right:2mm">Partie fixe / <i>Fixed side</i> :   </td><td><b><span t-field="o.rondelle_centrage_fixe"/></b>   <span t-field="o.rondelle_centrage_fixe_specifique"/></td></tr>
-                                <tr><td style="text-align:right;padding-right:2mm">Partie mobile / <i>Move side</i> :  </td><td><b><span t-field="o.rondelle_centrage_mobile"/></b> <span t-field="o.rondelle_centrage_mobile_specifique"/></td></tr>
-                                <tr><td colspan="2" class="titretd"><b class="titre">Classe ou Presse</b></td></tr>
-                                <tr>
-                                    <td style="text-align:right;padding-right:2mm">Classe ou Presse : </td>
-                                    <td>
-                                        <t t-foreach="o.presse_ids" t-as="p">
-                                            <span t-field="p.numero_equipement" style="padding-right:2mm;font-weight:bold"/>
-                                        </t>
-                                    </td>
-                                </tr>
-                                <tr t-if="(o.nb_circuit_eau_fixe or nb_circuit_eau_mobile)"><td colspan="2" class="titretd"><b class="titre">Nombre de circuits d'eau <i>Number of cooling</i></b></td></tr>
-                                <tr t-if="o.nb_circuit_eau_fixe">
-                                    <td style="text-align:right;padding-right:2mm">Partie fixe / <i>Fixed side</i> :  </td>
-                                    <td><b><span t-field="o.nb_circuit_eau_fixe" /></b> <span t-field="o.nb_circuit_eau_fixe_commentaire" /></td>
-                                </tr>
-                                <tr t-if="o.nb_circuit_eau_mobile">
-                                    <td style="text-align:right;padding-right:2mm">Partie mobile / <i>Move side</i> : </td>
-                                    <td><b><span t-field="o.nb_circuit_eau_mobile" /></b> <span t-field="o.nb_circuit_eau_mobile_commentaire" /></td>
-                                </tr>
-                                <tr><td colspan="2" class="titretd"><b class="titre">Nombre de noyaux / <i>Number of hydraulic move</i></b></td></tr>
-                                <tr><td style="text-align:right;padding-right:2mm">Partie fixe / <i>Fixed side</i> :  </td><td><b><span t-field="o.nb_noyaux_fixe" /></b>   <span t-field="o.nb_noyaux_fixe_commentaire" /></td></tr>
-                                <tr><td style="text-align:right;padding-right:2mm">Partie mobile / <i>Move side</i> : </td><td><b><span t-field="o.nb_noyaux_mobile" /></b> <span t-field="o.nb_noyaux_mobile_commentaire" /></td></tr>
-                                <tr><td colspan="2" class="titretd"><b class="titre">Cinématique/ <i>Kinematic</i></b></td></tr>
-                                <tr><td style="text-align:right;padding-right:2mm">Cinématique/ <i>Kinematic</i> :  </td><td><b><span t-field="o.cinematique" /></b></td></tr>
-                                <tr t-if="o.cinematique_description"><td style="text-align:right;padding-right:2mm"></td><td><span t-field="o.cinematique_description" /></td></tr>
-                                <tr t-if="o.cinematique=='specifique'"><td style="text-align:right;padding-right:2mm"></td><td><span t-field="o.cinematique_specifique" /></td></tr>
-                                <tr t-if="o.fiche_description_commentaire"><td colspan="2" class="titretd"><b class="titre">Divers/ <i>Other</i></b></td></tr>
-                                <tr t-if="o.fiche_description_commentaire"><td style="text-align:right;padding-right:2mm"></td><td><b><span t-field="o.fiche_description_commentaire"/></b></td></tr>
-                            </table>
-                        <!-- </div> -->
+                                    <table style="border-collapse: collapse;width:120mm">
+                                        <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Dimensions / <i>Size</i></b></td></tr>
+                                        <tr><td style="height:2mm"></td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm;width:65mm;">Largeur / <i>Width</i> :   </td><td><b><span t-field="o.largeur" /></b> mm</td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Hauteur / <i>Height</i> :              </td><td><b><span t-field="o.hauteur" /></b> mm</td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Epaisseur / <i>Thikness</i> :          </td><td><b><span t-field="o.epaisseur" /></b> mm</td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Poids / <i>Weight</i> :                </td><td><b><span t-field="o.poids" /></b> Kg</td></tr>
+                                        <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Dimensions hors tout / <i>Overall size</i></b></td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Largeur / <i>Width</i> :               </td><td><b><span t-field="o.largeur_hors_tout" /></b> mm</td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Hauteur / <i>Height</i> :              </td><td><b><span t-field="o.hauteur_hors_tout" /></b> mm</td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Epaisseur / <i>Thikness</i> :          </td><td><b><span t-field="o.epaisseur_hors_tout" /></b> mm</td></tr>
+                                        <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Autres informations / <i>Other informations</i></b></td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Nbr emp / <i>Cav nbr</i> :             </td><td><b><span t-field="o.nb_empreintes" /></b></td></tr>
+                                        <tr t-if="o.nb_zones_utiles"><td style="text-align:right;padding-right:2mm">Nombre de zones utiles sur le bloc chaud :</td><td><b><span t-field="o.nb_zones_utiles" /></b></td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">Reçu de buse :                         </td><td><b><span t-field="o.recu_de_buse" /></b> <span t-field="o.recu_de_buse_specifique" /></td></tr>
+                                        <tr><td style="text-align:right;padding-right:2mm">d= entrée cheminée :                   </td><td><b><span t-field="o.diametre_entree_cheminee" /></b> <span t-field="o.diametre_entree_cheminee_specifique" /></td></tr>
+                                    </table>
+                                </td>
+                                <td>
+                                    <img src="is_plastigray16/static/img/dimensions-moule.png" style="max-height:70mm;max-width:90mm"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="border-collapse: collapse;width:100%">
+                            <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Bridage / <i>Clamping of mold</i> : </b></td></tr>
+                            <tr>
+                                <td style="text-align:right;padding-right:2mm">Bridage / <i>Clamping of mold : </i></td>
+                                <td>
+                                    <t t-foreach="o.bridage_ids" t-as="p">
+                                        <div t-field="p.name" style="padding-right:2mm;font-weight:bold"/>
+                                    </t>
+                                    <div t-if="o.bridage_specifique" t-field="o.bridage_specifique"/>
+                                </td>
+                            </tr>
+                            <tr><td style="text-align:right;padding-right:2mm">Ejection / <i>Ejection</i> :                   </td><td><b><span t-field="o.ejection"/></b></td></tr>
+                            <tr t-if="(o.diametre_passage_matiere or o.type_matiere_transformee or o.embout_buse_longueur or o.type_de_portee)">  <td colspan="2" class="mold_titretd"><b class="mold_titre">Embout de buse standard 7/8</b></td></tr>
+                            <tr t-if="o.diametre_passage_matiere"> <td style="text-align:right;padding-right:2mm">Ø de passage matière        : </td><td><b><span t-field="o.diametre_passage_matiere"/></b> </td></tr>
+                            <tr t-if="o.type_matiere_transformee"> <td style="text-align:right;padding-right:2mm">Type de matière transformée : </td><td><b><span t-field="o.type_matiere_transformee"/></b> </td></tr>
+                            <tr t-if="o.embout_buse_longueur">     <td style="text-align:right;padding-right:2mm">Longueur                    : </td><td><b><span t-field="o.embout_buse_longueur"/></b>     </td></tr>
+                            <tr t-if="o.type_de_portee">           <td style="text-align:right;padding-right:2mm">Type de portée              : </td><td><b><span t-field="o.type_de_portee"/></b>           </td></tr>
+                            <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Rondelle de centrage / <i>Washer centring</i></b></td></tr>
+                            <tr><td style="text-align:right;padding-right:2mm">Partie fixe / <i>Fixed side</i> :   </td><td><b><span t-field="o.rondelle_centrage_fixe"/></b>   <span t-field="o.rondelle_centrage_fixe_specifique"/></td></tr>
+                            <tr><td style="text-align:right;padding-right:2mm">Partie mobile / <i>Move side</i> :  </td><td><b><span t-field="o.rondelle_centrage_mobile"/></b> <span t-field="o.rondelle_centrage_mobile_specifique"/></td></tr>
+                            <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Classe ou Presse</b></td></tr>
+                            <tr>
+                                <td style="text-align:right;padding-right:2mm">Classe ou Presse : </td>
+                                <td>
+                                    <t t-foreach="o.presse_ids" t-as="p">
+                                        <span t-field="p.numero_equipement" style="padding-right:2mm;font-weight:bold"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr t-if="(o.nb_circuit_eau_fixe or nb_circuit_eau_mobile)"><td colspan="2" class="mold_titretd"><b class="mold_titre">Nombre de circuits d'eau <i>Number of cooling</i></b></td></tr>
+                            <tr t-if="o.nb_circuit_eau_fixe">
+                                <td style="text-align:right;padding-right:2mm">Partie fixe / <i>Fixed side</i> :  </td>
+                                <td><b><span t-field="o.nb_circuit_eau_fixe" /></b> <span t-field="o.nb_circuit_eau_fixe_commentaire" /></td>
+                            </tr>
+                            <tr t-if="o.nb_circuit_eau_mobile">
+                                <td style="text-align:right;padding-right:2mm">Partie mobile / <i>Move side</i> : </td>
+                                <td><b><span t-field="o.nb_circuit_eau_mobile" /></b> <span t-field="o.nb_circuit_eau_mobile_commentaire" /></td>
+                            </tr>
+                            <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Nombre de noyaux / <i>Number of hydraulic move</i></b></td></tr>
+                            <tr><td style="text-align:right;padding-right:2mm">Partie fixe / <i>Fixed side</i> :  </td><td><b><span t-field="o.nb_noyaux_fixe" /></b>   <span t-field="o.nb_noyaux_fixe_commentaire" /></td></tr>
+                            <tr><td style="text-align:right;padding-right:2mm">Partie mobile / <i>Move side</i> : </td><td><b><span t-field="o.nb_noyaux_mobile" /></b> <span t-field="o.nb_noyaux_mobile_commentaire" /></td></tr>
+                            <tr><td colspan="2" class="mold_titretd"><b class="mold_titre">Cinématique/ <i>Kinematic</i></b></td></tr>
+                            <tr><td style="text-align:right;padding-right:2mm">Cinématique/ <i>Kinematic</i> :  </td><td><b><span t-field="o.cinematique" /></b></td></tr>
+                            <tr t-if="o.cinematique_description"><td style="text-align:right;padding-right:2mm"></td><td><span t-field="o.cinematique_description" /></td></tr>
+                            <tr t-if="o.cinematique=='specifique'"><td style="text-align:right;padding-right:2mm"></td><td><span t-field="o.cinematique_specifique" /></td></tr>
+                            <tr t-if="o.fiche_description_commentaire"><td colspan="2" class="mold_titretd"><b class="mold_titre">Divers/ <i>Other</i></b></td></tr>
+                            <tr t-if="o.fiche_description_commentaire"><td style="text-align:right;padding-right:2mm"></td><td><b><span t-field="o.fiche_description_commentaire"/></b></td></tr>
+                        </table>
                     </div>
 
                     <!-- footer -->
-                    <div class="footer test_ma_couleur">
+                    <div class="footer">
                         <table style="border-collapse: collapse;" width="100%">
                             <tr>
                                 <td class="mold_footer">
@@ -199,6 +136,30 @@
             </t>
         </template>
 
+        <record id="fiche_description_moule_paperformat" model="report.paperformat">
+            <field name="name">Fiche de description moule</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">30</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">20</field>
+            <field name="dpi">90</field>
+        </record>
 
+        <record id="fiche_description_moule_report" model="ir.actions.report">
+            <field name="name">Fiche de description moule</field>
+            <field name="model">is.mold</field>
+            <field name="binding_model_id" ref="model_is_mold"/>
+            <field name="paperformat_id" ref="fiche_description_moule_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.fiche_description_moule_template</field>
+            <field name="report_file">is_plastigray16.fiche_description_moule_template</field>
+        </record>
     </data>
 </odoo>

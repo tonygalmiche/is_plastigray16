@@ -1,15 +1,8 @@
-
-
-
+//** Test Feuille de styles .scss *********************************************
 $ma_couleur: yellow;
-
-
 .test_ma_couleur {
     color:$ma_couleur;
 }
-
-
-
 .test_red {
     color:red;
 }
@@ -21,11 +14,153 @@ $ma_couleur: yellow;
 }
 
 
-
-
+//** Fiche de description moule ***********************************************
+.mold_titre{
+    background-color:#dcdcdc;
+    padding:1pt;
+    margin:1pt;
+    padding-left:2mm;
+    padding-right:2mm;
+}
+.mold_titretd{
+    text-align:center;
+    padding-top:4mm;
+    padding-bottom:1mm;
+}
 .mold_footer {
     font-size:9pt;
     vertical-align:middle;
     text-align:center;
     border: 1px solid black;
+}
+
+
+//** Bilan de fin d'OF ********************************************************
+.bilan_fin_of_page {
+    font-size:11pt;
+}
+.bilan_fin_of_page th {
+    text-align:left;
+}
+.bilan_fin_of_header {
+    font-size:15pt;
+    font-weight: bold;
+}
+.bilan_fin_of_footer {
+    font-size:10pt;
+}
+.text-left{
+    text-align:left;
+} 
+.text-right{
+    text-align:right;
+}
+
+
+//** Bon d'achat en ville *****************************************************
+.bon_achat_ville_header h1{
+    text-align:center;
+    font-size:16pt;
+    font-weight: bold;
+    margin-top:0;
+    margin-bottom:0;
+}
+.bon_achat_ville_header table{
+    border:0px solid black;
+}
+.bon_achat_ville_header td{
+    padding:4pt;
+    border:1px solid black;
+}
+.bon_achat_ville_footer {
+    font-size:9pt;
+}
+
+
+//** BL manuel ****************************************************************
+.bl_manuel_header {
+    font-size:10pt;
+}
+.bl_manuel_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.bl_manuel_header .expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.bl_manuel_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+.bl_manuel_footer {
+    font-size:7pt;
+}
+
+
+//** Bon de transfert *********************************************************
+.bon_transfert_header {
+    font-size:10pt;
+}
+.bon_transfert_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.bon_transfert_header .expediteur {
+    font-size:9pt;
+    text-align:left;
+}
+.bon_transfert_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+.bon_transfert_footer {
+    font-size:7pt;
+}
+.bon_transfert_page {
+    font-size:9pt;
+}
+
+
+//** Certificat de conformité *************************************************
+.certificat_conformite_header h1{
+    text-align:center;
+    font-size:14pt;
+    font-weight: bold;
+    margin-top:0;
+    margin-bottom:0;
+}
+.certificat_conformite_header table{
+    border:0px solid black;
+}
+.certificat_conformite_header td{
+    border:0px solid black;
+}
+.certificat_conformite_footer {
+    font-size:9pt;
+}
+.certificat_conformite_page {
+    font-size:10pt;
+}
+.certificat_conformite_page table{
+    border:0px solid black;
+}
+.certificat_conformite_page td{
+    padding:4pt;
+    border:1px solid black;
+    vertical-align: middle;
+}
+.certificat_conformite_page th{
+    padding:4pt;
+    border:1px solid black;
+    vertical-align: middle;
+    font-weight: normal;
+}
+.certificat_conformite_page .entete th{
+    text-align:left;
+}
+.certificat_conformite_page .lignes th{
+    text-align:center;
 }

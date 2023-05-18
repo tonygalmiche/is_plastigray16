@@ -94,20 +94,6 @@
         </record>
 
         <report 
-            id="report_appel_de_livraisons"
-            model="is.cde.ouverte.fournisseur"
-            string="Appel de livraison / Horizon des besoins"
-            report_type="qweb-pdf"
-            name="is_plastigray.report_appel_de_livraison"
-            file="is_plastigray.report_appel_de_livraison"
-            multi="True"
-        />
-        <record id="report_appel_de_livraisons" model="ir.actions.report.xml" >
-            <field name="paperformat_id" ref="is_plastigray.cde_ouverte_fournisseur_paperformat"/>
-        </record>
-
-
-        <report 
             id="report_relance_fournisseurs"
             model="is.cde.ouverte.fournisseur"
             string="Relance fournisseur"
@@ -157,21 +143,6 @@
         <record id="report_detail_charge_injections" model="ir.actions.report.xml">
             <field name="paperformat_id" ref="is_plastigray.plan_de_charge_landscape_paperformat"/>
         </record>
-
-
-
-        <report 
-            id="report_bon_transferts"
-            model="is.bon.transfert"
-            string="Bon de transfert"
-            report_type="qweb-pdf"
-            name="is_plastigray.report_bon_transfert"
-            file="is_plastigray.report_bon_transfert"
-        />
-        <record id="report_bon_transferts" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_plastigray.bon_transfert_paperformat"/>
-        </record>
-
 
 
         <report 
@@ -355,18 +326,6 @@
         </record>
 
 
-
-        <report 
-            id="report_is_bl_manuels"
-            model="is.bl.manuel"
-            string="BL manuel"
-            report_type="qweb-pdf"
-            name="is_plastigray.report_is_bl_manuel"
-            file="is_plastigray.report_is_bl_manuel"
-        />
-        <record id="report_is_bl_manuels" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_plastigray.is_bl_manuel_paperformat"/>
-        </record>
 
 
         <report 

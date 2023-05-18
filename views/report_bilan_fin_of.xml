@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="bilan_fin_of_template">
+            <t t-set="company" t-value="res_company"/>
+            <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <!-- header -->
+                    <div class="header bilan_fin_of_header">
+                        <div class="row">
+                            <div class="col-3  text-left">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height:80px;" alt="Logo"/>
+                            </div>
+                            <div class="col-9 text-right">
+                                Bilan de l'OF <span t-field="o.name"/> terminé le <span t-field="o.heure_fin"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- page -->
+                    <div class="page bilan_fin_of_page">
+                        <table class="table table-condensed">
+                            <tbody>
+                                <tr>
+                                    <th style="width:24%">N°OF</th>
+                                    <td style="width:24%"><span t-field="o.name"/></td>
+                                    <td style="width:4%"></td>
+                                    <th style="width:24%">Qt à produire</th>
+                                    <td style="width:24%"><span t-field="o.qt"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Moule</th>
+                                    <td><span t-field="o.moule"/></td>
+                                    <td></td>
+                                    <th>Nb cycles</th>
+                                    <td><span t-field="o.nb_cycles"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Nombre d'empreintes</th>
+                                    <td><span t-field="o.nb_empreintes"/></td>
+                                    <td></td>
+                                    <th>Qt réalisée théorique</th>
+                                    <td><span t-field="o.qt_theorique"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Coefficient Theia</th>
+                                    <td><span t-field="o.coef_cpi"/></td>
+                                    <td></td>
+                                    <th>Qt déclarée</th>
+                                    <td><span t-field="o.qt_declaree"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Code article</th>
+                                    <td><span t-field="o.code_article"/></td>
+                                    <td></td>
+                                    <th>Qt restante</th>
+                                    <td><span t-field="o.qt_restante"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Désignation</th>
+                                    <td><span t-field="o.designation"/></td>
+                                    <td></td>
+                                    <th>Qt rebuts (Taux)</th>
+                                    <td><span t-field="o.qt_rebut"/> (<span t-field="o.taux_rebut"/>%)</td>
+                                </tr>
+                                <tr>
+                                    <th>Qt par UC</th>
+                                    <td><span t-field="o.uc"/></td>
+                                    <td></td>
+                                    <th>Qt rebuts théorique (Taux)</th>
+                                    <td><span t-field="o.qt_rebut_theo"/> (<span t-field="o.taux_rebut_theo"/>%)</td>
+                                </tr>
+                                <tr>
+                                    <th>Coût article</th>
+                                    <td><span t-field="o.cout"/></td>
+                                    <td></td>
+                                    <th>Cycle gamme</th>
+                                    <td><span t-field="o.cycle_gamme"/></td>
+                                </tr>
+                                <tr>
+                                    <th>Presse</th>
+                                    <td><span t-field="o.presse_id"/></td>
+                                    <td></td>
+                                    <th>Cycle moyen</th>
+                                    <td><span t-field="o.cycle_moyen_serie"/></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td></td>
+                                    <td></td>
+                                    <th>Heure de début de production</th>
+                                    <td><span t-field="o.heure_debut"/></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td></td>
+                                    <td></td>
+                                    <th>Heure de fin de production</th>
+                                    <td><span t-field="o.heure_fin"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <br />
+                        <table class="table table-condensed">
+                            <tbody>
+                                <tr>
+                                    <td style="width:48%">
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-left">État Presse</th>
+                                                    <th class="text-right">Durée dans cet état (H)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-set="tps_arret" t-value="0"/>
+                                                <tr t-foreach="o.tps_ids" t-as="l">
+                                                    <t t-set="tps_arret" t-value="tps_arret + l.tps_arret"/>
+                                                    <td class="text-left" t-attf-style="background-color:{{ l.couleur }}">
+                                                        <span t-field="l.etat_presse_id"/>
+                                                    </td>
+                                                    <td class="text-right" t-attf-style="background-color:{{ l.couleur }}">
+                                                        <t t-esc="'%02d:%02d' % (int(l.tps_arret), l.tps_arret % 1 * 60)" />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total : </th>
+                                                    <th class="text-right">
+                                                        <t t-esc="'%02d:%02d' % (int(tps_arret), tps_arret % 1 * 60)" />
+                                                    </th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td style="width:4%"></td>
+                                    <td style="width:48%">
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-left">Type de défaut</th>
+                                                    <th class="text-right">Qt rebut</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr t-foreach="o.rebut_ids" t-as="l">
+                                                    <td class="text-left"><span t-field="l.defaut_id"/></td>
+                                                    <td class="text-right"><span t-field="l.qt_rebut"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- footer -->
+                    <div class="footer bilan_fin_of_footer">
+                        <div class="text-center" style="border-top: 1px solid black">
+                            <table style="width:100%">
+                                <tr>
+                                    <td class="text-right">
+                                        Page <span class="page" style="font-size:10pt;"/> / <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+
+        <record id="bilan_fin_of_paperformat" model="report.paperformat">
+            <field name="name">Bilan de fin d'OF</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">25</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">20</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="bilan_fin_of_report" model="ir.actions.report">
+            <field name="name">Bilan de fin d'OF</field>
+            <field name="model">is.of</field>
+            <field name="binding_model_id" ref="model_is_of"/>
+            <field name="paperformat_id" ref="bilan_fin_of_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.bilan_fin_of_template</field>
+            <field name="report_file">is_plastigray16.bilan_fin_of_template</field>
+        </record>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--     
+        <template id="bilan_fin_of_report_style">
+       
+
+        </template>
+
+
+
+        <template id="bilan_fin_of_report_document">
+            <t t-call="is_pg_2019.bilan_fin_of_report_external_layout">
+
+            </t>
+        </template>
+
+        <template id="bilan_fin_of_report">
+            <t t-call="is_pg_2019.bilan_fin_of_report_html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="is_pg_2019.bilan_fin_of_report_document">
+                        <t t-raw="0"/>
+                    </t>
+                </t>
+            </t>
+        </template> -->
+
+    </data>
+</odoo>

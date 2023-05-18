@@ -1,265 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-<data>
-
-
-        <template id="report_bon_transfert_style">
-            .header {
-                font-size:10pt;
-            }
-            .footer {
-                font-size:7pt;
-            }
-            .page {
-                font-size:9pt;
-            }
-            .titre {
-                font-size:11pt;
-                font-weight: bold;
-            }
-            .expediteur {
-                font-size:9pt;
-                text-align:left;
-            }
-            .destinataire {
-                text-align:left;
-                border: 1px solid black;
-                padding:5mm;
-            }
-
-        </template>
-
-
-        <template id="report_bon_transfert_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_plastigray.report_bon_transfert_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="report_bon_transfert_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_plastigray.report_bon_transfert_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-
-        <!-- Entête personnalisé Plastigray -->
-        <template id="report_bon_transfert_external_layout_header">
-            <div class="header">
-
-                <div class="row">
-                    <div class="col-xs-4  text-left">
-                        <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                        <div class="expediteur">
-                            <div>Expéditeur : </div>
-                            <b><div t-field="company.name"/></b>
-                            <b><div t-field="company.street"/></b>
-                            <div t-field="company.street2"/>
-                            <div><span t-field="company.zip"/> - <span t-field="company.city"/></div>
-                            <div t-field="company.country_id.name"/>
-                            <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 400, 40)"/><br/><br/>
+<odoo>
+    <data>
+        <template id="bon_transfert_template">
+            <t t-set="company" t-value="res_company"/>
+            <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <!-- header -->
+                    <div class="header bon_transfert_header">
+                        <div class="row">
+                            <div class="col-4  text-left">
+                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                <div class="expediteur">
+                                    <div>Expéditeur : </div>
+                                    <b><div t-field="company.name"/></b>
+                                    <b><div t-field="company.street"/></b>
+                                    <div t-field="company.street2"/>
+                                    <div><span t-field="company.zip"/> - <span t-field="company.city"/></div>
+                                    <div t-field="company.country_id.name"/>
+                                    <img t-att-src="'/report/barcode/Code128/'+o.name" style="width:80mm;height:10mm" alt="Barcode"/><br/><br/>
+                                </div>
+                            </div>
+                            <div class="col-1" />
+                            <div class="col-7">
+                                <div class="titre">
+                                    <span>Bon de transfert N°</span>
+                                    <span t-field="o.name"/>
+                                    du <span t-field="o.date_creation"/><br />
+                                </div>
+                                <div class="titre">
+                                    <span>Navette</span> 
+                                    <span t-field="o.location_id"/>
+                                    <t t-if="o.date_fin">
+                                        du <span t-field="o.date_fin"/>
+                                    </t>
+                                </div>
+                                <div>Transporteur : <span t-field="o.transporteur_id.name"/></div>
+                                <div class="destinataire">
+                                    <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>)
+                                    <address 
+                                        class="mb-0" t-field="o.partner_id" 
+                                        t-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": True}'
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-xs-1" />
-                    <div class="col-xs-7">
-                        <div class="titre">
-                            <span>Bon de transfert N°</span>
-                            <span t-field="o.name"/>
-                             du <span t-field="o.date_creation"/><br />
-                        </div>
-                        <div class="titre">
-                            <span>Navette</span> 
-                            <span t-field="o.location_id"/>
-                            <t t-if="o.date_fin">
-                                du <span t-field="o.date_fin"/>
-                            </t>
-                        </div>
-                        <div>Transporteur : <span t-field="o.transporteur_id.name"/></div>
-                        <div class="destinataire">
-                            <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>)
-                            <div t-field="o.partner_id"
-                                 t-field-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
+
+                    <!-- page -->
+                    <div class="page bon_transfert_page">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Article</th>
+                                    <th class="text-left">Moule</th>
+                                    <th class="text-left">Référence Client</th>
+                                    <th class="text-right">Quantité</th>
+                                    <th class="text-left">Unité</th>
+                                    <th class="text-right">Nb UC</th>
+                                    <th class="text-left">UC</th>
+                                    <th class="text-right">Nb UM</th>
+                                    <th class="text-right">Poids</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="quantite" t-value="0"/>
+                                <t t-set="nb_uc"    t-value="0"/>
+                                <t t-set="nb_um"    t-value="0"/>
+                                <t t-set="pds_brut_total" t-value="0"/>
+                                <t t-set="pds_net_total" t-value="0"/>
+                                <tr t-foreach="o.line_ids" t-as="l">
+                                    <t t-set="quantite" t-value="quantite + l.quantite"/>
+                                    <t t-set="nb_uc"    t-value="nb_uc    + l.nb_uc"/>
+                                    <t t-set="nb_um"    t-value="nb_um    + l.nb_um"/>
+                                    <t t-set="pds_brut" t-value="l.quantite*l.product_id.weight"/>
+                                    <t t-set="pds_brut_total" t-value="pds_brut_total + pds_brut"/>
+                                    <t t-set="pds_net" t-value="l.quantite*l.product_id.weight_net"/>
+                                    <t t-set="pds_net_total" t-value="pds_net_total + pds_net"/>
+                                    <td class="text-left">  <span t-field="l.product_id"/> </td>
+                                    <td class="text-left"> <span t-field="l.mold_id"/>  </td>
+                                    <td class="text-left"> <span t-field="l.ref_client"/>  </td>
+                                    <td class="text-right"> <span t-field="l.quantite"/>  </td>
+                                    <td class="text-left"> <span t-field="l.uom_id"/>  </td>
+                                    <td class="text-right"> <span t-field="l.nb_uc"/>  </td>
+                                    <td class="text-left"> <span t-field="l.uc_id"/>  </td>
+                                    <td class="text-right"> <span t-field="l.nb_um"/>  </td>
+                                    <td class="text-right" style="white-space: nowrap;">
+                                        net :  <t t-esc='"{:,.1f}".format(pds_net).replace(","," ").replace(".",",")'/> KG<br />
+                                        brut : <t t-esc='"{:,.1f}".format(pds_brut).replace(","," ").replace(".",",")'/> KG
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"><b>Total : </b></td>
+                                    <td class="text-right" style="white-space: nowrap;"><b><t t-esc='"{:,.0f}".format(quantite).replace(","," ").replace(".",",")' /></b></td>
+                                    <td></td>
+                                    <td class="text-right" style="white-space: nowrap;"><b><t t-esc='"{:,.1f}".format(nb_uc).replace(","," ").replace(".",",")' /></b></td>
+                                    <td></td>
+                                    <td class="text-right" style="white-space: nowrap;"><b><t t-esc='"{:,.1f}".format(nb_um).replace(","," ").replace(".",",")' /></b></td>
+                                    <td class="text-right" style="white-space: nowrap;">
+                                        <b>
+                                            net :  <t t-esc='"{:,.1f}".format(pds_net_total).replace(","," ").replace(".",",")'/> KG<br />
+                                            brut : <t t-esc='"{:,.1f}".format(pds_brut_total).replace(","," ").replace(".",",")'/> KG
+                                        </b>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <t t-if="o.galia_um_ids">
+                            <br />
+                            <table class="table table-condensed" style="width:50%">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Article</th>
+                                        <th class="text-left">Etiquette UM</th>
+                                        <th class="text-left">Etiquette UC</th>
+                                        <th class="text-left">Qt pièces</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="res" t-value="o.get_etiquettes()"/>
+                                    <tr t-foreach="res" t-as="obj">
+                                        <t t-if="obj['is_code_rowspan']">
+                                            <td style="padding:2px;" t-att-rowspan="obj['is_code_rowspan']"><span t-esc="obj['is_code']"/></td>
+                                        </t>
+                                        <t t-if="obj['um_rowspan']">
+                                            <td style="padding:2px;" t-att-rowspan="obj['um_rowspan']"><span t-esc="obj['um']"/></td>
+                                        </t>
+                                        <td style="padding:2px;"><span t-esc="obj['uc']"/></td>
+                                        <td style="padding:2px;"><span t-esc="obj['qt_pieces']"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                    
+                    <!-- footer -->
+                    <div class="footer bon_transfert_footer">
+                        <div class="text-center" style="border-top: 1px solid black">
+                            <table style="width:100%">
+                                <tr>
+                                    <td class="text-left" style="width:80%">
+                                        S.A.S. au capital de 2 200 000 € - Siège social : ZAC de Gray Sud - CS 10133 - 70104 GRAY Cedex<br />
+                                        Siret B 377 846 381 00020 - Code NAF 2229 A - Registre du Commerce GRAY - N°Identification T.V.A. FR 65 377 846 381
+                                    </td>
+                                    <td class="text-right">
+                                        Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
         </template>
 
+        <record id="bon_transfert_paperformat" model="report.paperformat">
+            <field name="name">Bon de transfert</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">55</field>
+            <field name="margin_bottom">25</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">50</field>
+            <field name="dpi">90</field>
+        </record>
 
-
-        <!-- Pied de page personnalisé Plastigray -->
-        <template id="report_bon_transfert_external_layout_footer">
-            <div class="footer">
-                <div class="text-center" style="border-top: 1px solid black">
-                    <table style="width:100%">
-                        <tr>
-                            <td class="text-left" style="width:80%">
-                                S.A.S. au capital de 2 200 000 € - Siège social : ZAC de Gray Sud - CS 10133 - 70104 GRAY Cedex<br />
-                                Siret B 377 846 381 00020 - Code NAF 2229 A - Registre du Commerce GRAY - N°Identification T.V.A. FR 65 377 846 381
-                            </td>
-                            <td class="text-right">
-                                Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <br />
-        </template>
-
-        <!-- Squelette de la page personnalisé pour Plastigray -->
-        <template id="report_bon_transfert_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id"/>
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company"/>
-            </t>
-            <t t-call="is_plastigray.report_bon_transfert_external_layout_header"/>
-            <t t-raw="0"/>
-            <t t-call="is_plastigray.report_bon_transfert_external_layout_footer"/>
-        </template>
-
-
-
-
-
-<template id="report_bon_transfert_external_layout">
-    <t t-if="o and 'company_id' in o">
-        <t t-set="company" t-value="o.company_id"></t>
-    </t>
-    <t t-if="not o or not 'company_id' in o">
-        <t t-set="company" t-value="res_company"></t>
-    </t>
-    <t t-call="is_plastigray.report_bon_transfert_external_layout_header" />
-    <t t-raw="0" />
-    <t t-call="is_plastigray.report_bon_transfert_external_layout_footer" />
-</template>
-
-
-<template id="report_bon_transfert_document">
-    <t t-call="is_plastigray.report_bon_transfert_external_layout">
-        <div class="page">
-            <table class="table table-condensed">
-                <thead>
-                    <tr>
-                        <th class="text-left">Article</th>
-                        <th class="text-left">Moule</th>
-                        <th class="text-left">Référence Client</th>
-                        <th class="text-right">Quantité</th>
-                        <th class="text-left">Unité</th>
-                        <th class="text-right">Nb UC</th>
-                        <th class="text-left">UC</th>
-                        <th class="text-right">Nb UM</th>
-                        <th class="text-right">Poids</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-set="quantite" t-value="0"/>
-                    <t t-set="nb_uc"    t-value="0"/>
-                    <t t-set="nb_um"    t-value="0"/>
-
-                    <t t-set="pds_brut_total" t-value="0"/>
-                    <t t-set="pds_net_total" t-value="0"/>
-
-                    <tr t-foreach="o.line_ids" t-as="l">
-                        <t t-set="quantite" t-value="quantite + l.quantite"/>
-                        <t t-set="nb_uc"    t-value="nb_uc    + l.nb_uc"/>
-                        <t t-set="nb_um"    t-value="nb_um    + l.nb_um"/>
-
-
-
-                        <t t-set="pds_brut" t-value="l.quantite*l.product_id.weight"/>
-                        <t t-set="pds_brut_total" t-value="pds_brut_total + pds_brut"/>
-
-                        <t t-set="pds_net" t-value="l.quantite*l.product_id.weight_net"/>
-                        <t t-set="pds_net_total" t-value="pds_net_total + pds_net"/>
-
-                        <td class="text-left">  <span t-field="l.product_id"/> </td>
-                        <td class="text-left"> <span t-field="l.mold_id"/>  </td>
-                        <td class="text-left"> <span t-field="l.ref_client"/>  </td>
-                        <td class="text-right"> <span t-field="l.quantite"/>  </td>
-                        <td class="text-left"> <span t-field="l.uom_id"/>  </td>
-                        <td class="text-right"> <span t-field="l.nb_uc"/>  </td>
-                        <td class="text-left"> <span t-field="l.uc_id"/>  </td>
-                        <td class="text-right"> <span t-field="l.nb_um"/>  </td>
-                        <td class="text-right" style="white-space: nowrap;">
-                            net :  <t t-esc='"{:,.1f}".format(pds_net).replace(","," ").replace(".",",")'/> KG<br />
-                            brut : <t t-esc='"{:,.1f}".format(pds_brut).replace(","," ").replace(".",",")'/> KG
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td colspan="3"><b>Total : </b></td>
-                        <td class="text-right" style="white-space: nowrap;"><b><t t-esc='"{:,.0f}".format(quantite).replace(","," ").replace(".",",")' /></b></td>
-                        <td></td>
-                        <td class="text-right" style="white-space: nowrap;"><b><t t-esc='"{:,.1f}".format(nb_uc).replace(","," ").replace(".",",")' /></b></td>
-                        <td></td>
-                        <td class="text-right" style="white-space: nowrap;"><b><t t-esc='"{:,.1f}".format(nb_um).replace(","," ").replace(".",",")' /></b></td>
-                        <td class="text-right" style="white-space: nowrap;">
-                            <b>
-                                net :  <t t-esc='"{:,.1f}".format(pds_net_total).replace(","," ").replace(".",",")'/> KG<br />
-                                brut : <t t-esc='"{:,.1f}".format(pds_brut_total).replace(","," ").replace(".",",")'/> KG
-                            </b>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <t t-if="o.galia_um_ids">
-                <br />
-                <table class="table table-condensed" style="width:50%">
-                    <thead>
-                        <tr>
-                            <th class="text-left">Article</th>
-                            <th class="text-left">Etiquette UM</th>
-                            <th class="text-left">Etiquette UC</th>
-                            <th class="text-left">Qt pièces</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-set="res" t-value="o.get_etiquettes()"/>
-                        <tr t-foreach="res" t-as="obj">
-                            <t t-if="obj['is_code_rowspan']">
-                                <td style="padding:2px;" t-att-rowspan="obj['is_code_rowspan']"><span t-esc="obj['is_code']"/></td>
-                            </t>
-                            <t t-if="obj['um_rowspan']">
-                                <td style="padding:2px;" t-att-rowspan="obj['um_rowspan']"><span t-esc="obj['um']"/></td>
-                            </t>
-                            <td style="padding:2px;"><span t-esc="obj['uc']"/></td>
-                            <td style="padding:2px;"><span t-esc="obj['qt_pieces']"/></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </t>
-        </div>
-    </t>
-</template>
-
-
-<template id="report_bon_transfert">
-    <t t-call="is_plastigray.report_bon_transfert_html_container">
-        <t t-foreach="doc_ids" t-as="doc_id">
-            <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'is_plastigray.report_bon_transfert_document')"/>
-        </t>
-    </t>
-</template>
-</data>
-</openerp>
+        <record id="bon_transfert_report" model="ir.actions.report">
+            <field name="name">Bon de transfert</field>
+            <field name="model">is.bon.transfert</field>
+            <field name="binding_model_id" ref="model_is_bon_transfert"/>
+            <field name="paperformat_id" ref="bon_transfert_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.bon_transfert_template</field>
+            <field name="report_file">is_plastigray16.bon_transfert_template</field>
+        </record>
+    </data>
+</odoo>

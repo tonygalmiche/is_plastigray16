@@ -35,10 +35,13 @@ Module Odoo 16 pour Plastigray
         "security/is_demande_conges_security.xml",
 
 
+        "views/report_certificat_conformite.xml",
+        "views/report_bon_transfert.xml",
+        "views/report_is_bl_manuel.xml",
+        "views/report_is_bon_achat_ville.xml",
+        #"views/report_appel_de_livraison.xml", #TODO : A revoir car beacoup de changements à effectuer => Faire les plus simple en premier
+        "views/report_bilan_fin_of.xml",
         "views/report_fiche_description_moule.xml",
-
-
-
 
         "views/mrp_production_view.xml",
         "report/is_stock_quant.xml",
@@ -165,21 +168,18 @@ Module Odoo 16 pour Plastigray
         # "data/sequence.xml",
         # "security/res_groups.xml",
         # "views/auditlog_view.xml",
-        # "views/bilan_fin_of_report.xml",
         # 'views/is_head_model_view.xml',
         # "views/is_ot_report.xml",
         # "views/is_presse_report.xml",
         # "views/is_proforma_chine_report.xml",
         # "views/report_gamme_defautheque.xml",
         # "views/report_gamme_qualite.xml",
-        # "views/report_is_certificat_conformite.xml",
         # "views/report_is_ctrl100_rapport_controle.xml",
         # "views/report_is_ot_indicateur.xml",
         # "views/report_is_fiche_tampographie.xml",
         # "views/report_maintenance_preventive_niv2_a.xml",
         # "views/report_maintenance_preventive_niv2_b.xml",
         # "views/report_is_ctrl100_pareto.xml",
-        # "views/report_is_bon_achat_ville.xml",
         # "views/report_is_facture_proforma.xml",
         # "views/report_is_facture_proforma_outillage.xml",
         # "views/report_preventif_equipement_zone.xml",
@@ -229,10 +229,8 @@ Module Odoo 16 pour Plastigray
         # "views/report_cde_ouverte_fournisseur.xml",
         # "views/report_relance_fournisseur.xml",
         # "views/report_cde_ferme_cadencee.xml",
-        # "views/report_appel_de_livraison.xml",
         # "views/report_document_fabrication.xml",
         # "views/report_plan_de_charge.xml",
-        # "views/report_bon_transfert.xml",
         # "views/report_purchaseorder.xml",
         # "views/report_devis_commande.xml",
         # "views/report_ar_commande.xml",
@@ -249,7 +247,6 @@ Module Odoo 16 pour Plastigray
         # "views/report_is_facture_pk.xml",
         # "views/report_is_consigne_journaliere.xml",
         # "views/report_is_inventaire_line_tree.xml",
-        # "views/report_is_bl_manuel.xml",
         # "views/report_proforma.xml",
         # "views/report_is_facture_pk_line_tree.xml",
         # "views/report_emballage.xml",
