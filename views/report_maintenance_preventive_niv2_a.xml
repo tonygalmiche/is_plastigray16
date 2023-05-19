@@ -1,565 +1,507 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
+        <template id="maintenance_preventive_niv2_a_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <STYLE>
+                    .tableclsheader {
+                        font-size:12pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                        border: 1px solid black;
+                        font-weight: bold;
+                    }
+                    .tablebold {
+                        font-size:12pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                        font-weight: bold;
+                    }
+                    .tablenormal {
+                        font-size:11pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                    }
+                    .tableclsheader td {
+                        font-size:12pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                        border: 1px solid black;
+                        font-weight: bold;
+                    }
+                    .tableclsheader2 td {
+                        font-size:11pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                        border: 1px solid black;
+                        font-weight: bold;
+                    }
+                    .tablecls1 {
+                        font-size:11pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                    }
+                    .tablecls1 td {
+                        font-size:11pt;
+                        vertical-align:middle;
+                        text-align:left;
+                        border-bottom: 1px solid black;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                        font-weight: bold;
+                    }
+                    .tablecls td {
+                        font-size:11pt;
+                        vertical-align:middle;
+                        text-align:center;
+                        border: 1px solid black;
+                        vertical-align:middle;
+                        text-align:center;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                    }
+                    .tablecls th {
+                        font-size:11pt;
+                        vertical-align:middle;
+                        font-weight: bold;
+                        text-align:center;
+                        border: 1px solid black;
+                        vertical-align:middle;
+                        text-align:center;
+                        background-color:#58ACFA;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                    }
+                    .tdcolor {
+                        font-size:11pt;
+                        font-weight: bold;
+                        vertical-align:middle;
+                        text-align:center;
+                        border: 0px solid #046dce;
+                        background-color:#58ACFA;
+                    }
+                    .imgclass0 {
+                        text-align:center;
+                        height: 80mm;
+                        text-align: center;
+                        width: 80mm;
+                        vertical-align: middle;
+                        padding-left:8px;
+                        padding-top:5px;
+                        padding-bottom:5px;
+                        border: 0px solid black;
+                    }
+                    .imgclass1 {
+                        height: 80mm;
+                        text-align: middle;
+                        width: 80mm;
+                        vertical-align: middle;
+                        padding-left:8px;
+                        padding-top:5px;
+                        padding-bottom:5px;
+                        border: 0px solid black;
+                    }
+                    .maintablecls {
+                        border: 1px solid black;
+                    }
+                    .tablecls2 td {
+                        font-size:11pt;
+                        text-align:left;
+                        vertical-align:middle;
+                        text-align:left;
+                        padding-right:4px;
+                        padding-top:6px;
+                        padding-left:4px;
+                        padding-bottom:6px;
+                        font-weight: bold;
+                    }
+                    .tdborder {
+                        font-size:11pt;
+                        border-bottom: 1px solid black;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                        vertical-align:middle;
+                    }
+                    .tdborderbr {
+                        font-size:11pt;
+                        border-bottom: 1px solid black;
+                        border-right: 1px solid black;
+                        padding-right:4px;
+                        padding-top:4px;
+                        padding-left:4px;
+                        padding-bottom:4px;
+                    }
+                    .footerbold {
+                        font-size:8pt;
+                        vertical-align:middle;
+                        text-align:center;
+                        border: 1px solid black;
+                    }
+                </STYLE>
+                <t t-foreach="docs" t-as="o">
+                    <!-- header -->
+                    <div class="header maintenance_preventive_niv2_header">
+                        <table width="100%">
+                            <tr>
+                                <td width="15%" rowspan="3" style="border:1px solid black;">
+                                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                </td>
+                                <td width="65%" rowspan="3" style="border:1px solid black;">
+                                    <div style="font-size:22px;text-align: left;"><b>Maintenance préventive Niv 2 / </b></div>
+                                    <div style="font-size:22px">            Preventive maintenance level 2</div>
+                                </td>
+                                <td width="20%" rowspan="1" style="border:1px solid black;">
+                                    FO-0-MAI-09-5
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  rowspan="2" style="border:1px solid black;">
+                                    Page 1/3
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="100%">
+                            <tr>
+                                <td style="border:1px solid black;">
+                                    <div style="font-size:20px;text-align: left;padding:1px;"><b>DESIGNATION : </b> <span t-esc="o.designation" /> </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid black;">
+                                    <div style="font-size:20px;text-align: left;padding:1px;"><b>N° MOULE / N° mold : </b> <span t-esc="o.name" /> </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
 
-        <template id="maintenance_preventive_niv2_style">
-            .tableclsheader {
-                font-size:12pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-                border: 1px solid black;
-                font-weight: bold;
-            }
-            .tablebold {
-                font-size:12pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-                font-weight: bold;
-            }
-            .tablenormal {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tableclsheader td {
-                font-size:12pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-                border: 1px solid black;
-                font-weight: bold;
-            }
-            .tableclsheader2 td {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-                border: 1px solid black;
-                font-weight: bold;
-            }
-            .tablecls1 {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls1 td {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:left;
-                border-bottom: 1px solid black;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-                font-weight: bold;
-            }
-            .tablecls td {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:center;
-                border: 1px solid black;
-                vertical-align:middle;
-                text-align:center;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls th {
-                font-size:11pt;
-                vertical-align:middle;
-                font-weight: bold;
-                text-align:center;
-                border: 1px solid black;
-                vertical-align:middle;
-                text-align:center;
-                background-color:#58ACFA;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tdcolor {
-                font-size:11pt;
-                font-weight: bold;
-                vertical-align:middle;
-                text-align:center;
-                border: 0px solid #046dce;
-                background-color:#58ACFA;
-            }
-            .imgclass0 {
-                text-align:center;
-                height: 80mm;
-                text-align: center;
-                width: 80mm;
-                vertical-align: middle;
-                padding-left:8px;
-                padding-top:5px;
-                padding-bottom:5px;
-                border: 0px solid black;
-            }
-            .imgclass1 {
-                height: 80mm;
-                text-align: middle;
-                width: 80mm;
-                vertical-align: middle;
-                padding-left:8px;
-                padding-top:5px;
-                padding-bottom:5px;
-                border: 0px solid black;
-            }
-            .maintablecls {
-                border: 1px solid black;
-            }
-            .tablecls2 td {
-                font-size:11pt;
-                text-align:left;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:6px;
-                padding-left:4px;
-                padding-bottom:6px;
-                font-weight: bold;
-            }
-            .tdborder {
-                font-size:11pt;
-                border-bottom: 1px solid black;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-                vertical-align:middle;
-            }
-            .tdborderbr {
-                font-size:11pt;
-                border-bottom: 1px solid black;
-                border-right: 1px solid black;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .footerbold {
-                font-size:8pt;
-                vertical-align:middle;
-                text-align:center;
-                border: 1px solid black;
-            }
-        </template>
-
-        <template id="maintenance_preventive_niv2_a_report_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_pg_2019.maintenance_preventive_niv2_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="maintenance_preventive_niv2_a_report_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_pg_2019.maintenance_preventive_niv2_a_report_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-        <template id="maintenance_preventive_niv2_a_report_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id" />
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company" />
-            </t>
-            <t t-call="is_pg_2019.maintenance_preventive_niv2_a_report_external_layout_header" />
-            <t t-raw="0" />
-            <t t-call="is_pg_2019.maintenance_preventive_niv2_a_report_external_layout_footer" />
-        </template>
-
-        <template id="maintenance_preventive_niv2_a_report_external_layout_footer">
-            <div class="footer">
-                <div class="row">
-                    <table style="border-collapse: collapse;" width="100%">
-                        <tr>
-                            <td class="footerbold">
-                                <b>Crée par / Create by</b> : <span t-esc="o.createur_fiche_id.name" />
-                            </td>
-                            <td class="footerbold">
-                                <b>Date création / Date creation</b> : <span t-esc="o.date_creation_fiche"/>
-                            </td>
-                            <td class="footerbold">
-                                <b>Modifié le / Modified</b> : <span t-esc="o.date_modification_fiche" />
-                            </td>
-                            <td class="footerbold">
-                                <b>Indice</b> : <span t-esc="o.indice_creation_fiche" />
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </template>
-
-        <template id="maintenance_preventive_niv2_a_report_external_layout_header">
-            <div class="header">
-                <div class="row">
-                    <table class="tablecls" width="100%">
-                        <tr>
-                            <td width="15%" rowspan="3" class="classborder">
-                                <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                            </td>
-                            <td width="65%" rowspan="3">
-                                <div style="font-size:22px;text-align: left;"><b>Maintenance préventive Niv 2 / </b></div>
-                                <div style="font-size:22px">            Preventive maintenance level 2</div>
-                            </td>
-                            <td width="20%" rowspan="1">
-                                FO-0-MAI-09-5
-                            </td>
-                        </tr>
-                        <tr>
-                            <td  rowspan="2">
-                                Page 1/3
-                            </td>
-                        </tr>
-                    </table>
-                    <table width="100%">
-                        <tr>
-                            <td>
-                                <div style="font-size:20px;text-align: left;padding:1px;border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;"><b>DESIGNATION : </b> <span t-esc="o.designation" /> </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="font-size:20px;text-align: left;padding:1px;border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;"><b>N° MOULE / N° mold : </b> <span t-esc="o.name" /> </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </template>
-
-        <template id="maintenance_preventive_niv2_a_report">
-            <t t-call="is_pg_2019.maintenance_preventive_niv2_a_report_html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="is_pg_2019.maintenance_preventive_niv2_a_report_external_layout">
-                    <t t-call="report.internal_layout">
+                    <!-- page -->
                     <div class="page">
-                        <div class="oe_structure" />
-                        <div class="row">
-                            <table class="maintablecls" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%" class="tablecls2">
-                                            <tr>
-                                                <td width="5%">
-                                                </td>
-                                                <td width="47%">
-                                                    <u>Périodicité de l'entretien / Frequency of maintenance:</u>
-                                                </td>
-                                                <td width="8%">
-                                                </td>
-                                                <td width="13%">
-                                                    Tous les / All
-                                                </td>
-                                                <td width="14%">
-                                                     <span t-field="o.periodicite_maintenance_moule"/>
-                                                </td>
-                                                <td width="13%">
-                                                    cycles / cycles
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="100%" colspan="5">
-                                                    Mouliste / Moldmaker: <span t-field="o.mouliste_id.name" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <table class="tablecls1" width="100%">
-                                            <tr><td> </td></tr>
-                                        </table>
-                                        <table width="100%">
+                        <table class="maintablecls" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%" class="tablecls2">
+                                        <tr>
+                                            <td width="5%">
+                                            </td>
+                                            <td width="47%">
+                                                <u>Périodicité de l'entretien / Frequency of maintenance:</u>
+                                            </td>
+                                            <td width="8%">
+                                            </td>
+                                            <td width="13%">
+                                                Tous les / All
+                                            </td>
+                                            <td width="14%">
+                                                    <span t-field="o.periodicite_maintenance_moule"/>
+                                            </td>
+                                            <td width="13%">
+                                                cycles / cycles
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="100%" colspan="5">
+                                                Mouliste / Moldmaker: <span t-field="o.mouliste_id.name" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class="tablecls1" width="100%">
+                                        <tr><td> </td></tr>
+                                    </table>
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="4%">
+                                            </td>
+                                            <td width="95%" class="tdborder" colspan="2">
+                                                <b>Opération systématique pour la maintenance préventive /Systematic operation for preventive maintenance</b>
+                                            </td>
+                                            <td width="1%"> </td>
+                                        </tr>
+                                        <t t-set="i" t-value="1" />
+                                        <t t-foreach="o.systematique_ids" t-as="syst">
+                                            <t t-if="syst.activer==True">
+                                                <tr>
+                                                    <td width="4%">
+                                                    </td>
+                                                    <td width="60%" class="tdborder">
+                                                        <span t-esc="i" /> - <span t-field="syst.operation_systematique_id.name" /> <t t-if="syst.frequence_preventif_id"> / <span t-field="syst.frequence_preventif_id.name" /></t>
+                                                    </td>
+                                                    <td width="20%"> </td>
+                                                    <td width="6%"> </td>
+                                                </tr>
+                                                <t t-set="i" t-value="i+1"/>
+                                            </t>
+                                        </t>
+                                    </table>
+                                    
+                                    <table class="tablecls1" width="100%">
+                                        <tr><td> </td></tr>
+                                    </table>
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="4%">
+                                            </td>
+                                            <td width="95%" class="tdborder" colspan="2">
+                                                <b>Opération spécifique pour la maintenance préventive, organes sensibles / Specific operation for preventive maintenance , sensitive organs:</b>
+                                            </td>
+                                            <td width="1%"> </td>
+                                        </tr>
+                                        <t t-set="i" t-value="1" />
+                                        <t t-foreach="o.specifique_ids" t-as="spec">
+                                            <t t-if="spec.activer">
                                             <tr>
                                                 <td width="4%">
                                                 </td>
-                                                <td width="95%" class="tdborder" colspan="2">
-                                                    <b>Opération systématique pour la maintenance préventive /Systematic operation for preventive maintenance</b>
+                                                <td width="60%" class="tdborder">
+                                                    <span t-esc="i" /> - <span t-field="spec.operation_specifique_id.name" /> <t t-if="spec.frequence_preventif_id"> / <span t-field="spec.frequence_preventif_id.name" /></t>
                                                 </td>
-                                                <td width="1%"> </td>
+                                                <td width="20%"> </td>
+                                                <td width="6%"> </td>
                                             </tr>
-                                            <t t-set="i" t-value="1" />
-                                            <t t-foreach="o.systematique_ids" t-as="syst">
-                                                <t t-if="syst.activer==True">
+                                            <t t-set="i" t-value="i+1"/>
+                                            </t>
+                                        </t>
+                                    </table>
+                                    
+                                    <table class="tablecls1" width="100%">
+                                        <tr><td> </td></tr>
+                                    </table>
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="4%">
+                                            </td>
+                                            <td width="95%" class="tdborder" colspan="2">
+                                                <b>Spécification particulière / Specification: </b>
+                                            </td>
+                                            <td width="1%"> </td>
+                                        </tr>
+                                        <t t-set="i" t-value="1" />
+                                        <t t-foreach="o.specification_ids" t-as="par">
+                                            <t t-if="par.activer">
+                                            <tr>
+                                                <td width="4%">
+                                                </td>
+                                                <td width="60%" class="tdborder">
+                                                    <span t-esc="i" /> - <span t-field="par.specification_particuliere_id.name" /> <t t-if="par.frequence_preventif_id"> / <span t-field="par.frequence_preventif_id.name" /></t>
+                                                </td>
+                                                <td width="20%"> </td>
+                                                <td width="6%"> </td>
+                                            </tr>
+                                            <t t-set="i" t-value="i+1"/>
+                                            </t>
+                                        </t>
+                                    </table>
+                                    
+                                    <table class="tablecls1" width="100%">
+                                        <tr><td> </td></tr>
+                                    </table>
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="60%">
+                                                <table width="100%">
                                                     <tr>
                                                         <td width="4%">
                                                         </td>
-                                                        <td width="60%" class="tdborder">
-                                                            <span t-esc="i" /> - <span t-field="syst.operation_systematique_id.name" /> <t t-if="syst.frequence_preventif_id"> / <span t-field="syst.frequence_preventif_id.name" /></t>
+                                                        <td width="96%" class="tdborderbr" colspan="2">
+                                                            <b>Pièces spécifiques de rechange en stock / Specific parts in stock</b>
                                                         </td>
-                                                        <td width="20%"> </td>
-                                                        <td width="6%"> </td>
                                                     </tr>
-                                                    <t t-set="i" t-value="i+1"/>
-                                                </t>
-                                            </t>
-                                        </table>
-                                        
-                                        <table class="tablecls1" width="100%">
-                                            <tr><td> </td></tr>
-                                        </table>
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="4%">
-                                                </td>
-                                                <td width="95%" class="tdborder" colspan="2">
-                                                    <b>Opération spécifique pour la maintenance préventive, organes sensibles / Specific operation for preventive maintenance , sensitive organs:</b>
-                                                </td>
-                                                <td width="1%"> </td>
-                                            </tr>
-                                            <t t-set="i" t-value="1" />
-                                            <t t-foreach="o.specifique_ids" t-as="spec">
-                                                <t t-if="spec.activer">
-                                                <tr>
-                                                    <td width="4%">
-                                                    </td>
-                                                    <td width="60%" class="tdborder">
-                                                        <span t-esc="i" /> - <span t-field="spec.operation_specifique_id.name" /> <t t-if="spec.frequence_preventif_id"> / <span t-field="spec.frequence_preventif_id.name" /></t>
-                                                    </td>
-                                                    <td width="20%"> </td>
-                                                    <td width="6%"> </td>
-                                                </tr>
-                                                <t t-set="i" t-value="i+1"/>
-                                                </t>
-                                            </t>
-                                        </table>
-                                        
-                                        <table class="tablecls1" width="100%">
-                                            <tr><td> </td></tr>
-                                        </table>
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="4%">
-                                                </td>
-                                                <td width="95%" class="tdborder" colspan="2">
-                                                    <b>Spécification particulière / Specification: </b>
-                                                </td>
-                                                <td width="1%"> </td>
-                                            </tr>
-                                            <t t-set="i" t-value="1" />
-                                            <t t-foreach="o.specification_ids" t-as="par">
-                                                <t t-if="par.activer">
-                                                <tr>
-                                                    <td width="4%">
-                                                    </td>
-                                                    <td width="60%" class="tdborder">
-                                                        <span t-esc="i" /> - <span t-field="par.specification_particuliere_id.name" /> <t t-if="par.frequence_preventif_id"> / <span t-field="par.frequence_preventif_id.name" /></t>
-                                                    </td>
-                                                    <td width="20%"> </td>
-                                                    <td width="6%"> </td>
-                                                </tr>
-                                                <t t-set="i" t-value="i+1"/>
-                                                </t>
-                                            </t>
-                                        </table>
-                                        
-                                        <table class="tablecls1" width="100%">
-                                            <tr><td> </td></tr>
-                                        </table>
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="60%">
-                                                    <table width="100%">
+                                                    <t t-set="i" t-value="1" />
+                                                    <t t-foreach="o.piece_specifique_ids" t-as="piece">
                                                         <tr>
                                                             <td width="4%">
                                                             </td>
-                                                            <td width="96%" class="tdborderbr" colspan="2">
-                                                                <b>Pièces spécifiques de rechange en stock / Specific parts in stock</b>
+                                                            <td width="96%" class="tdborderbr">
+                                                                <span t-esc="i" /> - <span t-field="piece.name" />
                                                             </td>
                                                         </tr>
-                                                        <t t-set="i" t-value="1" />
-                                                        <t t-foreach="o.piece_specifique_ids" t-as="piece">
-                                                            <tr>
-                                                                <td width="4%">
-                                                                </td>
-                                                                <td width="96%" class="tdborderbr">
-                                                                    <span t-esc="i" /> - <span t-field="piece.name" />
-                                                                </td>
-                                                            </tr>
-                                                            <t t-set="i" t-value="i+1"/>
-                                                        </t>
-                                                    </table>
-                                                </td>
-                                                <td width="40%">
-                                                    <table width="100%">
-                                                        <tr t-if="o.surface_aspect_id">
-                                                            <td width="8%">
-                                                            </td>
-                                                            <td width="84%" class="tdborder" colspan="2">
-                                                                <center><b>Surface d'aspect / Visible side:</b></center>
-                                                                <center><span t-esc="o.surface_aspect_id.name" /></center>
-                                                            </td>
-                                                            <td width="8%">
-                                                            </td>
-                                                        </tr>
-                                                        <tr t-if="o.reference_grain">
-                                                            <td width="8%">
-                                                            </td>
-                                                            <td width="84%" class="tdborder" colspan="2">
-                                                                <center><b>Référence du grain utilisé / Reference texture used:</b></center>
-                                                                <center><span t-esc="o.reference_grain" /></center>
-                                                            </td>
-                                                            <td width="8%">
-                                                            </td>
-                                                        </tr>
-                                                        <tr t-if="o.graineur_id">
-                                                            <td width="8%">
-                                                            </td>
-                                                            <td width="84%" class="tdborder" colspan="2">
-                                                                <center><b>Graineur / Texture maker:</b></center>
-                                                                <center><span t-esc="o.graineur_id.name" /></center>
-                                                            </td>
-                                                            <td width="8%">
-                                                            </td>
-                                                        </tr>
-                                                        <tr t-if="o.diametre_seuil">
-                                                            <td width="8%">
-                                                            </td>
-                                                            <td width="84%" class="tdborder" colspan="2">
-                                                                <center>
-                                                                    <b>Diamètre seuil:</b><br />
-                                                                    <span t-esc="o.diametre_seuil"/>
-                                                                </center>
-                                                            </td>
-                                                            <td width="8%">
-                                                            </td>
-                                                        </tr>
-                                                        <tr t-if="o.fournisseur_bloc_chaud_id">
-                                                            <td width="8%">
-                                                            </td>
-                                                            <td width="84%" class="tdborder" colspan="2">
-                                                                <center>
-                                                                    <b>Fournisseur du bloc chaud:</b><br />
-                                                                    <span t-esc="o.fournisseur_bloc_chaud_id.name"/>
-                                                                </center>
-                                                            </td>
-                                                            <td width="8%">
-                                                            </td>
-                                                        </tr>
-                                                        <tr t-if="o.num_systeme">
-                                                            <td width="8%">
-                                                            </td>
-                                                            <td width="84%" class="tdborder" colspan="2">
-                                                                <center>
-                                                                    <b>N° du système:</b><br />
-                                                                    <span t-esc="o.num_systeme"/>
-                                                                </center>
-                                                            </td>
-                                                            <td width="8%">
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <table class="tablecls1" width="100%">
-                                            <tr><td> </td></tr>
-                                        </table>
-                                        <table width="100%">
+                                                        <t t-set="i" t-value="i+1"/>
+                                                    </t>
+                                                </table>
+                                            </td>
+                                            <td width="40%">
+                                                <table width="100%">
+                                                    <tr t-if="o.surface_aspect_id">
+                                                        <td width="8%">
+                                                        </td>
+                                                        <td width="84%" class="tdborder" colspan="2">
+                                                            <center><b>Surface d'aspect / Visible side:</b></center>
+                                                            <center><span t-esc="o.surface_aspect_id.name" /></center>
+                                                        </td>
+                                                        <td width="8%">
+                                                        </td>
+                                                    </tr>
+                                                    <tr t-if="o.reference_grain">
+                                                        <td width="8%">
+                                                        </td>
+                                                        <td width="84%" class="tdborder" colspan="2">
+                                                            <center><b>Référence du grain utilisé / Reference texture used:</b></center>
+                                                            <center><span t-esc="o.reference_grain" /></center>
+                                                        </td>
+                                                        <td width="8%">
+                                                        </td>
+                                                    </tr>
+                                                    <tr t-if="o.graineur_id">
+                                                        <td width="8%">
+                                                        </td>
+                                                        <td width="84%" class="tdborder" colspan="2">
+                                                            <center><b>Graineur / Texture maker:</b></center>
+                                                            <center><span t-esc="o.graineur_id.name" /></center>
+                                                        </td>
+                                                        <td width="8%">
+                                                        </td>
+                                                    </tr>
+                                                    <tr t-if="o.diametre_seuil">
+                                                        <td width="8%">
+                                                        </td>
+                                                        <td width="84%" class="tdborder" colspan="2">
+                                                            <center>
+                                                                <b>Diamètre seuil:</b><br />
+                                                                <span t-esc="o.diametre_seuil"/>
+                                                            </center>
+                                                        </td>
+                                                        <td width="8%">
+                                                        </td>
+                                                    </tr>
+                                                    <tr t-if="o.fournisseur_bloc_chaud_id">
+                                                        <td width="8%">
+                                                        </td>
+                                                        <td width="84%" class="tdborder" colspan="2">
+                                                            <center>
+                                                                <b>Fournisseur du bloc chaud:</b><br />
+                                                                <span t-esc="o.fournisseur_bloc_chaud_id.name"/>
+                                                            </center>
+                                                        </td>
+                                                        <td width="8%">
+                                                        </td>
+                                                    </tr>
+                                                    <tr t-if="o.num_systeme">
+                                                        <td width="8%">
+                                                        </td>
+                                                        <td width="84%" class="tdborder" colspan="2">
+                                                            <center>
+                                                                <b>N° du système:</b><br />
+                                                                <span t-esc="o.num_systeme"/>
+                                                            </center>
+                                                        </td>
+                                                        <td width="8%">
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class="tablecls1" width="100%">
+                                        <tr><td> </td></tr>
+                                    </table>
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="4%">
+                                                
+                                            </td>
+                                            <td width="46%" class="tdborder">
+                                                <b>Type de dateur / date insert:</b>
+                                            </td>
+                                            <td width="4%">
+                                                
+                                            </td>
+                                            <td width="46%" class="tdborder">
+                                                <b>Année d'expiration / Year of end:</b>
+                                            </td>
+                                        </tr>
+                                        
+                                        <t t-foreach="o.dateur_ids" t-as="dt">
                                             <tr>
                                                 <td width="4%">
                                                     
                                                 </td>
                                                 <td width="46%" class="tdborder">
-                                                    <b>Type de dateur / date insert:</b>
+                                                    <span t-field="dt.type_dateur" /> / <span t-field="dt.date_peremption" />
                                                 </td>
                                                 <td width="4%">
                                                     
                                                 </td>
                                                 <td width="46%" class="tdborder">
-                                                    <b>Année d'expiration / Year of end:</b>
+                                                    <span t-field="dt.diametre_dateur" /> / <span t-field="dt.commentaire" />
                                                 </td>
                                             </tr>
-                                            
-                                            <t t-foreach="o.dateur_ids" t-as="dt">
-                                                <tr>
-                                                    <td width="4%">
-                                                        
-                                                    </td>
-                                                    <td width="46%" class="tdborder">
-                                                        <span t-field="dt.type_dateur" /> / <span t-field="dt.date_peremption" />
-                                                    </td>
-                                                    <td width="4%">
-                                                        
-                                                    </td>
-                                                    <td width="46%" class="tdborder">
-                                                        <span t-field="dt.diametre_dateur" /> / <span t-field="dt.commentaire" />
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                            
-                                            <tr>
-                                                <td width="4%" colspan="1">
-                                                </td>
-                                                <td colspan="1">
-                                                    <b>Garantie de vie de l'outillage (CDC spécifiques) / Guarantee tool life (specification book) : </b><span t-field="o.garantie_outillage" />
-                                                </td>
-                                                <td colspan="2">
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                                        </t>
+                                        
+                                        <tr>
+                                            <td width="4%" colspan="1">
+                                            </td>
+                                            <td colspan="1">
+                                                <b>Garantie de vie de l'outillage (CDC spécifiques) / Guarantee tool life (specification book) : </b><span t-field="o.garantie_outillage" />
+                                            </td>
+                                            <td colspan="2">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    </t>
+
+                    <!-- footer -->
+                    <div class="footer maintenance_preventive_niv2_footer">
+                        <table style="border-collapse: collapse;" width="100%">
+                            <tr>
+                                <td class="footerbold">
+                                    <b>Crée par / Create by</b> : <span t-esc="o.createur_fiche_id.name" />
+                                </td>
+                                <td class="footerbold">
+                                    <b>Date création / Date creation</b> : <span t-esc="o.date_creation_fiche"/>
+                                </td>
+                                <td class="footerbold">
+                                    <b>Modifié le / Modified</b> : <span t-esc="o.date_modification_fiche" />
+                                </td>
+                                <td class="footerbold">
+                                    <b>Indice</b> : <span t-esc="o.indice_creation_fiche" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p style="page-break-before:always;"> </p>
                 </t>
-            </t>
             </t>
         </template>
 
-        <report id="report_maintenance_preventive_niv2_a" model="is.mold"
-            string="Gamme de maintenance préventive Niv 2" report_type="qweb-pdf"
-            name="is_pg_2019.maintenance_preventive_niv2_a_report" file="is_pg_2019.maintenance_preventive_niv2_a_report" />
-
         <record id="maintenance_preventive_niv2_a_paperformat" model="report.paperformat">
-            <field name="name">A4 - Gamme de maintenance préventive Niv 2</field>
+            <field name="name">Gamme de maintenance préventive Niv 2</field>
             <field name="default" eval="True" />
             <field name="format">A4</field>
             <field name="page_height">0</field>
@@ -574,9 +516,14 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="report_maintenance_preventive_niv2_a" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_pg_2019.maintenance_preventive_niv2_a_paperformat" />
+        <record id="maintenance_preventive_niv2_a_report" model="ir.actions.report">
+            <field name="name">Gamme de maintenance préventive Niv 2</field>
+            <field name="model">is.mold</field>
+            <field name="binding_model_id" ref="model_is_mold"/>
+            <field name="paperformat_id" ref="maintenance_preventive_niv2_a_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.maintenance_preventive_niv2_a_template</field>
+            <field name="report_file">is_plastigray16.maintenance_preventive_niv2_a_template</field>
         </record>
-
     </data>
-</openerp>
+</odoo>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="consigne_journaliere_template">
+            <t t-set="company" t-value="res_company"/>
+            <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
+            <t t-call="web.basic_layout">
+                <STYLE>
+                    .page {
+                        font-size:9pt;
+                    }
+                </STYLE>
+                <t t-foreach="docs" t-as="o">
+                    <!-- header -->
+                    <div class="header consigne_journaliere_header">
+                        <div class="row">
+                            <div class="col-3 text-left">
+                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                            </div>
+                            <div class="col-9">
+                                <div class="titre">
+                                    <span>Consignes journalieres </span>
+                                    <span t-field="o.name"/>
+                                    du <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> 
+                                    à <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%H')"/>H<br />
+                                </div><br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- page -->
+                    <div class="page consigne_journaliere_page">
+                        <div class="row">
+                            <div class="col-12">
+                                <table style="width:100%">
+                                    <tr><th class="text-right">Remarque générale    </th><td><span t-field="o.remarque_generale"/></td></tr>
+                                    <tr><th class="text-right">Total MOD Injection  </th><td><span t-field="o.total_mod_inj"/></td></tr>
+                                    <tr><th class="text-right">Total MOD Assemblage </th><td><span t-field="o.total_mod_ass"/></td></tr>
+                                </table>
+                            </div>
+                        </div><br />
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr >
+                                            <th class="text-center"   style="vertical-align:top">Presse</th>
+                                            <th class="text-center"   style="vertical-align:top">OF en cours</th>
+                                            <th class="text-center"   style="vertical-align:top">MOD</th>
+                                            <th class="text-center"   style="vertical-align:top">Opérateur</th>
+                                            <th class="text-center"   style="vertical-align:top">Moule</th>
+                                            <th class="text-center"   style="vertical-align:top">Info Planning</th>
+                                            <th class="text-center"   style="vertical-align:top">Matière</th>
+                                            <th class="text-center"   style="vertical-align:top">Tps arrêt matière</th>
+                                            <th class="text-center"   style="vertical-align:top">Heure</th>
+                                            <th class="text-center"   style="vertical-align:top">OF suivant</th>
+                                            <th class="text-center"   style="vertical-align:top">MOD</th>
+                                            <th class="text-center"   style="vertical-align:top">Moule</th>
+                                            <th class="text-center"   style="vertical-align:top">Matière</th>
+                                            <th class="text-center"   style="vertical-align:top">Remarques / Consignes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.injection_ids" t-as="l">
+                                            <td class="text-center">    <span t-field="l.presse_id.code"/> </td>
+                                            <td class="text-center">    <span t-field="l.of1_id.name.name"/> </td>
+                                            <td class="text-center">    <span t-field="l.mod1"/> </td>
+                                            <td class="text-center">    <span t-field="l.operateur"/> </td>
+                                            <td class="text-center">    <span t-field="l.moule1"/> </td>
+                                            <td class="text-start" style="font-size:9pt"> <span t-field="l.info_planning1"/> </td>
+                                            <td class="text-center">    <span t-field="l.matiere1"/> </td>
+                                            <td class="text-center">    <span t-field="l.tps_arret"/> </td>
+                                            <td class="text-center">    <span t-field="l.heure"/> </td>
+                                            <td class="text-center">    <span t-field="l.of2_id.name.name"/> </td>
+                                            <td class="text-center">    <span t-field="l.mod2"/> </td>
+                                            <td class="text-center">    <span t-field="l.moule2"/> </td>
+                                            <td class="text-center">    <span t-field="l.matiere2"/> </td>
+                                            <td class="text-center">    <span t-field="l.remarque"/> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <t t-if="o.assemblage_ids">
+                            <div style="page-break-after:always;" />
+                            <div class="row">
+                                <div class="col-12">
+                                    <table style="width:100%">
+                                        <tr><th class="text-right">Remarque générale    </th><td><span t-field="o.remarque_generale"/></td></tr>
+                                        <tr><th class="text-right">Total MOD Injection  </th><td><span t-field="o.total_mod_inj"/></td></tr>
+                                        <tr><th class="text-right">Total MOD Assemblage </th><td><span t-field="o.total_mod_ass"/></td></tr>
+                                    </table>
+                                </div>
+                            </div><br />
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr >
+                                                <th class="text-center"   style="vertical-align:top">Poste</th>
+                                                <th class="text-center"   style="vertical-align:top">Priorité</th>
+                                                <th class="text-center"   style="vertical-align:top">MOD</th>
+                                                <th class="text-center"   style="vertical-align:top">Opérateur</th>
+                                                <th class="text-center"   style="vertical-align:top">OF en cours</th>
+                                                <th class="text-center"   style="vertical-align:top">OF suivant</th>
+                                                <th class="text-center"   style="vertical-align:top">Remarques / Consignes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="o.assemblage_ids" t-as="l">
+                                                <td class="text-center" style="font-size:10pt;">    <span t-field="l.poste_id.name"/></td>
+                                                <td class="text-center">    <span t-field="l.priorite"/> </td>
+                                                <td class="text-center">    <span t-field="l.mod"/> </td>
+                                                <td class="text-center">    <span t-field="l.operateur"/> </td>
+                                                <td class="text-center">    <span t-field="l.of1_id.name.name"/> </td>
+                                                <td class="text-center">    <span t-field="l.of2_id.name.name"/> </td>
+                                                <td class="text-center">    <span t-field="l.remarque"/> </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- footer -->
+                    <div class="footer consigne_journaliere_footer">
+                        <div style="border-top: 1px solid black" class="text-center">
+                            Page <span class="page" style="font-size:11pt;"/> / <span class="topage"/>
+                        </div>
+                    </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+
+        <record id="consigne_journaliere_paperformat" model="report.paperformat">
+            <field name="name">Consignes journalières</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">23</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">18</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="consigne_journaliere_report" model="ir.actions.report">
+            <field name="name">Consignes journalières</field>
+            <field name="model">is.consigne.journaliere</field>
+            <field name="binding_model_id" ref="model_is_consigne_journaliere"/>
+            <field name="paperformat_id" ref="consigne_journaliere_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.consigne_journaliere_template</field>
+            <field name="report_file">is_plastigray16.consigne_journaliere_template</field>
+        </record>
+    </data>
+</odoo>

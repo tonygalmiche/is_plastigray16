@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-<data>
+<odoo>
+    <data>
+        <template id="plaquette_etalon_template">
+            <t t-set="company" t-value="res_company"/>
+            <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
+            <t t-call="web.basic_layout">
+                 <t t-foreach="docs" t-as="o">
+                    <!-- header -->
+                    <div class="header">
+                    </div>
 
-    <template id="report_is_plaquette_etalon_plastigray">
-        <t t-call="report.html_container">
-            <t t-call="report.external_layout">
-                <div class="page">
-                    <div class="oe_structure"/>
-        
-                    <t t-foreach="docs" t-as="o">
-                        
-                        <t t-if="not o or not 'company_id' in o">
-                            <t t-set="company" t-value="res_company"></t>
-                        </t>
-        
-                        <div class="header">
-                            <table class="table table-condensed" width="100%">
-                                <tr>
-                                    <td width="25%">
-                                        <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 45px;"/>
-                                    </td>
-                                    <td class="text-center" width="50%">
-                                        <b>Fiche de vie</b>
-                                    </td>
-                                    <td class="text-center" width="25%">
-                                        <span t-field="o.code_pg"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
+                    <!-- page -->
+                    <div class="page">
+                       <table class="table" width="100%">
+                            <tr>
+                                <td width="25%">
+                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height:45px;" alt="Logo"/>
+                                </td>
+                                <td class="text-center" width="50%">
+                                    <b>Fiche de vie</b>
+                                </td>
+                                <td class="text-center" width="25%">
+                                    <span t-field="o.code_pg"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                             <tr>
                                 <td class="text-left" width="20%"><b>Code PG</b></td>
                                 <td class="text-left" width="30%"><span t-field="o.code_pg"/></td>
@@ -94,26 +90,41 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </t>
-                </div>
+                    </div>
+
+                    <!-- footer -->
+                    <div class="footer text-center">
+                        Page <span class="page" style="font-size:9pt;"/> / <span class="topage" style="font-size:9pt;"/>
+                    </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
             </t>
-        </t>
-    </template>
+        </template>
 
-    <report 
-        string="Plaquette Etalon" 
-        id="report_plaquette_etalon_plastigray" 
-        model="is.plaquette.etalon" 
-        report_type="qweb-pdf"
-        name="is_plastigray.report_is_plaquette_etalon_plastigray" 
-        file="is_plastigray.report_is_plaquette_etalon_plastigray"
-        header="False"
-    />
+        <record id="plaquette_etalon_paperformat" model="report.paperformat">
+            <field name="name">Plaquette Etalon</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">7</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
 
-    <record id="report_plaquette_etalon_plastigray" model="ir.actions.report.xml">
-        <field name="paperformat_id" ref="is_plastigray.plan_de_charge_portrait_paperformat"/>
-    </record>
-
-</data>
-</openerp>
-
+        <record id="plaquette_etalon_report" model="ir.actions.report">
+            <field name="name">Plaquette Etalon</field>
+            <field name="model">is.plaquette.etalon</field>
+            <field name="binding_model_id" ref="model_is_plaquette_etalon"/>
+            <field name="paperformat_id" ref="plaquette_etalon_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.plaquette_etalon_template</field>
+            <field name="report_file">is_plastigray16.plaquette_etalon_template</field>
+        </record>
+    </data>
+</odoo>
