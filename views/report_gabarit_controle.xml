@@ -126,7 +126,7 @@
             <field name="name">Gabarit Controle</field>
             <field name="model">is.gabarit.controle</field>
             <field name="binding_model_id" ref="model_is_gabarit_controle"/>
-            <field name="paperformat_id" ref="plaquette_etalon_paperformat"/>
+            <field name="paperformat_id" ref="gabarit_controle_paperformat"/>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">is_plastigray16.gabarit_controle_template</field>
             <field name="report_file">is_plastigray16.gabarit_controle_template</field>
