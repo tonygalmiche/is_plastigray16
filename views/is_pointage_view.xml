@@ -110,7 +110,7 @@
         <field name="arch" type="xml">
             <form>  
                 <sheet>
-                    <group col="2" colspan="4">
+                    <group>
                         <field name="name"/> 
                         <field name="employee"/> 
                         <field name="commentaire"/> 
@@ -124,7 +124,7 @@
             <field name="model">is.pointage.commentaire</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree string="pointage">
+                <tree>
                     <field name="name"/>
                     <field name="employee"/>
                     <field name="commentaire"/>
@@ -139,11 +139,11 @@
                     <field name="name"/>
                     <field name="employee"/>
                     <field name="commentaire"/>
-                    <group expand="0" string="Regroupé par...">
+                    <!-- <group expand="0" string="Regroupé par...">
                         <filter name="group_employee"  string="Employé" context="{'group_by':'employee'}"/>
                         <filter name="group_mois"      string="Mois"    context="{'group_by':'name:month'}"/>
                         <filter name="group_semaine"   string="Semaine" context="{'group_by':'name:week'}"/>
-                    </group>
+                    </group> -->
                 </search>
             </field>
         </record>

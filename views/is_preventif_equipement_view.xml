@@ -49,7 +49,7 @@
                             </sheet>
                         </form>
                         <tree fonts="bold:(nb_heures_avant_preventif&lt;0)" colors="red:(nb_heures_avant_preventif&lt;0)">
-                            <button title="Sasie préventif" name="saisie_preventif_action"  type="object" icon="fa-plus" />
+                            <button title="Saisie préventif" name="saisie_preventif_action"  type="object" icon="fa-plus" />
                             <field name="equipement_id" domain="[('zone_id','=',parent.id)]"/>
                             <field name="type_preventif"/>
                             <field name="frequence"/>
@@ -147,7 +147,7 @@
                     <field name="nb_heures_dernier_preventif"/>
                     <field name="nb_heures_actuel"/>
                     <field name="nb_heures_avant_preventif"/>
-                    <button string="Sasie préventif" name="saisie_preventif_action"  type="object" icon="fa-plus" />
+                    <button string="Saisie préventif" name="saisie_preventif_action"  type="object" icon="fa-plus" />
                     <field name="gamme_ids"/>
                 </tree>
             </field>

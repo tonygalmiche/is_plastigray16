@@ -227,7 +227,7 @@ class is_gestion_lot_report(models.Model):
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'rebut'
             return {
-                'name': "Bloquer un lot",
+                'name': "Mise au rebut",
                 'view_mode': 'form',
                 'res_model': 'is.gestion.lot',
                 'type': 'ir.actions.act_window',
@@ -243,7 +243,7 @@ class is_gestion_lot_report(models.Model):
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'change_location'
             return {
-                'name': "Bloquer un lot",
+                'name': "Changement d'emplacement",
                 'view_mode': 'form',
                 'res_model': 'is.gestion.lot',
                 'type': 'ir.actions.act_window',

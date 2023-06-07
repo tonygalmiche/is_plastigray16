@@ -3,6 +3,7 @@ import re
 from math import *
 from odoo import models,fields,api,tools
 from odoo.exceptions import ValidationError
+from datetime import datetime
 import time
 import logging
 _logger = logging.getLogger(__name__)
@@ -360,7 +361,7 @@ class product_template(models.Model):
             obj.is_emb_vsb=vsb
             #*******************************************************************
 
-    purchase_ok                   = fields.Boolean(index=True) #Ajour d'un index sur ce champ
+    purchase_ok                   = fields.Boolean('Peut être acheté', index=True) #Ajour d'un index sur ce champ
 
     is_code                       = fields.Char('Code PG', index=True, required=True)
     segment_id                    = fields.Many2one('is.product.segment', 'Segment', required=True)
@@ -475,7 +476,7 @@ class product_template(models.Model):
 
 
 
-    weight_net                    = fields.Float('Poids net')
+    weight_net                    = fields.Float('Poids net', digits='Stock Weight')
     weight_net_vsb                = fields.Boolean('Poids net vsb' , store=False, compute='_compute')
 
     is_location_vsb              = fields.Boolean('Emplacement de stockage vsb', store=False, compute='_compute')
@@ -539,6 +540,50 @@ class product_template(models.Model):
         'delai_fabrication': 0.0,
         'temps_realisation': 0.0,
     }
+
+
+    @api.model
+    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        context = self._context
+        is_article_commande_id = context.get('is_article_commande_id')
+        if is_article_commande_id:
+            args = args.copy()
+            products = self.env['product.product'].search([('id','=',is_article_commande_id)])
+            for product in products:
+                args.append((('id', '=', product.product_tmpl_id.id)))
+        else:
+            pricelist_id = context.get('pricelist')
+            if pricelist_id:
+                date = context.get('date') or datetime.now().date()
+                ids=[]
+                versions = self.env['product.pricelist.version'].search([('pricelist_id','=',pricelist_id)], order="name desc")
+                for v in  versions:
+                    if ((v.date_start is False) or (v.date_start <= date)) and ((v.date_end is False) or (v.date_end >= date)):
+                        for line in v.item_ids:
+                            ids.append(line.product_id.product_tmpl_id.id)
+                args = args.copy()
+                args.append((('id', 'in', ids)))
+        return super(product_template, self)._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
+
+
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        if args is None:
+            args = []
+
+        if name:
+            filtre = ['|',('is_code','ilike', name),('name','ilike', name)]
+            ids = list(self._search(filtre + args, limit=limit))
+            #ids = self.search(cr, user, ['|',('is_code','ilike', name),('name','ilike', name)], limit=limit, context=context)
+        else:
+            ids = list(self._search(args, limit=limit))
+            #ids = self.search(cr, user, args, limit=limit, context=context)
+
+        search_domain = [('name', operator, name)]
+        if ids:
+            search_domain.append(('id', 'not in', ids))
+        ids += list(self._search(search_domain + args, limit=limit))
+
+        return ids
 
 
     @api.depends('weight','weight_net')
@@ -681,30 +726,20 @@ class product_template(models.Model):
     #     return result
 
 
-
-    def onchange_segment_id(self, cr, uid, ids, segment_id, context=None):
+    @api.onchange('segment_id')
+    def onchange_segment_id(self):
         domain = []
-        val = {
+        vals = {
             'family_id': False,
             'sub_family_id': False,
-        }            
-        domain.append(('segment_id','=',segment_id))
-        return {
-            'value': val,
-            'domain': {'family_id': domain}
         }
+        self.write(vals)
+
         
-
-    def onchange_family_id(self, cr, uid, ids, family_id, context=None):
-        domain = []
-        val = {'sub_family_id': False}
-            
-        domain.append(('family_id','=',family_id))
-        return {
-            'value': val,
-            'domain': {'sub_family_id': domain}
-        }
-
+    @api.onchange('family_id')
+    def onchange_family_id(self):
+        self.sub_family_id=False
+      
 
     def get_lot_livraison(self, product, client):
         lot_livraison=1
@@ -754,6 +789,32 @@ class product_product(models.Model):
             name=obj._name_get() #is_code+" "+obj.name
             res.append((obj.id,name))
         return res
+
+
+
+
+    @api.model
+    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        context = self._context
+        is_article_commande_id = context.get('is_article_commande_id')
+        if is_article_commande_id:
+            args = args.copy()
+            args.append((('id', '=', is_article_commande_id)))
+        else:
+            pricelist_id = context.get('pricelist')
+            if pricelist_id:
+                date = context.get('date') or datetime.now().date()
+                ids=[]
+                versions = self.env['product.pricelist.version'].search([('pricelist_id','=',pricelist_id)], order="name desc")
+                for v in  versions:
+                    if ((v.date_start is False) or (v.date_start <= date)) and ((v.date_end is False) or (v.date_end >= date)):
+                        for line in v.item_ids:
+                            ids.append(line.product_id.id)
+
+                args = args.copy()
+                args.append((('id', 'in', ids)))
+        return super(product_product, self)._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
+
 
 
     def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
@@ -811,42 +872,6 @@ class product_product(models.Model):
         """)
         _logger.info('## init product.product is_qt_par_uc en %.2fs'%(time.time()-start))
 
-
-    # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
-    #     if not args:
-    #         args = []
-    #     if name:
-    #         ids = self.search(cr, user, ['|',('is_code','ilike', name),('name','ilike', name)], limit=limit, context=context)
-    #     else:
-    #         ids = self.search(cr, user, args, limit=limit, context=context)
-    #     result = self.name_get(cr, user, ids, context=context)
-    #     return result
-
-
-
-     
-#     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-#         if context and context.get('pricelist', False):
-#             date = context.get('date') or time.strftime('%Y-%m-%d')
-#             pricelist = self.pool.get('product.pricelist').browse(cr, uid, context.get('pricelist', False), context=context)
-#             version = False
-#             for v in pricelist.version_id:
-#                 if ((v.date_start is False) or (v.date_start <= date)) and ((v.date_end is False) or (v.date_end >= date)):
-#                     version = v
-#                     break
-            
-#             if version:
-#                 cr.execute("SELECT distinct(product_id) FROM product_pricelist_item where price_version_id = %s" ,(version.id,))
-#                 ids = [x[0] for x in cr.fetchall()]
-#                 ids = None in ids and  [] or ids
-#                 if ids:
-#                     args.append(('id', 'in', ids))
-#                     order = 'default_code'
-#             else:
-#                 args.append(('id', 'in', []))
-            
-#         return super(product_product, self).search(cr, uid, args, offset=offset, limit=limit, order=order, context=context, count=count)
- 
 
 
 

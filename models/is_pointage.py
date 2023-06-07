@@ -44,9 +44,9 @@ class is_pointage_commentaire(models.Model):
     _description="Commentaires des pointages"
     _order='name desc'
 
-    name        = fields.Date("Date",required=True,default=lambda *a: time)
+    name        = fields.Date("Date",required=True, default=lambda *a: fields.datetime.now())
     employee    = fields.Many2one('hr.employee', 'Employé', required=True, help="Sélectionnez un employé", index=True) #, ondelete='set null'
-    commentaire = fields.Char('Commentaire', size=40, help="Mettre un commentaire court sur 40 caractères maximum")
+    commentaire = fields.Char('Commentaire', help="Mettre un commentaire court sur 40 caractères maximum") # , size=40
     demande_conges_id = fields.Many2one('is.demande.conges', 'Demande de congé')
 
 

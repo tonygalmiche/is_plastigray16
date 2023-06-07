@@ -543,7 +543,31 @@
                 <xpath expr="//label[@for='name']/.." position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <field name="product_tooltip" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="uom_po_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
 
+
+
+            <!-- <field name="product_tooltip" position="after">
+                <label for="product_tooltip" string=""
+                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"/>
+                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"
+                    class="fst-italic text-muted">
+                    You can invoice them before they are delivered.
+                </div>
+                <label for="product_tooltip" string=""
+                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"/>
+                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"
+                    class="fst-italic text-muted">
+                    Invoice after delivery, based on quantities delivered, not ordered.
+                </div>
+            </field>
+
+ -->
 
                     <!-- <div class="oe_title">
                         <label for="name" string="Product Name"/>
@@ -563,22 +587,30 @@
                 <xpath expr="//field[@name='image_medium']" position="before">
                     <img src='/is_pg_product/static/src/img/logo_r.png'  attrs="{'invisible': [('is_soumise_regl', '!=', 'R')]}"  style="height:64px" />
                 </xpath> -->
-                <xpath expr="//field[@name='active']" position="after">
-                    <field name="is_ref_plan_vsb" invisible="1"/>
-                    <field name="is_ref_plan" attrs="{'invisible': [('is_ref_plan_vsb', '=', True)]}"/>
-                    <field name="is_ind_plan_vsb" invisible="1"/>
-                    <field name="is_ind_plan" attrs="{'invisible': [('is_ind_plan_vsb', '=', True)]}"/>
-                    <field name="is_nomenclature_douaniere_vsb" invisible="1"/>
-                    <field name="is_nomenclature_douaniere" attrs="{'invisible': [('is_nomenclature_douaniere_vsb', '=', True)]}"/>
-                    <field name="is_couleur_vsb" invisible="1"/>
-                    <field name="is_couleur" attrs="{'invisible': [('is_couleur_vsb', '=', True)]}"/>
-                    <field name="is_livraison_gefbox_vsb" invisible="1"/>
-                    <field name="is_livraison_gefbox" attrs="{'invisible': [('is_livraison_gefbox_vsb', '=', True)]}"/>
-                    <field name="is_produit_perissable_vsb" invisible="1"/>
-                    <field name="is_produit_perissable" attrs="{'invisible': [('is_produit_perissable_vsb', '=', True)]}"/>
-                    <field name="is_emb_vsb" invisible="1"/>
-                    <field name="is_code_cas_vsb" invisible="1"/>
-                </xpath>
+
+                <!-- <field name="categ_id" position="replace"/> -->
+
+                <group name="group_standard_price" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </group>   
+                <group name="group_standard_price" position="after">
+                    <group>
+                        <field name="is_ref_plan_vsb" invisible="1"/>
+                        <field name="is_ref_plan" attrs="{'invisible': [('is_ref_plan_vsb', '=', True)]}"/>
+                        <field name="is_ind_plan_vsb" invisible="1"/>
+                        <field name="is_ind_plan" attrs="{'invisible': [('is_ind_plan_vsb', '=', True)]}"/>
+                        <field name="is_nomenclature_douaniere_vsb" invisible="1"/>
+                        <field name="is_nomenclature_douaniere" attrs="{'invisible': [('is_nomenclature_douaniere_vsb', '=', True)]}"/>
+                        <field name="is_couleur_vsb" invisible="1"/>
+                        <field name="is_couleur" attrs="{'invisible': [('is_couleur_vsb', '=', True)]}"/>
+                        <field name="is_livraison_gefbox_vsb" invisible="1"/>
+                        <field name="is_livraison_gefbox" attrs="{'invisible': [('is_livraison_gefbox_vsb', '=', True)]}"/>
+                        <field name="is_produit_perissable_vsb" invisible="1"/>
+                        <field name="is_produit_perissable" attrs="{'invisible': [('is_produit_perissable_vsb', '=', True)]}"/>
+                        <field name="is_emb_vsb" invisible="1"/>
+                        <field name="is_code_cas_vsb" invisible="1"/>
+                    </group>
+                </group>
                 <xpath expr="//field[@name='uom_id']" position="after">
                     <field name="is_mold_id_vsb" invisible="1"/>
                     <field name="is_mold_id" attrs="{'invisible': [('is_mold_id_vsb', '=', True)]}"/>
@@ -693,17 +725,6 @@
                         </group>
                     </page>
                 </xpath>
-                
-                <!-- <xpath expr="//group[@name='sale_condition']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath> -->
-                <!-- <xpath expr="//field[@name='name']" position="replace" /> -->
-                <!-- <xpath expr="//field[@name='image_medium']" position="after">
-                    <group>
-                        <field name="is_code"/>
-                        <field name="name" string="Désignation"/>
-                    </group>
-                </xpath>  -->
                 <notebook position="before">
                     <group colspan="4">
                         <group>
@@ -711,15 +732,10 @@
 
                             <field name="is_code"/>
                             <field name="name" string="Désignation"/>
-                            <field name="company_id" readonly="1"/>
-
-
-
+                            <field name="company_id" invisible="1"/>
                             <field name="segment_id" on_change="onchange_segment_id(segment_id)"/>
-                            <field name="family_id" context="{'default_segment_id':segment_id}" on_change="onchange_family_id(family_id)"/>
-                            <field name="sub_family_id" context="{'default_family_id':family_id}" />
-
-
+                            <field name="family_id" domain="[('segment_id', '=', segment_id)]"/>
+                            <field name="sub_family_id" domain="[('family_id', '=', family_id)]"/>
                             <field name="is_category_id_vsb" invisible="1"/>
                             <field name="is_category_id" attrs="{'invisible': [('is_category_id_vsb', '=', True)]}"/>
                             <field name="is_gestionnaire_id_vsb" invisible="1"/>
@@ -734,25 +750,6 @@
                 <xpath expr="//div[@name='options']" position="attributes" >
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//field[@name='taxes_id']" position="after">
-                    <field name="is_section_analytique_id_vsb" invisible="1"/>
-                    <field name="is_section_analytique_id"     attrs="{'invisible': [('is_section_analytique_id_vsb', '=', True)]}"/>
-
-                    <field name="is_facturable_vsb" invisible="1"/>
-                    <field name="is_facturable" attrs="{'invisible': [('is_facturable_vsb', '=', True)]}"/>
-
-                    <field name="is_budget_nature_id_vsb"      invisible="1"/>
-                    <field name="is_budget_nature_id"          attrs="{'invisible': [('is_budget_nature_id_vsb', '=', True)]}"/>
-                    <field name="is_budget_responsable_id_vsb" invisible="1"/>
-                    <field name="is_budget_responsable_id"     attrs="{'invisible': [('is_budget_responsable_id_vsb', '=', True)]}"/>
-                    <field name="is_budget_fv_vsb"             invisible="1"/>
-                    <field name="is_budget_fv"                 attrs="{'invisible': [('is_budget_fv_vsb', '=', True)]}"/>
-                </xpath>
-
-                <xpath expr="//field[@name='supplier_taxes_id']" position="after">
-                    <field name="is_section_analytique_ha_id_vsb" invisible="1"/>
-                    <field name="is_section_analytique_ha_id"     attrs="{'invisible': [('is_section_analytique_ha_id_vsb', '=', True)]}"/>
-                </xpath>
 
 
 
@@ -763,6 +760,9 @@
                     </div>
                 </div>
 
+                <field name="weight_uom_name" position="replace"/>
+
+
 
                 <!-- <xpath expr="//field[@name='standard_price']" position="replace" >
                     <div invisible="1">
@@ -770,26 +770,212 @@
                     </div>
                 </xpath>
                 <xpath expr="//field[@name='volume']" position="replace" >
-                    <field name="volume_vsb" invisible="1"/>
-                    <field name="volume" attrs="{'invisible': [('volume_vsb', '=', True)]}" digits="(14, 4)"/>
                 </xpath>
                 <xpath expr="//field[@name='weight']" position="replace" >
-                    <field name="weight_vsb" invisible="1"/>
-                    <field name="weight" attrs="{'invisible': [('weight_vsb', '=', True)]}" digits="(14, 4)"/>
                 </xpath> -->
                 <!-- <xpath expr="//field[@name='weight_net']" position="replace" >
-                    <field name="weight_net_vsb" invisible="1"/>
-                    <field name="weight_net" attrs="{'invisible': [('weight_net_vsb', '=', True)]}" digits="(14, 4)"/>
                 </xpath> -->
                 <!-- <xpath expr="//field[@name='list_price']" position="attributes" >
                     <attribute name="invisible">1</attribute>
 
                 </xpath> -->
+
+                <!-- <group name="inventory" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </group> -->
+
+
+
+                
+                <page name="inventory" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </page>
+                <page name="inventory" position="after">
+                    <page name="stock" string="Stock">
+                        <group>
+                            <group string="Routes" name="operations">
+                                <field name="has_available_route_ids" invisible="1"/>
+                                <label for="route_ids" attrs="{'invisible': [('type', '=', 'service')]}"/>
+                                <div>
+                                    <field name="route_ids" class="mb-0" widget="many2many_checkboxes" attrs="{'invisible': ['|', ('has_available_route_ids', '=', False), ('type', '=', 'service')]}"/>
+                                    <button id="stock.view_diagram_button" string="View Diagram" type="action" name="396" icon="fa-arrow-right" attrs="{'invisible':[('type', 'not in', ['product', 'consu'])]}" class="btn btn-link pt-0" context="{'default_product_tmpl_id': id}"/>
+                                </div>
+                                <field name="route_from_categ_ids" widget="many2many_tags" invisible="1"/>
+                            </group>
+                            <group string="Tracabilité" name="traceability" invisible="1">
+                                <field name="tracking" widget="radio" attrs="{'invisible': [('type', '=', 'service')]}"/>
+                            </group>
+                            <group string="Emplacements" name="stock_property" groups="base.group_no_one">
+                                <field name="property_stock_production"/>
+                                <field name="property_stock_inventory"/>
+                            </group>
+                            <group name="weight" string="Poids / Volume">
+                                <field name="weight_vsb" invisible="1"/>
+                                <field name="weight" attrs="{'invisible': [('weight_vsb', '=', True)]}"/>
+                                <field name="weight_net_vsb" invisible="1"/>
+                                <field name="weight_net" attrs="{'invisible': [('weight_net_vsb', '=', True)]}"/>
+                                <field name="volume_vsb" invisible="1"/>
+                                <field name="volume" attrs="{'invisible': [('volume_vsb', '=', True)]}"/>
+                            </group>
+                        </group>
+                        <group name="conditionnement" string="Conditionnement" colspan="4" attrs="{'invisible':['|', ('type', 'not in', ['product', 'consu']), ('product_variant_count', '&gt;', 1), ('is_product_variant', '=', False)]}" groups="product.group_stock_packaging">
+                            <field colspan="2" name="packaging_ids" nolabel="1" context="{'tree_view_ref':'product.product_packaging_tree_view2', 'default_company_id': company_id}"/>
+                        </group>
+                    </page>
+                </page>
+
+
+                <group name="purchase" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </group>
+                <group name="purchase" position="after">
+                    <group name="achats">
+                        <field name="uom_po_id"/>
+                    </group>
+                </group>
             </field>
         </record>
 
 
 
+
+        <record id="account_product_template_form_view" model="ir.ui.view">
+            <field name="name">product_template_form_view</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="account.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <field name="taxes_id" position="replace"/>
+                <field name="supplier_taxes_id" position="replace"/>
+                <field name="property_account_income_id" position="after">
+                    <field name="taxes_id" widget="many2many_tags" context="{'default_type_tax_use':'sale', 'search_default_sale': 1, 'search_default_service': type == 'service', 'search_default_goods': type == 'consu'}"/>
+                    <field name="is_section_analytique_id_vsb" invisible="1"/>
+                    <field name="is_section_analytique_id"     attrs="{'invisible': [('is_section_analytique_id_vsb', '=', True)]}"/>
+                    <field name="is_facturable_vsb" invisible="1"/>
+                    <field name="is_facturable" attrs="{'invisible': [('is_facturable_vsb', '=', True)]}"/>
+                    <field name="is_budget_nature_id_vsb"      invisible="1"/>
+                    <field name="is_budget_nature_id"          attrs="{'invisible': [('is_budget_nature_id_vsb', '=', True)]}"/>
+                    <field name="is_budget_responsable_id_vsb" invisible="1"/>
+                    <field name="is_budget_responsable_id"     attrs="{'invisible': [('is_budget_responsable_id_vsb', '=', True)]}"/>
+                    <field name="is_budget_fv_vsb"             invisible="1"/>
+                    <field name="is_budget_fv"                 attrs="{'invisible': [('is_budget_fv_vsb', '=', True)]}"/>
+                    <field name="invoice_policy" required="1"/>
+                    <field name="expense_policy" widget="radio" attrs="{'invisible': [('visible_expense_policy', '=', False)]}"/>
+                    <field name="categ_id"/>
+                </field>
+                <field name="property_account_expense_id" position="after">
+                    <field name="supplier_taxes_id" widget="many2many_tags" context="{'default_type_tax_use':'purchase', 'search_default_purchase': 1, 'search_default_service': type == 'service', 'search_default_goods': type == 'consu'}"/>
+                    <field name="is_section_analytique_ha_id_vsb" invisible="1"/>
+                    <field name="is_section_analytique_ha_id"     attrs="{'invisible': [('is_section_analytique_ha_id_vsb', '=', True)]}"/>
+                </field>
+            </field>
+        </record>
+
+
+        <record id="sale_product_template_form_view" model="ir.ui.view">
+            <field name="name">product_template_form_view</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="sale.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <field name="invoice_policy" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="expense_policy" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+
+                <xpath expr="//label[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//label[2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+               
+
+                <xpath expr="//label[@for='product_tooltip'][1]/../div" position="replace"/>
+                <xpath expr="//label[@for='product_tooltip'][2]/../div" position="replace"/>
+               
+
+            </field>
+        </record>
+
+
+             <!-- 
+                <group name="bill" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager</attribute>
+                </group>
+                <group name="bill" position="inside">
+                    <field name="purchase_method" widget="radio"/>
+                </group>
+                <group name="purchase" position="inside">
+                    <group col="1">
+                        <group string="Purchase Description">
+                           <field name="description_purchase" nolabel="1" colspan="2" placeholder="This note is added to purchase orders."/>
+                        </group>
+                        <group string="Warning when Purchasing this Product" groups="purchase.group_warning_purchase">
+                            <field name="purchase_line_warn" nolabel="1" colspan="2"/>
+                            <field name="purchase_line_warn_msg" colspan="2" nolabel="1" placeholder="Type a message..." attrs="{'required':[('purchase_line_warn','!=','no-message')],'readonly':[('purchase_line_warn','=','no-message')], 'invisible':[('purchase_line_warn','=','no-message')]}"/>
+                        </group>
+                    </group>
+                </group> -->
+
+        <!-- <record id="view_product_supplier_inherit" model="ir.ui.view">
+            <field name="name">product.template.supplier.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='purchase']" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </xpath>
+                <group name="bill" position="attributes">
+                    <attribute name="groups">purchase.group_purchase_manager</attribute>
+                </group>
+                <group name="bill" position="inside">
+                    <field name="purchase_method" widget="radio"/>
+                </group>
+                <group name="purchase" position="inside">
+                    <group col="1">
+                        <group string="Purchase Description">
+                           <field name="description_purchase" nolabel="1" colspan="2"
+                                placeholder="This note is added to purchase orders."/>
+                        </group>
+                        <group string="Warning when Purchasing this Product" groups="purchase.group_warning_purchase">
+                            <field name="purchase_line_warn" nolabel="1" colspan="2"/>
+                            <field name="purchase_line_warn_msg" colspan="2" nolabel="1" placeholder="Type a message..."
+                                attrs="{'required':[('purchase_line_warn','!=','no-message')],'readonly':[('purchase_line_warn','=','no-message')], 'invisible':[('purchase_line_warn','=','no-message')]}"/>
+                        </group>
+                    </group>
+                </group>
+            </field>
+        </record>
+ -->
+
+
+               <!-- <xpath expr="//label[@for='name']/.." position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+ -->
+                <!-- <field name="product_tooltip" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field> -->
+
+
+
+            <!-- <field name="product_tooltip" position="after">
+                <label for="product_tooltip" string=""
+                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"/>
+                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"
+                    class="fst-italic text-muted">
+                    You can invoice them before they are delivered.
+                </div>
+                <label for="product_tooltip" string=""
+                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"/>
+                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"
+                    class="fst-italic text-muted">
+                    Invoice after delivery, based on quantities delivered, not ordered.
+                </div>
+            </field>
+
+ -->
 
 
 
@@ -1160,9 +1346,23 @@
 
 
 
-
-
-
-
+        <!-- product.supplierinfo -->
+        <record id="is_product_supplierinfo_tree_view" model="ir.ui.view">
+            <field name="name">is_product_supplierinfo_tree_view</field>
+            <field name="model">product.supplierinfo</field>
+            <field name="inherit_id" ref="product.product_supplierinfo_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="currency_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="price" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="min_qty" position="replace"/>
+                 <field name="delay" position="after">
+                    <field name="min_qty"/>
+                </field>
+            </field>
+        </record> 
     </data>
 </odoo>

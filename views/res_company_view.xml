@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
     <data>
         <record id="is_view_company_form" model="ir.ui.view">
             <field name="name">is_view_company_form</field>
@@ -92,12 +92,14 @@
                 </field>
             </field>
         </record>
-        <!-- <record id="is_view_partner_bank_form" model="ir.ui.view">
+        <record id="is_view_partner_bank_form" model="ir.ui.view">
             <field name="name">is_view_partner_bank_form</field>
             <field name="model">res.partner.bank</field>
             <field name="inherit_id" ref="base.view_partner_bank_form" />
             <field name="arch" type="xml">
-                <field name="bank_bic" position="after">
+                <field name="acc_number" position="after">
+                    <field name="bank_name"/>
+                    <field name="bank_bic"/>
                     <field name="is_bank_swift"/>
                 </field>
             </field>
@@ -107,10 +109,24 @@
             <field name="model">res.partner.bank</field>
             <field name="inherit_id" ref="base.view_partner_bank_tree" />
             <field name="arch" type="xml">
-                <field name="bank_name" position="after">
+                <field name="acc_number" position="after">
+                    <field name="bank_name"/>
+                    <field name="bank_bic"/>
                     <field name="is_bank_swift"/>
                 </field>
             </field>
-        </record> -->
+        </record>
+        <record id="is_res_partner_bank_action" model="ir.actions.act_window">
+            <field name="name">Comptes banquaires</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner.bank</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="is_res_bank_action" model="ir.actions.act_window">
+            <field name="name">Banques</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.bank</field>
+            <field name="view_mode">tree,form</field>
+        </record>
     </data>
-</openerp>
+</odoo>

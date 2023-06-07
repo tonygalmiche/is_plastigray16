@@ -435,7 +435,7 @@ class res_partner(models.Model):
     is_famille_achat_ids    = fields.Many2many('is.famille.achat', "res_partner_famille_achat_rel", 'partner_id', 'famille_id', string="Famille d'achat")
     is_fournisseur_imp      = fields.Boolean(u'Fournisseur imposé')
     is_fournisseur_da_fg    = fields.Boolean(u'Fournisseur pour DA-FG', default=False)
-    is_site_livre_ids       = fields.Many2many('is.site', "res_partner_site_livre_rel", 'partner_id', 'site_id', string='sites livrés')
+    is_site_livre_ids       = fields.Many2many('is.site', "is_site_res_partner_rel", 'partner_id', 'site_id', string='sites livrés')
     is_groupage             = fields.Boolean('Groupage')
     is_tolerance_delai      = fields.Boolean('Tolérance sur délai')
     is_nb_jours_tolerance   = fields.Integer('Nb jours tolérance sur délai')

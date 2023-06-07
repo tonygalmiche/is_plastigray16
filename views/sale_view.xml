@@ -54,6 +54,12 @@
                 <button name="action_quotation_send" states="sent,progress,manual" position="replace" />
                 <button name="cancel"                                              position="replace" />
                 -->
+                <field name="validity_date" position="attributes">
+                   <attribute name="invisible">1</attribute>
+                </field>
+               <field name="client_order_ref" position="attributes">
+                   <attribute name="invisible">1</attribute>
+                </field>
                 <xpath expr="//group[@name='order_details']/field[@name='date_order']" position="after">
                     <field name="is_transporteur_id" domain="[('is_company', '=', True),('supplier','=', True)]"/>
                     <field  name="is_type_commande"
@@ -71,6 +77,8 @@
                     <field name="is_date_envoi_mail" />
                     <field name="is_incoterm"/>
                     <field name="is_lieu"/>
+                    <field name="client_order_ref"/>
+                    <field name="pricelist_id"/>
                 </xpath>
                 <field name="partner_id" position="attributes">
                     <attribute name="domain">[('customer','=',True),('is_company','=',True)]</attribute>
@@ -81,6 +89,12 @@
                 <field name="user_id" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field> 
+
+                <field name="partner_invoice_id" position="attributes">
+                    <attribute name="context">{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}</attribute>
+                </field>
+
+
                 <!-- <field name="partner_invoice_id" position="replace">
                     <field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice', 'show_address': 1}" options="{'always_reload': True}"/>
                 </field>
@@ -97,6 +111,49 @@
                 <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree/field[@name='name']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+
+
+                <xpath expr="//page[@name='order_lines']/field/tree/field[@name='product_template_id']" position="attributes">
+                    <attribute name="context">{
+                        'partner_id':parent.partner_id, 
+                        'quantity':product_uom_qty, 
+                        'pricelist':parent.pricelist_id, 
+                        'uom':product_uom, 
+                        'company_id': parent.company_id,
+                        'is_article_commande_id': parent.is_article_commande_id,
+                    }</attribute>
+                </xpath>
+                <xpath expr="//page[@name='order_lines']/field/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="context">{
+                        'partner_id':parent.partner_id, 
+                        'quantity':product_uom_qty, 
+                        'pricelist':parent.pricelist_id, 
+                        'uom':product_uom, 
+                        'company_id': parent.company_id,
+                        'is_article_commande_id': parent.is_article_commande_id,
+                    }</attribute>
+                </xpath>
+
+
+                <!-- <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='product_id']" position="replace">
+                    <field 
+                        name="product_id"
+                        context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                        groups="base.group_user"
+                        on_change="product_id_change(
+                            parent.pricelist_id, product_id, 0, False, 0, False, name, 
+                            parent.partner_id, False, True, is_date_livraison, False, parent.fiscal_position, False, context
+                        )"
+                    />
+                </xpath> -->
+
+
+
+
+
+
+
+
                 <!--
                 <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='product_id']" position="replace">
                     <field 
@@ -113,6 +170,7 @@
                     <field name="is_ref_client" readonly="1" optional="show"/>
                     <field name="is_ref_plan"   readonly="1" optional="show"/>
                     <field name="is_ind_plan"   readonly="1" optional="show"/>
+                    <field name="is_client_order_ref"   readonly="1" optional="hide"/>
                 </xpath> 
                 <!-- <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']/tree/field[@name='product_uom_qty']" position="replace">
                     <field 
@@ -157,6 +215,14 @@
                         attrs="{'required':[('price_unit', '=', 0),('product_id', '!=', False),('is_type_commande', '=', 'ferme')]}"
                     />
                 </xpath>
+
+
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="attributes">
+                    <attribute name="context">   {'default_product_id' : is_article_commande_id, 'is_type_commande' : is_type_commande }</attribute>
+                </xpath>
+
+
+
                 <!-- 
                 <xpath expr="/form/sheet/notebook/page[@string='Order Lines']/field[@name='order_line']" position="attributes">
                     <attribute name="context">   {'default_product_id' : is_article_commande_id, 'is_type_commande' : is_type_commande }</attribute>

@@ -86,7 +86,12 @@ class is_bon_transfert(models.Model):
         return super().create(vals_list)
 
 
-
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        if self.partner_id:
+            if self.partner_id.is_transporteur_id:
+                self.transporteur_id=self.partner_id.is_transporteur_id.id
+   
 
     @api.onchange('location_id','date_fin')
     def onchange_location_id_date_fin(self):
@@ -313,7 +318,7 @@ class is_bon_transfert_line(models.Model):
                             pt.is_mold_id, 
                             pt.is_ref_client, 
                             pt.uom_id
-                    from product_product pp left outer join product_packaging pa on pp.product_tmpl_id=pa.product_id 
+                    from product_product pp left outer join product_packaging pa on pp.id=pa.product_id 
                                             inner join product_template       pt on pp.product_tmpl_id=pt.id
                     where pp.id="""+str(obj.product_id.id)+"""
                     limit 1

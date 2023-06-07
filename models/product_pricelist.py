@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,tools
+from odoo import models,fields,api
 import datetime
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import ValidationError
 
 
 class product_pricelist_item(models.Model):
@@ -17,32 +18,26 @@ class product_pricelist_item(models.Model):
     is_ref_client      = fields.Char("Référence client"  , related='product_id.is_ref_client', readonly=True)
     is_mold_dossierf   = fields.Char("Moule ou Dossier F", related='product_id.is_mold_dossierf', readonly=True)
     is_gestionnaire_id = fields.Many2one('is.gestionnaire', "Gestionnaire", related='product_id.is_gestionnaire_id', readonly=True)
-    min_quantity       = fields.Float('Quantité minimum', required=True)
+    min_quantity       = fields.Float('Quantité minimum', required=True, digits=(14, 4))
     pricelist_id       = fields.Many2one('product.pricelist', 'Liste de prix', required=False)
     price_version_id   = fields.Many2one('product.pricelist.version', 'Version', required=False, index=True)
 
 
-    def on_change_product_id(self, product_id):
-        context=self._context
-        res = {}
-        if product_id:
-            if 'default_price_version_id' in context:
-                res.setdefault('value',{})
-                product = self.env['product.product'].browse(product_id)
-                if product:
-                    version = self.env['product.pricelist.version'].browse(context['default_price_version_id'])
-                    if version.pricelist_id.type=='sale':
-                        partner=version.pricelist_id.partner_id
-                        min_quantity=self.env['product.template'].get_lot_livraison(product.product_tmpl_id, partner)
-                    else:
-                        min_quantity=product.lot_mini
-                        product_uom = self.env['uom.uom'].browse(product.uom_po_id.id)
-                        min_quantity = product_uom._compute_qty(product.uom_id.id, min_quantity, product.uom_po_id.id)
-                    res['value']['product_uom_id']    = product.uom_id.id
-                    res['value']['product_po_uom_id'] = product.uom_po_id.id
-                    res['value']['min_quantity']      = min_quantity
-                    res['value']['price_surcharge']   = product.uom_po_id.amount
-        return res
+    @api.onchange('product_id')
+    def on_change_product_id(self):
+        for obj in self:
+            version = obj.price_version_id
+            product = obj.product_id
+            if version.pricelist_id.type=='sale':
+                partner=version.pricelist_id.partner_id
+                min_quantity=self.env['product.template'].get_lot_livraison(product.product_tmpl_id, partner)
+            else:
+                min_quantity=product.lot_mini
+                min_quantity = product.uom_id._compute_quantity(min_quantity, product.uom_po_id) #, , product.uom_po_id.id)
+            obj.product_uom_id    = product.uom_id.id
+            obj.product_po_uom_id = product.uom_po_id.id
+            obj.min_quantity      = min_quantity
+            #obj.price_surcharge']   = product.uom_po_id.amount
 
 
 class product_pricelist_version(models.Model):
@@ -86,6 +81,8 @@ class product_pricelist_version(models.Model):
 
     def action_dupliquer(self):
         for obj in self:
+            if not obj.date_end:
+                raise ValidationError("Date de fin non définie !")
             date_end = obj.date_end
             date_start = date_end   + datetime.timedelta(days=1)
             date_end = date_start + relativedelta(years=1)
@@ -126,29 +123,45 @@ class product_pricelist_version(models.Model):
 class product_pricelist(models.Model):
     _inherit = "product.pricelist"
     
+
+    def _compute_product_ids(self):
+        for obj in self:
+            ids=[]
+            tmpl_ids=[]
+            versions = self.env['product.pricelist.version'].search([('pricelist_id','=',obj.id)], order="name desc", limit=1)
+            for version in  versions:
+                for line in version.item_ids:
+                    ids.append(line.product_id.id)
+                    tmpl_ids.append(line.product_id.product_tmpl_id.id)
+            obj.is_product_ids=ids 
+            obj.is_product_tmpl_ids=tmpl_ids 
+        
+
     partner_id = fields.Many2one('res.partner', 'Partenaire')
     type       = fields.Selection([
             ("purchase", "Liste de prix d'achat"), 
             ("sale"    , "Liste de prix de vente"), 
         ], " Type de liste de prix ", required=True, default="purchase")
-    version_id = fields.One2many('product.pricelist.version', 'pricelist_id', 'Versions', copy=True)
+    version_id  = fields.One2many('product.pricelist.version', 'pricelist_id', 'Versions', copy=True)
+    is_product_ids      = fields.Many2many('product.product' ,'product_pricelist_product_rel'      ,'pricelist_id','product_id' , string="Variantes", compute='_compute_product_ids')
+    is_product_tmpl_ids = fields.Many2many('product.template','product_pricelist_product_tmpl_rel' ,'pricelist_id','product_id' , string="Articles" , compute='_compute_product_ids')
 
 
+
+    #TODO : Revoir la convertion des unités, car pour le moment, cette fonction ne tient pas compte de l'unité (product.uom_id._compute_quantity)
     def price_get(self, product=False, qty=False, date=False):
         price=0
         justification=False
-
-
-
         if product and qty and date:
             for version in self.version_id:
                 if (version.date_start==False or version.date_start<=date) and (version.date_end==False or version.date_end>=date):
                     for item in version.item_ids:
                         if item.product_id==product:
                             if (item.date_start==False or item.date_start<=date) and (item.date_end==False or item.date_end>=date):
-                                price = item.price_surcharge
-                                justification = item.justification
-                                break
+                                if qty>=item.min_quantity:
+                                    price = item.price_surcharge
+                                    justification = item.justification
+                                    break
                     break
         return [price, justification]
 

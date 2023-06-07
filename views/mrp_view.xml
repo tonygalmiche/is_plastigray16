@@ -22,13 +22,13 @@
                                 <field name="is_presse_generique"/>
                             </group>
                         </group>
-                        <field name="workcenter_lines" nolabel="1" >
+                        <field name="workcenter_lines" widget="one2many" >
                             <tree editable="bottom">
                                 <field name="sequence"/>
                                 <field name="name"/>
                                 <field name="workcenter_id"/>
-                                <field name="is_nb_mod"/>
                                 <field name="is_nb_secondes"/>
+                                <field name="is_nb_mod"/>
                                 <field name="hour_nbr"          optional="hide"/>
                                 <field name="time_cycle"        optional="hide"/>
                                 <field name="time_cycle_manual" optional="hide"/>

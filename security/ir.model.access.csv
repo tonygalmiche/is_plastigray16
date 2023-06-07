@@ -111,7 +111,7 @@ access_is_etuve_rsp,access_is_etuve_rsp,model_is_etuve_rsp,base.group_user,1,0,0
 access_is_etuve_commentaire,access_is_etuve_commentaire,model_is_etuve_commentaire,base.group_user,1,0,0,0
 access_is_etuve_of,access_is_etuve_of,model_is_etuve_of,base.group_user,1,0,0,0
 access_is_mrp_routing_workcenter,access_is_mrp_routing_workcenter,mrp.model_mrp_routing_workcenter,base.group_user,1,0,0,0
-access_is_stock_move,access_is_stock_move,model_is_stock_move,base.group_user,1,0,0,0
+access_is_stock_move,access_is_stock_move,model_is_stock_move,base.group_user,1,1,1,1
 access_is_resource_calendar,access_is_resource_calendar,resource.model_resource_calendar,base.group_user,1,0,0,0
 access_is_cde_ouverte_fournisseur_histo,access_is_cde_ouverte_fournisseur_histo,model_is_cde_ouverte_fournisseur_histo,base.group_user,1,1,1,1
 access_is_ligne_livraison,access_is_ligne_livraison,model_is_ligne_livraison,base.group_user,1,0,0,0
@@ -395,3 +395,15 @@ access_is_cas_emploi_line,access_is_cas_emploi_line,model_is_cas_emploi_line,bas
 access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servir_wizard,base.group_user,1,0,0,0
 access_assistent_report1,access_assistent_report1,model_assistent_report1,base.group_user,1,0,0,0
 access_is_product_ul,access_is_product_ul,model_is_product_ul,base.group_user,1,0,0,0
+
+access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servir_wizard,base.group_user,1,1,1,1
+
+access_stock_warehouse_orderpoint,access_stock_warehouse_orderpoint,stock.model_stock_warehouse_orderpoint,base.group_user,1,1,1,1
+access_mrp_workorder,access_mrp_workorder,model_mrp_workorder,base.group_user,1,1,1,1
+access_mrp_unbuild,access_mrp_unbuild,mrp.model_mrp_unbuild,base.group_user,1,1,1,1
+access_stock_scrap,access_stock_scrap,stock.model_stock_scrap,base.group_user,1,1,1,1
+access_mrp_workcenter_productivity,access_mrp_workcenter_productivity,mrp.model_mrp_workcenter_productivity,base.group_user,1,1,1,1
+
+access_res_partner_bank,access_res_partner_bank,account.model_res_partner_bank,account.group_account_manager,1,1,1,1
+
+

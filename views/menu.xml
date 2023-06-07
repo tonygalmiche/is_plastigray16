@@ -2446,6 +2446,22 @@
 
 
 
+    <!-- Facturation -->
+    <record id="is_res_bank_menu" model="ir.ui.menu" >
+        <field name="name">Banques</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('account.account_banks_menu')"/>
+        <field name="action"    ref="is_res_bank_action"/>
+     </record>
+    <record id="is_res_partner_bank_menu" model="ir.ui.menu" >
+        <field name="name">Comptes banquaires</field>
+        <field name="sequence">12</field>
+        <field name="parent_id" eval="ref('account.account_banks_menu')"/>
+        <field name="action"    ref="is_res_partner_bank_action"/>
+     </record>
+
+
+
     <!-- Masquer les menus des utilisateurs -->
     <record id="base.menu_management" model="ir.ui.menu" >
         <field name="name">Applications</field>
