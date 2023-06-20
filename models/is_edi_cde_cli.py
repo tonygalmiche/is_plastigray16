@@ -1,17 +1,37 @@
 # -*- coding: utf-8 -*-
-#import csv, cStringIO
-#from openerp import netsvc
+import csv
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
-# from lxml import etree
-# import xml.etree.ElementTree as ET
-# from tempfile import TemporaryFile
+from lxml import etree
+import xml.etree.ElementTree as ET
 import base64
-# import os
-# import time
-# import math
+import time
+import math
 from datetime import date,datetime,timedelta
-#import openpyxl
+import openpyxl
+
+# Modifié par Silique le 20/06/2023
+#> ecar
+#> ASTEELFLASH
+#> John-Deere
+#> Lacroix
+#> ACTIA
+#> Odoo
+#> Motus
+#> Millipore
+#> SIMU-SOMFY
+#> Watts
+
+#NON FAIT
+# 902580
+# 902810
+# 903410
+# DARWIN
+# GXS
+# Mini-Delta-Dore
+# Plasti-ka
+# SIMU
+# THERMOR
 
 
 _JOURS_SEMAINE=[
@@ -172,7 +192,7 @@ class is_edi_cde_cli(models.Model):
                             product_id = product.id
 
                             #** Date de livraison sur le jour indiqué **********
-                            date_livraison=ligne["date_livraison"]
+                            date_livraison=datetime.strptime(ligne["date_livraison"], "%Y-%m-%d").date()
 
                             if ligne["type_commande"]=='previsionnel' and date_livraison and obj.jour_semaine:
                                 d=date_livraison
@@ -448,11 +468,10 @@ class is_edi_cde_cli(models.Model):
         res = []
         for obj in self:
             #** Lecture du fichier xlsx ****************************************
-            xlsxfile = base64.decodestring(attachment.datas)
+            xlsxfile = base64.decodebytes(attachment.datas)
             path = '/tmp/edi-asteelflash-'+str(obj.id)+'.xlsx'
-            f = open(path,'wb')
-            f.write(xlsxfile)
-            f.close()
+            with open(path,'wb') as f:
+                f.write(xlsxfile)
             #*******************************************************************
 
             #** Test si fichier est bien du xlsx *******************************
@@ -508,7 +527,7 @@ class is_edi_cde_cli(models.Model):
         res = []
         for obj in self:
             #** Lecture du fichier xlsx ****************************************
-            xlsxfile = base64.decodestring(attachment.datas)
+            xlsxfile = base64.decodebytes(attachment.datas)
             path = '/tmp/edi-simu-'+str(obj.id)+'.xlsx'
             f = open(path,'wb')
             f.write(xlsxfile)
@@ -728,13 +747,13 @@ class is_edi_cde_cli(models.Model):
     def get_data_SIMU_SOMFY(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode()
             csvfile = csvfile.split("\n")
             csvfile = csv.reader(csvfile, delimiter=';')
             for ct, lig in enumerate(csvfile):
                 if ct>0 and len(lig)>=28:
                     type_commande      = lig[25].strip()
-                    if type_commande == u"Prévision":
+                    if type_commande == "Prévision":
                         type_commande="previsionnel"
                         ref_article_client = lig[18].strip()
                         quantite = lig[26].replace(',', '.')
@@ -776,7 +795,7 @@ class is_edi_cde_cli(models.Model):
         res = []
         mois=[u'janv.',u'févr.',u'mars',u'avr.',u'mai',u'juin',u'juil.',u'août',u'sept.',u'oct.',u'nov.',u'déc.']
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas).decode('cp1252')
+            csvfile = base64.decodebytes(attachment.datas).decode('cp1252')
             csvfile = csvfile.split("\r\n")
             csvfile = csv.reader(csvfile, delimiter='\t')
             tab=[]
@@ -837,7 +856,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_MiniDeltaDore(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode()
             csvfile = csvfile.split("\n")
             csvfile = csv.reader(csvfile, delimiter='\t')
             for ct, lig in enumerate(csvfile):
@@ -880,7 +899,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_ACTIA(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode()
             csvfile = csvfile.split("\n")
             csvfile = csv.reader(csvfile, delimiter=';')
             tab=[]
@@ -932,7 +951,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_DARWIN(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode()
             csvfile = csvfile.split("\n")
             csvfile = csv.reader(csvfile, delimiter=',')
             for ct, lig in enumerate(csvfile):
@@ -977,7 +996,7 @@ class is_edi_cde_cli(models.Model):
         data_previsionnel = 'P'
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode('iso-8859-1')
             csvfile = csvfile.split("\r\n")
             csvfile = csv.reader(csvfile, delimiter='\t')
             tab=[]
@@ -1000,7 +1019,7 @@ class is_edi_cde_cli(models.Model):
                             'ref_article_client'  : ref_article_client,
                         }
                         # '1\xc2\xa0456,000' => 1456.00
-                        quantite = lig[col_qn].decode('utf8').strip()
+                        quantite = lig[col_qn].encode().decode('utf8').strip()
                         quantite = quantite.replace(u'\xa0', '')
                         quantite = quantite.replace(u' ', '')
                         quantite = quantite.replace(',', '.')
@@ -1040,7 +1059,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_902810(self, attachment):
         res = []
         for obj in self:
-            csvfile=base64.decodestring(attachment.datas)
+            csvfile=base64.decodebytes(attachment.datas)
             csvfile=csvfile.split("\n")
             tab=[]
             ct=0
@@ -1088,8 +1107,8 @@ class is_edi_cde_cli(models.Model):
     def get_data_903410(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
-            csvfile = csvfile.decode("utf-16").encode("utf-8")
+            csvfile = base64.decodebytes(attachment.datas)
+            csvfile = csvfile.decode("utf-16")
             csvfile = csvfile.split("\r")
             csvfile = csv.reader(csvfile, delimiter='\t')
             for ct, lig in enumerate(csvfile):
@@ -1136,7 +1155,7 @@ class is_edi_cde_cli(models.Model):
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
-            temp.write((base64.decodestring(attachment.datas))) 
+            temp.write((base64.decodebytes(attachment.datas))) 
             temp.close()
             tree = etree.parse(filename)
             for partie_citee in tree.xpath("/DELINS/PARTIE_CITEE"):
@@ -1222,7 +1241,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_GXS(self, attachment):
         res = []
         for obj in self:
-            attachment=base64.decodestring(attachment.datas)
+            attachment=base64.decodebytes(attachment.datas)
             csvfile=attachment.split("\r")
             if len(csvfile)==1:
                 csvfile=attachment.split("\n")
@@ -1266,9 +1285,9 @@ class is_edi_cde_cli(models.Model):
     def get_data_John_Deere(self, attachment):
         res = []
         for obj in self:
-            attachment=base64.decodestring(attachment.datas)
+            attachment=base64.decodebytes(attachment.datas)
             #conversion d'ISO-8859-1/latin1 en UTF-8
-            attachment=attachment.decode('iso-8859-1').encode('utf8')
+            attachment=attachment.decode('iso-8859-1').encode('utf8').decode()
             csvfile=attachment.split("\n")
             tab=[]
             ct=0
@@ -1316,7 +1335,7 @@ class is_edi_cde_cli(models.Model):
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
-            temp.write((base64.decodestring(attachment.datas))) 
+            temp.write((base64.decodebytes(attachment.datas))) 
             temp.close()
             tree = ET.parse(filename)
             root = tree.getroot()
@@ -1379,7 +1398,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_Odoo(self, attachment):
         res = []
         for obj in self:
-            #csvfile=base64.decodestring(attachment.datas)
+            #csvfile=base64.decodebytes(attachment.datas)
             csvfile=base64.b64decode(attachment.datas).decode("utf-8") 
             csvfile=csvfile.split("\n")
             tab=[]
@@ -1438,7 +1457,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_plastika(self, attachment):
         res = []
         for obj in self:
-            csvfile=base64.decodestring(attachment.datas)
+            csvfile=base64.decodebytes(attachment.datas)
             csvfile=csvfile.split("\r\n")
             tab=[]
             ct=0
@@ -1500,7 +1519,7 @@ class is_edi_cde_cli(models.Model):
         res = []
         for obj in self:
             #** Lecture du fichier xlsx ****************************************
-            xlsxfile = base64.decodestring(attachment.datas)
+            xlsxfile = base64.decodebytes(attachment.datas)
             path = '/tmp/THERMOR-'+str(obj.id)+'.xlsx'
             f = open(path,'wb')
             f.write(xlsxfile)
@@ -1560,7 +1579,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_Watts(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode('iso-8859-1')
             csvfile = csvfile.split("\r\n")
             csvfile = csv.reader(csvfile, delimiter='\t')
             for ct, lig in enumerate(csvfile):
@@ -1608,7 +1627,7 @@ class is_edi_cde_cli(models.Model):
     def get_data_902580(self, attachment):
         res = []
         for obj in self:
-            csvfile = base64.decodestring(attachment.datas)
+            csvfile = base64.decodebytes(attachment.datas).decode()
             csvfile = csvfile.split("\n")
             csvfile = csv.reader(csvfile, delimiter='\t')
             for ct, lig in enumerate(csvfile):
