@@ -35,6 +35,7 @@ Module Odoo 16 pour Plastigray
         "security/is_demande_conges_security.xml",
 
 
+        "views/report_is_fiche_tampographie.xml",
         "views/report_instrument_mesure.xml",
         "views/report_gabarit_controle.xml",
         "views/report_plaquette_etalon.xml",
@@ -183,7 +184,6 @@ Module Odoo 16 pour Plastigray
         # "views/report_gamme_qualite.xml",
         # "views/report_is_ctrl100_rapport_controle.xml",
         # "views/report_is_ot_indicateur.xml",
-        # "views/report_is_fiche_tampographie.xml",
         # "views/report_is_ctrl100_pareto.xml",
         # "views/report_is_facture_proforma.xml",
         # "views/report_is_facture_proforma_outillage.xml",

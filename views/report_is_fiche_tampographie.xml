@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- egarette : différent parce que utilise translate_doc -->
 <openerp>
     <data>
 
@@ -268,7 +269,7 @@
                 </style>
             </xpath>
             <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
+            <!-- FIXME xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath -->
         </template>
 
 
@@ -1330,9 +1331,9 @@
             </t>
         </template>
 
-        <report id="report_is_fiche_tampographies" model="is.fiche.tampographie"
+        <!--report id="report_is_fiche_tampographies" model="is.fiche.tampographie"
             string="Tampographie" report_type="qweb-pdf"
-            name="is_pg_2019.report_is_fiche_tampographie" file="is_pg_2019.report_is_fiche_tampographie" />
+            name="is_pg_2019.report_is_fiche_tampographie" file="is_pg_2019.report_is_fiche_tampographie" /-->
 
         <record id="is_fiche_tampographie_paperformat" model="report.paperformat">
             <field name="name">A4 - Tampographie Reglage</field>
@@ -1350,8 +1351,17 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="report_is_fiche_tampographies" model="ir.actions.report.xml">
+        <!--record id="report_is_fiche_tampographies" model="ir.actions.report.xml">
             <field name="paperformat_id" ref="is_pg_2019.is_fiche_tampographie_paperformat" />
+        </record-->
+        <record id="fiche_tampographie_report" model="ir.actions.report">
+            <field name="name">Tampographie</field>
+            <field name="model">is.fiche.tampographie</field>
+            <field name="binding_model_id" ref="model_is_fiche_tampographie"/>
+            <field name="paperformat_id" ref="is_fiche_tampographie_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.report_is_fiche_tampographie</field>
+            <field name="report_file">is_plastigray16.report_is_fiche_tampographie</field>
         </record>
 
     </data>
