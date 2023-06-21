@@ -241,7 +241,10 @@ access_is_presse_cycle,access_is_presse_cycle,model_is_presse_cycle,base.group_u
 access_is_of,access_is_of,model_is_of,base.group_user,1,0,0,0
 access_is_presse_arret,access_is_presse_arret,model_is_presse_arret,base.group_user,1,0,0,0
 access_is_presse_arret_gestionnaire,access_is_presse_arret,model_is_presse_arret,group_gestionnaire_cpi_raspberry,1,1,0,0
+
 access_is_etat_presse,access_is_etat_presse,model_is_etat_presse,base.group_user,1,0,0,0
+access_is_etat_presse_manager,access_is_etat_presse_manager,model_is_etat_presse,base.group_system,1,1,1,1
+
 access_is_etat_presse_regroupement,access_is_etat_presse_regroupement,model_is_etat_presse_regroupement,base.group_user,1,0,0,0
 access_is_type_defaut,access_is_type_defaut,model_is_type_defaut,base.group_user,1,0,0,0
 access_is_of_declaration,access_is_of_declaration,model_is_of_declaration,base.group_user,1,0,0,0
