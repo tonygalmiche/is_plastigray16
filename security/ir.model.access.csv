@@ -238,7 +238,13 @@ access_gestionnaire_is_raspberry_zebra,access_gestionnaire_is_raspberry_zebra,mo
 access_is_raspberry_entree_sortie,access_is_raspberry_entree_sortie,model_is_raspberry_entree_sortie,base.group_user,1,0,0,0
 access_gestionnaire_is_raspberry_entree_sortie,access_gestionnaire_is_raspberry_entree_sortie,model_is_raspberry_entree_sortie,group_gestionnaire_cpi_raspberry,1,1,1,1
 access_is_presse_cycle,access_is_presse_cycle,model_is_presse_cycle,base.group_user,1,0,0,0
+
+
 access_is_of,access_is_of,model_is_of,base.group_user,1,0,0,0
+access_is_of_manager,access_is_of_manager,model_is_of,base.group_system,1,1,1,1
+
+
+
 access_is_presse_arret,access_is_presse_arret,model_is_presse_arret,base.group_user,1,0,0,0
 access_is_presse_arret_gestionnaire,access_is_presse_arret,model_is_presse_arret,group_gestionnaire_cpi_raspberry,1,1,0,0
 
