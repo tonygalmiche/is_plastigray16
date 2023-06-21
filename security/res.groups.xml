@@ -2,7 +2,38 @@
 <openerp>
 <data noupdate="0">
 
+    <!-- ir.module.category -->
+    <record model="ir.module.category" id="is_groupe_odoo_base_module_category">
+        <field name="name">Groupes de base</field>
+        <field name="description">Groupes Odoo de base</field>
+        <field name="sequence">1</field>
+    </record>
 
+    <record model="ir.module.category" id="is_groupe_plastigray_module_category">
+        <field name="name">Groupes Plastigray</field>
+        <field name="description">Groupes Plastigray</field>
+        <field name="sequence">10</field>
+    </record>
+    <record model="ir.module.category" id="is_groupe_odoo_administration_module_category">
+        <field name="name">Groupes Odoo d'administration</field>
+        <field name="description">Groupes Odoo d'administration</field>
+        <field name="sequence">990</field>
+    </record>
+    <record model="ir.module.category" id="is_groupe_odoo_principaux_module_category">
+        <field name="name">Groupes Odoo principaux</field>
+        <field name="description">Groupes Odoo principaux</field>
+        <field name="sequence">991</field>
+    </record>
+    <record model="ir.module.category" id="is_groupe_odoo_secondaires_module_category">
+        <field name="name">Groupes Odoo secondaires</field>
+        <field name="description">Groupes Odoo secondaires</field>
+        <field name="sequence">992</field>
+    </record>
+    <record model="ir.module.category" id="module_is_cpi_raspberry">
+        <field name="name">THEIA</field>
+        <field name="description">THEIA</field>
+        <field name="sequence">10</field>
+   </record>
 
 
     <!-- Gestionnaire des absences group -->
@@ -23,12 +54,6 @@
 
 
 
-    <record model="ir.module.category" id="module_is_cpi_raspberry">
-        <field name="name">THEIA</field>
-        <field name="description">THEIA</field>
-        <field name="sequence">10</field>
-   </record>
-
     <record id="group_gestionnaire_cpi_raspberry" model="res.groups">
         <field name="name">Gestionnaire THEIA</field>
         <field name="comment">Gestionnaire THEIA</field>
@@ -42,33 +67,6 @@
     </record>
 
 
-    <record model="ir.module.category" id="is_groupe_odoo_base_module_category">
-        <field name="name">Groupes de base</field>
-        <field name="description">Groupes Odoo de base</field>
-        <field name="sequence">1</field>
-    </record>
-
-    <record model="ir.module.category" id="is_groupe_plastigray_module_category">
-        <field name="name">Groupes Plastigray</field>
-        <field name="description">Groupes Plastigray</field>
-        <field name="sequence">10</field>
-    </record>
-    <record model="ir.module.category" id="is_groupe_odoo_administration_module_category">
-        <field name="name">Groupes Odoo d'administration</field>
-        <field name="description">Groupes Odoo d'administration</field>
-        <field name="sequence">990</field>
-    </record>
-
-    <record model="ir.module.category" id="is_groupe_odoo_principaux_module_category">
-        <field name="name">Groupes Odoo principaux</field>
-        <field name="description">Groupes Odoo principaux</field>
-        <field name="sequence">991</field>
-    </record>
-    <record model="ir.module.category" id="is_groupe_odoo_secondaires_module_category">
-        <field name="name">Groupes Odoo secondaires</field>
-        <field name="description">Groupes Odoo secondaires</field>
-        <field name="sequence">992</field>
-    </record>
 
     <!-- Groupe Plastigray donnant le minimum de droits -->
     <record model="res.groups" id="is_employes_hors_production_group" >
