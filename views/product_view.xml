@@ -611,19 +611,32 @@
                         <field name="is_code_cas_vsb" invisible="1"/>
                     </group>
                 </group>
-                <xpath expr="//field[@name='uom_id']" position="after">
-                    <field name="is_mold_id_vsb" invisible="1"/>
-                    <field name="is_mold_id" attrs="{'invisible': [('is_mold_id_vsb', '=', True)]}"/>
-                    <field name="is_dossierf_id_vsb" invisible="1"/>
-                    <field name="is_dossierf_id" attrs="{'invisible': [('is_dossierf_id_vsb', '=', True)]}"/>
-                    <field name="is_ref_client_vsb" invisible="1"/>
-                    <field name="is_ref_client" attrs="{'invisible': [('is_ref_client_vsb', '=', True)]}"/>
-                    <field name="is_ref_fournisseur_vsb" invisible="1"/>
-                    <field name="is_ref_fournisseur" attrs="{'invisible': [('is_ref_fournisseur_vsb', '=', True)]}"/>
-                    <field name="is_origine_produit_id_vsb" invisible="1"/>
-                    <field name="is_origine_produit_id" attrs="{'invisible': [('is_origine_produit_id_vsb', '=', True)]}"/>
-                    <field name="is_dosmat_ctrl_qual"/>
-                </xpath> 
+
+                <group name="group_general" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </group>   
+
+
+                <group name="group_general"  position="after">
+                    <group>
+                        <field name="detailed_type"/>
+                        <field name="uom_id"/>
+                        <field name="is_mold_id_vsb" invisible="1"/>
+                        <field name="is_mold_id" attrs="{'invisible': [('is_mold_id_vsb', '=', True)]}"/>
+                        <field name="is_dossierf_id_vsb" invisible="1"/>
+                        <field name="is_dossierf_id" attrs="{'invisible': [('is_dossierf_id_vsb', '=', True)]}"/>
+                        <field name="is_ref_client_vsb" invisible="1"/>
+                        <field name="is_ref_client" attrs="{'invisible': [('is_ref_client_vsb', '=', True)]}"/>
+                        <field name="is_ref_fournisseur_vsb" invisible="1"/>
+                        <field name="is_ref_fournisseur" attrs="{'invisible': [('is_ref_fournisseur_vsb', '=', True)]}"/>
+                        <field name="is_origine_produit_id_vsb" invisible="1"/>
+                        <field name="is_origine_produit_id" attrs="{'invisible': [('is_origine_produit_id_vsb', '=', True)]}"/>
+                        <field name="is_dosmat_ctrl_qual"/>
+                    </group>
+                </group> 
+
+                <!-- <xpath expr="//field[@name='uom_id']" position="after"> -->
+
                 <!-- <xpath expr="//div[@class='oe_title']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>              -->

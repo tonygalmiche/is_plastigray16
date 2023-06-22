@@ -44,6 +44,8 @@ class sale_order(models.Model):
     is_message             = fields.Text("Message", compute='_compute_message')
     is_ar_contact_id       = fields.Many2many('res.partner', 'is_sale_ar_contact_id_rel', 'partner_id', 'contact_id', 'Destinataire AR de commande')
     is_point_dechargement  = fields.Char(u'Point de déchargement')
+    client_order_ref       = fields.Char(string='N° de commande client') # Référence client => N° de commande client
+
 
 
     @api.depends('partner_id')
@@ -284,11 +286,10 @@ class sale_order(models.Model):
                 if pricelist_id:
                     pricelist=self.env['product.pricelist'].browse(pricelist_id)
                     qty = self.env['product.template'].get_lot_livraison(product.product_tmpl_id, partner)
-                    date = str(vals['date_order'])
-
-
-
-                    date = datetime.strptime(date, '%Y-%m-%d').date()
+                    date = vals['date_order']
+                    if isinstance(date, str):
+                        date = vals['date_order'][:10]
+                        date = datetime.strptime(date, '%Y-%m-%d').date()
                     price, justification = pricelist.price_get(product, qty, date)
                     if price==0 and justification==False:
                         raise ValidationError("Il n'existe pas de tarif (liste de prix) pour l'article '"+str(product.is_code)+"' / qt="+str(qty)+ " / date="+str(date))

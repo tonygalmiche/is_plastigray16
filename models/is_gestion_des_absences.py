@@ -296,14 +296,11 @@ class is_demande_conges(models.Model):
 
 
     def default_get(self, default_fields):
-        print(self, default_fields)
         res = super(is_demande_conges, self).default_get(default_fields)
         emp_id = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1) or False
-        print("emp_id=",emp_id)
         if emp_id:
             res['valideur_n1'] = emp_id.is_valideur_n1.id
             res['valideur_n2'] = emp_id.is_valideur_n2.id
-        print(res)
         return res
 
 
@@ -413,7 +410,6 @@ class is_demande_conges(models.Model):
                         "partner_ids": [[6, False, [partner_id]]],
                     }
                     event_id = models.execute_kw(DB, USERID, USERPASS, 'calendar.event', 'create', [vals])
-                    print(event_id,vals)
                     if event_id:
                         attendee = models.execute_kw(
                             DB, USERID, USERPASS, 
@@ -460,8 +456,6 @@ class is_demande_conges(models.Model):
                     if obj.createur_id.id == uid or obj.demandeur_id.id == uid or obj.valideur_n1.id == uid or obj.valideur_n2.id == uid or obj.responsable_rh_id.id == uid:
                         vers_creation = True
                         vers_annuler  = True
-
-
             if obj.state == 'validation_rh' and  obj.responsable_rh_id.id == uid:
                 fld_vsb = True
 

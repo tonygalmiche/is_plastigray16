@@ -9,32 +9,32 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="order_id" />
-                            <field name="is_cfc_id" />
-                            <field name="order_line_id" />
-                            <field name="partner_id" />
-                            <field name="date_order" />
-                            <field name="is_num_da" />
-                            <field name="commande_ouverte" />
-                            <field name="is_num_chantier" />
-                            <field name="is_demandeur_id" />
+                            <field name="order_id" readonly="1"/>
+                            <field name="is_cfc_id" readonly="1" />
+                            <field name="order_line_id" readonly="1" />
+                            <field name="partner_id" readonly="1" />
+                            <field name="date_order" readonly="1" />
+                            <field name="is_num_da" readonly="1" />
+                            <field name="commande_ouverte" readonly="1" />
+                            <field name="is_num_chantier" readonly="1" />
+                            <field name="is_demandeur_id" readonly="1" />
                             <!-- <field name="minimum_planned_date" /> -->
-                            <field name="is_date_confirmation" />
-                            <field name="is_commentaire" />
-                            <field name="product_id" />
-                            <field name="is_ref_fournisseur" />
-                            <field name="date_planned" />
-                            <field name="product_qty" />
-                            <field name="product_uom" />
-                            <field name="price_unit" />
-                            <field name="is_justification" />
+                            <field name="is_date_confirmation" readonly="1" />
+                            <field name="is_commentaire" readonly="1" />
+                            <field name="product_id" readonly="1" />
+                            <field name="is_ref_fournisseur" readonly="1" />
+                            <field name="date_planned" readonly="1" />
+                            <field name="product_qty" readonly="1" />
+                            <field name="product_uom" readonly="1" />
+                            <field name="price_unit" readonly="1" />
+                            <field name="is_justification" readonly="1" />
                         </group>
                         <group>
-                            <field name="uom_po_id" />
-                            <field name="price_unit_uom_po" />
-                            <field name="product_qty_uom_po" />
-                            <field name="qt_rcp" />
-                            <field name="qt_reste" />
+                            <field name="uom_po_id" readonly="1" />
+                            <field name="price_unit_uom_po" readonly="1" />
+                            <field name="product_qty_uom_po" readonly="1" />
+                            <field name="qt_rcp" readonly="1" />
+                            <field name="qt_reste" readonly="1" />
                         </group>
                      </group>
                 </sheet>
@@ -71,7 +71,7 @@
         <field name="model">is.purchase.order.line</field>
         <field name="arch" type="xml">
             <!-- <tree create="false" colors="green:qt_reste == 0; red:date_planned&lt;current_date and qt_reste != 0;"> -->
-            <tree>
+            <tree create="false">
                 <field name="order_id"                             widget="many2one_clickable"  />
                 <field name="is_cfc_id"            optional="show" widget="many2one_clickable"  />
                 <field name="partner_id"                           widget="many2one_clickable"  />

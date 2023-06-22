@@ -164,7 +164,7 @@
             </field>
         </record>
         <record model="ir.actions.act_window" id="is_preventif_equipement_action">
-            <field name="name">Nombre d'heures par équipement et par mois</field>
+            <field name="name">Préventif équipement</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.preventif.equipement</field>
             <field name="view_mode">tree,form</field>

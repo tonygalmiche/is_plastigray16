@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_add_is_mold_preventif_data_form" model="ir.ui.view">
+            <field name="name">view.add.is.mold.preventif.data.form</field>
+            <field name="model">add.is.mold.preventif.data</field>
+            <field name="arch" type="xml">
+                <form string="Initialisation Fiche préventif moule">
+                    <footer>
+                        <button name="add_data" string="Ok" type="object" class="oe_highlight"/>
+                        or 
+                        <button string="Annuler" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <act_window id="action_add_is_criteres_generaux" name="Initialisation Fiche préventif moule"
+            multi="True" key2="client_action_multi" 
+            res_model="add.is.mold.preventif.data" src_model="is.mold"
+            view_mode="form" target="new" view_type="form"/>
+
+    </data>
+</openerp>

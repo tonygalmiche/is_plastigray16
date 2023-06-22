@@ -16,11 +16,57 @@
             <field name="state">code</field>
             <field name="code">action = records.actualiser_taxes_commande()</field>
         </record>
+
+
+
+
+        <!-- <record id="is_purchase_order_view_form_inherit" model="ir.ui.view">
+            <field name="name">is_purchase_order_view_form_inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit" />
+            <field name="arch" type="xml">
+                <button name="action_view_picking" position="attributes">
+                    <attribute name="groups">!stock.group_stock_user</attribute>
+                </button>
+            </field>
+        </record> -->
+
+
+
+          <!-- <xpath expr="//header/button[@name='action_rfq_send']" position="after">
+                <button name="action_view_picking" 
+                    string="Receive Products" class="oe_highlight" type="object" 
+                    attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('purchase','done')), ('incoming_picking_count', '=', 0)]}" 
+                    data-hotkey="y" groups="stock.group_stock_user"/>
+            </xpath>
+            <xpath expr="//header/button[@name='confirm_reminder_mail']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|', '|', ('state', 'not in', ('purchase', 'done')), ('mail_reminder_confirmed', '=', True), ('date_planned', '=', False), ('effective_date', '!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button type="object"
+                    name="action_view_picking"
+                    class="oe_stat_button"
+                    icon="fa-truck" attrs="{'invisible':[('incoming_picking_count','=', 0)]}" groups="stock.group_stock_user">
+                    <field name="incoming_picking_count" widget="statinfo" string="Receipt" help="Incoming Shipments"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='currency_id']" position="after"> -->
+
+
+
+
+
         <record id="is_purchase_order_form" model="ir.ui.view">
             <field name="name">is_purchase_order_form</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form" />
             <field name="arch" type="xml">
+
+                    <!-- class="oe_stat_button"
+                    icon="fa-truck" attrs="{'invisible':[('incoming_picking_count','=', 0)]}" groups="stock.group_stock_user">
+                    <field name="incoming_picking_count" widget="statinfo" string="Receipt" help="Incoming Shipments"/>
+                </button> -->
+
 
 
                             <!-- <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier', 'show_vat': True}" placeholder="Name, TIN, Email, or Reference"/> -->
@@ -29,7 +75,6 @@
                 <field name="partner_id" position="attributes">
                     <attribute name="domain">[('is_company','=',True)]</attribute>
                 </field>
-
 
                 <!-- <xpath expr="//header/button[@name='purchase_confirm']" position="after">
                     <button

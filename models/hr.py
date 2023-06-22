@@ -65,6 +65,8 @@ class hr_employee(models.Model):
     is_mobile   = fields.Char(u"Mobile"  , help="Téléphone utilisé pour l'envoi des SMS pour les demandes de congés")
     is_courriel = fields.Char(u"Courriel", help="Courriel utilisé pour l'envoi des informations pour les demandes de congés")
 
+    message_main_attachment_id = fields.Many2one(groups="base.group_user") # Etait : groups="hr.group_hr_user"
+
 
 
     # def name_get(self, cr, uid, ids, context=None):

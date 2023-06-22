@@ -11,6 +11,79 @@
         </record>
 
 
+        <!-- wizard -->
+        <record id="view_is_gestion_des_absences_wiz" model="ir.ui.view">
+            <field name="name">view.is.gestion.des.absences.wiz</field>
+            <field name="model">is.gestion.des.absences.wiz</field>
+            <field name="arch" type="xml">
+                <form string="Raison du retour">
+                    <group>
+                        <field name="conges_reason" />
+                    </group>
+                    <footer>
+                        <button name="valider_reponse" string="Valider" type="object" default_focus="1" class="btn-primary" data-hotkey="q"/>
+                        ou
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_gestion_des_absences_wiz" model="ir.actions.act_window">
+            <field name="name">Raison du retour</field>
+            <field name="res_model">is.gestion.des.absences.wiz</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_is_gestion_des_absences_wiz" />
+            <field name="target">new</field>
+        </record>
+        <record id="view_is_gestion_vers_annuler_wiz" model="ir.ui.view">
+            <field name="name">view.is.gestion.vers.annuler.wiz</field>
+            <field name="model">is.gestion.vers.annuler.wiz</field>
+            <field name="arch" type="xml">
+                <form string="Raison de l'annulation">
+                    <group>
+                        <field name="conges_reason" />
+                    </group>
+                    <footer>
+                        <button name="valider_reponse" string="Valider" type="object" default_focus="1" class="btn-primary" data-hotkey="q"/>
+                        ou
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_gestion_vers_annuler_wiz" model="ir.actions.act_window">
+            <field name="name">Raison de l'annulation</field>
+            <field name="res_model">is.gestion.vers.annuler.wiz</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_is_gestion_vers_annuler_wiz" />
+            <field name="target">new</field>
+        </record>
+        <record id="view_is_gestion_vers_refuse_wiz" model="ir.ui.view">
+            <field name="name">view.is.gestion.vers.refuse.wiz</field>
+            <field name="model">is.gestion.vers.refuse.wiz</field>
+            <field name="arch" type="xml">
+                <form string="Raison du refus">
+                    <group>
+                        <field name="conges_reason" />
+                    </group>
+                    <footer>
+                        <button name="valider_reponse" string="Valider" type="object"
+                            class="oe_highlight" />
+                        or
+                        <button string="Annuler" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_gestion_vers_refuse_wiz" model="ir.actions.act_window">
+            <field name="name">Raison du refus</field>
+            <field name="res_model">is.gestion.vers.refuse.wiz</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_is_gestion_vers_refuse_wiz" />
+            <field name="target">new</field>
+        </record>
+
+
         <!-- Demande de congés -->
         <record id="seq_is_demande_conges" model="ir.sequence">
             <field name="name">Demande de congés Sequence</field>
@@ -52,21 +125,21 @@
                             type="object" class="oe_highlight"
                             attrs="{'invisible': [('vers_solde_btn_vsb','=',False)]}" />
 
-                        <!-- <button 
+                        <button 
                             string="Vers Brouillon"
-                            name="(action_is_gestion_des_absences_wiz)d"
+                            name="%(action_is_gestion_des_absences_wiz)d"
                             type="action"
-                            attrs="{'invisible': [('vers_creation_btn_vsb','=',False)]}" /> -->
-                        <!-- <button
+                            attrs="{'invisible': [('vers_creation_btn_vsb','=',False)]}" />
+                        <button
                             string="Vers Refusé"
-                            name="(action_is_gestion_vers_refuse_wiz)d"
+                            name="%(action_is_gestion_vers_refuse_wiz)d"
                             type="action"
                             attrs="{'invisible': [('vers_refuse_btn_vsb','=',False)]}" />
                         <button
                             string="Vers Annulé"
-                            name="(action_is_gestion_vers_annuler_wiz)d"
+                            name="%(action_is_gestion_vers_annuler_wiz)d"
                             type="action"
-                            attrs="{'invisible': [('vers_annuler_btn_vsb','=',False)]}" /> -->
+                            attrs="{'invisible': [('vers_annuler_btn_vsb','=',False)]}" />
                         <field name="state" widget="statusbar"
                             statusbar_visible="creation,validation_n1,validation_n2,validation_rh,solde" />
                     </header>

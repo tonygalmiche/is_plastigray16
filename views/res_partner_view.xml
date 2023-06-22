@@ -225,24 +225,86 @@
                 </field>
             </field>
         </record>
-        <record id="is_view_partner_property_form" model="ir.ui.view">
-            <field name="name">is_view_partner_property_form</field>
+        <record id="is_account_view_partner_property_form" model="ir.ui.view">
+            <field name="name">is_account_view_partner_property_form</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="account.view_partner_property_form" />
             <field name="arch" type="xml">
-                <field name="property_account_payable_id" position="after">
-                    <field name="is_caracteristique_bl"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                    <field name="is_mode_envoi_facture"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                    <field name="is_type_reglement"      attrs="{'invisible': [('is_company', '=', False)]}" />
-                    <field name="is_num_siret"           attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
-                    <field name="is_code_client"         attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
-                    <field name="is_rib_id"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                    <field name="is_adr_liv_sur_facture" attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                <field name="property_payment_term_id" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </field>
+                <field name="property_supplier_payment_term_id" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </field>
+                <group name="fiscal_information" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </group>
+                <group name="accounting_entries" position="attributes">
+                    <attribute name="invisible">True</attribute> 
+                </group>
+                <field name="show_credit_limit" position="after">
+                    <group>
+                        <field name="property_account_position_id" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group string="Achats">
+                            <field name="property_account_payable_id"/>
+                            <field string="Conditions de paiement fournisseur" name="property_supplier_payment_term_id" options="{'no_open': True, 'no_create': True}" groups="account.group_account_invoice,account.group_account_readonly"/>
+                            <field name="is_type_reglement"      attrs="{'invisible': [('is_company', '=', False)]}" />
+                            <field name="is_num_siret"           attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
+                            <field name="is_code_client"         attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
+                            <field name="property_purchase_currency_id" options="{'no_create': True, 'no_open': True}" groups='base.group_multi_currency'/>
+                        </group>
+                        <group string="Ventes">
+                            <field name="property_account_receivable_id"/>
+                            <field string="Conditions de paiement client" name="property_payment_term_id" options="{'no_open': True, 'no_create': True}" groups="account.group_account_invoice,account.group_account_readonly"/>
+                            <field name="is_cofor" attrs="{'invisible': [('customer', '!=', True)] }"/>
+                            <field name="is_escompte" />
+                            <field name="is_caracteristique_bl"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_mode_envoi_facture"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_rib_id"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_adr_liv_sur_facture" attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="active"/>
+                    </group>
+                </field>
+            </field>
+        </record>
+        <record id="is_purchase_view_partner_property_form" model="ir.ui.view">
+            <field name="name">is_view_partner_property_form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="purchase.view_partner_property_form" />
+            <field name="arch" type="xml">
+                <field name="property_purchase_currency_id" position="attributes">
+                    <attribute name="invisible">True</attribute> 
                 </field>
             </field>
         </record>
 
 
+        <!-- 
+        <record id="view_partner_property_form" model="ir.ui.view">
+            <field name="name">res.partner.purchase.property.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="priority">36</field>
+            <field name="arch" type="xml">
+                <group name="purchase" position="inside">
+                    <div name="receipt_reminder" colspan="2" class="o_checkbox_optional_field" groups='purchase.group_send_reminder'>
+                        <label for="receipt_reminder_email"/>
+                        <field name="receipt_reminder_email"/>
+                        <div attrs="{'invisible': [('receipt_reminder_email', '=', False)]}">
+                            <field name="reminder_date_before_receipt" class="oe_inline"/>
+                            <span> day(s) before</span>
+                        </div>
+                    </div>
+                    <field name="property_purchase_currency_id" options="{'no_create': True, 'no_open': True}" groups='base.group_multi_currency'/>
+                </group>
+            </field>
+        </record>
+        -->
 
         <!-- Permet de masquer les boutons RDV et Opportunities -->
         <!-- <record id="is_view_partners_form_crm1" model="ir.ui.view">
@@ -267,30 +329,6 @@
             <field name="inherit_id" ref="base.view_partner_form" />
             <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='property_account_position']" position="before">
-                    <field name="is_cofor" attrs="{'invisible': [('customer', '!=', True)] }"/>
-                </xpath>
-                <xpath expr="//field[@name='property_payment_term']" position="after">
-                    <field name="is_escompte" />
-                </xpath>
-                <xpath expr="//page[@name='accounting_disabled']" position="attributes">
-                    <attribute name="attrs">{'invisible':True}</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='last_reconciliation_date']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='credit_limit']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='credit']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='debit']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='bank_ids']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
                 <xpath expr="//field[@name='property_account_position']" position="after">
                     <field 
                         name="is_num_autorisation_tva" 
@@ -301,20 +339,12 @@
                         ]}" 
                     /> 
                 </xpath>
-                <xpath expr="//field[@name='credit_limit']" position="after">
-                    <field name="is_caracteristique_bl"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                    <field name="is_mode_envoi_facture"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                    <field name="is_type_reglement"      attrs="{'invisible': [('is_company', '=', False)]}" />
-                    <field name="is_num_siret"           attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
-                    <field name="is_code_client"         attrs="{'invisible': ['|',('is_company', '=', False),('supplier','!=', True)]}" />
-                    <field name="is_rib_id"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                    <field name="is_adr_liv_sur_facture" attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                </xpath>
             </field>
         </record> -->
 
         <!-- Permet de masquer les champs opt_out et notify_email -->
-       <!-- <record model="ir.ui.view" id="is_res_partner_opt_out_form">
+       <!-- 
+        <record model="ir.ui.view" id="is_res_partner_opt_out_form">
             <field name="name">is_res_partner_opt_out_form</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="email_template.res_partner_opt_out_form"/>

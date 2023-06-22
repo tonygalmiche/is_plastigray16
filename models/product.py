@@ -593,49 +593,54 @@ class product_template(models.Model):
             obj.is_weight_delta=delta
 
 
-    def copy(self,vals):
-        for obj in self:
-            vals.update({
-                'is_code'                 : obj.is_code + ' (copie)',
-                'property_account_income' : obj.property_account_income,
-                'property_account_expense': obj.property_account_expense,
-            })
-            res=super(product_template, self).copy(vals)
-            model = self.env['product.supplierinfo']
-            for item in obj.seller_ids:
+    def copy(self, default=None):
+        if default is None:
+            default = {}
+        default.update({
+            'is_code'                 : self.is_code + ' (copie)',
+            'company_id'              : self.company_id.id,
+            'property_account_income_id' : self.property_account_income_id,
+            'property_account_expense_id': self.property_account_expense_id,
+        })
+        res=super(product_template, self).copy(default)
+        model = self.env['product.supplierinfo']
+        for item in self.seller_ids:
+            vals = {
+                'product_tmpl_id': res.id,
+                'partner_id'     : item.partner_id.id,
+                'product_name'   : item.product_name,
+                'sequence'       : item.sequence,
+                'product_code'   : item.product_code,
+                'min_qty'        : item.min_qty,
+                'delay'          : item.delay,
+            }
+            id = model.create(vals)
+        model = self.env['product.packaging']
+        for product in res.product_variant_ids:
+            print(product)
+            for item in self.packaging_ids:
                 vals = {
-                    'product_tmpl_id': res.id,
-                    'name'           : item.name.id,
-                    'product_name'   : item.product_name,
-                    'sequence'       : item.sequence,
-                    'product_code'   : item.product_code,
-                    'min_qty'        : item.min_qty,
-                    'delay'          : item.delay,
-                }
-                id = model.create(vals)
-            model = self.env['product.packaging']
-            for item in obj.packaging_ids:
-                vals = {
-                    'product_tmpl_id': res.id,
-                    'ean'            : item.ean,
+                    'product_id': product.id,
+                    'company_id': self.company_id.id,
+                    #'ean'            : item.ean,
                     'qty'            : item.qty,
                     'ul'             : item.ul.id,
                     'ul_qty'         : item.ul_qty,
                     'rows'           : item.rows,
                     'ul_container'   : item.ul_container.id,
-                    'weight'         : item.weight,
+                    #'weight'         : item.weight,
                 }
                 id = model.create(vals)
-            model = self.env['is.product.client']
-            for item in obj.is_client_ids:
-                vals = {
-                    'product_id'         : res.id,
-                    'client_id'          : item.client_id.id,
-                    'client_defaut'      : item.client_defaut,
-                    'lot_livraison'      : item.lot_livraison,
-                    'multiple_livraison' : item.multiple_livraison,
-                }
-                id = model.create(vals)
+        model = self.env['is.product.client']
+        for item in self.is_client_ids:
+            vals = {
+                'product_id'         : res.id,
+                'client_id'          : item.client_id.id,
+                'client_defaut'      : item.client_defaut,
+                'lot_livraison'      : item.lot_livraison,
+                'multiple_livraison' : item.multiple_livraison,
+            }
+            id = model.create(vals)
         return res
 
 

@@ -92,9 +92,10 @@ class is_ligne_reception(models.Model):
                         pol.date_planned,
                         sp.id                 as picking_id, 
                         sp.is_num_bl          as num_bl,
-                        sp.is_date_reception  as date_reception,
+                        sp.date_done          as date_reception,
                         sm.date               as date_mouvement,
-                        po.id                 as order_id,  
+                        -- po.id                 as order_id,  
+                        pol.order_id          as order_id,  
                         po.is_cfc_id          as is_cfc_id,
                         pol.id                as order_line_id,
                         pol.price_unit        as price_unit,
@@ -130,8 +131,8 @@ class is_ligne_reception(models.Model):
                 from stock_picking sp inner join stock_move                sm on sm.picking_id=sp.id 
                                     inner join product_product           pp on sm.product_id=pp.id
                                     inner join product_template          pt on pp.product_tmpl_id=pt.id
-                                    left outer join purchase_order       po on sp.is_purchase_order_id=po.id
                                     left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
+                                    left outer join purchase_order       po on pol.order_id=po.id
                 where sp.picking_type_id=1
             )
         """)

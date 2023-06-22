@@ -238,20 +238,22 @@ class purchase_order(models.Model):
 
     def actualiser_prix_commande(self):
         for obj in self:
-            for line in obj.order_line:
-                res = line.onchange_product_id(
-                    obj.pricelist_id.id, 
-                    line.product_id.id, 
-                    line.product_qty, 
-                    line.product_uom.id,
-                    obj.partner_id.id, 
-                    date_order   = line.date_planned+u' 12:00:00',
-                    date_planned = line.date_planned,
-                )
-                price=res['value']['price_unit']
-                if not price:
-                    raise ValidationError(u"Modification non éffectuée, car prix non trouvé")
-                line.price_unit=price
+            print(obj)
+            #TODO : A Revoir
+            # for line in obj.order_line:
+            #     res = line.onchange_product_id(
+            #         obj.pricelist_id.id, 
+            #         line.product_id.id, 
+            #         line.product_qty, 
+            #         line.product_uom.id,
+            #         obj.partner_id.id, 
+            #         date_order   = str(line.date_planned)+u' 12:00:00',
+            #         date_planned = line.date_planned,
+            #     )
+            #     price=res['value']['price_unit']
+            #     if not price:
+            #         raise ValidationError(u"Modification non éffectuée, car prix non trouvé")
+            #     line.price_unit=price
 
 
     def actualiser_taxes_commande(self):

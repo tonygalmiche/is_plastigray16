@@ -396,6 +396,7 @@ class res_partner(models.Model):
     customer   = fields.Boolean('Client')      # Champ ajouté car n'existe plus dans Odoo 16
     supplier   = fields.Boolean('Fournisseur') # Champ ajouté car n'existe plus dans Odoo 16
     fax        = fields.Char('Fax')            # Champ ajouté car n'existe plus dans Odoo 16
+    user_id    = fields.Many2one(string='Commercial') # Pour renommer 'Vendeur' en 'Commercial'
 
     display_name            = fields.Char(string='Nom affiché', compute='_compute_display_name')
     is_transporteur_id      = fields.Many2one('res.partner', 'Transporteur')
@@ -499,6 +500,11 @@ class res_partner(models.Model):
     # def _compute_display_name(self):
     #     r=self.name_get()
     #     self.display_name = r[0][1]
+
+
+    @api.constrains('vat', 'country_id')
+    def check_vat(self):
+        print("OK",self)
 
 
     def _get_partner_filtre(self):
