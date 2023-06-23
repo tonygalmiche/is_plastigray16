@@ -728,14 +728,12 @@
                         </group>
                     </page>
                     <page string="Code CAS" attrs="{'invisible': [('is_code_cas_vsb', '=', True)]}">
-                        <group>
-                            <field name="is_code_cas_ids" nolabel="1">
-                                <tree editable="bottom"  create="true">
-                                    <field name="code_cas_id" widget="many2one_clickable"/>
-                                    <field name="poids" />
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="is_code_cas_ids" nolabel="1">
+                            <tree editable="bottom"  create="true">
+                                <field name="code_cas_id" widget="many2one_clickable"/>
+                                <field name="poids" />
+                            </tree>
+                        </field>
                     </page>
                 </xpath>
                 <notebook position="before">

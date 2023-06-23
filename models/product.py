@@ -423,7 +423,7 @@ class product_template(models.Model):
     is_perte                      = fields.Float('% de perte')
     is_perte_vsb                  = fields.Boolean('% de perte vsb', store=False, compute='_compute')
 
-    is_destockage                 = fields.Boolean('Déstockage automatique nomenclature')
+    is_destockage                 = fields.Boolean('Déstockage automatique nomenclature', default=True)
     is_destockage_vsb             = fields.Boolean('Déstockage automatique nomenclature vsb', store=False, compute='_compute')
 
     is_emplacement_destockage_id     = fields.Many2one('stock.location', u'Emplacement déstockage matières OF', domain=[('usage','=','internal')])
@@ -438,7 +438,7 @@ class product_template(models.Model):
     multiple                      = fields.Float('Multiple de')
     multiple_vsb                  = fields.Boolean('Multiple de vsb', store=False, compute='_compute')
 
-    delai_cq                      = fields.Float('Délai contrôle qualité')
+    delai_cq                      = fields.Float('Délai contrôle qualité', default=2)
     delai_cq_vsb                  = fields.Boolean('Délai contrôle qualité vsb', store=False, compute='_compute')
 
     temps_realisation             = fields.Float('Temps de realisation en secondes')
