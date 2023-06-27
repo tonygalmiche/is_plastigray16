@@ -153,8 +153,7 @@ class is_bl_manuel_line(models.Model):
     bl_id                  = fields.Many2one('is.bl.manuel', 'BL manuel', required=True, ondelete='cascade', readonly=True)
     sequence               = fields.Integer('Ordre')
     num_commande           = fields.Char("N°commande")
-    product_id             = fields.Many2one('product.product', 'Article',
-                                domain=[('is_category_id.name','<','70')])
+    product_id             = fields.Many2one('product.product', 'Article') #domain=[('is_category_id.name','<','70')])
     description            = fields.Char("Description")
     ref_client             = fields.Char("Référence client")
     origine_id             = fields.Many2one('res.country', 'Origine')
