@@ -220,6 +220,15 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="product.view_partner_property_form" />
             <field name="arch" type="xml">
+
+
+                <!-- <field name="property_product_pricelist" groups="product.group_product_pricelist" attrs="{'invisible': [('is_company','=',False),('parent_id','!=',False)]}"/> -->
+
+                <field name="property_product_pricelist" position="attributes">
+                    <attribute name="groups">base.group_user</attribute> 
+                </field>
+
+
                 <field name="property_product_pricelist" position="after">
                     <field name="pricelist_purchase_id"/>
                 </field>
