@@ -196,18 +196,19 @@ class sale_order(models.Model):
     def actualiser_prix_commande(self):
         for obj in self:
             for line in obj.order_line:
-                res=line.onchange_date_livraison(
-                    line.is_date_livraison, 
-                    line.product_id.id, 
-                    line.product_uom_qty, 
-                    line.product_uom.id, 
-                    obj.partner_id.id, 
-                    obj.pricelist_id.id, 
-                    obj.company_id.id, 
-                    obj.id)
-                price=res['value']['price_unit']
-                if price:
-                    line.price_unit=price
+                line.set_price_justification()
+            #     res=line.onchange_date_livraison(
+            #         line.is_date_livraison, 
+            #         line.product_id.id, 
+            #         line.product_uom_qty, 
+            #         line.product_uom.id, 
+            #         obj.partner_id.id, 
+            #         obj.pricelist_id.id, 
+            #         obj.company_id.id, 
+            #         obj.id)
+            #     price=res['value']['price_unit']
+            #     if price:
+            #         line.price_unit=price
 
 
     def numeroter_lignes(self):
