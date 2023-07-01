@@ -203,9 +203,9 @@
                                 <field name="unite"/>
                                 <field name="quantite"/>
                                 <field name="cout_mat"/>
-                                <field name="total_mat" sum="Total"/>
+                                <field name="total_mat"/>
                                 <field name="cout_st"/>
-                                <field name="total_st" sum="Total"/>
+                                <field name="total_st"/>
                                 <field name="msg_err"/>
                             </tree>
                         </field>
@@ -306,9 +306,9 @@
                                 <field name="unite"/>
                                 <field name="quantite"/>
                                 <field name="cout_mat"/>
-                                <field name="total_mat" sum="Total"/>
+                                <field name="total_mat"/>
                                 <field name="cout_st"/>
-                                <field name="total_st" sum="Total"/>
+                                <field name="total_st"/>
                                 <field name="msg_err"/>
                             </tree>
                         </field>

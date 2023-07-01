@@ -283,10 +283,11 @@ class is_cout_calcul(models.Model):
             from account_move_line ail inner join uom_uom pu on ail.product_uom_id=pu.id
                                           inner join account_move ai on ail.move_id=ai.id
             where ail.product_id="""+str(product.id)+ """ 
-                  and ai.state in('open','paid') and ai.move_type='in_invoice'
+                  and ai.state='posted' and ai.move_type='in_invoice'
             order by ail.id desc limit 1
         """
         cr.execute(SQL)
+        print(SQL)
         result = cr.fetchall()
         prix_facture=0
         for row in result:
