@@ -103,11 +103,18 @@ class is_facturation_fournisseur(models.Model):
     def cherche_receptions(self):
         cr=self._cr
         for obj in self:
+
+            print(obj)
+
             lines = []
             if obj.name and obj.date_fin:
                 partner_ids=[str(obj.name._origin.id)]
                 for partner in obj.partner_ids:
                     partner_ids.append(str(partner._origin.id))
+
+                print(partner_ids)
+
+
                 sql="""
                     select  sp.name as num_reception, 
                             sp.is_num_bl, 
@@ -136,6 +143,10 @@ class is_facturation_fournisseur(models.Model):
                     order by sp.name, pol.id
                 """%(obj.date_fin, ",".join(partner_ids))
                 cr.execute(sql)
+
+                print(sql)
+
+
                 result=cr.dictfetchall()
                 for row in result:
                     #** Recherche des taxes ****************************************

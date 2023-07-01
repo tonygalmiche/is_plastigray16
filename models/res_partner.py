@@ -955,7 +955,12 @@ class res_partner(models.Model):
         """
         num_closing_days = self.num_closing_days(partner)
         leave_dates      = self.get_leave_dates(partner, avec_jours_feries)
-        new_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+        #new_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+        new_date = date
+        if type(new_date) is str:
+            new_date = datetime.datetime.strptime(new_date, '%Y-%m-%d')
+
+
         while True:
             date_txt=new_date.strftime('%Y-%m-%d')
             num_day = int(time.strftime('%w', time.strptime( date_txt, '%Y-%m-%d')))
@@ -973,7 +978,9 @@ class res_partner(models.Model):
             return date_fin
         num_closing_days = self.num_closing_days(partner_id)
         leave_dates      = self.get_leave_dates(partner_id)
-        new_date = datetime.datetime.strptime(date_fin, '%Y-%m-%d')
+        if type(date_fin) is str:
+            date_fin = datetime.datetime.strptime(date_fin, '%Y-%m-%d')
+        new_date = date_fin
         while True:
             new_date = new_date - datetime.timedelta(days=1)
             date_txt=new_date.strftime('%Y-%m-%d')

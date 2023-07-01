@@ -1339,7 +1339,7 @@
             ref('is_rsp_achats_group'),
         ])]"/>
     </record>
-    <!-- <record id="menu_is_production_cbn_calcul" model="ir.ui.menu" >
+    <record id="menu_is_production_cbn_calcul" model="ir.ui.menu" >
         <field name="name">Calcul des besoins</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_is_production_cbn')"/>
@@ -1347,7 +1347,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_rsp_production_group'),
         ])]"/>
-    </record> -->
+    </record>
     <record id="menu_is_production_cbn_previsions" model="ir.ui.menu" >
         <field name="name">Prévisions</field>
         <field name="sequence">20</field>

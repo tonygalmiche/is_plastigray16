@@ -36,11 +36,7 @@ Module Odoo 16 pour Plastigray
         "security/ot_security_view.xml",
         "security/is_demande_conges_security.xml",
 
-        "views/res_partner_view.xml",
-
-        "report/is_account_invoice_line.xml",
-
-
+        "wizard/generate_previsions_view.xml",
 
         "views/report_is_fiche_tampographie.xml",
         "views/report_instrument_mesure.xml",
@@ -57,7 +53,7 @@ Module Odoo 16 pour Plastigray
         #"views/report_appel_de_livraison.xml", #TODO : A revoir car beacoup de changements à effectuer => Faire les plus simple en premier
         "views/report_bilan_fin_of.xml",
         "views/report_fiche_description_moule.xml",
-
+        "views/res_partner_view.xml",
         "views/mrp_production_view.xml",
         "report/is_stock_quant.xml",
         "views/is_gestion_lot_view.xml",
@@ -148,6 +144,8 @@ Module Odoo 16 pour Plastigray
         "views/is_donnee_machine_view.xml",
         "views/is_capteur_view.xml",
 
+
+        "report/is_account_invoice_line.xml",
         "report/is_anomalie_position_fiscale.xml",
         "report/is_article_sans_fournisseur.xml",
         "report/is_article_sans_nomenclature.xml",
@@ -221,7 +219,6 @@ Module Odoo 16 pour Plastigray
         # "is_taux_rotation_stock_view.xml",
         # "calendar_view.xml",
         # "wizard/is_stock_mise_rebut_view.xml",
-        # "wizard/generate_previsions_view.xml",
         # "wizard/mrp_product_produce_view.xml",
         # "wizard/is_export_seriem_view.xml",
         # "wizard/stock_transfer_details.xml",

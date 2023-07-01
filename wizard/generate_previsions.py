@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+from odoo import models,fields,api
+from odoo.exceptions import ValidationError
 import time
 import datetime
 import pytz
-from openerp import models,fields,api
-from openerp.tools.translate import _
-from openerp import netsvc
 #import cProfile
 
 import logging
@@ -14,6 +13,8 @@ _logger = logging.getLogger(__name__)
 #TODO : Permet d'indiquer l'id du produit à analyser
 #product_id_test=3838
 product_id_test=False
+
+#262230C => product_tmpl_id => 11574
 
 #TODO : 
 # Tester les résultats avec des commandes partielles, des réceptions partielles ou des OF partiels
@@ -34,41 +35,31 @@ def _now(debut):
 
 
 class mrp_generate_previsions(models.TransientModel):
-
     _name = "mrp.previsions.generate"
     _description = "Generate previsions"
 
-    max_date     = fields.Date('Date limite', required=True)
-    company_id   = fields.Many2one('res.company', 'Société', required=True)
+    max_date     = fields.Date('Date limite'               , required=True, default=lambda self: self._max_date())
+    company_id   = fields.Many2one('res.company', 'Société', required=True, default=lambda self: self.env.user.company_id)
     regroupement = fields.Selection([('jour','Jour'),('semaine','Semaine')], string='Regroupement', default="jour")
 
 
-
-
-    @api.multi
+    @api.constrains('max_date')
     def _check_date_max(self):
+        now = datetime.date.today() # Date du jour
         for obj in self:
-            if obj.max_date < time.strftime('%Y-%m-%d'):
-                return False
-            return True
+            if obj.max_date < now:
+                raise ValidationError(
+                    "La date limite (%s) doit-être supérieure à la date de jour (%s)"%(obj.max_date,now)
+                )
 
-    def _max_date():
+
+    def _max_date(self):
         now = datetime.date.today()                # Date du jour
         date = now + datetime.timedelta(days=30)   # Date + 30 jours
         return date.strftime('%Y-%m-%d')           # Formatage
 
-    _defaults = {
-        'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'mrp.previsions.generate', context=c),
-        'max_date':  _max_date(),
-    }
-
-    _constraints = [
-        (_check_date_max, u'La date max doit être supérieure à la date de jour', ['max_date']),
-    ]
-
 
     #** Liste des dates à traiter **********************************************
-    @api.multi
     def _dates(self, date_max, nb_jours):
         now     = datetime.datetime.now()               # Date de jour
         if nb_jours==7:
@@ -77,15 +68,13 @@ class mrp_generate_previsions(models.TransientModel):
         else:
             date = now
         dates = []
-        while(date.strftime('%Y-%m-%d')<=date_max):
+        while(date.date()<=date_max):
             dates.append(date.strftime('%Y-%m-%d'))
             date = date + datetime.timedelta(days=nb_jours)
         return dates
 
 
-
     #** Ajouter 7 jours à la date indiquée *************************************
-    @api.multi
     def _date_fin(self, date, nb_jours):
         date_fin = datetime.datetime.strptime(date, '%Y-%m-%d')
         date_fin = date_fin + datetime.timedelta(days=nb_jours)
@@ -94,7 +83,6 @@ class mrp_generate_previsions(models.TransientModel):
 
 
     #** Enlever 7 jours à la date indiquée *************************************
-    @api.multi
     def _date_debut(self, date, nb_jours):
         date_debut = datetime.datetime.strptime(date, '%Y-%m-%d')
         date_debut = date_debut - datetime.timedelta(days=nb_jours)
@@ -102,24 +90,23 @@ class mrp_generate_previsions(models.TransientModel):
         return date_debut
 
 
-    @api.multi
     def _articles(self):
         articles=[]
-        #filtre=[('is_code','like','26160')]
         filtre=[]
+        filtre=[('is_code','like','262230C')]
+
         for product in self.env['product.product'].search(filtre):
             articles.append(product)
         articles.sort()
         return articles
 
 
-    @api.multi
     def _stocks(self,articles):
         cr=self._cr
         res={}
         # TODO : Modif stock du 21/01/2018 => Avant, c'était : where sl.name in ('01','05','MA') 
         sql="""
-            select sq.product_id, sum(sq.qty) 
+            select sq.product_id, sum(sq.quantity) 
             from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
             where sl.usage='internal' and sl.active='t' and sl.control_quality='f'
             group by sq.product_id"""
@@ -161,16 +148,16 @@ class mrp_generate_previsions(models.TransientModel):
             select product_id, sum(product_qty)
             from stock_move 
             where state not in ('done','cancel','none') and picking_id is not null
-                  and date_expected>='"""+str(date_debut)+""" 02:00:00'
-                  and date_expected<'"""+str(date_fin)+""" 02:00:00'
+                  and date>='"""+str(date_debut)+""" 02:00:00'
+                  and date<'"""+str(date_fin)+""" 02:00:00'
             group by product_id
         """
         res={}
         cr.execute(sql)
         for row in cr.fetchall():
             res[row[0]]=row[1]
-            if row[0]==product_id_test:
-                print "_cde_fou : ",row[0], row[1], date_debut, date_fin
+            #if row[0]==product_id_test:
+            #    print "_cde_fou : ",row[0], row[1], date_debut, date_fin
 
         return res
 
@@ -186,8 +173,8 @@ class mrp_generate_previsions(models.TransientModel):
             select sm.product_id, sum(sm.product_uom_qty)
             from stock_move sm inner join mrp_production mp on sm.production_id=mp.id 
             where sm.state not in ('cancel', 'done') 
-                  and mp.date_planned>='"""+date_debut+"""'
-                  and mp.date_planned<'"""+date_fin+"""'
+                  and mp.date_planned_start>='"""+date_debut+"""'
+                  and mp.date_planned_start<'"""+date_fin+"""'
             group by sm.product_id
         """
         res={}
@@ -209,8 +196,8 @@ class mrp_generate_previsions(models.TransientModel):
             select sm.product_id, sum(sm.product_uom_qty)
             from stock_move sm inner join mrp_production mp on sm.raw_material_production_id=mp.id 
             where sm.state not in ('cancel', 'done')
-                  and mp.date_planned>='"""+date_debut+"""'
-                  and mp.date_planned<'"""+date_fin+"""'
+                  and mp.date_planned_start>='"""+date_debut+"""'
+                  and mp.date_planned_start<'"""+date_fin+"""'
             group by sm.product_id
         """
         res={}
@@ -220,7 +207,6 @@ class mrp_generate_previsions(models.TransientModel):
         return res
 
 
-    @api.multi
     def _suggestions(self, date_debut, date_fin, type):
         cr=self._cr
         now=datetime.datetime.now().strftime('%Y-%m-%d')
@@ -241,17 +227,9 @@ class mrp_generate_previsions(models.TransientModel):
         return res
 
 
-    @api.multi
     def _creer_suggestion(self, product, quantity, date, nb_jours):
-
-
         type="fs"
         if product.route_ids:
-#            route=product.route_ids[0].name
-#            if route=="Manufacture":
-#                type="fs"
-#            if route=="Buy":
-#                type="sa"
             Buy=Manufacture=False
             for route in product.route_ids:
                 if route.name=="Manufacture":
@@ -274,8 +252,8 @@ class mrp_generate_previsions(models.TransientModel):
             for row in rows:
                 quantity=row.quantity+quantity
                 obj.browse([row.id]).write({'quantity': quantity})
-                if product.id==product_id_test:
-                    print "creer_mrp_prevision : write : ", row.quantity, row.start_date, row.end_date
+                #if product.id==product_id_test:
+                #    print "creer_mrp_prevision : write : ", row.quantity, row.start_date, row.end_date
                 return quantity
 
         #** Tenir compte du délai CQ *******************************************
@@ -295,14 +273,14 @@ class mrp_generate_previsions(models.TransientModel):
         }
         obj = self.env['mrp.prevision']
         id = obj.create(vals)
-        if product.id==product_id_test:
-            print "creer_mrp_prevision : create : ", vals["quantity"], vals["start_date"], vals["end_date"]
+        #if product.id==product_id_test:
+        #    print "creer_mrp_prevision : create : ", vals["quantity"], vals["start_date"], vals["end_date"]
         return vals["quantity"]
 
 
-    @api.multi
-    def generate_previsions(self):
 
+
+    def generate_previsions(self):
         #pr=cProfile.Profile()
         #pr.enable()
 
@@ -313,10 +291,8 @@ class mrp_generate_previsions(models.TransientModel):
         #TODO : Mettre en place une liste d'étapes pour gérer les différentes phases du CBN 
         #=> calcul brut => Regroupement des suggestions => Suggestions multiples du lot
         regroupement = False
-        #multiple_lot = False
 
         #Etapes du cbn
-        #states=["cbb","regrouper_suggestion","multiple_lot"]
         states=["cbb"]
 
         for obj in self:
@@ -324,7 +300,6 @@ class mrp_generate_previsions(models.TransientModel):
             if obj.regroupement=='semaine':
                 nb_jours=7
 
-            _logger.info(_now(debut) + '## Regroupement = ' + str(obj.regroupement))
             prevision_obj = self.env['mrp.prevision']
             bom_line_obj  = self.env['mrp.bom.line']
             company_obj   = self.env['res.company']
@@ -333,8 +308,18 @@ class mrp_generate_previsions(models.TransientModel):
             dates         = self._dates(obj.max_date,nb_jours)
 
             #** supprimer les previsions existantes ****************************
-            prevision_ids = prevision_obj.search([]).unlink()
+            #prevision_ids = prevision_obj.search([]).unlink()
+            _logger.info(_now(debut) + '## Début delete from mrp_prevision')
+            sql="delete from mrp_prevision"
+            cr.execute(sql)
+            _logger.info(_now(debut) + '## Fin delete from mrp_prevision')
             #*******************************************************************
+
+            #break
+
+
+            _logger.info(_now(debut) + '## Regroupement = ' + str(obj.regroupement))
+
 
             articles = self._articles()
             stocks   = self._stocks(articles)
@@ -375,17 +360,17 @@ class mrp_generate_previsions(models.TransientModel):
                         stock_theorique[product.id] = stock_theorique[product.id] - qt_cde_cli + qt_cde_fou + qt_fl - qt_fm + qt_fs + qt_sa - qt_ft
 
                         #** Uniquement pour le debuggage à l'écran *****************
-                        if product.id==product_id_test:
-                            print str(product.id)+"\t"+ \
-                                str(date)+"\t"+ \
-                                "cde_cli:"     +str(qt_cde_cli)+"\t"+ \
-                                "cde_fou:"     +str(qt_cde_fou)+"\t"+ \
-                                "fl:"          +str(qt_fl)+"\t"+ \
-                                "fm:"          +str(qt_fm)+"\t"+ \
-                                "fs:"          +str(qt_fs)+"\t"+ \
-                                "sa:"          +str(qt_sa)+"\t"+ \
-                                "ft:"          +str(qt_ft)+"\t"+ \
-                                "theorique:"   +str(stock_theorique[product.id])
+                        # if product.id==product_id_test:
+                        #     print str(product.id)+"\t"+ \
+                        #         str(date)+"\t"+ \
+                        #         "cde_cli:"     +str(qt_cde_cli)+"\t"+ \
+                        #         "cde_fou:"     +str(qt_cde_fou)+"\t"+ \
+                        #         "fl:"          +str(qt_fl)+"\t"+ \
+                        #         "fm:"          +str(qt_fm)+"\t"+ \
+                        #         "fs:"          +str(qt_fs)+"\t"+ \
+                        #         "sa:"          +str(qt_sa)+"\t"+ \
+                        #         "ft:"          +str(qt_ft)+"\t"+ \
+                        #         "theorique:"   +str(stock_theorique[product.id])
                         #***********************************************************
 
                         #** Création des suggestions *******************************

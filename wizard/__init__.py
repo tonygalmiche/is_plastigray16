@@ -4,11 +4,13 @@ from . import is_cas_emploi_wizard_new
 from . import is_liste_servir_wizard
 from . import assistent_report
 from . import is_gestion_des_absences_wiz
+from . import generate_previsions
+
+
 
 # import is_stock_mise_rebut
 # import mrp_product_produce
 # import stock_transfer_details
-# import generate_previsions
 # import is_export_seriem
 # import stock_transfer_details
 # import change_production_qty

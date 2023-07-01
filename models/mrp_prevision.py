@@ -266,7 +266,7 @@ class mrp_prevision(models.Model):
         partner_id=False
         if type=='sa':
             if len(product.seller_ids)>0:
-                partner_id=product.seller_ids[0].name.id
+                partner_id=product.seller_ids[0].partner_id.id
         if type=='fs':
             if product.is_client_id:
                 partner_id=product.is_client_id.id
@@ -291,18 +291,15 @@ class mrp_prevision(models.Model):
             vals.update(r)
         #***********************************************************************
 
-
         if type=='fs':
             r=self.get_delai_cq_tps_fab_start_date(type, product_id, quantity, end_date, partner_id)
             vals.update(r)
 
-
         #** Numérotation *******************************************************
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','seq_mrp_prevision_'+str(type))])
-        if sequence_ids:
-            sequence_id = sequence_ids[0].res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
+        ref = 'is_plastigray16.seq_mrp_prevision_'+str(type)
+        sequence = self.env.ref(ref)
+        if sequence:
+            vals['name'] = sequence.next_by_id()
         obj = super(mrp_prevision, self).create(vals)
         #***********************************************************************
 
@@ -314,19 +311,25 @@ class mrp_prevision(models.Model):
                 if row.type=='fs':
                     #** Recherche en tenant compte des articles fantomes *******
                     bom_obj = self.env['mrp.bom']
-                    bom_id = bom_obj._bom_find(row.product_id.product_tmpl_id.id, properties=None)
-                    bom = bom_obj.browse(bom_id)
-                    res= bom_obj._bom_explode(bom, row.product_id, row.quantity)
-                    for line in res[0]:
+                    #bom_id = bom_obj._bom_find(row.product_id) #.product_tmpl_id) #.id, properties=None)
+                    #bom = bom_obj.browse(bom_id)
+                    #res= bom_obj._bom_explode(bom, row.product_id, row.quantity)
+                    boms_by_product = bom_obj.with_context(active_test=True)._bom_find(row.product_id) #, picking_type=picking_type, company_id=company_id, bom_type='normal')
+                    bom = boms_by_product[row.product_id]
+                    #factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
+                    factor=1
+                    boms, lines = bom.explode(row.product_id, factor, picking_type=bom.picking_type_id)
+                    for line in lines:
+                        v=line[1]
                         vals={
                             'parent_id'       : row.id,
                             'type'            : 'ft',
-                            'product_id'      : line['product_id'],
+                            'product_id'      : v['product'].id,
                             'start_date'      : row.start_date,
                             'start_date_cq'   : row.start_date,
                             'end_date'        : row.start_date,
-                            'quantity'        : line['product_qty'],
-                            'quantity_origine': line['product_qty'],
+                            'quantity'        : v['qty'],
+                            'quantity_origine': v['qty'],
                             'state'           : 'valide',
                         }
                         self.create(vals)

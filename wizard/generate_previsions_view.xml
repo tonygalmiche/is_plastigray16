@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
-
         <record id="view_mrp_generate_prevision" model="ir.ui.view">
             <field name="name">mrp.generate.prevision.form</field>
             <field name="model">mrp.previsions.generate</field>
@@ -13,26 +12,19 @@
                         <field name="company_id" invisible="1"/>
                     </group>
                     <footer>
-                        <button string='Generer les previsions' name="generate_previsions" type="object" class="oe_highlight"/>
-                        or
-                        <button string="Annuler" class="oe_link" special="cancel"/>
+                        <button string='Generer les previsions' name="generate_previsions" type="object" default_focus="1" class="btn-primary" data-hotkey="q"/>
+                        ou
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
                     </footer>
                </form>
             </field>
         </record>
-
         <record id="action_generate_prevision" model="ir.actions.act_window">
             <field name="name">Generer les previsions</field>
             <field name="res_model">mrp.previsions.generate</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
            <field name="view_id" ref="view_mrp_generate_prevision"/>
            <field name="target">new</field>
         </record>
-        
-        <!--
-        <menuitem action="action_generate_prevision" id="menu_action_generate_prevision" parent="menu_mrp_prevision"/>
-        -->
-
     </data>
-</openerp>
+</odoo>
