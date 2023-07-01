@@ -443,7 +443,7 @@
         ])]"/>
     </record>
 
-        <!--
+        
 
     <record id="is_ligne_facture_fournisseur_menu" model="ir.ui.menu" >
         <field name="name">Lignes des factures</field>
@@ -458,7 +458,7 @@
             ref('is_commerciaux_group'),
         ])]"/>
     </record>
-    -->
+   
     <record id="menu_is_avoir_fournisseur" model="ir.ui.menu" >
         <field name="name">Avoirs fournisseur</field>
         <field name="sequence">40</field>
@@ -905,7 +905,7 @@
         ])]"/>
     </record>
 
-    <!--
+    
     <record id="is_ligne_facture_client_menu" model="ir.ui.menu" >
         <field name="name">Lignes des factures</field>
         <field name="sequence">45</field>
@@ -918,7 +918,7 @@
             ref('is_qualite_group'),
         ])]"/>
     </record>
--->
+
 
     <record id="is_export_cegid_vente_menu2" model="ir.ui.menu" >
         <field name="name">Export Cegid</field>
@@ -1452,7 +1452,7 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
-    <!--
+    
     <record id="is_indicateur_ca_facture_menu" model="ir.ui.menu" >
         <field name="name">CA factures client</field>
         <field name="sequence">30</field>
@@ -1462,7 +1462,7 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
-    -->
+   
 
     <!-- Analyses -->
     <record id="menu_is_analyse" model="ir.ui.menu" >

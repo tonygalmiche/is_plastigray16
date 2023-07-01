@@ -441,3 +441,5 @@ access_is_gestion_vers_refuse_wiz,access_is_gestion_vers_refuse_wiz,model_is_ges
 
 
 access_is_mrp_production_bom,access_is_mrp_production_bom,model_is_mrp_production_bom,base.group_user,1,1,1,1
+
+access_is_account_invoice_line,access_is_account_invoice_line,model_is_account_invoice_line,base.group_user,1,1,1,1

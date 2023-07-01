@@ -38,6 +38,7 @@ Module Odoo 16 pour Plastigray
 
         "views/res_partner_view.xml",
 
+        "report/is_account_invoice_line.xml",
 
 
 
@@ -278,7 +279,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_livraison_facture.xml",
         # "report/is_comparatif_cde_draft_done.xml",
-        # "report/is_account_invoice_line.xml",
         # "report/is_marge_contributive.xml",
         # "report/is_suivi_budget_analytique.xml",
         # "report/is_comparatif_lot_appro_prix.xml",

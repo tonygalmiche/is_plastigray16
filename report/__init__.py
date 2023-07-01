@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #from . import is_create_postgres_function => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
 
+from . import is_account_invoice_line
+
 from . import is_article_sans_fournisseur
 from . import is_article_sans_nomenclature
 from . import is_certifications_qualite_suivi
@@ -42,7 +44,6 @@ from . import is_anomalie_position_fiscale
 # import is_comparatif_tarif_reception
 # import is_comparatif_livraison_facture
 # import is_comparatif_cde_draft_done
-# import is_account_invoice_line
 # import is_marge_contributive
 # import is_suivi_budget_analytique
 # import is_comparatif_lot_appro_prix

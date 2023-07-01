@@ -78,24 +78,6 @@ class is_create_postgres_function(models.Model):
 
 
 
-        #    CREATE OR REPLACE FUNCTION fsens(t text) RETURNS integer AS $$
-        #     BEGIN
-        #         RETURN (
-        #             SELECT
-        #             CASE
-        #             WHEN t::text = ANY (ARRAY['out_refund'::character varying::text, 'in_refund'::character varying::text])
-        #                 THEN -1::int
-        #                 ELSE 1::int
-        #             END
-        #         );
-        #     END;
-        #     $$ LANGUAGE plpgsql;
-
-
-
-
-
-
         # """)
 
 
