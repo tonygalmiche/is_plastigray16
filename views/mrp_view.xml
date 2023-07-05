@@ -251,13 +251,25 @@
                     <field name="is_negoce" />
                     <field name="is_inactive" />
                 </field>
-                <!-- <xpath expr="/form/notebook/page/field/tree/field[@name='sequence']" position="replace">
+                <xpath expr="//page/field/tree/field[@name='sequence']" position="replace">
                     <field name="sequence" />
                     <field name="is_bom" invisible="1"/>
                     <button title="Nomenclature" name= "action_acces_nomenclature" 
                             type="object" icon="fa-list"
                             attrs="{'invisible': [('is_bom', '=', False)]}"/>
-                </xpath> -->
+                </xpath>
+
+                <button name="action_see_attachments" position="attributes" > 
+                    <attribute name="invisible">1</attribute>
+                </button>
+                <field name="attachments_count" position="attributes" > 
+                    <attribute name="invisible">1</attribute>
+                </field>
+
+
+                <!-- <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label="Product Attachments" title="Product Attachments" class="float-end"/>
+                <field name="attachments_count" class="text-start" string=" "/>
+                            -->
 
 
                 <!-- <xpath expr="/notebook/page/field/tree/field[@name='type']" position="attributes">
@@ -266,6 +278,7 @@
 
 
                 <xpath expr="//notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="type"              optional="show"/> 
                     <field name="is_article_fourni" optional="show"/> 
                 </xpath>
 

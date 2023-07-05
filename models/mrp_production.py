@@ -130,6 +130,7 @@ class IsMrpProductionWizard(models.TransientModel):
             move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
             move._action_done()
             move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
+            move.production_id._compute_qt_reste()
             #******************************************************************
 
 
@@ -217,7 +218,7 @@ class MrpProduction(models.Model):
 
 
     @api.depends('bom_id', 'product_id', 'product_qty', 'product_uom_id')
-    def _compute(self):
+    def _compute_qt_reste(self):
         for obj in self:
             is_qt_rebut=0
             package_qty=0
@@ -257,35 +258,47 @@ class MrpProduction(models.Model):
             obj.is_bom_line_ids = False
             bom_lines = []
             if obj.bom_id:
-                qty = 1
-                factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
-                boms, lines = obj.bom_id.explode(obj.product_id, factor, picking_type=obj.bom_id.picking_type_id)
-                for bom_line, line_data in lines:
-                    if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
-                            bom_line.product_id.type not in ['product', 'consu']:
-                        continue
-                    qt = float_round(bom_line.product_qty * qty, precision_rounding=bom_line.product_id.uom_id.rounding)
+                #qty = 1
+                #factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
+                #boms, lines = obj.bom_id.explode(obj.product_id, factor, picking_type=obj.bom_id.picking_type_id)
+                res = obj.bom_id.explode_phantom()
+                for line in res:
                     vals={
-                        "product_id"    : bom_line.product_id.id,
-                        "product_uom_id": bom_line.product_uom_id.id,
-                        "product_qty"   : qt,
+                            "product_id"    : line["line"].product_id.id,
+                            "product_uom_id": line["line"].product_uom_id.id,
+                            "product_qty"   : line["product_qty"],
                     }
                     bom_lines.append([0, False, vals])
+                # for bom_line, line_data in lines:
+                #     if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
+                #             bom_line.product_id.type not in ['product', 'consu']:
+                #         continue
+                #     qt = float_round(bom_line.product_qty * qty, precision_rounding=bom_line.product_id.uom_id.rounding)
+                #     vals={
+                #         "product_id"    : bom_line.product_id.id,
+                #         "product_uom_id": bom_line.product_uom_id.id,
+                #         "product_qty"   : qt,
+                #     }
+                #     bom_lines.append([0, False, vals])
+
+
+            print("## TEST 3",len(bom_lines))
+
             obj.is_bom_line_ids = bom_lines
 
 
     product_qty = fields.Float('Qt à fabriquer', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')
     state       = fields.Selection(compute=False, default="draft") #Desactive la fonction compute pour gérer cela autrement
     #product_lines             = fields.One2many('mrp.production.product.line', 'production_id', 'Scheduled goods', readonly=False)
-    is_qt_fabriquee_uom       = fields.Float(string="Qt fabriquée"     , compute="_compute")
-    is_qt_rebut_uom           = fields.Float(string="Qt rebut"         , compute="_compute")
-    is_qt_reste_uom           = fields.Float(string="Qt reste"         , compute="_compute")
-    product_package           = fields.Many2one('is.product.ul'        , compute="_compute", string="Unité de conditionnement")
-    package_qty               = fields.Float(string='Qt par UC'        , compute="_compute")
-    is_qt_prevue              = fields.Float(string="Qt prévue (UC)"   , compute="_compute")
-    is_qt_fabriquee           = fields.Float(string="Qt fabriquée (UC)", compute="_compute")
-    is_qt_rebut               = fields.Float(string="Qt rebut (UC)"    , compute="_compute")
-    is_qt_reste               = fields.Float(string="Qt reste (UC)"    , compute="_compute")
+    is_qt_fabriquee_uom       = fields.Float(string="Qt fabriquée"     , compute="_compute_qt_reste", store=True)
+    is_qt_rebut_uom           = fields.Float(string="Qt rebut"         , compute="_compute_qt_reste", store=True)
+    is_qt_reste_uom           = fields.Float(string="Qt reste"         , compute="_compute_qt_reste", store=True)
+    product_package           = fields.Many2one('is.product.ul'        , compute="_compute_qt_reste", store=True, string="Unité de conditionnement")
+    package_qty               = fields.Float(string='Qt par UC'        , compute="_compute_qt_reste", store=True)
+    is_qt_prevue              = fields.Float(string="Qt prévue (UC)"   , compute="_compute_qt_reste", store=True)
+    is_qt_fabriquee           = fields.Float(string="Qt fabriquée (UC)", compute="_compute_qt_reste", store=True)
+    is_qt_rebut               = fields.Float(string="Qt rebut (UC)"    , compute="_compute_qt_reste", store=True)
+    is_qt_reste               = fields.Float(string="Qt reste (UC)"    , compute="_compute_qt_reste", store=True)
     #date_planned              = fields.Datetime(string='Date plannifiée', required=True, readonly=False)
     is_done                   = fields.Boolean(string="Is done ?", default=False)
     mrp_product_suggestion_id = fields.Many2one('mrp.prevision','MRP Product Suggestion')
@@ -370,6 +383,15 @@ class MrpProduction(models.Model):
             if obj.state=='draft' and not obj.is_bom_line_ids:
                 print(obj)
                 obj._compute_is_bom_line_ids()
+
+
+
+    def init_qt_reste_action(self):
+        for obj in self:
+            print(obj.name)
+            obj._compute_qt_reste()
+
+
 
 
     def voir_composants_consommes_action(self):

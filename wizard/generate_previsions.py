@@ -10,11 +10,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-#TODO : Permet d'indiquer l'id du produit à analyser
-#product_id_test=3838
+#TODO : Permet d'indiquer l'id du produit à analyser (product.product)
 product_id_test=False
-
-#262230C => product_tmpl_id => 11574
+#product_id_test=9427
 
 #TODO : 
 # Tester les résultats avec des commandes partielles, des réceptions partielles ou des OF partiels
@@ -93,7 +91,8 @@ class mrp_generate_previsions(models.TransientModel):
     def _articles(self):
         articles=[]
         filtre=[]
-        filtre=[('is_code','like','262230C')]
+        #filtre=[('is_code','like','262996')]
+        #filtre=[('is_code','in',['261928A','262996','602468','502905','502521'])]
 
         for product in self.env['product.product'].search(filtre):
             articles.append(product)
@@ -124,7 +123,7 @@ class mrp_generate_previsions(models.TransientModel):
         sql="""
             select sol.product_id, sum(sol.product_uom_qty)
             from sale_order so inner join sale_order_line sol on so.id=sol.order_id  
-            where sol.state not in ('cancel','done') 
+            where sol.state in ('draft','sent') 
                   and sol.is_date_expedition>='"""+str(date_debut)+"""'
                   and sol.is_date_expedition<'"""+str(date_fin)+"""'
             group by sol.product_id 
@@ -134,8 +133,7 @@ class mrp_generate_previsions(models.TransientModel):
         for row in cr.fetchall():
             res[row[0]]=row[1]
             #if row[0]==product_id_test:
-            #    print "_cde_cli : ",row[0], row[1], date_debut, date_fin
-
+            #    print("_cde_cli : ",row[0], row[1], date_debut, date_fin)
         return res
 
 
@@ -192,13 +190,19 @@ class mrp_generate_previsions(models.TransientModel):
 
         date_debut = date_debut + ' 23:59:59'
         date_fin   = date_fin   + ' 23:59:59'
+        # sql="""
+        #     select sm.product_id, sum(sm.product_uom_qty)
+        #     from stock_move sm inner join mrp_production mp on sm.raw_material_production_id=mp.id 
+        #     where sm.state not in ('cancel', 'done')
+        #           and mp.date_planned_start>='"""+date_debut+"""'
+        #           and mp.date_planned_start<'"""+date_fin+"""'
+        #     group by sm.product_id
+        # """
         sql="""
-            select sm.product_id, sum(sm.product_uom_qty)
-            from stock_move sm inner join mrp_production mp on sm.raw_material_production_id=mp.id 
-            where sm.state not in ('cancel', 'done')
-                  and mp.date_planned_start>='"""+date_debut+"""'
-                  and mp.date_planned_start<'"""+date_fin+"""'
-            group by sm.product_id
+            select bom.product_id, sum(bom.product_qty*mp.is_qt_reste_uom)
+            from is_mrp_production_bom bom inner join mrp_production mp on bom.production_id=mp.id 
+            where mp.date_planned_start>='"""+date_debut+"""' and mp.date_planned_start<'"""+date_fin+"""'
+            group by bom.product_id
         """
         res={}
         cr.execute(sql)
@@ -212,18 +216,35 @@ class mrp_generate_previsions(models.TransientModel):
         now=datetime.datetime.now().strftime('%Y-%m-%d')
         if date_debut<=now:
             date_debut="2000-01-01"
-        sql="""
-            select product_id, sum(quantity)
-            from mrp_prevision  
-            where type='"""+str(type)+"""' 
-                  and start_date>='"""+str(date_debut)+"""'
-                  and start_date<'"""+str(date_fin)+"""'
-            group by product_id 
-        """
+
+        #TODO : La requete SQL ne fonctionne plus avec odoo16, car le write sur les FS n'est pas pris en compte
+        # sql="""
+        #     select product_id, sum(quantity)
+        #     from mrp_prevision  
+        #     where type='"""+str(type)+"""' 
+        #           and start_date>='"""+str(date_debut)+"""'
+        #           and start_date<'"""+str(date_fin)+"""'
+        #     group by product_id 
+        # """
+        # res={}
+        # cr.execute(sql)
+        # for row in cr.fetchall():
+        #     res[row[0]]=row[1]
+
+        #     # if row[0]==product_id_test:
+        #     #    print("#### _suggestions : ",type,  row[0], row[1], date_debut, date_fin)
+
+        previsions = self.env['mrp.prevision'].search([
+            ('type','=',type),
+            ('start_date','>=',date_debut),
+            ('start_date','<',date_fin),
+        ])
         res={}
-        cr.execute(sql)
-        for row in cr.fetchall():
-            res[row[0]]=row[1]
+        for prevision in previsions:
+            product_id = prevision.product_id.id
+            if product_id not in res:
+                res[product_id]=0
+            res[product_id]+=prevision.quantity
         return res
 
 
@@ -252,8 +273,8 @@ class mrp_generate_previsions(models.TransientModel):
             for row in rows:
                 quantity=row.quantity+quantity
                 obj.browse([row.id]).write({'quantity': quantity})
-                #if product.id==product_id_test:
-                #    print "creer_mrp_prevision : write : ", row.quantity, row.start_date, row.end_date
+                if product.id==product_id_test:
+                   print("creer_mrp_prevision : write : ", row.quantity, row.start_date, row.end_date)
                 return quantity
 
         #** Tenir compte du délai CQ *******************************************
@@ -273,8 +294,8 @@ class mrp_generate_previsions(models.TransientModel):
         }
         obj = self.env['mrp.prevision']
         id = obj.create(vals)
-        #if product.id==product_id_test:
-        #    print "creer_mrp_prevision : create : ", vals["quantity"], vals["start_date"], vals["end_date"]
+        if product.id==product_id_test:
+           print("creer_mrp_prevision : create : ", vals["quantity"], vals["start_date"], vals["end_date"])
         return vals["quantity"]
 
 
@@ -310,7 +331,11 @@ class mrp_generate_previsions(models.TransientModel):
             #** supprimer les previsions existantes ****************************
             #prevision_ids = prevision_obj.search([]).unlink()
             _logger.info(_now(debut) + '## Début delete from mrp_prevision')
-            sql="delete from mrp_prevision"
+            sql="""
+                ALTER TABLE mrp_prevision DISABLE TRIGGER ALL; 
+                DELETE FROM mrp_prevision;
+                ALTER TABLE mrp_prevision ENABLE TRIGGER ALL; 
+            """
             cr.execute(sql)
             _logger.info(_now(debut) + '## Fin delete from mrp_prevision')
             #*******************************************************************
@@ -354,35 +379,43 @@ class mrp_generate_previsions(models.TransientModel):
                         if date==dates[0]:
                             stock_theorique[product.id] = qt_stock - product.is_stock_secu
                         
-                        #if product.id==product_id_test:
-                        #    print "stock_theorique avant calcul=",stock_theorique[product.id]
+                        if product.id==product_id_test:
+                           print("stock_theorique avant calcul=",stock_theorique[product.id])
 
                         stock_theorique[product.id] = stock_theorique[product.id] - qt_cde_cli + qt_cde_fou + qt_fl - qt_fm + qt_fs + qt_sa - qt_ft
 
                         #** Uniquement pour le debuggage à l'écran *****************
-                        # if product.id==product_id_test:
-                        #     print str(product.id)+"\t"+ \
-                        #         str(date)+"\t"+ \
-                        #         "cde_cli:"     +str(qt_cde_cli)+"\t"+ \
-                        #         "cde_fou:"     +str(qt_cde_fou)+"\t"+ \
-                        #         "fl:"          +str(qt_fl)+"\t"+ \
-                        #         "fm:"          +str(qt_fm)+"\t"+ \
-                        #         "fs:"          +str(qt_fs)+"\t"+ \
-                        #         "sa:"          +str(qt_sa)+"\t"+ \
-                        #         "ft:"          +str(qt_ft)+"\t"+ \
-                        #         "theorique:"   +str(stock_theorique[product.id])
+                        if product.id==product_id_test:
+                            print(str(product.id)+"\t"+ \
+                                str(date)+"\t"+ \
+                                str(date_debut)+"\t"+ \
+                                str(date_fin)+"\t"+ \
+                                "cde_cli:"     +str(qt_cde_cli)+"\t"+ \
+                                "cde_fou:"     +str(qt_cde_fou)+"\t"+ \
+                                "fl:"          +str(qt_fl)+"\t"+ \
+                                "fm:"          +str(qt_fm)+"\t"+ \
+                                "fs:"          +str(qt_fs)+"\t"+ \
+                                "sa:"          +str(qt_sa)+"\t"+ \
+                                "ft:"          +str(qt_ft)+"\t"+ \
+                                "theorique:"   +str(stock_theorique[product.id])
+                            )
                         #***********************************************************
 
                         #** Création des suggestions *******************************
                         if stock_theorique[product.id]<0:
                             qt=self._creer_suggestion(product, -stock_theorique[product.id], date, nb_jours)
                             stock_theorique[product.id]=stock_theorique[product.id]+qt
-                            #if product.id==product_id_test:
-                            #    print "Création qt=",qt,stock_theorique[product.id]
+                            if product.id==product_id_test:
+                               print("Création qt=",qt,stock_theorique[product.id])
                             num_od=num_od+1
                             nb=nb+1
-                        #if product.id==product_id_test:
-                        #    print "stock_theorique=",stock_theorique[product.id]
+
+                            #print(nb,product.is_code, qt)
+                            #print("stock_theorique 2=",stock_theorique[product.id], product.id)
+
+
+                        if product.id==product_id_test:
+                           print("stock_theorique=",stock_theorique[product.id])
                         #***********************************************************
 
                 _logger.info(_now(debut)+"## Fin Boucle state="+str(state)+" : "+str(compteur)+" : nb="+str(nb))
@@ -394,7 +427,7 @@ class mrp_generate_previsions(models.TransientModel):
                         compteur=0
                         state=states[niveau]
                 compteur=compteur+1
-                if compteur>10:
+                if compteur>12:
                     break
 
 

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-
+from odoo import models,fields,api
+from odoo.exceptions import ValidationError
+from odoo.tools import float_compare, float_round
 from datetime import datetime, timedelta
 import time
 import sys
-from odoo import models,fields,api
 from math import *
-from odoo.exceptions import ValidationError
 
 
 class mrp_prevision(models.Model):
@@ -238,70 +238,82 @@ class mrp_prevision(models.Model):
         return start_date
 
 
-    def create(self, vals):
-        partner_obj = self.env['res.partner']
-        user        = self.env["res.users"].browse(self._uid)
-        product_id  = vals.get('product_id', None)
-        product     = self.env['product.product'].browse(product_id)
-        company     = user.company_id
 
-        vals['is_gestionnaire_id'] = product.is_gestionnaire_id.id
-        vals['is_category_id']     = product.is_category_id.id
-
-        #** Quantité arrondie au lot à la création uniquement ******************
-        type       = vals.get('type'      , None)
-        quantity   = vals.get('quantity'  , None)
-        if quantity==None or quantity==0:
-            raise ValidationError(u'Quantité à 0 non autorisée !')
-
-        end_date   = vals.get('end_date'  , None)
-        if (type=='sa' or type=='fs') and quantity:
-            quantity=self.get_quantity2lot(product, quantity)
-            vals["quantity"]         = quantity
-            vals["quantity_origine"] = quantity
-        #***********************************************************************
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     for vals in vals_list:
+    #         print(vals)
+    #     return super().create(vals_list)
 
 
-        #** Client ou Fournisseur par défaut ***********************************
-        partner_id=False
-        if type=='sa':
-            if len(product.seller_ids)>0:
-                partner_id=product.seller_ids[0].partner_id.id
-        if type=='fs':
-            if product.is_client_id:
-                partner_id=product.is_client_id.id
-        vals["partner_id"]=partner_id
-        #***********************************************************************
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            partner_obj = self.env['res.partner']
+            user        = self.env["res.users"].browse(self._uid)
+            product_id  = vals.get('product_id', None)
+            product     = self.env['product.product'].browse(product_id)
+            company     = user.company_id
+
+            vals['is_gestionnaire_id'] = product.is_gestionnaire_id.id
+            vals['is_category_id']     = product.is_category_id.id
+
+            #** Quantité arrondie au lot à la création uniquement ******************
+            type       = vals.get('type'      , None)
+            quantity   = vals.get('quantity'  , None)
+            if quantity==None or quantity==0:
+                raise ValidationError(u'Quantité à 0 non autorisée !')
+
+            end_date   = vals.get('end_date'  , None)
+            if (type=='sa' or type=='fs') and quantity:
+                quantity=self.get_quantity2lot(product, quantity)
+                vals["quantity"]         = quantity
+                vals["quantity_origine"] = quantity
+            #***********************************************************************
 
 
-        #** Si création via le CBN, la date fournie est la date de fin *********
-        if type=='sa' and end_date:
-            #Date de fin des SA pendant les jours ouvrés de l'entreprise
-            end_date=partner_obj.get_date_dispo(company.partner_id, end_date)
-            vals["end_date"]=end_date
-            r=self.get_delai_cq_tps_fab_start_date(type, product_id, quantity, end_date, partner_id)
-            vals.update(r)
-        #***********************************************************************
+            #** Client ou Fournisseur par défaut ***********************************
+            partner_id=False
+            if type=='sa':
+                if len(product.seller_ids)>0:
+                    partner_id=product.seller_ids[0].partner_id.id
+            if type=='fs':
+                if product.is_client_id:
+                    partner_id=product.is_client_id.id
+            vals["partner_id"]=partner_id
+            #***********************************************************************
 
 
-        #** Si création manuelle, date fournie=start_date_cq (date réception) **
-        start_date_cq = vals.get('start_date_cq', None)
-        if type=='sa' and start_date_cq:
-            r=self.get_dates_from_start_date_cq(type, product_id, quantity,start_date_cq, partner_id)
-            vals.update(r)
-        #***********************************************************************
+            #** Si création via le CBN, la date fournie est la date de fin *********
+            if type=='sa' and end_date:
+                #Date de fin des SA pendant les jours ouvrés de l'entreprise
+                end_date=partner_obj.get_date_dispo(company.partner_id, end_date)
+                vals["end_date"]=end_date
+                r=self.get_delai_cq_tps_fab_start_date(type, product_id, quantity, end_date, partner_id)
+                vals.update(r)
+            #***********************************************************************
 
-        if type=='fs':
-            r=self.get_delai_cq_tps_fab_start_date(type, product_id, quantity, end_date, partner_id)
-            vals.update(r)
 
-        #** Numérotation *******************************************************
-        ref = 'is_plastigray16.seq_mrp_prevision_'+str(type)
-        sequence = self.env.ref(ref)
-        if sequence:
-            vals['name'] = sequence.next_by_id()
-        obj = super(mrp_prevision, self).create(vals)
-        #***********************************************************************
+            #** Si création manuelle, date fournie=start_date_cq (date réception) **
+            start_date_cq = vals.get('start_date_cq', None)
+            if type=='sa' and start_date_cq:
+                r=self.get_dates_from_start_date_cq(type, product_id, quantity,start_date_cq, partner_id)
+                vals.update(r)
+            #***********************************************************************
+
+            if type=='fs':
+                r=self.get_delai_cq_tps_fab_start_date(type, product_id, quantity, end_date, partner_id)
+                vals.update(r)
+
+            #** Numérotation *******************************************************
+            ref = 'is_plastigray16.seq_mrp_prevision_'+str(type)
+            sequence = self.env.ref(ref)
+            if sequence:
+                vals['name'] = sequence.next_by_id()
+            #obj = super(mrp_prevision, self).create(vals)
+            #***********************************************************************
+
+        obj = super().create(vals_list)
 
 
         #** Recherche des composants de la nomenclature pour les fs ************
@@ -309,31 +321,57 @@ class mrp_prevision(models.Model):
             id=obj.id
             for row in self.browse([id]):
                 if row.type=='fs':
-                    #** Recherche en tenant compte des articles fantomes *******
-                    bom_obj = self.env['mrp.bom']
-                    #bom_id = bom_obj._bom_find(row.product_id) #.product_tmpl_id) #.id, properties=None)
-                    #bom = bom_obj.browse(bom_id)
-                    #res= bom_obj._bom_explode(bom, row.product_id, row.quantity)
-                    boms_by_product = bom_obj.with_context(active_test=True)._bom_find(row.product_id) #, picking_type=picking_type, company_id=company_id, bom_type='normal')
+                    boms_by_product = self.env['mrp.bom'].with_context(active_test=True)._bom_find(row.product_id)
                     bom = boms_by_product[row.product_id]
-                    #factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
-                    factor=1
-                    boms, lines = bom.explode(row.product_id, factor, picking_type=bom.picking_type_id)
-                    for line in lines:
-                        v=line[1]
+                    res = bom.explode_phantom(qty=row.quantity)
+                    for line in res:
                         vals={
                             'parent_id'       : row.id,
                             'type'            : 'ft',
-                            'product_id'      : v['product'].id,
+                            'product_id'      : line["line"].product_id.id,
                             'start_date'      : row.start_date,
                             'start_date_cq'   : row.start_date,
                             'end_date'        : row.start_date,
-                            'quantity'        : v['qty'],
-                            'quantity_origine': v['qty'],
+                            'quantity'        : line["product_qty"],
+                            'quantity_origine': line["product_qty"],
                             'state'           : 'valide',
                         }
                         self.create(vals)
-                    #***********************************************************
+
+
+                    # #** Recherche en tenant compte des articles fantomes *******
+                    # bom_obj = self.env['mrp.bom']
+                    # #bom_id = bom_obj._bom_find(row.product_id) #.product_tmpl_id) #.id, properties=None)
+                    # #bom = bom_obj.browse(bom_id)
+                    # #res= bom_obj._bom_explode(bom, row.product_id, row.quantity)
+                    # boms_by_product = bom_obj.with_context(active_test=True)._bom_find(row.product_id) #, picking_type=picking_type, company_id=company_id, bom_type='normal')
+                    # bom = boms_by_product[row.product_id]
+                    # #factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
+                    # factor=1
+                    # #factor=row.quantity
+                    # boms, lines = bom.explode(row.product_id, factor, picking_type=bom.picking_type_id)
+                    # for bom_line, line_data in lines:
+
+                    #     if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
+                    #             bom_line.product_id.type not in ['product', 'consu']:
+                    #         continue
+                    #     qty=row.quantity
+                    #     qt = float_round(bom_line.product_qty * qty, precision_rounding=bom_line.product_id.uom_id.rounding)
+                    #     #qt = bom_line.product_qty
+                    #     vals={
+                    #         'parent_id'       : row.id,
+                    #         'type'            : 'ft',
+                    #         'product_id'      : bom_line.product_id.id,
+                    #         'start_date'      : row.start_date,
+                    #         'start_date_cq'   : row.start_date,
+                    #         'end_date'        : row.start_date,
+                    #         'quantity'        : qt,
+                    #         'quantity_origine': qt,
+                    #         'state'           : 'valide',
+                    #     }
+                    #     #print(obj.name, bom_line.product_id.is_code)
+                    #     self.create(vals)
+                    # #***********************************************************
         return obj
 
 
