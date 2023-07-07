@@ -104,7 +104,7 @@ class is_facturation_fournisseur(models.Model):
         cr=self._cr
         for obj in self:
 
-            print(obj)
+            print("cherche_receptions",obj)
 
             lines = []
             if obj.name and obj.date_fin:

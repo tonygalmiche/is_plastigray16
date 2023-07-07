@@ -295,39 +295,27 @@
     <record id="bilan_fin_of_action_server" model="ir.actions.server">
          <field name="name">Bilan de fin d'OF</field>
         <field name="model_id" ref="model_is_of"/>
-        <field name="code">action = self.bilan_fin_of(cr, uid, context.get('active_ids', []), context=context)</field>
+        <field name="binding_model_id" ref="model_is_of"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.bilan_fin_of()</field>
     </record>
-    <!-- <record id="bilan_fin_of_ir_value" model="ir.values">
-        <field eval="'client_action_multi'" name="key2"/>
-        <field eval="'is.of'" name="model"/>
-        <field name="name">Bilan de fin d'OF</field>
-        <field eval="'ir.actions.server,%d'%bilan_fin_of_action_server" name="value"/>
-    </record> -->
-
     <record id="calcul_cycle_moyen_action_server" model="ir.actions.server">
          <field name="name">Calcul du cycle moyen série</field>
         <field name="model_id" ref="model_is_of"/>
-        <field name="code">action = self.get_cycle_moyen_serie(cr, uid, context.get('active_ids', []), context=context)</field>
+        <field name="binding_model_id" ref="model_is_of"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.get_cycle_moyen_serie()</field>
     </record>
-    <!-- <record id="calcul_cycle_moyen_ir_value" model="ir.values">
-        <field eval="'client_action_multi'" name="key2"/>
-        <field eval="'is.of'" name="model"/>
-        <field name="name">Calcul du cycle moyen série</field>
-        <field eval="'ir.actions.server,%d'%calcul_cycle_moyen_action_server" name="value"/>
-    </record> -->
-
     <record id="calcul_qt_rebut_action_server" model="ir.actions.server">
          <field name="name">Recalcul Qt Rebuts</field>
         <field name="model_id" ref="model_is_of"/>
-        <field name="code">action = self.get_qt_rebut(cr, uid, context.get('active_ids', []), context=context)</field>
+        <field name="binding_model_id" ref="model_is_of"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.get_qt_rebut()</field>
     </record>
-    <!-- <record id="calcul_qt_rebut_ir_value" model="ir.values">
-        <field eval="'client_action_multi'" name="key2"/>
-        <field eval="'is.of'" name="model"/>
-        <field name="name">Recalcul Qt Rebuts</field>
-        <field eval="'ir.actions.server,%d'%calcul_qt_rebut_action_server" name="value"/>
-    </record>
- -->
     <record model="ir.ui.view" id="is_of_tree_view">
         <field name="name">is.of.tree</field>
         <field name="model">is.of</field>
@@ -390,7 +378,7 @@
                         <field name="cout"          readonly="1"/>
                         <field name="presse_id"     readonly="1"/>
                         <field name="affecte"       readonly="1"/>
-                        <field name="ordre"         readonly="1"/>
+                        <field name="ordre"/>
                     </group>
                     <group>
                         <field name="qt"                 readonly="1"/>
