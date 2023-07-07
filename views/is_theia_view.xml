@@ -109,10 +109,10 @@
             <tree>
                 <field name="date_heure"/>
                 <field name="presse_id"/>
-                <field name="entree"/>
-                <field name="couleur" widget="pgcolor"/>
-                <field name="etat"/>
-                <field name="of_ids"/>
+                <field name="entree"  optional="show"/>
+                <field name="couleur" optional="hide" widget="pgcolor"/>
+                <field name="etat"    optional="hide"/>
+                <field name="of_ids" widget="many2many_tags"/>
             </tree>
         </field>
     </record>
