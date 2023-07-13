@@ -518,6 +518,17 @@ class res_partner(models.Model):
         return filtre
 
     def write(self, vals):
+        #** Ne pas désactiver le partner si il est relié à un utilisateur
+        for obj in self:
+            if "active" in vals:
+                if vals["active"]==False:
+                    filtre=[
+                        ('partner_id','=',obj.id)
+                    ]
+                    users = self.env['res.users'].search(filtre)
+                    if len(users)>0:
+                        vals["active"]=True
+        #******************************************************************        
         res=super().write(vals)
         for obj in self:
             filtre=obj._get_partner_filtre()
