@@ -21,17 +21,18 @@ import openpyxl
 #> Millipore
 #> SIMU-SOMFY
 #> Watts
+# le 18/07/2023
+# DARWIN
+# Mini-Delta-Dore
+# 902810
+# THERMOR
+# 903410
 
 #NON FAIT
 # 902580
-# 902810
-# 903410
-# DARWIN
 # GXS
-# Mini-Delta-Dore
 # Plasti-ka
 # SIMU
-# THERMOR
 
 
 _JOURS_SEMAINE=[
@@ -1060,6 +1061,7 @@ class is_edi_cde_cli(models.Model):
         res = []
         for obj in self:
             csvfile=base64.decodebytes(attachment.datas)
+            csvfile = csvfile.decode("utf-16")
             csvfile=csvfile.split("\n")
             tab=[]
             ct=0
