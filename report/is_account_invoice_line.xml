@@ -14,9 +14,11 @@
                             <field name="invoice_id"/>
                             <field name="internal_number"/>
                             <field name="invoice_date_due"/>
-                            <!-- <field name="origin"/> -->
+                            <field name="invoice_origin"/>
                             <field name="supplier_invoice_number"/>
-                            <field name="state"/>
+
+                            <!-- <field name="state"/> -->
+
                             <field name="move_type"/>
                             <field name="product_id"/>
                             <field name="description"/>
@@ -46,26 +48,26 @@
         <field name="model">is.account.invoice.line</field>
         <field name="arch" type="xml">
             <tree create="false">
-                <field name="partner_id"         string="Client facturé" widget="many2one_clickable"/>
-                <field name="partner_picking_id" string="Client livré"   widget="many2one_clickable"/>
-                <field name="invoice_id"                                 widget="many2one_clickable"/>
-                <field name="internal_number"/>
-                <field name="invoice_date"/>
-                <field name="invoice_date_due"/>
-                <field name="picking_id"           widget="many2one_clickable"/>
-                <field name="product_id"           widget="many2one_clickable"/>
-                <field name="description"/>
-                <field name="is_ref_client"/>
-                <field name="is_document"/>
-                <field name="product_uom_id"/>
-                <field name="quantity" sum="Total"/>
-                <field name="price_unit"/>
-                <field name="total"    sum="Total"/>
-                <field name="move_type"/>
-                <field name="is_type_facture"/>
-                <field name="state"/>
-                <field name="order_id"/>
-                <field name="client_order_ref"/>
+                <field name="partner_id"         optional="show" string="Client facturé" widget="many2one_clickable"/>
+                <field name="partner_picking_id" optional="show" string="Client livré"   widget="many2one_clickable"/>
+                <field name="invoice_id"         optional="show"                                 widget="many2one_clickable"/>
+                <field name="internal_number"    optional="show"/>
+                <field name="invoice_date"       optional="show"/>
+                <field name="invoice_date_due"   optional="show"/>
+                <field name="picking_id"         optional="show" widget="many2one_clickable"/>
+                <field name="product_id"         optional="show" widget="many2one_clickable"/>
+                <field name="description"        optional="show"/>
+                <field name="is_ref_client"      optional="show"/>
+                <field name="is_document"        optional="show"/>
+                <field name="product_uom_id"     optional="show"/>
+                <field name="quantity"           optional="show" sum="Total"/>
+                <field name="price_unit"         optional="show"/>
+                <field name="total"              optional="show" sum="Total"/>
+                <field name="move_type"          optional="hide"/>
+                <field name="is_type_facture"    optional="hide"/>
+                <field name="state"              optional="hide"/>
+                <field name="order_id"           optional="hide"/>
+                <field name="client_order_ref"   optional="hide"/>
            </tree>
         </field>
     </record>
@@ -76,22 +78,23 @@
         <field name="model">is.account.invoice.line</field>
         <field name="arch" type="xml">
             <tree create="false">
-                <field name="partner_id"           widget="many2one_clickable" string="Fournisseur"/>
-                <field name="invoice_id"           widget="many2one_clickable"/>
-                <field name="internal_number"/>
-                <field name="date_reception"/>
-                <field name="invoice_date"/>
-                <field name="invoice_date_due"/>
-                <field name="product_id"           widget="many2one_clickable"/>
-                <field name="description"/>
-                <field name="is_document"/>
-                <field name="product_uom_id"/>
-                <field name="quantity" sum="Total"/>
-                <field name="price_unit"/>
-                <field name="total"    sum="Total"/>
-                <field name="state"/>
-                <field name="picking_id"           widget="many2one_clickable"/>
-                <field name="purchase_order_id"    widget="many2one_clickable"/>
+                <field name="partner_id"        optional="show" widget="many2one_clickable" string="Fournisseur"/>
+                <field name="invoice_id"        optional="show" widget="many2one_clickable"/>
+                <field name="internal_number"   optional="show"/>
+                <field name="date_reception"    optional="show"/>
+                <field name="invoice_date"      optional="show"/>
+                <field name="invoice_date_due"  optional="show"/>
+                <field name="product_id"        optional="show" widget="many2one_clickable"/>
+                <field name="description"       optional="show"/>
+                <field name="is_document"       optional="show"/>
+                <field name="product_uom_id"    optional="show"/>
+                <field name="quantity"          optional="show" sum="Total"/>
+                <field name="price_unit"        optional="show" />
+                <field name="total"             optional="show" sum="Total"/>
+                <field name="state"             optional="show" />
+                <field name="picking_id"        optional="hide" widget="many2one_clickable"/>
+                <field name="purchase_order_id" optional="hide" widget="many2one_clickable"/>
+                <field name="move_id"           optional="hide" widget="many2one_clickable"/>
            </tree>
         </field>
     </record>
@@ -106,7 +109,7 @@
                 <field name="internal_number"/>
                 <field name="invoice_date"/>
                 <field name="invoice_date_due"/>
-                <!-- <field name="origin"/> -->
+                <field name="invoice_origin"/>
                 <field name="product_id"           widget="many2one_clickable"/>
                 <field name="description"/>
                 <field name="is_ref_client"/>
@@ -133,7 +136,7 @@
                 <field name="partner_id"/>
                 <field name="partner_picking_id"/>
                 <field name="internal_number"/>
-                <!-- <field name="origin"/> -->
+                <field name="invoice_origin"/>
                 <field name="supplier_invoice_number"/>
                 <field name="state"/>
                 <field name="move_type"/>
@@ -210,31 +213,31 @@
         <field name="model">is.account.invoice.line</field>
         <field name="arch" type="xml">
             <tree create="false">
-                <field name="invoice_date"/>
-                <field name="invoice_id"           widget="many2one_clickable"/>
-                <field name="picking_id"           widget="many2one_clickable"/>
-                <field name="partner_id"           widget="many2one_clickable"/>
-                <field name="product_id"           widget="many2one_clickable"/>
-                <field name="is_ref_client"/>
-                <field name="is_mold_dossierf"/>
-                <field name="segment_id"/>
-                <field name="is_category_id"/>
-                <field name="is_gestionnaire_id"/>
-                <field name="is_document"/>
-                <field name="product_uom_id"/>
-                <field name="quantity"           sum="Total"/>
-                <field name="price_unit"/>
-                <field name="amortissement_moule"/>
-                <field name="amt_interne"/>
-                <field name="cagnotage"/>
-                <field name="total"               sum="Total"/>
-                <field name="montant_amt_moule"   sum="Total"/>
-                <field name="montant_amt_interne" sum="Total"/>
-                <field name="montant_cagnotage"   sum="Total"/>
-                <field name="montant_matiere"     sum="Total"/>
-                <field name="move_type"/>
-                <field name="is_type_facture"/>
-                <field name="state"/>
+                <field name="invoice_date"        optional="show" />
+                <field name="invoice_id"          optional="show" widget="many2one_clickable"/>
+                <field name="picking_id"          optional="show" widget="many2one_clickable"/>
+                <field name="partner_id"          optional="show" widget="many2one_clickable"/>
+                <field name="product_id"          optional="show" widget="many2one_clickable"/>
+                <field name="is_ref_client"       optional="hide"/>
+                <field name="is_mold_dossierf"    optional="show"/>
+                <field name="segment_id"          optional="show"/>
+                <field name="is_category_id"      optional="show"/>
+                <field name="is_gestionnaire_id"  optional="show"/>
+                <field name="is_document"         optional="hide"/>
+                <field name="product_uom_id"      optional="hide"/>
+                <field name="quantity"            optional="show" sum="Total"/>
+                <field name="price_unit"          optional="show"/>
+                <field name="amortissement_moule" optional="hide"/>
+                <field name="amt_interne"         optional="hide"/>
+                <field name="cagnotage"           optional="hide"/>
+                <field name="total"               optional="show" sum="Total"/>
+                <field name="montant_amt_moule"   optional="hide" sum="Total"/>
+                <field name="montant_amt_interne" optional="hide" sum="Total"/>
+                <field name="montant_cagnotage"   optional="hide" sum="Total"/>
+                <field name="montant_matiere"     optional="hide" sum="Total"/>
+                <field name="move_type"           optional="show"/>
+                <field name="is_type_facture"     optional="show"/>
+                <field name="state"               optional="show"/>
            </tree>
         </field>
     </record>

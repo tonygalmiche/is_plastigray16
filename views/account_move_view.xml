@@ -1,10 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
     <data>
+       <!-- account.move -->
+        <record id="is_account_view_move_form" model="ir.ui.view">
+            <field name="name">is_account_view_move_form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: 1800px;
+                        }
+                    </style>
+                </xpath>
+                <field name="fiscal_position_id"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="payment_reference"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="partner_bank_id"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="invoice_vendor_bill_id"  position="after">
+                    <field name="fiscal_position_id"/>
+                </field>
+                <field name="payment_reference"  position="before">
+                    <field name="invoice_payment_term_id"/>
+                    <field name="invoice_date_due"/>
+                    <field name="is_export_cegid_id"/> 
+                    <field name="is_bon_a_payer"/> 
+                    <field name="is_masse_nette"/> 
+                </field>
+                <xpath expr="//group[@id='header_right_group']/div[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group[@id='header_right_group']/div[2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="after" >
+                    <field name="is_section_analytique_id" optional="show"/>
+                    <field name="is_document" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_total']" position="after" >
+                    <field name="is_move_id"        optional="hide" widget="many2one_clickable"/>
+                    <field name="purchase_order_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="purchase_line_id"  optional="hide" widget="many2one_clickable"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="is_view_move_form_inherit_purchase" model="ir.ui.view">
+            <field name="name">is_view_move_form_inherit_purchase</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="purchase.view_move_form_inherit_purchase" />
+            <field name="arch" type="xml">
+                <field name="purchase_order_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record>
+ 
+
+
+
+
+
 
 
         <!-- Envoi par mail -->
-        <record id="envoi_par_mail_action_server" model="ir.actions.server">
+        <!-- <record id="envoi_par_mail_action_server" model="ir.actions.server">
              <field name="name">Envoi par mail</field>
             <field name="model_id" ref="model_account_invoice"/>
             <field name="code">action = self.envoi_par_mail(cr, uid, context.get('active_ids', []), context=context)</field>
@@ -14,11 +79,11 @@
             <field eval="'account.invoice'" name="model"/>
             <field name="name">Envoi par mail</field>
             <field eval="'ir.actions.server,%d'%envoi_par_mail_action_server" name="value"/>
-        </record>
+        </record> -->
 
 
         <!-- Imprimer en simple ou double exemplaire -->
-        <record id="imprimer_simple_double_action_server" model="ir.actions.server">
+        <!-- <record id="imprimer_simple_double_action_server" model="ir.actions.server">
              <field name="name">Imprimer en simple ou double exemplaire</field>
             <field name="model_id" ref="model_account_invoice"/>
             <field name="code">action = self.imprimer_simple_double(cr, uid, context.get('active_ids', []), context=context)</field>
@@ -28,7 +93,7 @@
             <field eval="'account.invoice'" name="model"/>
             <field name="name">Imprimer en simple ou double exemplaire</field>
             <field eval="'ir.actions.server,%d'%imprimer_simple_double_action_server" name="value"/>
-        </record>
+        </record> -->
 
 
         <!-- Folio -->
@@ -82,7 +147,7 @@
 
 
         <!-- account.view_account_invoice_filter -->
-        <record id="is_view_account_invoice_filter" model="ir.ui.view">
+        <!-- <record id="is_view_account_invoice_filter" model="ir.ui.view">
             <field name="name">is_view_account_invoice_filter</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.view_account_invoice_filter" />
@@ -93,11 +158,11 @@
                     <field name="is_export_cegid_id"/> 
                 </field>
             </field>
-        </record>
+        </record> -->
 
 
         <!-- account.invoice_tree -->
-        <record id="is_invoice_tree" model="ir.ui.view">
+        <!-- <record id="is_invoice_tree" model="ir.ui.view">
             <field name="name">is_invoice_tree</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_tree" />
@@ -112,11 +177,11 @@
                     <field name="is_export_cegid_id"/> 
                 </xpath>
             </field>
-        </record>
+        </record> -->
 
 
         <!-- account.invoice_form -->
-        <record id="is_invoice_form" model="ir.ui.view">
+        <!-- <record id="is_invoice_form" model="ir.ui.view">
             <field name="name">is_invoice_form</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_form" />
@@ -129,7 +194,6 @@
                 <xpath expr="//button[@name='invoice_pay_customer']" position="replace" />
                 <field name="date_invoice" position="after">
                     <field name="is_type_facture" />
-                    <!--<field name="is_origine_id" domain="[('state','=', 'open'),('type','=', 'out_invoice')]" />-->
                     <field name="is_mode_envoi_facture" />
                     <field name="is_date_envoi_mail" attrs="{'invisible':[('is_mode_envoi_facture', '!=', 'mail'),('is_mode_envoi_facture', '!=', 'mail_client')]}" />
                 </field>
@@ -186,25 +250,25 @@
                     <button name="invoice_cancel" states="draft,proforma2,sale,open" string="Annuler cette facture" groups="is_plastigray.is_annulation_facture_group"/>
                 </xpath>
             </field>
-        </record>
+        </record> -->
 
 
 
 
         <!-- Supprimer le bouton 'Payer' sur la facture client -->
-        <record id="is_view_invoice_customer" model="ir.ui.view">
+        <!-- <record id="is_view_invoice_customer" model="ir.ui.view">
             <field name="name">is_view_invoice_customer</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account_voucher.view_invoice_customer"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='invoice_pay_customer']" position="replace" />
             </field>
-        </record>
+        </record> -->
 
 
 
         <!-- Factures à valider -->
-        <record id="is_factures_a_valider_action" model="ir.actions.act_window">
+        <!-- <record id="is_factures_a_valider_action" model="ir.actions.act_window">
             <field name="name">Factures à valider</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.invoice</field>
@@ -212,9 +276,9 @@
             <field name="limit">200</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record>
+        </record> -->
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <record id="is_factures_a_valider_action_tree_view" model="ir.actions.act_window.view">
+        <!-- <record id="is_factures_a_valider_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>
             <field name="view_mode">tree</field>
             <field name="act_window_id" ref="is_factures_a_valider_action"/>
@@ -224,11 +288,11 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="account.invoice_form"/>
             <field name="act_window_id" ref="is_factures_a_valider_action"/>
-        </record>
+        </record> -->
 
 
         <!-- Factures à imprimer -->
-        <record id="is_factures_a_imprimer_action" model="ir.actions.act_window">
+        <!-- <record id="is_factures_a_imprimer_action" model="ir.actions.act_window">
             <field name="name">Factures à imprimer = Factures à comptabiliser</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.invoice</field>
@@ -236,9 +300,9 @@
             <field name="limit">200</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record>
+        </record> -->
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <record id="is_factures_a_imprimer_action_tree_view" model="ir.actions.act_window.view">
+        <!-- <record id="is_factures_a_imprimer_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>
             <field name="view_mode">tree</field>
             <field name="act_window_id" ref="is_factures_a_imprimer_action"/>
@@ -248,11 +312,11 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="account.invoice_form"/>
             <field name="act_window_id" ref="is_factures_a_imprimer_action"/>
-        </record>
+        </record> -->
 
 
         <!-- Factures à envoyer par mail -->
-        <record id="is_factures_envoi_mail_action" model="ir.actions.act_window">
+        <!-- <record id="is_factures_envoi_mail_action" model="ir.actions.act_window">
             <field name="name">Factures à envoyer par mail</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.invoice</field>
@@ -265,9 +329,9 @@
             <field name="limit">200</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record>
+        </record> -->
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <record id="is_factures_envoi_mail_action_tree_view" model="ir.actions.act_window.view">
+        <!-- <record id="is_factures_envoi_mail_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>
             <field name="view_mode">tree</field>
             <field name="act_window_id" ref="is_factures_envoi_mail_action"/>
@@ -277,11 +341,11 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="account.invoice_form"/>
             <field name="act_window_id" ref="is_factures_envoi_mail_action"/>
-        </record>
+        </record> -->
 
 
         <!-- Factures diverses -->
-        <record id="is_factures_diverses_action" model="ir.actions.act_window">
+        <!-- <record id="is_factures_diverses_action" model="ir.actions.act_window">
             <field name="name">Factures diverses</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.invoice</field>
@@ -290,9 +354,9 @@
             <field name="limit">200</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record>
+        </record> -->
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <record id="is_factures_diverses_action_tree_view" model="ir.actions.act_window.view">
+        <!-- <record id="is_factures_diverses_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>
             <field name="view_mode">tree</field>
             <field name="act_window_id" ref="is_factures_diverses_action"/>
@@ -302,18 +366,15 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="account.invoice_form"/>
             <field name="act_window_id" ref="is_factures_diverses_action"/>
-        </record>
+        </record> -->
 
         <!-- Facture fournisseur -->
-        <record id="is_invoice_supplier_form" model="ir.ui.view">
+        <!-- <record id="is_invoice_supplier_form" model="ir.ui.view">
             <field name="name">is_invoice_supplier_form</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_supplier_form" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='account_id']" position="after" >
-                    <field name="is_export_cegid_id"/> 
-                    <field name="is_bon_a_payer"/> 
-                    <field name="is_masse_nette"/> 
                 </xpath>
                 <xpath expr="//sheet" position="attributes">
                     <attribute name="class">oe_form_sheet_width_wider</attribute>
@@ -323,10 +384,10 @@
                     <field name="is_document"/>
                 </xpath>
             </field>
-        </record>
+        </record> -->
 
         <!-- Supprimer le bouton 'Payer' sur la facture fournisseur -->
-        <record id="is_view_invoice_supplier" model="ir.ui.view">
+        <!-- <record id="is_view_invoice_supplier" model="ir.ui.view">
             <field name="name">is_view_invoice_supplier</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account_voucher.view_invoice_supplier"/>
@@ -347,6 +408,6 @@
                     <field name="is_move_id"/>
                 </field>
             </field>
-        </record>
+        </record> -->
     </data>
-</openerp>
+</odoo>

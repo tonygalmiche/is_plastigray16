@@ -35,6 +35,7 @@ class is_ligne_reception(models.Model):
     montant_reception    = fields.Float('Montant réception'         , digits=(14,2))
     montant_reste        = fields.Float('Montant reste à facturer'  , digits=(14,2))
     date_planned         = fields.Date('Date prévue')
+    date_transfert       = fields.Date('Date transfert')
     date_reception       = fields.Date('Date réception')
     date_mouvement       = fields.Datetime('Date mouvement')
     lot_fournisseur      = fields.Char('Lot fournisseur')
@@ -92,7 +93,8 @@ class is_ligne_reception(models.Model):
                         pol.date_planned,
                         sp.id                 as picking_id, 
                         sp.is_num_bl          as num_bl,
-                        sp.date_done          as date_reception,
+                        sp.date_done          as date_transfert,
+                        sp.is_date_reception  as date_reception,
                         sm.date               as date_mouvement,
                         -- po.id                 as order_id,  
                         pol.order_id          as order_id,  

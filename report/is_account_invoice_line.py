@@ -20,7 +20,7 @@ class is_account_invoice_line(models.Model):
     invoice_date            = fields.Date("Date facture")
     internal_number         = fields.Char('N°Facture')
     invoice_date_due        = fields.Date("Date d'échéance")
-    #origin                  = fields.Char('Origine/BL')
+    invoice_origin          = fields.Char('Origine/BL')
     supplier_invoice_number = fields.Char('Numéro de facture fournisseur')
     product_id              = fields.Many2one('product.product', 'Article')
 
@@ -66,9 +66,12 @@ class is_account_invoice_line(models.Model):
 
         ], u"Type", readonly=True, index=True)
     journal_id = fields.Many2one('account.journal', 'Journal')
+
+    # state = fields.Char("État", readonly=True, index=True)
     state      = fields.Selection([
-            ('open'  , u'Ouverte'),
-            ('cancel', u'Annulée'),
+            ('draft' , 'Brouillon'),
+            ('posted', 'Comptabilisé'),
+            ('cancel', 'Annulé'),
         ], u"État", readonly=True, index=True)
 
 
@@ -114,7 +117,7 @@ class is_account_invoice_line(models.Model):
             'view_id'  : False,
             'views'    : [(view_id, 'tree'),(False, 'form'),(False, 'pivot'),(False, 'graph')],
             'res_model': 'is.account.invoice.line',
-            'domain'   : [('move_type','in', ['out_refund','out_invoice']),('state','=','open')],
+            'domain'   : [('move_type','in', ['out_refund','out_invoice']),('state','=','posted')],
             'type': 'ir.actions.act_window',
         }
 
@@ -149,7 +152,7 @@ class is_account_invoice_line(models.Model):
                         ai.invoice_date,
                         ai.name internal_number,
                         ai.invoice_date_due,
-                        -- ai.origin,
+                        ai.invoice_origin,
                         ai.ref supplier_invoice_number,
                         ai.state,
                         ai.move_type,

@@ -69,21 +69,27 @@ class stock_picking(models.Model):
     is_date_traitement_edi = fields.Datetime("Date traitement EDI")
 
     
-    def preparer_action(self):
+    # def preparer_action(self):
+    #     for obj in self:
+    #         print(self,self.purchase_id)
+    #         for move in obj.move_ids:
+    #             for line in move.move_line_ids:
+    #                 line.qty_done         = line.reserved_qty
+    #                 line.location_dest_id = line.picking_id.location_dest_id.id
+    #                 if not line.lot_id:
+    #                     name=datetime.date.today().strftime('%y%m%d')+obj.name
+    #                     vals={
+    #                         "name"      : name,
+    #                         "product_id": line.product_id.id,
+    #                     }
+    #                     lot = self.env["stock.lot"].create(vals)
+    #                     line.lot_id           = lot.id
+
+
+    def transfert_action(self):
         for obj in self:
-            print(self,self.purchase_id)
-            for move in obj.move_ids:
-                for line in move.move_line_ids:
-                    line.qty_done         = line.reserved_qty
-                    line.location_dest_id = line.picking_id.location_dest_id.id
-                    if not line.lot_id:
-                        name=datetime.date.today().strftime('%y%m%d')+obj.name
-                        vals={
-                            "name"      : name,
-                            "product_id": line.product_id.id,
-                        }
-                        lot = self.env["stock.lot"].create(vals)
-                        line.lot_id           = lot.id
+            print(obj)
+
 
 
     def pj_action(self):

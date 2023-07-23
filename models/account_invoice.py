@@ -533,7 +533,22 @@ class account_invoice_line(models.Model):
     is_section_analytique_id   = fields.Many2one('is.section.analytique', 'Section analytique')
     is_move_id                 = fields.Many2one('stock.move', 'Mouvement de stock', index=True)
     is_document                = fields.Char("N° du chantier")
+
+
     is_account_invoice_line_id = fields.Integer('Lien entre account_invoice_line et account_move_line pour la migration', index=True)
+    #is_account_invoice_line_id = fields.Many2one('account.invoice.line', 'Ligne de facture')
+
+
+    #TODO : Le champ is_account_invoice_line_id existait avant la migration pour recuperr la section analytique avec cette fonction
+    # @api.model
+    # def line_get_convert(self, line, part, date):
+    #     '''
+    #     Permet d'ajouter dans la table account_move_line le lien vers la ligne de facture,
+    #     pour récupérer en particulier la section analytique
+    #     '''
+    #     res=super(account_invoice, self).line_get_convert(line, part, date)
+    #     res['is_account_invoice_line_id']=line.get('invl_id', False)
+    #     return res
 
 
     @api.depends('move_id.state')

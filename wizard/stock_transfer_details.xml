@@ -1,7 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
     <data>
+        <!-- stock.transfer_details--> 
+        <record id="stock_transfer_details_form_view" model="ir.ui.view">
+            <field name="name">stock_transfer_details_form_view</field>
+            <field name="model">stock.transfer_details</field>
+            <field name="arch" type="xml">
+                <style>
+                    .modal-lg, .modal-xl {
+                        max-width: 1700px;
+                    }
+                </style>
+                <form>
+                    <group>
+                        <field name="picking_id"           readonly="1"/>
+                        <field name="is_purchase_order_id" readonly="1"/>
+                        <field name="is_num_bl"            required="1"/>
+                         <field name="is_date_reception"   required="1"/>
+                    </group>
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="transfert_id"          invisible="1"/>
+                            <field name="product_id"            readonly="1"/>
+                            <field name="name"                  readonly="1"/>
+                            <field name="quantity"/>
+                            <field name="product_uom_id"/>
+                            <field name="lot_id"                optional="hide"/>
+                            <field name="is_lot_fournisseur"/>
+                            <field name="is_produit_perissable" readonly="1"/>
+                            <field name="is_ctrl_rcp"           readonly="1"/>
+                            <field name="move_id"               invisible="1"/>
+                        </tree>
+                    </field>
+                    <footer>
+                        <button string="Valider" name="valider_action" type="object" class="oe_highlight"/>
+                        ou
+                        <button string="Annuler" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
 
+
+
+
+<!-- 
         <record id="is_view_stock_enter_transfer_details" model="ir.ui.view">
             <field name="name">is_view_stock_enter_transfer_details</field>
             <field name="model">stock.transfer_details</field>
@@ -11,9 +54,6 @@
                 <xpath expr="//field[@name='item_ids']/tree[@string='Inventory Details']/field[@name='product_id']" position="after">
                     <field name="name"/>
                 </xpath>
-
-<!-- gtk-dialog-warning.png -->
-
                 <field name="picking_source_location_id" position="before">
                     <group>
                         <field 
@@ -65,8 +105,8 @@
                     <field name="is_ctrl_rcp"        attrs="" />
                 </field>
             </field>
-        </record>
+        </record> -->
 
 
     </data>
-</openerp>
+</odoo>

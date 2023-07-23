@@ -137,18 +137,19 @@ class is_facturation_fournisseur(models.Model):
                         round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
                         sp.picking_type_id=1 and
                         pt.is_facturable='t' and
-                        sm.invoice_state='2binvoiced'
-                        and sp.is_date_reception<='%s'
-                        and sp.partner_id in(%s)
+                        --sm.invoice_state='2binvoiced' and
+                        sp.is_date_reception<='%s' and
+                        sp.partner_id in(%s)
                     order by sp.name, pol.id
                 """%(obj.date_fin, ",".join(partner_ids))
                 cr.execute(sql)
 
-                print(sql)
+                #print(sql)
 
 
                 result=cr.dictfetchall()
                 for row in result:
+                    print(row)
                     #** Recherche des taxes ****************************************
                     taxe_ids  = []
                     taxe_taux = 0
@@ -269,13 +270,14 @@ class is_facturation_fournisseur(models.Model):
                         is_document=line.move_id.purchase_line_id.order_id.is_document
 
                     v = {
-                        'product_id' : product_id,
-                        'name'       : description,
-                        'quantity'   : quantite,
-                        'price_unit' : line.prix,
-                        'tax_ids'    : [(6,0,invoice_line_tax_id)],
-                        'is_document': is_document,
-                        'is_move_id' : line.move_id.id,
+                        'product_id'      : product_id,
+                        'name'            : description,
+                        'quantity'        : quantite,
+                        'price_unit'      : line.prix,
+                        'tax_ids'         : [(6,0,invoice_line_tax_id)],
+                        'is_document'     : is_document,
+                        'is_move_id'      : line.move_id.id,
+                        'purchase_line_id': line.move_id.purchase_line_id.id,
                     }
                     lines.append([0,False,v]) 
 
@@ -303,34 +305,33 @@ class is_facturation_fournisseur(models.Model):
                 'invoice_line_ids': lines,
             })
             res=self.env['account.move'].create(vals)
+            print(res)
             # res.button_reset_taxes()
-            # #res.repartir_frais_de_port()
-            # view_id = self.env.ref('account.invoice_supplier_form').id
-            # obj.state='termine'
+            view_id = self.env.ref('account.view_move_form').id
+            obj.state='termine'
 
-            # #** Changement d'état des réceptions et des lignes *****************
-            # for line in obj.line_ids:
-            #     if line.selection:
-            #         if line.move_id:
-            #             line.move_id.invoice_state='invoiced'
-            #             test=True
-            #             for l in line.move_id.picking_id.move_lines:
-            #                 if l.invoice_state=='2binvoiced':
-            #                     test=False
-            #             if test:
-            #                 line.move_id.picking_id.invoice_state='invoiced'
-            # #*******************************************************************
+            #** Changement d'état des réceptions et des lignes *****************
+            for line in obj.line_ids:
+                if line.selection:
+                    if line.move_id:
+                        line.move_id.invoice_state='invoiced'
+                        #test=True
+                        #for l in line.move_id.picking_id.move_ids_without_package:
+                        #    if l.invoice_state=='2binvoiced':
+                        #        test=False
+                        #if test:
+                        #    line.move_id.picking_id.invoice_state='invoiced'
+            #*******************************************************************
 
-            # return {
-            #     'name': "Facture Fournisseur",
-            #     'view_mode': 'form',
-            #     'view_id': view_id,
-            #     'view_type': 'form',
-            #     'res_model': 'account.invoice',
-            #     'type': 'ir.actions.act_window',
-            #     'res_id': res.id,
-            #     'domain': '[]',
-            # }
+            return {
+                'name': "Facture Fournisseur",
+                'view_mode': 'form',
+                'view_id': view_id,
+                'res_model': 'account.move',
+                'type': 'ir.actions.act_window',
+                'res_id': res.id,
+                'domain': '[]',
+            }
 
 
 

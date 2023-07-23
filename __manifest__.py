@@ -36,7 +36,11 @@ Module Odoo 16 pour Plastigray
         "security/ot_security_view.xml",
         "security/is_demande_conges_security.xml",
 
-        "wizard/generate_previsions_view.xml",
+
+        "views/account_move_view.xml",
+
+
+
 
         "views/report_is_fiche_tampographie.xml",
         "views/report_instrument_mesure.xml",
@@ -165,11 +169,13 @@ Module Odoo 16 pour Plastigray
         "report/is_stock_move.xml",
         "report/is_users_groups.xml",
 
-
-
         "wizard/assistent_report_view.xml",
+        "wizard/generate_previsions_view.xml",
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
+        "wizard/stock_transfer_details.xml",
+
+
         #"wizard/is_gestion_des_absences_wiz_view.xml",
 
         "views/menu.xml",
@@ -210,7 +216,6 @@ Module Odoo 16 pour Plastigray
         # TODO is_plastigray
         # "security/ir.model.access.csv",
         # "assets.xml",
-        # "account_invoice_view.xml",
         # "sale_picking_view.xml",
         # "account_invoice_sequence.xml",
         # "log_view.xml",
@@ -221,7 +226,6 @@ Module Odoo 16 pour Plastigray
         # "wizard/is_stock_mise_rebut_view.xml",
         # "wizard/mrp_product_produce_view.xml",
         # "wizard/is_export_seriem_view.xml",
-        # "wizard/stock_transfer_details.xml",
         # "wizard/audit_log_wizard.xml",
         # "wizard/is_cas_emploi_wizard.xml",
         # "wizard/set_sheduler_cout_article.xml",

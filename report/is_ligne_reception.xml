@@ -10,6 +10,7 @@
                 <sheet>
                     <group>
                         <group>
+                            <field name="date_transfert"/>
                             <field name="date_reception"/>
                             <field name="date_planned"/>
                             <field name="num_bl"/>
@@ -57,6 +58,7 @@
         <field name="arch" type="xml">
             <tree create="false">
                 <field name="date_planned"/>
+                <field name="date_transfert"/>
                 <field name="picking_id"                    optional="show" widget="many2one_clickable"/>
                 <field name="order_id"                      optional="show" widget="many2one_clickable"/>
                 <field name="is_cfc_id"                     optional="hide" widget="many2one_clickable"/>
@@ -121,6 +123,7 @@
         <field name="arch" type="xml">
             <tree create="false">
                 <field name="date_reception"/>
+                <field name="date_transfert"  optional="hide"/>
                 <field name="is_piece_jointe" invisible="1"/>
                 <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
                 <field name="picking_id"        optional="show"  widget="many2one_clickable"/>
@@ -169,7 +172,7 @@
             ('state','=', 'done'),
             ('picking_state','!=', 'cancel'),
             ('is_facturable','=',True),
-            ('invoice_state','!=', 'cancel'),
+            ('invoice_state','not in', ['cancel','invoiced']),
         ]</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>

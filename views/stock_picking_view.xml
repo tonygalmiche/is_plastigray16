@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
+        <!-- stock.transfer_details -->
+        <record id="stock_transfer_details_action" model="ir.actions.act_window">
+            <field name="name">Transfert</field>
+            <field name="res_model">stock.transfer_details</field>
+            <field name="view_mode">form</field>
+            <!-- <field name="view_id" ref="is_calcul_dispo_ressource_wizard_form_view"/> -->
+            <field name="target">new</field>
+        </record>
 
 
         <!-- stock.picking -->
@@ -10,8 +17,32 @@
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: 1800px;
+                        }
+                    </style>
+                </xpath>
+                <xpath expr="//button[@name='action_assign']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
                 <xpath expr="//button[@name='button_validate'][1]" position="before">
-                    <button name="preparer_action" string="Préparer" type="object" attrs="{'invisible': [('state', '!=', 'assigned')]}"/>
+                    <button name="%(stock_transfer_details_action)d" string="Transfert" type="action" class="oe_highlight" attrs="{'invisible': [('state', 'in', ['done','cancel'])]}"/>
+                    <!-- <button name="preparer_action" string="Préparer" type="object" attrs="{'invisible': [('state', '!=', 'assigned')]}"/> -->
+                </xpath>
+                <xpath expr="//button[@name='button_validate'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='button_validate'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+
+                <xpath expr="//button[@name='action_toggle_is_locked'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
                 </xpath>
                 <xpath expr="//button[@name='action_open_label_type']" position="attributes">
                     <attribute name="invisible">1</attribute> 
@@ -44,22 +75,21 @@
                 <xpath expr="//page[2]/button[@name='action_put_in_pack']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
-
                 <field name="origin" position="attributes">
                     <attribute name="invisible">1</attribute>>
                 </field>
-
+                <field name="date_deadline" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </field>
                 <field name="purchase_id" position="attributes">
                     <attribute name="invisible">1</attribute>>
                 </field>
-
-
                 <field name="origin" position="after">
-                    <field name="purchase_id"   attrs="{'invisible': [('purchase_id', '=', False)]}" readonly="1" />
-                    <!-- <field name="is_sale_order_id"   attrs="{'invisible': [('is_sale_order_id', '=', False)]}" readonly="1" /> -->
+                    <field name="purchase_id"      attrs="{'invisible': [('purchase_id', '=', False)]}"      readonly="1"/>
+                    <field name="is_sale_order_id" attrs="{'invisible': [('is_sale_order_id', '=', False)]}" readonly="1"/>
                     <field 
                         name="is_date_expedition"
-                        attrs="{'invisible': [('purchase_id', '=', False)]}"
+                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
                         on_change="onchange_date_expedition(
                             is_date_expedition,
                             partner_id, 
@@ -68,7 +98,7 @@
                     /> 
                     <field
                         name="is_date_livraison"
-                        attrs="{'invisible': [('purchase_id', '=', False)]}"
+                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
                     /> 
                     <field name="is_date_livraison_vsb" invisible="1"/>
                     <field 
@@ -79,7 +109,7 @@
                     <field 
                         name="is_transporteur_id" 
                         domain="[('supplier','=',True),('is_company','=',True)]" 
-                        attrs="{'invisible': [('purchase_id', '=', False)]}"
+                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
                     /> 
                     <!-- <field name="is_purchase_order_id"  attrs="{'invisible': [('purchase_id', '=', False)]}" readonly="1"/>  -->
                     <field name="is_num_bl"             attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
@@ -87,22 +117,38 @@
                 </field>
 
 
+                <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+
+
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>>
+                </xpath>
+
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="after">
+                    <field name="invoice_state" optional="hide"/> 
+                </xpath>
+
+                <!-- <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath> -->
+
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="after">
+                    <!-- <field name="is_lots"                       optional="show"/> -->
+                    <field name="is_point_dechargement"         optional="show"/>
+                    <field name="is_dosmat_ctrl_qual"           optional="show"/>
+                    <field name="is_dosmat_conditions_stockage" optional="show"/>
+                </xpath>
+
+
+
 
              </field>
         </record>
-
-        <!-- <header>
-            <widget name="signature" string="Sign" highlight="1" attrs="{'invisible': ['|', '|', ('id', '=', False), ('picking_type_code', '!=', 'outgoing'), ('state', '!=', 'done')]}" full_name="partner_id" groups="stock.group_stock_sign_delivery"/>
-            <widget name="signature" string="Sign" attrs="{'invisible': ['|', '|', ('id', '=', False), ('picking_type_code', '!=', 'outgoing'), ('state', '=', 'done')]}" full_name="partner_id" groups="stock.group_stock_sign_delivery"/>
-            <button name="do_print_picking" string="Print" groups="stock.group_stock_user" type="object" attrs="{'invisible': [('state', '!=', 'assigned')]}" data-hotkey="o"/>
-            <button name="308" string="Print" attrs="{'invisible': [('state', '!=', 'done')]}" type="action" groups="base.group_user" data-hotkey="o"/>
-            <button name="325" string="Return" attrs="{'invisible': [('state', '!=', 'done')]}" type="action" groups="base.group_user" data-hotkey="k"/>
-            <button name="do_unreserve" string="Unreserve" groups="base.group_user" type="object" attrs="{'invisible': ['|', '|', '|', ('picking_type_code', '=', 'incoming'), ('immediate_transfer', '=', True), '&amp;', ('state', '!=', 'assigned'), ('move_type', '!=', 'one'), '&amp;', ('state', 'not in', ('assigned', 'confirmed')), ('move_type', '=', 'one')]}" data-hotkey="w"/>
-            <button name="button_scrap" type="object" string="Scrap" attrs="{'invisible': ['|', '&amp;', ('picking_type_code', '=', 'incoming'), ('state', '!=', 'done'), '&amp;', ('picking_type_code', '=', 'outgoing'), ('state', '=', 'done')]}" data-hotkey="y"/>
-            <button name="action_toggle_is_locked" attrs="{'invisible': ['|', ('state', 'in', ('draft','cancel')), ('is_locked', '=', False)]}" string="Unlock" groups="stock.group_stock_manager" type="object" help="If the picking is unlocked you can edit initial demand (for a draft picking) or done quantities (for a done picking)." data-hotkey="l"/>
-            <button name="action_toggle_is_locked" attrs="{'invisible': [('is_locked', '=', True)]}" string="Lock" groups="stock.group_stock_manager" type="object" data-hotkey="l"/>
-        </header> -->
-
 
 
         <!-- <record id="view_picking_location_inherit_form" model="ir.ui.view">
