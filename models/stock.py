@@ -248,6 +248,10 @@ class stock_picking(models.Model):
             # Jours de congé de la société
             leave_dates = res_partner.get_leave_dates(partner,avec_jours_feries=True)
             # num de jour dans la semaine de la date de livraison
+
+            print(date_livraison, type(date_livraison))
+
+
             num_day = time.strftime('%w', time.strptime(date_livraison, '%Y-%m-%d'))
             if int(num_day) in jours_fermes or date_livraison in leave_dates:
                 return False

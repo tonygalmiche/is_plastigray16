@@ -36,12 +36,7 @@ Module Odoo 16 pour Plastigray
         "security/ot_security_view.xml",
         "security/is_demande_conges_security.xml",
 
-
         "views/account_move_view.xml",
-
-
-
-
         "views/report_is_fiche_tampographie.xml",
         "views/report_instrument_mesure.xml",
         "views/report_gabarit_controle.xml",
@@ -174,7 +169,6 @@ Module Odoo 16 pour Plastigray
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
         "wizard/stock_transfer_details.xml",
-
 
         #"wizard/is_gestion_des_absences_wiz_view.xml",
 
