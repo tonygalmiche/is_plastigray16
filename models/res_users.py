@@ -67,11 +67,11 @@ class res_users(models.Model):
         return user_id
 
 
-    # def get_site_ids(self):
-    #     ids=[]
-    #     for site in self.is_site_ids:
-    #         ids.append(site.id)
-    #     return ids
+    def get_site_ids(self):
+        ids=[]
+        for site in self.is_site_ids:
+            ids.append(site.id)
+        return ids
 
 
 class res_groups(models.Model):
