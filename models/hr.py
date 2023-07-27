@@ -69,6 +69,8 @@ class hr_employee(models.Model):
 
 
 
+
+
     # def name_get(self, cr, uid, ids, context=None):
     #     res = []
     #     for obj in self.browse(cr, uid, ids, context=context):

@@ -67,7 +67,7 @@
             <field name="domain">[('type','=','sale')]</field>
         </record>
         <record model="ir.actions.act_window" id="is_pricelist_achat_action">
-            <field name="name">Lite de prix d'achat</field>
+            <field name="name">Liste de prix d'achat</field>
             <field name="res_model">product.pricelist</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('type','=','purchase')]</field>

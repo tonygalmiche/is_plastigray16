@@ -117,7 +117,7 @@
             </field>
         </record>
         <record id="is_res_partner_bank_action" model="ir.actions.act_window">
-            <field name="name">Comptes banquaires</field>
+            <field name="name">Comptes bancaire</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.partner.bank</field>
             <field name="view_mode">tree,form</field>

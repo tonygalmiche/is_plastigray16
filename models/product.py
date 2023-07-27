@@ -225,8 +225,6 @@ class is_code_cas(models.Model):
     ], "Substance réglementée", required=True)
 
 
- 
-
     # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
     #     if not args:
     #         args = []
@@ -238,6 +236,15 @@ class is_code_cas(models.Model):
     #     return result
 
 
+    def _name_search(self, name='', args=None, operator='ilike', context=None, limit=100):
+        if not args:
+            args = []
+        if name:
+            ids = list(self._search(['|','|',('name','ilike', name),('code_einecs','ilike', name),('code_cas','ilike', name)], limit=limit))
+        else:
+            ids = list(self._search(args, limit=limit))
+        return ids
+
 
     def name_get(self):
         res = []
@@ -245,13 +252,6 @@ class is_code_cas(models.Model):
             name=obj.code_cas or obj.name or obj.code_einecs
             res.append((obj.id,name))
         return res
-
-
-
-
-
-
-
 
 
 class is_product_code_cas(models.Model):
