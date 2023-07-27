@@ -1868,24 +1868,26 @@
     <menuitem id="is_rgpd_service_menu"            sequence="10" name="Services"             parent="is_rgpd_table_menu" action="is_rgpd_service_action"/>
     <menuitem id="is_rgpd_lieu_stockage_menu"      sequence="20" name="Lieu de stockage"     parent="is_rgpd_table_menu" action="is_rgpd_lieu_stockage_action"/>
 
-    <!-- <record id="is_article_menu" model="ir.ui.menu" >
+    <record id="is_article_menu" model="ir.ui.menu" >
         <field name="name">Articles de tous les sites (intégré)</field>
         <field name="sequence">40</field>
-        <field name="parent_id" eval="ref('is_plastigray.menu_is_articles')"/>
-        <field name="action"    ref="is_plastigray.is_article_action"/>
+        <field name="parent_id" eval="ref('menu_is_articles')"/>
+        <field name="action"    ref="is_article_action"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_pg_2019.is_base_principale_grp'),
+            ref('is_base_principale_grp'),
         ])]"/>
     </record>
+
+    
     <record id="is_article_actualiser_menu" model="ir.ui.menu" >
         <field name="name">Actualiser les articles</field>
         <field name="sequence">50</field>
-        <field name="parent_id" eval="ref('is_plastigray.menu_is_articles')"/>
-        <field name="action"    ref="is_plastigray.is_article_actualiser_action"/>
+        <field name="parent_id" eval="ref('menu_is_articles')"/>
+        <field name="action"    ref="is_article_actualiser_action"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_pg_2019.is_base_principale_grp'),
+            ref('is_base_principale_grp'),
         ])]"/>
-    </record> -->
+    </record>
 
     <!-- Dossiers articles -->
     <record id="is_dossier_article_main_menu" model="ir.ui.menu" >

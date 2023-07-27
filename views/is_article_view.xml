@@ -2,18 +2,16 @@
 
 <odoo>
     <data>
-
-
         <!-- Wizard pour actualiser la liste des articles -->
-        <!-- <record id="is_article_actualiser_view" model="ir.ui.view">
+        <record id="is_article_actualiser_view" model="ir.ui.view">
             <field name="name">is_article_actualiser_view</field>
             <field name="model">is.article.actualiser</field>
             <field name="arch" type="xml">
                 <form string="Actualiser la liste des articles">
                     <footer>
-                        <button string='Actualiser la liste des articles' name="actualiser_liste_articles" type="object" class="oe_highlight"/>
-                        or
-                        <button string="Annuler" class="oe_link" special="cancel"/>
+                        <button string='Actualiser la liste des articles' name="actualiser_liste_articles" type="object" default_focus="1" class="btn-primary" data-hotkey="q"/>
+                        ou
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
                     </footer>
                </form>
             </field>
@@ -21,12 +19,11 @@
         <record id="is_article_actualiser_action" model="ir.actions.act_window">
             <field name="name">Actualiser la liste des articles</field>
             <field name="res_model">is.article.actualiser</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">form</field>
            <field name="view_id" ref="is_article_actualiser_view"/>
            <field name="target">new</field>
-        </record> -->
+        </record>
         
-
         <!-- is.article -->
         <record model="ir.ui.view" id="is_article_form_view">
             <field name="name">is_article_form_view</field>
@@ -64,21 +61,21 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="designation"/>
-                    <field name="moule"/>
-                    <field name="famille"/>
-                    <field name="sous_famille"/>
-                    <field name="categorie"/>
-                    <field name="gestionnaire"/>
-                    <field name="ref_fournisseur"/>
-                    <field name="ref_plan"/>
-                    <field name="couleur"/>
-                    <field name="fournisseur"/>
-                    <field name="unite"/>
-                    <field name="societe"/>
-                    <field name="cout_standard"/>
-                    <field name="cout_actualise"/>
-                    <field name="prevision_annee_n"/>
+                    <field name="designation"       optional="show"/>
+                    <field name="moule"             optional="show"/>
+                    <field name="famille"           optional="show"/>
+                    <field name="sous_famille"      optional="show"/>
+                    <field name="categorie"         optional="show"/>
+                    <field name="gestionnaire"      optional="show"/>
+                    <field name="ref_fournisseur"   optional="show"/>
+                    <field name="ref_plan"          optional="show"/>
+                    <field name="couleur"           optional="show"/>
+                    <field name="fournisseur"       optional="show"/>
+                    <field name="unite"             optional="show"/>
+                    <field name="societe"           optional="show"/>
+                    <field name="cout_standard"     optional="show"/>
+                    <field name="cout_actualise"    optional="show"/>
+                    <field name="prevision_annee_n" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -110,6 +107,15 @@
 
 
         <!-- Lancement automatisé du calcul -->
+        <record id="is_article_scheduler_action" model="ir.cron">
+            <field name="name">Actualiser la liste des articles de tous les sites</field>
+            <field name="model_id" ref="is_plastigray16.model_is_article_actualiser"/>
+            <field name="state">code</field>
+            <field name="code">model.run_actualiser_liste_articles()</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+
         <!-- <record forcecreate="True" id="is_article_scheduler_action" model="ir.cron">
             <field name="name">Actualiser la liste des articles de tous les sites</field>
             <field name="active" eval="True" />

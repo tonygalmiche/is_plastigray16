@@ -15,8 +15,8 @@ class is_article_actualiser(models.TransientModel):
     _description = u"Actualiser la liste des articles"
 
 
-    # def run_actualiser_liste_articles(self, cr, uid, use_new_cursor=False, company_id = False, context=None):
-    #     self.actualiser_liste_articles(cr, uid, context)
+    def run_actualiser_liste_articles(self):
+        self.actualiser_liste_articles()
 
 
     def actualiser_liste_articles(self):
@@ -26,7 +26,7 @@ class is_article_actualiser(models.TransientModel):
         try:
             cnx0 = psycopg2.connect("dbname='"+self._cr.dbname+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
         except Exception:
-            raise ValidationError('Postgresql non disponible !')
+            raise ValidationError('Postgresql 0 non disponible !')
         cur0 = cnx0.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         SQL="delete from is_article"
         cur0.execute(SQL)
@@ -34,8 +34,9 @@ class is_article_actualiser(models.TransientModel):
         for base in bases:
             cnx=False
             if base.database:
+                x="dbname='"+base.database  +"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'"
                 try:
-                    cnx  = psycopg2.connect("dbname='"+base.database  +"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
+                    cnx  = psycopg2.connect(x)
                 except Exception:
                     raise ValidationError('Postgresql non disponible !')
             if cnx:
@@ -43,7 +44,7 @@ class is_article_actualiser(models.TransientModel):
                 SQL= """
                     SELECT 
                         pt.is_code            as name,
-                        pt.name               as designation,
+                        pt.name->>'fr_FR'     as designation,
                         pt.is_mold_dossierf   as moule,
                         ipf.name              as famille,
                         ipsf.name             as sous_famille,
@@ -53,7 +54,7 @@ class is_article_actualiser(models.TransientModel):
                         pt.is_ref_plan        as ref_plan,
                         pt.is_couleur         as couleur,
                         rp.name               as fournisseur,
-                        uom.name              as unite,
+                        uom.name->>'fr_FR'    as unite,
                         (select cout_std_total from is_cout cout where cout.name=pp.id limit 1) as cout_standard,
                         (select cout_act_total from is_cout cout where cout.name=pp.id limit 1) as cout_actualise,
                         (select sum(quantite) from is_pic_3ans pic where pic.product_id=pp.id and annee='"""+str(annee)+"""') as prevision_annee_n
@@ -62,7 +63,7 @@ class is_article_actualiser(models.TransientModel):
                                              left outer join is_category               ic on pt.is_category_id=ic.id
                                              left outer join is_gestionnaire           ig on pt.is_gestionnaire_id=ig.id
                                              left outer join res_partner               rp on pt.is_fournisseur_id=rp.id
-                                             left outer join product_uom              uom on pt.uom_id=uom.id
+                                             left outer join uom_uom                  uom on pt.uom_id=uom.id
                                              left outer join product_product           pp on pp.product_tmpl_id=pt.id
                     WHERE 
                         pt.id>0

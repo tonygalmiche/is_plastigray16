@@ -409,7 +409,7 @@ access_is_theia_alerte_type_manager,access_is_theia_alerte_type_manager,model_is
 
 
 access_is_theia_alerte,access_is_theia_alerte,model_is_theia_alerte,base.group_user,1,0,0,0
-access_is_article_actualiser,access_is_article_actualiser,model_is_article_actualiser,base.group_user,1,0,0,0
+access_is_article_actualiser,access_is_article_actualiser,model_is_article_actualiser,base.group_user,1,1,1,1
 access_is_mrp_routing,access_is_mrp_routing,model_mrp_routing,base.group_user,1,0,0,0
 access_is_mrp_production_wizard_line,access_is_mrp_production_wizard_line,model_is_mrp_production_wizard_line,base.group_user,1,1,1,1
 access_is_mrp_production_wizard,access_is_mrp_production_wizard,model_is_mrp_production_wizard,base.group_user,1,1,1,1
