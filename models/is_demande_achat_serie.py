@@ -55,7 +55,7 @@ class is_demande_achat_serie(models.Model):
     date_creation        = fields.Date("Date de création", required=True, default=lambda *a: fields.datetime.now())
     acheteur_id          = fields.Many2one('res.users', 'Acheteur', required=True)
     fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', domain=[('is_company','=',True)], required=True)
-    #pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.property_product_pricelist_purchase', readonly=True)
+    pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.pricelist_purchase_id', readonly=True)
     is_type_cde_fournisseur = fields.Selection(string="Type commande fourniseur", related='fournisseur_id.is_type_cde_fournisseur', readonly=True)
     delai_livraison      = fields.Date("Délai de livraison", required=True)
     lieu_livraison_id    = fields.Many2one('res.partner', 'Lieu de livraison', domain=[('is_company','=',True)], required=True, default=lambda self: self._lieu_livraison_id())

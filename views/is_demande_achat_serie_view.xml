@@ -61,7 +61,7 @@
                                     name="fournisseur_id"
                                     on_change="fournisseur_id_on_change(fournisseur_id)" 
                                 />
-                                <!-- <field name="pricelist_id"/> -->
+                                <field name="pricelist_id"/>
                                 <field name="is_type_cde_fournisseur"/>
                                 <field name="delai_livraison"/>
                                 <field name="lieu_livraison_id"/>

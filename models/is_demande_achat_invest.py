@@ -63,7 +63,7 @@ class is_demande_achat_invest(models.Model):
     date_creation        = fields.Date("Date de création", required=True, default=lambda *a: fields.datetime.now())
     acheteur_id          = fields.Many2one('res.users', 'Acheteur', required=True)
     fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', domain=[('is_company','=',True),('is_segment_achat.name','=',u"Fournisseurs d'Investissements")])
-    # pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.property_product_pricelist_purchase', readonly=True)
+    pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.pricelist_purchase_id', readonly=True)
     fournisseur_autre    = fields.Char("Fournisseur autre")
     delai_livraison      = fields.Date("Délai de livraison", required=True)
     lieu_livraison_id    = fields.Many2one('res.partner', 'Lieu de livraison', domain=[('is_company','=',True)], required=True, default=lambda self: self._lieu_livraison_id())
@@ -296,7 +296,7 @@ class is_demande_achat_invest_line(models.Model):
 
     da_id                  = fields.Many2one('is.demande.achat.invest', "Demande d'achat", required=True, ondelete='cascade', readonly=True)
     sequence               = fields.Integer('Ordre')
-    product_id             = fields.Many2one('product.product', 'Article', domain=[('is_category_id.name','=','72')])
+    product_id             = fields.Many2one('product.product', 'Article', domain=[('is_category_id.name','in',['72','73'])])
     designation1           = fields.Char("Désignation 1")
     designation2           = fields.Char("Désignation 2")
     uom_id                 = fields.Many2one('uom.uom', "Unité d'achat")
