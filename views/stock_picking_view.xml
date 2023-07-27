@@ -27,16 +27,55 @@
                 <xpath expr="//button[@name='action_assign']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
-                <xpath expr="//button[@name='button_validate'][1]" position="before">
-                    <button name="%(stock_transfer_details_action)d" string="Transfert" type="action" class="oe_highlight" attrs="{'invisible': [('state', 'in', ['done','cancel'])]}"/>
-                    <!-- <button name="preparer_action" string="Préparer" type="object" attrs="{'invisible': [('state', '!=', 'assigned')]}"/> -->
-                </xpath>
+
                 <xpath expr="//button[@name='button_validate'][1]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
                 <xpath expr="//button[@name='button_validate'][2]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
+                <xpath expr="//button[@name='button_validate'][1]" position="before">
+                    <button 
+                        name="action_assign" 
+                        attrs="{'invisible': ['|',
+                            ('show_check_availability', '=', False),
+                            ('picking_type_id','!=',2),
+                        ]}" 
+                        string="Vérifier la disponibilité" 
+                        type="object" 
+                        class="oe_highlight"
+                        groups="base.group_user"
+                        data-hotkey="q"
+                    />
+                    <button 
+                        string="Valider" 
+                        type="object" 
+                        name="button_validate" 
+                        class="oe_highlight" 
+                        attrs="{'invisible': ['|',
+                            ('state', '!=', 'assigned'),
+                            ('picking_type_id','!=',2),
+                        ]}"
+                    />
+                    <button 
+                        string="Transfert" 
+                        type="action" 
+                        name="%(stock_transfer_details_action)d" 
+                        class="oe_highlight" 
+                        attrs="{'invisible': ['|',
+                            ('state', '!=', 'assigned'),
+                            ('picking_type_id','!=',1),
+                        ]}"
+                    />
+                </xpath>
+
+                
+                <!-- <button name="button_validate" attrs="{'invisible': ['|', ('state', 'in', ('waiting','confirmed')), ('show_validate', '=', False)]}" string="Validate" type="object" class="oe_highlight" groups="stock.group_stock_user" data-hotkey="v"/>
+                <button name="button_validate" attrs="{'invisible': ['|', ('state', 'not in', ('waiting', 'confirmed')), ('show_validate', '=', False)]}" string="Validate" type="object" groups="stock.group_stock_user" class="o_btn_validate" data-hotkey="v"/> -->
+       
+                               
+
+
                 <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>

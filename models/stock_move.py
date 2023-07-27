@@ -45,6 +45,10 @@ class stock_move(models.Model):
                     ('is_type_commande'      , '=', 'ouverte'),
                     ('state'                 , '=', 'draft'),
                 ]
+
+                print(filtre)
+
+
                 orders = self.env['sale.order'].search(filtre)
                 for order in orders:
                     x = order.is_point_dechargement

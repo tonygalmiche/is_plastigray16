@@ -29,7 +29,7 @@ class sale_order(models.Model):
         ('cadence' , 'Cadencé'),
         ('ls'      , 'Liste à servir'),
         ('proforma', 'PROFORMA'),
-    ], "Type de commande", default="standard")
+    ], string="Type de commande", default="standard")
     is_article_commande_id = fields.Many2one('product.product', 'Article de la commande', help="Article pour les commandes ouvertes")
     is_ref_client          = fields.Char("Référence client", store=True, compute='_ref_client')
     is_source_location_id  = fields.Many2one('stock.location', 'Source Location', default=_get_default_location) 
@@ -240,13 +240,13 @@ class sale_order(models.Model):
                 order.is_ref_client = order.is_article_commande_id.is_ref_client
 
 
-    def onchange_order_line(self, cr, uid, ids, type_commande, order_line, context=None):
-        value = {}
-        if len(order_line)>1:
-            value.update({'is_type_commande_ro': True})
-        else:
-            value.update({'is_type_commande_ro': False})
-        return {'value': value}
+    # def onchange_order_line(self, cr, uid, ids, type_commande, order_line, context=None):
+    #     value = {}
+    #     if len(order_line)>1:
+    #         value.update({'is_type_commande_ro': True})
+    #     else:
+    #         value.update({'is_type_commande_ro': False})
+    #     return {'value': value}
 
 
     def action_acceder_client(self):
@@ -367,7 +367,7 @@ class sale_order_line(models.Model):
     is_justification      = fields.Char("Justif.", help="Ce champ est obligatoire si l'article n'est pas renseigné ou le prix à 0")
     is_date_livraison     = fields.Date("Date de liv.",index=True)
     is_date_expedition    = fields.Date("Date d'expé.", store=True, compute='_date_expedition',index=True)
-    is_type_commande      = fields.Selection([('ferme', 'Ferme'),('previsionnel', 'Prév.')], "Type",index=True)
+    is_type_commande      = fields.Selection([('ferme', 'Ferme'),('previsionnel', 'Prév.')], string="Type",index=True)
     is_client_order_ref   = fields.Char("Commande client")
     is_ref_client         = fields.Char('Réf. client', related='product_id.is_ref_client', readonly=True)
     is_date_confirmation  = fields.Date("Date de confirmation")

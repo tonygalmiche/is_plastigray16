@@ -8,18 +8,18 @@ import psycopg2
 import sys
 
 
-def _acceder_commande(self,id):
-    view_id = self.env.ref('sale.view_order_form').id
-    return {
-        'name': "Commande",
-        'view_mode': 'form',
-        'view_id': view_id,
-        'view_type': 'form',
-        'res_model': 'sale.order',
-        'type': 'ir.actions.act_window',
-        'res_id': id,
-        'domain': '[]',
-    }
+# def _acceder_commande(self,id):
+#     view_id = self.env.ref('sale.view_order_form').id
+#     return {
+#         'name': "Commande",
+#         'view_mode': 'form',
+#         'view_id': view_id,
+#         'view_type': 'form',
+#         'res_model': 'sale.order',
+#         'type': 'ir.actions.act_window',
+#         'res_id': id,
+#         'domain': '[]',
+#     }
 
 
 class is_liste_servir_client(models.Model):
@@ -426,8 +426,8 @@ class is_liste_servir(models.Model):
                     'domain': "[('id','in',[" + ','.join(map(str, list(ids))) + "])]",
                     'name': 'Commandes',
                     'view_mode': 'tree,form',
-                    'view_type': 'form',
-                    'context': {'tree_view_ref': 'sale.view_order_tree'},
+                    #'view_type': 'form',
+                    #'context': {'tree_view_ref': 'sale.view_order_tree'},
                     'res_model': 'sale.order',
                     'type': 'ir.actions.act_window',
                 }
@@ -486,9 +486,6 @@ class is_liste_servir(models.Model):
                 'is_info_client'       : obj.info_client,
             }
             vals.update(values)
-
-        print(vals)
-
         if vals:
             new_id = order_obj.create(vals)
             print("new_di =",new_id)
@@ -805,13 +802,28 @@ class is_liste_servir_line(models.Model):
             }
 
 
-    def action_acceder_commande(self):
-        view_id = self.env.ref('sale.view_order_tree').id
-        for obj in self:
-            ids=[]
-            for id in obj.order_ids:
-                ids.append(id)
-            return _acceder_commande(self,ids)
+    # def action_acceder_commande(self):
+    #     view_id = self.env.ref('sale.view_order_tree').id
+    #     for obj in self:
+    #         ids=[]
+    #         for id in obj.order_ids:
+    #             ids.append(id)
+
+
+    #         view_id = self.env.ref('sale.view_order_form').id
+    #         return {
+    #             'name': "Commande",
+    #             'view_mode': 'form',
+    #             'view_id': view_id,
+    #             'view_type': 'form',
+    #             'res_model': 'sale.order',
+    #             'type': 'ir.actions.act_window',
+    #             'res_id': id,
+    #             'domain': '[]',
+    #         }
+
+
+
 
 
     def action_acceder_article(self):
