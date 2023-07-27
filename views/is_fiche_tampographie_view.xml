@@ -167,7 +167,7 @@
                             </field>
                             <separator string="Reglage" colspan="4" />
                             <field name="reglage_ids" colspan="4" nolabel="1">
-                                <tree editable="bottom">
+                                <tree editable="bottom" limit="200">
                                     <field name="name" />
                                     <field name="type_reglage_id" />
                                     <field name="reglage" />

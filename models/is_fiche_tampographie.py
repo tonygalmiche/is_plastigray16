@@ -251,6 +251,47 @@ class is_fiche_tampographie(models.Model):
     #     return res
 
 
+    def default_reglage_ids(self):
+        #res = super(is_fiche_tampographie, self).default_get(default_fields)
+        reglage_obj = self.env['is.fiche.tampographie.reglage']
+        reglage_type_obj = self.env['is.fiche.tampographie.type.reglage']
+        ids = []
+        reglage_type_ids = reglage_type_obj.search([('active', '=', True)])
+        for num in _NUM_ENCRIER:
+            for rt in reglage_type_ids:
+                vals={
+                    'name':num[0], 
+                    'type_reglage_id':rt.id
+                }
+                ids.append([0,False,vals]) 
+                #print(vals)
+                #sr = reglage_obj.create(vals)
+                #ids.append(sr.id)
+        #res['reglage_ids'] = ids
+
+
+        return ids
+
+        #return [[6, False, ids]]
+
+
+        #  result = cr.fetchall()
+        #     for row in result:
+        #         vals = {
+        #             'product_id': row[0],
+        #             'quantite'  : row[1],
+        #         }
+        #         #lines.append(vals)
+        #         lines.append([0,False,vals]) 
+
+
+        # #self.write({'line_ids': lines})
+        # self.line_ids =  [[6, False, []]]
+        # self.line_ids = lines
+
+
+
+
     name                  = fields.Char(u'Désignation', required=True)
     article_injection_id  = fields.Many2one('product.product', u'Référence pièce sortie injection', required=True)
     is_mold_dossierf      = fields.Char(u'Moule pièce sortie injection', related='article_injection_id.is_mold_dossierf', readonly=True)
@@ -258,7 +299,7 @@ class is_fiche_tampographie(models.Model):
     mold_tampo_id         = fields.Char(u'Moule pièce tampographiée', related='article_tampo_id.is_mold_dossierf', readonly=True)
     temps_cycle           = fields.Integer('Temps de cycle (s)')
     recette_ids           = fields.One2many('is.fiche.tampographie.recette', 'tampographie_id', 'Recette', copy=True)
-    reglage_ids           = fields.One2many('is.fiche.tampographie.reglage', 'tampographie_id', 'Reglage', copy=True)
+    reglage_ids           = fields.One2many('is.fiche.tampographie.reglage', 'tampographie_id', 'Reglage', copy=True,  default=lambda self: self.default_reglage_ids())
     nettoyage_materiel_id = fields.Many2one('product.product', u'Nettoyage du matériel')
     nettoyage_piece_id    = fields.Many2one('product.product', u'Nettoyage de la pièce')
     duree_vie_melange     = fields.Selection([
