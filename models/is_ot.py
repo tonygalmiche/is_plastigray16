@@ -3,8 +3,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 import datetime
-#from collections import defaultdict
-#from collections import OrderedDict
+from collections import defaultdict
+from collections import OrderedDict
 #from openerp.exceptions import except_orm, Warning, RedirectWarning
 #from openerp import SUPERUSER_ID
 #from lxml import etree

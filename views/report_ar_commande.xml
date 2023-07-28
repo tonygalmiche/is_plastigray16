@@ -1,279 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-<data>
-
-        <template id="report_ar_commande_style">
-            .header {
-                font-size:10pt;
-            }
-            .footer {
-                font-size:7pt;
-            }
-            .page {
-                font-size:8pt;
-            }
-            .titre {
-                font-size:11pt;
-                font-weight: bold;
-            }
-            .expediteur {
-                font-size:9pt;
-                text-align:center;
-            }
-            .client {
-                text-align:left;
-                border: 1px solid black;
-                padding:2mm;
-            }
-            .nowrap{
-                white-space: nowrap;
-            }
-        </template>
-
-
-        <template id="report_ar_commande_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_plastigray.report_ar_commande_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="report_ar_commande_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_plastigray.report_ar_commande_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-
-        <!-- Entête personnalisé Plastigray -->
-        <template id="report_ar_commande_external_layout_header">
-            <div class="header">
-                <div class="row">
-                    <div class="col-xs-5  text-center">
-                        <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                        <div class="expediteur">
-                            <b><span t-field="o.company_id.partner_id.name" /> <span t-field="o.company_id.partner_id.street" /></b><br />
-                            <span t-field="o.company_id.partner_id.zip" /> <span t-field="o.company_id.partner_id.city" /><br />
-                            S.A.S. au capital de 2 200 000 € <br />
-                            Siège social : ZAC de Gray Sud <br />
-                            CS 10133 - 70104 GRAY Cedex<br />
-                            Tél. : 03 84 64 77 00 - Fax : 03 84 65 51 09 <br />
-                            Siret B 377 846 381 00020 - Code NAF 2229 A <br />
-                            Registre du Commerce GRAY <br />
-                            N°Identification T.V.A. FR 65 377 846 381 <br />
-                            <span t-if="o.partner_id.is_cofor">
-                                <span t-if="o.partner_id.lang == 'fr_FR'">Fournisseur N°<span t-field="o.partner_id.is_cofor" /></span>
-                                <span t-if="o.partner_id.lang != 'fr_FR'">Supplier N°</span>
-                            </span>
+<odoo>
+    <data>
+        <template id="ar_commande_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header ar_commande_header">
+                        <div class="row">
+                            <div class="col-5  text-center">
+                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                <div class="ar_commande_expediteur">
+                                    <b><span t-field="o.company_id.partner_id.name" /> <span t-field="o.company_id.partner_id.street" /></b><br />
+                                    <span t-field="o.company_id.partner_id.zip" /> <span t-field="o.company_id.partner_id.city" /><br />
+                                    S.A.S. au capital de 2 200 000 € <br />
+                                    Siège social : ZAC de Gray Sud <br />
+                                    CS 10133 - 70104 GRAY Cedex<br />
+                                    Tél. : 03 84 64 77 00 - Fax : 03 84 65 51 09 <br />
+                                    Siret B 377 846 381 00020 - Code NAF 2229 A <br />
+                                    Registre du Commerce GRAY <br />
+                                    N°Identification T.V.A. FR 65 377 846 381 <br />
+                                    <span t-if="o.partner_id.is_cofor">
+                                        <span t-if="o.partner_id.lang == 'fr_FR'">Fournisseur N°<span t-field="o.partner_id.is_cofor" /></span>
+                                        <span t-if="o.partner_id.lang != 'fr_FR'">Supplier N°</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="ar_commande_titre">
+                                    <span>AR de Commande</span>
+                                    <span style="font-size:12pt;" t-field="o.client_order_ref"/>
+                                     du <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> à <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%H')"/>H<br />
+                                </div><br />
+                                <div class="ar_commande_client">
+                                    Adresse de livraison : <br />
+                                    <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)<br />
+                                    <span t-field="o.partner_id.street" /><br />
+                                    <t t-if="o.partner_id.street2">
+                                        <span t-field="o.partner_id.street2" /><br />
+                                    </t>
+                                    <span t-field="o.partner_id.zip" /> - 
+                                    <span t-field="o.partner_id.city" /><br />
+                                    <span t-field="o.partner_id.country_id.name" /><br />
+                                    <span t-if="o.partner_id.vat">
+                                        Numéro fiscal : <span t-field="o.partner_id.vat" /><br />
+                                    </span>
+                                    <br />
+                                    Adresse de facturation : <br />
+                                    <b><span t-field="o.partner_invoice_id.name"/></b> (<span t-field="o.partner_invoice_id.is_code"/>/<span t-field="o.partner_invoice_id.is_adr_code"/>)<br />
+                                    <span t-field="o.partner_invoice_id.street" /><br />
+                                    <t t-if="o.partner_invoice_id.street2">
+                                        <span t-field="o.partner_invoice_id.street2" /><br />
+                                    </t>
+                                    <span t-field="o.partner_invoice_id.zip" /> - 
+                                    <span t-field="o.partner_invoice_id.city" /><br />
+                                    <span t-field="o.partner_invoice_id.country_id.name" /><br />
+                                    <span t-if="o.partner_invoice_id.vat">
+                                        Numéro fiscal : <span t-field="o.partner_invoice_id.vat" />
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-xs-7">
-                        <div class="titre">
-                            <span>AR de Commande</span>
-                            <span style="font-size:12pt;" t-field="o.client_order_ref"/>
-                             du <t t-usertime="%d/%m/%Y"/> à <t t-usertime="%H"/>H<br />
-                        </div><br />
-                        <div class="client">
-                            Adresse de livraison : <br />
-                            <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)<br />
-                            <span t-field="o.partner_id.street" /><br />
-                            <t t-if="o.partner_id.street2">
-                                <span t-field="o.partner_id.street2" /><br />
-                            </t>
-                            <span t-field="o.partner_id.zip" /> - 
-                            <span t-field="o.partner_id.city" /><br />
-                            <span t-field="o.partner_id.country_id.name" /><br />
-                            <span t-if="o.partner_id.vat">
-                                Numéro fiscal : <span t-field="o.partner_id.vat" /><br />
-                            </span>
-                            <br />
-                            Adresse de facturation : <br />
-                            <b><span t-field="o.partner_invoice_id.name"/></b> (<span t-field="o.partner_invoice_id.is_code"/>/<span t-field="o.partner_invoice_id.is_adr_code"/>)<br />
-                            <span t-field="o.partner_invoice_id.street" /><br />
-                            <t t-if="o.partner_invoice_id.street2">
-                                <span t-field="o.partner_invoice_id.street2" /><br />
-                            </t>
-                            <span t-field="o.partner_invoice_id.zip" /> - 
-                            <span t-field="o.partner_invoice_id.city" /><br />
-                            <span t-field="o.partner_invoice_id.country_id.name" /><br />
-                            <span t-if="o.partner_invoice_id.vat">
-                                Numéro fiscal : <span t-field="o.partner_invoice_id.vat" />
-                            </span>
+                    <div class="page ar_commande_page">
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr >
+                                            <th class="text-left"   style="vertical-align:top">Code PG</th>
+                                            <th class="text-left"   style="vertical-align:top">Désignation</th>
+                                            <th class="text-left"   style="vertical-align:top">Réf Client</th>
+                                            <th class="text-left"   style="vertical-align:top">Indice<br />Plan</th>
+                                            <th class="text-left"   style="vertical-align:top">Commande<br />Client</th>
+                                            <th class="text-right"  style="vertical-align:top">Quantité<br />en US</th>
+                                            <th class="text-right"  style="vertical-align:top">Quantité<br />en UC</th>
+                                            <th class="text-right"  style="vertical-align:top">Prix unitaire confirmé</th>
+                                            <th class="text-left"   style="vertical-align:top">Conditionnement</th>
+                                            <th class="text-center" style="vertical-align:top">Date de livraison confirmée</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.order_line" t-as="l">
+                                            <t t-set="nb_uc" t-value="l.product_uom_qty/l.product_id.is_uc_qt"/>
+                                            <td class="text-left">   <span t-field="l.product_id.is_code"/></td>
+                                            <td class="text-left">   <span t-field="l.product_id.name"/></td>
+                                            <td class="text-left">   <span t-field="l.product_id.is_ref_client"/></td>
+                                            <td class="text-left">   <span t-field="l.product_id.is_ind_plan"/></td>
+                                            <td class="text-left">   <span t-field="l.is_client_order_ref"/></td>
+                                            <td class="text-right nowrap">  <span t-field="l.product_uom_qty"/></td>
+                                            <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(nb_uc).replace(","," ").replace(".",",")'/></td>
+                                            <td class="text-right">   <span t-field="l.price_unit"/></td>
+                                            <td class="text-left">   <span t-field="l.product_id.is_uc"/></td>
+                                            <td class="text-center"> <span t-field="l.is_date_livraison"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="col-4 pull-right">
+                                <table class="table table-condensed">
+                                <tr class="border-black">
+                                    <td><strong>Total HT</strong></td>
+                                    <td class="text-right">
+                                    <span t-field="o.amount_untaxed"/>
+                                    <!-- t-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}' -->
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Taxes</td>
+                                    <td class="text-right">
+                                    <span t-field="o.amount_tax"/>
+                                    <!-- t-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}' -->
+                                    </td>
+                                </tr>
+                                <tr class="border-black">
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-right">
+                                    <span t-field="o.amount_total"/>
+                                    <!-- t-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}' -->
+                                    </td>
+                                </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <p t-field="o.note" />
+                        <p t-if="o.payment_term_id.note">
+                            <strong>Condition de règlement :</strong>
+                            <span t-field="o.payment_term_id.note"/>
+                        </p>
+                        <p t-if="o.partner_id.is_type_reglement">
+                            <strong>Type règlement :</strong>
+                            <span t-field="o.partner_id.is_type_reglement"/>
+                        </p>
+                        <p t-if="o.is_incoterm or o.is_lieu">
+                            <span t-if="o.is_incoterm">
+                                <strong>Incoterm : </strong>
+                                <span t-field="o.is_incoterm"/>
+                                <span t-if="o.is_lieu">
+                                    <strong> - </strong>
+                                </span>
+                            </span>
+                            <span t-if="o.is_lieu">
+                                <strong>Lieu : </strong>
+                                <span t-field="o.is_lieu"/>
+                            </span>
+                        </p>
+                        <p t-if="o.is_ar_commentaire or o.is_message">
+                            <p>
+                                <strong>Commentaire : </strong>
+                            </p>
+                        </p>
+                        <p t-if="o.is_ar_commentaire">
+                            <span t-field="o.is_ar_commentaire"/>
+                        </p>
+                        <p t-if="o.is_message">
+                            <span t-field="o.is_message"/>
+                        </p>
+                        <div class="oe_structure"/>
                     </div>
-                </div>
-            </div>
-        </template>
-
-
-
-        <!-- Pied de page personnalisé Plastigray -->
-        <template id="report_ar_commande_external_layout_footer">
-            <div class="footer">
-                <div class="text-center" style="border-top: 1px solid black">
-                    <table>
-                        <tr>
-                            <td class="text-left" style="width:90%;text-align: justify;text-justify: inter-word;">
-                                <b>CONDITIONS D'EXPEDITION : </b> 
-                                Les marchandises, même expédiées franco, voyagent aux risques et périls du transporteur. Il appartient en cas d'avarie ou de manquant de faire des protestations motivées au dit transporteur par acte judiciaire ou par lettre recommandée avec accusé de réception dans les 3 jours qui suivent la réception de la marchandise, non compris les jours fériés.
-                                Sans préjudice, des dispositions à prendre vis à vis du transporteur, les réclamations sur le vice apparent ou sur la non conformité des produits livrés doivent être formulées par écrit dans les 8 jours sous peine d'irrecevabilité.<br />
-                                <b>CLAUSE D'ATTRIBUTION DE COMPETENCE : </b>
-                                Sauf convention expresse et conformément à nos conditions générales de vente, seul le tribunal de Vesoul-Gray sera compétent pour connaître de tous les délits pouvant survenir à l'occasion de cette livraison.<br />
-                            </td>
-                            <td class="text-right">
-                                Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
-                            </td>
-
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <br />
-        </template>
-
-        <!-- Squelette de la page personnalisé pour Plastigray -->
-        <template id="report_ar_commande_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id"/>
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company"/>
-            </t>
-            <t t-call="is_plastigray.report_ar_commande_external_layout_header"/>
-            <t t-raw="0"/>
-            <t t-call="is_plastigray.report_ar_commande_external_layout_footer"/>
-        </template>
-
-
-
-        <template id="report_ar_commande_document">
-            <t t-call="is_plastigray.report_ar_commande_external_layout">
-                <div class="page">
-                    <div class="row">
-                        <div class="col-xs-12">
-
-                            <table class="table table-condensed">
-                                <thead>
-                                    <tr >
-                                        <th class="text-left"   style="vertical-align:top">Code PG</th>
-                                        <th class="text-left"   style="vertical-align:top">Désignation</th>
-                                        <th class="text-left"   style="vertical-align:top">Réf Client</th>
-                                        <th class="text-left"   style="vertical-align:top">Indice<br />Plan</th>
-                                        <th class="text-left"   style="vertical-align:top">Commande<br />Client</th>
-                                        <th class="text-right"  style="vertical-align:top">Quantité<br />en US</th>
-                                        <th class="text-right"  style="vertical-align:top">Quantité<br />en UC</th>
-                                        <th class="text-right"  style="vertical-align:top">Prix unitaire confirmé</th>
-                                        <th class="text-left"   style="vertical-align:top">Conditionnement</th>
-                                        <th class="text-center" style="vertical-align:top">Date de livraison confirmée</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="o.order_line" t-as="l">
-                                        <t t-set="nb_uc" t-value="l.product_uom_qty/l.product_id.is_uc_qt"/>
-                                        <td class="text-left">   <span t-field="l.product_id.is_code"/></td>
-                                        <td class="text-left">   <span t-field="l.product_id.name"/></td>
-                                        <td class="text-left">   <span t-field="l.product_id.is_ref_client"/></td>
-                                        <td class="text-left">   <span t-field="l.product_id.is_ind_plan"/></td>
-                                        <td class="text-left">   <span t-field="l.is_client_order_ref"/></td>
-                                        <td class="text-right nowrap">  <span t-field="l.product_uom_qty"/></td>
-                                        <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(nb_uc).replace(","," ").replace(".",",")'/></td>
-                                        <td class="text-right">   <span t-field="l.price_unit"/></td>
-                                        <td class="text-left">   <span t-field="l.product_id.is_uc"/></td>
-                                        <td class="text-center"> <span t-field="l.is_date_livraison"/></td>
-                                    </tr>
-                                </tbody>
+                    <div class="footer ar_commande_footer">
+                        <div class="text-center" style="border-top: 1px solid black">
+                            <table>
+                                <tr>
+                                    <td class="text-left" style="width:90%;text-align: justify;text-justify: inter-word;">
+                                        <b>CONDITIONS D'EXPEDITION : </b> 
+                                        Les marchandises, même expédiées franco, voyagent aux risques et périls du transporteur. Il appartient en cas d'avarie ou de manquant de faire des protestations motivées au dit transporteur par acte judiciaire ou par lettre recommandée avec accusé de réception dans les 3 jours qui suivent la réception de la marchandise, non compris les jours fériés.
+                                        Sans préjudice, des dispositions à prendre vis à vis du transporteur, les réclamations sur le vice apparent ou sur la non conformité des produits livrés doivent être formulées par écrit dans les 8 jours sous peine d'irrecevabilité.<br />
+                                        <b>CLAUSE D'ATTRIBUTION DE COMPETENCE : </b>
+                                        Sauf convention expresse et conformément à nos conditions générales de vente, seul le tribunal de Vesoul-Gray sera compétent pour connaître de tous les délits pouvant survenir à l'occasion de cette livraison.<br />
+                                    </td>
+                                    <td class="text-right">
+                                        Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
+                                    </td>
+        
+                                </tr>
                             </table>
                         </div>
                     </div>
-		    <div class="row">
-		        <div class="col-xs-4 pull-right">
-		            <table class="table table-condensed">
-		        	<tr class="border-black">
-		        	    <td><strong>Total HT</strong></td>
-		        	    <td class="text-right">
-		        		<span t-field="o.amount_untaxed"
-		        		    t-field-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}'/>
-		        	    </td>
-		        	</tr>
-		        	<tr>
-		        	    <td>Taxes</td>
-		        	    <td class="text-right">
-		        		<span t-field="o.amount_tax"
-		        		    t-field-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}'/>
-		        	    </td>
-		        	</tr>
-		        	<tr class="border-black">
-		        	    <td><strong>Total</strong></td>
-		        	    <td class="text-right">
-		        		<span t-field="o.amount_total"
-		        		    t-field-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}'/>
-		        	    </td>
-		        	</tr>
-		            </table>
-		        </div>
-		    </div>
-		    <p t-field="o.note" />
-		    <p t-if="o.payment_term.note">
-		        <strong>Condition de règlement :</strong>
-		        <span t-field="o.payment_term.note"/>
-		    </p>
-		    <p t-if="o.partner_id.is_type_reglement">
-		        <strong>Type règlement :</strong>
-		        <span t-field="o.partner_id.is_type_reglement"/>
-		    </p>
-		    <p t-if="o.is_incoterm or o.is_lieu">
-                <span t-if="o.is_incoterm">
-                    <strong>Incoterm : </strong>
-                    <span t-field="o.is_incoterm"/>
-                    <span t-if="o.is_lieu">
-                        <strong> - </strong>
-                    </span>
-                </span>
-                <span t-if="o.is_lieu">
-                    <strong>Lieu : </strong>
-                    <span t-field="o.is_lieu"/>
-                </span>
-            </p>
-		    <p t-if="o.is_ar_commentaire or o.is_message">
-                <p>
-                    <strong>Commentaire : </strong>
-                </p>
-            </p>
-		    <p t-if="o.is_ar_commentaire">
-                <span t-field="o.is_ar_commentaire"/>
-		    </p>
-		    <p t-if="o.is_message">
-                <span t-field="o.is_message"/>
-		    </p>
-		    <div class="oe_structure"/>
-                </div>
-            </t>
-        </template>
-
-
-        <template id="report_ar_commande">
-            <t t-call="is_plastigray.report_ar_commande_html_container">
-                <t t-foreach="doc_ids" t-as="doc_id">
-                    <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'is_plastigray.report_ar_commande_document')"/>
+                    <p style="page-break-before:always;"> </p>
                 </t>
             </t>
         </template>
+        <record id="ar_commande_paperformat" model="report.paperformat">
+            <field name="name">AR de commande</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">80</field>
+            <field name="margin_bottom">25</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">75</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="ar_commande_report" model="ir.actions.report">
+            <field name="name">AR de commande</field>
+            <field name="model">sale.order</field>
+            <field name="binding_model_id" ref="model_sale_order"/>
+            <field name="paperformat_id" ref="ar_commande_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.ar_commande_template</field>
+            <field name="report_file">is_plastigray16.ar_commande_template</field>
+        </record>
     </data>
-</openerp>
+</odoo>

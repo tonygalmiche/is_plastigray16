@@ -1,7 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
 
+
+        <template id="gamme_defautheques_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header gamme_defautheques_header">
+                        <table class="tablecls" width="100%">
+                            <tr>
+                                <td width="15%" rowspan="3" class="classborder">
+                                    <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
+                                </td>
+                                <td width="65%" rowspan="1" style="font-size:16px">
+                                    Processus Management de la qualité
+                                </td>
+                                <td width="20%" rowspan="1">
+                                    <div>FO-0-MQ-59</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tdcolor" rowspan="2">
+                                    <div class="tdcolor">Défauthèque</div>
+                                </td>
+                                <td rowspan="1">
+                                    <!-- <div>Le <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/></div> -->
+                                    <div>Le <span t-field="o.date_creation"/></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  rowspan="1">
+                                    <div>
+                                        Page <span class="page" />/<span class="topage" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="page gamme_defautheques_page">
+                        <table width="100%">
+                            <tr t-if="o.moule_dossierf">
+                                <td width="5%"></td>
+                                <td width="45%" style="text-align:right;padding-right:0.5em">Moule / Dossier F : </td>
+                                <td width="50%"><b t-field="o.moule_dossierf"/></td>
+                            </tr>
+                            <tr t-if="o.product_id">
+                                <td width="5%"></td>
+                                <td width="45%" style="text-align:right;padding-right:0.5em">Article : </td>
+                                <td width="50%"><b t-field="o.product_id"/></td>
+                            </tr>
+                        </table>
+                        <br/>
+                        <t t-set="defautheque_values" t-value="o.get_defautheque_data()" />
+                        <t t-if="defautheque_values">
+                            <table class="tablecls" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">N° du défaut</th>
+                                        <th width="20%">Description</th>
+                                        <th width="20%">Où et quand le défaut a-t-il été détecté</th>
+                                        <th width="50%">Photo</th>
+                                    </tr>
+                                </thead>
+                                <tboby>
+                                    <t t-foreach="defautheque_values" t-as="rec">
+                                        <tr>
+                                            <td><span t-esc="rec['name']"/></td>
+                                            <td><t t-raw="rec['defaut'].replace('\n', '&lt;br&gt;')"/></td>
+                                            <td><t t-raw="rec['ou_et_quand'].replace('\n', '&lt;br&gt;')"/></td>
+                                            <td>
+                                                <div>
+                                                    <!-- <img 
+                                                        t-if="rec['photo']"
+                                                        t-att-src="'data:image/png;base64,%s' % rec['photo']"
+                                                        class="imgclass0"
+                                                    /> -->
+                                                </div>
+                                            </td>
+                                            
+                                        </tr>
+                                    </t>
+                                </tboby>
+                            </table>
+                        </t>
+                    </div>
+                    <div class="footer gamme_defautheques_footer">
+                       
+                    </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+        <record id="gamme_defautheques_paperformat" model="report.paperformat">
+            <field name="name">Tampographie Reglage</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">27</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">22</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="gamme_defautheques_report" model="ir.actions.report">
+            <field name="name">Défauthèque</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite</field>
+            <field name="binding_model_id" ref="model_is_ctrl100_gamme_mur_qualite"/>
+            <field name="paperformat_id" ref="gamme_defautheques_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.gamme_defautheques_template</field>
+            <field name="report_file">is_plastigray16.gamme_defautheques_template</field>
+        </record>
+
+<!-- 
         <template id="report_defautheque_transfert_style">
             .tablecls td {
                 font-size:11pt;
@@ -49,243 +165,6 @@
                 border: 0px solid black;
             }
         </template>
-
-        <template id="report_defautheque_transfert_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_pg_2019.report_defautheque_transfert_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="report_defautheque_transfert_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_pg_2019.report_defautheque_transfert_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-        <template id="report_gamme_defautheque_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id" />
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company" />
-            </t>
-            <t t-call="is_pg_2019.report_gamme_defautheque_external_layout_header" />
-            <t t-raw="0" />
-        </template>
-
-        <template id="report_gamme_defautheque_external_layout_header">
-            <div class="header">
-                <div class="row">
-                    <table class="tablecls" width="100%">
-                        <tr>
-                            <td width="15%" rowspan="3" class="classborder">
-                                <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                            </td>
-                            <td width="65%" rowspan="1" style="font-size:16px">
-                                Processus Management de la qualité
-                            </td>
-                            <td width="20%" rowspan="1">
-                                <div>FO-0-MQ-59</div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="tdcolor" rowspan="2">
-                                <div class="tdcolor">Défauthèque</div>
-                            </td>
-                            <td rowspan="1">
-                                <div>Le <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td  rowspan="1">
-                                <div>
-                                    Page <span class="page" />/<span class="topage" />
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </template>
-
-        <template id="report_gamme_defautheque_document">
-            <t t-call="is_pg_2019.report_defautheque_transfert_html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="is_pg_2019.report_gamme_defautheque_external_layout">
-                    <t t-call="report.internal_layout">
-                    <div class="page">
-                        <div class="oe_structure" />
-                        <div class="row">
-                            <table width="100%">
-                                <!--
-                                <tr>
-                                    <td width="5%"></td>
-                                    <td width="45%" style="text-align:right;padding-right:0.5em">Défauthèque rattachée à la gamme : </td>
-                                    <td width="50%"><b t-field="o.name"/></td>
-                                </tr>
-                                -->
-                                <tr t-if="o.moule_dossierf">
-                                    <td width="5%"></td>
-                                    <td width="45%" style="text-align:right;padding-right:0.5em">Moule / Dossier F : </td>
-                                    <td width="50%"><b t-field="o.moule_dossierf"/></td>
-                                </tr>
-                                <tr t-if="o.product_id">
-                                    <td width="5%"></td>
-                                    <td width="45%" style="text-align:right;padding-right:0.5em">Article : </td>
-                                    <td width="50%"><b t-field="o.product_id"/></td>
-                                </tr>
-                            </table>
-                            <!--
-                            <br/>
-                            <t t-set="default_values" t-value="o.get_default_data()" />
-                            <t t-if="default_values">
-                            <table class="tablecls" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="15%">
-                                            <div>Contrôleur</div>
-                                        </th>
-                                        <th width="21%">
-                                            <div>Traçabilité produit</div>
-                                        </th>
-                                        <th width="12%">
-                                            <div>Date contrôle</div>
-                                        </th>
-                                        <th width="10%">
-                                            <div>Temps contrôle</div>
-                                        </th>
-                                        <th width="10%">
-                                            <div>Quantité contrôlée</div>
-                                        </th>
-                                        <th width="10%">
-                                            <div>Quantité NOK</div>
-                                        </th>
-                                        <th width="10%">
-                                            <div>Quantité reprise</div>
-                                        </th>
-                                        <th width="12%">
-                                            <div>Codes des OP contrôlés</div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <t t-foreach="default_values" t-as="rec">
-                                    <tr>
-                                        <td width="15%">
-                                            <span t-esc="rec['controleur']" />
-                                        </td>
-                                        <td width="21%">
-                                            <span t-esc="rec['tracabilite_nm']" />
-                                        </td>
-                                        <td width="12%">
-                                            <span t-esc="time.strftime('%d/%m/%Y',time.strptime(rec['date_saisie'],'%Y-%m-%d'))"/>
-                                        </td>
-                                        <td width="10%">
-                                            <span t-esc="'%02d:%02d' % (int(rec['tps_passe']), rec['tps_passe'] % 1 * 60)" />
-                                        </td>
-                                        <td width="10%">
-                                            <span t-esc="rec['nb_pieces_controlees']" />
-                                        </td>
-                                        <td width="10%">
-                                            <span t-esc="rec['nb_rebuts']" />
-                                        </td>
-                                        <td width="10%">
-                                            <span t-esc="rec['nb_repris']" />
-                                        </td>
-                                        <td width="12%">
-                                            <span t-esc="rec['defaut_id']" />
-                                        </td>
-                                    </tr>
-                                </t>
-                            </table>
-                            </t>
-                            -->
-                            <br/>
-                            <t t-set="defautheque_values" t-value="o.get_defautheque_data()" />
-                            <t t-if="defautheque_values">
-                            <table class="tablecls" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="10%">N° du défaut</th>
-                                        <th width="20%">Description</th>
-                                        <th width="20%">Où et quand le défaut a-t-il été détecté</th>
-                                        <th width="50%">Photo</th>
-                                        <!--<th width="20%">Nb rebuts</th>-->
-                                    </tr>
-                                </thead>
-                                <tboby>
-                                    <t t-foreach="defautheque_values" t-as="rec">
-                                        <tr>
-                                            <td><span t-esc="rec['name']"/></td>
-                                            <td><t t-raw="rec['defaut'].replace('\n', '&lt;br&gt;')"/></td>
-                                            <td><t t-raw="rec['ou_et_quand'].replace('\n', '&lt;br&gt;')"/></td>
-                                            <td>
-                                                <div>
-                                                    <img 
-                                                        t-if="rec['photo']"
-                                                        t-att-src="'data:image/png;base64,%s' % rec['photo']"
-                                                        class="imgclass0"
-                                                    />
-                                                </div>
-                                            </td>
-                                            <!--
-                                            <td width="10%">
-                                                <span t-esc="rec['nb_rebuts']" />
-                                            </td>
-                                            -->
-                                        </tr>
-                                    </t>
-                                </tboby>
-                            </table>
-                            </t>
-                        </div>
-                    </div>
-                    </t>
-                </t>
-            </t>
-            </t>
-        </template>
-
-        <report id="report_gamme_defautheques" model="is.ctrl100.gamme.mur.qualite"
-            string="Défauthèque" report_type="qweb-pdf"
-            name="is_pg_2019.report_gamme_defautheque_document" file="is_pg_2019.report_gamme_defautheque_document" />
-
-        <record id="report_gamme_defautheques_paperformat" model="report.paperformat">
-            <field name="name">A4 - Tampographie Reglage</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">27</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">22</field>
-            <field name="dpi">90</field>
-        </record>
-
-        <record id="report_gamme_defautheques" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_pg_2019.report_gamme_defautheques_paperformat" />
-        </record>
-
+ -->
     </data>
-</openerp>
+</odoo>

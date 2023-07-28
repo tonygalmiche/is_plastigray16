@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Proforma Chine -->
+        <template id="is_proforma_chine_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header is_proforma_chine_header">
+
+                        <div class="row">
+                            <div class="col-4  text-center">
+                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                <div class="expediteur">
+                                    S.A.S. au capital de 2 200 000 € <br />
+                                    Siège social : ZAC de Gray Sud <br />
+                                    CS 10133 - <b>70104 GRAY Cedex</b><br />
+                                    Tél. : 03 84 64 77 00 - Fax : 03 84 65 51 09 <br />
+                                    Siret B 377 846 381 00020 - Code NAF 2229 A <br />
+                                    Registre du Commerce GRAY <br />
+                                    N°Identification T.V.A. FR 65 377 846 381 <br />
+                                </div>
+                            </div>
+                            <div class="col-1" />
+                            <div class="col-7">
+                                <div class="titre">
+                                    <span>INVOICE FOR CUSTOMS </span>
+                                    N°<span t-field="o.name"/>
+                                     - DATED <span t-field="o.date_creation"  t-options='{"format": "dd/MM/yyyy"}' /><br />
+                                </div>
+                                <div class="destinataire">
+                                    <b><span t-field="o.partner_id.name"/></b><br />
+                                    <span t-field="o.partner_id.street"/><br />
+                                    <t t-if="o.partner_id.street2"><span t-field="o.partner_id.street2"/><br /></t>
+                                    <t t-if="o.partner_id.city"><span t-field="o.partner_id.zip"/> - <span t-field="o.partner_id.city"/><br /></t>
+                                    <t t-if="o.partner_id.country_id"><span t-field="o.partner_id.country_id.name"/><br /></t>
+                                    <t t-if="o.partner_id.phone">Tel  <span t-field="o.partner_id.phone"/><br /></t>
+                                    <t t-if="o.partner_id.fax">Fax  <span t-field="o.partner_id.fax"/><br /></t>
+                                    <t t-if="o.partner_id.mobile">Cell <span t-field="o.partner_id.mobile"/><br /></t>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="page is_proforma_chine_page">
+                        <table class="table table-condensed">
+                            <thead>
+                              <tr>
+                                  <th class="text-center">Type of material</th>
+                                  <th class="text-center">Project Number</th>
+                                  <th class="text-center">Part Number</th>
+                                  <th class="text-left">Designation</th>
+                                  <th class="text-center">Custom Code</th>
+                                  <th class="text-center">Country of Origin</th>
+                                  <th class="text-right">Quantity</th>
+                                  <th class="text-right">Price (€/per unit)</th>
+                                  <th class="text-right">Total Price</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr t-foreach="o.line_ids" t-as="line">
+                                  <td class="text-center"><span t-field="line.type_material"/></td>
+                                  <td class="text-center">
+                                      <t t-foreach="line.mold_ids" t-as="m">
+                                          <span t-field="m.name"/> 
+                                      </t>
+                                  </td>
+                                  <td class="text-center"><span t-field="line.product_id.is_code"/></td>
+                                  <td class="text-left">  <span t-field="line.designation"/></td>
+                                  <td class="text-center"><span t-field="line.custom_code"/></td>
+                                  <td class="text-center"><span t-field="line.country_origin"/></td>
+                                  <td class="text-right" style="white-space: nowrap;"><span t-field="line.quantity"/></td>
+                                  <td class="text-right" style="white-space: nowrap;"><span t-field="line.price_unit"/> €</td>
+                                  <td class="text-right" style="white-space: nowrap;"><span t-field="line.total_price"/> €</td>
+                              </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <div class="row">
+                            <div class="col-6">
+                                Free of charge<br />
+                                No commercial value<br />
+                                Value for customs propose only : <span t-field="o.total_amount"/> €<br />
+                                Transport costs : <span t-field="o.transport_costs"/> €<br />
+                                Incoterm 2010 : <span t-field="o.incoterm_id"/><br />
+                                Place : <span t-field="o.place"/><br />
+                                VAT exoneration : Article 262I du CGI<br />
+                            </div>
+                            <div class="col-1"/>
+                            <div class="col-5">
+                                <table class="table table-condensed">
+                                <tbody>
+                                    <tr><th>AMOUNT EX VAT</th>      <td class="text-right"><span t-field="o.total_amount"/> €</td></tr>
+                                    <tr><th>TOTAL Net Weight</th>   <td class="text-right"><span t-field="o.total_net_weight"/> Kg</td></tr>
+                                    <tr><th>TOTAL Gross Weight</th> <td class="text-right"><span t-field="o.total_gross_weight"/> Kg</td></tr>
+                                    <tr><th>Pallet Size</th>        <td class="text-right"><span t-field="o.pallet_size"/></td></tr>
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer is_proforma_chine_footer">
+                        <div class="text-center" style="border-top: 1px solid black">
+                            <table style="width:100%">
+                                <tr>
+                                    <td class="text-center">
+                                        Page <span class="page"/> / <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                     </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+        <record id="is_proforma_chine_paperformat" model="report.paperformat">
+            <field name="name">Proforma Chine</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">55</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">45</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="is_proforma_chine_report" model="ir.actions.report">
+            <field name="name">Proforma Chine</field>
+            <field name="model">is.proforma.chine</field>
+            <field name="binding_model_id" ref="model_is_proforma_chine"/>
+            <field name="paperformat_id" ref="is_proforma_chine_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.is_proforma_chine_template</field>
+            <field name="report_file">is_plastigray16.is_proforma_chine_template</field>
+        </record>
+
+
+        <!-- Packing List -->
+        <template id="proforma_chine_packing_list_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header proforma_chine_packing_list_header">
+
+                        <div class="row">
+                            <div class="col-4  text-center">
+                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                <div class="expediteur">
+                                    S.A.S. au capital de 2 200 000 € <br />
+                                    Siège social : ZAC de Gray Sud <br />
+                                    CS 10133 - <b>70104 GRAY Cedex</b><br />
+                                    Tél. : 03 84 64 77 00 - Fax : 03 84 65 51 09 <br />
+                                    Siret B 377 846 381 00020 - Code NAF 2229 A <br />
+                                    Registre du Commerce GRAY <br />
+                                    N°Identification T.V.A. FR 65 377 846 381 <br />
+                                </div>
+                            </div>
+                            <div class="col-1" />
+                            <div class="col-7">
+                                <div class="titre">
+                                    <span>PACKING LIST </span>
+                                    N°<span t-field="o.name"/>
+                                     - DATED <span t-field="o.date_creation"  t-options='{"format": "dd/MM/yyyy"}' /><br />
+                                </div>
+                                <div class="destinataire">
+                                    <b><span t-field="o.partner_id.name"/></b><br />
+                                    <span t-field="o.partner_id.street"/><br />
+                                    <t t-if="o.partner_id.street2"><span t-field="o.partner_id.street2"/><br /></t>
+                                    <t t-if="o.partner_id.city"><span t-field="o.partner_id.zip"/> - <span t-field="o.partner_id.city"/><br /></t>
+                                    <t t-if="o.partner_id.country_id"><span t-field="o.partner_id.country_id.name"/><br /></t>
+                                    <t t-if="o.partner_id.phone">Tel  <span t-field="o.partner_id.phone"/><br /></t>
+                                    <t t-if="o.partner_id.fax">Fax  <span t-field="o.partner_id.fax"/><br /></t>
+                                    <t t-if="o.partner_id.mobile">Cell <span t-field="o.partner_id.mobile"/><br /></t>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="page proforma_chine_packing_list_page">
+                        <table class="table table-condensed">
+                            <thead>
+                              <tr>
+                                  <th class="text-center">Type of material</th>
+                                  <th class="text-center">Project Number</th>
+                                  <th class="text-center">Part Number</th>
+                                  <th class="text-left">Designation</th>
+                                  <th class="text-center">Packaging</th>
+                                  <th class="text-right">Qty per packaging</th>
+                                  <th class="text-right">Quantity of packaging</th>
+                                  <th class="text-right">Net Weight</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr t-foreach="o.line_ids" t-as="line">
+                                  <td class="text-center"><span t-field="line.type_material"/></td>
+                                  <td class="text-center">
+                                      <t t-foreach="line.mold_ids" t-as="m">
+                                          <span t-field="m.name"/> 
+                                      </t>
+                                  </td>
+                                  <td class="text-center"><span t-field="line.product_id.is_code"/></td>
+                                  <td class="text-left">  <span t-field="line.designation"/></td>
+      
+      
+                                  <td class="text-center"><span t-field="line.packaging"/></td>
+                                  <td class="text-right" style="white-space: nowrap;">
+                                      <span t-field="line.qty_per_pack"/> 
+                                      <span t-field="line.uom_id"/>
+                                  </td>
+                                  <td class="text-right" style="white-space: nowrap;"><span t-field="line.qty_of_pack"/></td>
+                                  <td class="text-right" style="white-space: nowrap;"><span t-field="line.net_weight"/> Kg</td>
+                              </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <div class="row">
+                            <div class="col-6">
+                            </div>
+                            <div class="col-1"/>
+                            <div class="col-5">
+                                <table class="table table-condensed">
+                                <tbody>
+                                    <tr><th>TOTAL Net Weight</th>   <td class="text-right"><span t-field="o.total_net_weight"/> Kg</td></tr>
+                                    <tr><th>TOTAL Gross Weight</th> <td class="text-right"><span t-field="o.total_gross_weight"/> Kg</td></tr>
+                                    <tr><th>Pallet Size</th>        <td class="text-right"><span t-field="o.pallet_size"/></td></tr>
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer proforma_chine_packing_list_footer">
+                        <div class="text-center" style="border-top: 1px solid black">
+                            <table style="width:100%">
+                                <tr>
+                                    <td class="text-center">
+                                        Page <span class="page"/> / <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                     </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+        <record id="proforma_chine_packing_list_paperformat" model="report.paperformat">
+            <field name="name">Packing List</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">55</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">45</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="proforma_chine_packing_list_report" model="ir.actions.report">
+            <field name="name">Packing List</field>
+            <field name="model">is.proforma.chine</field>
+            <field name="binding_model_id" ref="model_is_proforma_chine"/>
+            <field name="paperformat_id" ref="proforma_chine_packing_list_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.proforma_chine_packing_list_template</field>
+            <field name="report_file">is_plastigray16.proforma_chine_packing_list_template</field>
+        </record>
+
+
+        <!-- Etiquette -->
+        <template id="is_proforma_chine_etiquette_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header">
+                    </div>
+                    <div class="page is_proforma_chine_etiquette_page">
+                        <t t-set="space" t-value="-1"/>
+                        <t t-foreach="o.line_ids" t-as="line">
+                            <t t-foreach="range(line.getQtyOfPack())" t-as="x">
+                                <t t-set="space" t-value="-space"/>
+                                <table class="table table-condensed">
+                                    <tbody>
+                                        <tr>
+                                            <th>Consignee         </th>
+                                            <td>
+                                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="height: 40mm" alt="Logo"/>
+                                            </td>
+                                        </tr>
+                                        <tr><th>Part number       </th><td><span t-field="line.product_id.is_code"/></td></tr>
+                                        <tr><th>Designation       </th><td><span t-field="line.designation"/></td></tr>
+                                        <tr><th>Country of origin </th><td><span t-field="line.country_origin"/></td></tr>
+                                        <tr>
+                                            <th>Mold</th>
+                                            <td>
+                                                <t t-foreach="line.mold_ids" t-as="m">
+                                                    <span t-field="m.name"/> 
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr><th>Net Weight        </th><td><span t-field="line.qty_per_pack"/> Kg</td></tr>
+                                        <t t-if="space==1"> 
+                                            <tr style="height:60mm"><th> </th><td> </td></tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </t>
+                    </div>
+                    <div class="footer">
+                     </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+        <record id="is_proforma_chine_etiquette_paperformat" model="report.paperformat">
+            <field name="name">Etiquette</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">10</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="is_proforma_chine_etiquette_report" model="ir.actions.report">
+            <field name="name">Etiquette</field>
+            <field name="model">is.proforma.chine</field>
+            <field name="binding_model_id" ref="model_is_proforma_chine"/>
+            <field name="paperformat_id" ref="is_proforma_chine_etiquette_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.is_proforma_chine_etiquette_template</field>
+            <field name="report_file">is_plastigray16.is_proforma_chine_etiquette_template</field>
+        </record>
+    </data>
+</odoo>

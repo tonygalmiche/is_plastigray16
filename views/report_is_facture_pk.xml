@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="facture_pk_template">
+        <template id="is_facture_pk_template">
             <t t-set="company" t-value="res_company"/>
-            <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
             <t t-call="web.basic_layout">
-                <STYLE>
-                    .page {
-                        font-size:9pt;
-                    }
-                </STYLE>
                 <t t-foreach="docs" t-as="o">
-                    <!-- header -->
-                    <div class="header">
+                    <div class="header is_facture_pk_header">
                     </div>
-
-                    <!-- page -->
-                    <div class="page facture_pk_page">
+                    <div class="page is_facture_pk_page">
                         <div class="row">
-                            <div class="col-xs-6">
+                            <div class="col-6">
                                 <div class="expediteur">
                                     <h2>PLASTI-KA SA</h2>
                                     <div>ZONE INDUSTRIELLE</div>
@@ -27,14 +18,15 @@
                                     <div>C.D. : 814756 N / N.R. ; MF : 875565/X</div>
                                 </div>
                             </div>
-                            <div class="col-xs-6 text-right">
-                                <img src='/is_plastigray16/static/src/img/logo-pmn.png' style="height:15mm" />
+                            <div class="col-6 text-right">
+                                <img src='/is_plastigray16/static/src/img/logo-pmn.png' style="height:15mm" alt="Logo"/>
                             </div>
                         </div>
+    
                         <div class="row">
-                            <div class="col-xs-7  text-left">
+                            <div class="col-7  text-left">
                             </div>
-                            <div class="col-xs-5  text-left">
+                            <div class="col-5  text-left">
                                 <div class="expediteur">
                                     <div>Société PLASTIGRAY</div>
                                     <div>CS 10133-ZAC de Gray Sud</div>
@@ -44,8 +36,9 @@
                         </div>
                         <br/>
                         <br/>
+    
                         <div class="row">
-                            <div class="col-xs-6">
+                            <div class="col-5">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr>
                                         <td class="text-right"><b>Facture N°</b></td>
@@ -65,7 +58,8 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div class="col-xs-6">
+                            <div class="col-1"/>
+                            <div class="col-6">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr>
                                         <td class="text-right"><b>Total de la Matière première N/FACT en EURO : </b></td>
@@ -96,13 +90,13 @@
                                         <td class="text-left">EX WORK</td>
                                     </tr>
                                 </table>
-
+    
                             </div>
                         </div>
                         <br/>
                         <br/>
                         <div class="row">
-                            <div class="col-xs-6">
+                            <div class="col-5">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr>
                                         <td class="text-right"><b>Nombre de pièces : </b></td>
@@ -118,7 +112,8 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div class="col-xs-6">
+                            <div class="col-1"/>
+                            <div class="col-6">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr>
                                         <td class="text-right"><b>Poids NET : </b></td>
@@ -139,7 +134,7 @@
                         <br/>
                         <br/>
                         <div class="row">
-                            <div class="col-xs-12 text-center">
+                            <div class="col-12 text-center">
                                 Règlement : par virement SWIFT sur le compte n° 7300 0080 8592 0340 0046<br/>
                                 T.I.B. : Tunis International Banq,Avenue des Etats-Unis- TUNISIE<br/>
                                 Code SWIFT : TUIBTNTT
@@ -147,13 +142,15 @@
                         </div>
                         <br/>
                         <div class="row" t-if="o.num_import_matiere">
-                            <div class="col-xs-12 text-left" style="font-size:11pt">
+                            <div class="col-12 text-left" style="font-size:11pt">
                                 N° d'import matière première : <b><span t-field="o.num_import_matiere"/></b>
                             </div>
                         </div>
+    
                         <div class="row" style="page-break-after:always;"/>
+    
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <table class="table table-condensed" width="100%">
                                     <thead>
                                         <tr width="100%">
@@ -200,10 +197,11 @@
                                 </table>
                             </div>
                         </div>
+    
                         <div class="row">
-                            <div class="col-xs-7">
+                            <div class="col-7">
                             </div>
-                            <div class="col-xs-5">
+                            <div class="col-5">
                                 <table class="table table-condensed" width="50%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr>
                                         <td class="text-right"><b>Poids net : </b></td>
@@ -213,6 +211,7 @@
                                         <td class="text-right"><b>Poids brut : </b></td>
                                         <td class="text-right"><span t-field="o.poids_brut"/></td>
                                     </tr>
+    
                                     <tr>
                                         <td class="text-right"><b>Quantité : </b></td>
                                         <td class="text-right"><span t-field="o.nb_pieces"/></td>
@@ -229,7 +228,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-6">
+                            <div class="col-6">
                                 <table class="table table-condensed" width="100%">
                                     <thead>
                                         <tr>
@@ -248,10 +247,10 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- footer -->
-                    <div class="footer facture_pk_footer">
+
+                    </div>
+                    <div class="footer is_facture_pk_footer">
                         <div class="text-center" style="border-top: 1px solid black">
                             <table style="width:100%">
                                 <tr>
@@ -264,13 +263,12 @@
                                 </tr>
                             </table>
                         </div>
-                    </div>
+                     </div>
                     <p style="page-break-before:always;"> </p>
                 </t>
             </t>
         </template>
-
-        <record id="facture_pk_paperformat" model="report.paperformat">
+        <record id="is_facture_pk_paperformat" model="report.paperformat">
             <field name="name">Facture PK</field>
             <field name="default" eval="True" />
             <field name="format">A4</field>
@@ -285,15 +283,14 @@
             <field name="header_spacing">10</field>
             <field name="dpi">90</field>
         </record>
-
-        <record id="facture_pk_report" model="ir.actions.report">
+        <record id="is_facture_pk_report" model="ir.actions.report">
             <field name="name">Facture PK</field>
             <field name="model">is.facture.pk</field>
             <field name="binding_model_id" ref="model_is_facture_pk"/>
-            <field name="paperformat_id" ref="facture_pk_paperformat"/>
+            <field name="paperformat_id" ref="is_facture_pk_paperformat"/>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">is_plastigray16.facture_pk_template</field>
-            <field name="report_file">is_plastigray16.facture_pk_template</field>
+            <field name="report_name">is_plastigray16.is_facture_pk_template</field>
+            <field name="report_file">is_plastigray16.is_facture_pk_template</field>
         </record>
     </data>
 </odoo>

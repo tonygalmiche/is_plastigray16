@@ -6,7 +6,7 @@ import time
 import logging
 _logger = logging.getLogger(__name__)
 
-#from collections import defaultdict
+from collections import defaultdict
 #from datetime import datetime, timedelta
 #import matplotlib
 #import matplotlib.transforms
@@ -99,9 +99,14 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
         defautheque = []
         rec_dict = defaultdict(list)
         defautheque_obj = self.env['is.ctrl100.defautheque']
+
+
+        #TODO : Le champ photo n'existe plus dans odoo16 =>  select name, defaut, ou_et_quand, photo
+
+
         for obj in self:
             SQL = """
-                select name, defaut, ou_et_quand, photo
+                select name, defaut, ou_et_quand
                 from is_ctrl100_defautheque
                 where 
                     moule_dossierf='"""+str(obj.moule_dossierf)+"""' and
@@ -115,7 +120,8 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
                     'name'       : res[0],
                     'defaut'     : res[1] or '',
                     'ou_et_quand': res[2] or '',
-                    'photo'      : res[3] or '',
+                    #'photo'      : res[3] or '',
+                    'photo'      : '',
                 }
                 defautheque.append(recdict)
         return defautheque

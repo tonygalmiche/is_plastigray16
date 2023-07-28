@@ -17,37 +17,6 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="devis_commandes_paperformat" model="report.paperformat">
-            <field name="name">A4 - AR de commande</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">65</field>
-            <field name="margin_bottom">25</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">60</field>
-            <field name="dpi">90</field>
-        </record>
-
-        <record id="ar_commandes_paperformat" model="report.paperformat">
-            <field name="name">A4 - AR de commande</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">80</field>
-            <field name="margin_bottom">25</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">75</field>
-            <field name="dpi">90</field>
-        </record>
 
         <record id="is_paperformat_bl" model="report.paperformat">
             <field name="name">A4 - Bon de livraison</field>
@@ -82,57 +51,6 @@
         </record>
 
 
-        <record id="cde_ouverte_fournisseur_paperformat" model="report.paperformat">
-            <field name="name">A4 - Commande ouverte fournisseur</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">88</field>
-            <field name="margin_bottom">25</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">83</field>
-            <field name="dpi">90</field>
-        </record>
-
-
-        <record id="cde_ferme_cadencee_paperformat" model="report.paperformat">
-            <field name="name">A4 - Commande ferme cadencée</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">78</field>
-            <field name="margin_bottom">25</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">73</field>
-            <field name="dpi">90</field>
-        </record>
-
-
-
-        <record id="purchaseorder_paperformat" model="report.paperformat">
-            <field name="name">A4 - Commande fournisseur</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">88</field>
-            <field name="margin_bottom">25</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">83</field>
-            <field name="dpi">90</field>
-        </record>
-
 
 
         <record id="document_fabrication_landscape_paperformat" model="report.paperformat">
@@ -150,59 +68,6 @@
             <field name="header_spacing">15</field>
             <field name="dpi">90</field>
         </record>
-
-
-
-        <record id="document_livraison_gefbox" model="report.paperformat">
-            <field name="name">Document de fabrication</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Landscape</field>
-            <field name="margin_top">20</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">15</field>
-            <field name="dpi">90</field>
-        </record>
-
-
-
-
-        <record id="plan_de_charge_portrait_paperformat" model="report.paperformat">
-            <field name="name">Plan de charge Portrait</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">7</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">0</field>
-            <field name="dpi">90</field>
-        </record>
-        <record id="plan_de_charge_landscape_paperformat" model="report.paperformat">
-            <field name="name">Plan de charge Paysage</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Landscape</field>
-            <field name="margin_top">7</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">0</field>
-            <field name="dpi">90</field>
-        </record>
-
 
 
 
@@ -257,22 +122,6 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="is_cout_paperformat" model="report.paperformat">
-            <field name="name">A4 - Coût article</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">25</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">20</field>
-            <field name="dpi">90</field>
-        </record>
-
         <record id="pricelist_version_paperformat" model="report.paperformat">
             <field name="name">A4 - Liste des prix</field>
             <field name="default" eval="True" />
@@ -290,23 +139,6 @@
         </record>
 
 
-
-
-        <record id="emballage_paperformat" model="report.paperformat">
-            <field name="name">Emballage</field>
-            <field name="default" eval="True" />
-            <field name="format">A4</field>
-            <field name="page_height">0</field>
-            <field name="page_width">0</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">7</field>
-            <field name="margin_bottom">15</field>
-            <field name="margin_left">7</field>
-            <field name="margin_right">7</field>
-            <field name="header_line" eval="False" />
-            <field name="header_spacing">0</field>
-            <field name="dpi">90</field>
-        </record>
 
 
         <record id="inventaire_paperformat" model="report.paperformat">

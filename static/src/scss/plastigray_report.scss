@@ -235,3 +235,467 @@ $ma_couleur: yellow;
     border:1px solid black;
     text-align:center;
 }
+
+
+
+
+//** Commande ouverte fournisseur *********************************************
+.cde_ouverte_fournisseur_header {
+    font-size:10pt;
+}
+.cde_ouverte_fournisseur_footer {
+    font-size:9pt;
+}
+.cde_ouverte_fournisseur_page {
+    font-size:9pt;
+}
+.cde_ouverte_fournisseur_titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.cde_ouverte_fournisseur_livraison {
+    font-size:11pt;
+    font-weight: bold;
+    text-align:left;
+}
+.cde_ouverte_fournisseur_facturation {
+    font-size:10pt;
+    font-style: italic;
+    text-align:left;
+
+}
+.cde_ouverte_fournisseur_fournisseur {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+//** Appel de livraison / Horizon des besoins *********************************
+.appel_de_livraison_header {
+    font-size:10pt;
+}
+.appel_de_livraison_footer {
+    font-size:9pt;
+}
+.appel_de_livraison_page {
+    font-size:9pt;
+}
+.appel_de_livraison_titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.appel_de_livraison_livraison {
+    font-size:11pt;
+    font-weight: bold;
+    text-align:left;
+}
+.appel_de_livraison_facturation {
+    font-size:10pt;
+    font-style: italic;
+    text-align:left;
+}
+.appel_de_livraison_fournisseur {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+   
+
+//** AR de commande ***********************************************************
+.ar_commande_header {
+    font-size:10pt;
+}
+.ar_commande_footer {
+    font-size:7pt;
+}
+.ar_commande_page {
+    font-size:8pt;
+}
+.ar_commande_titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.ar_commande_expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.ar_commande_client {
+    text-align:left;
+    border: 1px solid black;
+    padding:2mm;
+}
+.nowrap{
+    white-space: nowrap;
+}
+
+
+
+//** Bon de commande **********************************************************
+.purchaseorder_header {
+    font-size:10pt;
+}
+.purchaseorder_footer {
+    font-size:9pt;
+}
+.purchaseorder_page {
+    font-size:9pt;
+}
+.purchaseorder_titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.purchaseorder_livraison {
+    font-size:11pt;
+    font-weight: bold;
+    text-align:left;
+}
+.purchaseorder_facturation {
+    font-size:10pt;
+    font-style: italic;
+    text-align:left;
+}
+.purchaseorder_fournisseur {
+    text-align:left;
+    border: 1px solid black;
+    padding:2mm;
+}
+
+
+//** Commande ferme cadencée **************************************************
+.cde_ferme_cadencee_header {
+    font-size:10pt;
+}
+.cde_ferme_cadencee_footer {
+    font-size:9pt;
+}
+.cde_ferme_cadencee_page {
+    font-size:9pt;
+}
+.cde_ferme_cadencee_titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.cde_ferme_cadencee_livraison {
+    font-size:11pt;
+    font-weight: bold;
+    text-align:left;
+}
+.cde_ferme_cadencee_facturation {
+    font-size:10pt;
+    font-style: italic;
+    text-align:left;
+
+}
+.cde_ferme_cadencee_fournisseur {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+//** Coût article **************************************************
+.is_cout_header {
+    font-size:11pt;
+}
+.is_cout_footer {
+    font-size:10pt;
+}
+.is_cout_page {
+    font-size:10pt;
+}
+.is_cout_titre {
+    font-size:13pt;
+    font-weight: bold;
+}
+.is_cout_page h2 {
+    font-size:12pt;
+}
+.is_cout_page .table > :not(caption) > * > * {
+    padding: 0.1rem 0.1rem;
+}
+
+
+
+
+//** Plan de charge **************************************************
+
+.plan_de_charge_page .entete{
+    text-align:center;
+}
+.plan_de_charge_page .entete h1{
+    font-size:16pt;
+    font-weight: bold;
+    color:black;
+    margin-top:0;
+    margin-bottom:0;
+}
+
+.plan_de_charge_page .contenu h1{
+    font-size:15pt;
+    font-weight: bold;
+    text-align:center;
+    padding:0mm;
+    margin:0mm;
+    margin-top:4mm;
+    margin-bottom:2mm;
+    color:black;
+}
+.plan_de_charge_page .header {
+    font-size:9pt;
+}
+.plan_de_charge_page .footer {
+    font-size:9pt;
+}
+.plan_de_charge_page {
+    font-size:10pt;
+}
+.plan_de_charge_page table{
+    border:0px solid black;
+}
+.plan_de_charge_page td{
+    padding:0.5mm;
+    border:1px solid black;
+    text-align:center;
+}
+.plan_de_charge_page th{
+    font-weight: normal;
+    padding:0.5mm;
+    border:1px solid black;
+}
+
+
+//** Devis Commande **************************************************
+.devis_commande_header {
+    font-size:10pt;
+}
+.devis_commande_footer {
+    font-size:7pt;
+}
+.devis_commande_page {
+    font-size:10pt;
+}
+.devis_commande_header.titre {
+    font-size:13pt;
+    font-weight: bold;
+}
+.devis_commande_header.expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.devis_commande_header.client {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+
+//** Emballage ****************************************************************
+.emballage_header {
+    font-size:9pt;
+}
+.emballage_footer {
+    font-size:9pt;
+}
+.emballage_page {
+    font-size:10pt;
+}
+.emballage_page .entete{
+    text-align:center;
+}
+.emballage_page .entete h1{
+    font-size:16pt;
+    font-weight: bold;
+    color:black;
+    margin-top:0;
+    margin-bottom:0;
+}
+.emballage_page .entete h2{
+    font-size:14pt;
+    font-weight: bold;
+    color:black;
+    margin-top:0;
+    margin-bottom:0;
+}
+.emballage_page table{
+    border:1px solid black;
+}
+.emballage_page td{
+    padding:0.5mm;
+    border:1px solid black;
+    text-align:center;
+    color:black;
+}
+.emballage_page th{
+    font-weight: normal;
+    padding:0.5mm;
+    border:1px solid black;
+}
+
+
+//** Facture proforma outillage ***********************************************
+.is_facture_proforma_outillage_header {
+    font-size:10pt;
+}
+.is_facture_proforma_outillage_footer {
+    font-size:7pt;
+}
+.is_facture_proforma_outillage_page {
+    font-size:9pt;
+}
+.is_facture_proforma_outillage_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.is_facture_proforma_outillage_page .expediteur {
+    font-size:9pt;
+    text-align:left;
+}
+.is_facture_proforma_outillage_page .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+
+// is_proforma_chine_
+.is_proforma_chine_header {
+    font-size:10pt;
+}
+.is_proforma_chine_footer {
+    font-size:10pt;
+}
+.is_proforma_chine_page {
+    font-size:10pt;
+}
+.is_proforma_chine_page .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.is_proforma_chine_page .expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.is_proforma_chine_page .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+//proforma_chine_packing_list
+.proforma_chine_packing_list_header {
+    font-size:10pt;
+}
+.proforma_chine_packing_list_footer {
+    font-size:10pt;
+}
+.proforma_chine_packing_list_page {
+    font-size:10pt;
+}
+.proforma_chine_packing_list_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.proforma_chine_packing_list_header .expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.proforma_chine_packing_list_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+//is_proforma_chine_etiquette_page
+.is_proforma_chine_etiquette_page {
+    font-size:20pt;
+}
+
+
+//is_facture_pk
+.is_facture_pk_header {
+    font-size:10pt;
+}
+.is_facture_pk_footer {
+    font-size:7pt;
+}
+.is_facture_pk_page {
+    font-size:9pt;
+}
+.is_facture_pk_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.is_facture_pk_header .expediteur {
+    font-size:9pt;
+    text-align:left;
+}
+.is_facture_pk_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+//is_ot_indicateur
+.is_ot_indicateur_page h1{
+    font-size:12pt;
+    font-weight: bold;
+}
+.is_ot_indicateur_page .titre {
+    font-size:16pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    border: 0px solid #046dce;
+    background-color:#58ACFA;
+}
+.is_ot_indicateur_tablecls td {
+    font-size:8pt;
+    vertical-align:middle;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    padding-right:2px;
+    padding-top:2px;
+    padding-left:2px;
+    padding-bottom:2px;
+}
+.is_ot_indicateur_tablecls th {
+    font-size:9pt;
+    vertical-align:middle;
+    font-weight: bold;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    padding-right:2px;
+    padding-top:2px;
+    padding-left:2px;
+    padding-bottom:2px;
+}
+.is_ot_indicateur_page .tdcolor {
+    font-size:12pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    border: 0px solid #046dce;
+    background-color:#58ACFA;
+}
+.is_ot_indicateur_page .imgclass0 {
+    text-align:center;
+    height: 80mm;
+    text-align: center;
+    width: 80mm;
+    vertical-align: middle;
+    padding-left:8px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 0px solid black;
+}

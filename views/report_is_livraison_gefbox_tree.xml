@@ -1,61 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
-        <template id="report_is_livraison_gefbox_tree">
-            <t t-call="report.html_container">
-                <t t-call="report.internal_layout">
-                    <div class="page">
-                        <div class="oe_structure"/>
-            
-                        <h2>Livraison GEFBOX</h2>
-            
-                        <table class="table table-condensed">
-                            <thead>
-                                <tr>
-                                    <th><strong>Date d'expédition</strong></th>
-                                    <th><strong>Client</strong></th>
-                                    <th><strong>Livraison</strong></th>
-                                    <th><strong>Commande Client</strong></th>
-                                    <th><strong>Moule ou Dossier F</strong></th>
-                                    <th><strong>Article</strong></th>
-                                    <th><strong>UC</strong></th>
-                                    <th><strong>UM</strong></th>
-                                    <th><strong>Quantité</strong></th>
-                                    <th><strong>Nb UC</strong></th>
-                                    <th><strong>Nb UM</strong></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="old_bl" t-value="''"/>
-                                <t t-foreach="docs" t-as="o">
-                                    <t t-if="old_bl != ''">
-                                        <tr t-if="old_bl != o.name">
-                                            <td colspan='10' style='background-color: #FFFF00'> </td>
-                                        </tr>
-                                    </t>
-                                    <tr>
-                                        <td><span t-field="o.is_date_expedition"/> </td>
-                                        <td><span t-field="o.partner_id"/> </td>
-                                        <td><span t-field="o.picking_id"/></td>
-                                        <td><span t-field="o.client_order_ref"/> </td>
-                                        <td><span t-field="o.is_mold_dossierf"/> </td>
-                                        <td><span t-field="o.product_id"/> </td>
-                                        <td><span t-field="o.uc"/> </td>
-                                        <td><span t-field="o.um"/> </td>
-                                        <td><span t-field="o.product_uom_qty"/> </td>
-                                        <td><span t-field="o.nb_uc"/> </td>
-                                        <td><span t-field="o.nb_um"/> </td>
+        <template id="is_livraison_gefbox_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <div class="page">
+                    <h2>Livraison GEFBOX</h2>
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th><strong>Date d'expédition</strong></th>
+                                <th><strong>Client</strong></th>
+                                <th><strong>Livraison</strong></th>
+                                <th><strong>Commande Client</strong></th>
+                                <th><strong>Moule ou Dossier F</strong></th>
+                                <th><strong>Article</strong></th>
+                                <th><strong>UC</strong></th>
+                                <th><strong>UM</strong></th>
+                                <th><strong>Quantité</strong></th>
+                                <th><strong>Nb UC</strong></th>
+                                <th><strong>Nb UM</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="old_bl" t-value="''"/>
+                            <t t-foreach="docs" t-as="o">
+                                <t t-if="old_bl != ''">
+                                    <tr t-if="old_bl != o.name">
+                                        <td colspan='10' style='background-color: #FFFF00'> </td>
                                     </tr>
-                                    <t t-set="old_bl" t-value="o.name"/>
                                 </t>
-                            </tbody>
-                        </table>
-            
-            
+                                <tr>
+                                    <td><span t-field="o.is_date_expedition"/> </td>
+                                    <td><span t-field="o.partner_id"/> </td>
+                                    <td><span t-field="o.picking_id"/></td>
+                                    <td><span t-field="o.client_order_ref"/> </td>
+                                    <td><span t-field="o.is_mold_dossierf"/> </td>
+                                    <td><span t-field="o.product_id"/> </td>
+                                    <td><span t-field="o.uc"/> </td>
+                                    <td><span t-field="o.um"/> </td>
+                                    <td><span t-field="o.product_uom_qty"/> </td>
+                                    <td><span t-field="o.nb_uc"/> </td>
+                                    <td><span t-field="o.nb_um"/> </td>
+                                </tr>
+                                <t t-set="old_bl" t-value="o.name"/>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black;font-size:8pt">
+                        Page <span class="page" style="font-size:8pt;"/> / <span class="topage"/>
                     </div>
-                </t>
+                 </div>
             </t>
         </template>
-
+        <record id="is_livraison_gefbox_paperformat" model="report.paperformat">
+            <field name="name">Livraison GEFBOX</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">20</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">15</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="is_livraison_gefbox_report" model="ir.actions.report">
+            <field name="name">Livraison GEFBOX</field>
+            <field name="model">is.livraison.gefco</field>
+            <field name="binding_model_id" ref="model_is_livraison_gefco"/>
+            <field name="paperformat_id" ref="is_livraison_gefbox_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.is_livraison_gefbox_template</field>
+            <field name="report_file">is_plastigray16.is_livraison_gefbox_template</field>
+        </record>
     </data>
-</openerp>
+</odoo>
