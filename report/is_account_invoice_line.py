@@ -23,6 +23,7 @@ class is_account_invoice_line(models.Model):
     invoice_origin          = fields.Char('Origine/BL')
     supplier_invoice_number = fields.Char('Numéro de facture fournisseur')
     product_id              = fields.Many2one('product.product', 'Article')
+    account_id              = fields.Many2one('account.account', 'Compte')
 
     segment_id              = fields.Many2one('is.product.segment', 'Segment')
     is_category_id          = fields.Many2one('is.category', 'Catégorie')
@@ -159,6 +160,7 @@ class is_account_invoice_line(models.Model):
                         ai.journal_id,
                         ai.is_type_facture,
                         ail.product_id,
+                        ail.account_id,
                         pt.segment_id,
                         pt.is_category_id,
                         pt.is_gestionnaire_id,

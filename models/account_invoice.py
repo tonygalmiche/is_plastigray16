@@ -85,11 +85,16 @@ class account_invoice(models.Model):
     def _compute(self):
         for obj in self:
             escompte = tva = 0
-            for tax in obj.tax_line:
-                if tax.account_id.code=='665000':
-                    escompte=escompte+tax.amount
-                else:
-                    tva=tva++tax.amount
+            #for tax in obj.tax_ids:
+                # if tax.account_id.code=='665000':
+                #     escompte=escompte+tax.amount
+                # else:
+                #     tva=tva+tax.amount
+            for line in obj.line_ids:
+                if line.account_id.code=='665000':
+                    escompte=escompte+line.amount_currency
+            #    else:
+            #        tva=tva+line.amount_currency
             obj.is_escompte = escompte
             obj.is_tva      = tva
 

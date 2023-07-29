@@ -22,6 +22,7 @@
                             <field name="move_type"/>
                             <field name="product_id"/>
                             <field name="description"/>
+                            <field name="account_id"/>
                             <field name="is_document"/>
                             <field name="is_ref_client"/>
                             <field name="quantity"/>
@@ -57,6 +58,7 @@
                 <field name="picking_id"         optional="show" widget="many2one_clickable"/>
                 <field name="product_id"         optional="show" widget="many2one_clickable"/>
                 <field name="description"        optional="show"/>
+                <field name="account_id"         optional="hide" />
                 <field name="is_ref_client"      optional="show"/>
                 <field name="is_document"        optional="show"/>
                 <field name="product_uom_id"     optional="show"/>
@@ -86,6 +88,7 @@
                 <field name="invoice_date_due"  optional="show"/>
                 <field name="product_id"        optional="show" widget="many2one_clickable"/>
                 <field name="description"       optional="show"/>
+                <field name="account_id"        optional="hide" />
                 <field name="is_document"       optional="show"/>
                 <field name="product_uom_id"    optional="show"/>
                 <field name="quantity"          optional="show" sum="Total"/>
@@ -112,6 +115,7 @@
                 <field name="invoice_origin"/>
                 <field name="product_id"           widget="many2one_clickable"/>
                 <field name="description"/>
+                <field name="account_id"         optional="hide" />
                 <field name="is_ref_client"/>
                 <field name="is_document"/>
                 <field name="product_uom_id"/>
@@ -147,6 +151,7 @@
                 <field name="is_gestionnaire_id"/>
                 <field name="product_id"/>
                 <field name="description"/>
+                <field name="account_id"/>
                 <field name="is_ref_client"/>
                 <field name="is_document"/>
                 <field name="order_id"/>
@@ -218,6 +223,7 @@
                 <field name="picking_id"          optional="show" widget="many2one_clickable"/>
                 <field name="partner_id"          optional="show" widget="many2one_clickable"/>
                 <field name="product_id"          optional="show" widget="many2one_clickable"/>
+                <field name="account_id"          optional="hide" />
                 <field name="is_ref_client"       optional="hide"/>
                 <field name="is_mold_dossierf"    optional="show"/>
                 <field name="segment_id"          optional="show"/>

@@ -38,6 +38,8 @@ Module Odoo 16 pour Plastigray
 
         "views/report_paperformat.xml",
 
+
+        "views/report_invoice.xml",
         'views/report_is_livraison_gefbox_tree.xml',
         "views/report_is_ot_indicateur.xml",
         #"views/report_gamme_qualite.xml",
@@ -248,7 +250,6 @@ Module Odoo 16 pour Plastigray
         # "views/report_inventaire.xml",
         # "views/report_inventaire_ecart.xml",
         # "views/report_stockpicking.xml",
-        # "views/report_invoice.xml",
         # "views/report_relance_fournisseur.xml",
         # "views/report_document_fabrication.xml",
         # "views/report_liste_article.xml",

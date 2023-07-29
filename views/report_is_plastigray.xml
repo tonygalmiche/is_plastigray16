@@ -53,20 +53,6 @@
         </record>
 
 
-        <report 
-            id="account.account_invoices"
-            model="account.invoice"
-            string="Factures"
-            report_type="qweb-pdf"
-            name="is_plastigray.is_report_invoice"
-            file="is_plastigray.is_report_invoice"
-            attachment="(object.state in ('open','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
-        />
-        <record id="account.account_invoices" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_plastigray.is_paperformat_facture_client"/>
-        </record>
-
-
 
         <report 
             id="report_relance_fournisseurs"
