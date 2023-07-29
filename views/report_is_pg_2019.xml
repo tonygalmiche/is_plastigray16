@@ -2,20 +2,7 @@
 <odoo>
     <data>
 
-        <report 
-            id="is_ot_reports"
-            model="is.ot"
-            string="OT"
-            report_type="qweb-pdf"
-            name="is_pg_2019.is_ot_report"
-            file="is_pg_2019.is_ot_report"
-        />
-        <record id="is_ot_reports" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_pg_2019.is_ot_paperformat"/>
-        </record>
-
-
-
+  
         <report 
             id="is_facture_proforma_reports"
             model="is.facture.proforma"

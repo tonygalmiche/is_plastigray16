@@ -724,3 +724,428 @@ $ma_couleur: yellow;
     border: 1px solid black;
     padding:5mm;
 }
+
+
+
+//liste_servir
+.liste_servir_header {
+    font-size:11pt;
+}
+.liste_servir_footer {
+    font-size:10pt;
+}
+.liste_servir_page {
+    font-size:10pt;
+}
+.liste_servir_header .titre {
+    font-size:13pt;
+    font-weight: bold;
+}
+.liste_servir_header .client {
+    text-align:left;
+    //border: 1px solid black;
+    padding:5mm;
+}
+.liste_servir_page .commentaire {
+    padding:1mm;
+    font-size:12pt;
+    font-weight: bold;
+    background:orange;
+    margin-right:1mm
+}
+.liste_servir_page .message {
+    padding:1mm;
+    font-size:12pt;
+    font-weight: bold;
+    background:orange;
+    margin-left:1mm
+}
+
+
+
+//is_ot
+.is_ot_header {
+    font-size:10pt;
+}
+.is_ot_footer {
+    font-size:10pt;
+}
+.is_ot_page {
+    font-size:11pt;
+}
+.is_ot_header .titre {
+    font-size:15pt;
+    font-weight: bold;
+}
+
+
+//facture_proforma
+.facture_proforma_header {
+    font-size:10pt;
+}
+.facture_proforma_footer {
+    font-size:7pt;
+}
+.facture_proforma_page {
+    font-size:9pt;
+}
+.facture_proforma_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.facture_proforma_header .expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.facture_proforma_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+
+// is_reach
+.is_reach_header {
+    font-size:10pt;
+}
+.is_reach_footer {
+    font-size:7pt;
+}
+.is_reach_page {
+    font-size:10pt;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 1em;
+}
+.is_reach_header .titre {
+    font-size:13pt;
+    font-weight: bold;
+}
+.is_reach_header .titre2 {
+    font-weight: bold;
+    text-decoration: underline;
+    text-align: center;
+    font-size: 13pt;
+}
+.is_reach_header .expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.is_reach_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+.is_reach_page th, td {
+    font-size:8pt;
+}
+
+
+//relance_fournisseur
+.relance_fournisseur_header {
+    font-size:10pt;
+}
+.relance_fournisseur_footer {
+    font-size:9pt;
+}
+.relance_fournisseur_page {
+    font-size:9pt;
+}
+.relance_fournisseur_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.relance_fournisseur_header .livraison {
+    font-size:11pt;
+    font-weight: bold;
+    text-align:left;
+}
+.relance_fournisseur_header .facturation {
+    font-size:10pt;
+    font-style: italic;
+    text-align:left;
+
+}
+.relance_fournisseur_header .fournisseur {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+
+
+//is_fiche_tampographie
+
+.is_fiche_tampographie_header {
+    font-size:10pt;
+}
+.is_fiche_tampographie_footer {
+    font-size:7pt;
+}
+.is_fiche_tampographie_page {
+    font-size:9pt;
+}
+.is_fiche_tampographie_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.is_fiche_tampographie_header .expediteur {
+    font-size:9pt;
+    text-align:left;
+}
+.is_fiche_tampographie_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}
+.rowcenter {
+    font-size:11pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    border: 1px solid black;
+    padding:2mm;
+}
+.footerbold {
+    font-size:8pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    border: 1px solid black;
+}
+.footernobold {
+    font-size:8pt;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    border: 1px solid black;
+}
+.twocolumntable1col {
+    padding-left:7px;
+    font-weight: bold;
+    font-size: 11pt;
+    vertical-align:middle;
+    text-align:left;
+    border: 1px solid black;
+}
+.twocolumntable2col {
+    padding-left:10px;
+    font-size: 9pt;
+    vertical-align:middle;
+    text-align:left;
+    border: 1px solid black;
+}
+.twocolumntable2colcenter {
+    font-size: 9pt;
+    vertical-align:middle;
+    text-align:left;
+    border: 1px solid black;
+    text-align:center;
+}
+.tablecenterheader {
+    font-weight: bold;
+    font-size: 11pt;
+    vertical-align:middle;
+    text-align:center;
+    border: 1px solid black;
+}
+.colcenteralign {
+    font-size: 9pt;
+    vertical-align:middle;
+    text-align:center;
+    border: 1px solid black;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.colleftalign {
+    font-size: 9pt;
+    vertical-align:middle;
+    text-align:left;
+    border: 1px solid black;
+    padding-left:6px;
+}
+.colleftalign1 {
+    font-size: 9pt;
+    vertical-align:middle;
+    text-align:left;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    padding-left:6px;
+}
+.imgclass0 {
+    text-align:center;
+    height: 80px;
+    text-align: center;
+    width: 200px;
+    vertical-align: middle;
+    padding-left:100px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 0px solid black;
+}
+.imgclass {
+    padding:1mm;
+    padding-top:3mm;
+    padding-bottom:3mm;
+    border: 0px solid black;
+}
+.imgclass1 {
+    text-align:center;
+    max-height: 50mm;
+    text-align: center;
+    max-width: 170mm;
+    vertical-align: middle;
+    padding-left:20px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 0px solid black;
+}
+.companyimgclass {
+    text-align:center;
+    height: 80px;
+    text-align: center;
+    width: 120px;
+    vertical-align: middle;
+    padding-left:20px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 1px solid black;
+}
+.classborder {
+    border: 1px solid black;
+}
+.rowcenter1 {
+    font-size:11pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    border-top: 0px solid black;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+    padding:2mm;
+}
+.rowcenter2 {
+    font-size:11pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+    padding:2mm;
+}
+.rowcenter3 {
+    font-size:11pt;
+    font-weight: bold;
+    vertical-align:top;
+    text-align:center;
+    background-color:#58ACFA;
+    border: 0px solid black;
+}
+.rowcenter4 {
+    font-size:11pt;
+    font-weight: bold;
+    vertical-align:top;
+    text-align:center;
+    background-color:#58ACFA;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    height: 35px;
+    padding-top:10px;
+}
+.classlrborder {
+    font-weight: bold;
+    font-size: 11pt;
+    vertical-align:middle;
+    text-align:center;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+}
+.classrborder {
+    font-weight: bold;
+    font-size: 11pt;
+    vertical-align:middle;
+    text-align:center;
+    border-right: 1px solid black;
+}
+.classlborder {
+    font-weight: bold;
+    font-size: 11pt;
+    vertical-align:middle;
+    text-align:center;
+    border-left: 1px solid black;
+}
+.classr1border {
+    font-size: 10pt;
+    vertical-align:middle;
+    text-align:left;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-left: 0px solid black;
+    border-bottom: 1px solid black;
+}
+.classtoptable {
+    font-weight: bold;
+    font-size: 11pt;
+    vertical-align:top;
+    text-align:center;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+}
+.frequentiel {
+    font-size: 9pt;
+    vertical-align:top;
+    text-align:left;
+    border: 1px solid black;
+    padding:3mm;
+}
+
+
+// preventif_equipement_zone
+.preventif_equipement_zone_page td, .preventif_equipement_zone_page th {
+    border: 1px solid black;
+    padding:1mm;
+}
+.preventif_equipement_zone_page th{
+    font-weight: bold;
+    text-align:center;
+}
+.preventif_equipement_zone_page h1{
+    font-size:14pt;
+    font-weight: bold;
+}
+
+
+//is_stock_picking
+.is_stock_picking_header {
+    font-size:10pt;
+}
+.is_stock_picking_footer {
+    font-size:7pt;
+}
+.is_stock_picking_page {
+    font-size:9pt;
+}
+.is_stock_picking_header .titre {
+    font-size:11pt;
+    font-weight: bold;
+}
+.is_stock_picking_header .expediteur {
+    font-size:9pt;
+    text-align:center;
+}
+.is_stock_picking_header .destinataire {
+    text-align:left;
+    border: 1px solid black;
+    padding:5mm;
+}

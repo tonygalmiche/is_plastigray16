@@ -83,7 +83,7 @@ class is_liste_servir_client(models.Model):
 class is_liste_servir(models.Model):
     _name='is.liste.servir'
     _description="Liste à servir"
-    _order='name desc'
+    _order='id desc'
 
     def _get_default_location(self):
         company_id = self.env.user.company_id.id
