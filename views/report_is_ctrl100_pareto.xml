@@ -1,71 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
-
-        <template id="is_ctrl100_pareto_style">
-            h1{
-                font-size:16pt;
-                font-weight: bold;
-            }
-
-        </template>
-
-        <template id="is_ctrl100_pareto_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_pg_2019.is_ctrl100_pareto_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="is_ctrl100_pareto_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_pg_2019.is_ctrl100_pareto_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-        <template id="is_ctrl100_pareto_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id" />
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company" />
-            </t>
-            <t t-call="is_pg_2019.is_ctrl100_pareto_external_layout_header"/>
-            <t t-raw="0" />
-        </template>
-
-        <template id="is_ctrl100_pareto_external_layout_header">
-            <div class="header">
-            </div>
-        </template>
-
-        <template id="is_ctrl100_pareto">
-            <t t-call="is_pg_2019.is_ctrl100_pareto_html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="is_pg_2019.is_ctrl100_pareto_external_layout">
-                    <t t-call="report.internal_layout">
+        <template id="ctrl100_pareto_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header">
+                    </div>
                     <div class="page">
-                        <h1>Contrôle 100% - Pareto des temps passé (H) au tri par moule</h1>
-
-
-
+                        <h1 style="font-size:16pt;font-weight: bold;">Contrôle 100% - Pareto des temps passé (H) au tri par moule</h1>
                         <table class="table table-condensed">
                             <tbody>
                                 <tr t-if="o.date_creation">
@@ -88,274 +31,18 @@
                                     <th style="width:24%">Date de fin</th>
                                     <td style="width:76%"><span t-field="o.date_fin"/></td>
                                 </tr>
-                                <!--
-                                <tr t-if="o.moule">
-                                    <th style="width:24%">Moule / Dossier F</th>
-                                    <td style="width:76%"><span t-field="o.moule"/></td>
-                                </tr>
-                                <tr t-if="o.code_pg">
-                                    <th style="width:24%">Code PG (Partiel)</th>
-                                    <td style="width:76%"><span t-field="o.code_pg"/></td>
-                                </tr>
-                                <tr t-if="o.of_debut_id">
-                                    <th style="width:24%">OF début</th>
-                                    <td style="width:76%"><span t-field="o.of_debut_id"/></td>
-                                </tr>
-                                <tr t-if="o.of_fin_id">
-                                    <th style="width:24%">OF fin</th>
-                                    <td style="width:76%"><span t-field="o.of_fin_id"/></td>
-                                </tr>
-                                -->
                             </tbody>
                         </table>
-                        <img t-if="o.get_chart_img()" t-att-src="'data:image/png;base64,%s' % o.get_chart_img()"/>
-
-                        <!--
-                        <div class="oe_structure" />
-                        <div class="row">
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="15%">
-                                                    Gamme n° :
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.gamme_id.name" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Créée par :
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                         <span t-field="o.create_uid.name"/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="15%">
-                                                    Type :
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.gamme_id.type_gamme" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Le :
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                         <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.gamme_id.date_creation,'%Y-%m-%d'))"/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="15%">
-                                                    Produit :
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.gamme_id.product_id.name" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Date de fin de validité : 
-                                                </td>
-                                                <td width="32%">
-                                                    <t t-if="o.gamme_id.date_fin_validite">
-                                                        <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.gamme_id.date_fin_validite,'%Y-%m-%d'))"/>
-                                                    </t>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="100%">
-                                                    Typologie de produit contrôlé : <span t-field="o.gamme_id.typologie_produit_id.name" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="10%">
-                                                    Contrôle du :
-                                                </td>
-                                                <td width="40%">
-                                                    <div>
-                                                        <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_debut,'%Y-%m-%d'))"/> au <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_fin,'%Y-%m-%d'))"/>
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Coût du contrôle : 
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                         <span t-field="o.gamme_id.cout_ctrl_qualite"/> €/H
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="20%">
-                                                    Quantité contrôlée :  <span t-esc="o.get_quantite(o.date_debut, o.date_fin)" />
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                        <td width="100%">
-                                                        </td>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="20%">
-                                                    Quantité NOK :  <span t-esc="o.get_quantite_controlee(o.gamme_id, o.date_debut, o.date_fin)['nb_rebuts']" />
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                        
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="20%">
-                                                    Quantité reprise :  <span t-esc="o.get_quantite_controlee(o.gamme_id, o.date_debut, o.date_fin)['nb_repris']" />
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="100%">
-                                                    Pareto des défauts trouvés
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            <br/>
-                            <t t-set="i" t-value="1" />
-                            <t t-set="default_values" t-value="o.get_default_data(o.gamme_id,o.date_debut,o.date_fin)" />
-                            <t t-if="default_values">
-                                <table class="tablecls" width="100%">
-                                    <th width="5%">
-                                        <div>Rang</div>
-                                    </th>
-                                    <th width="31%">
-                                        <div>Description</div>
-                                    </th>
-                                    <th width="44%">
-                                        <div>Photo</div>
-                                    </th>
-                                    <th width="10%">
-                                        <div>Quantité</div>
-                                    </th>
-                                    <th width="10%">
-                                        <div>Pourcentage</div>
-                                    </th>
-                                    <t t-foreach="default_values" t-as="rec">
-                                        <tr>
-                                            <td width="15%">
-                                                <span t-esc="i" />
-                                            </td>
-                                            <td width="21%">
-                                                <t t-raw="rec['desc'].replace('\n', '&lt;br&gt;')" />
-                                            </td>
-                                            <td width="12%">
-                                                <img t-if="rec['photo']"
-                                                            t-att-src="'data:image/png;base64,%s' % rec['photo']"
-                                                            class="imgclass0" />
-                                            </td>
-                                            <td width="10%">
-                                                <span t-esc="rec['qty']" />
-                                            </td>
-                                            <td width="10%">
-                                                <t t-esc="round(rec['perc'],2)"/> %
-                                            </td>
-                                        </tr>
-                                        <t t-set="i" t-value="i+1"/>
-                                    </t>
-                                </table>
-                            </t>
-                            <br/>
-                            
-                            <table class="tablecls" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <img t-if="o.get_chart_img()"
-                                                            t-att-src="'data:image/png;base64,%s' % o.get_chart_img()"
-                                                             />
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table>
-                                <tr>
-                                    <td width="100%">
-                                        <span t-esc="o.remove_chart_img()" />
-                                    </td>
-                                </tr>
-                            </table>
-                            
-
-                        </div>
-                        -->
-
-
+                        <!-- <img t-if="o.get_chart_img()" t-att-src="'data:image/png;base64,%s' % o.get_chart_img()"/> -->
+                        <img t-if="o.get_chart_img()" t-att-src="image_data_uri(o.get_chart_img())"/>
                     </div>
-                    </t>
+                    <div class="footer">
+                    </div>
+                    <p style="page-break-before:always;"> </p>
                 </t>
             </t>
-            </t>
         </template>
-
-        <report id="report_is_ctrl100_pareto" model="is.ctrl100.pareto"
-            string="Pareto" report_type="qweb-pdf"
-            name="is_pg_2019.is_ctrl100_pareto" file="is_pg_2019.is_ctrl100_pareto" />
-
-        <record id="is_ctrl100_pareto_paperformat" model="report.paperformat">
+        <record id="ctrl100_pareto_paperformat" model="report.paperformat">
             <field name="name">A4 - Contrôle 100% - Pareto</field>
             <field name="default" eval="True" />
             <field name="format">A4</field>
@@ -370,10 +57,14 @@
             <field name="header_spacing">5</field>
             <field name="dpi">90</field>
         </record>
-
-        <record id="report_is_ctrl100_pareto" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_pg_2019.is_ctrl100_pareto_paperformat" />
+        <record id="ctrl100_pareto_report" model="ir.actions.report">
+            <field name="name">Pareto</field>
+            <field name="model">is.ctrl100.pareto</field>
+            <field name="binding_model_id" ref="model_is_ctrl100_pareto"/>
+            <field name="paperformat_id" ref="ctrl100_pareto_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.ctrl100_pareto_template</field>
+            <field name="report_file">is_plastigray16.ctrl100_pareto_template</field>
         </record>
-
     </data>
-</openerp>
+</odoo>

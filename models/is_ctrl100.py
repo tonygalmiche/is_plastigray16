@@ -7,16 +7,16 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from collections import defaultdict
-#from datetime import datetime, timedelta
-#import matplotlib
-#import matplotlib.transforms
-#matplotlib.use('Agg')
+from datetime import datetime, timedelta
+import matplotlib
+import matplotlib.transforms
+matplotlib.use('Agg')
 #import numpy as np
 #import pandas as pd
-#import matplotlib.pyplot as plt
-#import os
-#import base64
-#import textwrap
+import matplotlib.pyplot as plt
+import os
+import base64
+import textwrap
 
 
 class is_ctrl100_operation_standard(models.Model):
@@ -94,37 +94,62 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
 
 
     def get_defautheque_data(self):
-        cr = self._cr
-        res = False
-        defautheque = []
-        rec_dict = defaultdict(list)
-        defautheque_obj = self.env['is.ctrl100.defautheque']
+        res=[]
+        for obj in self:
+            #lines = self.env['is.ctrl100.defautheque'].search_read([('moule_dossierf','=',obj.moule_dossierf)],['id','name','defaut','ou_et_quand'])
+            lines = self.env['is.ctrl100.defautheque'].search_read(
+                [('moule_dossierf','=',obj.moule_dossierf)],
+                ['id','name','defaut','ou_et_quand','photo'],
+                order="name"
+            )
+            for line in lines:
+                res.append(line)
+
+
+
+            # meetings_lines = self.env['calendar.event'].search_read(
+            #     self._systray_get_calendar_event_domain(),
+            #     ['id', 'start', 'name', 'allday', 'attendee_status'],
+            #     order='start')
+            # meetings_lines = [line for line in meetings_lines if line['attendee_status'] != 'declined']
+
+
+
+        return res
+
 
 
         #TODO : Le champ photo n'existe plus dans odoo16 =>  select name, defaut, ou_et_quand, photo
+        # cr = self._cr
+        # res = False
+        # defautheque = []
+        # rec_dict = defaultdict(list)
+        # for obj in self:
+        #     SQL = """
+        #         select name, defaut, ou_et_quand
+        #         from is_ctrl100_defautheque
+        #         where 
+        #             moule_dossierf='"""+str(obj.moule_dossierf)+"""' and
+        #             active='t'
+        #         order by name
+        #     """
+        #     cr.execute(SQL)
+        #     res_ids = cr.fetchall()
+        #     for res in res_ids:
+        #         recdict = {
+        #             'name'       : res[0],
+        #             'defaut'     : res[1] or '',
+        #             'ou_et_quand': res[2] or '',
+        #             #'photo'      : res[3] or '',
+        #             'photo'      : '',
+        #         }
+        #         defautheque.append(recdict)
+        # return defautheque
 
 
-        for obj in self:
-            SQL = """
-                select name, defaut, ou_et_quand
-                from is_ctrl100_defautheque
-                where 
-                    moule_dossierf='"""+str(obj.moule_dossierf)+"""' and
-                    active='t'
-                order by name
-            """
-            cr.execute(SQL)
-            res_ids = cr.fetchall()
-            for res in res_ids:
-                recdict = {
-                    'name'       : res[0],
-                    'defaut'     : res[1] or '',
-                    'ou_et_quand': res[2] or '',
-                    #'photo'      : res[3] or '',
-                    'photo'      : '',
-                }
-                defautheque.append(recdict)
-        return defautheque
+
+
+
 
 
 
@@ -667,9 +692,9 @@ class is_ctrl100_rapport_controle(models.Model):
 #                 perc = round(perc, 2)
             recdict = {
                 'desc'  : defautheque_data.name + ' - ' + defautheque_data.defaut or '',
-                'name'  : defautheque_data.name,
+                'name'  : defautheque_data.name or '',
                 'photo' : defautheque_data.photo or '',
-                'qty'   : res[1],
+                'qty'   : res[1] or 0,
                 'perc'  : perc,
             }
             seq_no += 1
@@ -717,7 +742,12 @@ class is_ctrl100_rapport_controle(models.Model):
         file_nm = '/tmp/books_read.png'
         image = open(file_nm, 'rb')
         image_read = image.read()
-        image_64_encode = base64.encodestring(image_read)
+        #image_64_encode = base64.encodestring(image_read)
+
+        image_64_encode = base64.b64encode(image_read)
+        #base64_message = base64_encoded_data.decode('utf-8')
+
+
         return image_64_encode
 
     def remove_chart_img(self):
@@ -884,7 +914,8 @@ class is_ctrl100_pareto(models.Model):
             fig.savefig(filename,dpi=46)
             image = open(filename, 'rb')
             image_read = image.read()
-            image_64_encode = base64.encodestring(image_read)
+            #image_64_encode = base64.encodestring(image_read)
+            image_64_encode = base64.b64encode(image_read)
             return image_64_encode
         return True
 

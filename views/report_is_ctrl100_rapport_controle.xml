@@ -1,451 +1,300 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
-
-        <template id="report_controle_transfert_style">
-            .tablecls1 {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls td {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:center;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:center;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls th {
-                font-size:11pt;
-                vertical-align:middle;
-                font-weight: bold;
-                text-align:center;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:center;
-                background-color:#58ACFA;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tdcolor {
-                font-size:16pt;
-                font-weight: bold;
-                vertical-align:middle;
-                text-align:center;
-                border: 0px solid #046dce;
-                background-color:#58ACFA;
-            }
-            .imgclass0 {
-                text-align:center;
-                max-width: 90mm;
-                max-height: 90mm;
-                text-align: center;
-                vertical-align: middle;
-                padding-left:8px;
-                padding-top:5px;
-                padding-bottom:5px;
-                border: 0px solid black;
-            }
-            .imgclass1 {
-                height: 80mm;
-                text-align: middle;
-                width: 80mm;
-                vertical-align: middle;
-                padding-left:8px;
-                padding-top:5px;
-                padding-bottom:5px;
-                border: 0px solid black;
-            }
-            .chart rect {
-              fill: steelblue;
-            }
-            
-            .chart text {
-              fill: white;
-              font: 10px sans-serif;
-              text-anchor: end;
-            }
-            .bar {
-              fill: #d81c3f;
-            }
-            
-            .bar:hover {
-              fill: darkgray;
-            }
-            
-            .axis {
-              font: 10px sans-serif;
-            }
-            
-            .axis path,
-            .axis line {
-              fill: none;
-              stroke: #000;
-              shape-rendering: crispEdges;
-            }
-            
-            .x.axis path {
-              display: none;
-            }
-            
-                        
-        </template>
-
-        <template id="is_ctrl100_rapport_controle_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_pg_2019.report_controle_transfert_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="is_ctrl100_rapport_controle_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_pg_2019.is_ctrl100_rapport_controle_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-        <template id="is_ctrl100_rapport_controle_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id" />
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company" />
-            </t>
-            <t t-call="is_pg_2019.is_ctrl100_rapport_controle_external_layout_header" />
-            <t t-raw="0" />
-        </template>
-
-        <template id="is_ctrl100_rapport_controle_external_layout_header">
-            <div class="header">
-                <div class="row">
-                    <table class="tablecls" width="100%">
-                        <tr>
-                            <td width="15%" rowspan="3" class="classborder">
-                                <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                            </td>
-                            <td width="65%" rowspan="1" style="font-size:16px">
-                                Processus Management de la qualité
-                            </td>
-                            <td width="20%" rowspan="1">
-                                <div>FO-0-MQ-59</div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="tdcolor" rowspan="2">
-                                <div class="tdcolor">Rapport de mission</div>
-                            </td>
-                            <td rowspan="1">
-                                <div>Le <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_debut,'%Y-%m-%d'))"/></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td  rowspan="1">
-                                <div>
-                                    Page <span class="page" />/<span class="topage" />
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </template>
-
-        <template id="is_ctrl100_rapport_controle">
-            <t t-call="is_pg_2019.is_ctrl100_rapport_controle_html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="is_pg_2019.is_ctrl100_rapport_controle_external_layout">
-                    <t t-call="report.internal_layout">
-                    <div class="page">
-                        <div class="oe_structure" />
-                        <div class="row">
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="15%">
-                                                    Gamme n° :
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.gamme_id.name" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Créée par :
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                         <span t-field="o.create_uid.name"/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="15%">
-                                                    Type :
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.gamme_id.type_gamme" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Le :
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                         <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.gamme_id.date_creation,'%Y-%m-%d'))"/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="15%">
-                                                    <div t-if="o.gamme_id.moule_dossierf">Moule / Dossier F : </div>
-                                                    <div t-if="o.gamme_id.product_id">Article : </div>
-                                                </td>
-                                                <td width="35%">
-                                                    <div t-if="o.gamme_id.moule_dossierf">
-                                                        <b t-field="o.gamme_id.moule_dossierf"/>
-                                                    </div>
-                                                    <div t-if="o.gamme_id.product_id">
-                                                        <b t-field="o.gamme_id.product_id"/>
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Date de fin de validité : 
-                                                </td>
-                                                <td width="32%">
-                                                    <t t-if="o.gamme_id.date_fin_validite">
-                                                        <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.gamme_id.date_fin_validite,'%Y-%m-%d'))"/>
-                                                    </t>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="100%">
-                                                    Typologie de produit contrôlé : <span t-field="o.gamme_id.typologie_produit_id.name" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="10%">
-                                                    Contrôle du :
-                                                </td>
-                                                <td width="40%">
-                                                    <div>
-                                                        <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_debut,'%Y-%m-%d'))"/> au <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_fin,'%Y-%m-%d'))"/>
-                                                    </div>
-                                                </td>
-                                                <td width="25%">
-                                                    <div>Durée du contrôle : </div>
-                                                    <t t-if="o.afficher_cout">
-                                                        <div>Coût horaire du contrôle : </div>
-                                                        <div>Coût total du contrôle : </div>
-                                                    </t>
-                                                </td>
-                                                <td width="25%">
-                                                    <t t-set="tps_passe"  t-value="o.get_tps_passe(o.gamme_id, o.date_debut, o.date_fin)"/>
-                                                    <t t-set="cout_total" t-value="tps_passe*o.gamme_id.cout_ctrl_qualite"/>
-                                                    <div><span t-esc='"{:,.2f}".format(tps_passe).replace(","," ").replace(".",",")'/> H</div>
-                                                    <t t-if="o.afficher_cout">
-                                                        <div><span t-field="o.gamme_id.cout_ctrl_qualite"/> €/H</div>
-                                                        <div><span t-esc='"{:,.2f}".format(cout_total).replace(","," ").replace(".",",")'/> €</div>
-                                                    </t>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="20%">
-                                                    Quantité contrôlée :  <span t-esc="o.get_quantite(o.gamme_id,o.date_debut, o.date_fin)" />
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                        <td width="100%">
-                                                        </td>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="20%">
-                                                    Quantité NOK :  <span t-esc="o.get_quantite_controlee(o.gamme_id, o.date_debut, o.date_fin)['nb_rebuts']" />
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                        
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="20%">
-                                                    Quantité reprise :  <span t-esc="o.get_quantite_controlee(o.gamme_id, o.date_debut, o.date_fin)['nb_repris']" />
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="20%">
-                                                    % de rebuts : <span t-esc="o.get_pourcentage_rebuts(o.gamme_id, o.date_debut, o.date_fin)"/> %
-                                                </td>
-                                                <td width="80%">
-                                                    <div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <br/>
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="100%">
-                                                    Pareto des défauts trouvés
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            <br/>
-                            <t t-set="i" t-value="1" />
-                            <t t-set="default_values" t-value="o.get_default_data(o.gamme_id,o.date_debut,o.date_fin)" />
-                            <t t-if="default_values">
-                                <table class="tablecls" width="100%">
-                                    <th width="5%">
-                                        <div>Rang</div>
-                                    </th>
-                                    <th width="28%">
-                                        <div>Description</div>
-                                    </th>
-                                    <th width="50%">
-                                        <div>Photo</div>
-                                    </th>
-                                    <th width="10%">
-                                        <div>Quantité</div>
-                                    </th>
-                                    <th width="7%">
-                                        <div>%</div>
-                                    </th>
-                                    <t t-foreach="default_values" t-as="rec">
+        <template id="rapport_mission_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header rapport_mission_header">
+                        <table class="rapport_mission_tablecls" width="100%">
+                            <tr>
+                                <td width="15%" rowspan="3" class="classborder">
+                                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                </td>
+                                <td width="65%" rowspan="1" style="font-size:16px">
+                                    Processus Management de la qualité
+                                </td>
+                                <td width="20%" rowspan="1">
+                                    <div>FO-0-MQ-59</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tdcolor" rowspan="2">
+                                    <div class="tdcolor">Rapport de mission</div>
+                                </td>
+                                <td rowspan="1">
+                                    <div>Le <span t-field="o.date_debut"/></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  rowspan="1">
+                                    <div>
+                                        Page <span class="page" />/<span class="topage" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="page rapport_mission_page">
+                        <br/>
+                        <table class="rapport_mission_tablecls1" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
                                         <tr>
-                                            <td>
-                                                <span t-esc="i" />
+                                            <td width="15%">
+                                                Gamme n° :
                                             </td>
-                                            <td>
-                                                <t t-raw="rec['desc'].replace('\n', '&lt;br&gt;')" />
+                                            <td width="35%">
+                                                <div>
+                                                    <span t-field="o.gamme_id.name" />
+                                                </div>
                                             </td>
-                                            <td width="12%">
-                                                <img t-if="rec['photo']"
-                                                            t-att-src="'data:image/png;base64,%s' % rec['photo']"
-                                                            class="imgclass0" />
+                                            <td width="18%">
+                                                Créée par :
                                             </td>
-                                            <td>
-                                                <span t-esc="rec['qty']" />
-                                            </td>
-                                            <td>
-                                                <t t-esc="int(rec['perc'])"/>%
+                                            <td width="32%">
+                                                <div>
+                                                        <span t-field="o.create_uid.name"/>
+                                                </div>
                                             </td>
                                         </tr>
-                                        <t t-set="i" t-value="i+1"/>
-                                    </t>
-                                </table>
-                            </t>
-                            
-                            <p style="page-break-after:always"> </p>
-                            <table class="tablecls" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <img t-if="o.get_chart_img()"
-                                                            t-att-src="'data:image/png;base64,%s' % o.get_chart_img()"
-                                                             />
-                                    </td>
-                                </tr>
+                                        <tr>
+                                            <td width="15%">
+                                                Type :
+                                            </td>
+                                            <td width="35%">
+                                                <div>
+                                                    <span t-field="o.gamme_id.type_gamme" />
+                                                </div>
+                                            </td>
+                                            <td width="18%">
+                                                Le :
+                                            </td>
+                                            <td width="32%">
+                                                <div>
+                                                        <span t-field="o.gamme_id.date_creation"/>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="15%">
+                                                <div t-if="o.gamme_id.moule_dossierf">Moule / Dossier F : </div>
+                                                <div t-if="o.gamme_id.product_id">Article : </div>
+                                            </td>
+                                            <td width="35%">
+                                                <div t-if="o.gamme_id.moule_dossierf">
+                                                    <b t-field="o.gamme_id.moule_dossierf"/>
+                                                </div>
+                                                <div t-if="o.gamme_id.product_id">
+                                                    <b t-field="o.gamme_id.product_id"/>
+                                                </div>
+                                            </td>
+                                            <td width="18%">
+                                                Date de fin de validité : 
+                                            </td>
+                                            <td width="32%">
+                                                <t t-if="o.gamme_id.date_fin_validite">
+                                                    <span t-field="o.gamme_id.date_fin_validite"/>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <br/>
+                        <table class="rapport_mission_tablecls1" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="100%">
+                                                Typologie de produit contrôlé : <span t-field="o.gamme_id.typologie_produit_id.name" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <br/>
+                        <table class="rapport_mission_tablecls1" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="10%">
+                                                Contrôle du :
+                                            </td>
+                                            <td width="40%">
+                                                <div>
+                                                    <span t-field="o.date_debut"/> au <span t-field="o.date_fin"/>
+                                                </div>
+                                            </td>
+                                            <td width="25%">
+                                                <div>Durée du contrôle : </div>
+                                                <t t-if="o.afficher_cout">
+                                                    <div>Coût horaire du contrôle : </div>
+                                                    <div>Coût total du contrôle : </div>
+                                                </t>
+                                            </td>
+                                            <td width="25%">
+                                                <t t-set="tps_passe"  t-value="o.get_tps_passe(o.gamme_id, o.date_debut, o.date_fin)"/>
+                                                <t t-set="cout_total" t-value="tps_passe*o.gamme_id.cout_ctrl_qualite"/>
+                                                <div><span t-esc='"{:,.2f}".format(tps_passe).replace(","," ").replace(".",",")'/> H</div>
+                                                <t t-if="o.afficher_cout">
+                                                    <div><span t-field="o.gamme_id.cout_ctrl_qualite"/> €/H</div>
+                                                    <div><span t-esc='"{:,.2f}".format(cout_total).replace(","," ").replace(".",",")'/> €</div>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <br/>
+                        <table class="rapport_mission_tablecls1" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="20%">
+                                                Quantité contrôlée :  <span t-esc="o.get_quantite(o.gamme_id,o.date_debut, o.date_fin)" />
+                                            </td>
+                                            <td width="80%">
+                                                <div>
+                                                    <td width="100%">
+                                                    </td>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="20%">
+                                                Quantité NOK :  <span t-esc="o.get_quantite_controlee(o.gamme_id, o.date_debut, o.date_fin)['nb_rebuts']" />
+                                            </td>
+                                            <td width="80%">
+                                                <div>
+                                                    
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="20%">
+                                                Quantité reprise :  <span t-esc="o.get_quantite_controlee(o.gamme_id, o.date_debut, o.date_fin)['nb_repris']" />
+                                            </td>
+                                            <td width="80%">
+                                                <div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="20%">
+                                                % de rebuts : <span t-esc="o.get_pourcentage_rebuts(o.gamme_id, o.date_debut, o.date_fin)"/> %
+                                            </td>
+                                            <td width="80%">
+                                                <div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <br/>
+                        <table class="rapport_mission_tablecls1" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="100%">
+                                                Pareto des défauts trouvés
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+                        <t t-set="i" t-value="1" />
+                        <t t-set="default_values" t-value="o.get_default_data(o.gamme_id,o.date_debut,o.date_fin)" />
+                        <t t-if="default_values">
+                            <table class="rapport_mission_tablecls" width="100%">
+                                <th width="5%">
+                                    <div>Rang</div>
+                                </th>
+                                <th width="28%">
+                                    <div>Description</div>
+                                </th>
+                                <th width="50%">
+                                    <div>Photo</div>
+                                </th>
+                                <th width="10%">
+                                    <div>Quantité</div>
+                                </th>
+                                <th width="7%">
+                                    <div>%</div>
+                                </th>
+                                <t t-foreach="default_values" t-as="rec">
+                                    <tr>
+                                        <td>
+                                            <span t-esc="i" />
+                                        </td>
+                                        <td>
+                                            <t t-raw="rec['desc'].replace('\n', '&lt;br&gt;')" />
+                                        </td>
+                                        <td width="12%">
+                                            <img t-if="rec['photo']" t-att-src="image_data_uri(rec['photo'])" class="rapport_mission_imgclass0"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="rec['qty']" />
+                                        </td>
+                                        <td>
+                                            <t t-esc="int(rec['perc'])"/>%
+                                        </td>
+                                    </tr>
+                                    <t t-set="i" t-value="i+1"/>
+                                </t>
                             </table>
-                            
-                            <br/>
-                            <table>
-                                <tr>
-                                    <td width="100%">
-                                        <span t-esc="o.remove_chart_img()" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                        </t>
+                        
+                        <p style="page-break-after:always"> </p>
+                        <table class="rapport_mission_tablecls" width="100%">
+                            <tr>
+                                <td width="100%">
+
+                                    <img t-if="o.get_chart_img()" t-att-src="image_data_uri(o.get_chart_img())"/>
+
+
+                                    <!-- <img t-if="o.get_chart_img()"
+                                                        t-att-src="'data:image/png;base64,%s' % o.get_chart_img()"
+                                                            /> -->
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <br/>
+                        <table>
+                            <tr>
+                                <td width="100%">
+                                    <span t-esc="o.remove_chart_img()" />
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
-                    </t>
+                    <div class="footer rapport_mission_footer">
+                       
+                    </div>
+                    <p style="page-break-before:always;"> </p>
                 </t>
             </t>
-            </t>
         </template>
-
-        <report id="report_is_ctrl100_rapport_controle" model="is.ctrl100.rapport.controle"
-            string="Rapport de mission" report_type="qweb-pdf"
-            name="is_pg_2019.is_ctrl100_rapport_controle" file="is_pg_2019.is_ctrl100_rapport_controle" />
-
-        <record id="is_ctrl100_rapport_controle_paperformat" model="report.paperformat">
-            <field name="name">A4 - Rapport de mission</field>
+        <record id="rapport_mission_paperformat" model="report.paperformat">
+            <field name="name">Rapport de mission</field>
             <field name="default" eval="True" />
             <field name="format">A4</field>
             <field name="page_height">0</field>
@@ -460,9 +309,14 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="report_is_ctrl100_rapport_controle" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_pg_2019.is_ctrl100_rapport_controle_paperformat" />
+        <record id="rapport_mission_report" model="ir.actions.report">
+            <field name="name">Rapport de mission</field>
+            <field name="model">is.ctrl100.rapport.controle</field>
+            <field name="binding_model_id" ref="model_is_ctrl100_rapport_controle"/>
+            <field name="paperformat_id" ref="rapport_mission_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.rapport_mission_template</field>
+            <field name="report_file">is_plastigray16.rapport_mission_template</field>
         </record>
-
     </data>
-</openerp>
+</odoo>

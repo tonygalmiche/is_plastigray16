@@ -151,9 +151,11 @@
                         <form>
                             <group>
                                 <field name="operation" />
-                                <field name="photo" widget='image' class="oe_left oe_avatar" />
                                 <field name="temps_etape"/>
                             </group>
+                            <div style="text-align:center"> 
+                                <field name="photo" widget='image' style="max-width:1200px"/>
+                            </div>
                         </form>
                     </field>
                     <button string="Recharger défauthèque" name="recharger_defautheque_action" type="object" confirm="Cela va recharger la défauthèque ci-dessous"/>
@@ -166,8 +168,10 @@
                             <group>
                                 <field name="defaut_id"   readonly="1"/>
                                 <field name="defaut_text" readonly="1"/>
-                                <field name="defaut_photo" widget='image' class="oe_left oe_avatar" readonly="1"/>
                             </group>
+                            <div style="text-align:center"> 
+                                <field name="defaut_photo" widget='image' style="max-width:1200px" readonly="1"/>
+                            </div>
                         </form>
                     </field>
                     <group string="Coût">
@@ -285,14 +289,9 @@
                         <field name="defaut" required="True"/>
                         <field name="ou_et_quand"/>
                     </group>
-                    <group>
-                        <div style="text-align:center"> 
-                            <field 
-                                name="photo" widget='image' class="oe_center oe_avatar" 
-                                options='{"preview_image": "photo", "size": [900, 900]}'
-                            />
-                        </div>
-                    </group>
+                    <div style="text-align:center"> 
+                        <field name="photo" widget='image' style="max-width:1200px"/>
+                    </div>
                     <group>
                         <field name="active"/>
                     </group>
@@ -389,14 +388,9 @@
                                     domain="[('id', 'in', parent.operateur_evalue_ids and parent.operateur_evalue_ids[0] and parent.operateur_evalue_ids[0][2] or False)]"
                                 />
                             </group>
-                            <group>
-                                <div style="text-align:center"> 
-                                    <field readonly="True"
-                                        name="defaut_photo" widget='image' class="oe_center oe_avatar" 
-                                        options='{"preview_image": "defaut_photo", "size": [900, 900]}'
-                                    />
-                                </div>
-                            </group>
+                            <div style="text-align:center"> 
+                                <field readonly="True" name="defaut_photo" widget='image'  style="max-width:1200px"/>
+                            </div>
                         </form>
                     </field>
                     <group>
@@ -692,14 +686,9 @@
                             <field name="nb_repris"/>
                         </group>
                     </group>
-                    <group>
-                        <div style="text-align:center"> 
-                            <field readonly="True"
-                                name="defaut_photo" widget='image' class="oe_center oe_avatar" 
-                                options='{"preview_image": "defaut_photo", "size": [900, 900]}'
-                            />
-                        </div>
-                    </group>
+                    <div style="text-align:center"> 
+                        <field readonly="True" name="defaut_photo" widget='image' style="max-width:1200px"/>
+                    </div>
                 </sheet>
             </form>
             </field>

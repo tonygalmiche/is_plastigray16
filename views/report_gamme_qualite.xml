@@ -5,417 +5,247 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <template id="report_qualite_transfert_style">
-            .tablecls1 {
-                font-size:11pt;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls1 td {
-                font-size:11pt;
-                border: 0px solid #046dce;
-                vertical-align:middle;
-                text-align:left;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls td {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:center;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:center;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls th {
-                font-size:11pt;
-                vertical-align:middle;
-                font-weight: bold;
-                text-align:center;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:center;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tdcolor {
-                font-size:16pt;
-                font-weight: bold;
-                vertical-align:middle;
-                text-align:center;
-                border: 0px solid #046dce;
-            }
-            .tdjaune {
-                background-color:Yellow;
-            }
-            .tdorange {
-                background-color:Orange;
-            }
-            .tdviolet {
-                background-color:Violet;
-            }
-            .imgclass0 {
-                text-align:center;
-                max-height: 90mm;
-                text-align: center;
-                max-width: 90mm;
-                vertical-align: middle;
-                padding-left:8px;
-                padding-top:5px;
-                padding-bottom:5px;
-                border: 0px solid black;
-            }
-        </template>
-
-        <template id="report_qualite_transfert_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
-            <xpath expr="//html" position="attributes">
-                <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
-                <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
-                <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
-            </xpath>
-            <!-- Add report style -->
-            <xpath expr="//head" position="inside">
-                <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                <link href="/website/static/src/css/website.css" rel="stylesheet"/>
-                <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
-                <style type="text/css">
-                    <t t-call="report.style"/>
-                    <t t-call="is_pg_2019.report_qualite_transfert_style"/>
-                </style>
-            </xpath>
-            <!-- Remove conflicting style -->
-            <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
-        </template>
-
-
-
-        <template id="report_qualite_transfert_html_container">
-            <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_pg_2019.report_qualite_transfert_layout">
-                <t t-raw="0"/>
-            </t>
-        </template>
-
-        <template id="report_gamme_qualite_external_layout">
-            <t t-if="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id" />
-            </t>
-            <t t-if="not o or not 'company_id' in o">
-                <t t-set="company" t-value="res_company" />
-            </t>
-            <t t-call="is_pg_2019.report_gamme_qualite_external_layout_header" />
-            <t t-raw="0" />
-        </template>
-
-        <template id="report_gamme_qualite_external_layout_header">
-            <div class="header">
-                <div class="row">
-                    <table class="tablecls" width="100%">
-                        <tr>
-                            <td width="15%" rowspan="3" class="classborder">
-                                <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                            </td>
-                            <td width="65%" rowspan="1" style="font-size:16px">
-                                Processus Management de la qualité
-                            </td>
-                            <td width="20%" rowspan="1">
-                                <div>FO-0-MQ-60</div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td t-att-class="o.get_couleur()" rowspan="2">
-                                <div class="tdcolor">Gamme mur qualité</div>
-                            </td>
-                            <td rowspan="1">
-                                <div>Le <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td  rowspan="1">
-                                <div>
-                                    Page <span class="page" />/<span class="topage" />
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </template>
-
-        <template id="report_gamme_qualite_document">
-            <t t-call="is_pg_2019.report_qualite_transfert_html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="is_pg_2019.report_gamme_qualite_external_layout">
-                    <t t-call="report.internal_layout">
-                    <div class="page">
-                        <div class="oe_structure" />
-                        <div class="row">
-                            <table class="tablecls1" width="100%">
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="15%">
-                                                    Gamme n°
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.name" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Créée par
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                         <span t-field="o.create_uid.name"/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="15%">
-                                                    Type
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.type_gamme" />
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Le
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                        <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="15%">
-                                                    Produit
-                                                </td>
-                                                <td width="35%">
-                                                    <div>
-                                                        <span t-field="o.product_id.is_code"/>
-                                                        <span t-field="o.mold_id.name"/>
-                                                        <span t-field="o.dossierf_id.name"/>
-                                                    </div>
-                                                </td>
-                                                <td width="18%">
-                                                    Date de fin de validité
-                                                </td>
-                                                <td width="32%">
-                                                    <div>
-                                                        <t t-if="o.date_fin_validite">
-                                                            <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_fin_validite,'%Y-%m-%d'))"/>
-                                                        </t>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="27%">
-                                                    Cadence de contrôle prévisionnelle
-                                                </td>
-                                                <td width="28%">
-                                                    <span t-field="o.cadence_previsionnelle" /> pièces/h
-                                                </td>
-                                                <td width="25%">
-                                                    <t t-if="o.afficher_cout">
-                                                        soit un coût de contrôle/pièce de
-                                                    </t>
-                                                </td>
-                                                <td width="20%">
-                                                    <t t-if="o.afficher_cout">
-                                                         <span t-field="o.cout_previsionnel"/> €
-                                                    </t>
-                                                </td>
-                                            </tr>
-                                            <tr t-if="o.afficher_cout">
-                                                <td width="27%">
-                                                    Coût horaire du contrôle
-                                                </td>
-                                                <td width="28%">
-                                                    <div>
-                                                         <span t-field="o.cout_ctrl_qualite"/> €/H
-                                                    </div>
-                                                </td>
-                                                <td width="25%">
-                                                </td>
-                                                <td width="20%">
-                                                    <div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="100%">
-                                        <table width="100%">
-                                            <tr>
-                                                <td width="22%">
-                                                    Typologie de produit contrôlé
-                                                </td>
-                                                <td width="78%">
-                                                    <div>
-                                                        <span t-field="o.typologie_produit_id.name" />
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            <br/>
-
-                            <t t-if="o.operation_standard_ids">
-                                <table class="tablecls" width="100%">
-                                    <th width="100%">Liste des opérations standards</th>
-                                    <!--<th width="20%">Temps (s/pièce)</th>-->
-                                    <t t-foreach="o.operation_standard_ids" t-as="rec">
-                                        <t t-if="rec.active">
-                                        <tr>
-                                            <td style="text-align: left">
-                                                <span t-esc="rec.operation_standard_id.name" />
-                                            </td>
-                                            <!--
-                                            <td width="20%" style="text-align: right">
-                                                <span t-esc="rec.temps_etape" />
-                                            </td>
-                                            -->
-                                        </tr>
-                                        </t>
-                                    </t>
-                                </table>
-                            </t>
-                            <br/>
-                            <t t-if="o.operation_specifique_ids">
-                                <table class="tablecls" width="100%">
-                                    <th width="45%">Liste des opérations spécifiques</th>
-                                    <th width="45%">Photo</th>
-                                    <th width="10%">Temps (s/pièce)</th>
-                                    <t t-foreach="o.operation_specifique_ids" t-as="rec">
-                                        <tr>
-                                            <td>
-                                                <div align="left">
-                                                    <t t-raw="rec.operation.replace('\n', '&lt;br&gt;')" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <img t-if="rec.photo"
-                                                                    t-att-src="'data:image/png;base64,%s' % rec.photo"
-                                                                    class="imgclass0" />
-                                            </td>
-                                            <td>
-                                                <span t-esc="rec.temps_etape" />
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </table>
-                            </t>
-
-                            <br/>
-                            <table class="tablecls" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="10%">N° du défaut</th>
-                                        <th width="40%">Description</th>
-                                        <th width="50%">Photo</th>
-                                    </tr>
-                                </thead>
-                                <tboby>
-                                    <t t-foreach="o.defautheque_ids" t-as="d">
-                                        <tr>
-                                            <td><span t-field="d.defaut_id.name"/></td>
-                                            <td><span t-field="d.defaut_text"/></td>
-                                            <td>
-                                                <div>
-                                                    <img 
-                                                        t-if="d.defaut_photo"
-                                                        t-att-src="'data:image/png;base64,%s' % d.defaut_photo"
-                                                        class="imgclass0"
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tboby>
-                            </table>
-
-
-
-                            <!--
-                            <br/>
-                            <t t-if="o.risque_lie_ids">
-                                <table class="tablecls" width="100%">
-                                    <thead>
-                                        <th width="40%">Risque lié à cette opération</th>
-                                        <th width="60%">Description du verrou mis en place pour répondre à ce risque</th>
-                                    </thead>
-                                    <tboby>
-                                        <t t-foreach="o.risque_lie_ids" t-as="rec">
-                                            <tr>
-                                                <td style="text-align: left"><span t-field="rec.name"/></td>
-                                                <td style="text-align: left"><span t-field="rec.description"/></td>
-                                            </tr>
-                                        </t>
-                                    </tboby>
-                                </table>
-                            </t>
-                            -->
-                        </div>
+        <template id="gamme_qualite_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header gamme_qualite_header">
+                        <table class="gamme_qualite_tablecls" width="100%">
+                            <tr>
+                                <td width="15%" rowspan="3" class="classborder">
+                                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                                </td>
+                                <td width="65%" rowspan="1" style="font-size:16px">
+                                    Processus Management de la qualité
+                                </td>
+                                <td width="20%" rowspan="1">
+                                    <div>FO-0-MQ-60</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td t-att-class="o.get_couleur()" rowspan="2">
+                                    <div class="gamme_qualite_tdcolor">Gamme mur qualité</div>
+                                </td>
+                                <td rowspan="1">
+                                    <!-- <div>Le <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/></div> -->
+                                    <div>Le <span t-field="o.date_creation"/></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  rowspan="1">
+                                    <div>
+                                        Page <span class="page" />/<span class="topage" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    </t>
+                    <div class="page gamme_qualite_page">
+                        <table class="gamme_qualite_tablecls1" width="100%">
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="15%">
+                                                Gamme n°
+                                            </td>
+                                            <td width="35%">
+                                                <div>
+                                                    <span t-field="o.name" />
+                                                </div>
+                                            </td>
+                                            <td width="18%">
+                                                Créée par
+                                            </td>
+                                            <td width="32%">
+                                                <div>
+                                                        <span t-field="o.create_uid.name"/>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="15%">
+                                                Type
+                                            </td>
+                                            <td width="35%">
+                                                <div>
+                                                    <span t-field="o.type_gamme" />
+                                                </div>
+                                            </td>
+                                            <td width="18%">
+                                                Le
+                                            </td>
+                                            <td width="32%">
+                                                <div>
+                                                    <!-- <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/> -->
+                                                    <span t-field="o.date_creation"/>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="15%">
+                                                Produit
+                                            </td>
+                                            <td width="35%">
+                                                <div>
+                                                    <span t-field="o.product_id.is_code"/>
+                                                    <span t-field="o.mold_id.name"/>
+                                                    <span t-field="o.dossierf_id.name"/>
+                                                </div>
+                                            </td>
+                                            <td width="18%">
+                                                Date de fin de validité
+                                            </td>
+                                            <td width="32%">
+                                                <div>
+                                                    <t t-if="o.date_fin_validite">
+                                                        <span t-field="o.date_fin_validite"/>
+                                                        <!-- <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_fin_validite,'%Y-%m-%d'))"/> -->
+                                                    </t>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="27%">
+                                                Cadence de contrôle prévisionnelle
+                                            </td>
+                                            <td width="28%">
+                                                <span t-field="o.cadence_previsionnelle" /> pièces/h
+                                            </td>
+                                            <td width="25%">
+                                                <t t-if="o.afficher_cout">
+                                                    soit un coût de contrôle/pièce de
+                                                </t>
+                                            </td>
+                                            <td width="20%">
+                                                <t t-if="o.afficher_cout">
+                                                        <span t-field="o.cout_previsionnel"/> €
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="o.afficher_cout">
+                                            <td width="27%">
+                                                Coût horaire du contrôle
+                                            </td>
+                                            <td width="28%">
+                                                <div>
+                                                        <span t-field="o.cout_ctrl_qualite"/> €/H
+                                                </div>
+                                            </td>
+                                            <td width="25%">
+                                            </td>
+                                            <td width="20%">
+                                                <div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%">
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="22%">
+                                                Typologie de produit contrôlé
+                                            </td>
+                                            <td width="78%">
+                                                <div>
+                                                    <span t-field="o.typologie_produit_id.name" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+
+                        <t t-if="o.operation_standard_ids">
+                            <table class="gamme_qualite_tablecls" width="100%">
+                                <th width="100%">Liste des opérations standards</th>
+                                <t t-foreach="o.operation_standard_ids" t-as="rec">
+                                    <t t-if="rec.active">
+                                    <tr>
+                                        <td style="text-align: left">
+                                            <span t-esc="rec.operation_standard_id.name" />
+                                        </td>
+                                        
+                                    </tr>
+                                    </t>
+                                </t>
+                            </table>
+                        </t>
+                        <br/>
+                        <t t-if="o.operation_specifique_ids">
+                            <table class="gamme_qualite_tablecls" width="100%">
+                                <th width="45%">Liste des opérations spécifiques</th>
+                                <th width="45%">Photo</th>
+                                <th width="10%">Temps (s/pièce)</th>
+                                <t t-foreach="o.operation_specifique_ids" t-as="rec">
+                                    <tr>
+                                        <td>
+                                            <div align="left">
+                                                <t t-raw="rec.operation.replace('\n', '&lt;br&gt;')" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <img t-if="rec.photo"       t-att-src="image_data_uri(rec.photo)" class="gamme_qualite_imgclass0"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="rec.temps_etape" />
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+                        </t>
+
+                        <br/>
+                        <table class="gamme_qualite_tablecls" width="100%">
+                            <thead>
+                                <tr>
+                                    <th width="10%">N° du défaut</th>
+                                    <th width="40%">Description</th>
+                                    <th width="50%">Photo</th>
+                                </tr>
+                            </thead>
+                            <tboby>
+                                <t t-foreach="o.defautheque_ids" t-as="d">
+                                    <tr>
+                                        <td><span t-field="d.defaut_id.name"/></td>
+                                        <td><span t-field="d.defaut_text"/></td>
+                                        <td>
+                                            <div>
+                                                <img t-if="d.defaut_photo" t-att-src="image_data_uri(d.defaut_photo)" class="gamme_qualite_imgclass0"/>
+
+
+                                                <!-- <img 
+                                                    t-if="d.defaut_photo"
+                                                    t-att-src="'data:image/png;base64,%s' % d.defaut_photo"
+                                                    class="imgclass0"
+                                                /> -->
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tboby>
+                        </table>
+                    </div>
+                    <div class="footer gamme_defautheques_footer">
+                       
+                    </div>
+                    <p style="page-break-before:always;"> </p>
                 </t>
             </t>
-            </t>
         </template>
-
-        <report id="report_gamme_qualite" model="is.ctrl100.gamme.mur.qualite"
-            string="Gamme mur qualité" report_type="qweb-pdf"
-            name="is_pg_2019.report_gamme_qualite_document" file="is_pg_2019.report_gamme_qualite_document" />
-
-        <record id="report_gamme_qualite_paperformat" model="report.paperformat">
-            <field name="name">A4 - Tampographie Reglage</field>
+        <record id="gamme_qualite_paperformat" model="report.paperformat">
+            <field name="name">Gamme mur qualité</field>
             <field name="default" eval="True" />
             <field name="format">A4</field>
             <field name="page_height">0</field>
@@ -430,9 +260,14 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="report_gamme_qualite" model="ir.actions.report.xml">
-            <field name="paperformat_id" ref="is_pg_2019.report_gamme_qualite_paperformat" />
+        <record id="gamme_qualite_report" model="ir.actions.report">
+            <field name="name">Gamme mur qualité</field>
+            <field name="model">is.ctrl100.gamme.mur.qualite</field>
+            <field name="binding_model_id" ref="model_is_ctrl100_gamme_mur_qualite"/>
+            <field name="paperformat_id" ref="gamme_qualite_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.gamme_qualite_template</field>
+            <field name="report_file">is_plastigray16.gamme_qualite_template</field>
         </record>
-
     </data>
-</openerp>
+</odoo>

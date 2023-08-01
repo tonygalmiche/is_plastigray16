@@ -1149,3 +1149,302 @@ $ma_couleur: yellow;
     border: 1px solid black;
     padding:5mm;
 }
+
+
+
+//gamme_defautheques
+.gamme_defautheques_header .tablecls td, .gamme_defautheques_page .tablecls td {
+        font-size:11pt;
+    vertical-align:middle;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.gamme_defautheques_header .tablecls th, .gamme_defautheques_page .tablecls th {
+        font-size:11pt;
+    vertical-align:middle;
+    font-weight: bold;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.gamme_defautheques_header .tdcolor {
+    font-size:16pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    border: 0px solid #046dce;
+    background-color:#58ACFA;
+}
+.gamme_defautheques_imgclass0 {
+    text-align:center;
+    text-align: center;
+    max-height: 90mm;
+    max-width: 90mm;
+    vertical-align: middle;
+    padding-left:8px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 0px solid black;
+}
+
+
+//gamme_qualite
+
+.gamme_qualite_tablecls1 {
+    font-size:11pt;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:left;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.gamme_qualite_tablecls1 td {
+    font-size:11pt;
+    border: 0px solid #046dce;
+    vertical-align:middle;
+    text-align:left;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.gamme_qualite_tablecls td {
+    font-size:11pt;
+    vertical-align:middle;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.gamme_qualite_tablecls th {
+    font-size:11pt;
+    vertical-align:middle;
+    font-weight: bold;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.gamme_qualite_tdcolor {
+    font-size:16pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    border: 0px solid #046dce;
+}
+.tdjaune {
+    background-color:Yellow;
+}
+.tdorange {
+    background-color:Orange;
+}
+.tdviolet {
+    background-color:Violet;
+}
+.gamme_qualite_imgclass0 {
+    text-align:center;
+    max-height: 90mm;
+    text-align: center;
+    max-width: 90mm;
+    vertical-align: middle;
+    padding-left:8px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 0px solid black;
+}
+
+
+
+
+
+
+
+
+
+
+//rapport_mission
+.rapport_mission_tablecls1 {
+    font-size:11pt;
+    vertical-align:middle;
+    text-align:left;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.rapport_mission_tablecls td {
+    font-size:11pt;
+    vertical-align:middle;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.rapport_mission_tablecls th {
+    font-size:11pt;
+    vertical-align:middle;
+    font-weight: bold;
+    text-align:center;
+    border: 1px solid #046dce;
+    vertical-align:middle;
+    text-align:center;
+    background-color:#58ACFA;
+    padding-right:4px;
+    padding-top:4px;
+    padding-left:4px;
+    padding-bottom:4px;
+}
+.rapport_mission_header tdcolor {
+    font-size:16pt;
+    font-weight: bold;
+    vertical-align:middle;
+    text-align:center;
+    border: 0px solid #046dce;
+    background-color:#58ACFA;
+}
+.rapport_mission_imgclass0 {
+    text-align:center;
+    max-width: 90mm;
+    max-height: 90mm;
+    text-align: center;
+    vertical-align: middle;
+    padding-left:8px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border: 0px solid black;
+}
+// .rapport_mission_imgclass1 {
+//     height: 80mm;
+//     text-align: middle;
+//     width: 80mm;
+//     vertical-align: middle;
+//     padding-left:8px;
+//     padding-top:5px;
+//     padding-bottom:5px;
+//     border: 0px solid black;
+// }
+
+
+
+// .rapport_mission_chart rect {
+//   fill: steelblue;
+// }
+
+// .rapport_mission_chart text {
+//   fill: white;
+//   font: 10px sans-serif;
+//   text-anchor: end;
+// }
+// .rapport_mission_bar {
+//   fill: #d81c3f;
+// }
+
+// .rapport_mission_bar:hover {
+//   fill: darkgray;
+// }
+
+// .rapport_mission_axis {
+//   font: 10px sans-serif;
+// }
+
+// .rapport_mission_axis path,
+// .rapport_mission_axis line {
+//   fill: none;
+//   stroke: #000;
+//   shape-rendering: crispEdges;
+// }
+
+// .rapport_mission_x.axis path {
+//   display: none;
+// }
+
+
+
+//lignes_inventaire_page
+.lignes_inventaire_page th{
+    font-size:10pt;
+}
+
+
+
+//inventaire_ecart
+.inventaire_ecart_header {
+    font-size:11pt;
+}
+.inventaire_ecart_footer {
+    font-size:10pt;
+}
+.inventaire_ecart_page {
+    font-size:14pt;
+}
+.inventaire_ecart_header.titre {
+    font-size:16pt;
+    font-weight: bold;
+}
+.inventaire_ecart_headerh2 {
+    font-size:16pt;
+    font-weight: bold;
+}
+.inventaire_ecart_page table {
+    border-collapse: collapse;
+}
+.inventaire_ecart_page table, .inventaire_ecart_page th, .inventaire_ecart_page td {
+   border: 1px solid black;
+}
+.inventaire_ecart_page td {
+    height: 10mm;
+}
+
+
+//inventaire
+.inventaire_page h1{
+    font-size:16pt;
+}
+.inventaire_page h2{
+    font-size:14pt;
+}
+.inventaire_page table{
+    border:1pt solid black;
+}
+.inventaire_page td{
+    border:1pt solid black;
+    padding:2pt;
+    font-size:9pt;
+}
+.inventaire_page th{
+    text-align:center;
+    border:1pt solid black;
+    background-color:#0082DC;
+    padding:2pt;
+    font-size:9pt;
+}
+.inventaire_page .message{
+    font-size:16pt;
+    background:orange;
+}

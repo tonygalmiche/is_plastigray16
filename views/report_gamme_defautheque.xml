@@ -11,7 +11,7 @@
                         <table class="tablecls" width="100%">
                             <tr>
                                 <td width="15%" rowspan="3" class="classborder">
-                                    <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
+                                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
                                 </td>
                                 <td width="65%" rowspan="1" style="font-size:16px">
                                     Processus Management de la qualité
@@ -68,14 +68,10 @@
                                         <tr>
                                             <td><span t-esc="rec['name']"/></td>
                                             <td><t t-raw="rec['defaut'].replace('\n', '&lt;br&gt;')"/></td>
-                                            <td><t t-raw="rec['ou_et_quand'].replace('\n', '&lt;br&gt;')"/></td>
+                                            <td><t t-raw="(rec['ou_et_quand'] or '').replace('\n', '&lt;br&gt;')"/></td>
                                             <td>
                                                 <div>
-                                                    <!-- <img 
-                                                        t-if="rec['photo']"
-                                                        t-att-src="'data:image/png;base64,%s' % rec['photo']"
-                                                        class="imgclass0"
-                                                    /> -->
+                                                    <img t-if="rec['photo']" t-att-src="image_data_uri(rec['photo'])" class="gamme_defautheques_imgclass0"/>
                                                 </div>
                                             </td>
                                             
@@ -116,55 +112,5 @@
             <field name="report_name">is_plastigray16.gamme_defautheques_template</field>
             <field name="report_file">is_plastigray16.gamme_defautheques_template</field>
         </record>
-
-<!-- 
-        <template id="report_defautheque_transfert_style">
-            .tablecls td {
-                font-size:11pt;
-                vertical-align:middle;
-                text-align:center;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:center;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tablecls th {
-                font-size:11pt;
-                vertical-align:middle;
-                font-weight: bold;
-                text-align:center;
-                border: 1px solid #046dce;
-                vertical-align:middle;
-                text-align:center;
-                background-color:#58ACFA;
-                padding-right:4px;
-                padding-top:4px;
-                padding-left:4px;
-                padding-bottom:4px;
-            }
-            .tdcolor {
-                font-size:16pt;
-                font-weight: bold;
-                vertical-align:middle;
-                text-align:center;
-                border: 0px solid #046dce;
-                background-color:#58ACFA;
-            }
-            .imgclass0 {
-                text-align:center;
-                text-align: center;
-                max-height: 90mm;
-                max-width: 90mm;
-                vertical-align: middle;
-                padding-left:8px;
-                padding-top:5px;
-                padding-bottom:5px;
-                border: 0px solid black;
-            }
-        </template>
- -->
     </data>
 </odoo>
