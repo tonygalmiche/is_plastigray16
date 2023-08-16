@@ -115,15 +115,13 @@
             <field name="res_model">is.dossier.article</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <!-- <record id="is_dossier_article_actions_server" model="ir.actions.server">
+        <record id="is_dossier_article_actions_server" model="ir.actions.server">
             <field name="name">Actualiser dossier article</field>
-            <field name="condition">True</field>
-            <field name="type">ir.actions.server</field>
             <field name="model_id" ref="model_is_dossier_article" />
+            <field name="binding_model_id" ref="model_is_dossier_article"/>
             <field name="state">code</field>
-            <field name="code">action = self.is_dossier_article_actualiser_action(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="code">action = records.is_dossier_article_actualiser_action()</field>
         </record>
- -->
 
         <!-- is.dossier.article.gamme.commerciale -->
         <record id="is_dossier_article_gamme_commerciale_tree_view" model="ir.ui.view">

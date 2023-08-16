@@ -205,43 +205,27 @@
 
 
         <!-- Intégrer les commandes et les SA -->
-        <!-- <record id="integrer_commandes_action_server" model="ir.actions.server">
+        <record id="integrer_commandes_action_server" model="ir.actions.server">
              <field name="name">Intégrer les commandes et les SA</field>
             <field name="model_id" ref="model_is_cde_ouverte_fournisseur"/>
-            <field name="code">action = self.integrer_commandes(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_cde_ouverte_fournisseur"/>
+            <field name="code">action = model.integrer_commandes()</field>
         </record>
-        <record id="integrer_commandes_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cde.ouverte.fournisseur'" name="model"/>
-            <field name="name">Intégrer les commandes et les SA</field>
-            <field eval="'ir.actions.server,%d'%integrer_commandes_action_server" name="value"/>
-        </record> -->
-
 
 
         <!-- Lignes is.cde.ouverte.fournisseur --> 
-        <!-- <record id="is_cde_ouverte_fournisseur_product_imprimer_action_server" model="ir.actions.server">
+        <record id="is_cde_ouverte_fournisseur_product_imprimer_action_server" model="ir.actions.server">
              <field name="name">A imprimer</field>
             <field name="model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
-            <field name="code">action = self.a_imprimer(cr, uid, context.get('active_ids', []), context=context)</field>
-        </record>
-        <record id="is_cde_ouverte_fournisseur_product_imprimer_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cde.ouverte.fournisseur.product'" name="model"/>
-            <field name="name">A imprimer</field>
-            <field eval="'ir.actions.server,%d'%is_cde_ouverte_fournisseur_product_imprimer_action_server" name="value"/>
+            <field name="binding_model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
+            <field name="code">action = model.a_imprimer()</field>
         </record>
         <record id="is_cde_ouverte_fournisseur_product_pas_imprimer_action_server" model="ir.actions.server">
              <field name="name">Ne pas imprimer</field>
             <field name="model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
-            <field name="code">action = self.ne_pas_imprimer(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
+            <field name="code">action = model.ne_pas_imprimer()</field>
         </record>
-        <record id="is_cde_ouverte_fournisseur_product_pas_imprimer_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cde.ouverte.fournisseur.product'" name="model"/>
-            <field name="name">Ne pas imprimer</field>
-            <field eval="'ir.actions.server,%d'%is_cde_ouverte_fournisseur_product_pas_imprimer_action_server" name="value"/>
-        </record> -->
         <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_product_form_view">
             <field name="name">is_cde_ouverte_fournisseur_product_form_view</field>
             <field name="model">is.cde.ouverte.fournisseur.product</field>

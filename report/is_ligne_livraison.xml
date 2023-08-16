@@ -4,7 +4,6 @@
     <record id="is_refresh_ligne_livraison_action" model="ir.actions.server">
         <field name="name">Actualiser les lignes des livraisons</field>
        <field name="model_id" ref="model_is_ligne_livraison"/>
-       <!-- <field name="binding_model_id" ref="model_is_ligne_livraison"/> -->
        <field name="binding_model_id" eval="False"/> <!-- Ne pas afficher dans le menu action -->
        <field name="state">code</field>
        <field name="code">action = model.refresh_materialized_view_action()</field>

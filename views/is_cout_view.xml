@@ -506,65 +506,36 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
-
-
         <!-- Copier coût actualisé dans coût standard -->
         <record id="copie_cout_actualise_dans_cout_standard_action_server" model="ir.actions.server">
              <field name="name">Copier coût actualisé dans coût standard</field>
             <field name="model_id" ref="model_is_cout"/>
-            <field name="code">action = self.copie_cout_actualise_dans_cout_standard(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="code">action = model.copie_cout_actualise_dans_cout_standard()</field>
         </record>
-        <!-- <record id="copie_cout_actualise_dans_cout_standard_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cout'" name="model"/>
-            <field name="name">Copier coût actualisé dans coût standard</field>
-            <field eval="'ir.actions.server,%d'%copie_cout_actualise_dans_cout_standard_action_server" name="value"/>
-        </record> -->
 
         <!-- Copier coût actualisé dans coût budget -->
         <record id="copie_cout_actualise_dans_cout_budget_action_server" model="ir.actions.server">
              <field name="name">Copier coût actualisé dans coût budget</field>
             <field name="model_id" ref="model_is_cout"/>
-            <field name="code">action = self.copie_cout_actualise_dans_cout_budget(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="code">action = model.copie_cout_actualise_dans_cout_budget()</field>
         </record>
-        <!-- <record id="copie_cout_actualise_dans_cout_budget_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cout'" name="model"/>
-            <field name="name">Copier coût actualisé dans coût budget</field>
-            <field eval="'ir.actions.server,%d'%copie_cout_actualise_dans_cout_budget_action_server" name="value"/>
-        </record>
- -->
+
         <!-- Initialisation du prix de vente standard -->
         <record id="initialisation_prix_vente_standard_action_server" model="ir.actions.server">
              <field name="name">Initialisation du prix de vente standard</field>
             <field name="model_id" ref="model_is_cout"/>
-            <field name="code">action = self.initialisation_prix_vente_standard(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="code">action = model.initialisation_prix_vente_standard()</field>
         </record>
-        <!-- <record id="initialisation_prix_vente_standard_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cout'" name="model"/>
-            <field name="name">Initialisation du prix de vente standard</field>
-            <field eval="'ir.actions.server,%d'%initialisation_prix_vente_standard_action_server" name="value"/>
-        </record> -->
-
 
         <!-- Coût standard = Coût standard de l'indice précédent -->
         <record id="cout_standard_indice_precedent_action_server" model="ir.actions.server">
              <field name="name">Coût standard = Coût standard de l'indice précédent</field>
             <field name="model_id" ref="model_is_cout"/>
-            <field name="code">action = self.cout_standard_indice_precedent(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="code">action = model.cout_standard_indice_precedent()</field>
         </record>
-        <!-- <record id="cout_standard_indice_precedent_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.cout'" name="model"/>
-            <field name="name">Coût standard = Coût standard de l'indice précédent</field>
-            <field eval="'ir.actions.server,%d'%cout_standard_indice_precedent_action_server" name="value"/>
-        </record> -->
-
-
-
-
-
   </data>
 </odoo>

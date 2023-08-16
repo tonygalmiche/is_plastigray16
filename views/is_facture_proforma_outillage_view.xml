@@ -6,14 +6,9 @@
         <record id="is_facture_proforma_outillage_envoi_par_mail_action_server" model="ir.actions.server">
              <field name="name">Envoi par mail</field>
             <field name="model_id" ref="model_is_facture_proforma_outillage"/>
-            <field name="code">action = self.envoyer_par_mail_action(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_facture_proforma_outillage"/>
+            <field name="code">action = records.envoyer_par_mail_action()</field>
         </record>
-        <!-- <record id="is_facture_proforma_outillage_envoi_par_mail_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.facture.proforma.outillage'" name="model"/>
-            <field name="name">Envoi par mail</field>
-            <field eval="'ir.actions.server,%d'%is_facture_proforma_outillage_envoi_par_mail_action_server" name="value"/>
-        </record> -->
 
         <!-- is.facture.proforma.outillage --> 
          <record id="is_facture_proforma_outillage_seq" model="ir.sequence">

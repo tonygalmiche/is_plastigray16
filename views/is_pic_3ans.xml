@@ -8,17 +8,8 @@
             <field name="model_id" ref="model_is_pic_3ans_saisie"/>
             <field name="binding_model_id" ref="model_is_pic_3ans_saisie"/>
             <field name="state">code</field>
-            <field name="code">action = self.cbb_article(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="code">action = records.cbb_article()</field>
         </record>
-
-
-
-        <!-- <record id="cbb_article_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.pic.3ans.saisie'" name="model"/>
-            <field name="name">CBB sur cet article</field>
-            <field eval="'ir.actions.server,%d'%cbb_article_action_server" name="value"/>
-        </record> -->
         <record model="ir.ui.view" id="is_pic_3ans_saisie_form_view">
             <field name="name">is_pic_3ans_saisie_form_view</field>
             <field name="model">is.pic.3ans.saisie</field>

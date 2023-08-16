@@ -5,14 +5,9 @@
         <record id="is_ctrl_budget_ana_annee_action_server" model="ir.actions.server">
             <field name="name">Initialiser les articles</field>
             <field name="model_id" ref="model_is_ctrl_budget_ana_annee"/>
-            <field name="code">action = self.initialiser_articles(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_ctrl_budget_ana_annee"/>
+            <field name="code">action = model.initialiser_articles()</field>
         </record>
-        <!-- <record id="is_ctrl_budget_ana_annee_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.ctrl.budget.ana.annee'" name="model"/>
-            <field name="name">Initialiser les articles</field>
-            <field eval="'ir.actions.server,%d'%is_ctrl_budget_ana_annee_action_server" name="value"/>
-        </record> -->
         <record id="is_ctrl_budget_ana_annee_tree_view" model="ir.ui.view">
             <field name="name">is_ctrl_budget_ana_annee_tree_view</field>
             <field name="model">is.ctrl.budget.ana.annee</field>

@@ -172,32 +172,16 @@
         <record id="convertir_fs_action_server" model="ir.actions.server">
              <field name="name">Convertir FS en ordre de fabrication</field>
             <field name="model_id" ref="model_mrp_prevision"/>
-            <field name="code">action = self.convertir_fs(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_mrp_prevision"/>
+            <field name="code">action = records.convertir_fs()</field>
         </record>
-        <!-- <record id="convertir_fs_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'mrp.prevision'" name="model"/>
-            <field name="name">Convertir FS en ordre de fabrication</field>
-            <field eval="'ir.actions.server,%d'%convertir_fs_action_server" name="value"/>
-        </record> -->
-
 
         <!-- convertir les SA -->
         <record id="convertir_sa_action_server" model="ir.actions.server">
              <field name="name">Convertir SA en commande fournisseur</field>
             <field name="model_id" ref="model_mrp_prevision"/>
-            <field name="code">action = self.convertir_sa(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_mrp_prevision"/>
+            <field name="code">action = records.convertir_sa()</field>
         </record>
-        <!-- <record id="convertir_sa_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'mrp.prevision'" name="model"/>
-            <field name="name">Convertir SA en commande fournisseur</field>
-            <field eval="'ir.actions.server,%d'%convertir_sa_action_server" name="value"/>
-        </record> -->
-
-
-
-
     </data>
 </odoo>
-

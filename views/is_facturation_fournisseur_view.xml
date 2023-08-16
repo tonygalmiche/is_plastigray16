@@ -251,30 +251,16 @@
         <record id="is_facturation_fournisseur_line_cocher_action_server" model="ir.actions.server">
              <field name="name">Cocher les lignes</field>
             <field name="model_id" ref="model_is_facturation_fournisseur_line"/>
-            <field name="code">action = self.action_cocher_lignes(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_facturation_fournisseur_line"/>
+            <field name="code">action = records.action_cocher_lignes()</field>
         </record>
-        <!-- <record id="is_facturation_fournisseur_line_cocher_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.facturation.fournisseur.line'" name="model"/>
-            <field name="name">Cocher les lignes</field>
-            <field eval="'ir.actions.server,%d'%is_facturation_fournisseur_line_cocher_action_server" name="value"/>
-        </record>
- -->
+
         <!-- Décocher les lignes -->
         <record id="is_facturation_fournisseur_line_decocher_action_server" model="ir.actions.server">
              <field name="name">Décocher les lignes</field>
             <field name="model_id" ref="model_is_facturation_fournisseur_line"/>
-            <field name="code">action = self.action_decocher_lignes(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_facturation_fournisseur_line"/>
+            <field name="code">action = records.action_decocher_lignes()</field>
         </record>
-        <!-- <record id="is_facturation_fournisseur_line_decocher_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.facturation.fournisseur.line'" name="model"/>
-            <field name="name">Décocher les lignes</field>
-            <field eval="'ir.actions.server,%d'%is_facturation_fournisseur_line_decocher_action_server" name="value"/>
-        </record> -->
-
-
-
-
     </data>
 </odoo>

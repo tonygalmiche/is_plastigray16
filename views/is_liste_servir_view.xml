@@ -30,22 +30,14 @@
             <field name="view_mode">tree</field>
         </record>
 
-
         <!-- Affecter les UCs aux lignes -->
-        <!-- <record id="affecter_uc_aux_lignes_ls_action_server" model="ir.actions.server">
+        <record id="affecter_uc_aux_lignes_ls_action_server" model="ir.actions.server">
              <field name="name">Affecter les UCs aux lignes</field>
             <field name="model_id" ref="model_is_liste_servir"/>
-            <field name="code">action = self.affecter_uc_aux_lignes_ls_action(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_liste_servir"/>
+            <field name="code">action = records.affecter_uc_aux_lignes_ls_action()</field>
         </record>
-        <record id="affecter_uc_aux_lignes_ls_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.liste.servir'" name="model"/>
-            <field name="name">Affecter les UCs aux lignes</field>
-            <field eval="'ir.actions.server,%d'%affecter_uc_aux_lignes_ls_action_server" name="value"/>
-        </record> -->
-        
-
-
+ 
         <!-- is.liste.servir -->
         <record id="is_liste_servir_seq" model="ir.sequence">
             <field name="name">Liste à servir</field>

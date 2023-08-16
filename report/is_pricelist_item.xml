@@ -2,18 +2,13 @@
 <odoo>
     <data>
         <!-- Corriger anomalie -->
-        <!-- <record id="corriger_anomalie_pricelist_action_server" model="ir.actions.server">
+        <record id="corriger_anomalie_pricelist_action_server" model="ir.actions.server">
             <field name="name">Corriger anomalie</field>
-            <field name="model_id" ref="model_is_pricelist_item"/>
-            <field name="code">action = self.corriger_anomalie_pricelist(cr, uid, context.get('active_ids', []), context=context)</field>
+           <field name="model_id" ref="model_is_pricelist_item"/>
+           <field name="binding_model_id" ref="model_is_pricelist_item"/>
+           <field name="state">code</field>
+           <field name="code">action = model.corriger_anomalie_pricelist()</field>
         </record>
-        <record id="corriger_anomalie_pricelist_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.pricelist.item'" name="model"/>
-            <field name="name">Corriger anomalie</field>
-            <field eval="'ir.actions.server,%d'%corriger_anomalie_pricelist_action_server" name="value"/>
-        </record> -->
-        
         <record id="is_pricelist_item_form_view" model="ir.ui.view">
             <field name="name">is_pricelist_item_form_view</field>
             <field name="model">is.pricelist.item</field>

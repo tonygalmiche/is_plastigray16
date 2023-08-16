@@ -60,40 +60,21 @@
                 </field>
             </field>
         </record>
- 
-
-
-
-
-
-
 
         <!-- Envoi par mail -->
-        <!-- <record id="envoi_par_mail_action_server" model="ir.actions.server">
+        <record id="envoi_par_mail_action_server" model="ir.actions.server">
              <field name="name">Envoi par mail</field>
-            <field name="model_id" ref="model_account_invoice"/>
-            <field name="code">action = self.envoi_par_mail(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="model_id" ref="model_account_move"/>
+            <field name="binding_model_id" ref="model_account_move"/>
+            <field name="code">action = model.envoi_par_mail()</field>
         </record>
-        <record id="envoi_par_mail_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'account.invoice'" name="model"/>
-            <field name="name">Envoi par mail</field>
-            <field eval="'ir.actions.server,%d'%envoi_par_mail_action_server" name="value"/>
-        </record> -->
-
-
         <!-- Imprimer en simple ou double exemplaire -->
-        <!-- <record id="imprimer_simple_double_action_server" model="ir.actions.server">
+        <record id="imprimer_simple_double_action_server" model="ir.actions.server">
              <field name="name">Imprimer en simple ou double exemplaire</field>
-            <field name="model_id" ref="model_account_invoice"/>
-            <field name="code">action = self.imprimer_simple_double(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="model_id" ref="model_account_move"/>
+            <field name="binding_model_id" ref="model_account_move"/>
+            <field name="code">action = model.imprimer_simple_double()</field>
         </record>
-        <record id="imprimer_simple_double_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'account.invoice'" name="model"/>
-            <field name="name">Imprimer en simple ou double exemplaire</field>
-            <field eval="'ir.actions.server,%d'%imprimer_simple_double_action_server" name="value"/>
-        </record> -->
 
 
         <!-- Folio -->

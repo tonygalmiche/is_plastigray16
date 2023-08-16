@@ -35,21 +35,13 @@
         </record>
 
 
-
-    <!-- Importer nomenclature dans OF -->
-    <!-- <record id="importer_nomenclature_action_server" model="ir.actions.server">
-         <field name="name">Importer nomenclature</field>
-        <field name="model_id" ref="model_mrp_production"/>
-        <field name="code">action = self.importer_nomenclature(cr, uid, context.get('active_ids', []), context=context)</field>
-    </record>
-    <record id="importer_nomenclature_ir_value" model="ir.values">
-        <field eval="'client_action_multi'" name="key2"/>
-        <field eval="'mrp.production'" name="model"/>
-        <field name="name">Importer nomenclature</field>
-        <field eval="'ir.actions.server,%d'%importer_nomenclature_action_server" name="value"/>
-    </record>
- -->
-
+        <!-- Importer nomenclature dans OF -->
+        <!-- <record id="importer_nomenclature_action_server" model="ir.actions.server">
+            <field name="name">Importer nomenclature</field>
+            <field name="model_id" ref="model_mrp_production"/>
+            <field name="binding_model_id" ref="model_mrp_production"/>
+            <field name="code">action = records.importer_nomenclature()</field>
+        </record> -->
         <record id="init_nomenclature_action" model="ir.actions.server">
             <field name="name">Initialisation de la nomenclature</field>
             <field name="model_id" ref="mrp.model_mrp_production"/>
@@ -64,14 +56,6 @@
             <field name="state">code</field>
             <field name="code">records.init_qt_reste_action()</field>
         </record>
-
-
-       <!-- <record id="copie_cout_actualise_dans_cout_standard_action_server" model="ir.actions.server">
-             <field name="name">Copier coût actualisé dans coût standard</field>
-            <field name="model_id" ref="model_is_cout"/>
-            <field name="code">action = self.copie_cout_actualise_dans_cout_standard(cr, uid, context.get('active_ids', []), context=context)</field>
-        </record> -->
-
 
         <!-- mrp.production -->
         <record model="ir.ui.view" id="is_mrp_production_form_view">

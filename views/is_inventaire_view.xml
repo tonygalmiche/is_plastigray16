@@ -93,18 +93,10 @@
         <record id="is_action_mark_as_lost" model="ir.actions.server">
             <field name="name">Importer depuis Prodstar</field>
             <field name="model_id" ref="model_is_inventaire_feuille"/>
+            <field name="binding_model_id" ref="model_is_inventaire_feuille"/>
             <field name="state">code</field>
-            <field name="code">
-                self.action_import_prodstar(cr, uid, context['active_ids'], context=context)
-            </field>
+            <field name="code">records.action_import_prodstar()</field>
         </record>
-        <!-- Ce record permet d'ajouter un sous-menu au bouton 'Autres options' et d'appeller l'action server précédente -->
-        <!-- <record id="is_ir_mark_as_lost" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.inventaire.feuille'" name="model"/>
-            <field name="name">Importer depuis Prodstar</field>
-            <field eval="'ir.actions.server,%d'%is_action_mark_as_lost" name="value"/>
-        </record> -->
 
         <record model="ir.ui.view" id="is_inventaire_feuille_form_view">
             <field name="name">is_inventaire_feuille_form_view</field>

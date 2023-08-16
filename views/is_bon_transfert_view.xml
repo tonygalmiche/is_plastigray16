@@ -13,19 +13,12 @@
 
 
         <!-- Affecter les UCs aux lignes -->
-        <!-- <record id="affecter_uc_aux_lignes_bt_action_server" model="ir.actions.server">
+        <record id="affecter_uc_aux_lignes_bt_action_server" model="ir.actions.server">
              <field name="name">Affecter les UCs aux lignes</field>
             <field name="model_id" ref="model_is_bon_transfert"/>
-            <field name="code">action = self.affecter_uc_aux_lignes_bt_action(cr, uid, context.get('active_ids', []), context=context)</field>
+            <field name="binding_model_id" ref="model_is_bon_transfert"/>
+            <field name="code">action = model.affecter_uc_aux_lignes_bt_action()</field>
         </record>
-        <record id="affecter_uc_aux_lignes_bt_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.bon.transfert'" name="model"/>
-            <field name="name">Affecter les UCs aux lignes</field>
-            <field eval="'ir.actions.server,%d'%affecter_uc_aux_lignes_bt_action_server" name="value"/>
-        </record> -->
-
-
 
         <!-- Bon de transfert -->
         <record id="is_bon_transfert_form_view" model="ir.ui.view">
