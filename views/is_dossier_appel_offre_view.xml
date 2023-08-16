@@ -51,30 +51,30 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="dao_num"/>
-                    <field name="dao_date"/>
-                    <field name="dao_annee"/>
-                    <field name="dao_client"/>
-                    <field name="dao_typeclient"/>
-                    <field name="dao_sectclient"/>
-                    <field name="dao_commercial"/>
-                    <field name="dao_desig"/>
-                    <field name="dao_ref"/>
-                    <field name="dao_datedms"/>
-                    <field name="dao_ca"      sum="Total"/>
-                    <field name="dao_vacom"   sum="Total"/>
-                    <field name="dao_pourcentva"/>
-                    <field name="dao_camoule" sum="Total"/>
-                    <field name="dao_be"/>
-                    <field name="dao_dirbe"/>
-                    <field name="dao_daterepbe"/>
-                    <field name="dao_daterepplast"/>
-                    <field name="dao_rsplast"/>
-                    <field name="dao_daterepcli"/>
-                    <field name="dao_comment"/>
-                    <field name="dao_motif"/>
-                    <field name="dao_avancement"/>
-                    <field name="state"/>
+                    <field name="dao_num" optional="show"/>
+                    <field name="dao_date" optional="show"/>
+                    <field name="dao_annee" optional="show"/>
+                    <field name="dao_client" optional="show"/>
+                    <field name="dao_typeclient" optional="show"/>
+                    <field name="dao_sectclient" optional="show"/>
+                    <field name="dao_commercial" optional="show"/>
+                    <field name="dao_desig" optional="show"/>
+                    <field name="dao_ref" optional="show"/>
+                    <field name="dao_datedms" optional="show"/>
+                    <field name="dao_ca" optional="show"      sum="Total"/>
+                    <field name="dao_vacom" optional="show"   sum="Total"/>
+                    <field name="dao_pourcentva" optional="show"/>
+                    <field name="dao_camoule" optional="show" sum="Total"/>
+                    <field name="dao_be" optional="show"/>
+                    <field name="dao_dirbe" optional="show"/>
+                    <field name="dao_daterepbe" optional="show"/>
+                    <field name="dao_daterepplast" optional="show"/>
+                    <field name="dao_rsplast" optional="show"/>
+                    <field name="dao_daterepcli" optional="show"/>
+                    <field name="dao_comment" optional="show"/>
+                    <field name="dao_motif" optional="show"/>
+                    <field name="dao_avancement" optional="show"/>
+                    <field name="state" optional="show"/>
                 </tree>
             </field>
         </record>
