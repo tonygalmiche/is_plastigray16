@@ -11,38 +11,13 @@ class IsModeOperatoireMenu(models.Model):
 
     name    = fields.Char("Menu Mode opératoire", required=True)
     ordre   = fields.Integer("Ordre")
-    menu_id = fields.Many2one('ir.ui.menu', 'Menu')
-
-
-
-    # @api.model_create_multi
-    # def create(self, vals_list):
-    #     for vals in vals_list:
-    #         vals['name'] = self.env['ir.sequence'].next_by_code('is.bl.manuel')
-    #     return super().create(vals_list)
-
+    menu_id = fields.Many2one('ir.ui.menu', 'Menu', copy=False)
 
 
     @api.model_create_multi
     def create(self, vals_list):
-        vals=vals_list[0]
-        parent=self.env.ref('is_plastigray16.is_mode_operatoire_main_menu')
-        v={
-            'name'     : vals['name'], 
-            'parent_id': parent.id, 
-            'sequence' : vals['ordre'], 
-         }
-        menu=self.env['ir.ui.menu'].sudo().create(v)
-        vals_list[0]["menu_id"]=menu.id
-        v={
-            'name'     : vals['name'], 
-            'res_model': 'is.mode.operatoire', 
-            'view_mode': 'tree,form',
-        }
-        action=self.env['ir.actions.act_window'].sudo().create(v)
-        menu.action="ir.actions.act_window,%s"%(action.id)
         res = super().create(vals_list)
-        action.domain=[('menu_id','=',res.id)] 
+        res.creer_menu_action()
         return res
 
 
@@ -58,6 +33,27 @@ class IsModeOperatoireMenu(models.Model):
     def unlink(self):
         self.sudo().menu_id.unlink()
         return super(IsModeOperatoireMenu, self).unlink()
+
+
+    def creer_menu_action(self):
+        for obj in self:
+            if not obj.menu_id:
+                parent=self.env.ref('is_plastigray16.is_mode_operatoire_main_menu')
+                v={
+                    'name'     : obj.name, 
+                    'parent_id': parent.id, 
+                    'sequence' : obj.ordre, 
+                }
+                menu=self.env['ir.ui.menu'].sudo().create(v)
+                obj.menu_id = menu.id
+                v={
+                    'name'     : obj.name, 
+                    'res_model': 'is.mode.operatoire', 
+                    'view_mode': 'tree,form',
+                    'domain'  : [('menu_id','=',obj.id)] 
+                }
+                action=self.env['ir.actions.act_window'].sudo().create(v)
+                menu.action="ir.actions.act_window,%s"%(action.id)
 
 
 class IsModeOperatoire(models.Model):
