@@ -33,10 +33,7 @@ class is_mini_delta_dore(models.Model):
         return super().create(vals_list)
 
 
-
-
     def calcul_action(self):
-        cr, uid, context = self.env.args
         for obj in self:
             if obj.edi_id:
                 raise ValidationError('Un EDI a déjà été généré. Il faut le traiter ou le supprimer pour pouvoir lancer un nouveau calcul')
@@ -48,7 +45,7 @@ class is_mini_delta_dore(models.Model):
 
 
     def creation_edi(self):
-        cr, uid, context = self.env.args
+        cr=self._cr
         for obj in self:
             SQL="""
                 select
@@ -89,7 +86,7 @@ class is_mini_delta_dore(models.Model):
             #*******************************************************************
 
     def traitement(self, attachment):
-        cr, uid, context = self.env.args
+        cr=self._cr
         res = []
         for obj in self:
             #** Recherche du prochain jour livrable de ce client ***************
@@ -361,7 +358,6 @@ class is_mini_delta_dore(models.Model):
 
 
     def besoins_action(self):
-        cr, uid, context = self.env.args
         for obj in self:
             return {
                 'name': u'Besoins mini Delta Dore',
@@ -399,7 +395,6 @@ class is_mini_delta_dore_line(models.Model):
 
 
     def besoins_action(self):
-        cr, uid, context = self.env.args
         for obj in self:
             return {
                 'name': u'Besoins mini Delta Dore '+obj.product_id.is_code,

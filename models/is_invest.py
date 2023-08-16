@@ -147,7 +147,7 @@ class IsInvestDetail(models.Model):
 
     def actualiser_commandes(self):
         """Actualiser les commandes"""
-        cr , uid, context = self.env.args
+        cr = self._cr
         for obj in self:
             obj.cde_ids.unlink()
             company = self.env.user.company_id

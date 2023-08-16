@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <data>
-
     <record id="is_refresh_ligne_livraison_action" model="ir.actions.server">
-        <field name="name">Lignes des livraisons</field>
-        <!-- <field name="condition">True</field> -->
-        <!-- <field name="type">ir.actions.server</field> -->
-        <field name="model_id" ref="model_is_ligne_livraison" />
-        <field name="state">code</field>
-        <field name="code">action = model.refresh_materialized_view_action()</field>
+        <field name="name">Actualiser les lignes des livraisons</field>
+       <field name="model_id" ref="model_is_ligne_livraison"/>
+       <!-- <field name="binding_model_id" ref="model_is_ligne_livraison"/> -->
+       <field name="binding_model_id" eval="False"/> <!-- Ne pas afficher dans le menu action -->
+       <field name="state">code</field>
+       <field name="code">action = model.refresh_materialized_view_action()</field>
     </record>
     <record id="is_ligne_livraison_form_view" model="ir.ui.view">
         <field name="name">is_ligne_livraison_form_view</field>

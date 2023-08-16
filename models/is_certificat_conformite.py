@@ -28,8 +28,9 @@ class is_bon_transfert(models.Model):
 
 
     def imprimer_certificat_action(self):
+        uid=self.uid
+        cr=self._cr
         for obj in self:
-            cr , uid, context = self.env.args
             db = self._cr.dbname
             path="/tmp/certificats-" + db + '-'+str(uid)
             cde="rm -Rf " + path
@@ -212,10 +213,11 @@ class stock_picking(models.Model):
 
 
     def imprimer_certificat_action(self):
+        uid=self.uid
+        cr=self._cr
         for obj in self:
             if obj.is_sale_order_id.is_liste_servir_id:
                 obj.is_sale_order_id.is_liste_servir_id.affecter_uc_aux_lignes_ls_action()
-            cr , uid, context = self.env.args
             db = self._cr.dbname
             path="/tmp/certificats-" + db + '-'+str(uid)
             cde="rm -Rf " + path

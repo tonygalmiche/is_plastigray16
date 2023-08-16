@@ -80,7 +80,8 @@ class is_facture_proforma_outillage(models.Model):
 
 
     def envoyer_par_mail_action(self):
-        cr , uid, context = self.env.args
+        uid=self.uid
+        cr=self._cr
         user = self.env['res.users'].browse(uid)
         if user.email==False:
             raise Warning(u"Votre mail n'est pas renseigné !")

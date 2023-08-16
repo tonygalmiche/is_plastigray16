@@ -170,7 +170,7 @@ class account_invoice(models.Model):
 
     def imprimer_simple_double(self):
         """Imprimer en simple ou double exemplaire"""
-        cr , uid, context = self.env.args
+        uid=self.uid
         db = self._cr.dbname
         path="/tmp/factures-" + db + '-'+str(uid)
         cde="rm -Rf " + path
@@ -240,7 +240,8 @@ class account_invoice(models.Model):
 
     def envoi_par_mail(self):
         """Envoi du mail directement sans passer par le wizard"""
-        cr , uid, context = self.env.args
+        uid=self.uid
+        cr=self._cr
         if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray16.is_comptable_group'):
             raise ValidationError(u"Accès non autorisé !")
         ids=[]
@@ -310,7 +311,8 @@ class account_invoice(models.Model):
 
 
     def _envoi_par_mail(self, partner_id, ids):
-        cr , uid, context = self.env.args
+        uid=self.uid
+        cr=self._cr
         user = self.env['res.users'].browse(self._uid)
         if user.email==False:
             raise ValidationError(u"Votre mail n'est pas renseigné !")

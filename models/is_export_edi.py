@@ -32,7 +32,7 @@ class is_export_edi(models.Model):
 
 
     def code_on_change(self,code):
-        cr , uid, context = self.env.args
+        cr=self._cr
         res={}
         res['value']={}
         contact_id=False

@@ -573,7 +573,6 @@ class MrpProduction(models.Model):
     #     """ Compute product_lines and workcenter_lines from BoM structure
     #     @return: product_lines
     #     """
-    #     cr, uid, context = self.env.args
     #     if properties is None:
     #         properties = []
     #     results = []
@@ -626,7 +625,6 @@ class MrpProduction(models.Model):
     #         qt_reste=obj.is_qt_reste_uom
     #         for move in obj.move_created_ids:
     #             move.product_uom_qty=qt_reste
-    #         cr, uid, context = self.env.args
     #         for move in obj.move_lines:
     #             move.action_cancel()
     #         stock_moves = []
@@ -737,7 +735,6 @@ class MrpProduction(models.Model):
 
 
     # def importer_nomenclature(self):
-    #     cr, uid, context = self.env.args
     #     prod_line_obj = self.pool.get('mrp.production.product.line')
     #     uom_obj = self.pool.get('product.uom')
     #     bom_obj = self.pool.get('mrp.bom')
@@ -918,7 +915,6 @@ class MrpProduction(models.Model):
 
 
 #     def on_change_product_id(self, product_id,is_bom_qty):
-#         cr, uid, context = self.env.args
 #         qty=context.get('product_qty',1)
 #         value = {}
 #         if product_id:

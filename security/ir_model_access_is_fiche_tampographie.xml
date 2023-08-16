@@ -56,6 +56,20 @@
             <field eval="1" name="perm_create"/>
         </record>
 
+        <record id="is_fiche_tampographie_admin_rule" model="ir.rule">
+            <field name="name">Tampographie: Access complet à l'admin</field>
+            <field name="model_id" ref="model_is_fiche_tampographie"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+
+        
+
+
 
     </data>
 </openerp>

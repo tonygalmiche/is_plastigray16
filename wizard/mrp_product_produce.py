@@ -38,7 +38,7 @@ class mrp_product_produce(models.TransientModel):
 
     @api.model
     def _get_default_package(self):
-        cr, uid, context = self.env.args
+        context=self.context
         prod = self.env['mrp.production'].browse(context.get('active_id',False))
         res=False
         if prod:
@@ -48,7 +48,7 @@ class mrp_product_produce(models.TransientModel):
 
     @api.model
     def _get_default_package_qty(self):
-        cr, uid, context = self.env.args
+        context=self.context
         prod = self.env['mrp.production'].browse(context.get('active_id',False))
         res=False
         if prod:
@@ -63,7 +63,7 @@ class mrp_product_produce(models.TransientModel):
 
     @api.model
     def _get_default_finished_pro_location(self):
-        cr, uid, context = self.env.args
+        context=self.context
         prod = self.env['mrp.production'].browse(context.get('active_id',False))
         res=False
         if prod:
@@ -123,7 +123,7 @@ class mrp_product_produce(models.TransientModel):
 
     @api.multi
     def on_change_qty(self, product_qty, consume_lines):
-        cr, uid, context = self.env.args
+        context=self.context
         prod_obj=self.env["mrp.production"]
         production = prod_obj.browse(context['active_id'])
         ret_val={}
@@ -168,7 +168,7 @@ class mrp_product_produce(models.TransientModel):
 
     @api.one
     def do_produce(self):
-        cr, uid, context = self.env.args
+        context=self.context
         production_id = context.get('active_id', False)
         if self.product_qty==0:
             raise Warning(u'Quantité à 0 non autorisée !')

@@ -74,7 +74,8 @@ class product_pricelist_version(models.Model):
 
 
     def print_pricelist_version(self):
-        cr, uid, context = self.env.args
+        uid=self.uid
+        cr=self._cr
         for obj in self:
             return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray16.report_pricelist_version', context=context)
 

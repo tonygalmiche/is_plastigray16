@@ -102,7 +102,8 @@ class is_etuve_saisie(models.Model):
 
     @api.depends('matiere_id','of_ids')
     def _compute(self):
-        #cr, uid, context = self.env.args
+        uid=self.uid
+        cr=self._cr
         company = self.env.user.company_id
         for obj in self:
             print(obj)
@@ -258,7 +259,6 @@ class is_etuve_of(models.Model):
 
     @api.depends('of_id')
     def _compute(self):
-        #cr, uid, context = self.env.args
         cr = self.env.cr
         for obj in self:
             print(obj)

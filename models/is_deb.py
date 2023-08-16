@@ -38,7 +38,8 @@ class is_deb(models.Model):
 
 
     def transfert(self):
-        cr , uid, context = self.env.args
+        uid=self.uid
+        cr=self._cr
         for obj in self:
             user    = self.pool['res.users'].browse(cr, uid, [uid])[0]
             company     = user.company_id.partner_id
@@ -155,7 +156,7 @@ class is_deb(models.Model):
 
 
     def synthese_action(self):
-        cr , uid, context = self.env.args
+        cr=self._cr
         for obj in self:
             SQL="""
                 select 

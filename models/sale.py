@@ -91,7 +91,7 @@ class sale_order(models.Model):
 
 
     def envoyer_ar_par_mail(self):
-        cr , uid, context = self.env.args
+        uid=self.uid
         modele_mail = u"""
         <html>
             <head>

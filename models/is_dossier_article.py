@@ -77,7 +77,8 @@ class is_dossier_article(models.Model):
             obj.documents_techniques=False
 
         # #** Connexion à Dynacase **********************************************
-        # cr , uid, context = self.env.args
+        # uid=self.uid
+        # cr=self._cr
         # company = self.env.user.company_id
         # password=company.is_dynacase_pwd
         # cr_dynacase=False

@@ -49,7 +49,7 @@ class is_demande_conges(models.Model):
 
     def envoi_sms(self, mobile, message):
         """Envoi de SMS avec OVH"""
-        cr , uid, context = self.env.args
+        uid=self.uid
         mobile,err = self._format_mobile(mobile)
         res=''
         quota=0

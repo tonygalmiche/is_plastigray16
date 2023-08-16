@@ -487,7 +487,6 @@ class stock_quant(models.Model):
     # #TODO : Fonction reprise complètement le 18/12/2018 pour gérer l'emplacement de destination
     # @api.multi
     # def do_enter_transfer_details(self):
-    #     cr , uid, context = self.env.args
     #     for picking in self:
     #         if picking.is_purchase_order_id:
     #             location_id=picking.is_purchase_order_id.location_id.id

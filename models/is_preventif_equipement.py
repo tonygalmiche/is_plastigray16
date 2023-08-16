@@ -63,8 +63,8 @@ class is_preventif_equipement_zone(models.Model):
 
 
     def imprimer_gammes_action(self):
+        uid=self.uid
         for obj in self:
-            cr , uid, context = self.env.args
             db = self._cr.dbname
             path="/tmp/gamme_preventif-" + str(uid)
             cde="rm -Rf " + path

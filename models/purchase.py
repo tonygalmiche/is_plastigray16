@@ -113,7 +113,7 @@ class purchase_order(models.Model):
 
 
     def envoyer_par_mail(self):
-        cr , uid, context = self.env.args
+        uid=self.uid
         modele_mail=u"""
         <html>
             <head>

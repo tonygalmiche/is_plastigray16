@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <!-- Investissement Global -->
-        <!-- <record id="is_invest_global_type_seq" model="ir.sequence.type">
-            <field name="name">Investissement Global</field>
-            <field name="code">is.invest.global</field>
-        </record> -->
         <record id="is_invest_global_seq" model="ir.sequence">
             <field name="name">Investissement Global</field>
             <field name="code">is.invest.global</field>
@@ -202,7 +197,6 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
         <!-- Investissement Commandes -->
         <record id="is_invest_cde_form_view" model="ir.ui.view">
             <field name="name">is_invest_cde_form_view</field>
@@ -261,8 +255,6 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
-
         <!-- Investissement Compta -->
         <record id="is_invest_compta_form_view" model="ir.ui.view">
             <field name="name">is_invest_compta_form_view</field>
@@ -318,21 +310,16 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
         <!-- Actualiser les commandes -->
         <record id="actualiser_commandes_action_server" model="ir.actions.server">
             <field name="name">Actualiser les commandes</field>
-            <field name="model_id" ref="model_is_invest_detail"/>
-            <field name="code">action = self.actualiser_commandes(cr, uid, context.get('active_ids', []), context=context)</field>
-        </record>
-        <!-- <record id="actualiser_commandes_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'is.invest.detail'" name="model"/>
-            <field name="name">Actualiser les commandes</field>
-            <field eval="'ir.actions.server,%d'%actualiser_commandes_action_server" name="value"/>
-        </record> -->
+           <field name="model_id" ref="model_is_invest_detail"/>
+           <field name="binding_model_id" ref="model_is_invest_detail"/>
+           <field name="state">code</field>
+           <field name="code">action = records.actualiser_commandes()</field>
+       </record>
 
-
+       <!-- menu -->
         <record id="is_invest_main_menu" model="ir.ui.menu" >
             <field name="name">Investissements</field>
             <field name="sequence">1</field>
@@ -365,7 +352,5 @@
             parent="is_invest_main_menu" 
             sequence="40"
         />
-
-
     </data>
 </odoo>
