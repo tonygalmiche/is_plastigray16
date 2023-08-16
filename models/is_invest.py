@@ -3,8 +3,8 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import time
-#import psycopg2
-#import psycopg2.extras
+import psycopg2
+import psycopg2.extras
 
 
 class IsInvestGlobal(models.Model):
@@ -59,25 +59,20 @@ class IsInvestGlobal(models.Model):
         return res
 
 
- 
-
-
-
-
     def creer_detail_action(self):
         """Création investissement détail"""
         for obj in self:
             vals = {
                 'type': 'ir.actions.act_window',
                 'name': u'Création investissement détail',
-                'target': 'current', #use 'current' for not opening in a dialog
+                #'target': 'current', #use 'current' for not opening in a dialog
                 'res_model': 'is.invest.detail',
                 'view_type': 'form',
                 'views': [[False,'form']],
                 'context':{
                     'default_global_id': obj.id,
                 }
-            };
+            }
             return vals
 
 
@@ -147,14 +142,14 @@ class IsInvestDetail(models.Model):
 
     def actualiser_commandes(self):
         """Actualiser les commandes"""
-        cr = self._cr
+        #cr = self._cr
         for obj in self:
             obj.cde_ids.unlink()
             company = self.env.user.company_id
-            dbname='pg-odoo1'
-            dbnames=['odoo1','odoo4']
+            #dbname='pg-odoo1'
+            dbnames=['odoo16-1','odoo16-4']
             if company.is_postgres_host=='localhost':
-                dbnames=['pg-odoo1','pg-odoo4']
+                dbnames=['pg-odoo16-1','pg-odoo16-4']
             for dbname in dbnames:
                 cnx = psycopg2.connect("dbname='"+dbname+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
                 if cnx:
@@ -214,13 +209,13 @@ class IsInvestCde(models.Model):
     def acces_commande_action(self):
         """Accès à la commande"""
         for obj in self:
-            url = u'https://'+obj.base+'/web#id='+str(obj.order_id)+'&view_type=form&model=purchase.order'
+            url = 'https://'+obj.base+'/web#id='+str(obj.order_id)+'&view_type=form&model=purchase.order'
             vals = {
                 'type'  : 'ir.actions.act_url',
-                'name'  : u'Accès à la commande',
+                'name'  : 'Accès à la commande',
                 'target': 'new', #use 'current' for not opening in a dialog
                 'url'   : url, 
-            };
+            }
             return vals
 
 
