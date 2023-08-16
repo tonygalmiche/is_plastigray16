@@ -81,7 +81,8 @@ class is_ot(models.Model):
             if data.state == 'analyse_ot' and data.validation_ot == 'oui':
                 data.state="travaux_a_realiser"
             if data.state == 'analyse_ot' and data.validation_ot == 'non':
-                data.state="annule"
+                #data.state="annule"
+                data.action_annule()
             if data.state == 'travaux_a_valider' and data.validation_travaux == 'non_ok':
                 data.state="analyse_ot"
             if data.state == 'travaux_a_valider' and data.validation_travaux == 'ok':
@@ -154,7 +155,9 @@ class is_ot(models.Model):
                     <p>Merci d'en prendre connaissance.</p> 
                 """ 
                 self.envoi_mail(email_from, email_to, subject, body_html)
-        return self.write({'state': 'annule'})
+            obj.state="annule"
+
+        #return self.write({'state': 'annule'})
 
 
     def pj_action(self):
