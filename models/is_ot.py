@@ -5,7 +5,6 @@ from odoo.exceptions import ValidationError
 import datetime
 from collections import defaultdict
 from collections import OrderedDict
-#from openerp.exceptions import except_orm, Warning, RedirectWarning
 #from openerp import SUPERUSER_ID
 #from lxml import etree
 
@@ -43,13 +42,10 @@ class is_ot(models.Model):
     _order = 'name desc'
 
 
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            print(vals)
             vals['name'] = self.env['ir.sequence'].next_by_code('is.ot')
-
             count = 0
             if vals and vals.get('equipement_id'):
                 count += 1
@@ -61,13 +57,9 @@ class is_ot(models.Model):
                 count += 1
             if vals and vals.get('instrument_id'):
                 count += 1
-
-            print("count=",count)
             if count == 0 or count > 1:
                 msg="Il est obligatoire de saisir un équipement, un moule, un dossier F, un gabarit ou un instrument (un seul choix possible)"
                 raise ValidationError(msg)
-        print(vals_list)
-
         return super().create(vals_list)
 
 
@@ -87,16 +79,12 @@ class is_ot(models.Model):
         res = super(is_ot, self).write(vals)
         for data in self:
             if data.state == 'analyse_ot' and data.validation_ot == 'oui':
-                #self.signal_workflow('travaux_a_realiser')
                 data.state="travaux_a_realiser"
             if data.state == 'analyse_ot' and data.validation_ot == 'non':
-                #self.signal_workflow('annule')
                 data.state="annule"
             if data.state == 'travaux_a_valider' and data.validation_travaux == 'non_ok':
-                #data.signal_workflow('a_valider_to_analyse')
                 data.state="analyse_ot"
             if data.state == 'travaux_a_valider' and data.validation_travaux == 'ok':
-                #data.signal_workflow('termine')
                 data.state="termine"
             count = 0
             if data.equipement_id:
@@ -121,19 +109,18 @@ class is_ot(models.Model):
 
 
     def vers_travaux_a_valider(self):
-        for data in self:
-            if not data.date_realisation_travaux:
-                data.date_realisation_travaux = datetime.datetime.today()
-            #data.signal_workflow('travaux_a_valider')
-            data.state="travaux_a_valider"
-        return True
+        for obj in self:
+            if not obj.date_realisation_travaux:
+                obj.date_realisation_travaux = datetime.datetime.today()
+            obj.validation_travaux=False
+            obj.state="travaux_a_valider"
+
 
     def vers_analyse_ot(self):
         for obj in self:
-            #obj.signal_workflow('creation_to_analyse')
             obj.state="analyse_ot"
-
         return True
+
 
     def envoi_mail(self, email_from, email_to, subject, body_html):
         for obj in self:
@@ -175,18 +162,19 @@ class is_ot(models.Model):
             print(obj)
 
 
-    def fields_view_get(self, cr, uid, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
-        if context is None:context = {}
-        res = super(is_ot, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context, toolbar=toolbar, submenu=False)
-        if view_type != 'form':
-            return res
-        if uid != 1:
-            return res
-        doc = etree.XML(res['arch'])
-        for node in doc.xpath("//field[@name='state']"):
-            node.set('clickable', "True")
-        res['arch'] = etree.tostring(doc)
-        return res
+    # def fields_view_get(self, cr, uid, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
+    #     if context is None:context = {}
+    #     res = super(is_ot, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context, toolbar=toolbar, submenu=False)
+    #     if view_type != 'form':
+    #         return res
+    #     if uid != 1:
+    #         return res
+    #     doc = etree.XML(res['arch'])
+    #     for node in doc.xpath("//field[@name='state']"):
+    #         node.set('clickable', "True")
+    #     res['arch'] = etree.tostring(doc)
+    #     return res
+
 
     def default_get(self, default_fields):
         res = super(is_ot, self).default_get(default_fields)
@@ -195,6 +183,7 @@ class is_ot(models.Model):
             if user_data and user_data.is_site_id:
                 res['site_id'] = user_data.is_site_id.id
         return res
+
 
     @api.depends('gravite')
     def _compute_gravite(self):
