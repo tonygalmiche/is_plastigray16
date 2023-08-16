@@ -327,17 +327,17 @@
             <field name="arch" type="xml">
                 <tree string="Création">
                     <field name="name" />
-                    <field name="date_creation" />
-                    <field name="demandeur_id" />
-                    <field name="equipement_id" />
-                    <field name="moule_id" />
-                    <field name="dossierf_id" />
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="date_intervention_demandee"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="date_intervention_demandee" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
                     <field name="pj" invisible="1"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
@@ -357,18 +357,18 @@
             <field name="model">is.ot</field>
             <field name="arch" type="xml">
                 <tree string="Analyse de l'OT" create="false">
-                    <field name="name" />
-                    <field name="date_creation" />
-                    <field name="demandeur_id" />
-                    <field name="equipement_id" />
-                    <field name="moule_id" />
-                    <field name="dossierf_id" />
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci" />
-                    <field name="pj" invisible="1"/>
+                    <field name="name" optional="show"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
+                    <field name="pj" invisible="1" optional="show"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
             </field>
@@ -388,21 +388,21 @@
             <field name="arch" type="xml">
                 <tree string="Travaux à réaliser" create="false">
                     <field name="name" />
-                    <field name="date_creation" />
-                    <field name="demandeur_id" />
-                    <field name="equipement_id" />
-                    <field name="moule_id" />
-                    <field name="dossierf_id" />
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci" />
-                    <field name="affectation_id" />
-                    <field name="nature" />
-                    <field name="delai_previsionnel" />
-                    <field name="date_intervention_demandee" />
-                    <field name="date_previsionnelle_intervention" />
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
+                    <field name="affectation_id" optional="show"/>
+                    <field name="nature" optional="show"/>
+                    <field name="delai_previsionnel" optional="show"/>
+                    <field name="date_intervention_demandee" optional="show"/>
+                    <field name="date_previsionnelle_intervention" optional="show"/>
                     <field name="pj" invisible="1"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
@@ -422,23 +422,23 @@
             <field name="model">is.ot</field>
             <field name="arch" type="xml">
                 <tree string="Travaux à valider" create="false">
-                    <field name="name" />
-                    <field name="date_creation" />
-                    <field name="demandeur_id" />
-                    <field name="equipement_id" />
-                    <field name="moule_id" />
-                    <field name="dossierf_id" />
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci" />
-                    <field name="affectation_id" />
-                    <field name="nature" />
-                    <field name="delai_previsionnel" />
-                    <field name="date_previsionnelle_intervention" />
-                    <field name="date_realisation_travaux" />
-                    <field name="pj" invisible="1"/>
+                    <field name="name" optional="show"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
+                    <field name="affectation_id" optional="show"/>
+                    <field name="nature" optional="show"/>
+                    <field name="delai_previsionnel" optional="show"/>
+                    <field name="date_previsionnelle_intervention" optional="show"/>
+                    <field name="date_realisation_travaux" optional="show"/>
+                    <field name="pj" invisible="1" optional="show"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
             </field>
@@ -460,21 +460,21 @@
             <field name="arch" type="xml">
                 <tree string="Travaux annulés" create="false">
                     <field name="name" />
-                    <field name="date_creation" />
-                    <field name="demandeur_id" />
-                    <field name="equipement_id" />
-                    <field name="moule_id" />
-                    <field name="dossierf_id" />
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci" />
-                    <field name="affectation_id" />
-                    <field name="nature" />
-                    <field name="delai_previsionnel" />
-                    <field name="date_previsionnelle_intervention" />
-                    <field name="pj" invisible="1"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
+                    <field name="affectation_id" optional="show"/>
+                    <field name="nature" optional="show"/>
+                    <field name="delai_previsionnel" optional="show"/>
+                    <field name="date_previsionnelle_intervention" optional="show"/>
+                    <field name="pj" invisible="1" optional="show"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
             </field>
@@ -495,22 +495,22 @@
                 <tree string="Terminé" create="false">
                     <field name="site_id"/>
                     <field name="name"/>
-                    <field name="date_creation"/>
-                    <field name="demandeur_id"/>
-                    <field name="valideur_id"/>
-                    <field name="equipement_id"/>
-                    <field name="moule_id"/>
-                    <field name="dossierf_id"/>
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci"/>
-                    <field name="affectation_id"/>
-                    <field name="nature"/>
-                    <field name="delai_previsionnel"/>
-                    <field name="date_realisation_travaux"/>
-                    <field name="temps_passe_total" widget="float_time"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="valideur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
+                    <field name="affectation_id" optional="show"/>
+                    <field name="nature" optional="show"/>
+                    <field name="delai_previsionnel" optional="show"/>
+                    <field name="date_realisation_travaux" optional="show"/>
+                    <field name="temps_passe_total" optional="show" widget="float_time"/>
                     <field name="pj" invisible="1"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
@@ -531,29 +531,29 @@
             <field name="model">is.ot</field>
             <field name="arch" type="xml">
                 <tree string="Terminé" create="false">
-                    <field name="site_id"/>
-                    <field name="name"/>
-                    <field name="date_creation"/>
-                    <field name="demandeur_id"/>
-                    <field name="valideur_id"/>
-                    <field name="equipement_id"/>
-                    <field name="moule_id"/>
-                    <field name="dossierf_id"/>
-                    <field name="gabarit_id"/>
-                    <field name="instrument_id"/>
-                    <field name="code_gravite"/>
-                    <field name="descriptif"/>
-                    <field name="numero_qrci"/>
-                    <field name="affectation_id"/>
-                    <field name="nature"/>
-                    <field name="delai_previsionnel"/>
-                    <field name="date_realisation_travaux"/>
-                    <field name="temps_passe_total" widget="float_time"/>
-                    <field name="state"/>
+                    <field name="site_id" optional="show"/>
+                    <field name="name" optional="show"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="valideur_id" optional="show"/>
+                    <field name="equipement_id" optional="show"/>
+                    <field name="moule_id" optional="show"/>
+                    <field name="dossierf_id" optional="show"/>
+                    <field name="gabarit_id" optional="show"/>
+                    <field name="instrument_id" optional="show"/>
+                    <field name="code_gravite" optional="show"/>
+                    <field name="descriptif" optional="show"/>
+                    <field name="numero_qrci" optional="show"/>
+                    <field name="affectation_id" optional="show"/>
+                    <field name="nature" optional="show"/>
+                    <field name="delai_previsionnel" optional="show"/>
+                    <field name="date_realisation_travaux" optional="show"/>
+                    <field name="temps_passe_total" optional="show" widget="float_time"/>
+                    <field name="state" optional="show"/>
                     <field name="pj" invisible="1"/>
                     <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('pj', '==', False)]}"/>
-                    <field name="write_date" string="Date modification"/>
-                    <field name="write_uid"  string="Dernier intervenant"/>
+                    <field name="write_date" string="Date modification" optional="show"/>
+                    <field name="write_uid"  string="Dernier intervenant" optional="show"/>
                 </tree>
             </field>
         </record>
