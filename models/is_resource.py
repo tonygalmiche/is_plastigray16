@@ -8,10 +8,10 @@ class is_resource_calendar_leaves(models.Model):
     
     partner_id = fields.Many2one('res.partner', 'Partenaire')
     reason     = fields.Selection([
-        ('h_summer', 'Summer holiday'),
-        ('h_winter', 'Winter holiday'),
-        ('h_public', 'Public holiday'),
-        ('others', 'Others')], 'Raison de la fermeture')
+        ('h_summer', "Congés d'été"),
+        ('h_winter', "Congés d'hiver"),
+        ('h_public', "Jours fériés"),
+        ('others'  , "Autres")], 'Raison de la fermeture')
 
 
     @api.model_create_multi
