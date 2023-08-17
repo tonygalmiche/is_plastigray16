@@ -38,6 +38,7 @@ class is_ot_temps_passe(models.Model):
 
 class is_ot(models.Model):
     _name = 'is.ot'
+    _inherit=['mail.thread']
     _description="is_ot"
     _order = 'name desc'
 
@@ -157,12 +158,15 @@ class is_ot(models.Model):
                 self.envoi_mail(email_from, email_to, subject, body_html)
             obj.state="annule"
 
-        #return self.write({'state': 'annule'})
-
 
     def pj_action(self):
         for obj in self:
-            print(obj)
+            attachments = self.env['ir.attachment'].search([('res_model','=',self._name),('res_id','=',obj.id)])
+            if len(attachments):
+                return {
+                    'type' : 'ir.actions.act_url',
+                    'url': '/web/content/%s?download=true'%(attachments[0].id),
+                }
 
 
     # def fields_view_get(self, cr, uid, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
