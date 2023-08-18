@@ -26,6 +26,17 @@ class stock_location(models.Model):
     control_quality = fields.Boolean(u'Contrôle qualité', default=False)
 
 
+    def name_get(self):
+        res = []
+        for obj in self:
+            name = obj.name
+            #name = "%s (%s)"%(obj.name,(obj.is_matricule or ''))
+            res.append((obj.id,name))
+        return res
+
+
+
+
 class is_commentaire_mouvement_stock(models.Model):
     _name = 'is.commentaire.mouvement.stock'
     _description = 'Comentaires sur les mouvements'
