@@ -74,10 +74,10 @@ class product_pricelist_version(models.Model):
 
 
     def print_pricelist_version(self):
-        uid=self.uid
-        cr=self._cr
         for obj in self:
-            return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray16.report_pricelist_version', context=context)
+            #return self.pool['report'].get_action(cr, uid, obj.id, 'is_plastigray16.report_pricelist_version', context=context)
+            return self.env.ref('is_plastigray16.report_pricelist_version').report_action(self)
+
 
 
     def action_dupliquer(self):
