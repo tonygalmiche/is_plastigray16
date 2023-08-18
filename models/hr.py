@@ -68,27 +68,21 @@ class hr_employee(models.Model):
     message_main_attachment_id = fields.Many2one(groups="base.group_user") # Etait : groups="hr.group_hr_user"
 
 
+    def name_get(self):
+        res = []
+        for obj in self:
+            name = "%s (%s)"%(obj.name,(obj.is_matricule or ''))
+            res.append((obj.id,name))
+        return res
 
-
-
-    # def name_get(self, cr, uid, ids, context=None):
-    #     res = []
-    #     for obj in self.browse(cr, uid, ids, context=context):
-    #         #name=obj.name+" / "+(obj.code_einecs or '')+" / "+(obj.code_cas or '')
-    #         #name=obj.code_cas or obj.name or obj.code_einecs
-    #         name = obj.name + u' (' + (obj.is_matricule or u'') + u')'
-    #         res.append((obj.id,name))
-    #     return res
-
-    # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
-    #     if not args:
-    #         args = []
-    #     if name:
-    #         ids = self.search(cr, user, ['|',('name','ilike', name),('is_matricule','ilike', name)], limit=limit, context=context)
-    #     else:
-    #         ids = self.search(cr, user, args, limit=limit, context=context)
-    #     result = self.name_get(cr, user, ids, context=context)
-    #     return result
+    def _name_search(self, name='', args=None, operator='ilike', context=None, limit=100):
+        if not args:
+            args = []
+        if name:
+            ids = list(self._search(['|',('name','ilike', name),('is_matricule','ilike', name)], limit=limit))
+        else:
+            ids = self._search(args, limit=limit)
+        return ids
 
 
 class is_employe_horaire(models.Model):

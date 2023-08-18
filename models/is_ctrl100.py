@@ -31,18 +31,20 @@ class is_ctrl100_operation_standard(models.Model):
 
 class is_ctrl100_gamme_standard(models.Model):
     _name        = 'is.ctrl100.gamme.standard'
-    _description = u"Opérations gamme standard"
+    _description = "Opérations gamme standard"
     _order       = 'operation_standard_id'
 
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        context = self._context or {}
-        args += ['|', ('active', '=', True), ('active', '=', False)]
-        return super(is_ctrl100_gamme_standard, self).search(args, offset, limit, order, count=count)
+
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     context = self._context or {}
+    #     args += ['|', ('active', '=', True), ('active', '=', False)]
+    #     return super(is_ctrl100_gamme_standard, self).search(args, offset, limit, order, count=count)
 
 
     gamme_qualite_id       = fields.Many2one('is.ctrl100.gamme.mur.qualite', u"Gamme mur qualité")
     operation_standard_id  = fields.Many2one('is.ctrl100.operation.standard', u"Opération standard")
-    active                 = fields.Boolean("Active", default=True)
+    #active                 = fields.Boolean("Active (champ désactivé)", default=True)
+    is_active              = fields.Boolean("Active", default=False) # Champ acive remplacé par is_active dans Odoo 16, car la ligne n'apparaissait plus si elle n'était plus active
     #temps_etape            = fields.Float(u"Temps de l'étape  (Seconde / Pièce) ", digits=(14, 2))
 
 
@@ -149,11 +151,6 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
 
 
 
-
-
-
-
-
     def get_default_data(self):
         res = False
         default = []
@@ -210,28 +207,34 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
         return res
 
 
-
+    @api.model
     def default_get(self, default_fields):
         res = super(is_ctrl100_gamme_mur_qualite, self).default_get(default_fields)
-        gamme_standard_obj = self.env['is.ctrl100.gamme.standard']
+        res.update({
+            'operation_standard_ids': self._get_operation_standard_ids(),
+            'cout_ctrl_qualite'     : self._get_cout_ctrl_qualite(),
+        })
+        return res
+
+
+    def _get_operation_standard_ids(self):
         operation_standard_obj = self.env['is.ctrl100.operation.standard']
         lst = []
         operation_standardids = operation_standard_obj.search([('active', '=', True)])
         for num in operation_standardids:
             lst.append((0,0, {
                 'operation_standard_id': num.id, 
-                'active': False,
+                'is_active': False,
             }))
-        res['operation_standard_ids'] = lst
-        return res
+        return lst
 
 
-    @api.returns('self')
     def _get_cout_ctrl_qualite(self):
         user = self.env['res.users'].browse(self.env.uid)
         cout = 0
         if user:
             cout = user.company_id.is_cout_ctrl_qualite or 0
+        print(self, user, cout)
         return cout
 
 
@@ -363,13 +366,13 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
     date_creation            = fields.Date(u"Date de création", copy=False, default=fields.Date.context_today)
     typologie_produit_id     = fields.Many2one("is.ctrl100.typologie.produit", "Typologie de produit")
     date_fin_validite        = fields.Date(u"Date du rappel", required=True)
-    operation_standard_ids   = fields.One2many('is.ctrl100.gamme.standard'      , 'gamme_qualite_id', u"Opérations standard")
+    operation_standard_ids   = fields.One2many('is.ctrl100.gamme.standard', 'gamme_qualite_id', "Opérations standard") #, default=lambda self: self._get_operation_standard_ids())
     operation_specifique_ids = fields.One2many('is.ctrl100.operation.specifique', 'gamme_qualite_id', u"Opérations spécifiques")
     risque_lie_ids           = fields.One2many('is.ctrl100.risque.lie'          , 'gamme_qualite_id', u"Risque pour le produit engendré par cette reprise")
     defautheque_ids          = fields.One2many("is.ctrl100.gamme.defautheque.line", "gamme_id", u"Défauthèque")
     product_cout_id          = fields.Many2one("product.product", "Article pour coût")
     cout_actualise           = fields.Float(u"Coût actualisé", digits=(12, 4), compute="_compute_cout", store=True, readonly=True)
-    cout_ctrl_qualite        = fields.Float(u"Coût horaire vendu contrôle qualité", digits=(12, 2), default=_get_cout_ctrl_qualite)
+    cout_ctrl_qualite        = fields.Float(u"Coût horaire vendu contrôle qualité", digits=(12, 2)) #, default=_get_cout_ctrl_qualite)
     cout_previsionnel        = fields.Float(u"Coût prévisionnel par pièce", digits=(12, 4), compute="_compute_cout", store=True, readonly=True)
     delta_cout               = fields.Float(u"Delta coût", digits=(12, 4), compute="_compute_cout", store=True, readonly=True)
     justification            = fields.Char(u"Justification")

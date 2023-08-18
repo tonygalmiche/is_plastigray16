@@ -1,43 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <!-- is.ctrl100.gamme.mur.qualite -->
-        <!-- <record id="seq_type_is_ctrl100_gamme_mur_qualite" model="ir.sequence.type">
-            <field name="name">Gamme mur qualité</field>
-            <field name="code">is.ctrl100.gamme.mur.qualite</field>
-        </record> -->
         <record id="seq_is_ctrl100_gamme_mur_qualite" model="ir.sequence">
             <field name="name">Gamme mur qualité Sequence</field>
             <field name="code">is.ctrl100.gamme.mur.qualite</field>
             <field name="padding">5</field>
         </record>
-
         <!-- is.ctrl100.gamme.mur.qualite -->
-        <!-- <record id="seq_type_is_ctrl100_defautheque" model="ir.sequence.type">
-            <field name="name">Défauthèque</field>
-            <field name="code">is.ctrl100.defautheque</field>
-        </record> -->
         <record id="seq_is_ctrl100_defautheque" model="ir.sequence">
             <field name="name">Défauthèque Sequence</field>
             <field name="code">is.ctrl100.defautheque</field>
             <field name="padding">5</field>
         </record>
-
-
-
         <!-- is.ctrl100.defaut -->
-        <!-- <record id="seq_type_is_ctrl100_defaut" model="ir.sequence.type">
-            <field name="name">Défauts</field>
-            <field name="code">is.ctrl100.defaut</field>
-        </record> -->
         <record id="seq_is_ctrl100_defaut" model="ir.sequence">
             <field name="name">Défauts Sequence</field>
             <field name="code">is.ctrl100.defaut</field>
             <field name="padding">5</field>
         </record>
-
-
 
         <!-- Opérations standard -->
         <record model="ir.ui.view" id="is_ctrl100_operation_standard_tree_view">
@@ -137,10 +118,11 @@
                             <field name="description"/>
                         </tree>
                     </field>
-                    <field name="operation_standard_ids" colspan="4" context="{'active_test':True}">
+                    <!-- context="{'active_test':True}" -->
+                    <field name="operation_standard_ids">
                         <tree editable="bottom">
                             <field name="operation_standard_id" required="True" />
-                            <field name="active"/>
+                            <field name="is_active"/>
                         </tree>
                     </field>
                     <field name="operation_specifique_ids" colspan="4">
@@ -284,8 +266,6 @@
                         <field name="defautheque_sur"/>
                         <field name="mold_id"     attrs="{'invisible': [('defautheque_sur', '!=', 'moule')]}"/>
                         <field name="dossierf_id" attrs="{'invisible': [('defautheque_sur', '!=', 'dossier_f')]}"/>
-                    </group>
-                    <group>
                         <field name="defaut" required="True"/>
                         <field name="ou_et_quand"/>
                     </group>
@@ -362,7 +342,8 @@
                         </group>
                         <group>
                             <field name="createur_id"                   required="True"/>
-                            <field name="employe_id" domain="[('id', 'in', employee_ids and employee_ids[0] and employee_ids[0][2] or False)]"/> 
+                            <!-- <field name="employe_id" domain="[('id', 'in', employee_ids and employee_ids[0] and employee_ids[0][2] or False)]"/>  -->
+                            <field name="employe_id" domain="[('id', 'in', employee_ids)]"/> 
                             <field name="date_saisie"                   required="True"/>
                             <field name="nb_pieces_controlees"          required="True"/>
                             <field name="tps_passe" widget="float_time" required="True"/>
@@ -407,22 +388,22 @@
             <field name="model">is.ctrl100.defaut</field>
             <field name="arch" type="xml">
                 <tree string="Défauts">
-                    <field name="name"/>
-                    <field name="gamme_id"/>
-                    <field name="tracabilite" />
-                    <field name="product_id" />
-                    <field name="production_id" />
-                    <field name="picking_id" />
-                    <field name="moule_dossierf"/>
-                    <field name="createur_id"/>
-                    <field name="employe_id"/>
-                    <field name="date_saisie"/>
-                    <field name="operateur_evalue_ids" widget="many2many_tags"/>
-                    <field name="nb_rebuts" sum="Total"/>
-                    <field name="nb_repris" sum="Total"/>
-                    <field name="taux_rebut"/>
-                    <field name="nb_pieces_controlees" sum="Total"/>
-                    <field name="tps_passe"            sum="Total"/>
+                    <field name="name" optional="show"/>
+                    <field name="gamme_id" optional="show"/>
+                    <field name="tracabilite" optional="show" />
+                    <field name="product_id" optional="show" />
+                    <field name="production_id" optional="show" />
+                    <field name="picking_id" optional="show" />
+                    <field name="moule_dossierf" optional="show"/>
+                    <field name="createur_id" optional="show"/>
+                    <field name="employe_id" optional="show"/>
+                    <field name="date_saisie" optional="show"/>
+                    <field name="operateur_evalue_ids" optional="show" widget="many2many_tags"/>
+                    <field name="nb_rebuts" optional="show" sum="Total"/>
+                    <field name="nb_repris" optional="show" sum="Total"/>
+                    <field name="taux_rebut" optional="show"/>
+                    <field name="nb_pieces_controlees" optional="show" sum="Total"/>
+                    <field name="tps_passe" optional="show"            sum="Total"/>
                 </tree>
             </field>
         </record>
@@ -668,7 +649,8 @@
                         </group>
                         <group>
                             <field name="createur_id"                   required="True"/>
-                            <field name="employe_id"/> <!-- domain="[('id', 'in', employee_ids and employee_ids[0] and employee_ids[0][2] or False)]"/>  -->
+                            <!-- <field name="employe_id" domain="[('id', 'in', employee_ids and employee_ids[0] and employee_ids[0][2] or False)]"/>  -->
+                            <field name="employe_id"/>
                             <field name="date_saisie"                   required="True"/>
                             <field name="nb_pieces_controlees"          required="True"/>
                             <field name="tps_passe" widget="float_time" required="True"/>
