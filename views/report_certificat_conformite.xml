@@ -108,9 +108,11 @@
                         </t>
                         <t t-if="o.pourcentage_maxi">
                             <br />
-                            <div>
-                                <b>Le pourcentage maximum de matière plastique réutilisée/rebroyée contenue dans les pièces injectées est de <span t-field="o.pourcentage_maxi"/>.</b><br />
-                                <i>The maximum percentage of reprocessed/regrind thermoplastic material used in the molding process is <span t-field="o.pourcentage_maxi"/>.</i>
+                            <div style="font-weight: bold">
+                                <span>Le pourcentage maximum de matière plastique réutilisée/rebroyée contenue dans les pièces injectées est de </span>&amp;nbsp;  <span t-field="o.pourcentage_maxi"/>.
+                            </div>
+                            <div style="font-style: italic">
+                                <span>The maximum percentage of reprocessed/regrind thermoplastic material used in the molding process is </span>&amp;nbsp; <span t-field="o.pourcentage_maxi"/>.
                             </div>
                         </t>
                         <t t-if="o.autre_ids">
