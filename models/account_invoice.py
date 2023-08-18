@@ -205,8 +205,11 @@ class account_invoice(models.Model):
 
         # ** Merge des PDF *****************************************************
         path_merged=self._merge_pdf(paths)
-        pdfs = open(path_merged,'rb').read().encode('base64')
+        #pdfs = open(path_merged,'rb').read().encode('base64')
+        pdfs = open(path_merged,'rb').read()
         # **********************************************************************
+
+                # 'datas':       base64.b64encode(pdf),#
 
 
         # ** Recherche si une pièce jointe est déja associèe *******************
@@ -219,9 +222,10 @@ class account_invoice(models.Model):
         # ** Creation ou modification de la pièce jointe ***********************
         vals = {
             'name':        name,
-            'datas_fname': name,
+            #'datas_fname': name,
             'type':        'binary',
-            'datas':       pdfs,
+            #'datas':       pdfs,
+            'datas':       base64.b64encode(pdfs),
         }
         if attachments:
             for attachment in attachments:
@@ -236,8 +240,9 @@ class account_invoice(models.Model):
         if attachment_id:
             return {
                 'type' : 'ir.actions.act_url',
-                'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                'target': 'new',
+                'url': '/web/content/%s?download=true'%(attachment_id),
+                #'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
+                #'target': 'new',
             }
         #***********************************************************************
 
@@ -350,7 +355,8 @@ class account_invoice(models.Model):
                         paths.append(file_name)
                     # ** Merge des PDF *****************************************
                     path_merged=self._merge_pdf(paths)
-                    pdfs = open(path_merged,'rb').read().encode('base64')
+                    #pdfs = open(path_merged,'rb').read().encode('base64')
+                    pdfs = open(path_merged,'rb').read()
                     # **********************************************************
 
 
@@ -358,9 +364,10 @@ class account_invoice(models.Model):
                     name = 'facture-' + str(invoice.number) + '-' + str(uid) + '.pdf'
                     vals = {
                         'name':        name,
-                        'datas_fname': name,
+                        #'datas_fname': name,
                         'type':        'binary',
-                        'datas':       pdfs,
+                        #'datas':       pdfs,
+                        'datas':        base64.b64encode(pdfs),
                     }
                     new = self.env['ir.attachment'].create(vals)
                     attachment_id=new.id

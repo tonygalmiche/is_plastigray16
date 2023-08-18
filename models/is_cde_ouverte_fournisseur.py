@@ -302,8 +302,9 @@ class is_cde_ouverte_fournisseur(models.Model):
             attachment_id=self.create_ferme_uniquement(name)
             return {
                 'type' : 'ir.actions.act_url',
-                'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                'target': 'new',
+                'url': '/web/content/%s?download=true'%(attachment_id),
+                #'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
+                #'target': 'new',
             }
 
 

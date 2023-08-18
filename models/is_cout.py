@@ -605,11 +605,12 @@ class is_cout_calcul(models.Model):
             # ** Creation ou modification de la pièce jointe *******************
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdf.encode('base64'),
+                #'datas':       pdf.encode('base64'),
+                'datas':       base64.b64encode(pdf),
             }
             attachment_id=False
             if attachments:
@@ -621,8 +622,9 @@ class is_cout_calcul(models.Model):
                 attachment_id=attachment.id
             return {
                 'type' : 'ir.actions.act_url',
-                'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                'target': 'self',
+                'url': '/web/content/%s?download=true'%(attachment_id),
+                #'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
+                #'target': 'self',
             }
             #*******************************************************************
 

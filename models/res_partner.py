@@ -1032,31 +1032,32 @@ class res_partner(models.Model):
         return messages
 
 
-    def bon_sortie_matiere(self, filename):
-        '''
-        Test génération 'Bon de sortie matière' pour être utilisée en PHP
-        '''
-        for obj in self:
-            orders=self.env['is.cde.ouverte.fournisseur'].search([('partner_id','=',obj.id)])
-            ids=[]
-            for order in orders:
-                ids.append(order.id)
+    # def bon_sortie_matiere(self, filename):
+    #     '''
+    #     Test génération 'Bon de sortie matière' pour être utilisée en PHP
+    #     '''
+    #     for obj in self:
+    #         orders=self.env['is.cde.ouverte.fournisseur'].search([('partner_id','=',obj.id)])
+    #         ids=[]
+    #         for order in orders:
+    #             ids.append(order.id)
 
-            # ** Récupération du fichier PDF du rapport indiqué ****************
-            pdf = self.pool.get('report').get_pdf(self._cr, self._uid, ids, 'is_plastigray16.report_cde_ouverte_fournisseur', context=self._context)
-            # ******************************************************************
+    #         # ** Récupération du fichier PDF du rapport indiqué ****************
+    #         #pdf = self.pool.get('report').get_pdf(self._cr, self._uid, ids, 'is_plastigray16.report_cde_ouverte_fournisseur', context=self._context)
+    #         pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_cde_ouverte_fournisseur',[obj.id])[0]
+    #         # ******************************************************************
 
-            # Enregistrement du PDF sur le serveur *****************************
-            path=u"/tmp/"+filename+u".pdf"
-            err=""
-            # try:
-            #     fichier = open(path, "w")
-            # except IOError, e:
-            #     err="Problème d'accès au fichier '"+path+"' => "+ str(e)
-            if err=="":
-                fichier.write(pdf)
-                fichier.close()
-            # ******************************************************************
-            return {'pdf': base64.b64encode(pdf)}
+    #         # Enregistrement du PDF sur le serveur *****************************
+    #         path=u"/tmp/"+filename+u".pdf"
+    #         err=""
+    #         # try:
+    #         #     fichier = open(path, "w")
+    #         # except IOError, e:
+    #         #     err="Problème d'accès au fichier '"+path+"' => "+ str(e)
+    #         if err=="":
+    #             fichier.write(pdf)
+    #             fichier.close()
+    #         # ******************************************************************
+    #         return {'pdf': base64.b64encode(pdf)}
 
 

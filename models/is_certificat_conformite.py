@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from datetime import datetime
+import base64
+
 #import os
 #from pyPdf import PdfFileWriter, PdfFileReader
 #import tempfile
@@ -85,7 +87,8 @@ class is_bon_transfert(models.Model):
 
             # ** Merge des PDF *****************************************************
             path_merged=self.env['stock.picking']._merge_pdf(paths)
-            pdfs = open(path_merged,'rb').read().encode('base64')
+            #pdfs = open(path_merged,'rb').read().encode('base64')
+            pdfs = open(path_merged,'rb').read()
             # **********************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe *******************
@@ -97,9 +100,10 @@ class is_bon_transfert(models.Model):
             # ** Creation ou modification de la pièce jointe ***********************
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
-                'datas':       pdfs,
+                #'datas':       pdfs,
+                'datas':        base64.b64encode(pdfs),
             }
             if attachments:
                 for attachment in attachments:
@@ -114,8 +118,9 @@ class is_bon_transfert(models.Model):
             if attachment_id:
                 return {
                     'type' : 'ir.actions.act_url',
-                    'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                    'target': 'new',
+                    'url': '/web/content/%s?download=true'%(attachment_id),
+                    #'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
+                    #'target': 'new',
                 }
             #***********************************************************************
 
@@ -283,7 +288,8 @@ class stock_picking(models.Model):
 
             # ** Merge des PDF *****************************************************
             path_merged=self._merge_pdf(paths)
-            pdfs = open(path_merged,'rb').read().encode('base64')
+            #pdfs = open(path_merged,'rb').read().encode('base64')
+            pdfs = open(path_merged,'rb').read()
             # **********************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe *******************
@@ -295,9 +301,10 @@ class stock_picking(models.Model):
             # ** Creation ou modification de la pièce jointe ***********************
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
-                'datas':       pdfs,
+                #'datas':       pdfs,
+                'datas':        base64.b64encode(pdfs),
             }
             if attachments:
                 for attachment in attachments:

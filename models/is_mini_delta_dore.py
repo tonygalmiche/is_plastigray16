@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
-#import base64
+import base64
 #import csv, cStringIO
 from datetime import date,datetime,timedelta
 #import unicodedata
@@ -70,11 +70,12 @@ class is_mini_delta_dore(models.Model):
             model='is.edi.cde.cli'
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'file_type':   'text/csv',
                 'res_model':   model,
-                'datas':       datas.encode('base64'),
+                #'datas':       datas.encode('base64'),
+                'datas': base64.b64encode(datas),
             }
             attachment=attachment_obj.create(vals)
             vals = {

@@ -4,11 +4,10 @@ from odoo import models, fields, api
 import datetime
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
-
 #import os
 #import unicodedata
 #import codecs
-#import base64
+import base64
 #import csv, cStringIO
 #import xmlrpclib
 #from openerp import SUPERUSER_ID
@@ -834,14 +833,16 @@ class is_demande_conges_export_cegid(models.Model):
             model='is.demande.conges.export.cegid'
             attachments = self.env['ir.attachment'].search([('res_model','=',model),('res_id','=',obj.id),('name','=',filename)])
             attachments.unlink()
-            r = open(dest,'rb').read().encode('base64')
+            #r = open(dest,'rb').read().encode('base64')
+            r = open(dest,'rb').read()
+            datas = base64.b64encode(r)
             vals = {
                 'name':        filename,
-                'datas_fname': filename,
+                #'datas_fname': filename,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       r,
+                'datas':       datas,
             }
             id = self.env['ir.attachment'].create(vals)
 

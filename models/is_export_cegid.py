@@ -4,7 +4,7 @@ from odoo.exceptions import ValidationError
 import datetime
 # import codecs
 # import unicodedata
-# import base64
+import base64
 # import csv, cStringIO
 # import sys
 # import os
@@ -430,14 +430,16 @@ class is_export_cegid(models.Model):
                 f.write('\r\n')
 
             f.close()
-            r = open(dest,'rb').read().encode('base64')
+            #r = open(dest,'rb').read().encode('base64')
+            r = open(dest,'rb').read()
+            datas =  base64.b64encode(r)
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       r,
+                'datas':       datas,
             }
             id = self.env['ir.attachment'].create(vals)
 
