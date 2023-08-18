@@ -164,10 +164,10 @@
                                     </td>
                                 </t>
                                 <td class="text-right">
-                                    <span t-esc="poids_brut_total"/> KG
+                                    <span t-esc="round(poids_brut_total,4)"/> KG
                                 </td>
                                 <td class="text-right">
-                                    <span t-esc="poids_net_total"/> KG
+                                    <span t-esc="round(poids_net_total,4)"/> KG
                                 </td>
                             </tbody>
                         </table>
