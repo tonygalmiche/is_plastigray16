@@ -74,7 +74,8 @@ class is_preventif_equipement_zone(models.Model):
             paths=[]
 
             # ** Ajout du rapport *********************************************
-            result = self.env['report'].get_pdf(obj, 'is_plastigray16.preventif_equipement_zone_report')
+            #result = self.env['report'].get_pdf(obj, 'is_plastigray16.preventif_equipement_zone_report')
+            result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.preventif_equipement_zone_report',[obj.id])[0]
             file_name = path + '/zone.pdf'
             fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
             try:

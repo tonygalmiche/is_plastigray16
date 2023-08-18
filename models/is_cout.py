@@ -584,7 +584,8 @@ class is_cout_calcul(models.Model):
                 for cout in couts:
                     path=tmp+"/"+str(ct)+".pdf"
                     ct=ct+1
-                    pdf = self.env['report'].get_pdf(cout, 'is_plastigray16.report_is_cout')
+                    #pdf = self.env['report'].get_pdf(cout, 'is_plastigray16.report_is_cout')
+                    pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_is_cout',[cout.id])[0]
                     f = open(path,'wb')
                     f.write(pdf)
                     f.close()
@@ -1244,7 +1245,8 @@ class is_cout(models.Model):
             ct=ct+1
             code_pg=rec.name.is_code
             _logger.info('- '+str(ct)+'/'+str(nb)+' : '+str(code_pg))
-            result, format = self.env['report'].get_pdf(rec, report_service), 'pdf'
+            #result = self.env['report'].get_pdf(rec, report_service), 'pdf'
+            result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_service',[rec.id])[0]
             file_name = path + '/'+str(code_pg) +'.pdf'
             fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
             try:

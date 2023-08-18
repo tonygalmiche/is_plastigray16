@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
+import base64
 
 
 modele_mail=u"""
@@ -165,14 +166,16 @@ class is_cde_ferme_cadencee(models.Model):
             # ******************************************************************
 
             # ** Creation ou modification de la pièce jointe *******************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_cde_ferme_cadencee')
+            #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_cde_ferme_cadencee')
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_cde_ferme_cadencee',[obj.id])[0]
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdf.encode('base64'),
+                #'datas':       pdf.encode('base64'),
+                'datas':       base64.b64encode(pdf),
             }
             if attachments:
                 for attachment in attachments:

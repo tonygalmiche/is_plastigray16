@@ -73,7 +73,8 @@ class is_bon_transfert(models.Model):
                         certificat.num_lot          = lot
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         certificat.qt_liv           = lots[lot]["qt"]
-                        result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
+                        #result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
+                        result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_certificat_conformite_report',[certificat.id])[0]
                         file_name = path + '/'+str(line.id) + '-' + str(x) + '.pdf'
                         fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                         try:
@@ -270,7 +271,8 @@ class stock_picking(models.Model):
                         certificat.num_lot          = lot
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         x+=1
-                        result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
+                        #result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
+                        result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_certificat_conformite_report',[obj.id])[0]
                         file_name = path + '/'+str(move.id) + '-' + str(x) + '.pdf'
                         fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                         try:

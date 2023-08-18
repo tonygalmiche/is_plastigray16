@@ -4,6 +4,8 @@ from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import time
 from datetime import date, datetime
+import base64
+
 #from ftplib import FTP
 #import os
 #import tempfile
@@ -143,7 +145,8 @@ class account_invoice(models.Model):
     def invoice_print(self):
         assert len(self) == 1, 'This option should only be used for a single id at a time.'
         self.sent = True
-        res = self.env['report'].get_action(self, 'is_plastigray16.is_report_invoice')
+        #res = self.env['report'].get_action(self, 'is_plastigray16.is_report_invoice')
+        res = self.env.ref('is_plastigray16.is_report_invoice').report_action(self)
         return res
 
 
@@ -185,7 +188,8 @@ class account_invoice(models.Model):
             msg = str(ct)+'/'+str(nb)+' - Imprimer en simple ou double exemplaire : '+str(obj.number)
             _logger.info(msg)
             ct+=1
-            result = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_invoice')
+            #result = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_invoice')
+            result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_report_invoice',[obj.id])[0]
             r = range(1, 2)
             if obj.is_mode_envoi_facture=='courrier2':
                 r = range(1, 3)
@@ -382,14 +386,16 @@ class account_invoice(models.Model):
                     # **********************************************************
 
                     # ** Creation ou modification de la pièce jointe *******************
-                    pdf = self.env['report'].get_pdf(picking, 'stock.report_picking')
+                    #pdf = self.env['report'].get_pdf(picking, 'stock.report_picking')
+                    pdf = self.env['ir.actions.report']._render_qweb_pdf('stock.report_picking',[picking.id])
                     vals = {
                         'name':        name,
-                        'datas_fname': name,
+                        #'datas_fname': name,
                         'type':        'binary',
                         'res_model':   model,
                         'res_id':      picking.id,
                         'datas':       pdf.encode('base64'),
+                        'datas':       base64.b64encode(report[0]),
                     }
                     if attachments:
                         for attachment in attachments:

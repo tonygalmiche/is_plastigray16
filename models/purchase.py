@@ -3,6 +3,7 @@ from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 from math import ceil
 from datetime import datetime
+import base64
 
 
 class purchase_order_line(models.Model):
@@ -143,7 +144,8 @@ class purchase_order(models.Model):
 
             #** Génération du PDF **********************************************
             name=u'commande-'+obj.name+u'.pdf'
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_purchaseorder')
+            #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_purchaseorder')
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_report_purchaseorder',[obj.id])[0]
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************
@@ -155,11 +157,12 @@ class purchase_order(models.Model):
             # ** Creation ou modification de la pièce jointe *******************
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdf.encode('base64'),
+                #'datas':       pdf.encode('base64'),
+                'datas':       base64.b64encode(pdf),
             }
             attachment_id=False
             if attachments:

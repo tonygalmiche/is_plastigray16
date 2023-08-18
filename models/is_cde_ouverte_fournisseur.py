@@ -2,10 +2,11 @@
 
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
-# import base64
-# import tempfile
-# import os
-# from pyPdf import PdfFileWriter, PdfFileReader
+import base64
+import tempfile
+import os
+#from pyPdf import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 # from contextlib import closing
 import datetime
 
@@ -193,30 +194,38 @@ class is_cde_ouverte_fournisseur(models.Model):
             raise ValidationError(u"Une commande ouverte existe déjà pour ce fournisseur !")
 
 
+    # def _merge_pdf(self, documents):
+    #     """Merge PDF files into one.
+    #     :param documents: list of path of pdf files
+    #     :returns: path of the merged pdf
+    #     """
+    #     writer = PdfFileWriter()
+    #     streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
+    #     for document in documents:
+    #         pdfreport = file(document, 'rb')
+    #         streams.append(pdfreport)
+    #         reader = PdfFileReader(pdfreport)
+    #         for page in range(0, reader.getNumPages()):
+    #             writer.addPage(reader.getPage(page))
+
+    #     merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
+    #     with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
+    #         writer.write(merged_file)
+
+    #     for stream in streams:
+    #         stream.close()
+
+    #     return merged_file_path
+
+
     def _merge_pdf(self, documents):
-        """Merge PDF files into one.
-        :param documents: list of path of pdf files
-        :returns: path of the merged pdf
-        """
-        writer = PdfFileWriter()
-        streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
-        for document in documents:
-            pdfreport = file(document, 'rb')
-            streams.append(pdfreport)
-            reader = PdfFileReader(pdfreport)
-            for page in range(0, reader.getNumPages()):
-                writer.addPage(reader.getPage(page))
-
         merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
-        with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
-            writer.write(merged_file)
-
-        for stream in streams:
-            stream.close()
-
+        merger = PdfFileMerger()
+        for document in documents:
+            merger.append(document)
+        merger.write(merged_file_path)
+        merger.close()
         return merged_file_path
-
-
 
 
     def create_ferme_uniquement(self,name):
@@ -243,18 +252,20 @@ class is_cde_ouverte_fournisseur(models.Model):
             paths=[]
             for order in orders:
                 pdfreport_id, pdfreport_path = tempfile.mkstemp(suffix='.pdf', prefix='order.tmp.')
-                pdf = self.env['report'].get_pdf(order, 'is_plastigray16.is_report_purchaseorder')
+                #pdf = self.env['report'].get_pdf(order, 'is_plastigray16.is_report_purchaseorder')
+                pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.purchaseorder_report',[order.id])[0]
                 f = open(pdfreport_path,'wb')
                 f.write(pdf)
                 f.close()
                 paths.append(pdfreport_path)
             path_merged=self._merge_pdf(paths)
-            pdfs = open(path_merged,'rb').read().encode('base64')
+            #pdfs = open(path_merged,'rb').read().encode('base64')
+            pdfs = open(path_merged,'rb').read()
 
             #** Suppression des fiches temporaires *****************************
             os.unlink(path_merged)
             for path in paths:
-                os.unlink(path)
+               os.unlink(path)
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************
@@ -267,11 +278,12 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ** Creation ou modification de la pièce jointe *******************
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdfs,
+                #'datas':       pdfs,
+                'datas':       base64.b64encode(pdfs), #.encode('base64'),
             }
             if attachments:
                 for attachment in attachments:
@@ -304,13 +316,11 @@ class is_cde_ouverte_fournisseur(models.Model):
             self.envoi_mail(name,subject)
 
 
-
-
     def print_commande_ouverte(self):
         for obj in self:
             self.set_histo(obj.id, u'Impression commande ouverte')
-        return self.env['report'].get_action(self, 'is_plastigray6.report_cde_ouverte_fournisseur')
-
+        #return self.env['report'].get_action(self, 'is_plastigray16.report_cde_ouverte_fournisseur')
+        return self.env.ref('is_plastigray16.cde_ouverte_fournisseur_report').report_action(self)
 
 
     def mail_commande_ouverte(self):
@@ -323,14 +333,15 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ******************************************************************
 
             # ** Creation ou modification de la pièce jointe *******************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_cde_ouverte_fournisseur')
+            #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.cde_ouverte_fournisseur_report')
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.cde_ouverte_fournisseur_report',[obj.id])[0]
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdf.encode('base64'),
+                'datas':       base64.b64encode(pdf),
             }
             if attachments:
                 for attachment in attachments:
@@ -345,7 +356,6 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ******************************************************************
 
 
-
     def create_appel_de_livraison(self):
         for obj in self:
             #** Nom du document ************************************************
@@ -356,8 +366,20 @@ class is_cde_ouverte_fournisseur(models.Model):
             #*******************************************************************
 
             #** Génération du PDF de l'Horizon des besoins *********************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_appel_de_livraison')
+            #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_appel_de_livraison')
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.appel_de_livraison_report',[obj.id])[0]
             #*******************************************************************
+
+
+
+                #    pdf=base64.b64decode(attachment.datas)
+                #     path="/tmp/affaire_%s_%02d_entete.pdf"%(obj.id,ct)
+                #     f = open(path,'wb')
+                #     f.write(pdf)
+                #     f.close()
+                #     paths.append(path)
+
+
 
             #** Ajout des commandes fermes à l'horizon *************************
             attachment_obj = self.env['ir.attachment']
@@ -367,7 +389,8 @@ class is_cde_ouverte_fournisseur(models.Model):
                 attachment = attachment_obj.browse(attachment_id)
                 pdfreport_id, pdfreport_path = tempfile.mkstemp(suffix='.pdf', prefix='order.tmp1.')
                 f = open(pdfreport_path,'wb')
-                f.write(attachment.datas.decode('base64'))
+                #f.write(attachment.datas.decode('base64'))
+                f.write(base64.b64decode(attachment.datas))
                 f.close()
                 paths.append(pdfreport_path)
                 pdfreport_id, pdfreport_path = tempfile.mkstemp(suffix='.pdf', prefix='order.tmp2.')
@@ -390,11 +413,12 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ** Creation ou modification de la pièce jointe *******************
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdf.encode('base64'),
+                #'datas':       pdf.encode('base64'),
+                'datas':       base64.b64encode(pdf),
             }
             attachment_id=False
             if attachments:
@@ -416,11 +440,17 @@ class is_cde_ouverte_fournisseur(models.Model):
                 self.set_histo(obj.id, u'Impression appel de livraison')
                 name='appel-de-livraison.pdf'
             attachment_id=self.create_appel_de_livraison()
+            # return {
+            #     'type' : 'ir.actions.act_url',
+            #     'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
+            #     'target': 'new',
+            # }
             return {
                 'type' : 'ir.actions.act_url',
-                'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                'target': 'new',
+                'url': '/web/content/%s?download=true'%(attachment_id),
             }
+
+
 
 
     def mail_appel_de_livraison(self):
@@ -445,7 +475,8 @@ class is_cde_ouverte_fournisseur(models.Model):
     def print_relance(self):
         for obj in self:
             self.set_histo(obj.id, u'Impression Relance fournisseur')
-        return self.env['report'].get_action(self, 'is_plastigray16.report_relance_fournisseur')
+        #return self.env['report'].get_action(self, 'is_plastigray16.report_relance_fournisseur')
+        return self.env.ref('is_plastigray16.report_relance_fournisseur').report_action(self)
 
 
     def mail_relance(self):
@@ -458,14 +489,16 @@ class is_cde_ouverte_fournisseur(models.Model):
             # ******************************************************************
 
             # ** Creation ou modification de la pièce jointe *******************
-            pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_relance_fournisseur')
+            #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_relance_fournisseur')
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_relance_fournisseur',[obj.id])[0]
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
-                'datas':       pdf.encode('base64'),
+                #'datas':       pdf.encode('base64'),
+                'datas':       base64.b64encode(pdf),
             }
             if attachments:
                 for attachment in attachments:
