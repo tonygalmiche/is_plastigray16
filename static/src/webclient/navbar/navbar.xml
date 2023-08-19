@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <!-- Doc : https://www.odoo.com/documentation/16.0/fr/developer/reference/frontend/qweb.html -->
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <xpath expr="//DropdownItem" position="before">
+            <img 
+                id="company-logo" alt="Logo" 
+                src="/web/image?model=res.company&amp;id=1&amp;field=logo" 
+                style="margin-right:10px;border-left:1px solid black;border-right:1px solid black;"
+            />
+        </xpath>
+    </t>
+</templates>

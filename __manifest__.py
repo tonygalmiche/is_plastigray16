@@ -22,6 +22,7 @@ Module Odoo 16 pour Plastigray
         "l10n_fr_fec",
         "web_chatter_position",
         "sticky_header_tree_and_form_view",
+        "web",
     ],
     "data" : [
         "security/res.groups.xml",
@@ -298,6 +299,7 @@ Module Odoo 16 pour Plastigray
             #'is_plastigray16/static/src/scripts.js',
             #'is_plastigray16/static/src/templates.xml',
             'is_plastigray16/static/src/**/*',
+            'is_plastigray16/static/src/webclient/navbar/navbar.xml',
          ],
         'web.report_assets_common': [
             'is_plastigray16/static/src/scss/plastigray_report.scss',

@@ -416,7 +416,6 @@ class res_partner(models.Model):
     is_code_destinataire                  = fields.Char(string='Code Destinataire (CN)')
     is_code_destinataire_agence           = fields.Char(string='Code Destinataire Agence (CN)')
 
-
     is_raison_sociale2      = fields.Char('Raison sociale 2')
     is_code                 = fields.Char('Code'        , index=True)
     is_adr_code             = fields.Char('Code adresse', index=True, default=0)
@@ -468,25 +467,16 @@ class res_partner(models.Model):
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True)
     is_database_line_ids   = fields.Many2many('is.database','partner_database_rel','partner_id','database_id', string="Sites")
 
-
- 
     calendar_line   = fields.One2many('resource.calendar.leaves', 'partner_id', 'Congés')
-    close_monday    = fields.Boolean('Monday')
-    close_tuesday   = fields.Boolean('Tuesday')
-    close_wednesday = fields.Boolean('Wednesday')
-    close_thursday  = fields.Boolean('Thursday')
-    close_friday    = fields.Boolean('Friday')
-    close_saturday  = fields.Boolean('Saturday')
-    close_sunday    = fields.Boolean('Sunday')
+    close_monday    = fields.Boolean('Lundi')
+    close_tuesday   = fields.Boolean('Mardi')
+    close_wednesday = fields.Boolean('Mercredi')
+    close_thursday  = fields.Boolean('Jeudi')
+    close_friday    = fields.Boolean('Vendredi')
+    close_saturday  = fields.Boolean('Samedi', default=True)
+    close_sunday    = fields.Boolean('Dimanche'  , default=True)
     
     pricelist_purchase_id = fields.Many2one('product.pricelist',"Liste de prix d'achat")
-
-
-    
-    # _defaults = {
-    #     'close_saturday': True,
-    #     'close_sunday': True,
-   
 
     # _sql_constraints = [
     #     ('code_adr_uniq', 'unique(is_code, is_adr_code, company_id)', u'Le code et le code adresse doivent être uniques par société!'),
@@ -886,7 +876,7 @@ class res_partner(models.Model):
             jours_feries=self.get_jours_feries(partner)
             for date in jours_feries:
                 if date not in leave_dates:
-                    leave_dates.append(date)
+                    leave_dates.append(date.strftime('%Y-%m-%d'))
         return leave_dates
     
 
@@ -908,7 +898,7 @@ class res_partner(models.Model):
             num_day=int(date.strftime('%w'))
             if num_day in self.num_closing_days(partner):
                 res=False
-            if date in self.get_leave_dates(partner, avec_jours_feries):
+            if date.strftime('%Y-%m-%d') in self.get_leave_dates(partner, avec_jours_feries):
                 res=False
         return res
 

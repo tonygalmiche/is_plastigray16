@@ -57,10 +57,12 @@ class purchase_order_line(models.Model):
         partner=self.order_id.partner_id
         if partner:
             res = partner.test_date_dispo(self.date_planned, partner, avec_jours_feries=True)
+
         #** Recherche si plastigray est ouvert cette journée sans les jours fériés du pays
         partner_company = self.env.user.company_id.partner_id
         if partner_company and res:
-            res = partner_company.test_date_dispo(self.date_planned, partner, avec_jours_feries=False)
+            date=self.date_planned
+            res = partner_company.test_date_dispo(date, partner, avec_jours_feries=False)
         if res==False:
             warning = {
                 'title'  : 'Attention!',
@@ -71,7 +73,6 @@ class purchase_order_line(models.Model):
 
 class purchase_order(models.Model):
     _inherit = "purchase.order"
-
 
     is_contact_id        = fields.Many2one('res.partner', 'Contact Logistique')
     is_livre_a_id        = fields.Many2one('res.partner', 'Livrer à', help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
@@ -91,26 +92,13 @@ class purchase_order(models.Model):
     location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
 
 
-
-
-
     def button_confirm(self):
         res = super().button_confirm()
-
-        print(res,self)
-
         if self.location_id:
             for picking in self.picking_ids:
-                print(picking, picking.state)
                 if picking.state=="assigned":
                     picking.location_dest_id = self.location_id.id
-
-
         return res
-
-
-
-
 
 
     def envoyer_par_mail(self):
