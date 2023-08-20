@@ -45,3 +45,12 @@
     min-width: 0 !important;
     color:red;
 } */
+
+
+
+/* Permet de masquer les infobulles de l'assistant (Web Tours) */
+.o_tooltip::before {
+    background: red;
+    display: none !important;
+}
+

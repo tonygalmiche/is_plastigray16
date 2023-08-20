@@ -48,6 +48,8 @@
                     <field name="purchase_order_id" optional="hide" widget="many2one_clickable"/>
                     <field name="purchase_line_id"  optional="hide" widget="many2one_clickable"/>
                 </xpath>
+                <!-- Suppression de l'apercu PDF sur la droite -->
+                <xpath expr="//div[hasclass('o_attachment_preview')]" position="replace"/>
             </field>
         </record>
         <record id="is_view_move_form_inherit_purchase" model="ir.ui.view">
