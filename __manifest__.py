@@ -20,9 +20,10 @@ Module Odoo 16 pour Plastigray
         "account",
         "l10n_fr",
         "l10n_fr_fec",
-        "web_chatter_position",
-        "sticky_header_tree_and_form_view",
         "web",
+        "sticky_header_tree_and_form_view",
+        "web_chatter_position",
+        "web_company_color",
     ],
     "data" : [
         "security/res.groups.xml",
