@@ -62,8 +62,8 @@ class account_invoice(models.Model):
     is_num_bl_manuel   = fields.Char('N° BL manuel' , help="Ce champ est utilisé dans les factures diverses sans bon de livraison dans Odoo")
     is_escompte        = fields.Float("Escompte", compute='_compute')
     is_tva             = fields.Float("TVA"     , compute='_compute', help="Taxes sans l'escompte")
-    is_folio_id        = fields.Many2one('is.account.folio', 'Folio')
-    is_export_cegid_id = fields.Many2one('is.export.cegid' , 'Folio Cegid')
+    is_folio_id        = fields.Many2one('is.account.folio', 'Folio'      , copy=False)
+    is_export_cegid_id = fields.Many2one('is.export.cegid' , 'Folio Cegid', copy=False)
     is_bon_a_payer     = fields.Boolean("Bon à payer", default=True)
     is_type_facture    = fields.Selection([
             ('standard'  , u'Standard'),
@@ -101,11 +101,11 @@ class account_invoice(models.Model):
             obj.is_tva      = tva
 
 
-    def copy(self,vals):
-        vals['is_folio_id'] = False
-        vals['is_export_cegid_id'] = False
-        res=super(account_invoice, self).copy(vals)
-        return res
+    # def copy(self,vals):
+    #     vals['is_folio_id'] = False
+    #     vals['is_export_cegid_id'] = False
+    #     res=super(account_invoice, self).copy(vals)
+    #     return res
 
 
     def voir_facture_client_action(self):
