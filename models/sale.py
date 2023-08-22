@@ -48,6 +48,10 @@ class sale_order(models.Model):
     client_order_ref       = fields.Char(string='N° de commande client') # Référence client => N° de commande client
 
 
+    def _message_auto_subscribe_notify(self, partner_ids, template):
+        #Désactiver le message "Vous avez été assigné à"
+        return
+
 
     @api.depends('partner_id')
     def _compute_message(self):
