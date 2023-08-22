@@ -518,19 +518,19 @@ class sale_order_line(models.Model):
                 return {'warning': warning}
 
 
-    @api.onchange('product_id')
-    def product_id_change(self):
+    # @api.onchange('product_id')
+    # def product_id_change(self):
+    #     #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
+    #     self.set_price_justification()
+
+
+    @api.depends('product_id', 'product_uom', 'product_uom_qty')
+    def _compute_price_unit(self):
         #** Arrondir au lot et au multiple du lot *****************************
         qty = self.env['product.template'].get_arrondi_lot_livraison(self.product_id, self.order_id.partner_id, self.product_uom_qty)
         self.product_uom_qty = qty
         #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
         self.set_price_justification()
-
-
-    @api.depends('product_id', 'product_uom', 'product_uom_qty')
-    def _compute_price_unit(self):
-        for line in self:
-            self.set_price_justification()
 
 
 
