@@ -78,7 +78,7 @@ class is_stock_quant(models.Model):
                                             inner join product_template           pt on pp.product_tmpl_id=pt.id
                                             inner join stock_location             sl on sq.location_id=sl.id
                                             left outer join stock_lot spl on sq.lot_id=spl.id
-                        where sl.usage='internal'
+                        where sl.usage='internal' and isq.quantite<>0
                     ) isq
                     group by
                         isq.product_id, 
