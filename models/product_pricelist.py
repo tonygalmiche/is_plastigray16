@@ -55,6 +55,10 @@ class product_pricelist_version(models.Model):
   
     def action_liste_items(self):
         for obj in self:
+
+
+            print(obj, self._context)
+
             if obj.pricelist_id.type=='sale':
                 view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_sale_tree_view')
             else:

@@ -68,8 +68,11 @@ class is_pricelist_item(models.Model):
 
 
     def action_liste_items(self):
-        for obj in self:
 
+
+        for obj in self:
+            #context=self._context
+            #context["type"] = obj.price_version_id.pricelist_id.type
             if obj.price_version_id.pricelist_id.type=='sale':
                 view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_sale_tree_view').id
                 pricelist_type='sale'
@@ -89,6 +92,7 @@ class is_pricelist_item(models.Model):
                 'context': {
                     'default_price_version_id': obj.price_version_id.id,
                     'type': pricelist_type,
+                    'default_company_id': 1,
                 }
             }
 
