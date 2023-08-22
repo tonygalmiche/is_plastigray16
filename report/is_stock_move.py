@@ -128,7 +128,7 @@ _SELECT_STOCK_MOVE="""
         select 
             sm.id,
             sml.lot_id          as lot_id,
-            sum(sml.qty_done)         as qty,
+            -sum(sml.qty_done)         as qty,
             sl1.name            as src,
             sl2.name            as dest
         from stock_move sm join stock_location        sl1 on sm.location_dest_id=sl1.id
