@@ -24,6 +24,7 @@ class is_gestion_lot(models.Model):
         ('bloque'         , 'Bloquer un lot'),
         ('debloque'       , 'Débloqué'),
         ('change_location', 'Changement emplacement'),
+        ('change_location_multiple', 'Changement emplacement multiple'),
         ('rebut'          , 'Mise au rebut'),
         ('remettre'       , 'Remettre en stock'),
     ], 'Operation', readonly=True)   
@@ -75,48 +76,83 @@ class is_gestion_lot(models.Model):
 
     
     def create_stock_move(self):
+        context = self._context
         for data in self:
-            move_obj = self.env["stock.move"]
-            location_dest_id = False
-            if data.operation == 'bloque':
-                location_dest_id = data.location_dest_bloq_id.id
-            if data.operation == 'debloque':
-                location_dest_id = data.location_dest_debloq_id.id
-            if data.operation in ['change_location', 'remettre']:
-                location_dest_id = data.location_dest_change_id.id
-            if data.operation == 'rebut':
-                location_dest_id = data.location_dest_rebut_id.id
-            line_vals={
-                "location_id"     : data.location_src_id.id,
-                "location_dest_id": location_dest_id,
-                "lot_id"          : data.prod_lot_id.id,
-                "qty_done"        : data.product_qty,
-                "product_id"      : data.product_id.id,
-            }
-            move_vals={
-                "location_id"     : data.location_src_id.id,
-                "location_dest_id": location_dest_id,
-                "product_uom_qty" : data.product_qty,
-                "product_id"      : data.product_id.id,
-                "name"            : data.description and data.description.name or data.product_id.name,
-                #"move_line_ids"   : [[0,False,line_vals]],
-            }
-            #move=self.env['stock.move'].create(move_vals)
-            #move._action_confirm()
-            #TODO : La création du picking est facultative, mais je la garde pour avoir un exemple complet
-            filtre=[('code', '=', 'internal')]
-            picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
-            picking_vals={
-                "picking_type_id" : picking_type_id.id,
-                "location_id"     : data.location_src_id.id,
-                "location_dest_id": location_dest_id,
-                'move_line_ids'   : [[0,False,line_vals]],
-                'move_ids'        : [[0,False,move_vals]],
-            }
-            picking=self.env['stock.picking'].create(picking_vals)
-            picking.action_confirm()
-            picking._action_done()
-        return picking
+            if 'active_ids' in context:
+                filtre=[('id', 'in', context["active_ids"])]
+                lines = self.env['is.gestion.lot.report'].search(filtre)
+                for line in lines:
+                    move_obj = self.env["stock.move"]
+                    location_dest_id = False
+                    if data.operation == 'bloque':
+                        location_dest_id = data.location_dest_bloq_id.id
+                    if data.operation == 'debloque':
+                        location_dest_id = data.location_dest_debloq_id.id
+                    if data.operation in ['change_location', 'remettre', 'change_location_multiple']:
+                        location_dest_id = data.location_dest_change_id.id
+                    if data.operation == 'rebut':
+                        location_dest_id = data.location_dest_rebut_id.id
+
+                    if data.operation in ['change_location_multiple']:
+                        qty_done = line.qty
+                    else:
+                        qty_done = data.product_qty
+                    line_vals={
+                        "location_id"     : line.location_id.id,
+                        "location_dest_id": location_dest_id,
+                        "lot_id"          : line.lot_id.id,
+                        "qty_done"        : qty_done,
+                        "product_id"      : line.product_id.id,
+                    }
+                    move_vals={
+                        "location_id"     : line.location_id.id,
+                        "location_dest_id": location_dest_id,
+                        "product_uom_qty" : qty_done,
+                        "product_id"      : line.product_id.id,
+                        "name"            : data.description and data.description.name or line.product_id.name,
+                    }
+                    #TODO : La création du picking est facultative, mais je la garde pour avoir un exemple complet
+                    filtre=[('code', '=', 'internal')]
+                    picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
+                    picking_vals={
+                        "picking_type_id" : picking_type_id.id,
+                        "location_id"     : line.location_id.id,
+                        "location_dest_id": location_dest_id,
+                        'move_line_ids'   : [[0,False,line_vals]],
+                        'move_ids'        : [[0,False,move_vals]],
+                    }
+                    picking=self.env['stock.picking'].create(picking_vals)
+                    picking.action_confirm()
+                    picking._action_done()
+
+                    # line_vals={
+                    #     "location_id"     : data.location_src_id.id,
+                    #     "location_dest_id": location_dest_id,
+                    #     "lot_id"          : data.prod_lot_id.id,
+                    #     "qty_done"        : data.product_qty,
+                    #     "product_id"      : data.product_id.id,
+                    # }
+                    # move_vals={
+                    #     "location_id"     : data.location_src_id.id,
+                    #     "location_dest_id": location_dest_id,
+                    #     "product_uom_qty" : data.product_qty,
+                    #     "product_id"      : data.product_id.id,
+                    #     "name"            : data.description and data.description.name or data.product_id.name,
+                    # }
+                    # #TODO : La création du picking est facultative, mais je la garde pour avoir un exemple complet
+                    # filtre=[('code', '=', 'internal')]
+                    # picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
+                    # picking_vals={
+                    #     "picking_type_id" : picking_type_id.id,
+                    #     "location_id"     : data.location_src_id.id,
+                    #     "location_dest_id": location_dest_id,
+                    #     'move_line_ids'   : [[0,False,line_vals]],
+                    #     'move_ids'        : [[0,False,move_vals]],
+                    # }
+                    # picking=self.env['stock.picking'].create(picking_vals)
+                    # picking.action_confirm()
+                    # picking._action_done()
+        return True
                 
     
     def validate_lot(self):
@@ -191,7 +227,6 @@ class is_gestion_lot_report(models.Model):
 
     def bloquer_lot_action(self):
         for obj in self:
-            print(obj)
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'bloque'
             return {
@@ -207,7 +242,6 @@ class is_gestion_lot_report(models.Model):
 
     def debloquer_lot_action(self):
         for obj in self:
-            print(obj)
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'debloque'
             return {
@@ -223,7 +257,6 @@ class is_gestion_lot_report(models.Model):
 
     def mise_au_rebut_action(self):
         for obj in self:
-            print(obj)
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'rebut'
             return {
@@ -239,7 +272,6 @@ class is_gestion_lot_report(models.Model):
 
     def change_emplacement_action(self):
         for obj in self:
-            print(obj)
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'change_location'
             return {
@@ -253,9 +285,23 @@ class is_gestion_lot_report(models.Model):
             }
 
 
+    def change_emplacement_multiple_action(self):
+        for obj in self:
+            new_context = dict(self.env.context).copy()
+            new_context["operation"] = 'change_location_multiple'
+            return {
+                'name': "Changement d'emplacement multiple",
+                'view_mode': 'form',
+                'res_model': 'is.gestion.lot',
+                'type': 'ir.actions.act_window',
+                "context": new_context,
+                'domain': '[]',
+                'target': 'new',
+            }
+
+
     def remettre_stock_action(self):
         for obj in self:
-            print(obj)
             new_context = dict(self.env.context).copy()
             new_context["operation"] = 'remettre'
             return {

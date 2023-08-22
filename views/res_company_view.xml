@@ -19,10 +19,10 @@
                 <notebook position="inside">
                     <page string="Configuration Plastigray">
                         <group>
-                            <group string="Couleurs de l'interface">
+                            <!-- <group string="Couleurs de l'interface">
                                 <field name="bg_color" widget="color"/>
                                 <field name="text_color" widget="color"/>
-                            </group>
+                            </group> -->
                             <group string="Multi-coeurs">
                                 <field name="is_nb_threads"/>
                             </group>
