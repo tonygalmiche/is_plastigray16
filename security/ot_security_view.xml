@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-
         <record id="is_ot_user_site_rule" model="ir.rule">
             <field name="name">OT: Accès pour le site de production et les autres sites autorisés</field>
             <field name="model_id" ref="model_is_ot"/>
             <field name="domain_force">['|',('site_id','=',user.is_site_id.id),('site_id','in',user.get_site_ids())]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
             <field eval="0" name="perm_unlink"/>
             <field eval="1" name="perm_write"/>
             <field eval="1" name="perm_read"/>
@@ -49,6 +49,16 @@
             <field eval="1" name="perm_unlink"/>
             <field eval="1" name="perm_write"/>
             <field eval="0" name="perm_read"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="is_ot_amin_rule" model="ir.rule">
+            <field name="name">OT:Accès complet au groupe admin</field>
+            <field name="model_id" ref="model_is_ot"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_read"/>
             <field eval="1" name="perm_create"/>
         </record>
     </data>
