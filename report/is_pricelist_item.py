@@ -79,7 +79,6 @@ class is_pricelist_item(models.Model):
             else:
                 view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_purchase_tree_view').id
                 pricelist_type='purchase'
-
             return {
                 'name': str(obj.pricelist_name)+" ("+str(obj.price_version_id.name)+")",
                 'view_mode': 'tree',
