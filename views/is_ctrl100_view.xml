@@ -366,9 +366,12 @@
                                 <field 
                                     name="operateur_defaut_ids" 
                                     widget="many2many_tags"
-                                    domain="[('id', 'in', parent.operateur_evalue_ids and parent.operateur_evalue_ids[0] and parent.operateur_evalue_ids[0][2] or False)]"
+                                    domain="[('id', 'in', parent.operateur_evalue_ids)]"
                                 />
                             </group>
+                            <!-- domain="[('id', 'in', parent.operateur_evalue_ids and parent.operateur_evalue_ids[0] and parent.operateur_evalue_ids[0][2] or False)]" -->
+
+
                             <div style="text-align:center"> 
                                 <field readonly="True" name="defaut_photo" widget='image'  style="max-width:1200px"/>
                             </div>
