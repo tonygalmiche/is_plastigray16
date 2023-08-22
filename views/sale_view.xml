@@ -54,6 +54,38 @@
                 <button name="action_quotation_send" states="sent,progress,manual" position="replace" />
                 <button name="cancel"                                              position="replace" />
                 -->
+
+
+                <!-- 
+                    <group name="order_details">
+                        <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
+                        <div class="o_td_label" groups="base.group_no_one" attrs="{'invisible': [('state', 'in', ['sale', 'done', 'cancel'])]}">
+                            <label for="date_order" string="Quotation Date"/>
+                        </div>
+                        <field name="date_order" nolabel="1" groups="base.group_no_one" attrs="{'invisible': [('state', 'in', ['sale', 'done', 'cancel'])]}"/>
+                        <div class="o_td_label" attrs="{'invisible': [('state', 'in', ['draft', 'sent'])]}">
+                            <label for="date_order" string="Order Date"/>
+                        </div>
+                        <field name="date_order" attrs="{'invisible': [('state', 'in', ['draft', 'sent'])]}" nolabel="1"/>
+                -->
+
+
+                <xpath expr="//group[@name='order_details']/field[@name='date_order'][1]" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+                <xpath expr="//group[@name='order_details']/div[1]" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+
+
+
+
+
+
+
+
+
+
                 <field name="validity_date" position="attributes">
                    <attribute name="invisible">1</attribute>
                 </field>
@@ -61,6 +93,7 @@
                    <attribute name="invisible">1</attribute>
                 </field>
                 <xpath expr="//group[@name='order_details']/field[@name='date_order']" position="after">
+                    <field name="date_order"/>
                     <field name="is_transporteur_id" domain="[('is_company', '=', True),('supplier','=', True)]"/>
                     <field  name="is_type_commande"
                             required="1"
