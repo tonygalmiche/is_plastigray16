@@ -9,7 +9,7 @@ class product_pricelist_item(models.Model):
     _inherit = "product.pricelist.item"
     _order="price_version_id,product_id,sequence"
 
-    sequence           = fields.Integer('Séquence', index=True) #TODO : Ce champ a été supprimé dans Odoo 16
+    sequence           = fields.Integer('Séquence', index=True, default=5) #TODO : Ce champ a été supprimé dans Odoo 16
     date_start         = fields.Date('Date de début de validité')
     date_end           = fields.Date('Date de fin de validité')
     justification      = fields.Char('Justification du prix')
