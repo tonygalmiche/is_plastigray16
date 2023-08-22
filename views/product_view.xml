@@ -582,10 +582,10 @@
 
 
                 <!-- <xpath expr="//field[@name='image_medium']" position="before">
-                    <img src='/is_pg_product/static/src/img/logo_rs.png' attrs="{'invisible': [('is_soumise_regl', '!=', 'SR')]}" style="height:64px" />
+                    <img src='/is_plastigray16/static/src/img/logo_rs.png' attrs="{'invisible': [('is_soumise_regl', '!=', 'SR')]}" style="height:64px" />
                 </xpath>
                 <xpath expr="//field[@name='image_medium']" position="before">
-                    <img src='/is_pg_product/static/src/img/logo_r.png'  attrs="{'invisible': [('is_soumise_regl', '!=', 'R')]}"  style="height:64px" />
+                    <img src='/is_plastigray16/static/src/img/logo_r.png'  attrs="{'invisible': [('is_soumise_regl', '!=', 'R')]}"  style="height:64px" />
                 </xpath> -->
 
                 <!-- <field name="categ_id" position="replace"/> -->

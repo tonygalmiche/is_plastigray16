@@ -560,8 +560,9 @@
                                         <table width="100%">
                                             <tr>
                                                 <td style="text-align:center" width="100%">
-                                                    <img t-if="o.image_finale"
-                                                        t-att-src="'data:image/png;base64,%s' % o.image_finale"
+                                                    <img 
+                                                        t-if="o.image_finale" 
+                                                        t-att-src="image_data_uri(o.image_finale)" 
                                                         class="imgclass"
                                                         style="max-width:50mm"
                                                     />
@@ -626,8 +627,9 @@
                                         <table width="100%">
                                             <tr>
                                                 <td style="text-align:center" width="100%">
-                                                    <img t-if="o.image_finale"
-                                                        t-att-src="'data:image/png;base64,%s' % o.image_finale"
+                                                    <img 
+                                                        t-if="o.image_finale" 
+                                                        t-att-src="image_data_uri(o.image_finale)" 
                                                         class="imgclass"
                                                         style="max-width:50mm"
                                                     />
@@ -708,8 +710,9 @@
                                         <table width="100">
                                             <tr>
                                                 <td style="text-align:center">
-                                                    <img t-if="o.image_finale"
-                                                        t-att-src="'data:image/png;base64,%s' % o.image_finale"
+                                                    <img 
+                                                        t-if="o.image_finale" 
+                                                        t-att-src="image_data_uri(o.image_finale)" 
                                                         class="imgclass"
                                                         style="max-width:35mm"
                                                     />
@@ -794,7 +797,7 @@
                                         <table width="100">
                                         <tr>
                                             <td style="text-align:center">
-                                                <img src='/is_pg_2019/static/img/tampographie-axes.png' class="imgclass" style="width:50mm"/>                                                    </td>
+                                                <img src='/is_plastigray16/static/src/img/tampographie-axes.png' class="imgclass" style="width:50mm"/>                                                    </td>
                                         </tr>
                                     </table>
                                     </td>
@@ -804,8 +807,8 @@
                                                 <td style="width:100%;text-align:center">
                                                 <img 
                                                     t-if="o.image_encrier1_vsb and o.image_encrier1"
-                                                    t-att-src="'data:image/png;base64,%s' % o.image_encrier1"
-                                                    class="imgclass" 
+                                                    t-att-src="image_data_uri(o.image_encrier1)" 
+                                                    class="imgclass"
                                                     style="max-width:90mm;max-height:70mm"
                                                 />
                                                 </td>
@@ -823,7 +826,7 @@
                                         <table width="100">
                                         <tr>
                                             <td>
-                                                <img src='/is_pg_2019/static/img/tampographie-axes.png' class="imgclass" style="width:50mm"/>
+                                                <img src='/is_plastigray16/static/src/img/tampographie-axes.png' class="imgclass" style="width:50mm"/>
                                             </td>
                                         </tr>
                                     </table>
@@ -832,20 +835,20 @@
                                         <table style="border-collapse: collapse;" width="100%">
                                             <tr>
                                                 <td style="width:50%;text-align:center">
-                                                <img 
-                                                    t-if="o.image_encrier1_vsb and o.image_encrier1"
-                                                    t-att-src="'data:image/png;base64,%s' % o.image_encrier1"
-                                                    class="imgclass" 
-                                                    style="max-width:50mm"
-                                                />
+                                                    <img 
+                                                        t-if="o.image_encrier1_vsb and o.image_encrier1"
+                                                        t-att-src="image_data_uri(o.image_encrier1)" 
+                                                        class="imgclass"
+                                                        style="max-width:50mm"
+                                                    />
                                                 </td>
                                                 <td style="width:50%;text-align:center">
-                                                <img 
-                                                    t-if="o.image_encrier2_vsb and o.image_encrier2"
-                                                    t-att-src="'data:image/png;base64,%s' % o.image_encrier2"
-                                                    class="imgclass" 
-                                                    style="max-width:50mm"
-                                                />
+                                                    <img 
+                                                        t-if="o.image_encrier2_vsb and o.image_encrier2"
+                                                        t-att-src="image_data_uri(o.image_encrier2)" 
+                                                        class="imgclass"
+                                                        style="max-width:50mm"
+                                                    />
                                                 </td>
                                             </tr>
                                         </table>
@@ -862,7 +865,7 @@
                                     <table width="100">
                                         <tr>
                                             <td style="text-align:center">
-                                                <img src='/is_pg_2019/static/img/tampographie-axes.png' class="imgclass" style="width:50mm"/>
+                                                <img src='/is_plastigray16/static/src/img/tampographie-axes.png' class="imgclass" style="width:50mm"/>
                                             </td>
                                         </tr>
                                     </table>
@@ -871,27 +874,24 @@
                                         <table style="border-collapse: collapse;" width="100%">
                                             <tr>
                                                 <td style="width:33%;text-align:center">
-                                                <img t-if="o.image_encrier1_vsb and o.image_encrier1"
-                                                        t-att-src="'data:image/png;base64,%s' % o.image_encrier1"
+                                                    <img 
+                                                        t-if="o.image_encrier1_vsb and o.image_encrier1"
+                                                        t-att-src="image_data_uri(o.image_encrier1)" 
                                                         class="imgclass"
                                                         style="max-width:34mm"
-                                                />
-                                                </td>
-                                                <td style="width:33%;text-align:center">
-                                                <img
-                                                    t-if="o.image_encrier2_vsb and o.image_encrier2"
-                                                    t-att-src="'data:image/png;base64,%s' % o.image_encrier2"
-                                                    class="imgclass"
-                                                    style="max-width:34mm"
-                                                />
-                                                </td>
-                                                <td style="width:33%;text-align:center">
-                                                <img
-                                                    t-if="o.image_encrier3_vsb and o.image_encrier3"
-                                                    t-att-src="'data:image/png;base64,%s' % o.image_encrier3"
-                                                    class="imgclass"
-                                                    style="max-width:34mm"
-                                                />
+                                                    />
+                                                    <img 
+                                                        t-if="o.image_encrier2_vsb and o.image_encrier2"
+                                                        t-att-src="image_data_uri(o.image_encrier2)" 
+                                                        class="imgclass"
+                                                        style="max-width:34mm"
+                                                    />
+                                                    <img 
+                                                        t-if="o.image_encrier3_vsb and o.image_encrier3"
+                                                        t-att-src="image_data_uri(o.image_encrier3)" 
+                                                        class="imgclass"
+                                                        style="max-width:34mm"
+                                                    />
                                                 </td>
                                             </tr>
                                         </table>
@@ -912,8 +912,11 @@
                             <tr>
                                 <td class="colcenteralign">
                                     <div>
-                                        <img t-if="o.image_posage" t-att-src="'data:image/png;base64,%s' % o.image_posage"
-                                            class="imgclass1" />
+                                        <img 
+                                            t-if="o.image_posage"
+                                            t-att-src="image_data_uri(o.image_posage)" 
+                                            class="imgclass1"
+                                        />
                                     </div>
                                 </td>
                             </tr>

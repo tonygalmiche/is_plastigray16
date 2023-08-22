@@ -223,15 +223,15 @@
 
 
         <template id="bilan_fin_of_report_document">
-            <t t-call="is_pg_2019.bilan_fin_of_report_external_layout">
+            <t t-call="is_plastigray16.bilan_fin_of_report_external_layout">
 
             </t>
         </template>
 
         <template id="bilan_fin_of_report">
-            <t t-call="is_pg_2019.bilan_fin_of_report_html_container">
+            <t t-call="is_plastigray16.bilan_fin_of_report_html_container">
                 <t t-foreach="docs" t-as="o">
-                    <t t-call="is_pg_2019.bilan_fin_of_report_document">
+                    <t t-call="is_plastigray16.bilan_fin_of_report_document">
                         <t t-raw="0"/>
                     </t>
                 </t>

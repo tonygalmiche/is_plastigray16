@@ -44,7 +44,7 @@
                 <link href="/web/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet"/>
                 <style type="text/css">
                     <t t-call="report.style"/>
-                    <t t-call="is_pg_2019.report_is_facture_proforma_style"/>
+                    <t t-call="is_plastigray16.report_is_facture_proforma_style"/>
                 </style>
             </xpath>
             <!-- Remove conflicting style -->
@@ -55,7 +55,7 @@
 
         <template id="report_is_facture_proforma_html_container">
             <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="is_pg_2019.report_is_facture_proforma_layout">
+            <t t-call="is_plastigray16.report_is_facture_proforma_layout">
                 <t t-raw="0"/>
             </t>
         </template>
@@ -128,14 +128,14 @@
     <t t-if="not o or not 'company_id' in o">
         <t t-set="company" t-value="res_company"></t>
     </t>
-    <t t-call="is_pg_2019.report_is_facture_proforma_external_layout_header" />
+    <t t-call="is_plastigray16.report_is_facture_proforma_external_layout_header" />
     <t t-raw="0" />
-    <t t-call="is_pg_2019.report_is_facture_proforma_external_layout_footer" />
+    <t t-call="is_plastigray16.report_is_facture_proforma_external_layout_footer" />
 </template>
 
 
 <template id="report_is_facture_proforma_document">
-    <t t-call="is_pg_2019.report_is_facture_proforma_external_layout">
+    <t t-call="is_plastigray16.report_is_facture_proforma_external_layout">
         <div class="page">
             <div class="row">
                 <div class="col-xs-4  text-left">
@@ -288,9 +288,9 @@
 
 
 <template id="report_is_facture_proforma">
-    <t t-call="is_pg_2019.report_is_facture_proforma_html_container">
+    <t t-call="is_plastigray16.report_is_facture_proforma_html_container">
         <t t-foreach="doc_ids" t-as="doc_id">
-            <t t-raw="translate_doc(doc_id, doc_model, 'adresse_fac_id.lang', 'is_pg_2019.report_is_facture_proforma_document')"/>
+            <t t-raw="translate_doc(doc_id, doc_model, 'adresse_fac_id.lang', 'is_plastigray16.report_is_facture_proforma_document')"/>
         </t>
     </t>
 </template>

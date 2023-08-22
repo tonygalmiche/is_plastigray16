@@ -29,10 +29,10 @@
                         <tr style="font-weight: bold;">
                             <td>
                                 <t t-if="o.product_tmpl_id.is_soumise_regl == 'SR'"> 
-                                    <img src='/is_pg_product/static/src/img/logo_rs.png' style="height:32px" />
+                                    <img src='/is_plastigray16/static/src/img/logo_rs.png' style="height:32px" />
                                 </t>
                                 <t t-if="o.product_tmpl_id.is_soumise_regl == 'R'"> 
-                                    <img src='/is_pg_product/static/src/img/logo_r.png' style="height:32px" />
+                                    <img src='/is_plastigray16/static/src/img/logo_r.png' style="height:32px" />
                                 </t>
                                 <span t-field="o.product_tmpl_id.is_code"/>
                                 <span t-field="o.product_tmpl_id.name"/>

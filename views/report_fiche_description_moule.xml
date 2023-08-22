@@ -58,7 +58,7 @@
                                     </table>
                                 </td>
                                 <td>
-                                    <img src="is_plastigray16/static/img/dimensions-moule.png" style="max-height:70mm;max-width:90mm"/>
+                                    <img src="/is_plastigray16/static/src/img/dimensions-moule.png" style="max-height:70mm;max-width:90mm"/>
                                 </td>
                             </tr>
                         </table>

@@ -279,8 +279,8 @@
                         <field nolabel="1"
                             name="demandeur_ids"
                             context="{
-                                'form_view_ref' : 'is_pg_2019.view_hr_employee_form_inherit_is_pg_2019',
-                                'tree_view_ref' : 'is_pg_2019.is_view_employee_tree2'
+                                'form_view_ref' : 'is_plastigray16.view_hr_employee_form_inherit_is_plastigray16',
+                                'tree_view_ref' : 'is_plastigray16.is_view_employee_tree2'
                             }"
                             attrs="{
                                 'invisible': [('demande_collective','!=','oui')],
@@ -487,7 +487,7 @@
 
         <record id="is_Calendrier_des_absences_action" model="ir.actions.client">
             <field name="name">Calendrier des absences</field>
-            <field name="tag">is_pg_2019.is_Calendrier_des_absences_tag</field>
+            <field name="tag">is_plastigray16.is_Calendrier_des_absences_tag</field>
         </record>
 
 

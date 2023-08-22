@@ -132,7 +132,7 @@
                                         'required':  [('type_equipement_id', '!=', False)]
                                     }" 
                                     domain="[('type_id','=',type_equipement_id),('database_id','=',site_id)]"
-                                    context="{'tree_view_ref':'is_pg_2019.is_equipement_view_tree'}"
+                                    context="{'tree_view_ref':'is_plastigray16.is_equipement_view_tree'}"
                                 />
                                 <field name="gravite" attrs="{'readonly': [('state', '!=', 'creation')]}"/>
                                 <field name="date_intervention_demandee" attrs="{'readonly': [('state', '!=', 'creation')]}"/>
