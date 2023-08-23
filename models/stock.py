@@ -53,6 +53,23 @@ class stock_lot(models.Model):
     company_id = fields.Many2one('res.company', 'Company', required=True, store=True, index=True, default=1) #J'ai ajouté default=1, sinon, impossible de créer des lots
 
 
+    def _domain_product_id(self):
+        "Modification de la fonction par défaut pour autoriser tous les articles dans un lot"
+        domain = [
+            #"('tracking', '!=', 'none')",
+            "('type', '=', 'product')",
+            "'|'",
+                "('company_id', '=', False)",
+                "('company_id', '=', company_id)"
+        ]
+        if self.env.context.get('default_product_tmpl_id'):
+            domain.insert(0,
+                ("('product_tmpl_id', '=', %s)" % self.env.context['default_product_tmpl_id'])
+            )
+        res='[' + ', '.join(domain) + ']'
+        return res
+
+
 # class stock_inventory(models.Model):
 #     _inherit = "stock.inventory"
 #     _order="date desc"

@@ -73,6 +73,19 @@
             <field name="model">stock.lot</field>
             <field name="inherit_id" ref="stock.view_production_lot_form" />
             <field name="arch" type="xml">
+
+                <!-- <field name="product_id" position="attributes">
+                    <attribute name="context">{'default_detailed_type': 'product','default_company_id': 1}</attribute>
+                </field> -->
+
+                <!-- <field name="product_id" position="replace">
+                    <field name="product_id" string="Test"/>
+                </field> -->
+
+                <!-- <field name="product_id" context="{'default_detailed_type': 'product', 'default_tracking': 'lot'}" readonly="context.get('set_product_readonly', False)" force_save="1" help="Product this lot/serial number contains. You cannot change it anymore if it has already been moved."/> -->
+
+
+
                 <field name="ref" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -115,11 +128,21 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">stock.lot</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="stock.view_production_lot_tree"/>
+            <!-- <field name="view_id" ref="stock.view_production_lot_tree"/> -->
+            <field name="view_id" ref=""/>
+
+            <field name="view_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_view_production_lot_tree'), 'sequence': 1}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('is_view_production_lot_form'), 'sequence': 2})
+            ]"/>
+
+
+
         </record>
 
 
-
+        <!-- is_view_production_lot_tree -->
 
         <record id="is_stock_incoterms_action" model="ir.actions.act_window">
             <field name="name">Incoterm</field>
