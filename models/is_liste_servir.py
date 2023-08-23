@@ -402,17 +402,13 @@ class is_liste_servir(models.Model):
                         from doc69106
                         where doctype='F' and locked='0' and cmc_codepg='"""+product.is_code+"""' limit 1
                     """
-
                     _logger.info(SQL)
-
-
                     cursor.execute(SQL)
-                    for row2 in cursor:
+                    result2 = cursor.fetchall()
+                    for row2 in result2:
                         certificat_matiere=row2[0]
-
                         msg="certificat_matiere=%s"%row2[0]
                         _logger.info(msg)
-
                 #***************************************************************
 
                 stock01 = product.get_stock('f', '01')
