@@ -98,15 +98,15 @@
                             <tree editable="bottom"  create="true"  decoration-danger="livrable == False" limit="2000">
                                 <field name="sequence"       invisible="1"/>
                                 <field name="product_id" widget="many2one_clickable"/>
-                                <field name="mold_dossierf"/>
+                                <field name="mold_dossierf" optional="show"/>
                                 <field name="livrable"       invisible="1"/>
-                                <field name="date_livraison"/>
-                                <field name="date_expedition"/>
+                                <field name="date_livraison" optional="show"/>
+                                <field name="date_expedition" optional="show"/>
 
-                                <field name="stock01"/>
-                                <field name="stocka"/>
-                                <field name="stockq"/>
-                                <field name="quantite"/>
+                                <field name="stock01" optional="show"/>
+                                <field name="stocka" optional="show"/>
+                                <field name="stockq" optional="show"/>
+                                <field name="quantite" optional="show"/>
                                 <field name="prix"           invisible="1"/>
                                 <field name="justification"  invisible="1"/>
 
@@ -119,9 +119,9 @@
                                 <field name="um_id"      optional="show"/>
                                 <field name="nb_um"      optional="show"/>
 
-                                <field name="mixer"/>
-                                <field name="client_order_ref" readonly="1" />
-                                <field name="point_dechargement"/>
+                                <field name="mixer" widget="boolean_toggle"/>
+                                <field name="client_order_ref"  optional="show" readonly="1" />
+                                <field name="point_dechargement"  optional="show" />
                                 <field name="certificat_matiere" invisible="1"/>
                                 <button 
                                     title="Voir le certificat matière" 
@@ -129,21 +129,21 @@
                                     context="{'certificat_matiere': certificat_matiere}"
                                     icon="fa-search-plus" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
                                 />
-                                <field name="anomalie"/>
+                                <field name="anomalie"  optional="show"/>
                             </tree>
                         </field>
                         <field name="uc_ids" nolabel="1">
                             <tree editable="bottom">
-                                <field name="nb_uc"/>
+                                <field name="nb_uc" sum="Total"/>
                                 <field name="uc_id"/>
-                                <field name="nb_um"/>
+                                <field name="nb_um" sum="Total"/>
                                 <field name="um_id"/>
-                                <field name="mixer"/>
+                                <field name="mixer" widget="boolean_toggle"/>
                             </tree>
                         </field>
                         <field name="um_ids" nolabel="1">
                             <tree editable="bottom">
-                                <field name="nb_um"/>
+                                <field name="nb_um" sum="Total"/>
                                 <field name="um_id"/>
                             </tree>
                         </field>

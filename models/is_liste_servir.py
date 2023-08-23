@@ -108,7 +108,7 @@ class is_liste_servir(models.Model):
             obj.is_certificat_conformite_msg = msg
 
 
-    def _date_fin():
+    def _date_fin(self):
         now = datetime.date.today()                 # Date du jour
         date_fin = now + datetime.timedelta(days=1) # J+1
         return date_fin.strftime('%Y-%m-%d')        # Formatage
@@ -158,19 +158,14 @@ class is_liste_servir(models.Model):
 
 
 
-
-    def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
-        res  = {}
-        vals = {}
-        if partner_id:
-            partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context=context)
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        if self.partner_id:
+            partner = self.partner_id
             if partner.is_source_location_id:
-                vals.update({'is_source_location_id': partner.is_source_location_id })
-
+                self.is_source_location_id = partner.is_source_location_id.id
             if partner.is_transporteur_id:
-                vals.update({'transporteur_id': partner.is_transporteur_id })
-        res['value']=vals
-        return res
+                self.transporteur_id = partner.is_transporteur_id.id
 
 
     def _message(self,partner_id,vals):
@@ -197,80 +192,143 @@ class is_liste_servir(models.Model):
         return res
 
 
-    def write(self,vals):
-
-        print("write",self)
-
-
-        cr = self._cr
-        if "partner_id" in vals:
-            vals=self._message(vals["partner_id"], vals)
-        res=super(is_liste_servir, self).write(vals)
-        for obj in self:
-            if 'line_ids' in vals or not obj.uc_ids:
-                #La procédure sotckée permet de gérer le regoupement des UC
-                SQL="""
-                    CREATE OR REPLACE FUNCTION fmixer(mixer boolean, id integer) RETURNS integer AS $$
-                            BEGIN
-                                IF mixer = True THEN
-                                    RETURN 0;
-                                ELSE
-                                    RETURN id;
-                                END IF;
-                            END;
-                    $$ LANGUAGE plpgsql;
-
-                    select uc_id,um_id,fmixer(mixer,id), sum(nb_uc),sum(nb_um) 
-                    from is_liste_servir_line 
-                    where liste_servir_id="""+str(obj.id)+"""  
-                    group by uc_id,um_id,fmixer(mixer,id);
-                """
-
-                #** Création du tableau des UC *************************************
-                for row in obj.uc_ids:
-                    row.unlink()
-                cr.execute(SQL)
-                result = cr.fetchall()
-                for r in result:
-                    vals={
-                        'liste_servir_id': obj.id,
-                        'uc_id': r[0],
-                        'um_id': r[1],
-                        'nb_uc': r[3],
-                        'nb_um': r[4],
+    @api.onchange('line_ids')
+    def onchange_line_ids(self):
+        self.uc_ids = False
+        uc_ids=[]
+        for line in self.line_ids:
+            if line.mixer==False:
+                vals={
+                    "uc_id": line.uc_id.id,
+                    "nb_uc": line.nb_uc,
+                    "um_id": line.um_id.id,
+                    "nb_um": line.nb_um,
+                }
+                uc_ids.append([0,0,vals])
+        dict={}
+        for line in self.line_ids:
+            if line.mixer==True:
+                key="%s-%s"%(line.product_id.id,line.uc_id.id)
+                if key not in dict:
+                    dict[key]={
+                        "uc_id": line.uc_id.id,
+                        "nb_uc": 0,
+                        "um_id": line.um_id.id,
+                        "nb_um": 0,
                     }
-                    self.env['is.liste.servir.uc'].create(vals)
-                #*******************************************************************
+                dict[key]["nb_uc"]+=line.nb_uc
+                dict[key]["nb_um"]+=line.nb_um
+        for key in dict:
+            vals={
+                "uc_id": dict[key]["uc_id"],
+                "nb_uc": dict[key]["nb_uc"],
+                "um_id": dict[key]["um_id"],
+                "nb_um": dict[key]["nb_um"],
+            }
+            uc_ids.append([0,0,vals])
+        self.uc_ids=uc_ids
 
 
-            if 'line_ids' in vals or 'uc_ids' in vals or not obj.um_ids:
-
-                #** Création du tableau des UM *************************************
-                for row in obj.um_ids:
-                    row.unlink()
-                r={}
-                for row in obj.uc_ids:
-                    if row.mixer:
-                        k=1000+row.um_id.id
-                    else:
-                        k=2000+row.id
-                    um_id=row.um_id.id
-                    if k in r:
-                        nb_um=r[k]['nb_um']+row.nb_um
-                    else:
-                        nb_um=row.nb_um
-                    r[k]={'um_id': um_id, 'nb_um': nb_um}
-
-                for k in r:
-                    vals={
-                        'liste_servir_id': obj.id,
-                        'um_id': r[k]['um_id'],
-                        'nb_um': r[k]['nb_um'],
+    @api.onchange('uc_ids','line_ids')
+    def onchange_uc_ids(self):
+        self.um_ids = False
+        um_ids=[]
+        for line in self.uc_ids:
+            if line.mixer==False:
+                vals={
+                    "um_id": line.um_id.id,
+                    "nb_um": line.nb_um,
+                }
+                um_ids.append([0,0,vals])
+        dict={}
+        for line in self.uc_ids:
+            if line.mixer==True:
+                key="%s"%(line.uc_id.id)
+                if key not in dict:
+                    dict[key]={
+                        "um_id": line.um_id.id,
+                        "nb_um": 0,
                     }
-                    self.env['is.liste.servir.um'].create(vals)
-                #*******************************************************************
+                dict[key]["nb_um"]+=line.nb_um
+        for key in dict:
+            vals={
+                "um_id": dict[key]["um_id"],
+                "nb_um": dict[key]["nb_um"],
+            }
+            um_ids.append([0,0,vals])
+        self.um_ids=um_ids
 
-        return res
+
+    # def write(self,vals):
+    #     cr = self._cr
+    #     if "partner_id" in vals:
+    #         vals=self._message(vals["partner_id"], vals)
+    #     res=super(is_liste_servir, self).write(vals)
+    #     for obj in self:
+    #         if 'line_ids' in vals or not obj.uc_ids:
+    #             #La procédure sotckée permet de gérer le regoupement des UC
+    #             SQL="""
+    #                 CREATE OR REPLACE FUNCTION fmixer(mixer boolean, id integer) RETURNS integer AS $$
+    #                         BEGIN
+    #                             IF mixer = True THEN
+    #                                 RETURN 0;
+    #                             ELSE
+    #                                 RETURN id;
+    #                             END IF;
+    #                         END;
+    #                 $$ LANGUAGE plpgsql;
+
+    #                 select uc_id,um_id,fmixer(mixer,id), sum(nb_uc),sum(nb_um) 
+    #                 from is_liste_servir_line 
+    #                 where liste_servir_id="""+str(obj.id)+"""  
+    #                 group by uc_id,um_id,fmixer(mixer,id);
+    #             """
+
+    #             #** Création du tableau des UC *************************************
+    #             for row in obj.uc_ids:
+    #                 row.unlink()
+    #             cr.execute(SQL)
+    #             result = cr.fetchall()
+    #             for r in result:
+    #                 vals={
+    #                     'liste_servir_id': obj.id,
+    #                     'uc_id': r[0],
+    #                     'um_id': r[1],
+    #                     'nb_uc': r[3],
+    #                     'nb_um': r[4],
+    #                 }
+    #                 self.env['is.liste.servir.uc'].create(vals)
+    #             #*******************************************************************
+
+
+    #         if 'line_ids' in vals or 'uc_ids' in vals or not obj.um_ids:
+
+    #             #** Création du tableau des UM *************************************
+    #             for row in obj.um_ids:
+    #                 row.unlink()
+    #             r={}
+    #             for row in obj.uc_ids:
+    #                 if row.mixer:
+    #                     k=1000+row.um_id.id
+    #                 else:
+    #                     k=2000+row.id
+    #                 um_id=row.um_id.id
+    #                 if k in r:
+    #                     nb_um=r[k]['nb_um']+row.nb_um
+    #                 else:
+    #                     nb_um=row.nb_um
+    #                 r[k]={'um_id': um_id, 'nb_um': nb_um}
+
+    #             for k in r:
+    #                 vals={
+    #                     'liste_servir_id': obj.id,
+    #                     'um_id': r[k]['um_id'],
+    #                     'nb_um': r[k]['nb_um'],
+    #                 }
+    #                 self.env['is.liste.servir.um'].create(vals)
+    #             #*******************************************************************
+
+    #     return res
 
 
     def _get_sql(self,obj):
@@ -488,7 +546,6 @@ class is_liste_servir(models.Model):
             vals.update(values)
         if vals:
             new_id = order_obj.create(vals)
-            print("new_di =",new_id)
 
         #** Supprimer les lignes des commandes d'origine ***********************
         SQL="""
@@ -639,7 +696,6 @@ class is_liste_servir(models.Model):
                                 qt = uc.qt_pieces
                                 for l in lines2:
                                     qt+=l.qt_pieces
-                                #print(line.product_id.is_code, um.name, uc.num_eti, uc, uc.qt_pieces, qt, line.quantite)
                                 if qt<=line.quantite:
                                     uc.ls_line_id=line.id
             lines = self.env['is.galia.base.uc'].search([('liste_servir_id','=',obj.id),('ls_line_id','=',False)])
@@ -760,7 +816,7 @@ class is_liste_servir_line(models.Model):
     nb_uc              = fields.Float('Qt Cde UC'                    , compute='_compute', readonly=True, store=True)
     um_id              = fields.Many2one('is.product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
     nb_um              = fields.Float('Qt Cde UM'                    , compute='_compute', readonly=True, store=True)
-    mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre", default=True)
+    mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre", default=False)
     order_id           = fields.Many2one('sale.order', 'Commande', required=False, readonly=True)
     client_order_ref   = fields.Char('Cde Client', readonly=True)
     point_dechargement = fields.Char(u'Point de déchargement', readonly=True)
