@@ -53,7 +53,13 @@
                     <!-- <button string="Done"         name="is_done_action"         type="object" groups="base.group_no_one"/> -->
                 </xpath>
                 <xpath expr="//group[@name='main_grp_col2']/field[@name='name']" position="before">
-                    <field name="quantity_done"/>
+                    <field name="quantity_done" readonly="1"/>
+                </xpath>
+                <xpath expr="//group[@name='main_grp_col1']/field[@name='location_dest_id']" position="after">
+                    <field name="picking_id" readonly="1"/>
+                </xpath>
+                <xpath expr="//group[@name='main_grp_col2']/field[@name='product_id']" position="after">
+                    <field name="is_lot_id"/>
                 </xpath>
                 <field name="group_id" position="after">
                     <field name="picking_id"                 attrs="{'invisible':[('picking_id','=',False)]}"/>
@@ -76,7 +82,7 @@
                     </group>
                 </group>
                 <group name="linked_group" position="before">
-                    <field name="move_line_ids">
+                    <field name="move_line_ids" readonly="1">
                         <tree>
                             <field name="product_id"/>
                             <field name="location_id"      optional="show"/>

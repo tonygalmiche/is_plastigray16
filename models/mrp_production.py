@@ -280,10 +280,6 @@ class MrpProduction(models.Model):
                 #         "product_qty"   : qt,
                 #     }
                 #     bom_lines.append([0, False, vals])
-
-
-            print("## TEST 3",len(bom_lines))
-
             obj.is_bom_line_ids = bom_lines
 
 
@@ -378,18 +374,19 @@ class MrpProduction(models.Model):
 
 
     def init_nomenclature_action(self):
-        print("## TEST ##",self)
         for obj in self:
+            #print("init_nomenclature_action",obj.name)
             if obj.state=='draft' and not obj.is_bom_line_ids:
-                print(obj)
                 obj._compute_is_bom_line_ids()
+        return True
 
 
 
     def init_qt_reste_action(self):
         for obj in self:
-            print(obj.name)
+            #print("init_qt_reste_action",obj.name)
             obj._compute_qt_reste()
+        return True
 
 
 

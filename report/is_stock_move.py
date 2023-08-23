@@ -102,8 +102,9 @@ _SELECT_STOCK_MOVE="""
             sm.qty                             as qty,
             pt.uom_id                          as product_uom,
             sm.dest                            as location_dest,
-            sm2.is_employee_theia_id	   as is_employee_theia_id,
-            rp.name                            as login
+            sm2.is_employee_theia_id	       as is_employee_theia_id,
+            rp.name                            as login,
+            sm2.picking_type_id                as picking_type_id
     from (
 
         select 
@@ -203,6 +204,7 @@ class is_stock_move(models.Model):
     #type_mv            = fields.Char('Type')
     #name               = fields.Char('Description')
     picking_id         = fields.Many2one('stock.picking', 'Rcp/Liv')
+    picking_type_id    = fields.Many2one('stock.picking.type', 'Type')
     lot_id             = fields.Many2one('stock.lot', 'Lot')
     lot_fournisseur    = fields.Char('Lot fournisseur')
     qty                = fields.Float('Quantité')
@@ -222,7 +224,6 @@ class is_stock_move(models.Model):
         cr = self._cr
         cr.execute("REFRESH MATERIALIZED VIEW is_stock_move;")
         _logger.info('## refresh_stock_move_action en %.2fs'%(time.time()-start))
-
         now = datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S')
         return {
             'name': 'Mouvements de stocks actualisés à '+str(now),
@@ -231,6 +232,11 @@ class is_stock_move(models.Model):
             'res_model': 'is.stock.move',
             'type': 'ir.actions.act_window',
         }
+
+
+#    
+#    print("%s : %06.2fs : %s"%(now.strftime('%H:%M:%S') , (now-debut).total_seconds(), msg))
+
 
 
     def init(self):

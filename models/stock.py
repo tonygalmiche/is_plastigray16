@@ -75,6 +75,19 @@ class stock_lot(models.Model):
 #     _order="date desc"
 
 
+
+class stock_picking_type(models.Model):
+    _inherit = "stock.picking.type"
+
+
+    def name_get(self):
+        res = []
+        for picking_type in self:
+            name = picking_type.name
+            res.append((picking_type.id, name))
+        return res
+
+
 class stock_picking(models.Model):
     _inherit = "stock.picking"
     _order   = "date desc, name desc"

@@ -55,7 +55,8 @@ class stock_move(models.Model):
             obj.is_point_dechargement = x
 
 
-    is_sale_line_id = fields.Many2one('sale.order.line', 'Ligne de commande', index=True)
+    is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande', index=True)
+    is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
     is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=False, readonly=True)
     is_dosmat_ctrl_qual           = fields.Char(u'Contrôle qualité', readonly=True)
     is_dosmat_conditions_stockage = fields.Char(u'Conditions de stockage', readonly=True)
@@ -151,7 +152,7 @@ class stock_move(models.Model):
             line_vals={
                 "location_id"     : obj.location_id.id,
                 "location_dest_id": obj.location_dest_id.id,
-                #"lot_id"          : line.lot_id.id,
+                "lot_id"          : obj.is_lot_id.id,
                 "qty_done"        : obj.product_uom_qty,
                 "product_id"      : obj.product_id.id,
                 "move_id"         : obj.id,
