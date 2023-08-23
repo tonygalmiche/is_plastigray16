@@ -6,6 +6,9 @@ import datetime
 import time
 import psycopg2
 import sys
+import logging
+_logger = logging.getLogger(__name__)
+
 
 
 # def _acceder_commande(self,id):
@@ -370,9 +373,12 @@ class is_liste_servir(models.Model):
                 cnx=False
                 try:
                     cnx = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='dynacaseowner' password='"+password+"'")
+                    cursor = cnx.cursor()
                 except:
-                    raise ValidationError("Impossible de se connecter à Dynacase")
-                cursor = cnx.cursor()
+                    msg="Impossible de se connecter à Dynacase"
+                    #raise ValidationError(msg)
+                    _logger.info(msg)
+                    cursor=False
             #*******************************************************************
 
             for row in obj.line_ids:
@@ -390,14 +396,19 @@ class is_liste_servir(models.Model):
 
                 #** Recherche du certificat matière ****************************
                 certificat_matiere=False
-                if obj.partner_id.is_certificat_matiere:
+                if obj.partner_id.is_certificat_matiere and cursor:
                     SQL="""
                         select id
                         from doc69106
                         where doctype='F' and locked='0' and cmc_codepg='"""+product.is_code+"""' limit 1
                     """
-                    cursor.execute(SQL)
 
+                    _logger.info(SQL)
+
+
+                    cursor.execute(SQL)
+                    msg="certificat_matiere=%s"%row2[0]
+                    _logger.info(msg)
                     for row2 in cursor:
                         certificat_matiere=row2[0]
                 #***************************************************************
@@ -780,9 +791,12 @@ class is_liste_servir_line(models.Model):
 
     def _compute_is_certificat_conformite_vsb(self):
         for obj in self:
+            print(obj)
             vsb = False
             if obj.liste_servir_id.partner_id.is_certificat_matiere:
+                print("## TEST ##")
                 certificat = self.env['is.certificat.conformite'].GetCertificat(obj.liste_servir_id.partner_id, obj.product_id.id)
+                print(certificat)
                 if certificat:
                     vsb = 1
                 else:
