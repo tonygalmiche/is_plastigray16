@@ -125,10 +125,10 @@ class is_ligne_livraison(models.Model):
                                         left outer join sale_order_line     sol on sm.is_sale_line_id=sol.id
 
 
-                    where sp.picking_type_id=2 and sm.state='done' and so.id is not null
+                    where sp.picking_type_id=2 
                 )
             """)
             _logger.info('## init is_ligne_livraison en %.2fs'%(time.time()-start))
 
-
+# and sm.state='done' and so.id is not null
 
