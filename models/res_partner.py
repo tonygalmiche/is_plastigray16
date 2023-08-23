@@ -492,6 +492,14 @@ class res_partner(models.Model):
     #     self.display_name = r[0][1]
 
 
+    def _message_auto_subscribe_notify(self, partner_ids, template):
+        #Désactiver le message "Vous avez été assigné à"
+        return
+
+
+
+
+
     @api.constrains('vat', 'country_id')
     def check_vat(self):
         print("OK",self)
