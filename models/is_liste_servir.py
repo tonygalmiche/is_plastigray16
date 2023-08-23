@@ -407,10 +407,12 @@ class is_liste_servir(models.Model):
 
 
                     cursor.execute(SQL)
-                    msg="certificat_matiere=%s"%row2[0]
-                    _logger.info(msg)
                     for row2 in cursor:
                         certificat_matiere=row2[0]
+
+                        msg="certificat_matiere=%s"%row2[0]
+                        _logger.info(msg)
+
                 #***************************************************************
 
                 stock01 = product.get_stock('f', '01')
