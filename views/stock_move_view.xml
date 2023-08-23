@@ -44,12 +44,13 @@
             <field name="inherit_id" ref="stock.view_move_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//header/field[@name='state']" position="before">
-                    <button string="Raz"          name="is_raz_action"          type="object" groups="base.group_no_one" states="futur"/>
+                    <button string="Valider" name="is_valider_action" type="object" states="draft" class="oe_highlight" />
+                    <!-- <button string="Raz"          name="is_raz_action"          type="object" groups="base.group_no_one" states="futur"/>
                     <button string="Confirm"      name="is_confirm_action"      type="object" groups="base.group_no_one"/>
-                    <button string="Asign"        name="is_assign_action"       type="object" groups="base.group_no_one"/>
+                    <button string="Asign"        name="is_assign_action"       type="object" groups="base.group_no_one"/> -->
                     <!-- <button string="Fait=Réservé" name="is_fait_reserve_action" type="object" groups="base.group_no_one"/> -->
                     <!-- <button string="Créer Lot"    name="is_creer_lot_action"    type="object" groups="base.group_no_one"/> -->
-                    <button string="Done"         name="is_done_action"         type="object" groups="base.group_no_one"/>
+                    <!-- <button string="Done"         name="is_done_action"         type="object" groups="base.group_no_one"/> -->
                 </xpath>
                 <xpath expr="//group[@name='main_grp_col2']/field[@name='name']" position="before">
                     <field name="quantity_done"/>
@@ -64,7 +65,7 @@
                     <field name="write_uid"/>
                 </field>
                 <group name="origin_grp" position="after">
-                    <group string="Amortissement Moule">
+                    <group string="Amortissement Moule" groups="base.group_no_one">
                         <field name="is_amortissement_moule"/>
                         <field name="is_amt_interne"/>
                         <field name="is_cagnotage"/>

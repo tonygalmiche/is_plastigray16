@@ -144,6 +144,39 @@ class stock_move(models.Model):
             return res
 
 
+    def is_valider_action(self):
+        for obj in self:
+            print(obj)
+
+            line_vals={
+                "location_id"     : obj.location_id.id,
+                "location_dest_id": obj.location_dest_id.id,
+                #"lot_id"          : line.lot_id.id,
+                "qty_done"        : obj.product_uom_qty,
+                "product_id"      : obj.product_id.id,
+                "move_id"         : obj.id,
+            }
+
+
+
+
+            filtre=[('code', '=', 'internal')]
+            picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
+            picking_vals={
+                "picking_type_id" : picking_type_id.id,
+                "location_id"     : obj.location_id.id,
+                "location_dest_id": obj.location_dest_id.id,
+                'move_line_ids'   : [[0,False,line_vals]],
+                #'move_ids'        : [[0,False,move_vals]],
+            }
+            picking=self.env['stock.picking'].create(picking_vals)
+            obj.picking_id=picking.id
+            picking.action_confirm()
+            picking._action_done()
+
+
+
+
     def is_raz_action(self):
         for obj in self:
             obj.move_line_ids.unlink()
