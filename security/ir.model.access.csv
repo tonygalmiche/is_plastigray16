@@ -439,3 +439,6 @@ access_mrp_previsions_generate,access_mrp_previsions_generate,model_mrp_previsio
 
 access_stock_transfer_details,access_stock_transfer_details,model_stock_transfer_details,base.group_user,1,1,1,1
 access_stock_transfer_details_items,access_stock_transfer_details_items,model_stock_transfer_details_items,base.group_user,1,1,1,1
+
+access_ir_model_all,access_ir_model_all,base.model_ir_model,base.group_user,1,0,0,0
+access_ir_model_fields_all,access_ir_model_fields_all,base.model_ir_model_fields,base.group_user,1,0,0,0
