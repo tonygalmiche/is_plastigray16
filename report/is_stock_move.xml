@@ -101,7 +101,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group>
+                    <group attrs="{'readonly': True}">
                         <field name="date" />
                         <field name="product_id" />
                         <field name="category" />
