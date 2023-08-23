@@ -6,6 +6,7 @@ import datetime
 import time
 import psycopg2
 import sys
+from math import *
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -195,7 +196,7 @@ class is_liste_servir(models.Model):
         return res
 
 
-    @api.onchange('line_ids')
+    @api.onchange('line_ids','partner_id')
     def onchange_line_ids(self):
         self.uc_ids = False
         uc_ids=[]
@@ -211,7 +212,7 @@ class is_liste_servir(models.Model):
         dict={}
         for line in self.line_ids:
             if line.mixer==True:
-                key="%s-%s"%(line.product_id.id,line.uc_id.id)
+                key="%s-%s"%(line.um_id.id,line.uc_id.id)
                 if key not in dict:
                     dict[key]={
                         "uc_id": line.uc_id.id,
@@ -240,7 +241,7 @@ class is_liste_servir(models.Model):
             if line.mixer==False:
                 vals={
                     "um_id": line.um_id.id,
-                    "nb_um": line.nb_um,
+                    "nb_um": ceil(line.nb_um),
                 }
                 um_ids.append([0,0,vals])
         dict={}
@@ -256,7 +257,7 @@ class is_liste_servir(models.Model):
         for key in dict:
             vals={
                 "um_id": dict[key]["um_id"],
-                "nb_um": dict[key]["nb_um"],
+                "nb_um": ceil(dict[key]["nb_um"]),
             }
             um_ids.append([0,0,vals])
         self.um_ids=um_ids
@@ -459,6 +460,8 @@ class is_liste_servir(models.Model):
                         'point_dechargement': point_dechargement,
                     }
                     line_obj.create(vals)
+            obj.onchange_line_ids()
+            obj.onchange_uc_ids()
             obj.state="analyse"
 
 
@@ -789,12 +792,9 @@ class is_liste_servir_line(models.Model):
 
     def _compute_is_certificat_conformite_vsb(self):
         for obj in self:
-            print(obj)
             vsb = False
             if obj.liste_servir_id.partner_id.is_certificat_matiere:
-                print("## TEST ##")
                 certificat = self.env['is.certificat.conformite'].GetCertificat(obj.liste_servir_id.partner_id, obj.product_id.id)
-                print(certificat)
                 if certificat:
                     vsb = 1
                 else:
