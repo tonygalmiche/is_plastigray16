@@ -67,6 +67,27 @@
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
+
+
+
+
+        <!-- is.liste.servir -->
+        <!-- <record model="ir.ui.view" id="is_liste_servir_form_view_2019">
+            <field name="name">is_liste_servir_form_view_2019</field>
+            <field name="model">is.liste.servir</field>
+            <field name="inherit_id" ref="is_liste_servir_form_view"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                </field>
+
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="before">
+                </xpath>
+            </field>
+        </record> -->
+
+
+
                         <group>
                             <group>
                                 <field name="name"/> 
@@ -75,6 +96,15 @@
                                         on_change="onchange_partner_id(partner_id)"
                                         attrs="{'readonly':[('state','!=','creation')]}" 
                                 /> 
+
+                                <field 
+                                    name="is_certificat_conformite_msg"
+                                    style="background:orange"
+                                    attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
+                                />
+            
+
+
                                 <field name="date_debut"  attrs="{'readonly':[('state','!=','creation')]}" /> 
                                 <field name="date_fin"    attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="livrable"    attrs="{'readonly':[('state','!=','creation')]}"/> 
@@ -96,8 +126,34 @@
                         </group>
                         <field name="line_ids" nolabel="1">
                             <tree editable="bottom"  create="true"  decoration-danger="livrable == False" limit="2000">
+                                
                                 <field name="sequence"       invisible="1"/>
+
+
+                                <field name="is_certificat_conformite_vsb" invisible="1"/>
+                                <button 
+                                    title="Certificat" 
+                                    name="imprimer_certificat_action"  
+                                    type="object" icon="fa-print" 
+                                    attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
+                                />
+                                <button 
+                                    title="Pas de certificat !" 
+                                    name="pas_de_certifcat_action"  
+                                    type="object" icon="fa-exclamation" 
+                                    attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
+                                />
+            
+
                                 <field name="product_id" widget="many2one_clickable"/>
+
+
+
+
+
+
+
+
                                 <field name="mold_dossierf" optional="show"/>
                                 <field name="livrable"       invisible="1"/>
                                 <field name="date_livraison" optional="show"/>
