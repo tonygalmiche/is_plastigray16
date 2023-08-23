@@ -747,7 +747,7 @@
 
     <!-- Ventes / Livraisons -->
     <menuitem id="menu_is_ventes_liv" sequence="40" name="Livraisons" parent="menu_is_ventes" groups="is_employes_hors_production_group"/>
-    <record id="is_livraisons_a_traiter_menu" model="ir.ui.menu" >
+    <!-- <record id="is_livraisons_a_traiter_menu" model="ir.ui.menu" >
         <field name="name">Livraisons à traiter</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_is_ventes_liv')"/>
@@ -757,7 +757,7 @@
             ref('is_homme_flux_group'),
             ref('is_magasiniers_group'),
         ])]"/>
-    </record>
+    </record> -->
     <record id="is_toutes_les_livraisons_menu" model="ir.ui.menu" >
         <field name="name">Toutes les livraisons</field>
         <field name="sequence">20</field>

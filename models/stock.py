@@ -5,7 +5,7 @@ from odoo import models,fields,api
 #from openerp.exceptions import ValidationError
 #from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
 import time
-import datetime
+from datetime import datetime, date
 #from xml.dom.minidom import parseString
 #import re
 #import os
@@ -112,13 +112,12 @@ class stock_picking(models.Model):
     
     # def preparer_action(self):
     #     for obj in self:
-    #         print(self,self.purchase_id)
     #         for move in obj.move_ids:
     #             for line in move.move_line_ids:
     #                 line.qty_done         = line.reserved_qty
     #                 line.location_dest_id = line.picking_id.location_dest_id.id
     #                 if not line.lot_id:
-    #                     name=datetime.date.today().strftime('%y%m%d')+obj.name
+    #                     name=date.today().strftime('%y%m%d')+obj.name
     #                     vals={
     #                         "name"      : name,
     #                         "product_id": line.product_id.id,
@@ -280,6 +279,7 @@ class stock_picking(models.Model):
         return res
 
 
+
     def check_date_livraison(self, date_livraison,  partner_id, context=None):
         res_partner = self.env['res.partner']
         if partner_id and date_livraison:
@@ -289,11 +289,10 @@ class stock_picking(models.Model):
             # Jours de congé de la société
             leave_dates = res_partner.get_leave_dates(partner,avec_jours_feries=True)
             # num de jour dans la semaine de la date de livraison
-
-            print(date_livraison, type(date_livraison))
-
-
-            num_day = time.strftime('%w', time.strptime(date_livraison, '%Y-%m-%d'))
+            if type(date_livraison) is str:
+                date_livraison = datetime.strptime(date_livraison, '%Y-%m-%d')
+            #num_day = time.strftime('%w', time.strptime(date_livraison, '%Y-%m-%d'))
+            num_day = date_livraison.strftime('%Y%m%d')
             if int(num_day) in jours_fermes or date_livraison in leave_dates:
                 return False
         return True
@@ -436,7 +435,7 @@ class stock_picking(models.Model):
                 lines=os.popen(x).readlines()
                 for line in lines:
                     _logger.info(line.strip())
-                now = datetime.datetime.now()
+                now = datetime.now()
                 obj.is_date_traitement_edi = now
                 body = u"<b>DESADV envoyé</b><br>"+"<br>".join(lines)
                 vals={
