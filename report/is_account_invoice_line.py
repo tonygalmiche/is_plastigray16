@@ -193,7 +193,7 @@ class is_account_invoice_line(models.Model):
                                             inner join res_partner           rp on ai.partner_id=rp.id
                                             left outer join stock_move       sm on ail.is_move_id=sm.id
                                             left outer join stock_picking    sp on sm.picking_id=sp.id
-                                            left outer join sale_order_line sol on sm.is_sale_line_id=sol.id
+                                            left outer join sale_order_line sol on sm.sale_line_id=sol.id
                     where ai.id>0
                     order by ail.id desc
                 )

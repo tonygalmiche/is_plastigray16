@@ -35,7 +35,7 @@ class is_facture_pk(models.Model):
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now())
     annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True)
     semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True)
-    num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True) #, domain=[('is_sale_order_id', '!=', False),('is_facture_pk_id', '=', False)]) 
+    num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True) #, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
     num_import_matiere = fields.Char(u"N° d'import matière première")
     matiere_premiere   = fields.Float('Total Matière première (€)'       , digits=(14, 4), readonly=True)
     main_oeuvre        = fields.Float("Total Main d'oeuvre (€)"          , digits=(14, 4), readonly=True)
@@ -93,7 +93,7 @@ class is_facture_pk(models.Model):
                     uc=pack.qty or 1
                 #***************************************************************
 
-                pupf=move.is_sale_line_id.price_unit
+                pupf=move.sale_line_id.price_unit
                 matiere_premiere=matiere_premiere+move.product_uom_qty*cout_act_matiere
                 main_oeuvre=main_oeuvre+move.product_uom_qty*pupf
                 nb_pieces=nb_pieces+move.product_uom_qty
@@ -104,7 +104,7 @@ class is_facture_pk(models.Model):
                 total_poids_net  = total_poids_net  + poids_net
                 total_poids_brut = total_poids_brut + poids_brut
                 val = {
-                    'commande'   : move.is_sale_line_id.is_client_order_ref or '',
+                    'commande'   : move.sale_line_id.is_client_order_ref or '',
                     'product_id' : move.product_id.id,
                     'ref_pk'     : move.product_id and move.product_id.is_code or False,
                     'designation': move.product_id and move.product_id.name or '',

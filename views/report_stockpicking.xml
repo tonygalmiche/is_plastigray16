@@ -85,7 +85,7 @@
                                       <t t-set="pds_net" t-value="round(qt1*move.product_id.weight_net,1)"/>
                                       <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,1)"/>
                                       <td>
-                                          <span t-field="move.is_sale_line_id.is_client_order_ref"/>
+                                          <span t-field="move.sale_line_id.is_client_order_ref"/>
                                       </td>
                                       <td>
                                           <t t-if="move.product_id.is_soumise_regl == 'SR'"> 
@@ -190,9 +190,9 @@
                             <b>Note : </b><br />
                             <span t-field="o.note" />
                         </t>
-                        <t t-if="o.is_sale_order_id.is_info_client">
+                        <t t-if="o.sale_id.is_info_client">
                             <b>Information client complèmentaire : </b><br />
-                            <span t-field="o.is_sale_order_id.is_info_client" />
+                            <span t-field="o.sale_id.is_info_client" />
                         </t>
                         <t t-if="o.is_galia_um">
                             <br />

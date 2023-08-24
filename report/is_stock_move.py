@@ -21,7 +21,7 @@ _logger = logging.getLogger(__name__)
 #             sm2.purchase_line_id,
 #             sm2.raw_material_production_id,
 #             sm2.production_id,
-#             sm2.is_sale_line_id,
+#             sm2.sale_line_id,
 #             sm.lot_id                          as lot_id,
 #             spl.is_lot_fournisseur             as lot_fournisseur,
 #             sm.qty                             as qty,
@@ -96,7 +96,7 @@ _SELECT_STOCK_MOVE="""
             sm2.purchase_line_id,
             sm2.raw_material_production_id,
             sm2.production_id,
-            sm2.is_sale_line_id,
+            sm2.sale_line_id,
             sm.lot_id                          as lot_id,
             spl.is_lot_fournisseur             as lot_fournisseur,
             sm.qty                             as qty,
@@ -187,7 +187,7 @@ class pg_stock_move(models.Model):
     purchase_line_id           = fields.Many2one('purchase.order.line', 'Ligne commande achat')
     raw_material_production_id = fields.Many2one('mrp.production'     , 'Composant ordre de fabrication')
     production_id              = fields.Many2one('mrp.production'     , 'Ordre de fabrication')
-    is_sale_line_id            = fields.Many2one('sale.order.line'    , 'Ligne commande vente')
+    sale_line_id               = fields.Many2one('sale.order.line'    , 'Ligne commande vente')
 
 
 class is_stock_move(models.Model):
@@ -216,7 +216,7 @@ class is_stock_move(models.Model):
     purchase_line_id           = fields.Many2one('purchase.order.line', 'Ligne commande achat')
     raw_material_production_id = fields.Many2one('mrp.production'     , 'Composant ordre de fabrication')
     production_id              = fields.Many2one('mrp.production'     , 'Ordre de fabrication')
-    is_sale_line_id            = fields.Many2one('sale.order.line'    , 'Ligne commande vente')
+    sale_line_id               = fields.Many2one('sale.order.line'    , 'Ligne commande vente')
 
 
     def refresh_stock_move_action(self):

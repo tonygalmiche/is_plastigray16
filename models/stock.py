@@ -93,7 +93,7 @@ class stock_picking(models.Model):
     _order   = "date desc, name desc"
     
     #location_id            = fields.Many2one(related='move_lines.location_id', relation='stock.location', string='Location', readonly=False)
-    is_sale_order_id       = fields.Many2one('sale.order', 'Commande Client')
+    is_sale_order_id       = fields.Many2one('sale.order', 'Commande Client (champ obsolète dans Odoo 16 car remplacé par sale_id)')
     is_purchase_order_id   = fields.Many2one('purchase.order', 'Commande Fournisseur')
     is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur')
     is_date_expedition     = fields.Date("Date d'expédition")
@@ -160,7 +160,7 @@ class stock_picking(models.Model):
     def _compute_is_galia_um(self):
         for obj in self:
             test=False
-            if obj.is_sale_order_id.is_liste_servir_id.galia_um_ids:
+            if obj.sale_id.is_liste_servir_id.galia_um_ids:
                 test=True
             obj.is_galia_um = test
 
@@ -168,7 +168,7 @@ class stock_picking(models.Model):
     def get_is_code_rowspan(self,product_id):
         cr = self._cr
         for obj in self:
-            liste_servir = obj.is_sale_order_id.is_liste_servir_id
+            liste_servir = obj.sale_id.is_liste_servir_id
             SQL="""
                 select count(*)
                 from is_galia_base_uc uc inner join is_galia_base_um um on uc.um_id=um.id
@@ -189,7 +189,7 @@ class stock_picking(models.Model):
     def get_um_rowspan(self,product_id,um_id):
         cr = self._cr
         for obj in self:
-            liste_servir = obj.is_sale_order_id.is_liste_servir_id
+            liste_servir = obj.sale_id.is_liste_servir_id
             SQL="""
                 select count(*)
                 from is_galia_base_uc uc inner join is_galia_base_um um on uc.um_id=um.id
@@ -222,7 +222,7 @@ class stock_picking(models.Model):
             product_ids = ",".join(product_ids)
             #******************************************************************
 
-            liste_servir = obj.is_sale_order_id.is_liste_servir_id
+            liste_servir = obj.sale_id.is_liste_servir_id
             SQL="""
                 select 
                     pt.is_code,

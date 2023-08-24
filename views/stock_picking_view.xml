@@ -124,11 +124,11 @@
                     <attribute name="invisible">1</attribute>>
                 </field>
                 <field name="origin" position="after">
-                    <field name="purchase_id"      attrs="{'invisible': [('purchase_id', '=', False)]}"      readonly="1"/>
-                    <field name="is_sale_order_id" attrs="{'invisible': [('is_sale_order_id', '=', False)]}" readonly="1"/>
+                    <field name="purchase_id" attrs="{'invisible': [('purchase_id', '=', False)]}" readonly="1"/>
+                    <field name="sale_id"     attrs="{'invisible': [('sale_id', '=', False)]}"     readonly="1"/>
                     <field 
                         name="is_date_expedition"
-                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
+                        attrs="{'invisible': [('sale_id', '=', False)]}"
                         on_change="onchange_date_expedition(
                             is_date_expedition,
                             partner_id, 
@@ -137,7 +137,7 @@
                     /> 
                     <field
                         name="is_date_livraison"
-                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
+                        attrs="{'invisible': [('sale_id', '=', False)]}"
                     /> 
                     <field name="is_date_livraison_vsb" invisible="1"/>
                     <field 
@@ -148,7 +148,7 @@
                     <field 
                         name="is_transporteur_id" 
                         domain="[('supplier','=',True),('is_company','=',True)]" 
-                        attrs="{'invisible': [('is_sale_order_id', '=', False)]}"
+                        attrs="{'invisible': [('sale_id', '=', False)]}"
                     /> 
                     <!-- <field name="is_purchase_order_id"  attrs="{'invisible': [('purchase_id', '=', False)]}" readonly="1"/>  -->
                     <field name="is_num_bl"             attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
@@ -178,6 +178,7 @@
 
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="after">
                     <!-- <field name="is_lots"                       optional="show"/> -->
+                    <field name="sale_line_id"                  optional="hide" widget="many2one_clickable"/>
                     <field name="is_point_dechargement"         optional="show"/>
                     <field name="is_dosmat_ctrl_qual"           optional="show"/>
                     <field name="is_dosmat_conditions_stockage" optional="show"/>
@@ -263,7 +264,7 @@
                 
                 <field name="priority" position="after">
                     <field name="is_mode_envoi_facture"/> 
-                    <field name="is_facture_pk_id" attrs="{'invisible': [('is_sale_order_id', '=', False)]}"/> 
+                    <field name="is_facture_pk_id" attrs="{'invisible': [('sale_id', '=', False)]}"/> 
                     <field name="is_traitement_edi"/> 
                     <field name="is_date_traitement_edi" attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </field>

@@ -20,7 +20,7 @@
                         <field name="purchase_line_id" />
                         <field name="raw_material_production_id" />
                         <field name="production_id" />
-                        <field name="is_sale_line_id" />
+                        <field name="sale_line_id" />
                         <field name="lot_id" />
                         <field name="lot_fournisseur" />
                         <field name="qty" />
@@ -113,7 +113,7 @@
                         <field name="purchase_line_id" />
                         <field name="raw_material_production_id" />
                         <field name="production_id" />
-                        <field name="is_sale_line_id" />
+                        <field name="sale_line_id" />
                         <field name="lot_id" />
                         <field name="lot_fournisseur" />
                         <field name="qty" />

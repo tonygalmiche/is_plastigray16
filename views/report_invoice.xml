@@ -107,8 +107,8 @@
                                 <t t-set="pds_net" t-value="round(qt1*l.is_move_id.product_id.weight_net,2)"/>
                                 <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,2)"/>
                                 <td>
-                                    <t t-if="l.is_move_id.is_sale_line_id.is_client_order_ref">
-                                        <span t-field="l.is_move_id.is_sale_line_id.is_client_order_ref"/><br />
+                                    <t t-if="l.is_move_id.sale_line_id.is_client_order_ref">
+                                        <span t-field="l.is_move_id.sale_line_id.is_client_order_ref"/><br />
                                     </t>
                                     <t t-if="o.is_num_cde_client">
                                         <span t-field="o.is_num_cde_client"/>
@@ -245,9 +245,9 @@
                             </tr>
                         </tbody>
                     </table>
-                    <t t-if="picking.is_sale_order_id.is_info_client">
+                    <t t-if="picking.sale_id.is_info_client">
                         <b>Information client complèmentaire : </b><br />
-                        <span t-field="picking.is_sale_order_id.is_info_client" />
+                        <span t-field="picking.sale_id.is_info_client" />
                     </t>
                 </div>
                 <div class="footer is_report_invoice_footer">

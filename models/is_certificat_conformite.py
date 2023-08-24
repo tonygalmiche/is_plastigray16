@@ -222,8 +222,8 @@ class stock_picking(models.Model):
         uid=self.uid
         cr=self._cr
         for obj in self:
-            if obj.is_sale_order_id.is_liste_servir_id:
-                obj.is_sale_order_id.is_liste_servir_id.affecter_uc_aux_lignes_ls_action()
+            if obj.sale_id.is_liste_servir_id:
+                obj.sale_id.is_liste_servir_id.affecter_uc_aux_lignes_ls_action()
             db = self._cr.dbname
             path="/tmp/certificats-" + db + '-'+str(uid)
             cde="rm -Rf " + path
@@ -238,10 +238,10 @@ class stock_picking(models.Model):
 
                     #** Recherche des lots scannés ************************************
                     lots={}
-                    if move.picking_id.is_sale_order_id:
-                        if  move.picking_id.is_sale_order_id.is_liste_servir_id:
-                            if move.picking_id.is_sale_order_id.is_liste_servir_id.galia_um_ids:
-                                for um in move.picking_id.is_sale_order_id.is_liste_servir_id.galia_um_ids:
+                    if move.picking_id.sale_id:
+                        if  move.picking_id.sale_id.is_liste_servir_id:
+                            if move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
+                                for um in move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
                                     if um.product_id == move.product_id:
                                         for uc in um.uc_ids:
                                             if uc.production not in lots:
@@ -259,20 +259,20 @@ class stock_picking(models.Model):
                     for lot in lots:
                         #** Recherche qt livrée par lot et par commande client **********
                         qt_liv=0
-                        if move.picking_id.is_sale_order_id:
-                            if  move.picking_id.is_sale_order_id.is_liste_servir_id:
-                                if move.picking_id.is_sale_order_id.is_liste_servir_id.galia_um_ids:
-                                    for um in move.picking_id.is_sale_order_id.is_liste_servir_id.galia_um_ids:
+                        if move.picking_id.sale_id:
+                            if  move.picking_id.sale_id.is_liste_servir_id:
+                                if move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
+                                    for um in move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
                                         if um.product_id == move.product_id:
                                             for uc in um.uc_ids:
                                                 if uc.production==lot:
-                                                    if uc.ls_line_id and uc.ls_line_id.client_order_ref==move.is_sale_line_id.is_client_order_ref:
+                                                    if uc.ls_line_id and uc.ls_line_id.client_order_ref==move.sale_line_id.is_client_order_ref:
                                                         qt_liv+=uc.qt_pieces
                         certificat.qt_liv  = qt_liv
                         #certificat.qt_liv = lots[lot]["qt"]
                         #****************************************************************
 
-                        certificat.client_order_ref = move.is_sale_line_id.is_client_order_ref
+                        certificat.client_order_ref = move.sale_line_id.is_client_order_ref
                         certificat.num_lot          = lot
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         x+=1
@@ -434,19 +434,19 @@ class is_certificat_conformite(models.Model):
 
 
     def WriteCertificat(self,certificat,move):
-        if move and move.is_sale_line_id and move.picking_id:
+        if move and move.sale_line_id and move.picking_id:
             if certificat.picking_id != move.picking_id:
                 certificat.num_lot          = False
                 certificat.date_fabrication = False
             orders=[]
             for line in move.picking_id.move_lines:
                 if line.product_id==move.product_id:
-                    order = line.is_sale_line_id.is_client_order_ref
+                    order = line.sale_line_id.is_client_order_ref
                     if order not in orders:
                         orders.append(order)
             vals={
                 'client_order_ref': u", ".join(orders),
-                'order_id'        : move.is_sale_line_id.order_id.id,
+                'order_id'        : move.sale_line_id.order_id.id,
                 'picking_id'      : move.picking_id.id,
                 'bon_transfert_id': False,
                 'date_bl'         : move.picking_id.is_date_expedition,

@@ -13,8 +13,8 @@ class stock_move(models.Model):
         cr = self._cr
         for obj in self:
             lots = False
-            if obj.picking_id.is_sale_order_id.is_liste_servir_id.galia_um_ids:
-                liste_servir_id = obj.picking_id.is_sale_order_id.is_liste_servir_id.id
+            if obj.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
+                liste_servir_id = obj.picking_id.sale_id.is_liste_servir_id.id
                 SQL="""
                     select uc.production, sum(uc.qt_pieces)
                     from is_galia_base_uc uc inner join is_galia_base_um um on uc.um_id=um.id
@@ -55,7 +55,7 @@ class stock_move(models.Model):
             obj.is_point_dechargement = x
 
 
-    is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
+    is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16 et remplacé par sale_line_id)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
     is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
     is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=False, readonly=True)
     is_dosmat_ctrl_qual           = fields.Char(u'Contrôle qualité', readonly=True)
@@ -315,7 +315,7 @@ class stock_move(models.Model):
                         purchase_line_id,
                         raw_material_production_id,
                         production_id,
-                        is_sale_line_id,
+                        sale_line_id,
                         lot_id,
                         lot_fournisseur,
                         qty,
@@ -396,155 +396,155 @@ class stock_move(models.Model):
         return date_livraison
 
 
-    def _picking_assign(self, procurement_group, location_from, location_to):
-        """Assign a picking on the given move_ids, which is a list of move supposed to share the same procurement_group, location_from and location_to
-        (and company). Those attributes are also given as parameters.
-        """
-        cr       = self._cr
-        uid      = self._uid
-        context  = self._context
-        move_ids = self._ids
-        pick_obj = self.env["stock.picking"]
-        # Use a SQL query as doing with the ORM will split it in different queries with id IN (,,)
-        # In the next version, the locations on the picking should be stored again.
-        query = """
-            SELECT stock_picking.id FROM stock_picking, stock_move
-            WHERE
-                stock_picking.state in ('draft', 'confirmed', 'waiting') AND
-                stock_move.picking_id = stock_picking.id AND
-                stock_move.location_id = %s AND
-                stock_move.location_dest_id = %s AND
-        """
-        params = (location_from, location_to)
-        if not procurement_group:
-            query += "stock_picking.group_id IS NULL LIMIT 1"
-        else:
-            query += "stock_picking.group_id = %s LIMIT 1"
-            params += (procurement_group,)
-        cr.execute(query, params)
-        [pick] = cr.fetchone() or [None]
-        if not pick:
-            move = self.browse(move_ids)[0]
-            if move.origin:
-                sale_obj = self.env['sale.order']
-                sales = sale_obj.search([('name','=',move.origin)])
-                for sale_data in sales:
-                    date_expedition = time.strftime('%Y-%m-%d')
-                    date_livraison  = self._get_date_livraison(date_expedition)
-                    values = {
-                        'origin'             : move.origin,
-                        'company_id'         : move.company_id and move.company_id.id or False,
-                        'move_type'          : move.group_id and move.group_id.move_type or 'direct',
-                        'partner_id'         : move.partner_id.id or False,
-                        'picking_type_id'    : move.picking_type_id and move.picking_type_id.id or False,
-                        'is_sale_order_id'   : sale_data and sale_data.id or False,
-                        'is_transporteur_id' : sale_data and sale_data.is_transporteur_id.id or False,
-                        'is_date_expedition' : date_expedition,
-                        'is_date_livraison'  : date_livraison,
-                    }
-                    pick = pick_obj.create(values)
-        if pick:
-            self.write({'picking_id': pick.id})
-        return
+    # def _picking_assign(self, procurement_group, location_from, location_to):
+    #     """Assign a picking on the given move_ids, which is a list of move supposed to share the same procurement_group, location_from and location_to
+    #     (and company). Those attributes are also given as parameters.
+    #     """
+    #     cr       = self._cr
+    #     uid      = self._uid
+    #     context  = self._context
+    #     move_ids = self._ids
+    #     pick_obj = self.env["stock.picking"]
+    #     # Use a SQL query as doing with the ORM will split it in different queries with id IN (,,)
+    #     # In the next version, the locations on the picking should be stored again.
+    #     query = """
+    #         SELECT stock_picking.id FROM stock_picking, stock_move
+    #         WHERE
+    #             stock_picking.state in ('draft', 'confirmed', 'waiting') AND
+    #             stock_move.picking_id = stock_picking.id AND
+    #             stock_move.location_id = %s AND
+    #             stock_move.location_dest_id = %s AND
+    #     """
+    #     params = (location_from, location_to)
+    #     if not procurement_group:
+    #         query += "stock_picking.group_id IS NULL LIMIT 1"
+    #     else:
+    #         query += "stock_picking.group_id = %s LIMIT 1"
+    #         params += (procurement_group,)
+    #     cr.execute(query, params)
+    #     [pick] = cr.fetchone() or [None]
+    #     if not pick:
+    #         move = self.browse(move_ids)[0]
+    #         if move.origin:
+    #             sale_obj = self.env['sale.order']
+    #             sales = sale_obj.search([('name','=',move.origin)])
+    #             for sale_data in sales:
+    #                 date_expedition = time.strftime('%Y-%m-%d')
+    #                 date_livraison  = self._get_date_livraison(date_expedition)
+    #                 values = {
+    #                     'origin'             : move.origin,
+    #                     'company_id'         : move.company_id and move.company_id.id or False,
+    #                     'move_type'          : move.group_id and move.group_id.move_type or 'direct',
+    #                     'partner_id'         : move.partner_id.id or False,
+    #                     'picking_type_id'    : move.picking_type_id and move.picking_type_id.id or False,
+    #                     'sale_id'   : sale_data and sale_data.id or False,
+    #                     'is_transporteur_id' : sale_data and sale_data.is_transporteur_id.id or False,
+    #                     'is_date_expedition' : date_expedition,
+    #                     'is_date_livraison'  : date_livraison,
+    #                 }
+    #                 pick = pick_obj.create(values)
+    #     if pick:
+    #         self.write({'picking_id': pick.id})
+    #     return
     
 
-    def action_consume(self, cr, uid, ids, product_qty, location_id=False, restrict_lot_id=False, restrict_partner_id=False,
-                       consumed_for=False, context=None):
-        """ Consumed product with specific quantity from specific source location.
-        @param product_qty: Consumed/produced product quantity (= in quantity of UoM of product)
-        @param location_id: Source location
-        @param restrict_lot_id: optionnal parameter that allows to restrict the choice of quants on this specific lot
-        @param restrict_partner_id: optionnal parameter that allows to restrict the choice of quants to this specific partner
-        @param consumed_for: optionnal parameter given to this function to make the link between raw material consumed and produced product, for a better traceability
-        @return: New lines created if not everything was consumed for this line
-        """
+    # def action_consume(self, cr, uid, ids, product_qty, location_id=False, restrict_lot_id=False, restrict_partner_id=False,
+    #                    consumed_for=False, context=None):
+    #     """ Consumed product with specific quantity from specific source location.
+    #     @param product_qty: Consumed/produced product quantity (= in quantity of UoM of product)
+    #     @param location_id: Source location
+    #     @param restrict_lot_id: optionnal parameter that allows to restrict the choice of quants on this specific lot
+    #     @param restrict_partner_id: optionnal parameter that allows to restrict the choice of quants to this specific partner
+    #     @param consumed_for: optionnal parameter given to this function to make the link between raw material consumed and produced product, for a better traceability
+    #     @return: New lines created if not everything was consumed for this line
+    #     """
 
-        if context is None:
-            context = {}
-        res = []
-        production_obj = self.pool.get('mrp.production')
+    #     if context is None:
+    #         context = {}
+    #     res = []
+    #     production_obj = self.pool.get('mrp.production')
 
-        #** Test si la quantité est négative pour inverser les emplacements ****
-        inverse=False
-        if product_qty <= 0:
-            inverse=True
-            product_qty=-product_qty
+    #     #** Test si la quantité est négative pour inverser les emplacements ****
+    #     inverse=False
+    #     if product_qty <= 0:
+    #         inverse=True
+    #         product_qty=-product_qty
 
-        ids2 = []
-        for move in self.browse(cr, uid, ids, context=context):
-            if move.state == 'draft':
-                ids2.extend(self.action_confirm(cr, uid, [move.id], context=context))
-            else:
-                ids2.append(move.id)
-        prod_orders = set()
+    #     ids2 = []
+    #     for move in self.browse(cr, uid, ids, context=context):
+    #         if move.state == 'draft':
+    #             ids2.extend(self.action_confirm(cr, uid, [move.id], context=context))
+    #         else:
+    #             ids2.append(move.id)
+    #     prod_orders = set()
 
-        for move in self.browse(cr, uid, ids2, context=context):
-            prod_orders.add(move.raw_material_production_id.id or move.production_id.id)
-            move_qty = move.product_qty
+    #     for move in self.browse(cr, uid, ids2, context=context):
+    #         prod_orders.add(move.raw_material_production_id.id or move.production_id.id)
+    #         move_qty = move.product_qty
 
-            #** Si la quantité est négative, il faut augmenter le reste à produire
-            if inverse:
-                quantity_rest = move_qty + product_qty
-            else:
-                quantity_rest = move_qty - product_qty
+    #         #** Si la quantité est négative, il faut augmenter le reste à produire
+    #         if inverse:
+    #             quantity_rest = move_qty + product_qty
+    #         else:
+    #             quantity_rest = move_qty - product_qty
             
-            # Compare with numbers of move uom as we want to avoid a split with 0 qty
-            quantity_rest_uom = move.product_uom_qty - self.pool.get("product.uom")._compute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)
+    #         # Compare with numbers of move uom as we want to avoid a split with 0 qty
+    #         quantity_rest_uom = move.product_uom_qty - self.pool.get("product.uom")._compute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)
 
-            #** Si la quantité est négative, ajout de 2 fois la quantité déclarée sur le mouvement en attente
-            #** La fonction slit ci-dessous enlevera fois la quantité => Du coup, nous seront bien à +1 comme souhaité
-            if inverse and product_qty>0:
-                move.product_uom_qty=move.product_uom_qty+2*product_qty
+    #         #** Si la quantité est négative, ajout de 2 fois la quantité déclarée sur le mouvement en attente
+    #         #** La fonction slit ci-dessous enlevera fois la quantité => Du coup, nous seront bien à +1 comme souhaité
+    #         if inverse and product_qty>0:
+    #             move.product_uom_qty=move.product_uom_qty+2*product_qty
 
-            #Si la quantité restante est à 0 , mettre 0.00001 pour ne pas solder le mouvement
-            #if float_compare(quantity_rest_uom, 0, precision_rounding=move.product_uom.rounding) == 0:
-            #    quantity_rest=move.product_uom.rounding
-            #TODO : Modif du 09/09/17 pour corriger un pb de division par 0
-            if abs(quantity_rest)<0.00001:
-                quantity_rest=0.00001
+    #         #Si la quantité restante est à 0 , mettre 0.00001 pour ne pas solder le mouvement
+    #         #if float_compare(quantity_rest_uom, 0, precision_rounding=move.product_uom.rounding) == 0:
+    #         #    quantity_rest=move.product_uom.rounding
+    #         #TODO : Modif du 09/09/17 pour corriger un pb de division par 0
+    #         if abs(quantity_rest)<0.00001:
+    #             quantity_rest=0.00001
                 
-            #** Invertion des emplacements pour faire un mouvement négatif
-            if inverse:
-                mem_location_id           = move.location_id.id
-                mem_location_dest_id      = move.location_dest_id.id
-                move.location_dest_id     = mem_location_id
-                move.location_id          = mem_location_dest_id
+    #         #** Invertion des emplacements pour faire un mouvement négatif
+    #         if inverse:
+    #             mem_location_id           = move.location_id.id
+    #             mem_location_dest_id      = move.location_dest_id.id
+    #             move.location_dest_id     = mem_location_id
+    #             move.location_id          = mem_location_dest_id
 
-            #** Création d'un nouveau mouvement qui contiendra le reste à fabriquer. Le mouvement en cours contiendra la quantité déclarée
+    #         #** Création d'un nouveau mouvement qui contiendra le reste à fabriquer. Le mouvement en cours contiendra la quantité déclarée
 
-            new_mov = self.split(cr, uid, move, quantity_rest, context=context)
+    #         new_mov = self.split(cr, uid, move, quantity_rest, context=context)
 
-            if move.production_id:
-                self.write(cr, uid, [new_mov], {'production_id': move.production_id.id}, context=context)
+    #         if move.production_id:
+    #             self.write(cr, uid, [new_mov], {'production_id': move.production_id.id}, context=context)
 
-            #** Sur le nouveau mouvement qui correspond au reste à produire, il faut remettre les emplacements dans l'ordre (nouvelle invertion)
-            if inverse:
-                v={
-                    'location_id'     : mem_location_id,
-                    'location_dest_id': mem_location_dest_id,
-                }
-                self.write(cr, uid, [new_mov], v, context)
-            res.append(new_mov)
+    #         #** Sur le nouveau mouvement qui correspond au reste à produire, il faut remettre les emplacements dans l'ordre (nouvelle invertion)
+    #         if inverse:
+    #             v={
+    #                 'location_id'     : mem_location_id,
+    #                 'location_dest_id': mem_location_dest_id,
+    #             }
+    #             self.write(cr, uid, [new_mov], v, context)
+    #         res.append(new_mov)
 
-            vals = {'restrict_lot_id': restrict_lot_id,
-                    'restrict_partner_id': restrict_partner_id,
-                    'consumed_for': consumed_for}
-            self.write(cr, uid, [move.id], vals, context=context)
-
-
-        # Original moves will be the quantities consumed, so they need to be done
-        self.action_done(cr, uid, ids2, context=context)
+    #         vals = {'restrict_lot_id': restrict_lot_id,
+    #                 'restrict_partner_id': restrict_partner_id,
+    #                 'consumed_for': consumed_for}
+    #         self.write(cr, uid, [move.id], vals, context=context)
 
 
-        #TODO : J'ai commenté ces lignes le 26/12/2017 pour ne pas réserver le stock sur les OF
-        #if res:
-        #    self.action_assign(cr, uid, res, context=context)
+    #     # Original moves will be the quantities consumed, so they need to be done
+    #     self.action_done(cr, uid, ids2, context=context)
 
 
-        #TODO : J'ai désactivé ce code car cela bloquait les homes flux
-        #if prod_orders:
-        #    production_obj.signal_workflow(cr, uid, list(prod_orders), 'button_produce')
-        return res
+    #     #TODO : J'ai commenté ces lignes le 26/12/2017 pour ne pas réserver le stock sur les OF
+    #     #if res:
+    #     #    self.action_assign(cr, uid, res, context=context)
+
+
+    #     #TODO : J'ai désactivé ce code car cela bloquait les homes flux
+    #     #if prod_orders:
+    #     #    production_obj.signal_workflow(cr, uid, list(prod_orders), 'button_produce')
+    #     return res
 
 
 

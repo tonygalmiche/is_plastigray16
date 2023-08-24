@@ -64,7 +64,7 @@ class is_livraison_gefco(models.Model):
                                     inner join product_product       pp on sm.product_id=pp.id
                                     inner join product_template      pt on pp.product_tmpl_id=pt.id
                                     inner join res_partner           rp on sp.partner_id=rp.id
-                                    left outer join sale_order_line  sol on sm.is_sale_line_id=sol.id
+                                    left outer join sale_order_line  sol on sm.sale_line_id=sol.id
                 where 
                     pt.is_livraison_gefbox='t' and
                     sm.state='done' and

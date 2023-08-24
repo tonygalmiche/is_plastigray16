@@ -105,7 +105,7 @@ CREATE OR REPLACE view is_comparatif_tarif_facture AS (
         ) as prix_lot_livraison
     from account_invoice_line ail inner join account_invoice  ai on ail.invoice_id=ai.id
                                   inner join stock_move       sm on ail.is_move_id=sm.id
-                                  inner join sale_order_line sol on sm.is_sale_line_id=sol.id
+                                  inner join sale_order_line sol on sm.sale_line_id=sol.id
                                   inner join sale_order       so on sol.order_id=so.id
                                   inner join product_product  pp on ail.product_id=pp.id
                                   inner join product_template pt on pp.product_tmpl_id=pt.id
