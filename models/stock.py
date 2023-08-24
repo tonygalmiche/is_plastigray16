@@ -111,7 +111,8 @@ class stock_picking(models.Model):
     @api.depends('sale_id', 'partner_id')
     def _compute_transporteur_dates(self):
         date_expedition = time.strftime('%Y-%m-%d')
-        date_livraison  = self.env['stock.move']._get_date_livraison(date_expedition)
+        #date_livraison  = self.env['stock.move']._get_date_livraison(date_expedition)
+        date_livraison= self.env['res.partner'].get_date_livraison( self.company_id, self.partner_id, date_expedition)
         for obj in self:
             is_transporteur_id=False
             if obj.sale_id:
@@ -120,6 +121,17 @@ class stock_picking(models.Model):
             obj.is_date_expedition = date_expedition
             obj.is_date_livraison  = date_livraison
             obj.location_id        = obj.sale_id.is_source_location_id.id
+
+
+    @api.onchange('is_date_expedition')
+    def onchange_date_expedition(self):
+        date_livraison = self.is_date_expedition
+        if self.partner_id and self.company_id:
+            date_livraison= self.env['res.partner'].get_date_livraison( self.company_id, self.partner_id, self.is_date_expedition)
+        self.is_date_livraison = date_livraison
+
+
+
 
 
     def transfert_action(self):
@@ -292,13 +304,6 @@ class stock_picking(models.Model):
                 return False
         return True
 
-
-    @api.onchange('is_date_expedition')
-    def onchange_date_expedition(self):
-        date_livraison = self.is_date_expedition
-        if self.partner_id and self.company_id:
-            date_livraison= self.env['res.partner'].get_date_livraison( self.company_id, self.partner_id, self.is_date_expedition)
-        self.is_date_livraison = date_livraison
 
 
 
