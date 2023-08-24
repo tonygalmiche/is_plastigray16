@@ -945,7 +945,12 @@ class res_partner(models.Model):
             leave_dates = res_partner.get_leave_dates(company.partner_id)
             delai_transport = partner.is_delai_transport
             if delai_transport:
-                new_date=datetime.datetime.strptime(date_expedition, '%Y-%m-%d')
+
+                if type(date_expedition) is str:
+                    new_date=datetime.datetime.strptime(date_expedition, '%Y-%m-%d')
+                else:
+                    new_date = date_expedition
+
                 nb_jours=delai_transport
                 while True:
                     new_date = new_date + datetime.timedelta(days=1)

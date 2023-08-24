@@ -293,17 +293,31 @@ class stock_picking(models.Model):
         return True
 
 
-    def onchange_date_expedition(self, date_expedition, partner_id, company_id):
-        date_livraison=date_expedition
-        if partner_id and company_id:
-            partner = self.env['res.partner'].browse(partner_id)
-            company = self.env['res.company'].browse(company_id)
-            date_livraison= self.env['res.partner'].get_date_livraison(company, partner, date_expedition)
-        v = {}
-        warning = {}
-        v['is_date_livraison'] = date_livraison
-        return {'value': v,
-                'warning': warning}
+    @api.onchange('is_date_expedition')
+    def onchange_date_expedition(self):
+        date_livraison = self.is_date_expedition
+        if self.partner_id and self.company_id:
+            date_livraison= self.env['res.partner'].get_date_livraison( self.company_id, self.partner_id, self.is_date_expedition)
+        self.is_date_livraison = date_livraison
+
+
+
+    # def onchange_date_expedition(self, date_expedition, partner_id, company_id):
+    #     date_livraison=date_expedition
+    #     if partner_id and company_id:
+    #         partner = self.env['res.partner'].browse(partner_id)
+    #         company = self.env['res.company'].browse(company_id)
+    #         date_livraison= self.env['res.partner'].get_date_livraison(company, partner, date_expedition)
+    #     v = {}
+    #     warning = {}
+    #     v['is_date_livraison'] = date_livraison
+    #     return {'value': v,
+    #             'warning': warning}
+
+
+
+
+
 
 
     def action_imprimer_etiquette_reception(self):
