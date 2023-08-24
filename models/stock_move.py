@@ -55,7 +55,7 @@ class stock_move(models.Model):
             obj.is_point_dechargement = x
 
 
-    is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande', index=True)
+    is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
     is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
     is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=False, readonly=True)
     is_dosmat_ctrl_qual           = fields.Char(u'Contrôle qualité', readonly=True)

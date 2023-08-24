@@ -121,14 +121,11 @@ class is_ligne_livraison(models.Model):
                                         inner join product_template          pt on pp.product_tmpl_id=pt.id
                                         inner join res_partner               rp on sp.partner_id=rp.id
                                         left outer join is_product_famille   ipf on pt.family_id=ipf.id
-                                        left outer join sale_order           so on sp.is_sale_order_id=so.id
-                                        left outer join sale_order_line     sol on sm.is_sale_line_id=sol.id
-
-
-                    where sp.picking_type_id=2 
+                                        left outer join sale_order_line      sol on sm.sale_line_id=sol.id
+                                        left outer join sale_order           so on sol.order_id=so.id
+                    where sp.picking_type_id=2 and sm.state='done' and so.id is not null
                 )
             """)
             _logger.info('## init is_ligne_livraison en %.2fs'%(time.time()-start))
 
-# and sm.state='done' and so.id is not null
 
