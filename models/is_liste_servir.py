@@ -468,6 +468,7 @@ class is_liste_servir(models.Model):
                 "product_uom_qty": line.quantite,
                 "price_unit"     : line.prix,
                 "product_uom"    : line.product_id.uom_id.id,
+                "is_client_order_ref": line.client_order_ref,
             }
             lines.append([0,False,quotation_line]) 
 
