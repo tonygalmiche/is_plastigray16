@@ -120,7 +120,8 @@ class stock_picking(models.Model):
             obj.is_transporteur_id = is_transporteur_id
             obj.is_date_expedition = date_expedition
             obj.is_date_livraison  = date_livraison
-            obj.location_id        = obj.sale_id.is_source_location_id.id
+            if obj.sale_id.is_source_location_id:
+                obj.location_id = obj.sale_id.is_source_location_id.id
 
 
     @api.onchange('is_date_expedition')
