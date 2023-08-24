@@ -86,7 +86,6 @@ class stock_picking(models.Model):
     _inherit = "stock.picking"
     _order   = "date desc, name desc"
     
-    #location_id            = fields.Many2one(related='move_lines.location_id', relation='stock.location', string='Location', readonly=False)
     is_sale_order_id       = fields.Many2one('sale.order', 'Commande Client (champ obsolète dans Odoo 16 car remplacé par sale_id)')
     is_purchase_order_id   = fields.Many2one('purchase.order', 'Commande Fournisseur')
     is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur', compute='_compute_transporteur_dates', store=True, readonly=False)
@@ -102,6 +101,11 @@ class stock_picking(models.Model):
     is_mode_envoi_facture  = fields.Selection(related="partner_id.is_mode_envoi_facture", string="Mode d'envoi des factures")
     is_traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
     is_date_traitement_edi = fields.Datetime("Date traitement EDI")
+    invoice_state = fields.Selection([
+            ('none'      , 'Non applicable'),
+            ('2binvoiced', "À facturer"),
+            ('invoiced'  , "Facturé"),
+        ], "Facturation", default="2binvoiced")
 
 
     @api.depends('sale_id', 'partner_id')

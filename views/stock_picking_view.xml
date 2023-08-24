@@ -186,12 +186,35 @@
                     <field name="is_dosmat_ctrl_qual"           optional="show"/>
                     <field name="is_dosmat_conditions_stockage" optional="show"/>
                 </xpath>
-
-
-
-
+                <xpath expr="//page[@name='extra']/group/group/field[@name='company_id']" position="after">
+                    <field name="invoice_state"/>
+                </xpath>
              </field>
         </record>
+
+
+        <record id="is_vpicktree" model="ir.ui.view">
+            <field name="name">is_vpicktree</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after" >
+                    <field name="is_piece_jointe" invisible="1"/>
+                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
+                </field>
+                <field name="date_done" position="after" >
+                    <field name="create_date"        optional="show"/>
+                    <field name="is_date_expedition" optional="show"/>
+                    <field name="is_date_livraison"  optional="show"/>
+                    <field name="is_num_bl"          optional="show"/>
+                </field>
+                <field name="state" position="after" >
+                    <field name="invoice_state" optional="show"/>
+                </field>
+            </field>
+        </record>
+
+
 
 
         <!-- <record id="view_picking_location_inherit_form" model="ir.ui.view">
@@ -283,22 +306,9 @@
             </field>
         </record>
 
-        <record id="is_vpicktree" model="ir.ui.view">
-            <field name="name">is_vpicktree</field>
-            <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.vpicktree"/>
-            <field name="arch" type="xml">
-                <field name="name" position="after" >
-                    <field name="is_piece_jointe" invisible="1"/>
-                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
-                </field>
-                <field name="date" position="after" >
-                    <field name="is_date_expedition" />
-                    <field name="is_date_livraison" />
-                    <field name="is_num_bl" />
-                </field>
-            </field>
-        </record> -->
+    
+    
+    -->
 
 
 
