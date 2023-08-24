@@ -456,7 +456,7 @@ class is_liste_servir(models.Model):
 
             if mem!=key:
                 if vals:
-                    new_id = order_obj.create(cr, uid, vals, context=context)
+                    new_id = order_obj.create(vals)
                     vals={}
                     lines = []
                 mem=key
