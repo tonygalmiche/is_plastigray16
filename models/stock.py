@@ -95,9 +95,9 @@ class stock_picking(models.Model):
     #location_id            = fields.Many2one(related='move_lines.location_id', relation='stock.location', string='Location', readonly=False)
     is_sale_order_id       = fields.Many2one('sale.order', 'Commande Client (champ obsolète dans Odoo 16 car remplacé par sale_id)')
     is_purchase_order_id   = fields.Many2one('purchase.order', 'Commande Fournisseur')
-    is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur')
-    is_date_expedition     = fields.Date("Date d'expédition")
-    is_date_livraison      = fields.Date("Date d'arrivée chez le client")
+    is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur', compute='_compute_transporteur_dates', store=True, readonly=False)
+    is_date_expedition     = fields.Date("Date d'expédition"            , compute='_compute_transporteur_dates', store=True, readonly=False)
+    is_date_livraison      = fields.Date("Date d'arrivée chez le client", compute='_compute_transporteur_dates', store=True, readonly=False)
     is_date_livraison_vsb  = fields.Boolean('Avertissement VSB', store=False, compute='_compute_is_date_livraison_vsb', readonly=True)
     is_date_livraison_msg  = fields.Char("Avertissement"       , store=False, compute='_compute_is_date_livraison_vsb', readonly=True)
     is_num_bl              = fields.Char("N° BL fournisseur")
@@ -108,6 +108,22 @@ class stock_picking(models.Model):
     is_mode_envoi_facture  = fields.Selection(related="partner_id.is_mode_envoi_facture", string="Mode d'envoi des factures")
     is_traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
     is_date_traitement_edi = fields.Datetime("Date traitement EDI")
+
+
+    @api.depends('sale_id', 'partner_id')
+    def _compute_transporteur_dates(self):
+        date_expedition = time.strftime('%Y-%m-%d')
+        date_livraison  = self.env['stock.move']._get_date_livraison(date_expedition)
+        for obj in self:
+            is_transporteur_id=False
+            if obj.sale_id:
+                is_transporteur_id = obj.sale_id.is_transporteur_id.id
+            obj.is_transporteur_id = is_transporteur_id
+            obj.is_date_expedition = date_expedition
+            obj.is_date_livraison  = date_livraison
+
+
+
 
     
     # def preparer_action(self):
@@ -124,6 +140,10 @@ class stock_picking(models.Model):
     #                     }
     #                     lot = self.env["stock.lot"].create(vals)
     #                     line.lot_id           = lot.id
+
+
+
+
 
 
     def transfert_action(self):
