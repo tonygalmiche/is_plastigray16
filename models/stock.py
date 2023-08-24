@@ -70,12 +70,6 @@ class stock_lot(models.Model):
         return res
 
 
-# class stock_inventory(models.Model):
-#     _inherit = "stock.inventory"
-#     _order="date desc"
-
-
-
 class stock_picking_type(models.Model):
     _inherit = "stock.picking.type"
 
@@ -121,35 +115,12 @@ class stock_picking(models.Model):
             obj.is_transporteur_id = is_transporteur_id
             obj.is_date_expedition = date_expedition
             obj.is_date_livraison  = date_livraison
-
-
-
-
-    
-    # def preparer_action(self):
-    #     for obj in self:
-    #         for move in obj.move_ids:
-    #             for line in move.move_line_ids:
-    #                 line.qty_done         = line.reserved_qty
-    #                 line.location_dest_id = line.picking_id.location_dest_id.id
-    #                 if not line.lot_id:
-    #                     name=date.today().strftime('%y%m%d')+obj.name
-    #                     vals={
-    #                         "name"      : name,
-    #                         "product_id": line.product_id.id,
-    #                     }
-    #                     lot = self.env["stock.lot"].create(vals)
-    #                     line.lot_id           = lot.id
-
-
-
-
+            obj.location_id        = obj.sale_id.is_source_location_id.id
 
 
     def transfert_action(self):
         for obj in self:
             print(obj)
-
 
 
     def pj_action(self):
