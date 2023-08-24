@@ -255,5 +255,13 @@
         <field name="report_name">is_plastigray16.purchaseorder_template</field>
         <field name="report_file">is_plastigray16.purchaseorder_template</field>
     </record>
+
+    <!-- Désactiver les 2 rapports existants -->
+    <record id="purchase.report_purchase_quotation" model="ir.actions.report">
+        <field name="binding_model_id" ref=""/>
+    </record>
+    <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+        <field name="binding_model_id" ref=""/>
+    </record>
 </data>
 </odoo>

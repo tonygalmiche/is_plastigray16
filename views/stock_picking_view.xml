@@ -71,14 +71,33 @@
                         ]}"
                     />
                 </xpath>
-
-                
-                <!-- <button name="button_validate" attrs="{'invisible': ['|', ('state', 'in', ('waiting','confirmed')), ('show_validate', '=', False)]}" string="Validate" type="object" class="oe_highlight" groups="stock.group_stock_user" data-hotkey="v"/>
-                <button name="button_validate" attrs="{'invisible': ['|', ('state', 'not in', ('waiting', 'confirmed')), ('show_validate', '=', False)]}" string="Validate" type="object" groups="stock.group_stock_user" class="o_btn_validate" data-hotkey="v"/> -->
-       
-                               
-
-
+                <xpath expr="//button[@name='button_scrap']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='button_scrap']" position="after">
+                    <!-- <button 
+                        name="action_cancel" 
+                        states="assigned,confirmed,partially_available,draft,waiting" 
+                        string="Cancel Transfer" 
+                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group" 
+                        confirm="Voulez-vous vraiment annuler cette réception ?"
+                        type="object"
+                    /> -->
+                    <button 
+                        name="action_annuler_reception" 
+                        string="Annuler cette réception" 
+                        groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_rsp_achats_group" 
+                        attrs="{'invisible': ['|',('purchase_id', '=', False),('state','!=','done')]}" 
+                        confirm="Voulez-vous vraiment annuler cette réception ?"
+                        type="object"/>
+                    <!-- <button 
+                        name="desadv_action" 
+                        string="DESADV" 
+                        type="object"
+                        confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
+                        attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
+                    /> -->
+                </xpath>
                 <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>

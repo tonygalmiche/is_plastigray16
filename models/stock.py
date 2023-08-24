@@ -2,7 +2,8 @@
 
 import string
 from odoo import models,fields,api
-#from openerp.exceptions import ValidationError
+from odoo.exceptions import ValidationError
+
 #from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
 import time
 from datetime import datetime, date
@@ -341,64 +342,100 @@ class stock_picking(models.Model):
     def action_annuler_reception(self):
         cr = self._cr
         for obj in self:
+            print(obj)
 
-            #** Recherche s'il existe une réception pour cette commande ********
-            order_id=obj.is_purchase_order_id.id
-            pickings = self.env['stock.picking'].search([('is_purchase_order_id','=',order_id),('state','=','assigned')])
-            picking=False
-            for p in pickings:
-                picking=p
-            #*******************************************************************
+            #TODO : A Revoir
 
-
-            #** Recherche si les lignes de cette réception son facturées *******
-            for line in obj.move_lines:
-                if line.invoice_state=='invoiced':
-                    raise ValidationError(u'Annulation impossible car la réception est déjà facturée !')
-            #*******************************************************************
-
-
-            #** Copie de la réception pour pouvoir la réfaire ******************
-            if not picking:
-                picking=obj.copy()
-                picking.invoice_state=obj.invoice_state
-            else:
-                for move in obj.move_lines:
-                    copy=move.copy()
-                    copy.picking_id=picking.id
-            #*******************************************************************
-
-            #** Création des mouvements inverses pour annuler la réception *****
-            for move in obj.move_lines:
-                #** Recherche du lot de la réception à annuler *****************
-                lot_id=False
-                for quant in move.quant_ids:
-                    lot_id=quant.lot_id.id
-                #***************************************************************
-                copy=move.copy()
-                copy.location_id      = move.location_dest_id.id
-                copy.location_dest_id = move.location_id.id
-                copy.restrict_lot_id=lot_id
-                copy.action_done()
-            #*******************************************************************
+            # line_vals={
+            #     "location_id"     : line.location_id.id,
+            #     "location_dest_id": location_dest_id,
+            #     "lot_id"          : line.lot_id.id,
+            #     "qty_done"        : qty_done,
+            #     "product_id"      : line.product_id.id,
+            # }
+            # move_vals={
+            #     "location_id"     : line.location_id.id,
+            #     "location_dest_id": location_dest_id,
+            #     "product_uom_qty" : qty_done,
+            #     "product_id"      : line.product_id.id,
+            #     "name"            : data.description and data.description.name or line.product_id.name,
+            # }
+            # #TODO : La création du picking est facultative, mais je la garde pour avoir un exemple complet
+            # filtre=[('code', '=', 'internal')]
+            # picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
+            # picking_vals={
+            #     "picking_type_id" : picking_type_id.id,
+            #     "location_id"     : line.location_id.id,
+            #     "location_dest_id": location_dest_id,
+            #     'move_line_ids'   : [[0,False,line_vals]],
+            #     'move_ids'        : [[0,False,move_vals]],
+            # }
+            # picking=self.env['stock.picking'].create(picking_vals)
+            # picking.action_confirm()
+            # picking._action_done()
 
 
-            #** Requete directe pour annuler la réception sinon impossible *****
-            obj.invoice_state='none'
-            SQL="update stock_picking set state='cancel' where id="+str(obj.id)
-            cr.execute(SQL)
-            #*******************************************************************
+
+            # #** Recherche s'il existe une réception pour cette commande ********
+            # pickings = self.env['stock.picking'].search([('is_purchase_order_id','=',obj.purchase_id.id),('state','=','assigned')])
+            # picking=False
+            # for p in pickings:
+            #     picking=p
+
+            # print("picking=",picking)
+            # #*******************************************************************
+
+            # #** Recherche si les lignes de cette réception son facturées *******
+            # for line in obj.move_ids_without_package:
+            #     print(line)
+            #     if line.invoice_state=='invoiced':
+            #         raise ValidationError(u'Annulation impossible car la réception est déjà facturée !')
+            # #*******************************************************************
 
 
-            return {
-                'name': "Réception",
-                'view_mode': 'form',
-                'view_type': 'form',
-                'res_model': 'stock.picking',
-                'type': 'ir.actions.act_window',
-                'res_id': picking.id,
-                'domain': '[]',
-            }
+            # #** Copie de la réception pour pouvoir la réfaire ******************
+            # if not picking:
+            #     picking=obj.copy()
+            #     picking.invoice_state=obj.invoice_state
+            #     print(picking.name)
+            # # else:
+            # #     for move in obj.move_ids_without_package:
+            # #         copy=move.copy()
+            # #         copy.picking_id=picking.id
+            # #*******************************************************************
+
+            # #** Création des mouvements inverses pour annuler la réception *****
+            # for move in obj.move_ids_without_package:
+            #     #** Recherche du lot de la réception à annuler *****************
+            #     lot_id=False
+            #     for line in move.move_line_ids:
+            #         lot_id=line.lot_id.id
+            #     print(move,lot_id)
+            #     #***************************************************************
+            #     copy=move.copy()
+            #     copy.location_id      = move.location_dest_id.id
+            #     copy.location_dest_id = move.location_id.id
+            #     #copy.restrict_lot_id=lot_id
+            #     #copy.action_done()
+            # #*******************************************************************
+
+
+            # #** Requete directe pour annuler la réception sinon impossible *****
+            # obj.invoice_state='none'
+            # SQL="update stock_picking set state='cancel' where id="+str(obj.id)
+            # cr.execute(SQL)
+            # #*******************************************************************
+
+
+            # return {
+            #     'name': "Réception",
+            #     'view_mode': 'form',
+            #     'view_type': 'form',
+            #     'res_model': 'stock.picking',
+            #     'type': 'ir.actions.act_window',
+            #     'res_id': picking.id,
+            #     'domain': '[]',
+            # }
 
 
 
