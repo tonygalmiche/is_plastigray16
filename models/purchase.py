@@ -291,8 +291,8 @@ class purchase_order(models.Model):
                     for da in das:
                         date_devis=da.date_devis
                         if date_devis:
-                            d=datetime.strptime(date_devis,'%Y-%m-%d')
-                            date_devis=d.strftime('%d/%m/%Y')
+                            #d=datetime.strptime(date_devis,'%Y-%m-%d')
+                            date_devis=date_devis.strftime('%d/%m/%Y')
                         res=''
                         if da.num_devis:
                             res=res+da.num_devis
