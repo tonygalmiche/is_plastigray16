@@ -274,7 +274,7 @@ class is_demande_achat_moule(models.Model):
                     #res=order.wkf_confirm_order()
                     #order.action_picking_create() 
                     #order.wkf_approve_order()
-                    #order.button_confirm()
+                    order.button_confirm()
                     obj.sudo().state="solde"
 
 
