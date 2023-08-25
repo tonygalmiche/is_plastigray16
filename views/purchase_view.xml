@@ -52,30 +52,51 @@
             </xpath>
             <xpath expr="//field[@name='currency_id']" position="after"> -->
 
-
-
-
-
         <record id="is_purchase_order_form" model="ir.ui.view">
             <field name="name">is_purchase_order_form</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form" />
             <field name="arch" type="xml">
-
-                    <!-- class="oe_stat_button"
-                    icon="fa-truck" attrs="{'invisible':[('incoming_picking_count','=', 0)]}" groups="stock.group_stock_user">
-                    <field name="incoming_picking_count" widget="statinfo" string="Receipt" help="Incoming Shipments"/>
-                </button> -->
-
-
-
-                            <!-- <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier', 'show_vat': True}" placeholder="Name, TIN, Email, or Reference"/> -->
-
-
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: 1800px;
+                        }
+                    </style>
+                </xpath>
                 <field name="partner_id" position="attributes">
                     <attribute name="domain">[('is_company','=',True)]</attribute>
                 </field>
-
+                <xpath expr="//button[@name='print_quotation'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='print_quotation'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][3]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='confirm_reminder_mail'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_create_invoice'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_create_invoice'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_done'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_unlock'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <!-- <xpath expr="//header/button[@name='purchase_confirm']" position="after">
                     <button
                         name="envoyer_par_mail"
@@ -84,25 +105,6 @@
                         confirm="Voulez-vous vraiment envoyer ce document par mail ?"
                     />
                 </xpath> -->
-                <!-- <xpath expr="//sheet" position="attributes">
-                    <attribute name="class">oe_form_sheet_width_wider</attribute>
-                </xpath>
-                <button string="Send RFQ by Email" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </button>
-                <button string="Re-Send RFQ by Email" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </button>
-                <button string="Print RFQ" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </button>
-                <button string="Re-Print RFQ" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </button>
-                <button string="Send PO by Email" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </button> -->
-
                 <field name="date_order" position="after">
                     <field name="is_date_envoi_mail"/>
                     <field name="is_livre_a_id"  domain="[('is_company','=',True)]"/>
