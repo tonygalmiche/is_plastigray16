@@ -125,7 +125,7 @@
                 <field name="date_reception"/>
                 <field name="date_transfert"  optional="hide"/>
                 <field name="is_piece_jointe" invisible="1"/>
-                <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
+                <button title="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
                 <field name="picking_id"        optional="show"  widget="many2one_clickable"/>
                 <field name="num_bl"            optional="hide"/>
                 <field name="order_id"          optional="show"     widget="many2one_clickable"/>
