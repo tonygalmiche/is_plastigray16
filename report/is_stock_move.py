@@ -100,7 +100,7 @@ _SELECT_STOCK_MOVE="""
             sm.lot_id                          as lot_id,
             spl.is_lot_fournisseur             as lot_fournisseur,
             sm.qty                             as qty,
-            pt.uom_id                          as product_uom,
+            sm.product_uom_id                  as product_uom,
             sm.dest                            as location_dest,
             sm2.is_employee_theia_id	       as is_employee_theia_id,
             rp.name                            as login,
@@ -111,6 +111,7 @@ _SELECT_STOCK_MOVE="""
             sm.id,
             sml.lot_id          as lot_id,
             sum(sml.qty_done)         as qty,
+            sml.product_uom_id,
             sl1.name            as src,
             sl2.name            as dest
         from stock_move sm join stock_location        sl1 on sm.location_id=sl1.id
@@ -120,6 +121,7 @@ _SELECT_STOCK_MOVE="""
         group by 
             sm.id,
             sml.lot_id,
+            sml.product_uom_id,
             sl1.name,
             sl2.name
 
@@ -130,6 +132,8 @@ _SELECT_STOCK_MOVE="""
             sm.id,
             sml.lot_id          as lot_id,
             -sum(sml.qty_done)         as qty,
+            sml.product_uom_id,
+
             sl1.name            as src,
             sl2.name            as dest
         from stock_move sm join stock_location        sl1 on sm.location_dest_id=sl1.id
@@ -139,6 +143,7 @@ _SELECT_STOCK_MOVE="""
         group by 
             sm.id,
             sml.lot_id,
+            sml.product_uom_id,
             sl1.name,
             sl2.name
 
