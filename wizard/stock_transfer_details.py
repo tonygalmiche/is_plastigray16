@@ -39,6 +39,7 @@ class stock_transfer_details(models.TransientModel):
                         "picking_id"      : obj.picking_id.id,
                     }
                     move_line=self.env['stock.move.line'].create(vals)
+                    line.move_id.invoice_state='2binvoiced'
                 #**************************************************************
             obj.picking_id._action_done()
 
