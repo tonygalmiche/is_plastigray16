@@ -70,6 +70,14 @@
                             ('picking_type_id','!=',1),
                         ]}"
                     />
+                    <button 
+                        name="action_imprimer_etiquette_reception" 
+                        class="oe_highlight"
+                        string="Imprimer les étiquettes de réception" 
+                        groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_rsp_achats_group,is_plastigray16.is_magasiniers_group" 
+                        attrs="{'invisible': ['|',('purchase_id', '=', False),('state','!=','done')]}" 
+                        type="object"
+                    />
                 </xpath>
                 <xpath expr="//button[@name='button_scrap']" position="attributes">
                     <attribute name="invisible">1</attribute> 
@@ -275,15 +283,6 @@
                         confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
                         attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
                     />
-                </button>
-                <button name="do_print_picking" position="after" >
-                    <button 
-                        name="action_imprimer_etiquette_reception" 
-                        class="oe_highlight"
-                        string="Imprimer les étiquettes de réception" 
-                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group,is_plastigray.is_magasiniers_group" 
-                        attrs="{'invisible': ['|',('is_purchase_order_id', '=', False),('state','!=','done')]}" 
-                        type="object"/>
                 </button>
                 <button name="do_partial_open_barcode" position="attributes">
                     <attribute name="invisible">1</attribute>>

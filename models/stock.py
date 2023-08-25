@@ -334,7 +334,7 @@ class stock_picking(models.Model):
             soc=user.company_id.partner_id.is_code
             return {
                 'type' : 'ir.actions.act_url',
-                'url': 'http://odoo/odoo-erp/reception/Impression_Etiquette_Reception.php?Soc='+str(soc)+'&&zzCode='+str(obj.name),
+                'url': 'http://odoo16/odoo-erp/reception/Impression_Etiquette_Reception.php?Soc='+str(soc)+'&&zzCode='+str(obj.name),
                 'target': '_blank',
             }
 
