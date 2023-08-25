@@ -29,9 +29,15 @@ class stock_transfer_details(models.TransientModel):
                     if  line.is_lot_fournisseur:
                         line.lot_id.is_lot_fournisseur = line.is_lot_fournisseur
                     #** Création stock.move.line **********************************
+
+                    location_dest_id = obj.picking_id.location_dest_id.id
+                    if line.move_id.product_id.is_ctrl_rcp=='bloque':
+                        locations = self.env['stock.location'].search([('name','=','Q2')])
+                        for location in locations:
+                            location_dest_id=location.id
                     vals={
                         #"location_id"     : location_id,
-                        #"location_dest_id": location_dest_id,
+                        "location_dest_id": location_dest_id,
                         "lot_id"          : line.lot_id.id,
                         "qty_done"        : line.quantity,
                         "product_id"      : line.move_id.product_id.id,
