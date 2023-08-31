@@ -51,7 +51,8 @@
                                     <span style="font-size:12pt;" t-field="o.name"/> 
                                     <!-- <span style="font-size:12pt;" t-esc="datetime.datetime.strptime(o.date_order, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y')"/> -->
                                     <!-- <span style="font-size:12pt;" t-esc="o.date_order" t-options="{'widget': 'date', 'format': 'dd/mm/yyyy'}"/> -->
-                                    <span style="font-size:12pt;" t-field="o.date_order"/>
+                                    <!-- <span style="font-size:12pt;" t-field="o.date_order"/> -->
+                                    <span style="font-size:12pt;" t-esc="o.date_order.strftime('%d/%m/%Y')"/>
                                 </div>
                                 <div style="height:45mm;border:0px solid black">
                                     <br />
@@ -155,7 +156,7 @@
                                 <td class="text-left">         <span t-field="l.product_id.is_ind_plan"/> </td>
                                 <td class="text-left">         <span t-field="l.product_id.is_couleur"/> </td>
                                 <td class="text-left">         <span t-esc="', '.join(map(lambda x: x.name, l.taxes_id))"/></td>
-                                <td class="text-center">       <span t-field="l.date_planned"/>  </td>
+                                <td class="text-center">       <span t-esc="l.date_planned.strftime('%d/%m/%Y')"/></td>
                                 <td class="text-right nowrap"> <span t-field="l.product_qty"/>  </td>
                                 <td class="text-left">         <span t-field="l.product_uom.name"/>  </td>
                                 <td class="text-right nowrap"> <span t-field="l.price_unit"/> </td>
