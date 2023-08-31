@@ -74,10 +74,12 @@ class is_tarif_cial(models.Model):
             self.display_name = obj.product_id.is_code + " ("+str(obj.indice_prix)+")"
 
 
-    def create(self, vals):
-        res=super(is_tarif_cial, self).create(vals)
-        if res.ecart!=0:
-            raise ValidationError(u"Ecart prix de vente différent de 0 !")
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for obj in res:
+            if obj.ecart!=0:
+                raise ValidationError("Ecart prix de vente différent de 0 !")
         return res
 
 
@@ -85,7 +87,7 @@ class is_tarif_cial(models.Model):
         res=super(is_tarif_cial, self).write(vals)
         for obj in self:
             if obj.ecart!=0:
-                raise ValidationError(u"Ecart prix de vente différent de 0 !")
+                raise ValidationError("Ecart prix de vente différent de 0 !")
         return res
 
 
@@ -111,11 +113,11 @@ class is_tarif_cial(models.Model):
                 obj.type_evolution=""
 
 
-    def copy(self,vals):
-        for obj in self:
-            vals['indice_prix']=0
-            res=super(is_tarif_cial, self).copy(vals)
-            return res
+    def copy(self, default=None):
+        if not default:
+            default={}
+        default["indice_prix"] = 0
+        return super(is_tarif_cial, self).copy(default=default)
 
 
     def name_get(self):
