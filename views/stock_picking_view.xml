@@ -197,6 +197,7 @@
 
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="after">
                     <field name="invoice_state" optional="hide"/> 
+                    <!-- <field name="is_pg_stock_move_id" optional="hide" widget="many2one_clickable"/>  -->
                 </xpath>
 
                 <!-- <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="attributes">

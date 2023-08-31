@@ -173,20 +173,22 @@ class pg_stock_move(models.Model):
     _name='pg.stock.move'
     _description="Mouvemments de stocks PG"
     _order='date desc'
+    _rec_name = 'id'
 
     move_id            = fields.Many2one('stock.move', 'Mouvement'   , index=True)
     date               = fields.Datetime('Date'                      , index=True)
     product_id         = fields.Many2one('product.product', 'Article', index=True)
     category           = fields.Char('Cat'                           , index=True)
-    mold               = fields.Char('Moule / DossierF'              , index=True)
+    mold               = fields.Char('Moule', help='Moule / DossierF', index=True)
     #type_mv            = fields.Char('Type'                          , index=True)
-    #name               = fields.Char('Description')
-    picking_id         = fields.Many2one('stock.picking', 'Rcp/Liv')
+    name               = fields.Char('Description')
+    picking_id         = fields.Many2one('stock.picking', 'Rcp/Liv'  , index=True)
+    picking_type_id    = fields.Many2one('stock.picking.type', 'Type', index=True)
     lot_id             = fields.Many2one('stock.lot', 'Lot')
     lot_fournisseur    = fields.Char('Lot fournisseur')
     qty                = fields.Float('Quantité')
     product_uom        = fields.Many2one('uom.uom', 'Unité')
-    location_dest      = fields.Char("Lieu"                          , index=True)
+    location_dest_id   = fields.Many2one('stock.location', "Lieu"     , index=True)
     login              = fields.Char('Utilisateur')
     is_employee_theia_id       = fields.Many2one('hr.employee', 'Employé Theia')
     purchase_line_id           = fields.Many2one('purchase.order.line', 'Ligne commande achat')
@@ -237,11 +239,6 @@ class is_stock_move(models.Model):
             'res_model': 'is.stock.move',
             'type': 'ir.actions.act_window',
         }
-
-
-#    
-#    print("%s : %06.2fs : %s"%(now.strftime('%H:%M:%S') , (now-debut).total_seconds(), msg))
-
 
 
     def init(self):

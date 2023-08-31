@@ -57,16 +57,12 @@ class IsMrpProductionWizard(models.TransientModel):
                     "product_id"      : line.product_id.id,
                     "name"            : name,
                 }
-                print("## test 1 : move_vals =",move_vals)
-                print("## test 2 : _context =", self._context)
                 move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
 
 
-                print("## test 3",move)
 
                 move._action_confirm()
 
-                print(move,location_dest_id)
 
 
                 if product_qty<0:
@@ -111,7 +107,6 @@ class IsMrpProductionWizard(models.TransientModel):
                 "product_id"      : product_id,
             }
 
-            print(line_vals)
 
 
             move_vals={
@@ -124,12 +119,12 @@ class IsMrpProductionWizard(models.TransientModel):
                 "move_line_ids"   : [[0,False,line_vals]],
             }
 
-            print(move_vals)
 
 
             move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
-            move._action_done()
             move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
+            move._action_done()
+            #move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
             move.production_id._compute_qt_reste()
             #******************************************************************
 
@@ -311,17 +306,17 @@ class MrpProduction(models.Model):
 
     @api.depends('product_id', 'bom_id', 'product_qty', 'product_uom_id', 'location_dest_id', 'date_planned_finished')
     def _compute_move_finished_ids(self):
-        print("_compute_move_finished_ids => Désactive cette fonction standard, car il n'est pas utile de mettre à jour le champ move_finished_ids",self)
-
+        "Désactive cette fonction standard, car il n'est pas utile de mettre à jour le champ move_finished_ids"
+        return True
 
     @api.depends('company_id', 'bom_id', 'product_id', 'product_qty', 'product_uom_id', 'location_src_id', 'date_planned_start')
     def _compute_move_raw_ids(self):
-        print("_compute_move_raw_ids => Désactive cette fonction standard, car il n'est pas utile de générer des mouvements de stock de réservation",self)
+        "Désactive cette fonction standard, car il n'est pas utile de générer des mouvements de stock de réservation"
+        return True
 
 
     # @api.onchange('product_id', 'product_qty',)
     # def compute_move_lines_composants_prevus(self):
-    #     print("### TEST compute_move_lines_composants_prevus ###", self.move_lines_composants_prevus, self.move_raw_ids)
     #     self.move_lines_composants_prevus = self.move_raw_ids.filtered(lambda wo: wo.state in ['draft', 'assigned'])
 
 
@@ -375,7 +370,6 @@ class MrpProduction(models.Model):
 
     def init_nomenclature_action(self):
         for obj in self:
-            #print("init_nomenclature_action",obj.name)
             if obj.state=='draft' and not obj.is_bom_line_ids:
                 obj._compute_is_bom_line_ids()
         return True
@@ -384,7 +378,6 @@ class MrpProduction(models.Model):
 
     def init_qt_reste_action(self):
         for obj in self:
-            #print("init_qt_reste_action",obj.name)
             obj._compute_qt_reste()
         return True
 
@@ -471,7 +464,6 @@ class MrpProduction(models.Model):
 
 
     # def action_produce(self, production_id, qty, production_mode, wiz=False, is_employee_theia_id=False):
-    #     print("#### action_produce ###",self, production_id, qty, production_mode)
     #     stock_mov_obj = self.env['stock.move']
     #     uom_obj       = self.env["product.uom"]
     #     production    = self.browse(production_id)

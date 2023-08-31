@@ -15,7 +15,8 @@
                         <field name="category" />
                         <field name="mold" />
                         <!-- <field name="type_mv" /> -->
-                        <!-- <field name="name" /> -->
+                        <field name="name" />
+                        <field name="picking_type_id" />
                         <field name="picking_id" />
                         <field name="purchase_line_id" />
                         <field name="raw_material_production_id" />
@@ -25,7 +26,7 @@
                         <field name="lot_fournisseur" />
                         <field name="qty" />
                         <field name="product_uom" />
-                        <field name="location_dest" />
+                        <field name="location_dest_id" />
                         <field name="login" />
                         <field name="is_employee_theia_id" />
                         <field name="move_id" />
@@ -40,20 +41,22 @@
         <field name="arch" type="xml">
             <!-- colors="red:qty &lt; 0" -->
             <tree create="false" decoration-danger="qty &lt; 0">
-                <field name="date" />
-                <field name="product_id" widget="many2one_clickable"/>
-                <field name="category" />
-                <field name="mold" />
+                <field name="date"                 optional="show"/>
+                <field name="product_id"           optional="show" widget="many2one_clickable"/>
+                <field name="category"             optional="show" />
+                <field name="mold"                 optional="show" />
                 <!-- <field name="type_mv" /> -->
-                <!-- <field name="name" /> -->
-                <field name="picking_id" widget="many2one_clickable"/>
-                <field name="lot_id"     widget="many2one_clickable"/>
-                <field name="lot_fournisseur" />
-                <field name="qty" sum="Total"/>
-                <field name="product_uom" />
-                <field name="location_dest" />
-                <field name="login" />
-                <field name="is_employee_theia_id" />
+                <field name="name"                  optional="show"/>
+                <field name="picking_type_id"       optional="show"/>
+                <field name="production_id"         optional="show" widget="many2one_clickable"/>
+                <field name="picking_id"            optional="show" widget="many2one_clickable"/>
+                <field name="lot_id"                optional="show"    widget="many2one_clickable"/>
+                <field name="lot_fournisseur"       optional="show" />
+                <field name="qty"                   optional="show" sum="Total"/>
+                <field name="product_uom"           optional="show" />
+                <field name="location_dest_id"      optional="show" />
+                <field name="login"                 optional="show" />
+                <field name="is_employee_theia_id"  optional="show" />
            </tree>
         </field>
     </record>
@@ -65,21 +68,32 @@
                 <field name="product_id" />
                 <field name="category" />
                 <field name="mold" />
-                <!-- <field name="type_mv" /> -->
-                <!-- <field name="name" /> -->
+                <field name="picking_type_id"/>
+                <field name="production_id"/>
                 <field name="picking_id" />
                 <field name="lot_id" />
                 <field name="lot_fournisseur" />
-                <field name="location_dest" />
+                <field name="location_dest_id"/>
                 <field name="login" />
-                <!-- <group string="Regrouper par">
-                    <filter string="Article" context="{'group_by': 'product_id'}"/>
-                    <filter string="Lieu"    context="{'group_by': 'location_dest'}"/>
-                    <filter string="Mois"    context="{'group_by': 'date:month'}"/>
-                </group> -->
+                <group string="Regrouper par">
+                    <filter string="Article" name="group_by_product_id"       context="{'group_by': 'product_id'}"/>
+                    <filter string="Lieu"    name="group_by_location_dest_id" context="{'group_by': 'location_dest_id'}"/>
+                    <filter string="Date"    name="group_by_date"             context="{'group_by': 'date'}"/>
+                </group>
             </search>
         </field>
     </record>
+
+
+    <!-- <group expand="0" string="Regrouper par...">
+        <filter string="Client/Fournisseur" name="group_by_partner_id" context="{'group_by':'partner_id'}"/>
+        <filter string="Article"            name="group_by_product_id" context="{'group_by':'product_id'}"/>
+        <filter string="Moule"              name="group_by_is_mold_dossierf" context="{'group_by':'is_mold_dossierf'}"/>
+        <filter string="Segment"            name="group_by_segment_id" context="{'group_by':'segment_id'}"/>
+        <filter string="Catégorie"          name="group_by_is_category_id" context="{'group_by':'is_category_id'}"/> -->
+
+
+
     <record id="pg_stock_move_action" model="ir.actions.act_window">
         <field name="name">Mouvements de stocks (new)</field>
         <field name="res_model">pg.stock.move</field>

@@ -38,6 +38,25 @@
             </field>
         </record> 
 
+
+        <!-- <record id="is_ctrl_budget_tdb_saisie_action_server" model="ir.actions.server">
+            <field name="name">Initialiser les lignes</field>
+           <field name="model_id" ref="model_is_ctrl_budget_tdb_saisie"/>
+           <field name="binding_model_id" ref="model_is_ctrl_budget_tdb_saisie"/>
+           <field name="binding_view_types">list,form</field>
+           <field name="state">code</field>
+           <field name="code">action = records.initialiser_lignes()</field>
+       </record>
+    -->
+
+        <!-- stock.move -->
+        <record id="create_pg_stock_move_action_serveur" model="ir.actions.server">
+            <field name="name">Créer Mouvement PG</field>
+           <field name="model_id" ref="model_stock_move"/>
+           <field name="binding_model_id" ref="model_stock_move"/> 
+           <field name="state">code</field>
+           <field name="code">records.create_pg_stock_move_action()</field>
+        </record>
         <record id="is_view_move_form" model="ir.ui.view">
             <field name="name">is_view_move_form</field>
             <field name="model">stock.move</field>
@@ -45,6 +64,10 @@
             <field name="arch" type="xml">
                 <xpath expr="//header/field[@name='state']" position="before">
                     <button string="Valider" name="is_valider_action" type="object" states="draft" class="oe_highlight" />
+
+                    <button string="Créer Mouvement PG" name="create_pg_stock_move_action" type="object" groups="base.group_no_one" states="done"/>
+
+
                     <!-- <button string="Raz"          name="is_raz_action"          type="object" groups="base.group_no_one" states="futur"/>
                     <button string="Confirm"      name="is_confirm_action"      type="object" groups="base.group_no_one"/>
                     <button string="Asign"        name="is_assign_action"       type="object" groups="base.group_no_one"/> -->
@@ -69,6 +92,7 @@
                     <field name="is_employee_theia_id"       attrs="{'invisible':[('is_employee_theia_id','=',False)]}"/>
                     <field name="create_uid"/>
                     <field name="write_uid"/>
+                    <!-- <field name="is_pg_stock_move_id"/> -->
                 </field>
                 <group name="origin_grp" position="after">
                     <group string="Amortissement Moule" groups="base.group_no_one">
@@ -83,14 +107,14 @@
                 </group>
                 <group name="linked_group" position="before">
                     <field name="move_line_ids" readonly="1">
-                        <tree>
+                        <tree limit="200">
                             <field name="product_id"/>
                             <field name="location_id"      optional="show"/>
                             <field name="location_dest_id" optional="show"/>
                             <field name="lot_id"           optional="show"/>
                             <field name="lot_name"         optional="hide"/>
                             <field name="reserved_uom_qty" optional="show"/>
-                            <field name="qty_done"         optional="show"/>
+                            <field name="qty_done"         optional="show" sum="Total"/>
                             <field name="product_uom_id"   optional="show"/>
                             <field name="is_locked"        optional="hide"/>
                             <field name="lots_visible"     optional="hide"/>
@@ -179,6 +203,7 @@
                     <field name="picking_type_id" optional="hide"/>
                     <field name="picking_id" optional="hide"/>
                     <field name="origin" optional="hide"/>
+                    <!-- <field name="is_pg_stock_move_id" optional="hide"/> -->
                     <button 
                         name="action_show_details" 
                         type="object" title="Show Details" icon="fa-list" 

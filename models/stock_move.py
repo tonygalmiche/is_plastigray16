@@ -45,16 +45,13 @@ class stock_move(models.Model):
                     ('is_type_commande'      , '=', 'ouverte'),
                     ('state'                 , '=', 'draft'),
                 ]
-
-                print(filtre)
-
-
                 orders = self.env['sale.order'].search(filtre)
                 for order in orders:
                     x = order.is_point_dechargement
             obj.is_point_dechargement = x
 
 
+    #is_pg_stock_move_id           = fields.Many2one('pg.stock.move', 'Mouvement PG', compute='_compute_is_pg_stock_move_id', store=True, readonly=True)
     is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16 et remplacé par sale_line_id)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
     is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
     is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=False, readonly=True)
@@ -133,6 +130,93 @@ class stock_move(models.Model):
     #     return res
 
 
+    # def _action_confirm(self, merge=True, merge_into=False):
+    #     res = super(stock_move, self)._action_confirm(merge=merge, merge_into=merge_into)
+    #     self.create_pg_stock_move()
+    #     return res
+
+
+    def _action_done(self, cancel_backorder=False):
+        res = super(stock_move, self)._action_done(cancel_backorder=cancel_backorder)
+        self.create_pg_stock_move()
+        return res
+
+
+    def create_pg_stock_move_action(self):
+        for obj in self:
+            self.env['pg.stock.move'].search([('move_id', '=', obj.id)]).unlink()
+        self.create_pg_stock_move()
+        return True
+
+
+    #TODO : A revoir => Ne pas mettre de lien vers pg_stock_move depuis stock_move
+    #@api.depends('product_id','quantity_done', 'state', 'picking_id')
+    def create_pg_stock_move(self):
+        for obj in self:
+            move_id=False
+            if obj.state=='done':
+
+                #** Regroupement des lignes identiques + somme qty ************
+                dict={}
+                for line in obj.move_line_ids:
+                    key = "%s-%s-%s"%(line.lot_id,line.location_id,line.location_dest_id)
+                    if key not in dict:
+                        dict[key]={}
+                        dict[key]["line"]=line
+                        dict[key]["qty"]=0
+                    dict[key]["qty"]+=line.qty_done
+                #**************************************************************
+                for key in dict:
+                    line = dict[key]["line"]
+                    qty  = dict[key]["qty"]
+                    location_dest_id = line.location_dest_id
+                    if line.location_id.usage=="internal" and line.location_dest_id.usage!="internal":
+                        location_dest_id = line.location_id
+                        qty=-qty
+                    #** Convertire la qty dans l'unité de stock ***************
+                    product_uom = obj.product_id.uom_id
+                    if obj.product_uom!=obj.product_id.uom_id:
+                        qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
+                    #**********************************************************
+
+
+                    print("####",obj.product_id.is_code, obj.id, obj.state, obj.picking_id, obj.production_id.name, obj.raw_material_production_id.name)
+
+                    vals={
+                        "move_id": obj.id,
+                        "date": obj.date,
+                        "product_id": obj.product_id.id,
+                        "name": obj.name,
+                        "category": obj.product_id.is_category_id.name,
+                        "mold": obj.product_id.is_mold_dossierf,
+                        "picking_type_id": obj.picking_type_id.id,
+                        "picking_id": obj.picking_id.id,
+                        "lot_id": line.lot_id.id,
+                        "lot_fournisseur": line.lot_id.is_lot_fournisseur,
+                        "qty": qty,
+                        "product_uom": product_uom.id,
+                        "location_dest_id": location_dest_id.id,
+                        "login": obj.write_uid.partner_id.name,
+                        "is_employee_theia_id": obj.is_employee_theia_id.id,
+                        "purchase_line_id": obj.purchase_line_id.id,
+                        "production_id": obj.production_id.id or obj.raw_material_production_id.id,
+                        "sale_line_id": obj.sale_line_id.id,
+                    }
+                    self._create_pg_stock_move(vals)
+
+                    if line.location_id.usage=="internal" and line.location_dest_id.usage=="internal":
+                        vals["location_dest_id"] = line.location_id.id
+                        vals["qty"]              = -qty
+                        self._create_pg_stock_move(vals)
+
+
+
+    def _create_pg_stock_move(self, vals):
+        self.env['pg.stock.move'].create(vals)
+
+
+
+
     def access_stock_move_action(self):
         for obj in self:
             res= {
@@ -147,8 +231,6 @@ class stock_move(models.Model):
 
     def is_valider_action(self):
         for obj in self:
-            print(obj)
-
             line_vals={
                 "location_id"     : obj.location_id.id,
                 "location_dest_id": obj.location_dest_id.id,
@@ -157,10 +239,6 @@ class stock_move(models.Model):
                 "product_id"      : obj.product_id.id,
                 "move_id"         : obj.id,
             }
-
-
-
-
             filtre=[('code', '=', 'internal')]
             picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
             picking_vals={
@@ -176,8 +254,6 @@ class stock_move(models.Model):
             picking._action_done()
 
 
-
-
     def is_raz_action(self):
         for obj in self:
             obj.move_line_ids.unlink()
@@ -185,7 +261,6 @@ class stock_move(models.Model):
 
     def is_confirm_action(self):
         for obj in self:
-            print(obj)
             obj._action_confirm()
             obj.quantity_done = obj.product_uom_qty
 
@@ -193,7 +268,6 @@ class stock_move(models.Model):
     def is_assign_action(self):
         for obj in self:
             obj._action_assign()
-            print(obj)
 
 
     def is_fait_reserve_action(self):
@@ -225,15 +299,12 @@ class stock_move(models.Model):
 
     def is_done_action(self):
         for obj in self:
-            print(obj)
             obj._action_done()
             for line in obj.move_line_ids:
                 line._action_done()
-
             #obj._action_assign(force_qty=True)
             # # obj._action_confirm()
             # # obj._action_assign(force_qty=True)
-            # # print(obj,obj.state)
             # obj.move_line_ids.unlink()
             # obj._action_confirm()
             # for line in obj.move_line_ids:
