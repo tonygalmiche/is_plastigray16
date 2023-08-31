@@ -442,3 +442,7 @@ access_stock_transfer_details_items,access_stock_transfer_details_items,model_st
 
 access_ir_model_all,access_ir_model_all,base.model_ir_model,base.group_user,1,0,0,0
 access_ir_model_fields_all,access_ir_model_fields_all,base.model_ir_model_fields,base.group_user,1,0,0,0
+
+access_mrp_document_base,access_mrp_document_base,mrp.model_mrp_document,base.group_user,1,1,1,1
+
+
