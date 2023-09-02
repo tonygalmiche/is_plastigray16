@@ -691,9 +691,6 @@ class is_cde_ouverte_fournisseur(models.Model):
                         ('state'           ,'not in', ('done','cancel')),
                     ]
                     moves=self.env['stock.move'].search(where)
-
-                    print(product.product_id.is_code,row.order_id.name,moves)
-
                     #***********************************************************
                     if len(moves)>0:
                         imprimer_commande=False
