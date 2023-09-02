@@ -92,6 +92,11 @@ class purchase_order(models.Model):
     location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
 
 
+    def _add_supplier_to_product(self):
+        # Désactivation de cette fonction qui ajoute automatiquement un fournisseur à la fiche article lors de la validation de la commande
+        return True
+
+
     def button_confirm(self):
         res = super().button_confirm()
         if self.location_id:
