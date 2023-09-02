@@ -149,10 +149,18 @@ class stock_move(models.Model):
         return True
 
 
+    # def create_pg_stock_move_all(self):
+    #     #self.env['stock.move'].search([('state', '=', 'done')], order="date", limit=100).create_pg_stock_move()
+    #     self.env['stock.move'].search([('state', '=', 'done')], order="date").create_pg_stock_move()
+    #     return True
+
+
     #TODO : A revoir => Ne pas mettre de lien vers pg_stock_move depuis stock_move
     #@api.depends('product_id','quantity_done', 'state', 'picking_id')
     def create_pg_stock_move(self):
         for obj in self:
+            print(obj.date)
+
             move_id=False
             if obj.state=='done':
 
@@ -176,11 +184,9 @@ class stock_move(models.Model):
                     #** Convertire la qty dans l'unité de stock ***************
                     product_uom = obj.product_id.uom_id
                     if obj.product_uom!=obj.product_id.uom_id:
-                        qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
+                        if obj.product_uom.category_id==obj.product_id.uom_id.category_id:
+                            qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
                     #**********************************************************
-
-
-                    print("####",obj.product_id.is_code, obj.id, obj.state, obj.picking_id, obj.production_id.name, obj.raw_material_production_id.name)
 
                     vals={
                         "move_id": obj.id,
@@ -208,7 +214,7 @@ class stock_move(models.Model):
                         vals["location_dest_id"] = line.location_id.id
                         vals["qty"]              = -qty
                         self._create_pg_stock_move(vals)
-
+        return True
 
 
     def _create_pg_stock_move(self, vals):

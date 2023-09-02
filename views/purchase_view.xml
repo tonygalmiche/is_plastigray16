@@ -140,12 +140,10 @@
                     <field name="is_demandeur_id" />
                     <field name="pricelist_id"/>
                 </field>
-                <field name="date_planned" position="after">
-                    <field name="is_date_confirmation" />
-                    <field name="is_commentaire" />
-                </field>
                 <field name="incoterm_id" position="after">
                     <field name="is_lieu"/>
+                    <field name="is_date_confirmation" />
+                    <field name="is_commentaire" />
                 </field>
             </field>
         </record> 
