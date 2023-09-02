@@ -138,6 +138,7 @@ type_commande_list=[
 
 class is_cde_ouverte_fournisseur(models.Model):
     _name='is.cde.ouverte.fournisseur'
+    _inherit=['mail.thread']
     _description="is_cde_ouverte_fournisseur"
     _order='partner_id'
 
@@ -477,7 +478,7 @@ class is_cde_ouverte_fournisseur(models.Model):
         for obj in self:
             self.set_histo(obj.id, u'Impression Relance fournisseur')
         #return self.env['report'].get_action(self, 'is_plastigray16.report_relance_fournisseur')
-        return self.env.ref('is_plastigray16.report_relance_fournisseur').report_action(self)
+        return self.env.ref('is_plastigray16.relance_fournisseur_report').report_action(self)
 
 
     def mail_relance(self):
@@ -491,7 +492,7 @@ class is_cde_ouverte_fournisseur(models.Model):
 
             # ** Creation ou modification de la pièce jointe *******************
             #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_relance_fournisseur')
-            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_relance_fournisseur',[obj.id])[0]
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.relance_fournisseur_report',[obj.id])[0]
             vals = {
                 'name':        name,
                 #'datas_fname': name,
@@ -674,13 +675,13 @@ class is_cde_ouverte_fournisseur(models.Model):
                         }
                         line=self.env['is.cde.ouverte.fournisseur.line'].create(vals)
                 where=[
-                    ('state'       ,'=', 'confirmed'),
+                    ('state'       ,'in', ['confirmed','purchase']),
                     ('product_id'  ,'=', product.product_id.id),
                     ('partner_id'  ,'=', obj.partner_id.id), 
                 ]
                 now  = datetime.date.today()                      # Date du jour
                 date_approve = now + datetime.timedelta(days=-3)  # Date -3 jours : TODO Passage de 7 à 3 jours le 28/04/2017
-                date_approve = date_approve.strftime('%Y-%m-%d')
+                #date_approve = date_approve.strftime('%Y-%m-%d')
                 nb_ferme_imprime=0
                 attente_confirmation=0
                 for row in self.env['purchase.order.line'].search(where):
@@ -690,10 +691,13 @@ class is_cde_ouverte_fournisseur(models.Model):
                         ('state'           ,'not in', ('done','cancel')),
                     ]
                     moves=self.env['stock.move'].search(where)
+
+                    print(product.product_id.is_code,row.order_id.name,moves)
+
                     #***********************************************************
                     if len(moves)>0:
                         imprimer_commande=False
-                        if row.order_id.date_approve>date_approve:
+                        if row.order_id.date_approve.date()>date_approve:
                             imprimer_commande=True
                             nb_ferme_imprime=nb_ferme_imprime+1
 
