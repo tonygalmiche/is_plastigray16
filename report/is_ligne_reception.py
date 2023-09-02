@@ -39,7 +39,7 @@ class is_ligne_reception(models.Model):
     date_reception       = fields.Date('Date réception')
     date_mouvement       = fields.Datetime('Date mouvement')
     lot_fournisseur      = fields.Char('Lot fournisseur')
-    is_dosmat_ctrl_qual  = fields.Char('Contrôle qualité Dynacase')
+    is_dosmat_ctrl_qual  = fields.Char('Contrôle qualité')
     is_dosmat_conditions_stockage = fields.Char(u'Conditions de stockage')
     user_id              = fields.Many2one('res.users', 'Utilisateur')
     move_id              = fields.Many2one('stock.move', 'Mouvement de stock')

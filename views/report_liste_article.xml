@@ -55,7 +55,7 @@
                 <div class="header">
                     <div class="row">
                         <div class="col-xs-12  text-center">
-                            <h1>Liste des articles du <t t-usertime="%d/%m/%Y"/> à <t t-usertime="%H"/>H</h1>
+                            <h1>Liste des articles du <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> à <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%H')"/>H</h1>
                         </div>
                     </div>
                 </div>

@@ -122,7 +122,9 @@
                         </table>
                         <table class="table table-condensed" width="100%" style="border: 2px solid black;border-collapse: collapse;">
                             <tr>
-                                <td class="text-left" style="border-left: 2px solid black;" width="20%"><b>Date :</b><span t-usertime="%Y-%m-%d %H-%M-%S" /></td>
+                                <td class="text-left" style="border-left: 2px solid black;" width="20%"><b>Date :</b>
+                                    <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H-%M-%S')"/>
+                                </td>
                                 <td class="text-left" style="border-left: 2px solid black;" width="30%"><b>Date : </b></td>
                                 <td class="text-left" style="border-left: 2px solid black;" width="20%"><b>Date :</b></td>
                                 <td class="text-left" style="border-left: 2px solid black;" width="20%"><b>Service Achat :</b></td>
@@ -168,4 +170,3 @@
 
 </data>
 </openerp>
-

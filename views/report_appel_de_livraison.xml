@@ -34,7 +34,7 @@
                                     <t t-if="o.type_commande=='ouverte'">
                                         <span>Appel de livraison sur contrat N°</span>
                                         <span style="font-size:12pt;" t-field="o.name"/>
-                                        du <t t-usertime="%d/%m/%Y"/> à <t t-usertime="%H"/>H<br />
+                                        du <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> à <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%H')"/>H<br />
                                     </t>
                                     <t t-if="o.type_commande!='ouverte'">
                                         <span>Horizon des besoins</span>

@@ -63,7 +63,7 @@
                         <div class="titre text-center">
                             <span>Liste de prix </span>
                             <span t-field="o.pricelist_id.name"/> version <span t-field="o.name"/>
-                            du <t t-usertime="%d/%m/%Y"/> à <t t-usertime="%H"/>H
+                            du <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> à <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%H')"/>H
                         </div>
                     </div>
                 </div>
