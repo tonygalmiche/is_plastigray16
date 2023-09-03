@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
+from odoo.tools import float_compare, float_round, format_datetime
 
 
 class mrp_bom(models.Model):
@@ -236,6 +237,14 @@ class mrp_production_workcenter_line(models.Model):
     is_date_tri      = fields.Datetime('Date tri', help="Date de tri du planning")
 
 
+    def _get_duration_expected(self, alternative_workcenter=False, ratio=1):
+        self.ensure_one()
+        qty_production = self.production_id.product_uom_id._compute_quantity(self.qty_production, self.production_id.product_id.uom_id)
+        capacity = self.workcenter_id._get_capacity(self.product_id)
+        cycle_number = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
+        time_cycle = self.operation_id.time_cycle/60 # J'ai ajouté cette division par 60 sinon le résultat n'était pas en H
+        duration = self.workcenter_id._get_expected_duration(self.product_id) + cycle_number * time_cycle * 100.0 / self.workcenter_id.time_efficiency
+        return duration
 
 
 # class mrp_production_workcenter_line(osv.osv):

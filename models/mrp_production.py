@@ -190,8 +190,18 @@ class IsMrpProductionBom(models.Model):
     production_id   = fields.Many2one('mrp.production', 'Ordre de production', required=True, ondelete='cascade')
     sequence        = fields.Integer("Séquence")
     product_id      = fields.Many2one("product.product", "Article", required=True)
-    product_qty     = fields.Float("Quantité", required=True, digits='Product Unit of Measure')
+    product_qty     = fields.Float("Qt nomenclature", required=True, digits='Product Unit of Measure')
     product_uom_id  = fields.Many2one("uom.uom", "Unité", required=True)
+    qt_reste        = fields.Float("Qt reste", digits='Product Unit of Measure', compute="_compute_qt_reste")
+
+
+    @api.depends('product_qty')
+    def _compute_qt_reste(self):
+        for obj in self:
+            qt=obj.production_id.is_qt_reste_uom*obj.product_qty
+            obj.qt_reste=qt
+
+
 
 
     # def action_product_forecast_report(self):
@@ -276,6 +286,7 @@ class MrpProduction(models.Model):
                 #     }
                 #     bom_lines.append([0, False, vals])
             obj.is_bom_line_ids = bom_lines
+            #obj._compute_workorder_ids()
 
 
     product_qty = fields.Float('Qt à fabriquer', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')
@@ -362,10 +373,12 @@ class MrpProduction(models.Model):
                         workorders_list += [Command.update(workorders_dict[workorder_values['operation_id']].id, workorder_values)]
                     else:
                         # add new entries
-                        workorders_list += [Command.create(workorder_values)]
+                        workorders_list += [Command.create(workorder_values)]                    
                 production.workorder_ids = workorders_list
             else:
                 production.workorder_ids = [Command.delete(wo.id) for wo in production.workorder_ids.filtered(lambda wo: wo.operation_id)]
+
+
 
 
     def init_nomenclature_action(self):
