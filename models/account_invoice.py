@@ -84,6 +84,41 @@ class account_invoice(models.Model):
     is_date_envoi_mail = fields.Datetime("Mail envoyé le", readonly=False)
     is_masse_nette     = fields.Float("Masse nette (Kg)")
 
+
+    def _compute_name(self):
+        res=super()._compute_name()
+        for obj in self:
+            for line in obj.invoice_line_ids:
+                state="2binvoiced"
+                if obj.state=="posted":
+                    state="invoiced"
+                line.is_move_id.invoice_state = state
+                print(line.is_move_id.invoice_state)
+        return res
+
+
+    # invoice_state = fields.Selection([
+    #     ('2binvoiced', u'à Facturer'),
+    #     ('none'      , u'Annulé'),
+    #     ('invoiced'  , u'Facturé'),
+
+
+
+
+    # @api.depends('state')
+    # def pg_onchange_state(self):
+
+    #     print("pg_onchange_state",self)
+
+
+
+    #     for obj in self:
+    #         print("pg_onchange_state",self)
+    #         for line in obj.invoice_line_ids:
+    #             print(obj, obj.state, line, line.is_move_id.invoice_state)
+
+
+
     def _compute(self):
         for obj in self:
             escompte = tva = 0
@@ -628,46 +663,53 @@ class account_invoice_line(models.Model):
     is_montant_matiere     = fields.Float('Montant matière livrée'    , digits=(14,2), store=True, compute='_compute_amortissement_moule')
 
 
-    def product_id_change(self, product_id, uom_id, qty=0, name='', type='out_invoice',
-            partner_id=False, fposition_id=False, price_unit=False, currency_id=False,
-            company_id=None):
 
-        #** Recherche lot pour retrouver le prix *******************************
-        partner = self.env['res.partner'].browse(partner_id)
-        lot_livraison=0
-        is_section_analytique_id=False
-        if product_id:
-            product = self.env['product.product'].browse(product_id)
-            lot_livraison=self.env['product.template'].get_lot_livraison(product.product_tmpl_id,partner)
-            is_section_analytique_id=product.is_section_analytique_id.id
-            if type=='in_invoice':
-                is_section_analytique_id=product.is_section_analytique_ha_id.id
-        #***********************************************************************
+    @api.onchange('product_id')
+    def pg_onchange_product_id(self):
+        print("pg_onchange_product_id",self)
+        self.is_section_analytique_id = self.product_id.is_section_analytique_id.id
 
-        res=super(account_invoice_line, self).product_id_change(product_id, uom_id, lot_livraison, name, type,
-            partner_id, fposition_id, price_unit, currency_id,company_id)
-        res['value']['is_section_analytique_id']=is_section_analytique_id
 
-        #** Recherche prix dans liste de prix pour la date et qt ***************
-        pricelist = partner.property_product_pricelist.id
-        if product_id:
-            date = time.strftime('%Y-%m-%d',time.gmtime()) # Date du jour
-            if pricelist:
-                ctx = dict(
-                    self._context,
-                    uom=uom_id,
-                    date=date,
-                )
-                price_unit = self.pool.get('product.pricelist').price_get(self._cr, self._uid, [pricelist],
-                        product_id, lot_livraison or 1.0, partner_id, ctx)[pricelist]
-            res['value']['price_unit']=price_unit
-        #***********************************************************************
+    # def product_id_change(self, product_id, uom_id, qty=0, name='', type='out_invoice',
+    #         partner_id=False, fposition_id=False, price_unit=False, currency_id=False,
+    #         company_id=None):
 
-        #** Ajout du code_pg dans la description *******************************
-        if product_id:
-            product = self.env['product.product'].browse(product_id)
-            res['value']['name']=product.is_code+u' '+product.name
+    #     #** Recherche lot pour retrouver le prix *******************************
+    #     partner = self.env['res.partner'].browse(partner_id)
+    #     lot_livraison=0
+    #     is_section_analytique_id=False
+    #     if product_id:
+    #         product = self.env['product.product'].browse(product_id)
+    #         lot_livraison=self.env['product.template'].get_lot_livraison(product.product_tmpl_id,partner)
+    #         is_section_analytique_id=product.is_section_analytique_id.id
+    #         if type=='in_invoice':
+    #             is_section_analytique_id=product.is_section_analytique_ha_id.id
+    #     #***********************************************************************
 
-        return res
+    #     res=super(account_invoice_line, self).product_id_change(product_id, uom_id, lot_livraison, name, type,
+    #         partner_id, fposition_id, price_unit, currency_id,company_id)
+    #     res['value']['is_section_analytique_id']=is_section_analytique_id
+
+    #     #** Recherche prix dans liste de prix pour la date et qt ***************
+    #     pricelist = partner.property_product_pricelist.id
+    #     if product_id:
+    #         date = time.strftime('%Y-%m-%d',time.gmtime()) # Date du jour
+    #         if pricelist:
+    #             ctx = dict(
+    #                 self._context,
+    #                 uom=uom_id,
+    #                 date=date,
+    #             )
+    #             price_unit = self.pool.get('product.pricelist').price_get(self._cr, self._uid, [pricelist],
+    #                     product_id, lot_livraison or 1.0, partner_id, ctx)[pricelist]
+    #         res['value']['price_unit']=price_unit
+    #     #***********************************************************************
+
+    #     #** Ajout du code_pg dans la description *******************************
+    #     if product_id:
+    #         product = self.env['product.product'].browse(product_id)
+    #         res['value']['name']=product.is_code+u' '+product.name
+
+    #     return res
 
 

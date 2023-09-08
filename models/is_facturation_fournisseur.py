@@ -239,6 +239,7 @@ class is_facturation_fournisseur(models.Model):
                 'date'            : obj.date_facture,
                 'invoice_date_due': obj.date_facture,
                 #'supplier_invoice_number': obj.num_facture,
+                'ref'             : obj.num_facture,
                 'is_bon_a_payer'  : bon_a_payer,
                 'is_masse_nette'  : obj.is_masse_nette,
             }
@@ -278,6 +279,7 @@ class is_facturation_fournisseur(models.Model):
                         'is_document'     : is_document,
                         'is_move_id'      : line.move_id.id,
                         'purchase_line_id': line.move_id.purchase_line_id.id,
+                        'is_section_analytique_id': line.product_id.is_section_analytique_id.id,
                     }
                     lines.append([0,False,v]) 
 
@@ -310,18 +312,18 @@ class is_facturation_fournisseur(models.Model):
             view_id = self.env.ref('account.view_move_form').id
             obj.state='termine'
 
-            #** Changement d'état des réceptions et des lignes *****************
-            for line in obj.line_ids:
-                if line.selection:
-                    if line.move_id:
-                        line.move_id.invoice_state='invoiced'
-                        #test=True
-                        #for l in line.move_id.picking_id.move_ids_without_package:
-                        #    if l.invoice_state=='2binvoiced':
-                        #        test=False
-                        #if test:
-                        #    line.move_id.picking_id.invoice_state='invoiced'
-            #*******************************************************************
+            # #** Changement d'état des réceptions et des lignes *****************
+            # for line in obj.line_ids:
+            #     if line.selection:
+            #         if line.move_id:
+            #             line.move_id.invoice_state='invoiced'
+            #             #test=True
+            #             #for l in line.move_id.picking_id.move_ids_without_package:
+            #             #    if l.invoice_state=='2binvoiced':
+            #             #        test=False
+            #             #if test:
+            #             #    line.move_id.picking_id.invoice_state='invoiced'
+            # #*******************************************************************
 
             return {
                 'name': "Facture Fournisseur",

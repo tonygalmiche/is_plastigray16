@@ -106,7 +106,18 @@ class stock_picking(models.Model):
             ('none'      , 'Non applicable'),
             ('2binvoiced', "À facturer"),
             ('invoiced'  , "Facturé"),
-        ], "Facturation", default="2binvoiced")
+        ], "Facturation", default="2binvoiced", compute="_compute_invoice_state")
+
+
+    @api.depends('state', 'move_ids_without_package')
+    def _compute_invoice_state(self):
+        for obj in self:
+            state="invoiced"
+            for line in obj.move_ids_without_package:
+                if line.invoice_state!="invoiced":
+                    state="2binvoiced"
+                    break
+            obj.invoice_state = state
 
 
     @api.depends('sale_id', 'partner_id')
