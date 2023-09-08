@@ -44,7 +44,14 @@ class is_historique_controle(models.Model):
     def date_prochain_controle(self,rec):
         date_prochain_controle=False
         if rec.controle_ids:
+            date_prochain_controle=False
+            lines={}
             for row in rec.controle_ids:
+                key=row.date_controle
+                lines[key]=row
+            lines = dict(sorted(lines.items(), reverse=True))
+            for key in lines:
+                row=lines[key]
                 if row.operation_controle_id.code=='arret':
                     date_prochain_controle=False
                     break
