@@ -182,6 +182,7 @@ class pg_stock_move(models.Model):
     mold               = fields.Char('Moule', help='Moule / DossierF', index=True)
     #type_mv            = fields.Char('Type'                          , index=True)
     name               = fields.Char('Description')
+    origin             = fields.Char('Origine'                       , index=True)
     picking_id         = fields.Many2one('stock.picking', 'Rcp/Liv'  , index=True)
     picking_type_id    = fields.Many2one('stock.picking.type', 'Type', index=True)
     lot_id             = fields.Many2one('stock.lot', 'Lot')

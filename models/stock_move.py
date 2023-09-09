@@ -159,8 +159,6 @@ class stock_move(models.Model):
     #@api.depends('product_id','quantity_done', 'state', 'picking_id')
     def create_pg_stock_move(self):
         for obj in self:
-            print(obj.date)
-
             move_id=False
             if obj.state=='done':
 
@@ -193,6 +191,7 @@ class stock_move(models.Model):
                         "date": obj.date,
                         "product_id": obj.product_id.id,
                         "name": obj.name,
+                        "origin": obj.origin,
                         "category": obj.product_id.is_category_id.name,
                         "mold": obj.product_id.is_mold_dossierf,
                         "picking_type_id": obj.picking_type_id.id,
