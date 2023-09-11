@@ -53,6 +53,18 @@ class sale_order(models.Model):
         return
 
 
+    def external_compute_delivery_status(self):
+        "Permet d'appeller la méthode privée en XML-RPC pour la migration"
+        orders=self.env['sale.order'].search([('is_type_commande','=', 'ls')]) #, order="id desc") #, limit=1000)
+        for order in orders:
+            for line in order.order_line:
+                line._compute_qty_delivered()
+                line._compute_qty_invoiced()
+        self.env['sale.order'].search([('is_type_commande','=', 'ls')])._compute_delivery_status()
+        self.env['sale.order'].search([('is_type_commande','=', 'ls')])._compute_invoice_status()
+        return True
+
+
     @api.depends('partner_id')
     def _compute_message(self):
         for obj in self:
@@ -346,20 +358,20 @@ class sale_order(models.Model):
 
     def write(self, vals):
         obj=super().write(vals)
-        for obj in self:
-            vals2={
-                'is_type_commande'       : obj.is_type_commande,
-                'is_article_commande_id' : obj.is_article_commande_id.id,
-                'pricelist_id'           : obj.pricelist_id.id,
-                'partner_id'             : obj.partner_id.id,
-                'partner_invoice_id'     : obj.partner_invoice_id.id,
-                'date_order'             : obj.date_order.date(),
-            }
-            self._verif_tarif(vals2)
-            self._verif_existe(vals2)
-            self._client_order_ref(obj)
-            self._verif_article_livrable(obj)
-
+        if "delivery_status" not in vals and "invoice_status" not in vals:
+            for obj in self:
+                vals2={
+                    'is_type_commande'       : obj.is_type_commande,
+                    'is_article_commande_id' : obj.is_article_commande_id.id,
+                    'pricelist_id'           : obj.pricelist_id.id,
+                    'partner_id'             : obj.partner_id.id,
+                    'partner_invoice_id'     : obj.partner_invoice_id.id,
+                    'date_order'             : obj.date_order.date(),
+                }
+                self._verif_tarif(vals2)
+                self._verif_existe(vals2)
+                self._client_order_ref(obj)
+                self._verif_article_livrable(obj)
         return obj
 
 
