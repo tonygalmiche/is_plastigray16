@@ -27,12 +27,9 @@ import openpyxl
 # 902810
 # THERMOR
 # 903410
-
-#NON FAIT
-# 902580
-# GXS
-# Plasti-ka
-# SIMU
+#FAIT le 11/09/23 par Tony
+#- eCar (Regroupement)
+#- SIMU-SOMFY
 
 
 _JOURS_SEMAINE=[
@@ -393,6 +390,55 @@ class is_edi_cde_cli(models.Model):
             obj.state='traite'
 
 
+    def group_by_data(self, datas):
+        dict={}
+        for data in datas:
+            ref_article_client  = data.get("ref_article_client")
+            num_commande_client = data.get("num_commande_client")
+            point_dechargement  = data.get("point_dechargement")
+            order_id            = data.get("order_id")
+            product             = data.get("product")
+            lignes              = data.get("lignes",[])
+            key="%s-%s-%s-%s-%s"%(ref_article_client,num_commande_client,point_dechargement,order_id,product)
+            if key not in dict:
+                vals={
+                    "ref_article_client" : ref_article_client,
+                    "num_commande_client": num_commande_client,
+                    "lignes"             : [],
+                }
+                if order_id:
+                    vals["order_id"] = order_id
+                if point_dechargement:
+                    vals["point_dechargement"] = point_dechargement
+                if product:
+                    vals["product"] = product
+                dict[key]={}
+                dict[key]["vals"]=vals
+            dict[key]["vals"]["lignes"]+=lignes
+        for key in dict:
+            dict_ligne={}
+            for ligne in dict[key]["vals"]["lignes"]:
+                type_commande  = ligne.get("type_commande")
+                anomalie       = ligne.get("anomalie")
+                date_livraison = ligne.get("date_livraison")
+                quantite       = ligne.get("quantite")
+                key_ligne="%s-%s-%s"%(type_commande,anomalie,date_livraison)
+                if key_ligne not in dict_ligne:
+                    dict_ligne[key_ligne]={}
+                    dict_ligne[key_ligne]["type_commande"]=type_commande
+                    dict_ligne[key_ligne]["anomalie"]=anomalie
+                    dict_ligne[key_ligne]["date_livraison"]=date_livraison
+                    dict_ligne[key_ligne]["quantite"]=0
+                dict_ligne[key_ligne]["quantite"]+=quantite
+            dict[key]["vals"]["lignes"]=[]
+            for key_ligne in dict_ligne:
+                dict[key]["vals"]["lignes"].append(dict_ligne[key_ligne])
+        datas=[]
+        for key in dict:
+            datas.append(dict[key]["vals"])
+        return datas
+
+
     def get_data(self, import_function, attachment):
         datas={}
 
@@ -410,6 +456,7 @@ class is_edi_cde_cli(models.Model):
             datas=self.get_data_DARWIN(attachment)
         if import_function=="eCar":
             datas=self.get_data_eCar(attachment)
+            datas=self.group_by_data(datas)
         if import_function=="GXS":
             datas=self.get_data_GXS(attachment)
         if import_function=="John-Deere":
@@ -738,10 +785,8 @@ class is_edi_cde_cli(models.Model):
                         test = True # Il est possible de traiter les lignes suivantes
                     #***************************************************************
                     lig+=1
-
             if type_fichier==False:
                 raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier SIMU compatible (xlsx pour le ferme ou le prévisionnel)")
-
         return res
 
 
@@ -753,16 +798,25 @@ class is_edi_cde_cli(models.Model):
             csvfile = csv.reader(csvfile, delimiter=';')
             for ct, lig in enumerate(csvfile):
                 if ct>0 and len(lig)>=28:
-                    type_commande      = lig[25].strip()
-                    if type_commande == "Prévision":
+                    #type_commande      = lig[25].strip()
+                    type_commande      = lig[7].strip()
+
+                    if type_commande == u"Prévision":
                         type_commande="previsionnel"
-                        ref_article_client = lig[18].strip()
-                        quantite = lig[26].replace(',', '.')
+
+                        #ref_article_client = lig[18].strip()
+                        ref_article_client = lig[0].strip()
+
+                        #quantite = lig[26].replace(',', '.')
+                        quantite = lig[8].replace(',', '.')
                         try:
                             quantite = float(quantite)
                         except ValueError:
                             quantite=0
-                        date_livraison = lig[28]
+
+                        #date_livraison = lig[28]
+                        date_livraison = lig[12]
+
                         d=False
                         try:
                             d = datetime.strptime(date_livraison, '%d/%m/%Y')
@@ -790,6 +844,7 @@ class is_edi_cde_cli(models.Model):
                             val.update({'lignes': [ligne]})
                             res.append(val)
         return res
+
 
 
     def get_data_Millipore(self, attachment):
@@ -1152,11 +1207,14 @@ class is_edi_cde_cli(models.Model):
         return res
 
 
+
+
     def get_data_eCar(self, attachment):
         res = []
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
+            #temp.write((base64.decodestring(attachment.datas))) 
             temp.write((base64.decodebytes(attachment.datas))) 
             temp.close()
             tree = etree.parse(filename)
@@ -1196,6 +1254,11 @@ class is_edi_cde_cli(models.Model):
                         quantite=""
                         for QuantiteALivrer in detail_programme.xpath("QuantiteALivrer"):
                             quantite=QuantiteALivrer.text
+                            try:
+                                quantite=float(quantite)
+                            except ValueError:
+                                quantite=0
+
                         ligne = {
                             'quantite'      : quantite,
                             'type_commande' : type_commande,
@@ -1209,27 +1272,69 @@ class is_edi_cde_cli(models.Model):
             for partie_citee in tree.xpath("/CALDEL/SEQUENCE_PRODUCTION"):
                 if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                     ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
-                    order=self.env['sale.order'].search([
-                        ('partner_id.is_code'   , '=', obj.partner_id.is_code),
-                        ('is_ref_client', '=', ref_article_client)]
-                    )
-                    num_commande_client="??"
-                    if len(order):
-                        num_commande_client=order[0].client_order_ref
+                    products=self.env['product.product'].search([
+                        ('is_client_id' , '=', obj.partner_id.id),
+                        ('is_ref_client', '=', ref_article_client),
+                        ('is_gestionnaire_id', '!=', '04'), 
+                        ('is_gestionnaire_id', '!=', '07'), 
+                        ('is_gestionnaire_id', '!=', '12'), 
+                        ('is_gestionnaire_id', '!=', '14'), 
+                        ('is_gestionnaire_id', '!=', '23'), 
+                        ('segment_id', 'not ilike', 'fictif'), 
+                        ('segment_id', 'not ilike', 'fantome'), 
+                        ('segment_id', 'not ilike', 'consommable'), 
+                        ('segment_id', 'not ilike', 'comptable'),
+                    ])
+                    anomalie=False
+                    if len(products)==0:
+                        anomalie=u"Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
+                    if len(products)>1:
+                        anomalie=u"Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
+                    num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
+                    order_id=False
+                    product=False
+                    if not anomalie:
+                        product=products[0]
+                        orders=self.env['sale.order'].search([
+                            ('is_type_commande'  , '=', 'standard'),
+                            ('state'             , '=', 'draft'),
+                            ('partner_id'        , '=', obj.partner_id.id),
+                            ('client_order_ref'  , '=', num_commande_client),
+                        ])
+                        if len(orders)==0:
+                            vals={
+                                "partner_id": obj.partner_id.id,
+                                "client_order_ref": num_commande_client,
+                                "is_type_commande": "standard",
+                            }
+                            order=self.env['sale.order'].create(vals)
+                        else:
+                            order=orders[0]
+                        order_id=order.id
                     val = {
-                        'ref_article_client': ref_article_client,
+                        'order_id'           : order_id,
+                        'ref_article_client' : ref_article_client,
                         'num_commande_client': num_commande_client,
-                        'lignes': []
+                        'lignes'             : []
                     }
+                    if product:
+                        val["product"]=product
                     res1 = []
                     for detail_programme in partie_citee.xpath("ARTICLE_PROGRAMME/DETAIL_PROGRAMME_ARTICLE"):
-                        date_livraison=detail_programme.xpath("DateHeureLivraisonAuPlusTot")[0].text[:8]
+                        #date_livraison=detail_programme.xpath("DateHeureLivraisonAuPlusTot")[0].text[:8]
+                        date_livraison=detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text[:8]
+                        quantite=detail_programme.xpath("QteALivrer")[0].text
+                        try:
+                            quantite=float(quantite)
+                        except ValueError:
+                            quantite=0
                         d=datetime.strptime(date_livraison, '%Y%m%d')
                         date_livraison=d.strftime('%Y-%m-%d')
                         ligne = {
-                            'quantite': detail_programme.xpath("QteALivrer")[0].text,
+                            'quantite': quantite,
                             'type_commande': 'ferme',
                             'date_livraison': date_livraison,
+                            'anomalie'           : anomalie,
                         }
                         res1.append(ligne)
                     val.update({'lignes':res1})

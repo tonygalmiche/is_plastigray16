@@ -28,7 +28,7 @@ class is_export_edi(models.Model):
     contact_id      = fields.Many2one('res.partner', 'Contact Logistique')
     date_fin        = fields.Date("Date de fin", required=True)
     historique_ids  = fields.One2many('is.export.edi.histo'  , 'edi_id', u"Historique")
-    attachment_ids  = fields.Many2many('ir.attachment', 'is_export_edi_attachment_rel', 'export_id', 'attachment_id', u'Pièces jointes')
+    #attachment_ids  = fields.Many2many('ir.attachment', 'is_export_edi_attachment_rel', 'export_id', 'attachment_id', u'Pièces jointes')
 
 
     def code_on_change(self,code):
