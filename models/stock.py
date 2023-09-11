@@ -112,12 +112,18 @@ class stock_picking(models.Model):
     @api.depends('state', 'move_ids_without_package')
     def _compute_invoice_state(self):
         for obj in self:
-            state="invoiced"
-            for line in obj.move_ids_without_package:
-                if line.invoice_state!="invoiced":
-                    state="2binvoiced"
-                    break
-            obj.invoice_state = state
+            if obj.state=="cancel":
+                invoice_state="none"
+            else:
+                invoice_state="invoiced"
+                for line in obj.move_ids_without_package:
+                    if line.invoice_state!="invoiced":
+                        invoice_state="2binvoiced"
+                        break
+
+            print("## TEST ##",obj.state, invoice_state)
+
+            obj.invoice_state = invoice_state
 
 
     @api.depends('sale_id', 'partner_id')
