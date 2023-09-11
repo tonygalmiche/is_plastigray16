@@ -7,7 +7,7 @@ import base64
 
 class is_export_edi(models.Model):
     _name='is.export.edi'
-    # _inherit=['mail.thread']
+    _inherit=['mail.thread']
     _description="Export EDI"
     _order='name desc'
 
