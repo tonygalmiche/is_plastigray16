@@ -368,6 +368,10 @@ class stock_picking(models.Model):
             retour=obj.copy()
             retour.location_id = obj.location_dest_id.id
             retour.location_dest_id = obj.location_id.id
+
+
+            print("## TEST 1 ##",obj.name, retour.name)
+
             #******************************************************************
 
             #** Création des mouvements inverses pour annuler la réception ****
@@ -426,6 +430,11 @@ class stock_picking(models.Model):
 
 
             new_picking=obj.copy()
+
+            print("## TEST 2 ##",obj.name, retour.name, new_picking.name)
+
+
+
             return {
                 'name': "Réception annullée",
                 'view_mode': 'form',
