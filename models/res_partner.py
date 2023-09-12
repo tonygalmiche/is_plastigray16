@@ -757,6 +757,8 @@ class res_partner(models.Model):
         return False
 
     def _get_is_rib_id(self, DB, USERID, USERPASS, sock):
+        if not self.is_rib_id.acc_number:
+            return False
         ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [('acc_number', '=', self.is_rib_id.acc_number)])
         if ids:
             return ids[0]
