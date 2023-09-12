@@ -228,7 +228,7 @@
             <field name="arch" type="xml">
                 <field name="name" position="after" >
                     <field name="is_piece_jointe" invisible="1"/>
-                    <button string="Pièce jointe" name="pj_action" type="object" icon="STOCK_FILE" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
+                    <button title="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
                 </field>
                 <field name="date_done" position="after" >
                     <field name="create_date"        optional="show"/>
