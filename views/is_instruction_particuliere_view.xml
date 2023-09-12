@@ -47,8 +47,8 @@
                     <field name="product_ids"/>
                     <field name="afficher_imprimer"/>
                     <field name="groupe_ids" widget="many2many_tags"/>
-                    <field name="commentaire" optional="show"/>
-                    <field name="contenu"     optional="show" widget="image" class="oe_avatar" options="{'size': [200,0]}"/>
+                    <field name="commentaire" optional="hide"/>
+                    <field name="contenu"     optional="hide" widget="image" class="oe_avatar" options="{'size': [200,0]}"/>
                 </tree>
             </field>
         </record>
