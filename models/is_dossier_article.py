@@ -2,7 +2,7 @@
 from odoo import models,fields,api
 import datetime
 #import pytz
-#import os
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from odoo.exceptions import ValidationError
