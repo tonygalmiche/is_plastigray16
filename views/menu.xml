@@ -1862,7 +1862,7 @@
     <menuitem id="menu_is_pointage_jour_ferie"  sequence="40" name="Jours fériés" parent="menu_is_pointage" action="is_jour_ferie_action" />
 
     <!-- RGPD -->
-    <record id="is_rgpd_main_menu" model="ir.ui.menu">
+    <!-- <record id="is_rgpd_main_menu" model="ir.ui.menu">
         <field name="name">RGPD</field>
         <field name="sequence">90</field>
         <field name="groups_id" eval="[(6,0,[
@@ -1875,7 +1875,7 @@
     <menuitem id="is_rgpd_action_menu"             sequence="30" name="Actions"              parent="is_rgpd_menu" action="is_rgpd_action_action"/>
     <menuitem id="is_rgpd_table_menu"              sequence="20" name="Tables" parent="is_rgpd_main_menu"/>
     <menuitem id="is_rgpd_service_menu"            sequence="10" name="Services"             parent="is_rgpd_table_menu" action="is_rgpd_service_action"/>
-    <menuitem id="is_rgpd_lieu_stockage_menu"      sequence="20" name="Lieu de stockage"     parent="is_rgpd_table_menu" action="is_rgpd_lieu_stockage_action"/>
+    <menuitem id="is_rgpd_lieu_stockage_menu"      sequence="20" name="Lieu de stockage"     parent="is_rgpd_table_menu" action="is_rgpd_lieu_stockage_action"/> -->
 
     <record id="is_article_menu" model="ir.ui.menu" >
         <field name="name">Articles de tous les sites (intégré)</field>
