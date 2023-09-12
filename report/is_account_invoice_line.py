@@ -12,6 +12,7 @@ class is_account_invoice_line(models.Model):
     _description="Lignes des factures"
     _order='id desc'
     _auto = False
+    _rec_name = 'id'
 
     partner_id              = fields.Many2one('res.partner', 'Client/Fournisseur')
     partner_picking_id      = fields.Many2one('res.partner', 'Client/Fournisseur Livraison')
