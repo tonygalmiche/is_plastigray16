@@ -73,34 +73,34 @@ class is_dossier_article(models.Model):
 
     @api.depends('code_pg')
     def _compute_documents_techniques(self):
-        for obj in self:
-            obj.documents_techniques=False
+        #for obj in self:
+        #    obj.documents_techniques=False
 
-        # #** Connexion à Dynacase **********************************************
-        # uid=self.uid
-        # cr=self._cr
-        # company = self.env.user.company_id
-        # password=company.is_dynacase_pwd
-        # cr_dynacase=False
-        # if password:
-        #     try:
-        #         cnx_dynacase = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='freedomowner' password='"+password+"'")
-        #         cr_dynacase = cnx_dynacase.cursor(cursor_factory=RealDictCursor)
-        #     except:
-        #         cr_dynacase=False
-        # #**********************************************************************
-        # for obj in self:
-        #     url=False
-        #     if cr_dynacase:
-        #         if obj.sous_famille=="COLORANTS":
-        #             SQL="select id from doc48615 where dosart_codepg=%s"
-        #         else:
-        #             SQL="select id from doc48613 where dosart_codepg=%s"
-        #         cr_dynacase.execute(SQL, [obj.code_pg])
-        #         result = cr_dynacase.fetchall()
-        #         for row in result:
-        #             url="https://dynacase-rp/?sole=Y&app=FDL&action=FDL_CARD&latest=Y&id="+str(row["id"])
-        #     obj.documents_techniques=url
+        #** Connexion à Dynacase **********************************************
+        uid=self.uid
+        cr=self._cr
+        company = self.env.user.company_id
+        password=company.is_dynacase_pwd
+        cr_dynacase=False
+        if password:
+            try:
+                cnx_dynacase = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='freedomowner' password='"+password+"'")
+                cr_dynacase = cnx_dynacase.cursor(cursor_factory=RealDictCursor)
+            except:
+                cr_dynacase=False
+        #**********************************************************************
+        for obj in self:
+            url=False
+            if cr_dynacase:
+                if obj.sous_famille=="COLORANTS":
+                    SQL="select id from doc48615 where dosart_codepg=%s"
+                else:
+                    SQL="select id from doc48613 where dosart_codepg=%s"
+                cr_dynacase.execute(SQL, [obj.code_pg])
+                result = cr_dynacase.fetchall()
+                for row in result:
+                    url="https://dynacase-rp/?sole=Y&app=FDL&action=FDL_CARD&latest=Y&id="+str(row["id"])
+            obj.documents_techniques=url
 
 
     def is_dossier_article_actualiser_action(self):
