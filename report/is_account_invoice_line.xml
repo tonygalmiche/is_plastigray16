@@ -9,33 +9,30 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="partner_id"/>
-                            <field name="invoice_date"/>
-                            <field name="invoice_id"/>
-                            <field name="internal_number"/>
-                            <field name="invoice_date_due"/>
-                            <field name="invoice_origin"/>
-                            <field name="supplier_invoice_number"/>
-
-                            <!-- <field name="state"/> -->
-
-                            <field name="move_type"/>
-                            <field name="product_id"/>
-                            <field name="description"/>
-                            <field name="account_id"/>
-                            <field name="is_document"/>
-                            <field name="is_ref_client"/>
-                            <field name="quantity"/>
-                            <field name="product_uom_id"/>
-                            <field name="price_unit"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="invoice_date" readonly="1"/>
+                            <field name="invoice_id" readonly="1"/>
+                            <field name="internal_number" readonly="1"/>
+                            <field name="invoice_date_due" readonly="1"/>
+                            <field name="invoice_origin" readonly="1"/>
+                            <field name="supplier_invoice_number" readonly="1"/>
+                            <field name="move_type" readonly="1"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="description" readonly="1"/>
+                            <field name="account_id" readonly="1"/>
+                            <field name="is_document" readonly="1"/>
+                            <field name="is_ref_client" readonly="1"/>
+                            <field name="quantity" readonly="1"/>
+                            <field name="product_uom_id" readonly="1"/>
+                            <field name="price_unit" readonly="1"/>
                         </group>
                         <group>
-                            <field name="invoice_line_id" groups="is_plastigray16.is_annulation_facture_group"/>
-                            <field name="move_id"/>
-                            <field name="picking_id"/>
-                            <field name="purchase_order_id"/>
-                            <field name="order_id"/>
-                            <field name="client_order_ref"/>
+                            <field name="invoice_line_id" readonly="1" groups="is_plastigray16.is_annulation_facture_group"/>
+                            <field name="move_id" readonly="1"/>
+                            <field name="picking_id" readonly="1"/>
+                            <field name="purchase_order_id" readonly="1"/>
+                            <field name="order_id" readonly="1"/>
+                            <field name="client_order_ref" readonly="1"/>
                         </group>
                     </group>
                 </sheet>
