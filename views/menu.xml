@@ -1916,7 +1916,7 @@
             ref('is_base_principale_grp'),
         ])]"/>
     </record>
-    <!-- <record id="is_dossier_article_actualiser_menu" model="ir.ui.menu" >
+    <record id="is_dossier_article_actualiser_menu" model="ir.ui.menu" >
         <field name="name">Actualiser Dossier article</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
@@ -1924,7 +1924,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_dossier_article_grp'),
         ])]"/>
-    </record> -->
+    </record>
 
     <record id="is_dossier_article_code_recyclage_menu" model="ir.ui.menu" >
         <field name="name">Code recyclage</field>
