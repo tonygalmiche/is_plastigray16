@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group attrs="{'readonly': True}">
+                    <group attrs="{'readonly': 1}">
                         <field name="date" />
                         <field name="product_id" />
                         <field name="category" />
