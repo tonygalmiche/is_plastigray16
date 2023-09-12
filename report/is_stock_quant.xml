@@ -54,7 +54,7 @@
         <field name="model">is.stock.quant</field>
         <field name="arch" type="xml">
             <pivot>
-                <field name="category"    type="col"/>
+                <field name="category_id" type="col"/>
                 <field name="emplacement" type="row"/>
                 <field name="quantite"    type="measure"/>
             </pivot>
@@ -65,7 +65,7 @@
         <field name="model">is.stock.quant</field>
         <field name="arch" type="xml">
             <graph>
-                <field name="category"/>
+                <field name="category_id"/>
                 <field name="quantite" type="measure"/>
             </graph>
         </field>
