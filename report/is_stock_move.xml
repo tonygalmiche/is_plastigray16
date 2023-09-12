@@ -9,27 +9,27 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group attrs="{'readonly': 1}">
-                        <field name="date" />
-                        <field name="product_id" />
-                        <field name="category" />
-                        <field name="mold" />
-                        <field name="name" />
-                        <field name="origin" />
-                        <field name="picking_type_id" />
-                        <field name="picking_id" />
-                        <field name="purchase_line_id" />
-                        <field name="raw_material_production_id" />
-                        <field name="production_id" />
-                        <field name="sale_line_id" />
-                        <field name="lot_id" />
-                        <field name="lot_fournisseur" />
-                        <field name="qty" />
-                        <field name="product_uom" />
-                        <field name="location_dest_id" />
-                        <field name="login" />
-                        <field name="is_employee_theia_id" />
-                        <field name="move_id" />
+                    <group>
+                        <field name="date" readonly="1"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="category" readonly="1"/>
+                        <field name="mold" readonly="1"/>
+                        <field name="name" readonly="1"/>
+                        <field name="origin" readonly="1"/>
+                        <field name="picking_type_id" readonly="1"/>
+                        <field name="picking_id" readonly="1"/>
+                        <field name="purchase_line_id" readonly="1"/>
+                        <field name="raw_material_production_id" readonly="1"/>
+                        <field name="production_id" readonly="1"/>
+                        <field name="sale_line_id" readonly="1"/>
+                        <field name="lot_id" readonly="1"/>
+                        <field name="lot_fournisseur" readonly="1"/>
+                        <field name="qty" readonly="1"/>
+                        <field name="product_uom" readonly="1"/>
+                        <field name="location_dest_id" readonly="1"/>
+                        <field name="login" readonly="1"/>
+                        <field name="is_employee_theia_id" readonly="1"/>
+                        <field name="move_id" readonly="1"/>
                     </group>
                 </sheet>
             </form>
