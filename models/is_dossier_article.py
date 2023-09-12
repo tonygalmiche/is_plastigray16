@@ -3,8 +3,9 @@ from odoo import models,fields,api
 import datetime
 #import pytz
 #import os
-#import psycopg2
-#from psycopg2.extras import RealDictCursor
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from odoo.exceptions import ValidationError
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -87,7 +88,8 @@ class is_dossier_article(models.Model):
                 cnx_dynacase = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='freedomowner' password='"+password+"'")
                 cr_dynacase = cnx_dynacase.cursor(cursor_factory=RealDictCursor)
             except:
-                cr_dynacase=False
+                #cr_dynacase=False
+                raise ValidationError("Connexion à Dynacase impossible")
         #**********************************************************************
         for obj in self:
             url=False
