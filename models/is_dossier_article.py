@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 import datetime
-#import pytz
+import pytz
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
