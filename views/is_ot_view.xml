@@ -368,7 +368,7 @@
                     <field name="descriptif" optional="show"/>
                     <field name="numero_qrci" optional="show"/>
                     <field name="pj" invisible="1" optional="show"/>
-                    <button string="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('pj', '==', False)]}"/>
+                    <button title="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
             </field>
         </record>
@@ -438,7 +438,7 @@
                     <field name="date_previsionnelle_intervention" optional="show"/>
                     <field name="date_realisation_travaux" optional="show"/>
                     <field name="pj" invisible="1" optional="show"/>
-                    <button string="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('pj', '==', False)]}"/>
+                    <button title="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
             </field>
         </record>
@@ -511,7 +511,7 @@
                     <field name="date_realisation_travaux" optional="show"/>
                     <field name="temps_passe_total" optional="show" widget="float_time"/>
                     <field name="pj" invisible="1"/>
-                    <button string="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('pj', '==', False)]}"/>
+                    <button title="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('pj', '==', False)]}"/>
                 </tree>
             </field>
         </record>
