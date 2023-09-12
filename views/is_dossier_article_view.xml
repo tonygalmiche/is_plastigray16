@@ -120,7 +120,7 @@
             <field name="model_id" ref="model_is_dossier_article" />
             <field name="binding_model_id" ref="model_is_dossier_article"/>
             <field name="state">code</field>
-            <field name="code">action = records.is_dossier_article_actualiser_action()</field>
+            <field name="code">action = model.is_dossier_article_actualiser_action()</field>
         </record>
 
         <!-- is.dossier.article.gamme.commerciale -->
