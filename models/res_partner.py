@@ -759,8 +759,8 @@ class res_partner(models.Model):
     def _get_is_rib_id(self, DB, USERID, USERPASS, sock):
         if not self.is_rib_id.acc_number:
             return False
-        #ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [('acc_number', '=', self.is_rib_id.acc_number)])
-        ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [('bank_name', '=', self.is_rib_id.bank_name)])
+        ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [('acc_number', '=', self.is_rib_id.acc_number)])
+        #ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [('bank_name', '=', self.is_rib_id.bank_name)])
         #ids = sock.execute(DB, USERID, USERPASS, 'res.partner.bank', 'search', [])
         if ids:
             return ids[0]
