@@ -175,7 +175,7 @@
                 <field name="couleur" widget='pgcolor'/>
                 <field name="origine"/>
                 <field name="tps_arret" widget="float_time" sum="Total"/>
-                <field name="of_ids"/>
+                <field name="of_ids"  widget="many2many_tags"/>
                 <field name="employee_id"/>
             </tree>
         </field>
