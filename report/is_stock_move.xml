@@ -64,8 +64,8 @@
         <field name="model">pg.stock.move</field>
         <field name="arch" type="xml">
             <pivot>
-                <field name="product_id"       type="row"/>
-                <field name="location_dest_id" type="col"/>
+                <field name="category"         type="col"/>
+                <field name="location_dest_id" type="row"/>
                 <field name="qty"              type="measure"/>
             </pivot>
         </field>
