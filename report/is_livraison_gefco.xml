@@ -9,16 +9,16 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="is_date_expedition" />
-                            <field name="partner_id" />
-                            <field name="picking_id"/>
-                            <field name="is_mold_dossierf" />
-                            <field name="product_id" />
-                            <field name="uc" />
-                            <field name="um" />
-                            <field name="product_uom_qty" />
-                            <field name="nb_uc" />
-                            <field name="nb_um" />
+                            <field name="is_date_expedition" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="picking_id" readonly="1"/>
+                            <field name="is_mold_dossierf" readonly="1"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="uc" readonly="1"/>
+                            <field name="um" readonly="1"/>
+                            <field name="product_uom_qty" readonly="1"/>
+                            <field name="nb_uc" readonly="1"/>
+                            <field name="nb_um" readonly="1"/>
                         </group>
                     </group>
                 </sheet>
