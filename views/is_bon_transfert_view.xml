@@ -84,7 +84,7 @@
                         </field>
                         <field name="galia_um_ids" nolabel="1" attrs="{'invisible': [('galia_um_ids', '=', [])]}">
                             <tree>
-                                <button string="UM" name="acceder_um_action" type="object" icon="fa-search-plus"/>
+                                <button title="UM" name="acceder_um_action" type="object" icon="fa-search-plus"/>
                                 <field name="name" string="N°étiquette UM scannée"/>
                                 <field name="product_id"/>
                                 <field name="qt_pieces"/>

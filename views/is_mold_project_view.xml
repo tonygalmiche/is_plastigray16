@@ -19,7 +19,7 @@
                         </group>
                         <field name="mold_ids" nolabel="1" readonly="1">
                             <tree>
-                                <button string="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
+                                <button title="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
                                 <field name="name"/>
                                 <field name="designation"/>
                             </tree>

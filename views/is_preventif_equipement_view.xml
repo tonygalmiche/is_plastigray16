@@ -147,7 +147,7 @@
                     <field name="nb_heures_dernier_preventif"/>
                     <field name="nb_heures_actuel"/>
                     <field name="nb_heures_avant_preventif"/>
-                    <button string="Saisie préventif" name="saisie_preventif_action"  type="object" icon="fa-plus" />
+                    <button title="Saisie préventif" name="saisie_preventif_action"  type="object" icon="fa-plus" />
                     <field name="gamme_ids"/>
                 </tree>
             </field>
