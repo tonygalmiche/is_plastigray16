@@ -649,6 +649,8 @@ class res_partner(models.Model):
             return id
 
     def _get_partner_is_adr_facturation(self, DB, USERID, USERPASS, sock):
+        if not self.is_adr_facturation.id:
+            return False
         ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_adr_facturation.id),'|',('active','=',True),('active','=',False)])
         if not ids:
             self.env['is.database'].copy_other_database(self.is_adr_facturation)
