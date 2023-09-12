@@ -39,13 +39,11 @@
         <field name="name">pg_stock_move_tree_view</field>
         <field name="model">pg.stock.move</field>
         <field name="arch" type="xml">
-            <!-- colors="red:qty &lt; 0" -->
             <tree create="false" decoration-danger="qty &lt; 0">
-                <field name="date"                 optional="show"/>
-                <field name="product_id"           optional="show" widget="many2one_clickable"/>
-                <field name="category"             optional="show" />
-                <field name="mold"                 optional="show" />
-                <!-- <field name="type_mv" /> -->
+                <field name="date"                  optional="show"/>
+                <field name="product_id"            optional="show" widget="many2one_clickable"/>
+                <field name="category"              optional="show" />
+                <field name="mold"                  optional="show" />
                 <field name="name"                  optional="show"/>
                 <field name="origin"                optional="show"/>
                 <field name="picking_type_id"       optional="show"/>
@@ -59,6 +57,27 @@
                 <field name="login"                 optional="show" />
                 <field name="is_employee_theia_id"  optional="show" />
            </tree>
+        </field>
+    </record>
+    <record id="pg_stock_move_pivot_view" model="ir.ui.view">
+        <field name="name">pg_stock_move_pivot_view</field>
+        <field name="model">pg.stock.move</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="product_id"       type="row"/>
+                <field name="location_dest_id" type="col"/>
+                <field name="qty"              type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="pg_stock_move_graph_view" model="ir.ui.view">
+        <field name="name">pg_stock_move_graph_view</field>
+        <field name="model">pg.stock.move</field>
+        <field name="arch" type="xml">
+            <graph>
+                <field name="category"/>
+                <field name="qty" type="measure"/>
+            </graph>
         </field>
     </record>
     <record id="pg_stock_move_search_view" model="ir.ui.view">
@@ -100,7 +119,7 @@
         <field name="name">Mouvements de stocks</field>
         <field name="res_model">pg.stock.move</field>
         <field name="domain">[]</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
 
 
