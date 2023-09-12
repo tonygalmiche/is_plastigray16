@@ -273,7 +273,7 @@
             <field name="arch" type="xml">
                 <tree editable="bottom">
                     <button 
-                        string="Commandes" 
+                        title="Commandes" 
                         name= "action_acces_commandes" type="object" icon="fa-list-alt"
                     />
                     <field name="order_id"/> 
