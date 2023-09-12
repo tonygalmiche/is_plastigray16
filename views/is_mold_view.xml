@@ -276,10 +276,10 @@
                 <tree>
                     <field name="name"/>
                     <field name="designation"/>
-                    <field name="project"/>
-                    <field name="client_id" /> 
+                    <field name="project" widget="many2one_clickable"/>
+                    <field name="client_id" widget="many2one_clickable"/> 
                     <field name="chef_projet_id"/>
-                    <field name="dossierf_id"/>
+                    <field name="dossierf_id" widget="many2one_clickable"/>
                     <field name="dossierf_ids" widget="many2many_tags"/>
                     <field name="nb_empreintes"/>
                     <field name="moule_a_version"  optional="show"/>
@@ -333,7 +333,7 @@
                 <tree>
                     <field name="name"/>
                     <field name="designation"/>
-                    <field name="project"/>
+                    <field name="project" widget="many2one_clickable"/>
                     <field name="is_database_id"/>
                     <field name="emplacement"/>
                     <field name="date_dernier_preventif"/>
