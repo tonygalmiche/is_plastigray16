@@ -1760,12 +1760,20 @@
 
     <!-- Déplacement des menus standards sous le menu 'Autre' -->
     <menuitem id="menu_is_autre"               sequence="9"  name="Autre" groups="base.group_system" />
-    <menuitem id="purchase.menu_purchase_root" sequence="20" name="Achats"         parent="menu_is_autre"/>
-    <menuitem id="sale.sale_menu_root"         sequence="30" name="Ventes"         parent="menu_is_autre"/>
-    <menuitem id="stock.menu_stock_root"       sequence="40" name="Entrepôt"       parent="menu_is_autre"/>
-    <menuitem id="mrp.menu_mrp_root"           sequence="50" name="Fabrication"    parent="menu_is_autre"/>
-    <menuitem id="mail.menu_root_discuss"      sequence="60" name="Discussion"     parent="menu_is_autre"/>
-    <menuitem id="utm.menu_link_tracker_root"  sequence="70" name="Suivi de liens" parent="menu_is_autre"/>
+
+
+    
+
+
+    <menuitem id="purchase.menu_purchase_root"  sequence="20" name="Achats"          parent="menu_is_autre"/>
+    <menuitem id="sale.sale_menu_root"          sequence="30" name="Ventes"          parent="menu_is_autre"/>
+    <menuitem id="stock.menu_stock_root"        sequence="40" name="Entrepôt"        parent="menu_is_autre"/>
+    <menuitem id="mrp.menu_mrp_root"            sequence="50" name="Fabrication"     parent="menu_is_autre"/>
+    <menuitem id="mail.menu_root_discuss"       sequence="60" name="Discussion"      parent="menu_is_autre"/>
+    <menuitem id="utm.menu_link_tracker_root"   sequence="70" name="Suivi de liens"  parent="menu_is_autre"/>
+    <menuitem id="account.menu_board_journal_1" sequence="80" name="Tableau de bord" parent="menu_is_autre"/>
+
+
 
     <!-- Gestion des utilisateurs -->
     <!-- 
