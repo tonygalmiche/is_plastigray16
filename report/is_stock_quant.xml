@@ -49,6 +49,27 @@
            </tree>
         </field>
     </record>
+    <record id="is_stock_quant_pivot_view" model="ir.ui.view">
+        <field name="name">is_stock_quant_pivot_view</field>
+        <field name="model">is.stock.quant</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="category"    type="col"/>
+                <field name="emplacement" type="row"/>
+                <field name="quantite"    type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="is_stock_quant_graph_view" model="ir.ui.view">
+        <field name="name">is_stock_quant_graph_view</field>
+        <field name="model">is.stock.quant</field>
+        <field name="arch" type="xml">
+            <graph>
+                <field name="category"/>
+                <field name="quantite" type="measure"/>
+            </graph>
+        </field>
+    </record>
     <record id="is_stock_quant_search_view" model="ir.ui.view">
         <field name="name">is_stock_quant_search_view</field>
         <field name="model">is.stock.quant</field>
@@ -64,11 +85,11 @@
                 <field name="location_id" />
                 <field name="lot" />
                 <field name="lot_fournisseur" />
-                <!-- <group string="Regrouper par">
-                    <filter string="Article"        context="{'group_by': 'product_id'}"/>
-                    <filter string="Emplacement"    context="{'group_by': 'location_id'}"/>
-                    <filter string="Client"         context="{'group_by': 'client_id'}"/>
-                </group> -->
+                <group string="Regrouper par">
+                    <filter string="Article"     name="group_by_product_id"  context="{'group_by': 'product_id'}"/>
+                    <filter string="Emplacement" name="group_by_location_id" context="{'group_by': 'location_id'}"/>
+                    <filter string="Client"      name="group_by_client_id"   context="{'group_by': 'client_id'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -76,7 +97,7 @@
         <field name="name">Stock détaillé</field>
         <field name="res_model">is.stock.quant</field>
         <field name="domain">[]</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
 
 </data>
