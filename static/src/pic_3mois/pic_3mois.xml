@@ -4,28 +4,7 @@
         <style>
             .o_control_panel{
                 display: none;
-            }
-            .filtre_pic{
-                margin-bottom: 0.5rem;
-            }
-            table.filtre_pic thead tr:nth-child(1) th {
-                background-color: white;
-                font-size: 1rem;
-                color: gray;
-            }
-            .pic3mois {
-                border-bottom: 1px solid #dee2e6;
-                padding-top: 0;
-                /*padding-right: 16px;*/
-                padding-bottom: 0.5rem;
-                /*margin-right: 16px;*/
-                /*margin-left: 16px;*/
-                background-color: #f2f3f4;
-            }
-            .link {
-                cursor: pointer;
-                color: #564b79;
-            }
+            }    
         </style>
         <Layout display="display">
             <table style="width:98%;margin-left:1%;margin-right:1%" class="filtre_pic">
@@ -44,7 +23,7 @@
                         <th>Prod/ST*</th>
                         <th>Horizon<br />(Semaines)</th>
                         <th>Périodicité<br />(Jours)</th>
-                        <!-- <th>Colonnes<br />vides</th> -->
+                        <th>Colonnes<br />vides</th>
                         <th>Nb<br />Lignes</th>
                         <th></th>
                     </tr>
@@ -104,7 +83,7 @@
                                 </t>
                             </select>
                         </td>
-                        <!-- <td>
+                        <td>
                             <select name="pic3mois_affiche_col_vide" class="form-select" t-on-change="onChangeInput">
                                 <t t-foreach="state.affiche_col_vide_options or []" t-as="o"  t-key="o.id">
                                     <option t-att-value="o.id" t-att-selected="o.selected">
@@ -112,7 +91,7 @@
                                     </option>
                                 </t>
                             </select>
-                        </td> -->
+                        </td>
                         <td>
                             <select name="pic3mois_nb_lig" class="form-select" t-on-change="onChangeInput">
                                 <t t-foreach="state.nb_lig_options or []" t-as="o"  t-key="o.id">
@@ -126,8 +105,10 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="pic3mois" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%">
-                <table style="width:100%;overflow-y:auto">
+            <div class="pic3mois">
+                 <!-- style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%"> -->
+                <table>
+                     <!-- style="width:100%;overflow-y:auto"> -->
                     <thead>
                         <tr>
                             <th style="text-align:left">
@@ -135,11 +116,11 @@
                                 Moule / Code / Gest / Stock A / Stock Q / Lot / StockSecu / Délai
                             </th>
                             <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
-                                <th style="text-align:right">
+                                <th style="text-align:right" t-if="o.affiche_col">
                                     <t t-esc="o.jour"/><br /><t t-esc="o.mois"/>
                                 </th>
                             </t>
-                            <th style="width:1%"/>
+                            <!-- <th style="width:1%"/> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -147,22 +128,25 @@
                             <tr 
                                 t-att-style="line.trstyle"
                                 t-att-memstyle="line.trstyle"
+                                t-att-click="-1"
                                 t-on-mouseenter="TrMouseEnter" 
                                 t-on-click="TrClick" 
                                 t-on-mouseleave="TrMouseLeave" 
-                                t-att-productid="line.product_tmpl_id"
-                                t-att-click="-1"
                             >
                                 <td 
                                     style="text-align:left" 
-                                    t-on-click="clickCode" 
                                     t-att-productid="line.product_tmpl_id"
                                 >
                                     <span t-esc="line.row.code_client"/> / 
                                     <span t-esc="line.row.is_ref_client"/> / 
                                     <span t-esc="line.row.client_order_ref"/><br />
                                     <span t-esc="line.moule"/> / 
-                                    <span t-esc="line.row.is_code"/> / 
+                                    <span 
+                                        t-esc="line.row.is_code" 
+                                        class="link" 
+                                        t-on-click="clickCode"
+                                        t-att-productid="line.product_tmpl_id"
+                                    /> / 
                                     <span t-esc="line.row.gestionnaire"/> / 
                                     <b><span t-esc="line.row.stocka"/></b> / 
                                     <b><span t-esc="line.row.stockq"/></b> / 
@@ -174,15 +158,67 @@
                                 <t t-foreach="line.listcols" t-as="col" t-key="col.key">
                                     <td 
                                         style="text-align:right" 
-                                        t-esc="col.qt" 
-                                        class="link" 
-                                        t-on-click="OKclickQt" 
-                                    />
+                                        t-if="state.date_cols[col.key-1].affiche_col"
+                                    >
+                                        <t t-set="ferme" t-value="0"/>
+                                        <t t-set="prev"  t-value="0"/>
+                                        <t t-foreach="col.rows" t-as="row" t-key="row.id">
+                                            <div style="display: none"><t t-esc="row.is_type_commande"/></div>
+                                            <t t-if="row.is_type_commande=='ferme'">
+                                                <t t-set="ferme" t-value="ferme+row.product_uom_qty"/>
+                                            </t>
+                                            <t t-if="row.is_type_commande!='ferme'">
+                                                <t t-set="prev" t-value="prev+row.product_uom_qty"/>
+                                            </t>
+                                        </t>
+                                        <span class="info" t-if="ferme">
+                                            <span 
+                                                t-esc="ferme" 
+                                                class="link"
+                                                t-on-click="QtClick" 
+                                                style="color:#008000;font-weight: bold;"
+                                                t-att-ids="col.ids_ferme.join(',')"
+                                            />
+                                            <pre>
+                                                <t t-foreach="col.rows" t-as="row" t-key="row.id">
+                                                    <t t-if="row.is_type_commande=='ferme'">
+                                                        <t t-esc="row.name"/> : <t t-esc="row.is_date_livraison"/> : <t t-esc="row.product_uom_qty"/><br />
+                                                    </t>
+                                                </t>
+                                            </pre>
+                                        </span><br />
+                                        <span class="info" t-if="prev">
+                                            <span 
+                                                t-esc="prev" 
+                                                class="link"
+                                                t-on-click="QtClick" 
+                                                t-att-ids="col.ids_prev.join(',')"
+                                            />
+                                            <pre>
+                                                <t t-foreach="col.rows" t-as="row" t-key="row.id">
+                                                    <t t-if="row.is_type_commande!='ferme'">
+                                                        <t t-esc="row.name"/> : <t t-esc="row.is_date_livraison"/> : <t t-esc="row.product_uom_qty"/><br />
+                                                    </t>
+                                                </t>
+                                            </pre>
+                                        </span>
+                                    </td>
                                 </t>
                                 <td/>
                             </tr>
                         </t> 
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th style="text-align:left">Total :</th>
+                            <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
+                                <th style="text-align:right" t-if="o.affiche_col">
+                                    <t t-esc="o.total"/>
+                                </th>
+                            </t>
+                            <!-- <th style="width:1%"/> -->
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </Layout>

@@ -11,14 +11,7 @@ class Pic3Mois(http.Controller):
 
 
 #TODO : 
-# - Lot mini
-# - Masquer les colonnes vides
-# - Page suivantes
-# - Totaux
-# - Mettre les chiffres dans les bonnes colonnes
-# - Faire fonctionner le clic sur la référence et sur les quanités
-# - Qt ferme en gras 
-# - Faire fonctionner le service de cache et la mise à jour des données
+# - Pouvoir imprimer
 
 
 class sale_order(models.Model):
@@ -41,8 +34,6 @@ class sale_order(models.Model):
                       periodicite=7,
                       affiche_col_vide="Oui",
                       nb_lig=100):
-
-        
         if ok:
             self.env['is.mem.var'].set(self._uid, 'pic3mois_code_cli'        , code_cli)
             self.env['is.mem.var'].set(self._uid, 'pic3mois_adr_cli'         , adr_cli)
@@ -75,12 +66,9 @@ class sale_order(models.Model):
             periodicite      = self.env['is.mem.var'].get(self._uid, 'pic3mois_periodicite')
             affiche_col_vide = self.env['is.mem.var'].get(self._uid, 'pic3mois_affiche_col_vide')
             nb_lig           = int(self.env['is.mem.var'].get(self._uid, 'pic3mois_nb_lig'))
-
-
         nb_semaines = nb_semaines or 12
         periodicite = periodicite or 7
         nb_lig      = nb_lig or 100
-
 
 
         #Liste de choix *******************************************************
@@ -173,6 +161,7 @@ class sale_order(models.Model):
         cr = self._cr
         SQL="""
             SELECT 
+                so.name,
                 sol.id,
                 so.partner_id,
                 so.client_order_ref,
@@ -198,10 +187,10 @@ class sale_order(models.Model):
                 coalesce(im.name, id.name) moule,
                 imp.name projet,
                 (select route_id from stock_route_product srp where srp.product_id=pt.id  limit 1) route_id,
-                (   select sum(sq.quantity) 
+                (   select round(sum(sq.quantity)) 
                     from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
                     where sl.usage='internal' and sl.active='t' and sq.product_id=pp.id and sl.control_quality='f' ) stocka,
-                (   select sum(sq.quantity)
+                (   select round(sum(sq.quantity))
                     from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
                     where sl.usage='internal' and sl.active='t' and sq.product_id=pp.id and sl.control_quality='t' ) stockq
             FROM sale_order so inner join sale_order_line      sol on so.id=sol.order_id 
@@ -216,10 +205,6 @@ class sale_order(models.Model):
                             left outer join is_category      ic on pt.is_category_id=ic.id
             WHERE so.state in('draft','sent') 
         """
-
-
-
-
         if code_cli:
             SQL+=" AND rp.is_code='%s' "%code_cli
         if adr_cli:
@@ -240,17 +225,12 @@ class sale_order(models.Model):
                 rMoules.append("'%s'"%m.strip())
             moules = ",".join(rMoules)
             SQL+=" AND (im.name IN (%s) or id.name IN (%s)) "%(moules,moules)
-
-        # affiche_col_vide = self.env['is.mem.var'].get(self._uid, 'pic3mois_affiche_col_vide')
-
-
         if projet:
             SQL+=" AND (imp.name ilike '%%%s%%' or imp2.name ilike '%%%s%%') "%(projet,projet)
         if type_cde=="Ferme":
             SQL+=" AND sol.is_type_commande='ferme' "
         if type_cde=="Prev":
             SQL+=" AND sol.is_type_commande='previsionnel' "
-
         if type_client=="50xx":
             SQL+=" AND rp.is_code>='500000' AND rp.is_code<='599999' "
         if type_client=="70xx":
@@ -270,23 +250,18 @@ class sale_order(models.Model):
         SQL+=" ORDER BY rp.is_code, im.name, pt.is_code limit %s"%(int(nb_lig)*100)
         #**********************************************************************
 
-
         NbColMax = math.floor(int(nb_semaines)*7/int(periodicite))
         LaDate = datetime.now()
         JourSem = LaDate.weekday()
         DebSem = LaDate
         if periodicite!=1:
             DebSem = LaDate - timedelta(days=JourSem)
-
-
-
         lig=0
         key=""
         cr.execute(SQL)
         result = cr.dictfetchall()
         lines={}
         trcolor=""
-
         TotalCol={}
         for row in result:
             DebSemTxt = DebSem.strftime("%Y%m%d")
@@ -298,9 +273,6 @@ class sale_order(models.Model):
                 else:
                     trcolor="#ffffff"
                 trstyle="background-color:%s"%(trcolor)
-
-                #moule    = "LeMoule"
-                lot_mini = "LotMini"
                 vals={
                     "key"        : key,
                     "product_tmpl_id": row["product_tmpl_id"],
@@ -308,11 +280,11 @@ class sale_order(models.Model):
                     "trstyle"    : trstyle,
                     "row"        : row,
                     "moule"      : row["moule"],
-                    "lot_mini"   : lot_mini,
+                    "lot_mini"   : row["lot_mini"],
                 }
                 cols={}
-                for col in range(1, NbColMax):
-                    cols[col] = {"key":col, "qt":""}
+                for col in range(1, NbColMax+1):
+                    cols[col] = {"key":col, "rows": [], "ids_ferme": [], "ids_prev": []} 
                 vals["cols"] = cols
                 lines[key]=vals
                 lig+=1
@@ -320,38 +292,41 @@ class sale_order(models.Model):
             DateCde = row["is_date_livraison"] or datetime.now().date()
             DateCdeTxt =  DateCde.strftime("%Y%m%d")
             if DateCdeTxt<DebSemTxt:
-                col=0
+                col=1
             else:
                 nb_jours = (DateCde-DebSem.date()).days
-                col=math.floor(nb_jours/int(periodicite))
-
-            if col<NbColMax:
+                col=math.floor(nb_jours/int(periodicite))+1
+            if col<=NbColMax:
                 qt = row['product_uom_qty']
-                lines[key]["cols"][col] =  {"key":col, "qt":qt}
-
+                lines[key]["cols"][col]["rows"].append(row)
+                if row["is_type_commande"]=='ferme':
+                    lines[key]["cols"][col]["ids_ferme"].append(row["id"])
+                else:
+                    lines[key]["cols"][col]["ids_prev"].append(row["id"])
                 if col not in TotalCol:
                     TotalCol[col]=0
                 TotalCol[col]+=qt
-
             lines[key]["listcols"] = list(lines[key]["cols"].values())
-
             if lig>int(nb_lig):
                 break
-
 
         #** Titres des colonnes ***********************************************
         date_cols=[]
         DateCol = DebSem
-        for o in range(0,NbColMax):
-            DebSem.strftime("%Y%m%d")
+        for o in range(1,NbColMax+1):
+            total=TotalCol.get(o, "")
+            affiche_col=False
+            if affiche_col_vide=="Oui" or total!="":
+                affiche_col=True
             date_cols.append({
-                "id": o,
-                "jour": DateCol.strftime("%d"),
-                "mois": DateCol.strftime("%m"),
+                "id"   : o,
+                "jour" : DateCol.strftime("%d"),
+                "mois" : DateCol.strftime("%m"),
+                "total": total,
+                "affiche_col": affiche_col,
             })
             DateCol = DateCol + timedelta(days=int(periodicite))
         #**********************************************************************
-
 
         res={
             "lines"           : list(lines.values()),
@@ -364,7 +339,6 @@ class sale_order(models.Model):
             "ref_cli"         : ref_cli,
             "moule"           : moule,
             "projet"          : projet,
-
             "type_cde"        : type_cde,
             "type_client"     : type_client,
             "prod_st"         : prod_st,
@@ -372,7 +346,6 @@ class sale_order(models.Model):
             "periodicite"     : periodicite,
             "affiche_col_vide": affiche_col_vide,
             "nb_lig"          : nb_lig,
-
             "type_cde_options"        : type_cde_options,
             "type_client_options"     : type_client_options,
             "prod_st_options"         : prod_st_options,

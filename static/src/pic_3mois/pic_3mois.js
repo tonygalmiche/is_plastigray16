@@ -74,6 +74,7 @@ class Pic3Mois extends Component {
         }
     }
 
+    
     TrMouseLeave(ev) {
         const click=ev.target.attributes.click.value;
         if (click!="1"){
@@ -90,16 +91,57 @@ class Pic3Mois extends Component {
     }
 
     TrClick(ev) {
-        var click=parseInt(ev.target.parentElement.attributes.click.value);
-        click=-click
-        if (click==1){
-            ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
-        } else {
-            const memstyle = ev.target.parentElement.attributes.memstyle.value;
-            ev.target.parentElement.style=memstyle;
+
+        console.log(ev.target.parentElement.attributes);
+        console.log(ev.target.parentElement.attributes.click);
+
+        var click=ev.target.parentElement.attributes.click
+        if (click!==undefined){
+            //var click=parseInt(ev.target.parentElement.attributes.click.value);
+            click = click.value;
+
+            // TypeError: ev.target.parentElement.attributes.click is undefined
+
+            click=-click
+            if (click==1){
+                ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
+            } else {
+                const memstyle = ev.target.parentElement.attributes.memstyle.value;
+                ev.target.parentElement.style=memstyle;
+            }
+            ev.target.parentElement.attributes.click.value=click;
         }
-        ev.target.parentElement.attributes.click.value=click;
     }
+    
+
+
+    QtClick(ev) {
+        console.log(ev);
+        //const typeod = ev.target.attributes.name_typeod.value;
+        const ids = ev.target.attributes.ids.value;
+        const tids = ids.split(","); 
+        const model = "sale.order.line";
+        if(tids.length>1){
+            this.action.doAction({
+                type: 'ir.actions.act_window',
+                target: 'current',
+                res_model: model,
+                views: [[false, 'list'], [false, 'form']],
+                domain: [['id', 'in', tids]],
+            });
+        } else {
+            this.action.doAction({
+                type: 'ir.actions.act_window',
+                target: 'current',
+                res_id: parseInt(tids[0]),
+                res_model: model,
+                views: [[false, 'form']],
+            });
+        }
+    }
+
+
+
 
     async getPic3mois(ok=false){
         const params={
