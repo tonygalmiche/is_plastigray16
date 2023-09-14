@@ -107,16 +107,16 @@
             </table>
             <div class="pic3mois">
                  <!-- style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%"> -->
-                <table>
+                <table class="report-container">
                      <!-- style="width:100%;overflow-y:auto"> -->
-                    <thead>
+                    <thead  class="report-header">
                         <tr>
                             <th style="text-align:left">
                                 Client / Ref Client / Cde Client<br />
                                 Moule / Code / Gest / Stock A / Stock Q / Lot / StockSecu / Délai
                             </th>
                             <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
-                                <th style="text-align:right" t-if="o.affiche_col">
+                                <th style="text-align:right;min-width:25pt" t-if="o.affiche_col">
                                     <t t-esc="o.jour"/><br /><t t-esc="o.mois"/>
                                 </th>
                             </t>
@@ -134,7 +134,7 @@
                                 t-on-mouseleave="TrMouseLeave" 
                             >
                                 <td 
-                                    style="text-align:left" 
+                                    style="text-align:left;white-space: nowrap;" 
                                     t-att-productid="line.product_tmpl_id"
                                 >
                                     <span t-esc="line.row.code_client"/> / 
@@ -207,8 +207,17 @@
                                 <td/>
                             </tr>
                         </t> 
+                        <tr>
+                            <th style="text-align:left">Total :</th>
+                            <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
+                                <th style="text-align:right" t-if="o.affiche_col">
+                                    <div t-esc="o.total" style="padding-left:6pt" />
+                                </th>
+                            </t>
+                            <!-- <th style="width:1%"/> -->
+                        </tr>
                     </tbody>
-                    <tfoot>
+                    <!-- <tfoot class="report-footer">
                         <tr>
                             <th style="text-align:left">Total :</th>
                             <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
@@ -216,9 +225,8 @@
                                     <t t-esc="o.total"/>
                                 </th>
                             </t>
-                            <!-- <th style="width:1%"/> -->
                         </tr>
-                    </tfoot>
+                    </tfoot> -->
                 </table>
             </div>
         </Layout>

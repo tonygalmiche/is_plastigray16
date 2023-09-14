@@ -84,7 +84,8 @@ class sale_order(models.Model):
                 "selected": selected,
             })
 
-        options = ["50xx","70xx","80xx","90xx","Tous","SaufPMTC"]
+        #options = ["50xx","70xx","80xx","90xx","Tous","SaufPMTC"]
+        options = ["80xx","90xx","Tous"]
         type_client_options=[]
         for o in options:
             selected=False

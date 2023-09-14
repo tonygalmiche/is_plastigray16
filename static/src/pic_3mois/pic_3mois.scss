@@ -3,7 +3,6 @@
 }
 
 .filtre_pic thead tr:nth-child(1) th {
-//  thead.filtre_pic tr.filtre_pic:nth-child(1) th.filtre_pic {
     background-color: white;
     font-size: 1rem;
     color: gray;
@@ -15,10 +14,14 @@
     padding-bottom: 0.5rem;
     background-color: #f2f3f4;
 }
+
+.pic3mois thead tr:nth-child(1) th {
+    font-size: 1rem;
+}
+
 .link {
     cursor: pointer;
     color: #564b79;
-    color:red;
 }
 
 span.info {
@@ -90,20 +93,18 @@ td.pic3mois {
         height:auto; 
     }
 
-    // table { page-break-inside:auto; }
+    html .o_web_client {
+        display: block;
+    }
 
-    // thead {display: table-header-group;}
-    // tfoot {display: table-footer-group;}
-    
-
+    // table.report-container {
+    //     page-break-after:always;
+    // }
+    thead.report-header {
+        display:table-header-group;
+        //font-size:6pt;
+    }
+    // tfoot.report-footer {
+    //     display:table-footer-group;
+    // }
 }
-
-
-// @media print
-//  {
-//    thead {display: table-header-group;}
-//  }
-
-//  thead, tfoot {
-//     display: table-row-group
-// }
