@@ -613,7 +613,7 @@
     </record>
 
     <!-- PIC à 3 mois -->
-    <record id="is_pic_3mois_url_action_server" model="ir.actions.server">
+    <!-- <record id="is_pic_3mois_url_action_server" model="ir.actions.server">
         <field name="name">PIC à 3 mois (ancien)</field>
         <field name="model_id" ref="model_ir_actions_act_url"/>
         <field name="state">code</field>
@@ -628,7 +628,7 @@
             ref('is_employes_hors_production_group'),
         ])]"/>
     </record>
-
+ -->
 
     <record model="ir.actions.client" id="pic_3mois_action_client">
         <field name="name">PIC à 3 mois</field>

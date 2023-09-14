@@ -91,6 +91,10 @@ class purchase_order(models.Model):
     #date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
     location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
 
+    #partner_id           = fields.Many2one('res.partner', domain=[('is_company','=',False)])
+
+# [('is_company','=',True),('supplier','=',True)]
+
 
     def _add_supplier_to_product(self):
         # Désactivation de cette fonction qui ajoute automatiquement un fournisseur à la fiche article lors de la validation de la commande

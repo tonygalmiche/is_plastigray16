@@ -105,6 +105,12 @@
                         confirm="Voulez-vous vraiment envoyer ce document par mail ?"
                     />
                 </xpath> -->
+
+
+                <field name="partner_id"  position="attributes">
+                    <attribute name="domain">[('is_company','=',True),('supplier','=',True)]</attribute>
+                </field>
+
                 <field name="date_order" position="after">
                     <field name="is_date_envoi_mail"/>
                     <field name="is_livre_a_id"  domain="[('is_company','=',True)]"/>
