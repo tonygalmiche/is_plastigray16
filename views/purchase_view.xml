@@ -106,6 +106,40 @@
                     />
                 </xpath> -->
 
+                <xpath expr="//group/label[@for='date_planned']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group/div[@name='date_planned_div']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group/label[@for='receipt_reminder_email']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group/div[@name='reminder']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!-- <label for="date_planned"/>
+                <div name="date_planned_div" class="o_row">
+                    <field name="date_planned" attrs="{'readonly': [('state', 'not in', ('draft', 'sent', 'to approve', 'purchase'))]}"/>
+                    <field name="mail_reminder_confirmed" invisible="1"/>
+                    <span class="text-muted" attrs="{'invisible': [('mail_reminder_confirmed', '=', False)]}">(confirmed by vendor)</span>
+                </div>
+            
+             <label for="receipt_reminder_email" class="d-none" groups="purchase.group_send_reminder"/>
+                            <div name="reminder" class="o_row" groups="purchase.group_send_reminder" title="Automatically send a confirmation email to the vendor X days before the expected receipt date, asking him to confirm the exact date.">
+                                <field name="receipt_reminder_email"/>
+                                <span>Ask confirmation</span>
+                                <div class="o_row oe_inline" attrs="{'invisible': [('receipt_reminder_email', '=', False)]}">
+                                    <field name="reminder_date_before_receipt"/>
+                                    day(s) before
+                                    <widget name="toaster_button" button_name="send_reminder_preview" title="Preview the reminder email by sending it to yourself." attrs="{'invisible': [('id', '=', False)]}"/>
+                                </div>
+                            </div>
+            
+            -->
+
+
 
                 <field name="partner_id"  position="attributes">
                     <attribute name="domain">[('is_company','=',True),('supplier','=',True)]</attribute>
@@ -162,7 +196,7 @@
                 <tree decoration-muted="state=='cancel'">
                     <field name="name"/>
                     <field name="date_order"/>
-                    <field name="date_planned"   optional="hide"/>
+                    <!-- <field name="date_planned"   optional="hide"/> -->
                     <field name="partner_id"/>
                     <field name="partner_ref"    optional="hide"/>
                     <field name="origin"         optional="hide"/>

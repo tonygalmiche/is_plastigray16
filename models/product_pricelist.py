@@ -154,11 +154,8 @@ class product_pricelist(models.Model):
         price=0
         justification=False
         if product and qty and date:
+            qty=round(qty,6)
             for version in self.version_id:
-
-                print(version.date_start, date, type(version.date_start),type(date))
-
-
                 if (version.date_start==False or version.date_start<=date) and (version.date_end==False or version.date_end>=date):
                     for item in version.item_ids:
                         if item.product_id==product:

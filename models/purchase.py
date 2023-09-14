@@ -18,7 +18,7 @@ class purchase_order_line(models.Model):
         """Recherche prix et justifcation dans liste de prix pour date et qt et mise à jour"""
         price = 0
         justifcation = False
-        if self.order_id.pricelist_id:
+        if self.order_id.pricelist_id and self.date_planned:
             price, justifcation = self.order_id.pricelist_id.price_get(
                 product = self.product_id,
                 qty     = self.product_qty, 
@@ -26,6 +26,11 @@ class purchase_order_line(models.Model):
             )
         self.price_unit = price
         self.is_justification = justifcation
+
+
+    @api.onchange('product_id','product_uom','product_qty')
+    def pg_onchange_product_qty(self):
+        self.set_price_justification()
 
 
     @api.onchange('product_id','product_uom')
@@ -45,7 +50,7 @@ class purchase_order_line(models.Model):
                 delta=round(qty-lot,8)
                 qty=lot+multiple*ceil(delta/multiple)
             qty = self.product_id.uom_id._compute_quantity(qty, self.product_uom, round=True, rounding_method='UP', raise_if_failure=True)
-            self.product_qty = qty
+            self.product_qty = round(qty,6)
             self.set_price_justification()
         self._compute_tax_id()
 
@@ -90,10 +95,6 @@ class purchase_order(models.Model):
     pricelist_id         = fields.Many2one('product.pricelist','Liste de prix')
     #date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
     location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
-
-    #partner_id           = fields.Many2one('res.partner', domain=[('is_company','=',False)])
-
-# [('is_company','=',True),('supplier','=',True)]
 
 
     def _add_supplier_to_product(self):
