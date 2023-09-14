@@ -997,13 +997,13 @@
         ])]"/>
     </record>
 
-    <record id="is_pic_3ans_url_action_server" model="ir.actions.server">
+    <!-- <record id="is_pic_3ans_url_action_server" model="ir.actions.server">
         <field name="name">PIC à 3 ans</field>
         <field name="model_id" ref="model_ir_actions_act_url"/>
         <field name="state">code</field>
         <field name="code">action = model.is_pic_3ans_url_action()</field>
-    </record>
-    <record id="is_pic_3ans_url_menu" model="ir.ui.menu" >
+    </record> -->
+    <!-- <record id="is_pic_3ans_url_menu" model="ir.ui.menu" >
         <field name="name">PIC à 3 ans (Ancien)</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_pic_3ans_main_menu')"/>
@@ -1011,7 +1011,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
-    </record>
+    </record> -->
 
     <record model="ir.actions.client" id="pic_3ans_action_client">
         <field name="name">PIC à 3 ans</field>

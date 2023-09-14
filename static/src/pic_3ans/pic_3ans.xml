@@ -85,20 +85,34 @@
                                 <td style="text-align:left" t-esc="line.designation"/>
                                 <td style="text-align:center" t-esc="line.us"/>
                                 <td style="text-align:center" t-esc="line.annee"/>
-                                <td style="text-align:right"/>
+                                <td style="text-align:right">
+                                    Prv
+                                    <div t-if="line.realise" style="color:gray;font-style: italic;">Réa</div>
+                                </td>
 
                                 <t t-foreach="line.listcols" t-as="col" t-key="col.key">
                                     <!-- <td style="text-align:right" t-esc="col.quantite"/> -->
-                                    <td 
-                                        style="text-align:right" 
-                                        t-esc="col.quantite" 
-                                        class="link" 
-                                        t-on-click="OKclickQt" 
-                                        t-att-mois="col.mois" 
-                                        t-att-productid="line.product_id"
-                                    />
+                                    <td style="text-align:right">
+                                        <div 
+                                            class="link" 
+                                            t-esc="col.quantite"
+                                            t-on-click="OKclickQt" 
+                                            t-att-mois="col.mois" 
+                                            t-att-productid="line.product_id"
+
+                                        />
+                                        <div 
+                                            t-if="line.realise" 
+                                            t-esc="col.livraison"
+                                            style="color:gray;font-style: italic;"
+                                        />
+                                    </td>
                                 </t>
+
                                 
+                                <!-- t-esc="col.quantite"  -->
+
+
                                 <!-- 
                                 <td style="text-align:right" t-esc="line.m01" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
                                 <td style="text-align:right" t-esc="line.m02" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>

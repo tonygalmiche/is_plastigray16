@@ -495,6 +495,30 @@ class is_pic_3ans(models.Model):
         #     this.state.pic3ans_annee_prev    = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "pic3ans_annee_prev"]);
 
 
+    def get_livraison(self,annee_realise, mois, code_pg):
+        cr = self._cr
+        qt=0
+        mois = mois[-2:]
+        date_debut="%s-%s-01"%(annee_realise, mois)
+        date_debut=datetime.strptime(date_debut, '%Y-%m-%d')
+        date_fin = date_debut + relativedelta(months=1)
+        SQL="""
+            select sum(sm.product_uom_qty) qt
+            from stock_picking sp inner join stock_move     sm on sm.picking_id=sp.id 
+                                inner join product_product  pp on sm.product_id=pp.id
+                                inner join product_template pt on pp.product_tmpl_id=pt.id
+            where 
+                sm.state='done' and
+                sm.date>='%s' and sm.date<'%s' and
+                pt.is_code like '%s%%' 
+        """%(date_debut, date_fin, code_pg[:6])
+        cr.execute(SQL)
+        result = cr.dictfetchall()
+        for row in result:
+            qt = row["qt"] or 0
+        return qt
+
+
     def get_pic_3ans(self,client,fournisseur,codepg,cat,gest,moule,annee_realise,annee_prev):
         cr = self._cr
         SQL="""
@@ -554,6 +578,9 @@ class is_pic_3ans(models.Model):
                 else:
                     trcolor="#ffffff"
                 trstyle="background-color:%s"%(trcolor)
+                realise=False
+                if annee_realise:
+                    realise=True
                 vals={
                     "key"            : key,
                     "product_tmpl_id": row["product_tmpl_id"],
@@ -567,20 +594,34 @@ class is_pic_3ans(models.Model):
                     "annee"          : row["annee"],
                     "mois"           : row["mois"],
                     "trstyle"        : trstyle,
+                    "realise"        : realise,
                 }
                 cols={}
                 for x in range(1, 13):
                     col="m%02d"%(x)
                     vals[col]=''
-                    cols[col] = {"key":col, "quantite":"", "mois":""}
+                    cols[col] = {"key":col, "quantite":"", "mois":"", "livraison":""}
 
                 vals["cols"]=cols
                 TabTmp1[key]=vals
 
             if row["quantite"]:
-                quantite = "{:,.0f}".format(row["quantite"]).replace(",", " ")
-                TabTmp1[key]["cols"][mois] = {"key":mois, "mois":row["mois"], "quantite":quantite}
+                quantite  = "{:,.0f}".format(row["quantite"]).replace(",", " ")
+
+
+                livraison=0
+                if realise:
+                    livraison=self.get_livraison(annee_realise, row["mois"], row["code"])
+
+                livraison = "{:,.0f}".format(livraison).replace(",", " ")
+                TabTmp1[key]["cols"][mois] = {"key":mois, "mois":row["mois"], "quantite":quantite, "livraison":livraison}
             TabTmp1[key]["listcols"] = list(TabTmp1[key]["cols"].values())
+
+
+
+
+
+
         res = list(TabTmp1.values())
         return res
 

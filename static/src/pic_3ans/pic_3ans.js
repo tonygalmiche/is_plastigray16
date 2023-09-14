@@ -121,15 +121,21 @@ class Pic3Ans extends Component {
     }
 
     TrClick(ev) {
-        var click=parseInt(ev.target.parentElement.attributes.click.value);
-        click=-click
-        if (click==1){
-            ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
-        } else {
-            const memstyle = ev.target.parentElement.attributes.memstyle.value;
-            ev.target.parentElement.style=memstyle;
+        //var click=parseInt(ev.target.parentElement.attributes.click.value);
+
+        var click=ev.target.parentElement.attributes.click
+        if (click!==undefined){
+            //var click=parseInt(ev.target.parentElement.attributes.click.value);
+            click = click.value;
+            click=-click
+            if (click==1){
+                ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
+            } else {
+                const memstyle = ev.target.parentElement.attributes.memstyle.value;
+                ev.target.parentElement.style=memstyle;
+            }
+            ev.target.parentElement.attributes.click.value=click;
         }
-        ev.target.parentElement.attributes.click.value=click;
     }
 
 
