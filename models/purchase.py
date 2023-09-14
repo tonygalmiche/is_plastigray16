@@ -95,6 +95,7 @@ class purchase_order(models.Model):
     pricelist_id         = fields.Many2one('product.pricelist','Liste de prix')
     #date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
     location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
+    is_type_cde_fournisseur = fields.Selection(related='partner_id.is_type_cde_fournisseur')
 
 
     def _add_supplier_to_product(self):

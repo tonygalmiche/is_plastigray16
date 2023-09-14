@@ -179,6 +179,7 @@
                     <field name="is_num_da" />
                     <field name="is_demandeur_id" />
                     <field name="pricelist_id"/>
+                    <field name="is_type_cde_fournisseur"/>
                 </field>
                 <field name="incoterm_id" position="after">
                     <field name="is_lieu"/>
@@ -202,6 +203,7 @@
                     <field name="origin"         optional="hide"/>
                     <field name="amount_untaxed" optional="show" sum="Total"/>
                     <field name="amount_total"   optional="show" sum="Total"/>
+                    <field name="is_type_cde_fournisseur" optional="hide"/>
                     <field name="state"/>
                 </tree>
             </field>
