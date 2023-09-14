@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #import ssl
 from odoo import models, fields, api
-import datetime
+from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
 #import os
@@ -130,7 +130,7 @@ class is_demande_conges(models.Model):
                     demande = self.env['is.demande.conges'].create(vals)
                     demande.vers_validation_n1_action()
 
-            obj.date_validation_n1 = datetime.datetime.today()
+            obj.date_validation_n1 = datetime.today()
 
             if not obj.demande_collective_id:
                 subject = u'[' + obj.name + u'] Demande de congés - Envoyé au N+1 pour validation'
@@ -171,7 +171,7 @@ class is_demande_conges(models.Model):
                 for demande in obj.demande_conges_ids:
                     demande.vers_validation_n2_action()
 
-            obj.date_validation_n2 = datetime.datetime.today()
+            obj.date_validation_n2 = datetime.today()
 
             if not obj.demande_collective_id:
                 subject = u'[' + obj.name + u'] Demande de congés - Envoyé au N+2 pour validation'
@@ -215,7 +215,7 @@ class is_demande_conges(models.Model):
             if obj.demande_collective=='oui':
                 for demande in obj.demande_conges_ids:
                     demande.vers_validation_rh_action()
-            obj.date_validation_rh = datetime.datetime.today()
+            obj.date_validation_rh = datetime.today()
             if not obj.demande_collective_id:
                 subject = u'[' + obj.name + u'] Demande de congés - Accepté et transmis au RH'
                 email_to = obj.responsable_rh_id.email
@@ -249,12 +249,12 @@ class is_demande_conges(models.Model):
                 if obj.type_demande in ['sans_solde','autre']:
                     employes = self.env['hr.employee'].search([('user_id', '=', obj.demandeur_id.id),('is_pointage','=',True)], limit=1)
                     for employe in employes:
-                        d0 = datetime.datetime.strptime(obj.date_debut, '%Y-%m-%d')
-                        d1 = datetime.datetime.strptime(obj.date_fin  , '%Y-%m-%d')
+                        d0 = datetime.strptime(obj.date_debut, '%Y-%m-%d')
+                        d1 = datetime.strptime(obj.date_fin  , '%Y-%m-%d')
                         nb_jours = (d1 - d0).days
                         self.env['is.pointage.commentaire'].sudo().search([('demande_conges_id', '=', obj.id)]).unlink()
                         for x in range(nb_jours+1):
-                            name = d0 + datetime.timedelta(days=x)
+                            name = d0 + timedelta(days=x)
                             if obj.type_demande=='sans_solde':
                                 commentaire = u'[' + obj.name +u'] Congés sans solde'
                             else:
@@ -307,7 +307,7 @@ class is_demande_conges(models.Model):
         uid=self._uid
         if self.date_debut and self.date_fin:
             mois_demande = str(self.date_debut)[:8]
-            ce_mois      = str(datetime.date.today())[:8]
+            ce_mois      = str(date.today())[:8]
             if mois_demande<ce_mois and self.responsable_rh_id.id!=uid and uid!=1:
                 raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
             if str(self.date_debut)[:8]!=str(self.date_fin)[:8]:
@@ -330,29 +330,29 @@ class is_demande_conges(models.Model):
 
 
     def ajouter_dans_agenda(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
         tz = pytz.timezone('CET')
         offset=tz.utcoffset(now).total_seconds()
         events=[]
         if self.type_demande in ["cp_rtt_journee","sans_solde","autre"]:
-            dt1 = datetime.datetime.strptime(self.date_debut + " 08:00:00", '%Y-%m-%d %H:%M:%S')
-            dt2 = datetime.datetime.strptime(self.date_fin   + " 08:00:00", '%Y-%m-%d %H:%M:%S')
+            dt1 = datetime.strptime(self.date_debut + " 08:00:00", '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime(self.date_fin   + " 08:00:00", '%Y-%m-%d %H:%M:%S')
             start = dt1
             while start <= dt2:
                 events.append([
-                    start - datetime.timedelta(seconds=offset), 
-                    start - datetime.timedelta(seconds=offset) + datetime.timedelta(hours=10), 
+                    start - timedelta(seconds=offset), 
+                    start - timedelta(seconds=offset) + datetime.timedelta(hours=10), 
                 ])
-                start = start + datetime.timedelta(days=1)
+                start = start + timedelta(days=1)
         if self.type_demande=="cp_rtt_demi_journee":
             start = self.le
             if self.matin_ou_apres_midi=="matin":
                 start = self.le+" 08:00:00"
             else:
                 start = self.le+" 13:30:00"
-            start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
-            start = start - datetime.timedelta(seconds=offset)
-            stop = start + datetime.timedelta(hours=4)
+            start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
+            start = start - timedelta(seconds=offset)
+            stop = start + timedelta(hours=4)
             events.append([start, stop])
         if self.type_demande=="rc_heures": 
             hours, minutes = divmod(self.heure_debut*60, 60)
@@ -360,11 +360,11 @@ class is_demande_conges(models.Model):
             hours, minutes = divmod(self.heure_fin*60, 60)
             fin   = " %02d:%02d:00"%(hours,minutes)
             start = self.le + debut
-            start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
-            start = start - datetime.timedelta(seconds=offset)
+            start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
+            start = start - timedelta(seconds=offset)
             stop = self.le + fin
-            stop = datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M:%S')
-            stop = stop - datetime.timedelta(seconds=offset)
+            stop = datetime.strptime(stop, '%Y-%m-%d %H:%M:%S')
+            stop = stop - timedelta(seconds=offset)
             events.append([start, stop])
         email = self.demandeur_id.partner_id.email
         company = self.env.user.company_id
@@ -442,7 +442,7 @@ class is_demande_conges(models.Model):
             fld_vsb             = False
             droit_actualise_vsb = False
             test_date           = False
-            current_date = datetime.date.today()
+            current_date = date.today()
             current_date_plus_ten = current_date + relativedelta(days=10)
             if obj.date_debut:
                 if current_date_plus_ten < obj.date_debut:
@@ -580,7 +580,7 @@ class is_demande_conges(models.Model):
     createur_id                   = fields.Many2one('res.users', u'Créateur', default=lambda self: self.env.user        , copy=False)
     date_creation                 = fields.Datetime(string=u'Date de création', default=lambda *a: fields.datetime.now(), copy=False)
     employe_id                    = fields.Many2one('hr.employee', 'Autre demandeur')
-    demandeur_id                  = fields.Many2one('res.users', 'Demandeur', default=lambda self: self.env.user)
+    demandeur_id                  = fields.Many2one('res.users', 'Demandeur', default=lambda self: self.env.user, index=True)
     matricule                     = fields.Char(u"Matricule", compute='_compute_matricule', readonly=True, store=True)
     mode_communication = fields.Selection([
                                         ('courriel'    , u'Courriel'),
@@ -616,9 +616,9 @@ class is_demande_conges(models.Model):
     droit_rtt_actualise           = fields.Float(string='Droit RTT actualisé (jours)', digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
     droit_rc_actualise            = fields.Float(string='Droit RC actualisé (heures)', digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
 
-    date_debut                    = fields.Date(string=u'Date début')
-    date_fin                      = fields.Date(string='Date fin')
-    le                            = fields.Date(string='Le')
+    date_debut                    = fields.Date(string=u'Date début', index=True)
+    date_fin                      = fields.Date(string='Date fin', index=True)
+    le                            = fields.Date(string='Le', index=True)
     matin_ou_apres_midi           = fields.Selection([
                                         ('matin', 'Matin'),
                                         ('apres_midi', u'Après-midi')
@@ -644,7 +644,7 @@ class is_demande_conges(models.Model):
                                         ('validation_rh', 'Validation RH'),
                                         ('solde' , u'Soldé'),
                                         ('refuse', u'Refusé'),
-                                        ('annule', u'Annulé')], string=u'État', readonly=True, default='creation')
+                                        ('annule', u'Annulé')], string=u'État', readonly=True, default='creation', index=True)
 
     vers_creation_btn_vsb      = fields.Boolean(string='vers_creation_btn_vsb'     , compute='_get_btn_vsb', default=False, readonly=True)
     vers_annuler_btn_vsb       = fields.Boolean(string='vers_annuler_btn_vsb'      , compute='_get_btn_vsb', default=False, readonly=True)
@@ -655,6 +655,436 @@ class is_demande_conges(models.Model):
     vers_solde_btn_vsb         = fields.Boolean(string='vers_solde_btn_vsb'        , compute='_get_btn_vsb', default=False, readonly=True)
     fld_vsb                    = fields.Boolean(string='Field Vsb'                 , compute='_get_btn_vsb', default=False, readonly=True)
     droit_actualise_vsb        = fields.Boolean(string='droit_actualise_vsb'       , compute='_get_btn_vsb', default=False, readonly=True)
+
+
+    def get_calendrier_absence(self, 
+            ok=False,
+            service=False, 
+            poste=False, 
+            nom=False, 
+            n1=False, 
+            n2=False, 
+            date_debut=False, 
+            nb_jours=False,
+            semaine_precedente=False,
+            semaine_suivante=False
+    ):
+        
+        #** set/get var *****************************************************
+        if ok:
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'service'   , service)
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'poste'     , poste)
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'nom'       , nom)
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'n1'        , n1)
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'n2'        , n2)
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'date_debut', date_debut)
+            self.env['is.mem.var'].set(self._uid, 'calendrier_absence_%s'%'nb_jours'  , nb_jours)
+        else:
+            service    = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'service')
+            poste      = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'poste')
+            nom        = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'nom')
+            n1         = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'n1')
+            n2         = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'n2')
+            date_debut = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'date_debut')
+            nb_jours   = self.env['is.mem.var'].get(self._uid, 'calendrier_absence_%s'%'nb_jours') or 14
+        #**********************************************************************
+
+
+        #** Date de début du calendrier ***************************************
+        debut = date.today()
+        if date_debut:
+            d = date_debut.replace(".","/")
+            try:
+                debut = datetime.strptime(d, '%d/%m/%y').date()
+            except ValueError:
+                try:
+                    debut = datetime.strptime(d, '%d/%m/%Y').date()
+                except ValueError:
+                    debut=date.today()
+        #**********************************************************************
+
+
+        #** Traitement semaine_precedente et semaine_suivante *****************
+        if semaine_suivante:
+            debut = debut + timedelta(days=7)
+            date_debut = debut.strftime("%d/%m/%Y")
+        if semaine_precedente:
+            debut = debut - timedelta(days=7)
+            date_debut = debut.strftime("%d/%m/%Y")
+        #**********************************************************************
+
+
+        #** Titres des colonnes ***********************************************
+        ladate = debut - timedelta(days=debut.weekday())
+        date_cols=[]
+        for i in range(0,int(nb_jours)):
+            semaine=False
+            if ladate.weekday()==0:
+                semaine=ladate.strftime("Sem %W")
+            date_cols.append({
+                "key"    : ladate,
+                "jour"   : ladate.strftime("%d"),
+                "semaine": semaine,
+                "date"   : ladate.strftime("%d/%m/%Y"),
+            })
+            ladate+=timedelta(days=1)
+        #**********************************************************************
+
+
+
+        #** Filtre de la requete **********************************************
+        emp_domain = []
+        if service:
+            emp_domain.append(('department_id','ilike', service))
+        if poste:
+            emp_domain.append(('job_id','ilike', poste))
+        if nom:
+            emp_domain.append(('name','ilike', nom))
+        if n1:
+            emp_domain.append(('is_valideur_n1','ilike', n1))
+        if n2:
+            emp_domain.append(('is_valideur_n2','ilike', n2))
+        emp_domain.append(('job_id','!=', 'INTERIMAIRE'))
+        #**********************************************************************
+
+
+        #** Requête ***********************************************************
+        employes = self.env['hr.employee'].sudo().search(emp_domain,order="department_id,job_id")
+        lines=[]
+        trcolor=""
+
+
+        x=1
+        for employe in employes:
+            if trcolor=="#ffffff":
+                trcolor="#f2f3f4"
+            else:
+                trcolor="#ffffff"
+            trstyle="background-color:%s"%(trcolor)
+
+            cols=[]
+            ladate = debut - timedelta(days=debut.weekday())
+            for i in range(0,int(nb_jours)):
+                absences=[]
+                conges = self.env['is.demande.conges'].sudo().search([
+                    ('demandeur_id', '=', employe.user_id.id),
+                    ('date_debut', '<=', ladate),
+                    ('date_fin', '>=', ladate),
+                    ('state','not in', ['refuse','annule']),
+                ])
+                if not conges:
+                    conges = self.env['is.demande.conges'].sudo().search([
+                        ('demandeur_id', '=', employe.user_id.id),
+                        ('le', '=', ladate),
+                        ('state','not in', ['refuse','annule']),
+                    ])
+                for conge in conges:
+                    print(employe.name,ladate, conge)
+                    key="conge-%s-%s-%s"%(employe.id,i,conge.id)
+                    absences.append({
+                        "key"   : key,
+                        "model" : 'is.demande.conges',
+                        "res_id": conge.id,
+                        "type"  : 'C',
+                    })
+
+
+
+                demandes =  self.env['is.demande.absence'].sudo().search([
+                    ('employe_ids', 'in', [employe.id]),
+                    ('date_debut', '<=', ladate),
+                    ('date_fin', '>=', ladate),
+                ])
+                if not demandes:
+                    demandes =  self.env['is.demande.absence'].sudo().search([
+                        ('employe_ids', 'in', [employe.id]),
+                        ('date_debut', '=', ladate),
+                    ])
+                for demande in demandes:
+                    print(employe.name,ladate, demande)
+                    key="absence-%s-%s-%s"%(employe.id,i,demande.id)
+                    absences.append({
+                        "key"   : key,
+                        "model" : 'is.demande.absence',
+                        "res_id": demande.id,
+                        "type"  : 'A',
+                    })
+
+
+
+
+                cols.append({
+                    "key" : i,
+                    "date": ladate.strftime("%d/%m/%Y"),
+                    "x"   : x,
+                    "absences": absences,
+                })
+                ladate+=timedelta(days=1)
+                x+=1
+            vals={
+                "employe_id": employe.id,
+                "trstyle"   : trstyle,
+                "service"   : employe.department_id.name or '',
+                "poste"     : employe.job_id.name or '',
+                "nom"       : employe.name or '',
+                "n1"        : employe.is_valideur_n1.name or '',
+                "n2"        : employe.is_valideur_n2.name or '',
+                "cols"      : cols,
+            }
+            lines.append(vals)
+        #**********************************************************************
+
+
+# Service 	Poste 	Nom 	N+1 	N+2
+
+   #         html += "<td style='width:240px;font-weight:normal;text-align:left;'>" + (emp.department_id.name or '') + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + (emp.job_id.name or '') + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + emp.name + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + (emp.is_valideur_n1.name or '') + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + (emp.is_valideur_n2.name or '') + "</td>\n"
+    #         for col in sorted(week_per_year.keys()):
+
+
+
+
+
+        options = [7,14,21,28,35,42,49,56]
+        nb_jours_options=[]
+        for o in options:
+            selected=False
+            if o==int(nb_jours):
+                selected=True
+            nb_jours_options.append({
+                "id": o,
+                "name": o,
+                "selected": selected,
+            })
+        titre="Calendrier des absences"
+
+     
+        res={
+            "titre"           : titre,
+            "lines"           : lines,
+            "date_cols"       : date_cols,
+            "service"         : service,
+            "poste"           : poste,
+            "nom"             : nom,
+            "n1"              : n1,
+            "n2"              : n2,
+            "date_debut"      : date_debut,
+            "nb_jours"        : nb_jours,
+            "nb_jours_options": nb_jours_options,
+        }
+        return res
+
+
+    # @api.model
+    # def analyse_des_absences(self, filter=False):
+    #     dummy, act_id = data_pool.get_object_reference('is_pg_2019', "is_demande_absence_action")
+    #     dummy, act_id_demande = data_pool.get_object_reference('is_pg_2019', "is_demande_conges_action")
+    #    
+    #     week_per_year = defaultdict(dict)
+    #     today_date = datetime.date.today()
+    #     first_date_year = today_date + datetime.timedelta(days=-today_date.weekday())
+    #     last_date_year = first_date_year + datetime.timedelta(days=+int(nb_jours) - 1)
+    #     if date_debut:
+    #         try:
+    #             date_custom_format = '%d.%m.%Y'
+    #             if len(date_debut.split('.')) == 3 and len(date_debut.split('.')[2]) == 2:
+    #                 date_custom_format = '%d.%m.%y'
+    #             if '/' in date_debut:
+    #                 date_custom_format = '%d/%m/%Y'
+    #                 if len(date_debut.split('/')) == 3 and len(date_debut.split('/')[2]) == 2:
+    #                     date_custom_format = '%d/%m/%y'
+    #             date_debut
+    #             select_date = datetime.datetime.strptime(date_debut, date_custom_format).date()
+    #         except Exception as e:
+    #             raise except_orm(_('Date Format!'),
+    #                              _(" %s ") % (str(e).decode('utf-8'),))
+    #         last_date_year = select_date + \
+    #             datetime.timedelta(days=-select_date.weekday() - 1, weeks=1)
+    #         first_date_year = last_date_year - datetime.timedelta(days=6)
+    #         last_date_year = first_date_year + datetime.timedelta(days=int(nb_jours)-1)
+    #     if back_forward_days:
+    #         if start_date and back_forward_days < 0:
+    #             select_date = datetime.datetime.strptime(end_date, "%d.%m.%Y").date()
+    #             last_date_year = select_date - datetime.timedelta(days=7)
+    #             select_date = datetime.datetime.strptime(start_date, "%d.%m.%Y").date()
+    #             first_date_year = select_date - datetime.timedelta(days=7)
+    #         elif end_date and back_forward_days > 0:
+    #             select_date = datetime.datetime.strptime(end_date, "%d.%m.%Y").date()
+    #             last_date_year = select_date + datetime.timedelta(days=7)
+    #             select_date = datetime.datetime.strptime(start_date, "%d.%m.%Y").date()
+    #             first_date_year = select_date + datetime.timedelta(days=7)
+    #     first_week_date = first_date_year
+    #     last_week_date = first_week_date + \
+    #         datetime.timedelta(days=-first_week_date.weekday() - 1, weeks=1)
+    #     col_start = first_date_year.isocalendar()[1]
+    #     col_end = last_date_year.isocalendar()[1]
+    #     for col in range(1, 53):
+    #         if col >= col_start and col <= col_end:
+    #             line_data = {
+    #                 'first_week_date': first_week_date,
+    #                 'last_week_date': last_week_date,
+    #             }
+    #             week_per_year[col].update(line_data)
+    #             first_week_date = first_week_date + \
+    #                 datetime.timedelta(
+    #                     days=-first_week_date.weekday(), weeks=1)
+    #             last_week_date = first_week_date + \
+    #                 datetime.timedelta(
+    #                     days=-first_week_date.weekday() - 1, weeks=1)
+    #             if last_date_year < last_week_date:
+    #                 last_week_date = last_date_year
+    #     html ="<div style=\"width:"+str(width+20)+"px;\" id=\"table_head\">\n"
+    #     html += "<div><a value='back' type='main'><< Semaine Précédente</a> <a style='padding-left:25px;' value='forward' type='main'>Semaine Suivante >></a></div>"
+    #     html += "<style>"
+    #     html += "#table2 table {border-collapse: collapse;border: 1px solid black;} "
+    #     html += "#table2 th {border-collapse: collapse;border: 1px solid black;} "
+    #     html += "#table2 td {border-collapse: collapse;border: 1px solid black;}"
+    #     html += "</style>"
+    #     html+="<table id='table21' style=\"border-width:0px;border-spacing:0px;padding:0px;width:"+str(width)+"px;\">\n";
+    #     html += "<thead><tr class=\"TitreTabC\">\n"
+    #     html += "<td style=\"width:240px;\"></td>\n"
+    #     html += "<td style=\"width:180px;\"></td>\n"
+    #     html += "<td style=\"width:180px;\"></td>\n"
+    #     html += "<td style=\"width:180px;\"></td>\n"
+    #     html += "<td style=\"width:180px;\"></td>\n"
+    #     for col in sorted(week_per_year.keys()):
+    #         align = 'center'
+    #         main_heading = 'Sem ' + \
+    #             str(col) + '<br/> (' + \
+    #             week_per_year[col]['first_week_date'].strftime(
+    #                 "%d.%m.%Y") + ')'
+    #         week_days = (week_per_year[col][
+    #                      'last_week_date'] - week_per_year[col]['first_week_date']).days + 1
+    #         html += "<th colspan=" + \
+    #             str(week_days) + " style=\"width:30px;text-align:" + \
+    #             align + "\">" + main_heading + "</th>\n"
+    #     html += "</tr>"
+    #     # data Display
+    #     html += "<tr>"
+    #     html += "<td style='width:240px;color:black;text-align:center;'>Service</td>\n"
+    #     html += "<td style='width:180px;color:black;text-align:center;'>Poste</td>\n"
+    #     html += "<td style='width:180px;color:black;text-align:center;'>Nom</td>\n"
+    #     html += "<td style='width:180px;color:black;text-align:center;'>N+1</td>\n"
+    #     html += "<td style='width:180px;color:black;text-align:center;'>N+2</td>\n"
+    #     for col in sorted(week_per_year.keys()):
+    #         align = 'center'
+    #         week_days = (week_per_year[col][
+    #                      'last_week_date'] - week_per_year[col]['first_week_date']).days + 1
+    #         display_date = week_per_year[col]['first_week_date']
+    #         for day_index in range(0, week_days):
+    #             html += "<td style='width:30px;color:black;text-align:center;'>" + \
+    #                 str(display_date.day) + "</td>\n"
+    #             display_date = display_date + datetime.timedelta(days=+1)
+    #     html += "</tr>"
+
+    #     emp_ids = self.env['hr.employee'].sudo().search(emp_domain,order="department_id,job_id")
+    #     is_demande_absence_obj = self.env['is.demande.absence']
+    #     is_demande_conges_obj = self.env['is.demande.conges']
+    #     html+="</table>\n"
+    #     html+="</div>\n"
+    #     html+="<div style=\"width:"+str(width+20)+"px;\" id=\"table_body\">\n";
+    #     html+="<table id='table2' style=\"border-width:0px;border-spacing:0px;padding:0px;width:"+str(width)+"px;\">\n";
+    #     for emp in emp_ids:
+    #         html += "<tr>"
+    #         html += "<td style='width:240px;font-weight:normal;text-align:left;'>" + (emp.department_id.name or '') + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + (emp.job_id.name or '') + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + emp.name + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + (emp.is_valideur_n1.name or '') + "</td>\n"
+    #         html += "<td style='width:180px;font-weight:normal;text-align:left;'>" + (emp.is_valideur_n2.name or '') + "</td>\n"
+    #         for col in sorted(week_per_year.keys()):
+    #             align = 'center'
+    #             week_days = (week_per_year[col][
+    #                          'last_week_date'] - week_per_year[col]['first_week_date']).days + 1
+    #             display_date = week_per_year[col]['first_week_date']
+    #             for day_index in range(0, week_days):
+    #                 M_C = ''
+    #                 conges_count = absence_count = False
+    #                 if emp.user_id:
+    #                     conges_count = is_demande_conges_obj.sudo().search([
+    #                          ('demandeur_id', '=', emp.user_id.id),
+    #                          ('date_debut', '<=', display_date),
+    #                          ('date_fin', '>=', display_date),
+    #                         ('state','not in', ['refuse','annule']),
+    #                     ])
+    #                     if not conges_count:
+    #                         conges_count = is_demande_conges_obj.sudo().search([
+    #                             ('demandeur_id', '=', emp.user_id.id),
+    #                             ('le', '=', display_date),
+    #                             ('state','not in', ['refuse','annule']),
+    #                         ])
+    #                     if conges_count:
+    #                         x='C'
+    #                         if conges_count[0].type_demande=='rc_heures':
+    #                             NbHeures = conges_count[0].heure_fin - conges_count[0].heure_debut
+    #                             if NbHeures<0:
+    #                                 NbHeures=24+NbHeures
+    #                             NbHeures=int(NbHeures)
+    #                             x='RC'+str(NbHeures)
+    #                         M_C = '<a title="" type=\'CF\' docid='+str(conges_count[0].id)+'>'+x+'</a>'
+
+    #                 absence_count = is_demande_absence_obj.sudo().search([
+    #                     ('employe_ids', 'in', [emp.id]),
+    #                     ('date_debut', '<=', display_date),
+    #                     ('date_fin', '>=', display_date),
+    #                 ])
+    #                 if not absence_count:
+    #                     absence_count = is_demande_absence_obj.sudo().search([
+    #                         ('employe_ids', 'in', [emp.id]),
+    #                         ('date_debut', '=', display_date),
+    #                     ])
+    #                 if absence_count:
+    #                     code = 'Abs'
+    #                     title = absence_count[0].type_absence.name
+    #                     if absence_count[0].type_absence.code:
+    #                         code = absence_count[0].type_absence.code
+    #                     M_C = '<a type=\'MF\' docid='+str(absence_count[0].id)+' title="'+title+'">'+code+'</a>'
+    #                 if absence_count and conges_count:
+    #                     M_C = '<a type=\'CF\' docid='+str(conges_count[0].id)+'>C</a>  ' + '<a type=\'MF\' title="" docid='+str(absence_count[0].id)+'>'+code+'</a>'
+    #                 td_color = ''
+    #                 if display_date.weekday() in (5, 6):
+    #                     td_color = 'black;background-color:red;'
+    #                 html += "<td style='width:30px;font-weight:normal;" + \
+    #                     td_color + "text-align:center;'>" + \
+    #                         str(M_C) + "</td>\n"
+    #                 display_date = display_date + datetime.timedelta(days=+1)
+    #         html += "</tr>"
+    #     html += "</tbody>\n"
+    #     html += "</table>\n"
+    #     html += "</div>\n"
+
+    #     vals = {
+    #         'service': service,
+    #         'poste': poste,
+    #         'nom': nom,
+    #         'n1': n1,
+    #         'n2': n2,
+    #         'date_debut': date_debut,
+    #         'nb_jours': nb_jours,
+    #         'start_date': first_date_year.strftime("%d.%m.%Y"),
+    #         'end_date': last_date_year.strftime("%d.%m.%Y"),
+    #         'back_forward_days': back_forward_days,
+    #         'html': html,
+    #     }
+    #     return vals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -688,11 +1118,11 @@ class is_demande_absence(models.Model):
 
 
     name          = fields.Char(u"N° demande", index=True)
-    createur_id   = fields.Many2one('res.users', u'Créateur', default=lambda self: self.env.user)
+    createur_id   = fields.Many2one('res.users', u'Créateur', default=lambda self: self.env.user, index=True)
     date_creation = fields.Datetime(string=u'Date de création', default=lambda *a: fields.datetime.now())
     type_absence  = fields.Many2one('is.demande.absence.type', string=u'Type d’absence', required=True)
     date_debut    = fields.Date(string='Date de début', required=True, index=True)
-    date_fin      = fields.Date(string='Date de fin', required=True)
+    date_fin      = fields.Date(string='Date de fin', required=True, index=True)
     employe_ids   = fields.Many2many('hr.employee', string=u'Employés', required=True)
 
 
@@ -717,18 +1147,18 @@ class is_demande_conges_export_cegid(models.Model):
 
 
     def _date_debut(self):
-        now  = datetime.date.today()              # Ce jour
+        now  = date.today()              # Ce jour
         j    = now.day                            # Numéro du jour dans le mois
-        d    = now - datetime.timedelta(days=j)   # Dernier jour du mois précédent
+        d    = now - timedelta(days=j)   # Dernier jour du mois précédent
         j    = d.day                              # Numéro jour mois précédent
-        d    = d - datetime.timedelta(days=(j-1)) # Premier jour du mois précédent
+        d    = d - timedelta(days=(j-1)) # Premier jour du mois précédent
         return d.strftime('%Y-%m-%d')
 
 
     def _date_fin(self):
         now  = datetime.date.today()            # Ce jour
         j    = now.day                          # Numéro du jour dans le mois
-        d    = now - datetime.timedelta(days=j) # Dernier jour du mois précédent
+        d    = now - timedelta(days=j) # Dernier jour du mois précédent
         return d.strftime('%Y-%m-%d')
 
 
@@ -744,7 +1174,7 @@ class is_demande_conges_export_cegid(models.Model):
         return False
 
     def fdate(self,date):
-        d=datetime.datetime.strptime(date, '%Y-%m-%d')
+        d=datetime.strptime(date, '%Y-%m-%d')
         return d.strftime('%d/%m/%Y')
 
 

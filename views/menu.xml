@@ -2268,14 +2268,36 @@
             ref('is_manager_des_absences_group'),
         ])]"/>
     </record>
-    <record id="is_Calendrier_des_absences_menu" model="ir.ui.menu">
+
+
+
+    <!-- <record id="is_Calendrier_des_absences_menu" model="ir.ui.menu">
         <field name="name">Calendrier des absences</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
         <field name="action"    ref="is_Calendrier_des_absences_action"/>
         <field name="groups_id" eval="[(6,0,[
         ])]"/>
+    </record> -->
+
+
+    <record model="ir.actions.client" id="calendrier_absence_actions_client">
+        <field name="name">Calendrier des absence</field>
+        <field name="tag">is_plastigray16.calendrier_absence_registry</field>
     </record>
+    <record id="calendrier_absence_menu" model="ir.ui.menu" >
+        <field name="name">Calendrier des absence</field>
+        <field name="sequence">40</field>
+        <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
+        <field name="action"    ref="calendrier_absence_actions_client"/>
+        <field name="groups_id" eval="[(6,0,[
+        ])]"/>
+    </record>
+
+
+
+
+
 
     <!-- Employés -->
     <menuitem

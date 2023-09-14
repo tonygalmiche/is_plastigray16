@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="is_plastigray16.calendrier_absence_template" owl="1">
+        <style>
+            .o_control_panel{
+                display: none;
+            }
+        </style>
+        <Layout display="display">
+            <h2 style="margin-left:1%;margin-right:1%;color:gray"><t t-esc="state.titre"/></h2>
+            <table style="width:98%;margin-left:1%;margin-right:1%" class="lefiltre">
+                <thead>
+                    <tr>
+                        <th>Service (Partiel)</th>
+                        <th>Poste (Partiel)</th>
+                        <th>Nom (Partiel)</th>
+                        <th>N+1 (Partiel)</th>
+                        <th>N+2 (Partiel)</th>
+                        <th>Date Début</th>
+                        <th>Nb Jours</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input name="service"    t-att-value="state.service"    t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="poste"      t-att-value="state.poste"      t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="nom"        t-att-value="state.nom"        t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="n1"         t-att-value="state.n1"         t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="n2"         t-att-value="state.n2"         t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="date_debut" t-att-value="state.date_debut" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td>
+                            <select name="nb_jours" class="form-select" t-on-change="onChangeInput">
+                                <t t-foreach="state.nb_jours_options or []" t-as="o"  t-key="o.id">
+                                    <option t-att-value="o.id" t-att-selected="o.selected">
+                                        <t t-esc="o.name" />
+                                    </option>
+                                </t>
+                            </select>
+                        </td>
+                        <td><button class="btn btn-secondary ms-1" t-on-click="SemainePrecedenteClick">Semaine Précédente </button></td>
+                        <td><button class="btn btn-secondary ms-1" t-on-click="SemaineSuivanteClick"> Semaine Suivante </button></td>
+                        <td><button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="latable" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%; font-size:1rem">
+                <table style="width:100%;overflow-y:auto">
+                    <thead>
+                        <tr>
+                            <th colspan="5"/>
+                            <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
+                                <th t-if="col.semaine" colspan="7" style="text-align:center">
+                                    <span t-esc="col.semaine"/><br />
+                                    <span t-esc="col.date"/>
+                                </th>
+                            </t>
+                        </tr>
+                        <tr>
+                            <th style="text-align:left">Service</th>
+                            <th style="text-align:left">Poste</th>
+                            <th style="text-align:left">Nom</th>
+                            <th style="text-align:left">N+1</th>
+                            <th style="text-align:left">N+2</th>
+
+                            <!-- date_cols.append({
+                                "key"    : ladate,
+                                "jour"   : ladate.strftime("%d"),
+                                "semaine": ladate.strftime("S%W"),
+                                "date"   : ladate.strftime("%d.%m"), -->
+                
+                                <!-- <th style="text-align:right;min-width:25pt" t-if="o.affiche_col"> -->
+
+                            <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
+                                <th style="text-align:right;min-width:18pt"><span t-esc="col.jour"/></th>
+                            </t>
+                            <!-- <th style="width:1%"/> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.lines or []" t-as="line" t-key="line.employe_id">
+                            <tr 
+                                t-att-style="line.trstyle"
+                                t-att-memstyle="line.trstyle"
+                                t-on-mouseenter="TrMouseEnter" 
+                                t-on-click="TrClick" 
+                                t-on-mouseleave="TrMouseLeave" 
+                                t-att-employeid="line.employe_id"
+                                t-att-click="-1"
+                            >
+                                <td style="text-align:left"><t t-esc="line.service"/></td>
+                                <td style="text-align:left"><t t-esc="line.poste"/></td>
+                                <td style="text-align:left"><t t-esc="line.nom"/></td>
+                                <td style="text-align:left"><t t-esc="line.n1"/></td>
+                                <td style="text-align:left"><t t-esc="line.n2"/></td>
+                              
+                                <t t-foreach="line.cols or []" t-as="col" t-key="col.key">
+                                    <td style="text-align:right">
+                                        <t t-foreach="col.absences or []" t-as="abs" t-key="abs.key">
+                                            <div>
+                                                <t t-esc="abs.type"/> <t t-esc="abs.res_id"/>
+                                            </div>
+                                        </t>
+
+                                        <!-- <div t-esc="col.key"/>
+                                        <div t-esc="col.date"/> -->
+                                        <!-- <div t-esc="col.x"/> -->
+                                        <!-- <span class="info">
+                                            <span 
+                                                t-esc="col.date" 
+                                                t-att-style="'color:'+col.color_qt" 
+                                                class="link"
+                                                t-on-click="QtClick" 
+                                                t-att-ids="(col.ids or []).join(',')"
+                                                t-att-name_typeod="t.name_typeod"
+                                            />
+                                            <pre t-if="(col.od or []).length>0">
+                                                <t t-foreach="col.od or []" t-as="o" t-key="o">
+                                                    <t t-esc="o"/><br />
+                                                </t>
+                                            </pre>
+                                        </span> -->
+                                    </td>
+                                </t>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </Layout>
+    </t>
+</templates>
