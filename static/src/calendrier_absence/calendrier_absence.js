@@ -96,29 +96,16 @@ class CalendrierAbsence extends Component {
     }
 
     QtClick(ev) {
-        const typeod = ev.target.attributes.name_typeod.value;
-        const ids = ev.target.attributes.ids.value;
-        const tids = ids.split(","); 
-        const model = dict[typeod];
-        if (model!==undefined){
-            if(tids.length>1){
-                this.action.doAction({
-                    type: 'ir.actions.act_window',
-                    target: 'current',
-                    res_model: model,
-                    views: [[false, 'list'], [false, 'form']],
-                    domain: [['id', 'in', tids]],
-                });
-            } else {
-                this.action.doAction({
-                    type: 'ir.actions.act_window',
-                    target: 'current',
-                    res_id: parseInt(tids[0]),
-                    res_model: model,
-                    views: [[false, 'form']],
-                });
-            }
-        }
+        const res_model = ev.target.attributes.res_model.value;
+        const res_id    = ev.target.attributes.res_id.value;
+        console.log(res_model, res_id)
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            target: 'current',
+            res_id: parseInt(res_id),
+            res_model: res_model,
+            views: [[false, 'form']],
+        });
     }
 
 

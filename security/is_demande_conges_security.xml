@@ -194,6 +194,21 @@
             <field eval="0" name="perm_create" />
         </record>
 
+        <record id="is_demande_conges_rh_rule" model="ir.rule">
+            <field name="name">Demande de congés: Accès en lecture à toutes les demandes au groupe RH</field>
+            <field name="model_id" ref="model_is_demande_conges" />
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+            <field eval="0" name="perm_unlink" />
+            <field eval="0" name="perm_write" />
+            <field eval="1" name="perm_read" />
+            <field eval="0" name="perm_create" />
+        </record>
+
+
+        
+
+
 
     </data>
 </openerp>

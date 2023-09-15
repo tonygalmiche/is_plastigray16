@@ -74,7 +74,7 @@
                                 <!-- <th style="text-align:right;min-width:25pt" t-if="o.affiche_col"> -->
 
                             <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
-                                <th style="text-align:right;min-width:18pt"><span t-esc="col.jour"/></th>
+                                <th style="text-align:center;min-width:18pt"><span t-esc="col.jour"/></th>
                             </t>
                             <!-- <th style="width:1%"/> -->
                         </tr>
@@ -97,31 +97,28 @@
                                 <td style="text-align:left"><t t-esc="line.n2"/></td>
                               
                                 <t t-foreach="line.cols or []" t-as="col" t-key="col.key">
-                                    <td style="text-align:right">
+                                    <td t-att-style="'text-align:center;background-color:'+col.color">
                                         <t t-foreach="col.absences or []" t-as="abs" t-key="abs.key">
-                                            <div>
-                                                <t t-esc="abs.type"/> <t t-esc="abs.res_id"/>
-                                            </div>
-                                        </t>
+                                            <!-- <div >
+                                                <t t-esc="abs.code"/> <t t-esc="abs.title"/> <t t-esc="abs.res_id"/>
+                                            </div> -->
 
-                                        <!-- <div t-esc="col.key"/>
-                                        <div t-esc="col.date"/> -->
-                                        <!-- <div t-esc="col.x"/> -->
-                                        <!-- <span class="info">
-                                            <span 
-                                                t-esc="col.date" 
-                                                t-att-style="'color:'+col.color_qt" 
-                                                class="link"
-                                                t-on-click="QtClick" 
-                                                t-att-ids="(col.ids or []).join(',')"
-                                                t-att-name_typeod="t.name_typeod"
-                                            />
-                                            <pre t-if="(col.od or []).length>0">
-                                                <t t-foreach="col.od or []" t-as="o" t-key="o">
-                                                    <t t-esc="o"/><br />
-                                                </t>
-                                            </pre>
-                                        </span> -->
+                                            <!-- <div t-esc="col.key"/>
+                                            <div t-esc="col.date"/> -->
+                                            <!-- <div t-esc="col.x"/> -->
+                                            <span class="info">
+                                                <span 
+                                                    t-esc="abs.code" 
+                                                    class="link"
+                                                    t-on-click="QtClick" 
+                                                    t-att-res_id="abs.res_id"
+                                                    t-att-res_model="abs.model"
+                                                />
+                                                <pre>
+                                                    <t t-esc="abs.title"/>
+                                                </pre>
+                                            </span>
+                                        </t>
                                     </td>
                                 </t>
                             </tr>
