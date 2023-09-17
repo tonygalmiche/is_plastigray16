@@ -33,7 +33,6 @@ class is_import_budget_pk(models.Model):
             return {
                 'name'     : obj.id,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.pic.3ans',
                 'domain'   : domain,
                 'type'     : 'ir.actions.act_window',
@@ -45,7 +44,7 @@ class is_import_budget_pk(models.Model):
         uid=self._uid
         for obj in self:
             if not obj.annee and not obj.mois:
-                raise Warning(u"Il est obligatoire de saisir l'année ou le mois")
+                raise ValidationError(u"Il est obligatoire de saisir l'année ou le mois")
             company = self.env.user.company_id
             base1="odoo1"
             base3="odoo3"
@@ -58,7 +57,7 @@ class is_import_budget_pk(models.Model):
                 cnx1 = psycopg2.connect("dbname='"+base1+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
                 cnx3 = psycopg2.connect("dbname='"+base3+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
             except:
-                raise Warning("Impossible de se connecter à odoo1 ou odoo3")
+                raise ValidationError("Impossible de se connecter à odoo1 ou odoo3")
             cr1 = cnx1.cursor(cursor_factory=RealDictCursor)
             cr3 = cnx3.cursor(cursor_factory=RealDictCursor)
 
@@ -107,7 +106,7 @@ class is_import_budget_pk(models.Model):
                 if rows3:
                     fournisseur_id = rows3["id"]
                 else:
-                    raise Warning("Fournisseur %s %s non trouvé"%(row1["is_code"],row1["is_adr_code"]))
+                    raise ValidationError("Fournisseur %s %s non trouvé"%(row1["is_code"],row1["is_adr_code"]))
                 #**************************************************************
 
                 #** Recherche article *****************************************

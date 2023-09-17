@@ -117,7 +117,6 @@ class mrp_bom_line(models.Model):
                 return {
                     'name': obj.product_id.name,
                     'view_mode': 'form',
-                    'view_type': 'form',
                     'res_model': 'mrp.bom',
                     'type': 'ir.actions.act_window',
                     'view_id': view_id.id,

@@ -92,7 +92,6 @@ class is_inventaire(models.Model):
             'name': "Feuille d'inventaire",
             'view_mode': 'form',
             'view_id': view_id,
-            'view_type': 'form',
             'res_model': 'is.inventaire.feuille',
             'type': 'ir.actions.act_window',
             'target': 'current',
@@ -502,7 +501,6 @@ class is_inventaire(models.Model):
             return {
                 'name': u'Lignes inventaire '+obj.name,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.inventaire.line',
                 'domain': [
                     ('inventaire_id','=',obj.id),
@@ -516,7 +514,6 @@ class is_inventaire(models.Model):
             return {
                 'name': u'Ecarts inventaire '+obj.name,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.inventaire.ecart',
                 'domain': [
                     ('inventaire_id','=',obj.id),
@@ -604,7 +601,6 @@ class is_inventaire(models.Model):
             return {
                 'name': u'Anomalies inventaire '+obj.name,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.inventaire.anomalie',
                 'domain': [
                     ('inventaire_id','=',obj.id),
@@ -690,7 +686,6 @@ class is_inventaire_feuille(models.Model):
                 'name': "Feuille d'inventaire",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'is.inventaire.feuille',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,
@@ -948,7 +943,6 @@ class is_inventaire_inventory(models.Model):
                 'name': "Inventaire",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'stock.inventory',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.inventory_id.id,

@@ -5,11 +5,13 @@ from odoo.exceptions import ValidationError
 import time
 from datetime import date, datetime
 import base64
+import os
+#from pyPdf import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
+import tempfile
+
 
 #from ftplib import FTP
-#import os
-#import tempfile
-#from pyPdf import PdfFileWriter, PdfFileReader
 #from contextlib import closing
 import logging
 _logger = logging.getLogger(__name__)
@@ -149,8 +151,7 @@ class account_invoice(models.Model):
             res= {
                 'name': 'Facture Client',
                 'view_mode': 'form',
-                'view_type': 'form',
-                'res_model': 'account.invoice',
+                'res_model': 'account.move',
                 'res_id': obj.id,
                 'view_id': view_id.id,
                 'type': 'ir.actions.act_window',
@@ -166,8 +167,7 @@ class account_invoice(models.Model):
             res= {
                 'name': 'Facture Client',
                 'view_mode': 'form',
-                'view_type': 'form',
-                'res_model': 'account.invoice',
+                'res_model': 'account.move',
                 'res_id': obj.id,
                 'view_id': view_id.id,
                 'type': 'ir.actions.act_window',
@@ -185,30 +185,40 @@ class account_invoice(models.Model):
         return res
 
 
+    # def _merge_pdf(self, documents):
+    #     """Merge PDF files into one.
+    #     :param documents: list of path of pdf files
+    #     :returns: path of the merged pdf
+    #     """
+    #     writer = PdfFileWriter()
+    #     streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
+    #     for document in documents:
+    #         pdfreport = file(document, 'rb')
+    #         streams.append(pdfreport)
+    #         reader = PdfFileReader(pdfreport)
+    #         for page in range(0, reader.getNumPages()):
+    #             writer.addPage(reader.getPage(page))
+    #     merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
+    #     with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
+    #         writer.write(merged_file)
+    #     for stream in streams:
+    #         stream.close()
+    #     return merged_file_path
+
+
     def _merge_pdf(self, documents):
-        """Merge PDF files into one.
-        :param documents: list of path of pdf files
-        :returns: path of the merged pdf
-        """
-        writer = PdfFileWriter()
-        streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
-        for document in documents:
-            pdfreport = file(document, 'rb')
-            streams.append(pdfreport)
-            reader = PdfFileReader(pdfreport)
-            for page in range(0, reader.getNumPages()):
-                writer.addPage(reader.getPage(page))
         merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
-        with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
-            writer.write(merged_file)
-        for stream in streams:
-            stream.close()
+        merger = PdfFileMerger()
+        for document in documents:
+            merger.append(document)
+        merger.write(merged_file_path)
+        merger.close()
         return merged_file_path
 
 
     def imprimer_simple_double(self):
         """Imprimer en simple ou double exemplaire"""
-        uid=self.uid
+        uid=self._uid
         db = self._cr.dbname
         path="/tmp/factures-" + db + '-'+str(uid)
         cde="rm -Rf " + path
@@ -220,16 +230,16 @@ class account_invoice(models.Model):
         ct=1
         paths=[]
         for obj in self:
-            msg = str(ct)+'/'+str(nb)+' - Imprimer en simple ou double exemplaire : '+str(obj.number)
+            msg = '%s/%s - Imprimer en simple ou double exemplaire : %s'%(ct,nb,obj.name)
             _logger.info(msg)
             ct+=1
             #result = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_invoice')
-            result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_report_invoice',[obj.id])[0]
+            result = self.env['ir.actions.report']._render_qweb_pdf('account.account_invoices',[obj.id])[0]
             r = range(1, 2)
             if obj.is_mode_envoi_facture=='courrier2':
                 r = range(1, 3)
             for x in r:
-                file_name = path + '/'+str(obj.number) + '-' + str(x) + '.pdf'
+                file_name = path + '/'+str(obj.name) + '-' + str(x) + '.pdf'
                 fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                 try:
                     os.write(fd, result)
@@ -284,9 +294,9 @@ class account_invoice(models.Model):
 
     def envoi_par_mail(self):
         """Envoi du mail directement sans passer par le wizard"""
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
-        if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray16.is_comptable_group'):
+        if not self.env['res.users'].has_group('is_plastigray16.is_comptable_group'):
             raise ValidationError(u"Accès non autorisé !")
         ids=[]
         for obj in self:
@@ -294,19 +304,25 @@ class account_invoice(models.Model):
         if len(ids)>0:
             SQL="""
                 select ai.is_mode_envoi_facture, ai.partner_id, ai.name, ai.id
-                from account_invoice ai
+                from account_move ai
                 where 
                     ai.id in("""+','.join(ids)+""")  and 
                     ai.is_date_envoi_mail is null and 
                     ai.is_mode_envoi_facture like 'mail%'
                 order by ai.is_mode_envoi_facture, ai.partner_id, ai.name
             """
+
+            print(SQL)
+
             cr.execute(SQL)
             result = cr.fetchall()
 
             # ** Un mail par client*********************************************
             partners={}
             for row in result:
+
+                print(row)
+
                 if row[0]=='mail_client':
                     partner_id = row[1]
                     id         = row[3]
@@ -355,20 +371,20 @@ class account_invoice(models.Model):
 
 
     def _envoi_par_mail(self, partner_id, ids):
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
         user = self.env['res.users'].browse(self._uid)
         if user.email==False:
             raise ValidationError(u"Votre mail n'est pas renseigné !")
         attachment_ids=[]
         for id in ids:
-            invoice = self.env['account.invoice'].browse(id)
+            invoice = self.env['account.move'].browse(id)
             attachments = self.env['ir.attachment'].search([
-                ('res_model','=','account.invoice'),
+                ('res_model','=','account.move'),
                 ('res_id'   ,'=',id),
             ], order='id desc', limit=1)
             if len(attachments)==0:
-                raise ValidationError(u"Facture "+invoice.number+" non générée (non imprimée) !")
+                raise ValidationError(u"Facture %s non générée (non imprimée) !"%invoice.name)
 
             for attachment in attachments:
                 if invoice.is_mode_envoi_facture=='mail2':
@@ -381,22 +397,37 @@ class account_invoice(models.Model):
                         os.makedirs(path)
                     paths=[]
                     for x in range(1, 3):
-                        file_name = path + '/'+str(invoice.number) + '-' + str(x) + '.pdf'
-                        fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
-                        try:
-                            os.write(fd, attachment.datas.decode('base64'))
-                        finally:
-                            os.close(fd)
+                        file_name = path + '/'+str(invoice.name) + '-' + str(x) + '.pdf'
+                        #fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
+                        #fd = open(file_name,'wb')
+                        with open(file_name,'wb') as f:
+                            f.write(base64.decodebytes(attachment.datas))
+
+                        # try:
+                        #     #os.write(fd, attachment.datas.decode('base64'))
+                        #     os.write(fd, base64.decodebytes(attachment.datas))
+                        # finally:
+                        #     close(fd)
                         paths.append(file_name)
+
+
+        #  xlsxfile = base64.decodebytes(attachment.datas)
+        #     path = '/tmp/edi-asteelflash-'+str(obj.id)+'.xlsx'
+        #     with open(path,'wb') as f:
+        #         f.write(xlsxfile)
+ 
+
+
+
                     # ** Merge des PDF *****************************************
+                    print(paths)
                     path_merged=self._merge_pdf(paths)
-                    #pdfs = open(path_merged,'rb').read().encode('base64')
                     pdfs = open(path_merged,'rb').read()
                     # **********************************************************
 
 
                     # ** Création d'une piece jointe fusionnée *****************
-                    name = 'facture-' + str(invoice.number) + '-' + str(uid) + '.pdf'
+                    name = 'facture-' + str(invoice.name) + '-' + str(uid) + '.pdf'
                     vals = {
                         'name':        name,
                         #'datas_fname': name,
@@ -417,39 +448,40 @@ class account_invoice(models.Model):
         if partner.is_mode_envoi_facture=='mail_client_bl':
             attachment_obj = self.env['ir.attachment']
             for id in ids:
-                invoice = self.env['account.invoice'].browse(id)
-                for line in invoice.invoice_line:
+                invoice = self.env['account.move'].browse(id)
+                for line in invoice.invoice_line_ids:
                     picking=line.is_move_id.picking_id
+                    if picking:
 
-                    # ** Recherche si une pièce jointe est déja associèe au bl *
-                    model='stock.picking'
-                    name='BL-'+picking.name+u'.pdf'
-                    attachments = attachment_obj.search([('res_model','=',model),('res_id','=',picking.id),('name','=',name)])
-                    # **********************************************************
+                        # ** Recherche si une pièce jointe est déja associèe au bl *
+                        model='stock.picking'
+                        name='BL-'+picking.name+u'.pdf'
+                        attachments = attachment_obj.search([('res_model','=',model),('res_id','=',picking.id),('name','=',name)])
+                        # **********************************************************
 
-                    # ** Creation ou modification de la pièce jointe *******************
-                    #pdf = self.env['report'].get_pdf(picking, 'stock.report_picking')
-                    pdf = self.env['ir.actions.report']._render_qweb_pdf('stock.report_picking',[picking.id])
-                    vals = {
-                        'name':        name,
-                        #'datas_fname': name,
-                        'type':        'binary',
-                        'res_model':   model,
-                        'res_id':      picking.id,
-                        'datas':       pdf.encode('base64'),
-                        'datas':       base64.b64encode(report[0]),
-                    }
-                    if attachments:
-                        for attachment in attachments:
-                            attachment.write(vals)
+                        # ** Creation ou modification de la pièce jointe *******************
+                        #pdf = self.env['report'].get_pdf(picking, 'stock.report_picking')
+                        pdf = self.env['ir.actions.report']._render_qweb_pdf('stock.report_picking',[picking.id])[0]
+                        vals = {
+                            'name':        name,
+                            #'datas_fname': name,
+                            'type':        'binary',
+                            'res_model':   model,
+                            'res_id':      picking.id,
+                            #'datas':       pdf.encode('base64'),
+                            'datas':       base64.b64encode(pdf), #.encode('base64'),
+                        }
+                        if attachments:
+                            for attachment in attachments:
+                                attachment.write(vals)
+                                attachment_id=attachment.id
+                        else:
+                            attachment = attachment_obj.create(vals)
                             attachment_id=attachment.id
-                    else:
-                        attachment = attachment_obj.create(vals)
-                        attachment_id=attachment.id
-                    # ******************************************************************
+                        # ******************************************************************
 
-                    if attachment_id not in attachment_ids:
-                        attachment_ids.append(attachment_id)
+                        if attachment_id not in attachment_ids:
+                            attachment_ids.append(attachment_id)
 
 
         #** Recherche du contact Facturation *******************************
@@ -487,14 +519,14 @@ class account_invoice(models.Model):
             'email_cc'      : email_cc,
             'email_from'    : email_from, 
             'body_html'     : body_html.encode('utf-8'), 
-            'attachment_ids': [(6, 0, [attachment_ids])] 
+            'attachment_ids': [(6, 0, attachment_ids)] 
         })
         email_id=self.env['mail.mail'].create(email_vals)
         if email_id:
             self.env['mail.mail'].send(email_id)
         email_to   = u','.join(emails_to)
         for id in ids:
-            invoice = self.env['account.invoice'].browse(id)
+            invoice = self.env['account.move'].browse(id)
             invoice.message_post(body=subject+u' envoyée par mail à '+u','.join(emails_to))
             invoice.is_date_envoi_mail=datetime.now()
 
@@ -538,7 +570,7 @@ class account_invoice(models.Model):
                     if l.invoice_line_tax_id:
                         tax_id=l.invoice_line_tax_id[0]
                 #Escompte
-                tax_obj = self.env['account.invoice.tax']
+                tax_obj = self.env['account.move.tax']
                 taux=obj.partner_id.is_escompte.taux/100
                 tax_vals={
                     'invoice_id': obj.id,
@@ -591,7 +623,7 @@ class account_invoice_line(models.Model):
 
 
     is_account_invoice_line_id = fields.Integer('Lien entre account_invoice_line et account_move_line pour la migration', index=True)
-    #is_account_invoice_line_id = fields.Many2one('account.invoice.line', 'Ligne de facture')
+    #is_account_invoice_line_id = fields.Many2one('account.move.line', 'Ligne de facture')
 
 
     #TODO : Le champ is_account_invoice_line_id existait avant la migration pour recuperr la section analytique avec cette fonction
@@ -700,7 +732,7 @@ class account_invoice_line(models.Model):
     #                 uom=uom_id,
     #                 date=date,
     #             )
-    #             price_unit = self.pool.get('product.pricelist').price_get(self._cr, self._uid, [pricelist],
+    #             price_unit = self.env.get('product.pricelist').price_get(self._cr, self._uid, [pricelist],
     #                     product_id, lot_livraison or 1.0, partner_id, ctx)[pricelist]
     #         res['value']['price_unit']=price_unit
     #     #***********************************************************************

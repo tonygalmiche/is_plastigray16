@@ -66,7 +66,6 @@ class is_rgpd_traitement(models.Model):
             return {
                 'name': u'Données personnelles',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.rgpd.donnee.personnelle',
                 'domain': [
                     ('traitement_ids','in', obj.id),
@@ -143,7 +142,6 @@ class is_rgpd_action(models.Model):
             return {
                 'name': u'Données personnelles',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.rgpd.donnee.personnelle',
                 'domain': [
                     ('action_id','=', obj.id),
@@ -158,7 +156,6 @@ class is_rgpd_action(models.Model):
             return {
                 'name': u'Traitements',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.rgpd.traitement',
                 'domain': [
                     ('action_id','=', obj.id),
@@ -193,7 +190,6 @@ class is_rgpd_donnee_personnelle(models.Model):
             return {
                 'name': u'Traitements',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.rgpd.traitement',
                 'domain': [
                     ('id','in', traitements),

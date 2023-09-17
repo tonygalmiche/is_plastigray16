@@ -48,6 +48,21 @@ class sale_order(models.Model):
     client_order_ref       = fields.Char(string='N° de commande client') # Référence client => N° de commande client
 
 
+    def _create_invoices(self, grouped=False, final=False, date=None):
+        "Fonction surchargée pour faire le lien entre les factures et les mouvements de stocks"
+        invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
+        for invoice in invoices:
+            for line in invoice.line_ids:
+                for sale_line in line.sale_line_ids:
+                    for move in sale_line.move_ids:
+                        if not move.is_account_move_line_id and move.state=="done":
+                            move.is_account_move_line_id = line.id
+                            move.invoice_state='invoiced'
+                            move.picking_id._compute_invoice_state()
+                            line.is_move_id = move.id
+        return invoices
+
+
     def _message_auto_subscribe_notify(self, partner_ids, template):
         #Désactiver le message "Vous avez été assigné à"
         return
@@ -108,7 +123,7 @@ class sale_order(models.Model):
 
 
     def envoyer_ar_par_mail(self):
-        uid=self.uid
+        uid=self._uid
         modele_mail = u"""
         <html>
             <head>
@@ -208,7 +223,7 @@ class sale_order(models.Model):
             if email_id:
                 self.env['mail.mail'].send(email_id)
 
-            obj.message_post(u'Commande envoyée par mail à '+ email_contact)
+            obj.message_post(body='Commande envoyée par mail à %s'%email_contact)
             obj.is_date_envoi_mail=datetime.now()
 
 
@@ -275,7 +290,6 @@ class sale_order(models.Model):
                 'name': "Client",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'res.partner',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.partner_id.id,
@@ -288,7 +302,6 @@ class sale_order(models.Model):
             return {
                 'name': "Commande",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'sale.order',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,
@@ -455,7 +468,6 @@ class sale_order_line(models.Model):
                 'name': "Commande",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'sale.order',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.order_id.id,
@@ -469,7 +481,6 @@ class sale_order_line(models.Model):
                 'name': "Client",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'res.partner',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.order_id.partner_id.id,
@@ -484,7 +495,6 @@ class sale_order_line(models.Model):
                 'name': "Article",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'product.template',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.product_id.product_tmpl_id.id,

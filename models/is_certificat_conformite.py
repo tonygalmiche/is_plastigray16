@@ -30,7 +30,7 @@ class is_bon_transfert(models.Model):
 
 
     def imprimer_certificat_action(self):
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
         for obj in self:
             db = self._cr.dbname
@@ -161,7 +161,6 @@ class is_bon_transfert_line(models.Model):
                     'name': "Certificat de conformité",
                     'view_mode': 'form',
                     'view_id': view_id,
-                    'view_type': 'form',
                     'res_model': 'is.certificat.conformite',
                     'type': 'ir.actions.act_window',
                     'res_id': certificat.id,
@@ -219,7 +218,7 @@ class stock_picking(models.Model):
 
 
     def imprimer_certificat_action(self):
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
         for obj in self:
             if obj.sale_id.is_liste_servir_id:
@@ -357,7 +356,6 @@ class stock_move(models.Model):
                     'name': "Certificat de conformité",
                     'view_mode': 'form',
                     'view_id': view_id,
-                    'view_type': 'form',
                     'res_model': 'is.certificat.conformite',
                     'type': 'ir.actions.act_window',
                     'res_id': certificat.id,

@@ -464,7 +464,7 @@ class is_equipement(models.Model):
         presse=""
         for obj in self.browse(cr, uid, ids, context=context):
             presse = obj.numero_equipement
-            user   = self.pool['res.users'].browse(cr, uid, [uid], context=context)[0]
+            user   = self.env['res.users'].browse([uid])[0]
             soc    = user.company_id.is_code_societe
         url = "http://raspberry-cpi/presse.php?soc="+str(soc)+"&presse="+presse
         return {
@@ -480,7 +480,6 @@ class is_equipement(models.Model):
             return {
                 'name': "Equipement",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.equipement',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,

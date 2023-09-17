@@ -39,6 +39,16 @@
                 <xpath expr="//group[@id='header_right_group']/div[2]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+
+
+                <field name="invoice_date" position="after">
+                    <field name="is_type_facture" />
+                    <field name="is_mode_envoi_facture" />
+                    <field name="is_date_envoi_mail" attrs="{'invisible':[('is_mode_envoi_facture', '!=', 'mail'),('is_mode_envoi_facture', '!=', 'mail_client')]}" />
+                </field>
+
+
+
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="after" >
                     <field name="is_section_analytique_id" optional="show"/>
                     <field name="is_document" optional="show"/>
@@ -68,14 +78,16 @@
              <field name="name">Envoi par mail</field>
             <field name="model_id" ref="model_account_move"/>
             <field name="binding_model_id" ref="model_account_move"/>
-            <field name="code">action = model.envoi_par_mail()</field>
+            <field name="state">code</field>
+            <field name="code">action = records.envoi_par_mail()</field>
         </record>
         <!-- Imprimer en simple ou double exemplaire -->
         <record id="imprimer_simple_double_action_server" model="ir.actions.server">
              <field name="name">Imprimer en simple ou double exemplaire</field>
             <field name="model_id" ref="model_account_move"/>
             <field name="binding_model_id" ref="model_account_move"/>
-            <field name="code">action = model.imprimer_simple_double()</field>
+            <field name="state">code</field>
+            <field name="code">action = records.imprimer_simple_double()</field>
         </record>
 
 
@@ -251,15 +263,14 @@
 
 
         <!-- Factures à valider -->
-        <!-- <record id="is_factures_a_valider_action" model="ir.actions.act_window">
+        <record id="is_factures_a_valider_action" model="ir.actions.act_window">
             <field name="name">Factures à valider</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">account.invoice</field>
-            <field name="domain">[('state','=', 'draft'),'|',('type','=', 'out_invoice'),('type','=', 'out_refund')]</field>
+            <field name="res_model">account.move</field>
+            <field name="domain">[('state','=', 'draft'),'|',('move_type','=', 'out_invoice'),('move_type','=', 'out_refund')]</field>
             <field name="limit">200</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record> -->
+        </record>
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
         <!-- <record id="is_factures_a_valider_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>
@@ -275,15 +286,14 @@
 
 
         <!-- Factures à imprimer -->
-        <!-- <record id="is_factures_a_imprimer_action" model="ir.actions.act_window">
+        <record id="is_factures_a_imprimer_action" model="ir.actions.act_window">
             <field name="name">Factures à imprimer = Factures à comptabiliser</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">account.invoice</field>
-            <field name="domain">[('is_folio_id','=', False),('is_export_cegid_id','=', False),('state','=', 'open'),'|',('type','=', 'out_invoice'),('type','=', 'out_refund')]</field>
+            <field name="res_model">account.move</field>
+            <field name="domain">[('is_folio_id','=', False),('is_export_cegid_id','=', False),('state','=', 'posted'),'|',('move_type','=', 'out_invoice'),('move_type','=', 'out_refund')]</field>
             <field name="limit">200</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record> -->
+        </record>
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
         <!-- <record id="is_factures_a_imprimer_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>
@@ -299,20 +309,19 @@
 
 
         <!-- Factures à envoyer par mail -->
-        <!-- <record id="is_factures_envoi_mail_action" model="ir.actions.act_window">
+        <record id="is_factures_envoi_mail_action" model="ir.actions.act_window">
             <field name="name">Factures à envoyer par mail</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">account.invoice</field>
+            <field name="res_model">account.move</field>
             <field name="domain">[
                 ('is_mode_envoi_facture','like','mail'),
                 ('is_date_envoi_mail','=',False),
-                ('state','=','open'),
-                '|',('type','=','out_invoice'),('type','=','out_refund')
+                ('state','=','posted'),
+                '|',('move_type','=','out_invoice'),('move_type','=','out_refund')
             ]</field>
             <field name="limit">200</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record> -->
+        </record>
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
         <!-- <record id="is_factures_envoi_mail_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>

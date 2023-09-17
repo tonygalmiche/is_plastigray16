@@ -1017,7 +1017,6 @@ class is_cout_calcul_actualise(models.Model):
                 return {
                     'name': obj.product_id.name,
                     'view_mode': 'form',
-                    'view_type': 'form',
                     'res_model': 'is.cout',
                     'type': 'ir.actions.act_window',
                     'res_id': res_id,
@@ -1144,7 +1143,6 @@ class is_cout(models.Model):
             return {
                 'name': obj.name.name,
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.cout',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,
@@ -1164,7 +1162,6 @@ class is_cout(models.Model):
             return {
                 'name': obj.name.name,
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.cout',
                 'type': 'ir.actions.act_window',
                 'view_id': view_id,

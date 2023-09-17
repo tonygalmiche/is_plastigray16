@@ -60,13 +60,15 @@ class stock_move(models.Model):
     is_point_dechargement         = fields.Char(u'Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
     is_employee_theia_id          = fields.Many2one('hr.employee', 'Employé Theia')
 
-    is_amortissement_moule = fields.Float('Amt client négocié'        , digits=(14,4))
-    is_amt_interne         = fields.Float('Amt interne'               , digits=(14,4))
-    is_cagnotage           = fields.Float('Cagnotage'                 , digits=(14,4))
-    is_montant_amt_moule   = fields.Float('Montant amt client négocié', digits=(14,2))
-    is_montant_amt_interne = fields.Float('Montant amt interne'       , digits=(14,2))
-    is_montant_cagnotage   = fields.Float('Montant cagnotage'         , digits=(14,2))
-    is_montant_matiere     = fields.Float('Montant matière livrée'    , digits=(14,2))
+    is_amortissement_moule  = fields.Float('Amt client négocié'        , digits=(14,4))
+    is_amt_interne          = fields.Float('Amt interne'               , digits=(14,4))
+    is_cagnotage            = fields.Float('Cagnotage'                 , digits=(14,4))
+    is_montant_amt_moule    = fields.Float('Montant amt client négocié', digits=(14,2))
+    is_montant_amt_interne  = fields.Float('Montant amt interne'       , digits=(14,2))
+    is_montant_cagnotage    = fields.Float('Montant cagnotage'         , digits=(14,2))
+    is_montant_matiere      = fields.Float('Montant matière livrée'    , digits=(14,2))
+    is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" ) #Champ ajouté pour Odoo 16 pour faire le lien entre les lignes des factures et les livraisons
+
 
     #TODO Ce champ  a disparru dans Odoo 16 => Je l'ai remis pour conserver le même principe de facturation des réceptions
     invoice_state = fields.Selection([
@@ -445,7 +447,6 @@ class stock_move(models.Model):
                 'name': "Mouvement de stock",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'stock.move',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,

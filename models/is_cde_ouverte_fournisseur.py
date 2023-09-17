@@ -740,7 +740,6 @@ class is_cde_ouverte_fournisseur(models.Model):
             return {
                 'name': u'Articles',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.cde.ouverte.fournisseur.product',
                 'domain': [
                     ('order_id','=',obj.id),
@@ -774,7 +773,6 @@ class is_cde_ouverte_fournisseur_product(models.Model):
             return {
                 'name': u'Commandes',
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.cde.ouverte.fournisseur.product',
                 'res_id'   : obj.id,
                 'type'     : 'ir.actions.act_window',

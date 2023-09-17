@@ -12,6 +12,13 @@
 
 
         <!-- stock.picking -->
+        <record id="creer_factures_action_server" model="ir.actions.server">
+            <field name="name">Créer les factures</field>
+           <field name="model_id" ref="model_stock_picking"/>
+           <field name="binding_model_id" ref="model_stock_picking"/>
+           <field name="state">code</field>
+           <field name="code">action = records.creer_factures_action()</field>
+       </record>
         <record id="is_view_picking_form" model="ir.ui.view">
             <field name="name">is_view_picking_form</field>
             <field name="model">stock.picking</field>
@@ -196,7 +203,8 @@
                 </xpath>
 
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="after">
-                    <field name="invoice_state" optional="hide"/> 
+                    <field name="invoice_state"           optional="hide"/> 
+                    <field name="is_account_move_line_id" optional="hide"/> 
                     <!-- <field name="is_pg_stock_move_id" optional="hide" widget="many2one_clickable"/>  -->
                 </xpath>
 
@@ -386,10 +394,10 @@
             <field name="domain">[
                     ('picking_type_id','=', 2),
                     ('state','=', 'done'),
-                    ('is_mode_envoi_facture','in', [False,'courrier','courrier2','mail','mail2','mail_client','mail_client_bl'])
+                    ('is_mode_envoi_facture','in', [False,'courrier','courrier2','mail','mail2','mail_client','mail_client_bl']),
+                    ('invoice_state','=', '2binvoiced')
                 ]
             </field>
-            <!-- ('invoice_state','=', '2binvoiced'), TODO : A Revoir avec la facturation -->
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>

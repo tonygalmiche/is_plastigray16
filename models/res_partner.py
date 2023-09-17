@@ -824,7 +824,6 @@ class res_partner(models.Model):
             'name':partner.name,
             'view_mode': 'form',
             'view_id': view_id,
-            'view_type': 'form',
             'res_model': 'res.partner',
             'type': 'ir.actions.act_window',
             'res_id': partner.id,

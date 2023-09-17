@@ -64,7 +64,7 @@ class is_preventif_equipement_zone(models.Model):
 
 
     def imprimer_gammes_action(self):
-        uid=self.uid
+        uid=self._uid
         for obj in self:
             db = self._cr.dbname
             path="/tmp/gamme_preventif-" + str(uid)
@@ -103,7 +103,7 @@ class is_preventif_equipement_zone(models.Model):
             try:
                 path_merged=self.env['stock.picking']._merge_pdf(paths)
             except:
-                raise Warning(u"Impossible de générer le PDF => Les gammes doivent être au format PDF")
+                raise ValidationError(u"Impossible de générer le PDF => Les gammes doivent être au format PDF")
             #pdfs = open(path_merged,'rb').read().encode('base64')
             pdfs = open(path_merged,'rb').read()
             # ******************************************************************
@@ -201,7 +201,6 @@ class is_preventif_equipement(models.Model):
             return {
                 'name': u"Saisie préventif équipement",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.preventif.equipement.saisie',
                 'type': 'ir.actions.act_window',
                 'domain': '[]',

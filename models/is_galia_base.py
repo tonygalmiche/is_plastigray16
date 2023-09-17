@@ -65,7 +65,6 @@ class is_galia_base_um(models.Model):
                 'name': "Etiquettes UM",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'is.galia.base.um',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,

@@ -845,6 +845,7 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+    -->
     <record id="is_factures_a_valider_menu" model="ir.ui.menu" >
         <field name="name">Factures à valider</field>
         <field name="sequence">20</field>
@@ -863,6 +864,9 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+
+
+
     <record id="is_factures_envoi_mail_menu" model="ir.ui.menu" >
         <field name="name">A envoyer par mail</field>
         <field name="sequence">22</field>
@@ -872,6 +876,10 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+
+    <!--
+
+
     <record id="is_factures_diverses_menu" model="ir.ui.menu" >
         <field name="name">Factures diverses</field>
         <field name="sequence">25</field>

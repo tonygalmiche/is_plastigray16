@@ -82,7 +82,6 @@ class is_pricelist_item(models.Model):
             return {
                 'name': str(obj.pricelist_name)+" ("+str(obj.price_version_id.name)+")",
                 'view_mode': 'tree',
-                'view_type': 'form',
                 'res_model': 'product.pricelist.item',
                 'type': 'ir.actions.act_window',
                 'view_id'  : False,

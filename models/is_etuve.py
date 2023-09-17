@@ -55,7 +55,6 @@ class is_etuve(models.Model):
                     context.update({'default_of_ids': ids})
             return {
                 'name'     : 'Saisie étuve',
-                'view_type': 'form',
                 'view_mode': 'form',
                 'res_model': 'is.etuve.saisie',
                 'type'     : 'ir.actions.act_window',
@@ -102,7 +101,7 @@ class is_etuve_saisie(models.Model):
 
     @api.depends('matiere_id','of_ids')
     def _compute(self):
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
         company = self.env.user.company_id
         for obj in self:

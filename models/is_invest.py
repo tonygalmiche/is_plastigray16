@@ -67,7 +67,6 @@ class IsInvestGlobal(models.Model):
                 'name': u'Création investissement détail',
                 #'target': 'current', #use 'current' for not opening in a dialog
                 'res_model': 'is.invest.detail',
-                'view_type': 'form',
                 'views': [[False,'form']],
                 'context':{
                     'default_global_id': obj.id,

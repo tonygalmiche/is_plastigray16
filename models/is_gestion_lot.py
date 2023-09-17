@@ -32,7 +32,7 @@ class is_gestion_lot(models.Model):
     
     # Retourne la quantité en stock d'un lot de produit dans un emplacement donnée
     # def get_product_qty_lot_location(self, cr, uid, product_id, lot_id, location_src_id, context=None):
-    #     quant_obj = self.pool.get('stock.quant')
+    #     quant_obj = self.env.get('stock.quant')
     #     qty = 0
     #     if product_id and lot_id and location_src_id:
     #         quant_ids = quant_obj.search(cr, uid, [('product_id','=',product_id), ('lot_id','=',lot_id), ('location_id','=',location_src_id)], context=context)

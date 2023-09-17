@@ -209,7 +209,6 @@ class is_facturation_fournisseur(models.Model):
             return {
                 'name': u'Lignes',
                 'view_mode': 'tree',
-                'view_type': 'form',
                 'view_id': view_id.id,
                 'res_model': 'is.facturation.fournisseur.line',
                 'domain': [
@@ -441,7 +440,6 @@ class is_facturation_fournisseur(models.Model):
     #             'name': "Facture Fournisseur",
     #             'view_mode': 'form',
     #             'view_id': view_id,
-    #             'view_type': 'form',
     #             'res_model': 'account.invoice',
     #             'type': 'ir.actions.act_window',
     #             'res_id': res.id,

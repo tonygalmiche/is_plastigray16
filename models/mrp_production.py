@@ -530,7 +530,7 @@ class MrpProduction(models.Model):
 
     #         # TODO : Ajout d'un blocage le 27/01/2018 pour empècher les problèmes de déclarations sur les OF
     #         if nb!=ct:
-    #             raise Warning("Probleme de synchronisation de nomenclature. Il faut modifier la quantite de cet OF pour resynchroniser la nomenclature")
+    #             raise ValidationError("Probleme de synchronisation de nomenclature. Il faut modifier la quantite de cet OF pour resynchroniser la nomenclature")
     #     #***********************************************************************
 
 
@@ -908,7 +908,6 @@ class MrpProduction(models.Model):
 #             return {
 #                 'name': "Mouvement de stock",
 #                 'view_mode': 'form',
-#                 'view_type': 'form',
 #                 'res_model': 'mrp.production.product.line',
 #                 'type': 'ir.actions.act_window',
 #                 'res_id': obj.id,

@@ -115,7 +115,6 @@ class is_dossier_article(models.Model):
         return {
             'name': u'Dossiers articles actualisés à '+str(now),
             'view_mode': 'tree,form',
-            'view_type': 'form',
             'res_model': 'is.dossier.article',
             'type': 'ir.actions.act_window',
         }

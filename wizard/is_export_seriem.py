@@ -315,7 +315,6 @@ class is_export_seriem(models.TransientModel):
             res= {
                 'name': 'Folio',
                 'view_mode': 'form, tree',
-                'view_type': 'form',
                 'res_model': 'is.account.folio',
                 'type': 'ir.actions.act_window',
                 'res_id': folio.id,

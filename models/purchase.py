@@ -113,8 +113,8 @@ class purchase_order(models.Model):
 
 
     def envoyer_par_mail(self):
-        uid=self.uid
-        modele_mail=u"""
+        uid=self._uid
+        modele_mail="""
         <html>
             <head>
                 <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
@@ -144,7 +144,11 @@ class purchase_order(models.Model):
             #** Génération du PDF **********************************************
             name=u'commande-'+obj.name+u'.pdf'
             #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_purchaseorder')
-            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_report_purchaseorder',[obj.id])[0]
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.purchaseorder_report',[obj.id])[0]
+
+
+
+
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************
@@ -205,7 +209,7 @@ class purchase_order(models.Model):
             if email_id:
                 self.env['mail.mail'].send(email_id)
 
-            obj.message_post(u'Commande envoyée par mail à '+email_contact)
+            obj.message_post(body='Commande envoyée par mail à %s'%email_contact)
             obj.is_date_envoi_mail=datetime.now()
 
 

@@ -118,7 +118,6 @@ class is_article_actualiser(models.TransientModel):
         return {
             'name': u'Articles de tous les sites',
             'view_mode': 'tree,form',
-            'view_type': 'form',
             'res_model': 'is.article',
             'type': 'ir.actions.act_window',
             'limit': 100,

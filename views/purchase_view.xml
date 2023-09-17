@@ -97,14 +97,14 @@
                 <xpath expr="//button[@name='button_unlock'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <!-- <xpath expr="//header/button[@name='purchase_confirm']" position="after">
+                <xpath expr="//button[@name='button_unlock'][1]" position="after">
                     <button
                         name="envoyer_par_mail"
                         string="Envoyer par mail"
                         type="object"
                         confirm="Voulez-vous vraiment envoyer ce document par mail ?"
                     />
-                </xpath> -->
+                </xpath>
 
                 <xpath expr="//group/label[@for='date_planned']" position="attributes">
                     <attribute name="invisible">1</attribute>

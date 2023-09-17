@@ -68,7 +68,6 @@ class is_bl_manuel(models.Model):
             return {
                 'name': "Facture proforma",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.facture.proforma',
                 'type': 'ir.actions.act_window',
                 'res_id': proforma.id,
@@ -137,7 +136,6 @@ class is_bl_manuel(models.Model):
                 res= {
                     'name': 'Demande de transport',
                     'view_mode': 'form',
-                    'view_type': 'form',
                     'res_model': 'is.demande.transport',
                     'res_id': new_id.id,
                     'type': 'ir.actions.act_window',

@@ -29,7 +29,6 @@ class  is_cas_emploi_wizard(models.TransientModel):
         return {
                 'name': "Nomenclature",
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'mrp.bom',
                 'type': 'ir.actions.act_window',
                 'domain': [('id','in',list(set(parent_bom_lst)))],

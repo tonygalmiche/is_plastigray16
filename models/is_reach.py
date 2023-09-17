@@ -213,7 +213,6 @@ class is_reach(models.Model):
             return {
                 'name': u'Analyse REACH par produit',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.reach.product',
                 'domain': [
                     ('reach_id'  ,'=', obj.id),
@@ -231,7 +230,6 @@ class is_reach(models.Model):
             return {
                 'name': u'Analyse REACH par matière',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.reach.product.matiere',
                 'domain': [
                     ('reach_id'  ,'=', obj.id),
@@ -249,7 +247,6 @@ class is_reach(models.Model):
             return {
                 'name': u'Analyse REACH par substance',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.reach.product.cas',
                 'domain': [
                     ('reach_id','=', obj.id),
@@ -289,7 +286,6 @@ class is_reach_product(models.Model):
             return {
                 'name': u'Analyse REACH par substance',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.reach.product.cas',
                 'domain': [
                     ('reach_id'          ,'=', obj.reach_id.id),

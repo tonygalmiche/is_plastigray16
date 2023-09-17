@@ -228,7 +228,7 @@ class mrp_prevision(models.Model):
     def _start_date(self, product_id, quantity, end_date):
         start_date=end_date
         for obj in self:
-            product_obj = self.pool.get('product.product')
+            product_obj = self.env['product.product']
             for product in product_obj.browse(self._cr, self._uid, [product_id], context=self._context):
                 end_date = datetime.strptime(end_date, '%Y-%m-%d')
                 tps_fab=quantity*product.temps_realisation/(3600*24)

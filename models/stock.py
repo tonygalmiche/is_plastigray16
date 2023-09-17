@@ -106,7 +106,7 @@ class stock_picking(models.Model):
             ('none'      , 'Non applicable'),
             ('2binvoiced', "À facturer"),
             ('invoiced'  , "Facturé"),
-        ], "Facturation", default="2binvoiced", compute="_compute_invoice_state")
+        ], "Facturation", default="2binvoiced", compute="_compute_invoice_state", store=True)
 
 
     @api.depends('state', 'move_ids_without_package')
@@ -120,9 +120,6 @@ class stock_picking(models.Model):
                     if line.invoice_state!="invoiced":
                         invoice_state="2binvoiced"
                         break
-
-            print("## TEST ##",obj.state, invoice_state)
-
             obj.invoice_state = invoice_state
 
 
@@ -148,6 +145,19 @@ class stock_picking(models.Model):
         if self.partner_id and self.company_id:
             date_livraison= self.env['res.partner'].get_date_livraison( self.company_id, self.partner_id, self.is_date_expedition)
         self.is_date_livraison = date_livraison
+
+
+
+
+    def creer_factures_action(self):
+        ids=[]
+        for obj in self:
+            id = obj.sale_id.id
+            if id and id not in ids:
+                ids.append(id)
+        self.env['sale.order'].search([('id','in',ids)])._create_invoices() #  def _create_invoices(self, grouped=False, final=False, date=None)
+
+
 
 
 
@@ -375,9 +385,6 @@ class stock_picking(models.Model):
             retour.location_id = obj.location_dest_id.id
             retour.location_dest_id = obj.location_id.id
 
-
-            print("## TEST 1 ##",obj.name, retour.name)
-
             #******************************************************************
 
             #** Création des mouvements inverses pour annuler la réception ****
@@ -434,13 +441,7 @@ class stock_picking(models.Model):
                 move.state="cancel"
             #******************************************************************
 
-
             new_picking=obj.copy()
-
-            print("## TEST 2 ##",obj.name, retour.name, new_picking.name)
-
-
-
             return {
                 'name': "Réception annullée",
                 'view_mode': 'form',

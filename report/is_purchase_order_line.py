@@ -48,7 +48,6 @@ class is_purchase_order_line(models.Model):
         return {
             'name': u'Lignes des commandes actualisées à '+now,
             'view_mode': 'tree,form',
-            'view_type': 'form',
             'views'    : [(False, 'tree'),(False, 'form')],
             'res_model': 'is.purchase.order.line',
             'type': 'ir.actions.act_window',

@@ -38,10 +38,10 @@ class is_deb(models.Model):
 
 
     def transfert(self):
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
         for obj in self:
-            user    = self.pool['res.users'].browse(cr, uid, [uid])[0]
+            user    = self.env['res.users'].browse([uid])[0]
             company     = user.company_id.partner_id
             departement = company.zip[:2]
             if obj.soc=='3':
@@ -252,7 +252,6 @@ class is_deb(models.Model):
             return {
                 'name': u'Synthèse DEB',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.deb.synthese',
                 'domain': [
                     ('deb_id'  ,'=', obj.id),
@@ -270,7 +269,6 @@ class is_deb(models.Model):
             return {
                 'name': u'Lignes DEB',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.deb.line',
                 'domain': [
                     ('deb_id'  ,'=', obj.id),
@@ -288,7 +286,6 @@ class is_deb(models.Model):
             return {
                 'name': u'Synthèse DEB',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.deb.synthese',
                 'domain': [
                     ('deb_id'  ,'=', obj.id),

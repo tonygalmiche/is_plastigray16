@@ -387,7 +387,6 @@ class is_pdc_workcenter(models.Model):
             return {
                 'name': u'Moules de la section '+obj.workcenter_id.name,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.pdc.mold',
                 'domain': [
                     ('pdc_id','=',obj.pdc_id.id),

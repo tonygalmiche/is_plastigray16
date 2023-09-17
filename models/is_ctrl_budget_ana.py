@@ -56,7 +56,6 @@ class is_ctrl_budget_ana_annee(models.Model):
             return {
                 'name': obj.annee,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.ctrl.budget.ana.product',
                 'domain': [
                     ('annee_id' ,'=',obj.id),

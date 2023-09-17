@@ -482,7 +482,6 @@ class mrp_generate_previsions(models.TransientModel):
         #** Action pour retourner à la liste des prévisions ********************
         action =  {
             'name': "Previsions",
-            'view_type': 'form',
             'view_mode': 'tree,form',
             'res_model': 'mrp.prevision',
             'type': 'ir.actions.act_window',

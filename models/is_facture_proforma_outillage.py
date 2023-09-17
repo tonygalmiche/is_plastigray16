@@ -81,13 +81,13 @@ class is_facture_proforma_outillage(models.Model):
 
 
     def envoyer_par_mail_action(self):
-        uid=self.uid
+        uid=self._uid
         cr=self._cr
         user = self.env['res.users'].browse(uid)
         if user.email==False:
-            raise Warning(u"Votre mail n'est pas renseigné !")
-        if not self.pool['res.users'].has_group(cr, uid, 'is_plastigray16.is_comptable_group'):
-            raise Warning(u"Accès non autorisé !")
+            raise ValidationError(u"Votre mail n'est pas renseigné !")
+        if not self.env['res.users'].has_group('is_plastigray16.is_comptable_group'):
+            raise ValidationError(u"Accès non autorisé !")
         partners={}
         for obj in self:
             if not obj.date_envoi_mail:
@@ -108,7 +108,7 @@ class is_facture_proforma_outillage(models.Model):
 
                 # ** Creation ou modification de la pièce jointe *******************
                 #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_is_facture_proforma_outillage')
-                pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_is_facture_proforma_outillage',[obj.id])[0]
+                pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_facture_proforma_outillage_report',[obj.id])[0]
                 vals = {
                     'name':        name,
                     #'datas_fname': name,
@@ -147,7 +147,7 @@ class is_facture_proforma_outillage(models.Model):
                 if email_to:
                     emails_to.append(row[0]+u' <'+email_to+u'>')
             if len(emails_to)==0:
-                raise Warning(u"Aucun contact de type 'Facturation' trouvé pour le client "+partner.name)
+                raise ValidationError(u"Aucun contact de type 'Facturation' trouvé pour le client "+partner.name)
             #*******************************************************************
 
             email_cc   = user.name+u' <'+user.email+u'>'
@@ -162,8 +162,11 @@ class is_facture_proforma_outillage(models.Model):
                 'email_cc'      : email_cc,
                 'email_from'    : email_from, 
                 'body_html'     : body_html.encode('utf-8'), 
-                'attachment_ids': [(6, 0, [attachment_ids])] 
+                'attachment_ids': [(6, 0, attachment_ids)] 
             })
+
+            print(email_vals)
+
 
             email_id=self.env['mail.mail'].create(email_vals)
             if email_id:

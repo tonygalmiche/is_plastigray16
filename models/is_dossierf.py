@@ -82,7 +82,6 @@ class is_dossierf(models.Model):
             return {
                 'name': "Dossier F",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.dossierf',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,

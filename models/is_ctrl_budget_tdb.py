@@ -47,7 +47,6 @@ class is_ctrl_budget_tdb_famille_rel(models.Model):
             return {
                 'name': name,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.ctrl.budget.tdb',
                 'domain': [
                     ('saisie_id' ,'=',obj.saisie_id.id),
@@ -109,7 +108,6 @@ class is_ctrl_budget_tdb_saisie(models.Model):
             return {
                 'name': name,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.ctrl.budget.tdb',
                 'domain': [
                     ('saisie_id' ,'=',obj.id),

@@ -407,7 +407,6 @@ class is_mold(models.Model):
             return {
                 'name': u"Préventif Moule",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.preventif.moule',
                 'type': 'ir.actions.act_window',
                 'domain': '[]',
@@ -506,7 +505,6 @@ class is_mold(models.Model):
             return {
                 'name': "Moule",
                 'view_mode': 'form',
-                'view_type': 'form',
                 'res_model': 'is.mold',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.id,

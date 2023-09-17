@@ -236,7 +236,6 @@ class is_stock_move(models.Model):
         return {
             'name': 'Mouvements de stocks actualisés à '+str(now),
             'view_mode': 'tree,form',
-            'view_type': 'form',
             'res_model': 'is.stock.move',
             'type': 'ir.actions.act_window',
         }

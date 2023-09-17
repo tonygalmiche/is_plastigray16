@@ -363,7 +363,6 @@ class is_mini_delta_dore(models.Model):
             return {
                 'name': u'Besoins mini Delta Dore',
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.mini.delta.dore.besoin',
                 'domain': [
                     ('mini_delta_dore_id'  ,'=', obj.id),
@@ -400,7 +399,6 @@ class is_mini_delta_dore_line(models.Model):
             return {
                 'name': u'Besoins mini Delta Dore '+obj.product_id.is_code,
                 'view_mode': 'tree,form',
-                'view_type': 'form',
                 'res_model': 'is.mini.delta.dore.besoin',
                 'domain': [
                     ('line_id','=', obj.id),

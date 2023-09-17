@@ -154,7 +154,6 @@ class is_facture_pk(models.Model):
             return {
                 'name': u'Lignes '+obj.num_facture,
                 'view_mode': 'tree',
-                'view_type': 'form',
                 'view_id': view_id.id,
                 'res_model': 'is.facture.pk.line',
                 'domain': [

@@ -69,7 +69,6 @@ class is_edi_cde_cli_line(models.Model):
                 'name': "Commande",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'sale.order',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.order_id.id,

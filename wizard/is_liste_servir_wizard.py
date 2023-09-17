@@ -89,7 +89,6 @@ class is_liste_servir_wizard(models.TransientModel):
                 'name': "Article",
                 'view_mode': 'form',
                 'view_id': view_id,
-                'view_type': 'form',
                 'res_model': 'product.template',
                 'type': 'ir.actions.act_window',
                 'res_id': obj.product_id.product_tmpl_id.id,

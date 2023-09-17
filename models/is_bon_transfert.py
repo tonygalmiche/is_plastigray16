@@ -71,7 +71,6 @@ class is_bon_transfert(models.Model):
                 return {
                     'name': "Facture proforma",
                     'view_mode': 'form',
-                    'view_type': 'form',
                     'res_model': 'is.facture.proforma',
                     'type': 'ir.actions.act_window',
                     'res_id': proforma.id,

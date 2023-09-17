@@ -66,7 +66,6 @@ class  is_cas_emploi_wizard_new(models.TransientModel):
         return {
             'name': u"Cas d'emploi "+str(obj.product_id.is_code),
             'view_mode': 'tree,form',
-            'view_type': 'form',
             'res_model': 'is.cas.emploi.line',
             'type': 'ir.actions.act_window',
             'domain': [('wizard_id','=',obj.id)],

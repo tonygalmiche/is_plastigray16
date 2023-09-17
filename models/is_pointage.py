@@ -64,7 +64,7 @@ class is_pointage(models.Model):
 
 
     def id2employee(self):
-        employee_obj = self.pool.get('hr.employee')
+        employee_obj = self.env['hr.employee']
         employee = employee_obj.browse(cr, uid, id)
         return employee.name
 
