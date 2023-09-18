@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="seq_is_facture_pk" model="ir.sequence">
+            <field name="name">is facture pk</field>
+            <field name="code">is.facture.pk</field>
+            <field name="prefix">PK-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
         <record model="ir.ui.view" id="is_facture_pk_form_view">
             <field name="name">is.facture.pk.form.view</field>
             <field name="model">is.facture.pk</field>
@@ -62,14 +69,12 @@
                                 <field name="total_pf"   readonly="1" sum="Total"/>
                             </tree>
                         </field>
-                        <group>
-                            <field name="moule_ids" nolabel="1">
-                                <tree editable="bottom" >
-                                    <field name="mold_id"/>
-                                    <field name="montant" sum="Total"/>
-                                </tree>
-                            </field>
-                        </group>
+                        <field name="moule_ids" nolabel="1">
+                            <tree editable="bottom" >
+                                <field name="mold_id"/>
+                                <field name="montant" sum="Total"/>
+                            </tree>
+                        </field>
                     </sheet>
                 </form>
             </field>

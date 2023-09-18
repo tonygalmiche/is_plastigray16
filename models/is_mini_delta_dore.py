@@ -2,10 +2,11 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import base64
+import csv
 #import csv, cStringIO
 from datetime import date,datetime,timedelta
 #import unicodedata
-#import math
+import math
 
 
 _MOIS=['Janvier', 'Février','Mars','Avril','Mai', 'Juin','Juillet','Aout','Septembre','Octobre','Novembre','Décembre']
@@ -21,7 +22,7 @@ class is_mini_delta_dore(models.Model):
     nb_jours        = fields.Integer('Nombre de jours dans le fichier')
     nb_semaines     = fields.Integer('Nombre de semaines dans le fichier')
     nb_mois         = fields.Integer('Nombre de mois dans le fichier')
-    #edi_id          = fields.Many2one('is.edi.cde.cli', 'EDI généré', readonly=True)
+    edi_id          = fields.Many2one('is.edi.cde.cli', 'EDI généré', readonly=True)
     line_ids        = fields.One2many('is.mini.delta.dore.line'  , 'mini_delta_dore_id', u"Lignes")
     besoin_ids      = fields.One2many('is.mini.delta.dore.besoin', 'mini_delta_dore_id', u"Besoins")
 
@@ -46,6 +47,7 @@ class is_mini_delta_dore(models.Model):
 
     def creation_edi(self):
         cr=self._cr
+        cr.commit()
         for obj in self:
             SQL="""
                 select
@@ -72,10 +74,11 @@ class is_mini_delta_dore(models.Model):
                 'name':        name,
                 #'datas_fname': name,
                 'type':        'binary',
-                'file_type':   'text/csv',
+                #'file_type':   'text/csv',
                 'res_model':   model,
                 #'datas':       datas.encode('base64'),
-                'datas': base64.b64encode(datas),
+                #'datas': base64.b64encode(datas),
+                'datas'      : base64.b64encode(bytes(datas, 'utf-8')) # bytes,
             }
             attachment=attachment_obj.create(vals)
             vals = {
@@ -103,8 +106,8 @@ class is_mini_delta_dore(models.Model):
             nb_semaines = obj.nb_semaines
             nb_mois     = obj.nb_mois
 
-            attachment=base64.decodestring(attachment.datas)
-            attachment=attachment.decode('iso-8859-1').encode('utf8')
+            attachment=base64.decodebytes(attachment.datas).decode('iso-8859-1')
+            #attachment=attachment.decode('iso-8859-1').encode('utf8')
             csvfile = attachment.split("\n")
             csvfile = csv.reader(csvfile, delimiter=';')
             tsemaines={}
@@ -303,7 +306,7 @@ class is_mini_delta_dore(models.Model):
                         stock_maxi     = row[6]
                         date_calculee  = row[7]
                         besoin_calcule = row[8]
-                        date_calculee=datetime.strptime(date_calculee, '%Y-%m-%d')
+                        #date_calculee=datetime.strptime(date_calculee, '%Y-%m-%d')
                         if lig==1:
                             stock_date=stock-stock_mini
                         stock_date     = stock_date - besoin_calcule
@@ -317,7 +320,7 @@ class is_mini_delta_dore(models.Model):
                             x=math.ceil(x)
                             commande=multiple*x
                             date_livraison=date_calculee
-                            if date_calculee<=date_prochaine_livraison:
+                            if date_calculee<=date_prochaine_livraison.date():
                                 type_commande  = 'ferme'
                                 date_livraison=date_prochaine_livraison
                                 commande=commande+multiple # Ajoute 1 multiple si commande ferme
@@ -342,8 +345,8 @@ class is_mini_delta_dore(models.Model):
 
     def txt2integer(self,txt):
         txt=str(txt).strip()
-        txt = unicode(txt,'utf-8')
-        txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore')
+        #txt = unicode(txt,'utf-8')
+        #txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore')
         txt=txt.replace(u' ', '')
         try:
             x = int(txt)

@@ -876,10 +876,6 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
-
-    <!--
-
-
     <record id="is_factures_diverses_menu" model="ir.ui.menu" >
         <field name="name">Factures diverses</field>
         <field name="sequence">25</field>
@@ -890,7 +886,7 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
-    -->
+   
     <record id="is_action_invoice_tree1_menu" model="ir.ui.menu" >
         <field name="name">Toutes les factures</field>
         <field name="sequence">30</field>
@@ -938,7 +934,7 @@
         ])]"/>
     </record>
 
-    <!-- <record id="is_marge_contributive_menu" model="ir.ui.menu" >
+    <record id="is_marge_contributive_menu" model="ir.ui.menu" >
         <field name="name">Marge contributive</field>
         <field name="sequence">70</field>
         <field name="parent_id" eval="ref('menu_is_ventes_fac')"/>
@@ -946,7 +942,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_comptable_group')
         ])]"/>
-    </record> -->
+    </record>
  
     <record id="is_deb_menu" model="ir.ui.menu" >
         <field name="name">DEB</field>

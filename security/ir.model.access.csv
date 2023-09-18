@@ -451,3 +451,4 @@ access_ir_model_fields_all,access_ir_model_fields_all,base.model_ir_model_fields
 access_mrp_document_base,access_mrp_document_base,mrp.model_mrp_document,base.group_user,1,1,1,1
 
 
+access_is_marge_contributive,access_is_marge_contributive,model_is_marge_contributive,base.group_user,1,0,0,0

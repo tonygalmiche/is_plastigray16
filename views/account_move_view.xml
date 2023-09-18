@@ -349,16 +349,15 @@
 
 
         <!-- Factures diverses -->
-        <!-- <record id="is_factures_diverses_action" model="ir.actions.act_window">
+        <record id="is_factures_diverses_action" model="ir.actions.act_window">
             <field name="name">Factures diverses</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">account.invoice</field>
-            <field name="domain">[('is_type_facture','=', 'diverse')]</field>
-            <field name="context">{'default_is_type_facture':'diverse'}</field>
+            <field name="res_model">account.move</field>
+            <field name="domain">[('is_type_facture','=', 'diverse'),('move_type', '=', 'out_invoice')]</field>
+            <field name="context">{'default_is_type_facture':'diverse', 'default_move_type': 'out_invoice'}</field>
             <field name="limit">200</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-        </record> -->
+        </record>
         <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
         <!-- <record id="is_factures_diverses_action_tree_view" model="ir.actions.act_window.view">
             <field eval="1" name="sequence"/>

@@ -52,83 +52,90 @@ class is_facture_pk(models.Model):
 
       
 
-    def create(self, vals):
-        data_obj          = self.env['ir.model.data']
-        stock_picking_obj = self.env['stock.picking']
-        cout_obj          = self.env['is.cout']
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
 
-        #** Recherche si le BL est déjà facturé ********************************
-        if 'num_bl' in vals:
-            pickings = stock_picking_obj.search([('id', '=', vals['num_bl'])])
-            for picking in pickings:
-                if picking.is_facture_pk_id:
-                    raise ValidationError('Ce BL est déjà facturé !')
-        #***********************************************************************
+            data_obj          = self.env['ir.model.data']
+            stock_picking_obj = self.env['stock.picking']
+            cout_obj          = self.env['is.cout']
 
-        sequence_ids = data_obj.search([('name','=','seq_is_facture_pk')])
-        if len(sequence_ids)>0:
-            sequence_id = sequence_ids[0].res_id
-            vals['num_facture'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-        if vals.get('num_bl', False):
-            picking = stock_picking_obj.search([('id', '=', vals['num_bl'])])
-            line_ids = []
-            matiere_premiere=0
-            main_oeuvre=0
-            nb_pieces=0
-            nb_cartons=0
-            total_poids_net=0
-            total_poids_brut=0
-            for move in picking.move_lines:
+            #** Recherche si le BL est déjà facturé ********************************
+            if 'num_bl' in vals:
+                pickings = stock_picking_obj.search([('id', '=', vals['num_bl'])])
+                for picking in pickings:
+                    if picking.is_facture_pk_id:
+                        raise ValidationError('Ce BL est déjà facturé !')
+            #***********************************************************************
 
-                #** Cout actualisé *********************************************
-                couts = cout_obj.search([('name', '=', move.product_id.id)])
-                cout_act_matiere=0
-                for cout in couts:
-                    cout_act_matiere=cout.cout_act_matiere
-                #***************************************************************
+            vals['num_facture'] = self.env['ir.sequence'].next_by_code('is.facture.pk')
 
-                #** Conditionnement ********************************************
-                uc=1
-                for pack in move.product_id.packaging_ids:
-                    uc=pack.qty or 1
-                #***************************************************************
+            print(vals)
 
-                pupf=move.sale_line_id.price_unit
-                matiere_premiere=matiere_premiere+move.product_uom_qty*cout_act_matiere
-                main_oeuvre=main_oeuvre+move.product_uom_qty*pupf
-                nb_pieces=nb_pieces+move.product_uom_qty
-                nb_cartons=nb_cartons+move.product_uom_qty/uc
+            #sequence_ids = data_obj.search([('name','=','seq_is_facture_pk')])
+            #if len(sequence_ids)>0:
+            #    sequence_id = sequence_ids[0].res_id
+            #    vals['num_facture'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
+            if vals.get('num_bl', False):
+                picking = stock_picking_obj.search([('id', '=', vals['num_bl'])])
+                line_ids = []
+                matiere_premiere=0
+                main_oeuvre=0
+                nb_pieces=0
+                nb_cartons=0
+                total_poids_net=0
+                total_poids_brut=0
+                for move in picking.move_ids_without_package:
 
-                poids_net  = move.product_id and move.product_uom_qty*move.product_id.weight_net
-                poids_brut = move.product_id and move.product_uom_qty*move.product_id.weight
-                total_poids_net  = total_poids_net  + poids_net
-                total_poids_brut = total_poids_brut + poids_brut
-                val = {
-                    'commande'   : move.sale_line_id.is_client_order_ref or '',
-                    'product_id' : move.product_id.id,
-                    'ref_pk'     : move.product_id and move.product_id.is_code or False,
-                    'designation': move.product_id and move.product_id.name or '',
-                    'poids_net'  : poids_net,
-                    'poids_brut' : poids_brut,
-                    'qt'         : move.product_uom_qty,
-                    'uc'         : uc,
-                    'nb_uc'      : move.product_uom_qty/uc,
-                    'pump'       : cout_act_matiere,
-                    'ptmp'       : move.product_uom_qty*cout_act_matiere,
-                    'pupf'       : pupf,
-                    'total_pf'   : move.product_uom_qty*pupf,
-                }
-                line_ids.append((0, 0, val))
-            vals.update({
-                'line_ids': line_ids,
-                'matiere_premiere': matiere_premiere,
-                'main_oeuvre'     : main_oeuvre,
-                'nb_pieces'       : nb_pieces,
-                'nb_cartons'      : nb_cartons,
-                'poids_net'       : total_poids_net,
-                'poids_brut'      : total_poids_brut,
-            })
-        res = super(is_facture_pk, self).create(vals)
+                    #** Cout actualisé *********************************************
+                    couts = cout_obj.search([('name', '=', move.product_id.id)])
+                    cout_act_matiere=0
+                    for cout in couts:
+                        cout_act_matiere=cout.cout_act_matiere
+                    #***************************************************************
+
+                    #** Conditionnement ********************************************
+                    uc=1
+                    for pack in move.product_id.packaging_ids:
+                        uc=pack.qty or 1
+                    #***************************************************************
+
+                    pupf=move.sale_line_id.price_unit
+                    matiere_premiere=matiere_premiere+move.product_uom_qty*cout_act_matiere
+                    main_oeuvre=main_oeuvre+move.product_uom_qty*pupf
+                    nb_pieces=nb_pieces+move.product_uom_qty
+                    nb_cartons=nb_cartons+move.product_uom_qty/uc
+
+                    poids_net  = move.product_id and move.product_uom_qty*move.product_id.weight_net
+                    poids_brut = move.product_id and move.product_uom_qty*move.product_id.weight
+                    total_poids_net  = total_poids_net  + poids_net
+                    total_poids_brut = total_poids_brut + poids_brut
+                    val = {
+                        'commande'   : move.sale_line_id.is_client_order_ref or '',
+                        'product_id' : move.product_id.id,
+                        'ref_pk'     : move.product_id and move.product_id.is_code or False,
+                        'designation': move.product_id and move.product_id.name or '',
+                        'poids_net'  : poids_net,
+                        'poids_brut' : poids_brut,
+                        'qt'         : move.product_uom_qty,
+                        'uc'         : uc,
+                        'nb_uc'      : move.product_uom_qty/uc,
+                        'pump'       : cout_act_matiere,
+                        'ptmp'       : move.product_uom_qty*cout_act_matiere,
+                        'pupf'       : pupf,
+                        'total_pf'   : move.product_uom_qty*pupf,
+                    }
+                    line_ids.append((0, 0, val))
+                vals.update({
+                    'line_ids': line_ids,
+                    'matiere_premiere': matiere_premiere,
+                    'main_oeuvre'     : main_oeuvre,
+                    'nb_pieces'       : nb_pieces,
+                    'nb_cartons'      : nb_cartons,
+                    'poids_net'       : total_poids_net,
+                    'poids_brut'      : total_poids_brut,
+                })
+        res = super().create(vals)
         res.num_bl.is_facture_pk_id=res.id
         #self.check_bl(res)
         return res

@@ -40,6 +40,10 @@ Module Odoo 16 pour Plastigray
 
         "views/report_paperformat.xml",
 
+        "report/is_marge_contributive.xml",
+
+
+
         "views/report_inventaire.xml",
         "views/report_inventaire_ecart.xml",
         "views/report_is_inventaire_line_tree.xml",
@@ -282,7 +286,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_livraison_facture.xml",
         # "report/is_comparatif_cde_draft_done.xml",
-        # "report/is_marge_contributive.xml",
         # "report/is_suivi_budget_analytique.xml",
         # "report/is_comparatif_lot_appro_prix.xml",
         # "report/is_article_sans_cde_ouverte_fou.xml",

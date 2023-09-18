@@ -22,9 +22,8 @@ from . import is_sale_order_line
 from . import is_stock_move
 from . import is_stock_quant
 from . import is_users_groups
-
 from . import is_anomalie_position_fiscale
-
+from . import is_marge_contributive
 
 
 # import stock_debloquer_lot
