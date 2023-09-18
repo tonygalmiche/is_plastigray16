@@ -73,6 +73,18 @@
             </field>
         </record>
 
+        <record id="is_view_invoice_tree" model="ir.ui.view">
+            <field name="name">is_view_invoice_tree</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree" />
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                        <field name="partner_id" optional="show"/>
+                </field>
+            </field>
+        </record>
+        
+
         <!-- Envoi par mail -->
         <record id="envoi_par_mail_action_server" model="ir.actions.server">
              <field name="name">Envoi par mail</field>

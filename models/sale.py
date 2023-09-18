@@ -52,6 +52,7 @@ class sale_order(models.Model):
         "Fonction surchargée pour faire le lien entre les factures et les mouvements de stocks"
         invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
         for invoice in invoices:
+            invoice.is_mode_envoi_facture = invoice.partner_id.is_mode_envoi_facture
             for line in invoice.line_ids:
                 for sale_line in line.sale_line_ids:
                     for move in sale_line.move_ids:
