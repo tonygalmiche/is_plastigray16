@@ -25,6 +25,7 @@ from . import is_users_groups
 from . import is_anomalie_position_fiscale
 from . import is_marge_contributive
 from . import is_article_sans_cde_ouverte_fou
+from . import is_comparatif_gamme_standard_generique
 
 
 # import stock_debloquer_lot
@@ -32,7 +33,6 @@ from . import is_article_sans_cde_ouverte_fou
 # import stock_rebut_lot
 # import is_comparatif_tarif_facture
 # import is_pic_3mois
-# import is_comparatif_gamme_standard_generique
 # import is_comparatif_tps_article_gamme
 # import is_comparatif_tarif_cial_vente
 # import is_nomenclature_sans_gamme

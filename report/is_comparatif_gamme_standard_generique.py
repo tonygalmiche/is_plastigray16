@@ -1,32 +1,32 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools, models, fields
 
 
 class is_comparatif_gamme_standard_generique(models.Model):
     _name='is.comparatif.gamme.standard.generique'
+    _description='is.comparatif.gamme.standard.generique'
     _order='product_id'
     _auto = False
 
     product_id                 = fields.Many2one('product.template', 'Article')
     bom_id                     = fields.Many2one('mrp.bom', 'Nomenclature')
     standard_routing_id        = fields.Many2one('mrp.routing', 'Gamme Standard')
-    standard_sequence          = fields.Integer('Sequence')
-    standard_name              = fields.Char('Nom')
+    standard_sequence          = fields.Integer('Sequence standard')
+    standard_name              = fields.Char('Nom standard')
     standard_workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge')
-    standard_nb_secondes       = fields.Float('Nb secondes')
+    standard_nb_secondes       = fields.Float('Nb secondes standard')
 
     generique_routing_id        = fields.Many2one('mrp.routing', 'Gamme Générique')
-    generique_sequence          = fields.Integer('Sequence')
-    generique_name              = fields.Char('Nom')
+    generique_sequence          = fields.Integer('Sequence generique')
+    generique_name              = fields.Char('Nom generique')
     generique_workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge')
-    generique_nb_secondes       = fields.Float('Nb secondes')
+    generique_nb_secondes       = fields.Float('Nb secondes generique')
     delta_nb_secondes           = fields.Float('Delta Nb secondes')
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_gamme_standard_generique')
         cr.execute("""
             CREATE OR REPLACE view is_comparatif_gamme_standard_generique AS (

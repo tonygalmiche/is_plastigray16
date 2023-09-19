@@ -1563,7 +1563,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-
+    -->
     <menuitem id="is_analyse_gamme_menu" sequence="15" name="Analyses Gammes" parent="menu_is_analyse"/>
     <record id="is_comparatif_gamme_standard_generique_menu" model="ir.ui.menu" >
         <field name="name">Gamme standard / générique</field>
@@ -1574,6 +1574,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
+    <!--
     <record id="is_comparatif_tps_article_gamme_menu" model="ir.ui.menu" >
         <field name="name">Tps article/gamme</field>
         <field name="sequence">20</field>
