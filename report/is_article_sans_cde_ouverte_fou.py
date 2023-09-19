@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools, models, fields
+#from odoo.tools.translate import _
 
 
 class is_article_sans_cde_ouverte_fou(models.Model):
     _name='is.article.sans.cde.ouverte.fou'
+    _description='is.article.sans.cde.ouverte.fou'
     _order='product_id'
     _auto = False
 
@@ -19,13 +19,14 @@ class is_article_sans_cde_ouverte_fou(models.Model):
     cde_ouverte_partner_id  = fields.Many2one('is.cde.ouverte.fournisseur', 'Commande ouverte fournisseur')
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_article_sans_cde_ouverte_fou')
         cr.execute("""
             CREATE OR REPLACE FUNCTION get_product_fournisseur_id(pt_id integer) RETURNS integer AS $$
             BEGIN
                 RETURN (
-                    select ps.name 
+                    select ps.partner_id
                     from product_supplierinfo ps 
                     where ps.product_tmpl_id=pt_id
                     order by ps.sequence limit 1

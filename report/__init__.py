@@ -24,6 +24,7 @@ from . import is_stock_quant
 from . import is_users_groups
 from . import is_anomalie_position_fiscale
 from . import is_marge_contributive
+from . import is_article_sans_cde_ouverte_fou
 
 
 # import stock_debloquer_lot
@@ -46,7 +47,6 @@ from . import is_marge_contributive
 # import is_marge_contributive
 # import is_suivi_budget_analytique
 # import is_comparatif_lot_appro_prix
-# import is_article_sans_cde_ouverte_fou
 # import is_anomalie_declar_prod
 # import is_comparatif_cout_pk_tarif
 

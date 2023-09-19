@@ -206,6 +206,7 @@ Module Odoo 16 pour Plastigray
         "report/is_sale_order_line.xml",
         "report/is_stock_move.xml",
         "report/is_users_groups.xml",
+        "report/is_article_sans_cde_ouverte_fou.xml",
 
         "wizard/assistent_report_view.xml",
         "wizard/generate_previsions_view.xml",
@@ -288,7 +289,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_comparatif_cde_draft_done.xml",
         # "report/is_suivi_budget_analytique.xml",
         # "report/is_comparatif_lot_appro_prix.xml",
-        # "report/is_article_sans_cde_ouverte_fou.xml",
         # "report/is_anomalie_declar_prod.xml",
         # "report/is_comparatif_cout_pk_tarif.xml",
 
