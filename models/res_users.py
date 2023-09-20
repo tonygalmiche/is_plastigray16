@@ -55,7 +55,10 @@ class res_users(models.Model):
     def _login(cls, db, login, password, user_agent_env):
         "Permet d'ajouter l'adresse IP de la personne qui se connecte cela est utilise par les programmes externes"
         user_id = super()._login(db, login, password, user_agent_env)
-        ip = request.httprequest.environ['REMOTE_ADDR']
+        try:
+            ip = request.httprequest.environ['REMOTE_ADDR']
+        except:
+            ip = False
         with cls.pool.cursor() as cr:
             self = api.Environment(cr, SUPERUSER_ID, {})[cls._name]
             vals={
