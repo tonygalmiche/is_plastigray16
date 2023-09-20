@@ -162,7 +162,7 @@ class is_cde_ouverte_fournisseur(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             self.test_unique(vals['partner_id'])
-            vals['name'] = self.env['ir.sequence'].next_by_code('is.bon.transfert')
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.cde.ouverte.fournisseur')
 
         res=super().create(vals_list)
         self.update_partner(res)
