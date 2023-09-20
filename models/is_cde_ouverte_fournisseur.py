@@ -814,7 +814,7 @@ class is_cde_ouverte_fournisseur_line(models.Model):
     quantite          = fields.Float("Quantité commande")
     quantite_rcp      = fields.Float("Quantité reçue")
     uom_id            = fields.Many2one('uom.uom', 'Unité')
-    #mrp_prevision_id  = fields.Many2one('mrp.prevision' , 'SA')
+    mrp_prevision_id  = fields.Many2one('mrp.prevision' , 'SA')
     purchase_order_id = fields.Many2one('purchase.order', 'Commande')
     date_fournisseur  = fields.Date("Date confirmation fournisseur")
     imprimer_commande = fields.Boolean("Imprimer la commande", default=False)

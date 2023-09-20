@@ -120,7 +120,7 @@
                             <page string="Articles et Tarifs">
                                 <group string="Articles"/>
                                 <field name="product_ids" nolabel="1">
-                                    <tree editable="bottom">
+                                    <tree editable="bottom" limit="500">
                                         <button 
                                             title="Commandes" 
                                             name= "action_acces_commandes" type="object"  icon="fa-list-alt"
@@ -132,7 +132,7 @@
                                         <field name="nb_commandes"/>
                                         <field name="nb_ferme_imprime"/> 
                                         <field name="attente_confirmation"/> 
-                                        <field name="imprimer"/> 
+                                        <field name="imprimer" widget="boolean_toggle"/> 
                                     </tree>
                                 </field>
                                 <group>
@@ -213,7 +213,8 @@
              <field name="name">Intégrer les commandes et les SA</field>
             <field name="model_id" ref="model_is_cde_ouverte_fournisseur"/>
             <field name="binding_model_id" ref="model_is_cde_ouverte_fournisseur"/>
-            <field name="code">action = model.integrer_commandes()</field>
+            <field name="state">code</field>
+            <field name="code">action = records.integrer_commandes()</field>
         </record>
 
 
@@ -222,13 +223,15 @@
              <field name="name">A imprimer</field>
             <field name="model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
             <field name="binding_model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
-            <field name="code">action = model.a_imprimer()</field>
+            <field name="state">code</field>
+            <field name="code">action = records.a_imprimer()</field>
         </record>
         <record id="is_cde_ouverte_fournisseur_product_pas_imprimer_action_server" model="ir.actions.server">
              <field name="name">Ne pas imprimer</field>
             <field name="model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
             <field name="binding_model_id" ref="model_is_cde_ouverte_fournisseur_product"/>
-            <field name="code">action = model.ne_pas_imprimer()</field>
+            <field name="state">code</field>
+            <field name="code">action = records.ne_pas_imprimer()</field>
         </record>
         <record model="ir.ui.view" id="is_cde_ouverte_fournisseur_product_form_view">
             <field name="name">is_cde_ouverte_fournisseur_product_form_view</field>
@@ -248,15 +251,14 @@
                         </group>
                         <group string="Commandes"/>
                         <field name="line_ids" nolabel="1" readonly="0">
-                            <!-- colors="gray:type_cde == 'prev'" -->
-                            <tree editable="bottom" create="0">
+                            <tree decoration-muted="type_cde == 'prev'" editable="bottom" create="0" limit="500">
                                 <field name="date"/> 
                                 <field name="type_cde"/> 
                                 <field name="date_approve"/> 
                                 <field name="quantite"/> 
                                 <field name="quantite_rcp"/> 
                                 <field name="uom_id"/> 
-                                <!-- <field name="mrp_prevision_id"/>  -->
+                                <field name="mrp_prevision_id"/> 
                                 <field name="purchase_order_id"/> 
                                 <field name="date_fournisseur"/> 
                                 <field name="imprimer_commande"/> 
@@ -284,7 +286,7 @@
                     <field name="nb_commandes"/>
                     <field name="nb_ferme_imprime"/> 
                     <field name="attente_confirmation"/> 
-                    <field name="imprimer"/> 
+                    <field name="imprimer" widget="boolean_toggle"/> 
                 </tree>
             </field>
         </record>
