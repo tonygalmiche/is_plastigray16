@@ -95,7 +95,7 @@
                                     <td class="text-left">         <span t-field="l.product_id.product_tmpl_id.is_ref_fournisseur"/> </td>
                                     <td class="text-left">         <span t-field="l.product_id.product_tmpl_id.is_ref_plan"/> </td>
                                     <td class="text-left">         <span t-esc="', '.join(map(lambda x: x.name, l.taxes_id))"/></td>
-                                    <td class="text-center">       <span t-field="l.date_planned"/>  </td>
+                                    <td class="text-center">       <span t-esc="l.date_planned.strftime('%d/%m/%Y')"/>  </td>
                                     <td class="text-left">         <span t-field="l.product_uom.name"/>  </td>
                                     <td class="text-right nowrap"> <span t-field="l.product_qty"/>  </td>
                                     <td class="text-right nowrap"> <span t-field="order.qt_reste"/>  </td>
