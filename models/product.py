@@ -617,7 +617,6 @@ class product_template(models.Model):
             id = model.create(vals)
         model = self.env['product.packaging']
         for product in res.product_variant_ids:
-            print(product)
             for item in self.packaging_ids:
                 vals = {
                     'product_id': product.id,

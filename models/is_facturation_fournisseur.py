@@ -74,17 +74,9 @@ class is_facturation_fournisseur(models.Model):
             ttc = round(ttc,2)
             ecart_ht  = round(obj.total_ht-ht,2)
             ecart_tva = round(obj.total_tva-tva,2)
-
-
-
             bon_a_payer=True
             if ecart_ht or ecart_tva:
                 bon_a_payer=False
-
-            print(ecart_ht, ecart_tva, bon_a_payer)
-
-
-
             obj.total_ht_calcule  = ht
             obj.ecart_ht          = ecart_ht
             obj.total_tva_calcule = tva
@@ -103,18 +95,11 @@ class is_facturation_fournisseur(models.Model):
     def cherche_receptions(self):
         cr=self._cr
         for obj in self:
-
-            print("cherche_receptions",obj)
-
             lines = []
             if obj.name and obj.date_fin:
                 partner_ids=[str(obj.name._origin.id)]
                 for partner in obj.partner_ids:
                     partner_ids.append(str(partner._origin.id))
-
-                print(partner_ids)
-
-
                 sql="""
                     select  sp.name as num_reception, 
                             sp.is_num_bl, 
@@ -143,13 +128,8 @@ class is_facturation_fournisseur(models.Model):
                     order by sp.name, pol.id
                 """%(obj.date_fin, ",".join(partner_ids))
                 cr.execute(sql)
-
-                #print(sql)
-
-
                 result=cr.dictfetchall()
                 for row in result:
-                    print(row)
                     #** Recherche des taxes ****************************************
                     taxe_ids  = []
                     taxe_taux = 0
@@ -242,7 +222,6 @@ class is_facturation_fournisseur(models.Model):
                 'is_bon_a_payer'  : bon_a_payer,
                 'is_masse_nette'  : obj.is_masse_nette,
             }
-            print(vals)
             lines = []
             invoice_line_tax_id=[]
             for line in obj.line_ids:
@@ -306,7 +285,6 @@ class is_facturation_fournisseur(models.Model):
                 'invoice_line_ids': lines,
             })
             res=self.env['account.move'].create(vals)
-            print(res)
             # res.button_reset_taxes()
             view_id = self.env.ref('account.view_move_form').id
             obj.state='termine'

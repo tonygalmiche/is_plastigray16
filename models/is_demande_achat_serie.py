@@ -158,7 +158,6 @@ class is_demande_achat_serie(models.Model):
                     'is_lieu'         : partner.is_lieu,
                 }
                 order=order_obj.create(vals)
-                print(order,vals)
                 obj.order_id=order.id
                 line=False
                 if len(obj.line_ids)==1:

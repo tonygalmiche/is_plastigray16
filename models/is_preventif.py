@@ -53,8 +53,6 @@ class is_preventif_moule(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
-
-        print(res,vals_list)
         for obj in res:
             if obj and 'moule' in vals_list[0]:
                 obj.moule.nb_cycles_dernier_preventif = obj.nb_cycles

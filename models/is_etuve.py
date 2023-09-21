@@ -105,41 +105,29 @@ class is_etuve_saisie(models.Model):
         cr=self._cr
         company = self.env.user.company_id
         for obj in self:
-            print(obj)
-
-
             base0="odoo16-0"
             if company.is_postgres_host=='localhost':
                 base0="pg-odoo16-0"
             try:
                 #url = "dbname='"+base0+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'"
                 url = "dbname='%s' user='%s' host='%s' password='%s'"%(base0,company.is_postgres_user,company.is_postgres_host,company.is_postgres_pwd)
-                print(url)
-
                 cnx0 = psycopg2.connect(url)
                 cr0 = cnx0.cursor(cursor_factory=RealDictCursor)
             except:
                 raise ValidationError("Impossible de se connecter à %s"%(base0))
 
-
             #** Recherche fiche technique Matière dans odoo0 ******************
             tmp_etuvage=tps_etuvage=densite=dessication_matiere=False
             CodeMatiere=obj.matiere_id.is_code
-
-            print(CodeMatiere)
-
-
             if CodeMatiere:
                 SQL="""
                     SELECT densite, temps_etuvage, temperature_etuvage, dessiccateur
                     FROM is_dossier_article
                     WHERE code_pg=%s
                 """
-                print(SQL)
                 cr0.execute(SQL, [CodeMatiere])
                 result = cr0.fetchall()
                 for row in result:
-                    print(row)
                     tmp_etuvage         = row["temperature_etuvage"]
                     tps_etuvage         = row["temps_etuvage"]
                     densite             = row["densite"]
@@ -260,9 +248,6 @@ class is_etuve_of(models.Model):
     def _compute(self):
         cr = self.env.cr
         for obj in self:
-            print(obj)
-
-
             if not obj.of_id or not obj.etuve_id.matiere_id:
                 return
             of=obj.of_id

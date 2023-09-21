@@ -49,9 +49,6 @@ class is_proforma_chine(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             vals['name'] = self.env['ir.sequence'].next_by_code('is.proforma.chine')
-
-
-        print(vals_list)
         return super().create(vals_list)
 
 

@@ -95,7 +95,6 @@ class account_invoice(models.Model):
                 if obj.state=="posted":
                     state="invoiced"
                 line.is_move_id.invoice_state = state
-                print(line.is_move_id.invoice_state)
         return res
 
 
@@ -311,18 +310,12 @@ class account_invoice(models.Model):
                     ai.is_mode_envoi_facture like 'mail%'
                 order by ai.is_mode_envoi_facture, ai.partner_id, ai.name
             """
-
-            print(SQL)
-
             cr.execute(SQL)
             result = cr.fetchall()
 
             # ** Un mail par client*********************************************
             partners={}
             for row in result:
-
-                print(row)
-
                 if row[0]=='mail_client':
                     partner_id = row[1]
                     id         = row[3]
@@ -410,21 +403,10 @@ class account_invoice(models.Model):
                         #     close(fd)
                         paths.append(file_name)
 
-
-        #  xlsxfile = base64.decodebytes(attachment.datas)
-        #     path = '/tmp/edi-asteelflash-'+str(obj.id)+'.xlsx'
-        #     with open(path,'wb') as f:
-        #         f.write(xlsxfile)
- 
-
-
-
                     # ** Merge des PDF *****************************************
-                    print(paths)
                     path_merged=self._merge_pdf(paths)
                     pdfs = open(path_merged,'rb').read()
                     # **********************************************************
-
 
                     # ** Création d'une piece jointe fusionnée *****************
                     name = 'facture-' + str(invoice.name) + '-' + str(uid) + '.pdf'
@@ -698,7 +680,6 @@ class account_invoice_line(models.Model):
 
     @api.onchange('product_id')
     def pg_onchange_product_id(self):
-        print("pg_onchange_product_id",self)
         self.is_section_analytique_id = self.product_id.is_section_analytique_id.id
 
 

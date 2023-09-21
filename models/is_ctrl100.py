@@ -234,7 +234,6 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
         cout = 0
         if user:
             cout = user.company_id.is_cout_ctrl_qualite or 0
-        print(self, user, cout)
         return cout
 
 

@@ -607,6 +607,8 @@ class res_partner(models.Model):
         return vals
     
     def _get_parent_id(self, DB, USERID, USERPASS, sock):
+        if not self.parent_id:
+            return False
         ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.parent_id.id),'|',('active','=',True),('active','=',False)])
         if not ids:
             filtre=[

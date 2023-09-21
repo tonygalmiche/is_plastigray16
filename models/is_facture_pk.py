@@ -70,8 +70,6 @@ class is_facture_pk(models.Model):
 
             vals['num_facture'] = self.env['ir.sequence'].next_by_code('is.facture.pk')
 
-            print(vals)
-
             #sequence_ids = data_obj.search([('name','=','seq_is_facture_pk')])
             #if len(sequence_ids)>0:
             #    sequence_id = sequence_ids[0].res_id

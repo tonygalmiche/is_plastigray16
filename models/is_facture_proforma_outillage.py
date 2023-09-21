@@ -164,10 +164,6 @@ class is_facture_proforma_outillage(models.Model):
                 'body_html'     : body_html.encode('utf-8'), 
                 'attachment_ids': [(6, 0, attachment_ids)] 
             })
-
-            print(email_vals)
-
-
             email_id=self.env['mail.mail'].create(email_vals)
             if email_id:
                 self.env['mail.mail'].send(email_id)

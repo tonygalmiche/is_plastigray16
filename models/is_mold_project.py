@@ -47,7 +47,6 @@ class is_mold_project(models.Model):
 
     def _get_client_id(self, DB, USERID, USERPASS, sock):
         if self.client_id:
-            print(self, DB, USERID, USERPASS, sock)
             ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.client_id.id),'|',('active','=',True),('active','=',False)])
             if ids:
                 return ids[0]
@@ -55,15 +54,11 @@ class is_mold_project(models.Model):
         
     def _get_chef_projet_id(self, DB, USERID, USERPASS, sock):
         if self.chef_projet_id:
-            print(self,self.chef_projet_id.login)
             ids = sock.execute(DB, USERID, USERPASS, 'res.users', 'search', [('login', '=', self.chef_projet_id.login)])
-            print(ids)
             if ids:
                 return ids[0]
             else:
                 raise ValidationError('Chef de projet non trouvé (login=%s) dans %s !'%(self.chef_projet_id.login,DB))
-
-
         return False
     
     def _get_mold_ids(self, DB, USERID, USERPASS, sock):

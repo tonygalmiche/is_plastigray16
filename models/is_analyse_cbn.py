@@ -78,10 +78,6 @@ class product_product(models.Model):
 
         semaines = semaines or 18
 
-
-        print("semaines = ",semaines)
-
-
         # #** Valeur par défaut **************************************************
         # code_pg_debut = code_pg_debut  or ''
         # gest          = gest           or ''
@@ -141,7 +137,6 @@ class product_product(models.Model):
             debut2=datetime.now()
             Couts = self._get_Couts()                           # Coûts
             _logger.info("TypeCde (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
-            print(Couts)
 
         debut2=datetime.now()
         TypeCde            = self._get_TypeCde(type_rapport)             # Type de commande d'achat
@@ -264,10 +259,6 @@ class product_product(models.Model):
         _logger.info("Filtre sur le fournisseur (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # **********************************************************************
 
-
-        print("semaines=",semaines)
-
-
         #** Titres des colonnes ***********************************************
         debut2=datetime.now()
         now = datetime.now()
@@ -281,7 +272,7 @@ class product_product(models.Model):
                 "date": d.strftime("%d.%m"),
             }
             d = d + timedelta(days=7)
-        print(json.dumps(TabSemaines, indent = 4))
+        #print(json.dumps(TabSemaines, indent = 4))
         _logger.info("Titres des colonnes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 

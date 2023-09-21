@@ -21,7 +21,6 @@ class is_liste_servir_wizard(models.TransientModel):
     def generer_liste_servir_client(self):
         cr = self._cr
         for obj in self:
-            print(obj)
             SQL="delete from is_liste_servir_client"
             cr.execute(SQL)
             SQL="""

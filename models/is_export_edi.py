@@ -112,15 +112,8 @@ class is_export_edi(models.Model):
             }
 
             #b = base64.b64encode(bytes('your string', 'utf-8')) # bytes
-
-
             attachment = attachment_obj.create(vals)
-            print(attachment)
-
             obj.attachment_ids = [(6, 0, [attachment.id])] 
-
-
-
             self.set_histo(obj.id, 'Création fichier EDI')
             #*******************************************************************
 
