@@ -109,27 +109,23 @@ class stock_move(models.Model):
         return ids
 
 
-    # def create(self, vals):
-    #     obj = super(stock_move, self).create(vals)
-    #     if obj.purchase_line_id and obj.picking_id:
-    #         obj.picking_id.is_purchase_order_id=obj.purchase_line_id.order_id.id
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        for obj in res:
+            vals=obj.update_amortissement_moule()
+            obj.write(vals)
+            if obj.purchase_line_id and obj.picking_id:
+                obj.picking_id.is_purchase_order_id=obj.purchase_line_id.order_id.id
+        return res
 
-    #     obj.update_pg_stock_move()
-    #     vals=obj.update_amortissement_moule()
-    #     obj.write(vals)
 
-    #     return obj
-
-
-    # def write(self, vals):
-    #     v=self.update_amortissement_moule()
-    #     if v:
-    #         vals.update(v)
-
-    #     res=super(stock_move, self).write(vals)
-    #     for obj in self:
-    #         obj.update_pg_stock_move()
-    #     return res
+    def write(self, vals):
+        v=self.update_amortissement_moule()
+        if v:
+            vals.update(v)
+        res=super().write(vals)
+        return res
 
 
     # def _action_confirm(self, merge=True, merge_into=False):
@@ -371,60 +367,60 @@ class stock_move(models.Model):
             return vals
 
 
-    def update_pg_stock_move(self):
-        cr = self._cr
-        for obj in self:
-            SQL=_SELECT_STOCK_MOVE+" WHERE sm2.id=%s"
-            cr.execute(SQL, [obj.id])
-            rows = cr.fetchall()
-            for row in rows:
-                SQL="delete from pg_stock_move where move_id=%s"
-                cr.execute(SQL,[row[1]])
-                SQL="""
-                    INSERT INTO pg_stock_move (
-                        move_id,
-                        date,
-                        product_id,
-                        category,
-                        mold,
-                        type_mv,
-                        name,
-                        picking_id,
-                        purchase_line_id,
-                        raw_material_production_id,
-                        production_id,
-                        sale_line_id,
-                        lot_id,
-                        lot_fournisseur,
-                        qty,
-                        product_uom,
-                        location_dest,
-                        is_employee_theia_id,
-                        login
-                    )
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
-                """
-                cr.execute(SQL,[
-                    row[1],
-                    row[2],
-                    row[3],
-                    row[4],
-                    row[5],
-                    row[6],
-                    row[7],
-                    row[8],
-                    row[9],
-                    row[10],
-                    row[11],
-                    row[12],
-                    row[13],
-                    row[14],
-                    row[15],
-                    row[16],
-                    row[17],
-                    row[18],
-                    row[19],
-                ])
+    # def update_pg_stock_move(self):
+    #     cr = self._cr
+    #     for obj in self:
+    #         SQL=_SELECT_STOCK_MOVE+" WHERE sm2.id=%s"
+    #         cr.execute(SQL, [obj.id])
+    #         rows = cr.fetchall()
+    #         for row in rows:
+    #             SQL="delete from pg_stock_move where move_id=%s"
+    #             cr.execute(SQL,[row[1]])
+    #             SQL="""
+    #                 INSERT INTO pg_stock_move (
+    #                     move_id,
+    #                     date,
+    #                     product_id,
+    #                     category,
+    #                     mold,
+    #                     type_mv,
+    #                     name,
+    #                     picking_id,
+    #                     purchase_line_id,
+    #                     raw_material_production_id,
+    #                     production_id,
+    #                     sale_line_id,
+    #                     lot_id,
+    #                     lot_fournisseur,
+    #                     qty,
+    #                     product_uom,
+    #                     location_dest,
+    #                     is_employee_theia_id,
+    #                     login
+    #                 )
+    #                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+    #             """
+    #             cr.execute(SQL,[
+    #                 row[1],
+    #                 row[2],
+    #                 row[3],
+    #                 row[4],
+    #                 row[5],
+    #                 row[6],
+    #                 row[7],
+    #                 row[8],
+    #                 row[9],
+    #                 row[10],
+    #                 row[11],
+    #                 row[12],
+    #                 row[13],
+    #                 row[14],
+    #                 row[15],
+    #                 row[16],
+    #                 row[17],
+    #                 row[18],
+    #                 row[19],
+    #             ])
 
 
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):

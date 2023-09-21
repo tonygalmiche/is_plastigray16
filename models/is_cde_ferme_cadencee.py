@@ -107,53 +107,31 @@ class is_cde_ferme_cadencee(models.Model):
                 #** Met à jour le lien vers la CFC et la date de fin du CFC dans la commande **********
                 order.order_id.is_date_end_cfc = obj.is_date_end
                 order.order_id.is_cfc_id = obj.id
-                #** Recherche du dernier numéro de BL **************************
-                SQL="""
-                    select sp.is_num_bl, sp.is_date_reception, sm.product_uom_qty
-                    from stock_picking sp inner join stock_move sm on sm.picking_id=sp.id
-                    where 
-                        sm.product_id="""+str(obj.product_id.id)+""" and
-                        sp.is_date_reception is not null and
-                        sm.state='done' and
-                        sp.picking_type_id=1 and 
-                        sp.partner_id="""+str(obj.partner_id.id)+""" and
-                        sp.is_purchase_order_id="""+str(order.order_id.id)+""" 
-                    order by sp.is_date_reception desc, sm.date desc
-                    limit 1
-                """
-                cr.execute(SQL)
-                result = cr.fetchall()
+                #** Recherche du total réceptionné *****************************
+                filtre=[
+                    ('picking_type_id','=',1),
+                    ('partner_id','=',obj.partner_id.id),
+                    ('is_purchase_order_id','=',order.order_id.id),
+                    ('state','=','done'),
+                ]
+                pickings =self.env['stock.picking'].search(filtre, order="is_date_reception")
                 num_bl  = False
                 date_bl = False
-                for row in result:
-                    num_bl  = row[0]
-                    date_bl = row[1]
-                #***************************************************************
-
-                #** Recherche du total réceptionné *****************************
-                SQL="""
-                    select sum(sm.product_uom_qty)
-                    from stock_picking sp inner join stock_move sm on sm.picking_id=sp.id
-                    where 
-                        sm.product_id="""+str(obj.product_id.id)+""" and
-                        sp.is_date_reception is not null and
-                        sm.state='done' and
-                        sp.picking_type_id=1 and 
-                        sp.partner_id="""+str(obj.partner_id.id)+""" and
-                        sp.is_purchase_order_id="""+str(order.order_id.id)+""" 
-                    limit 1
-                """
-                cr.execute(SQL)
-                result = cr.fetchall()
-                qt_rcp = 0
-                for row in result:
-                    qt_rcp  = row[0] or 0
+                qt_rcp=0
+                for picking in pickings:
+                    num_bl  = picking.is_num_bl
+                    date_bl = picking.is_date_reception
+                    for move in picking.move_ids_without_package:
+                        if move.state=='done' and move.product_id==obj.product_id:
+                            qt = move.product_uom._compute_quantity(move.quantity_done, order.product_uom)
+                            #print("-",move, move.quantity_done, move.product_uom,order.product_uom)
+                            qt_rcp+=qt
                 #***************************************************************
                 order.num_bl       = num_bl
                 order.date_bl      = date_bl
                 order.qt_rcp       = qt_rcp
                 order.qt_reste     = order.product_qty-qt_rcp
-                #order.date_planned = order.order_id.minimum_planned_date
+                order.date_planned = order.order_id.date_planned #minimum_planned_date
 
 
     def envoyer_par_mail(self):
