@@ -125,6 +125,16 @@ class product_pricelist(models.Model):
     _inherit = "product.pricelist"
     
 
+    @api.model
+    def _get_partner_pricelist_multi(self, partner_ids):
+        "J'ai du remplacer cette fonction pour ne pas avoir de liste de prix par défaut"
+        Partner = self.env['res.partner'].with_context(active_test=False)
+        company_id = self.env.company.id
+        Property = self.env['ir.property'].with_company(company_id)
+        result = Property._get_multi('property_product_pricelist', Partner._name, partner_ids)
+        return result
+
+
     def _compute_product_ids(self):
         for obj in self:
             ids=[]

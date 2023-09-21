@@ -445,6 +445,12 @@
                     <field name="zip"/>
                     <field name="is_type_cde_fournisseur"/>
                     <field 
+                        name="property_product_pricelist"  
+                        widget="many2one_clickable"
+                        groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"
+                        optional="hide"
+                    />
+                    <field 
                         name="pricelist_purchase_id"  
                         widget="many2one_clickable"
                         groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"
