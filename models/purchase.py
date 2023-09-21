@@ -98,6 +98,14 @@ class purchase_order(models.Model):
     is_type_cde_fournisseur = fields.Selection(related='partner_id.is_type_cde_fournisseur')
 
 
+    # def _message_auto_subscribe_notify(self, partner_ids, template):
+    #     "Désactiver les notifications d'envoi des mails"
+    #     print("_message_auto_subscribe_notify")
+    #     return True
+
+
+
+
     def _add_supplier_to_product(self):
         # Désactivation de cette fonction qui ajoute automatiquement un fournisseur à la fiche article lors de la validation de la commande
         return True
