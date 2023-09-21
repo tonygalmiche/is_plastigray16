@@ -88,6 +88,7 @@ class is_pricelist_item(models.Model):
                 'views'    : [(view_id, 'tree')],
                 'domain': [('price_version_id','=',obj.price_version_id.id)],
                 'context': {
+                    'default_pricelist_id': obj.price_version_id.pricelist_id.id,
                     'default_price_version_id': obj.price_version_id.id,
                     'type': pricelist_type,
                     'default_company_id': 1,

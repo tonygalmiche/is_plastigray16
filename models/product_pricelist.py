@@ -21,6 +21,14 @@ class product_pricelist_item(models.Model):
     min_quantity       = fields.Float('Quantité minimum', required=True, digits=(14, 4))
     pricelist_id       = fields.Many2one('product.pricelist', 'Liste de prix', required=False)
     price_version_id   = fields.Many2one('product.pricelist.version', 'Version', required=False, index=True)
+    #company_id         = fields.Many2one(default=1)
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals["company_id"]=1
+        return super().create(vals_list)
 
 
     @api.onchange('product_id')
@@ -67,6 +75,7 @@ class product_pricelist_version(models.Model):
                 'view_id': view_id.id,
                 'domain': [('price_version_id','=',obj.id)],
                 'context': {
+                    'default_pricelist_id': obj.pricelist_id.id,
                     'default_price_version_id': obj.id,
                     'default_company_id': 1,
                 }
@@ -157,6 +166,12 @@ class product_pricelist(models.Model):
     is_product_ids      = fields.Many2many('product.product' ,'product_pricelist_product_rel'      ,'pricelist_id','product_id' , string="Variantes", compute='_compute_product_ids')
     is_product_tmpl_ids = fields.Many2many('product.template','product_pricelist_product_tmpl_rel' ,'pricelist_id','product_id' , string="Articles" , compute='_compute_product_ids')
 
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals["company_id"]=1
+        return super().create(vals_list)
 
 
     #TODO : Revoir la convertion des unités, car pour le moment, cette fonction ne tient pas compte de l'unité (product.uom_id._compute_quantity)
