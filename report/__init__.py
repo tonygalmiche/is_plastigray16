@@ -3,13 +3,14 @@
 
 from . import is_account_invoice_line
 
-from . import is_comparatif_tarif_facture
+from . import is_comparatif_livraison_facture
 
 
 from . import is_article_sans_fournisseur
 from . import is_article_sans_nomenclature
 from . import is_certifications_qualite_suivi
 from . import is_comparatif_article_tarif_cial
+from . import is_comparatif_tarif_facture
 from . import is_comparatif_uc_lot
 from . import is_comparatif_uc_lot_mini
 from . import is_encres_utilisees
@@ -44,7 +45,6 @@ from . import is_comparatif_gamme_standard_generique
 # import is_mouvement_stock
 # import is_model_groups
 # import is_comparatif_tarif_reception
-# import is_comparatif_livraison_facture
 # import is_comparatif_cde_draft_done
 # import is_marge_contributive
 # import is_suivi_budget_analytique

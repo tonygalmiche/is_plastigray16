@@ -442,16 +442,11 @@ access_is_gestion_vers_refuse_wiz,access_is_gestion_vers_refuse_wiz,model_is_ges
 access_is_mrp_production_bom,access_is_mrp_production_bom,model_is_mrp_production_bom,base.group_user,1,1,1,1
 access_is_account_invoice_line,access_is_account_invoice_line,model_is_account_invoice_line,base.group_user,1,1,1,1
 access_mrp_previsions_generate,access_mrp_previsions_generate,model_mrp_previsions_generate,base.group_user,1,1,1,1
-
 access_stock_transfer_details,access_stock_transfer_details,model_stock_transfer_details,base.group_user,1,1,1,1
 access_stock_transfer_details_items,access_stock_transfer_details_items,model_stock_transfer_details_items,base.group_user,1,1,1,1
-
 access_ir_model_all,access_ir_model_all,base.model_ir_model,base.group_user,1,0,0,0
 access_ir_model_fields_all,access_ir_model_fields_all,base.model_ir_model_fields,base.group_user,1,0,0,0
-
 access_mrp_document_base,access_mrp_document_base,mrp.model_mrp_document,base.group_user,1,1,1,1
-
-
 access_is_marge_contributive,access_is_marge_contributive,model_is_marge_contributive,base.group_user,1,0,0,0
-
 access_is_comparatif_tarif_facture,access_is_comparatif_tarif_facture,model_is_comparatif_tarif_facture,base.group_user,1,0,0,0
+access_is_comparatif_livraison_facture,access_is_comparatif_livraison_facture,model_is_comparatif_livraison_facture,base.group_user,1,0,0,0
