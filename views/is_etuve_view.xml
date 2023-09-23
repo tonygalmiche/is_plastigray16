@@ -214,7 +214,7 @@
                         </group>
                         <field name="of_ids" nolabel="1">
                             <tree editable="bottom"  create="true">
-                                <field name="of_id"   on_change=""/>
+                                <field name="of_id"/>
                                 <field name="matiere" readonly="1"/>
                                 <field name="code_pg" />
                                 <field name="qt_prevue" />

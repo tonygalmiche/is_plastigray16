@@ -194,13 +194,7 @@ class is_etuve_saisie(models.Model):
         rsp = rsp_obj.browse(vals['rsp_etuve_id'])
         if rsp.mot_de_passe!=vals['mot_de_passe']:
             raise ValidationError(u"Mot de passe incorecte !")
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','is_etuve_saisie_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-
-
+        vals['name'] = self.env['ir.sequence'].next_by_code('is.etuve.saisie')
         obj = super().create(vals_list)
 
         #** Vérfication des matières *******************************************
@@ -208,7 +202,6 @@ class is_etuve_saisie(models.Model):
             if not row.matiere:
                 raise ValidationError(u"Les matières des OF ne correspondent pas à la matière de l'étuve !")
         #***********************************************************************
-
 
         #** Mise à jour des données de l'étuve *********************************
         etuve=self.env['is.etuve'].browse(obj.etuve_id.id).sudo()
@@ -255,68 +248,68 @@ class is_etuve_of(models.Model):
             obj.qt_prevue = of.product_qty
             obj.moule     = of.product_id.is_mold_id.name
  
-            # #** Recherche de la presse de l'OF *************************************
-            # presse=False
-            # for line in of.workcenter_lines:
-            #     if line.workcenter_id.resource_type=='material' and line.workcenter_id.code<'9000':
-            #         presse=line.workcenter_id.code
-            #         obj.presse=presse
-            # #***********************************************************************
+            #** Recherche de la presse de l'OF *************************************
+            presse=False
+            for line in of.workorder_ids:
+                if line.workcenter_id.resource_type=='material' and line.workcenter_id.code<'9000':
+                    presse=line.workcenter_id.code
+                    obj.presse=presse
+            #***********************************************************************
 
-            # #** Recherche du temps de cycle de la gamme ****************************
-            # tps_cycle_matiere=False
-            # nb_empreintes = of.routing_id.is_nb_empreintes
-            # theia         = of.routing_id.is_coef_theia
+            #** Recherche du temps de cycle de la gamme ****************************
+            tps_cycle_matiere=False
+            nb_empreintes = of.bom_id.routing_id.is_nb_empreintes
+            theia         = of.bom_id.routing_id.is_coef_theia
+            for line in of.bom_id.routing_id.workcenter_lines:
+                if line.workcenter_id.resource_type=='material':
+                    nb_secondes=line.is_nb_secondes
+                    tps_cycle_matiere=nb_secondes*nb_empreintes*theia
+                    obj.tps_cycle_matiere=tps_cycle_matiere
+            if nb_empreintes==0:
+                nb_empreintes=1
+            #***********************************************************************
 
+            #** Recherche de la matière utilisée dans l'OF *************************
+            matiere = obj.etuve_id.matiere_id.is_code
+            suffix  = matiere[-4:]
+            broye   = '59'+suffix
+            SQL="""
+                select pt.is_code, sum(bom.product_qty*mp.is_qt_reste_uom) 
+                from mrp_production mp join is_mrp_production_bom bom on mp.id=bom.production_id 
+                                       join product_product pp on bom.product_id=pp.id 
+                                       join product_template pt on pp.product_tmpl_id=pt.id 
+                where bom.production_id="""+str(obj.of_id.id)+""" and (pt.is_code='"""+str(matiere)+"""' or pt.is_code='"""+str(broye)+"""')
+                group by pt.is_code 
+            """
+            #    order by max(bom.id) """
+            matiere=poids_moulee=False
+            cr.execute(SQL)
+            result = cr.fetchall()
+            besoin_total_of=qty=0.0
+            for row in result:
+                matiere = row[0]
+                qty     = row[1]
+                #Si le code est du broyé, il faut multiplier la quantité par deux pour doubler le temps d'étuvage
+                if matiere[0:2]=='59':
+                    qty=qty*2
+                besoin_total_of=besoin_total_of+qty
+            obj.matiere         = matiere
+            obj.besoin_total_of = besoin_total_of
+            #***********************************************************************
 
-            # for line in of.routing_id.workcenter_lines:
-            #     if line.workcenter_id.resource_type=='material':
-            #         nb_secondes=line.is_nb_secondes
-            #         tps_cycle_matiere=nb_secondes*nb_empreintes*theia
-            #         obj.tps_cycle_matiere=tps_cycle_matiere
-            # if nb_empreintes==0:
-            #     nb_empreintes=1
-            # #***********************************************************************
-
-            # #** Recherche de la matière utilisée dans l'OF *************************
-            # matiere = obj.etuve_id.matiere_id.is_code
-            # suffix  = matiere[-4:]
-            # broye   = '59'+suffix
-            # SQL="""
-            #     select pt.is_code, sum(mppl.product_qty) 
-            #     from mrp_production_product_line mppl inner join product_product pp on mppl.product_id=pp.id 
-            #                                           inner join product_template pt on pp.product_tmpl_id=pt.id 
-            #     where mppl.production_id="""+str(obj.of_id.id)+""" and (pt.is_code='"""+str(matiere)+"""' or pt.is_code='"""+str(broye)+"""')
-            #     group by mppl.product_id,mppl.name,pt.is_code 
-            #     order by max(mppl.id) """
-            # matiere=poids_moulee=False
-            # cr.execute(SQL)
-            # result = cr.fetchall()
-            # besoin_total_of=qty=0.0
-            # for row in result:
-            #     matiere = row[0]
-            #     qty     = row[1]
-            #     #Si le code est du broyé, il faut multiplier la quantité par deux pour doubler le temps d'étuvage
-            #     if matiere[0:2]=='59':
-            #         qty=qty*2
-            #     besoin_total_of=besoin_total_of+qty
-            # obj.matiere         = matiere
-            # obj.besoin_total_of = besoin_total_of
-            # #***********************************************************************
-
-            # #** Calcul poids de la moulée et du débit ******************************
-            # poids_moulee=debit=0
-            # if of.product_qty!=0.0:
-            #     poids_moulee=nb_empreintes*1000*besoin_total_of/of.product_qty
-            # obj.poids_moulee=poids_moulee
-            # if tps_cycle_matiere:
-            #     debit=poids_moulee*3.6/tps_cycle_matiere
-            # obj.debit=debit
-            # #***********************************************************************
+            #** Calcul poids de la moulée et du débit ******************************
+            poids_moulee=debit=0
+            if of.product_qty!=0.0:
+                poids_moulee=nb_empreintes*1000*besoin_total_of/of.product_qty
+            obj.poids_moulee=poids_moulee
+            if tps_cycle_matiere:
+                debit=poids_moulee*3.6/tps_cycle_matiere
+            obj.debit=debit
+            #***********************************************************************
 
 
     etuve_id          = fields.Many2one('is.etuve.saisie', 'Étuve', required=True, ondelete='cascade')
-    of_id             = fields.Many2one('mrp.production', 'Ordre de fabrication', required=True, domain=[('state','in',['ready','in_production'])])
+    of_id             = fields.Many2one('mrp.production', 'Ordre de fabrication', required=True, domain=[('state','in',['draft'])])
     matiere           = fields.Char("Matière"              , readonly=True, compute='_compute', store=True, required=False)
     code_pg           = fields.Char("Code PG"              , readonly=True, compute='_compute', store=True)
     qt_prevue         = fields.Integer("Qt prévue"         , readonly=True, compute='_compute', store=True)
