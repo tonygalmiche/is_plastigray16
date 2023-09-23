@@ -826,7 +826,6 @@
         ])]"/>
     </record>
 
-    <!-- 
     <record id="is_comparatif_tarif_facture_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Tarif / Facture</field>
         <field name="sequence">15</field>
@@ -836,6 +835,9 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+
+        <!-- 
+
     <record id="is_comparatif_livraison_facture_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Liv. / Facture</field>
         <field name="sequence">15</field>

@@ -60,7 +60,9 @@ class sale_order(models.Model):
                             move.is_account_move_line_id = line.id
                             move.invoice_state='invoiced'
                             move.picking_id._compute_invoice_state()
+                            invoice.invoice_date = move.picking_id.date_done
                             line.is_move_id = move.id
+
         return invoices
 
 

@@ -3,6 +3,9 @@
 
 from . import is_account_invoice_line
 
+from . import is_comparatif_tarif_facture
+
+
 from . import is_article_sans_fournisseur
 from . import is_article_sans_nomenclature
 from . import is_certifications_qualite_suivi
@@ -31,7 +34,6 @@ from . import is_comparatif_gamme_standard_generique
 # import stock_debloquer_lot
 # import stock_change_location_lot
 # import stock_rebut_lot
-# import is_comparatif_tarif_facture
 # import is_pic_3mois
 # import is_comparatif_tps_article_gamme
 # import is_comparatif_tarif_cial_vente

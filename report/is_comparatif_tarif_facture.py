@@ -1,30 +1,30 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
 
 
 class is_comparatif_tarif_facture(models.Model):
     _name='is.comparatif.tarif.facture'
+    _description="Comparatif Tarif / Facture"
     _order='invoice_id,product_id'
     _auto = False
 
-    invoice_id         = fields.Many2one('account.invoice', 'Facture')
+    invoice_id         = fields.Many2one('account.move', 'Facture')
     invoice_date       = fields.Date('Date Facture')
     order_id           = fields.Many2one('sale.order', 'Commande')
     partner_id         = fields.Many2one('res.partner', 'Client')
     pricelist_id       = fields.Many2one('product.pricelist', 'Liste de prix')
     product_id         = fields.Many2one('product.template', 'Article')
-    quantity           = fields.Float('Quantité')
-    uos_id             = fields.Many2one('product.uom', 'Unité')
-    invoice_price      = fields.Float('Prix facture')
-    pricelist_price    = fields.Float('Prix liste de prix')
-    price_delta        = fields.Float('Ecart de prix')
-    lot_livraison      = fields.Float('Lot de livraison')
-    prix_lot_livraison = fields.Float('Prix au lot de livraison')
+    quantity           = fields.Float('Quantité', digits=(14, 4))
+    product_uom_id     = fields.Many2one('uom.uom', 'Unité')
+    invoice_price      = fields.Float('Prix facture', digits=(14, 4))
+    pricelist_price    = fields.Float('Prix liste de prix', digits=(14, 4))
+    price_delta        = fields.Float('Ecart de prix', digits=(14, 4))
+    lot_livraison      = fields.Float('Lot de livraison', digits=(14, 2))
+    prix_lot_livraison = fields.Float('Prix au lot de livraison', digits=(14, 4))
 
-    def init(self, cr):
+
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_tarif_facture')
         cr.execute("""
 CREATE OR REPLACE FUNCTION is_prix_vente(pricelistid integer, productid integer, qt float, date date) RETURNS float AS $$
@@ -67,20 +67,20 @@ CREATE OR REPLACE view is_comparatif_tarif_facture AS (
     select 
         ail.id            id,
         ai.id             invoice_id,
-        ai.date_invoice   invoice_date,
+        ai.invoice_date   invoice_date,
         so.id             order_id,
         so.partner_id     partner_id,
         so.pricelist_id   pricelist_id,
         pt.id             product_id,
         ail.quantity      quantity,
-        ail.uos_id        uos_id,
+        ail.product_uom_id product_uom_id,
         ail.price_unit    invoice_price, 
         coalesce(
             is_prix_vente(
                 so.pricelist_id,
                 ail.product_id,
                 ail.quantity,
-                ai.date_invoice
+                ai.invoice_date
             ),
             0
         ) as pricelist_price,
@@ -89,7 +89,7 @@ CREATE OR REPLACE view is_comparatif_tarif_facture AS (
                 so.pricelist_id,
                 ail.product_id,
                 ail.quantity,
-                ai.date_invoice
+                ai.invoice_date
             ),
             0
         )-ail.price_unit as price_delta,
@@ -99,17 +99,17 @@ CREATE OR REPLACE view is_comparatif_tarif_facture AS (
                 so.pricelist_id,
                 ail.product_id,
                 get_lot_livraison(pt.id, so.partner_id),
-                ai.date_invoice
+                ai.invoice_date
             ),
             0
         ) as prix_lot_livraison
-    from account_invoice_line ail inner join account_invoice  ai on ail.invoice_id=ai.id
-                                  inner join stock_move       sm on ail.is_move_id=sm.id
-                                  inner join sale_order_line sol on sm.sale_line_id=sol.id
-                                  inner join sale_order       so on sol.order_id=so.id
-                                  inner join product_product  pp on ail.product_id=pp.id
-                                  inner join product_template pt on pp.product_tmpl_id=pt.id
-    where ai.state='draft' and ai.type in ('out_invoice', 'out_refund')
+    from account_move_line ail inner join account_move  ai on ail.move_id=ai.id
+                               inner join stock_move       sm on ail.is_move_id=sm.id
+                               inner join sale_order_line sol on sm.sale_line_id=sol.id
+                               inner join sale_order       so on sol.order_id=so.id
+                               inner join product_product  pp on ail.product_id=pp.id
+                               inner join product_template pt on pp.product_tmpl_id=pt.id
+    where ai.state='draft' and ai.move_type in ('out_invoice', 'out_refund')
 )
         """)
 
