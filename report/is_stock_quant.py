@@ -22,7 +22,8 @@ class is_stock_quant(models.Model):
     ref_fournisseur    = fields.Char('Référence Fournisseur')
     location_id        = fields.Many2one('stock.location'     , 'Emplacement Id')
     emplacement        = fields.Char('Emplacement')
-    lot                = fields.Char('Lot')
+    lot_id             = fields.Many2one('stock.lot', 'Lot')
+    lot                = fields.Char('Nom lot')
     lot_fournisseur    = fields.Char('Lot fournisseur')
     quantite           = fields.Float('Quantité', digits=(16,6))
     uom_id             = fields.Many2one('uom.uom', 'Unité')
@@ -53,7 +54,8 @@ class is_stock_quant(models.Model):
                         sum(isq.quantite) as quantite, 
                         isq.uom_id,
                         max(isq.date_entree) as date_entree,
-                        isq.client_id
+                        isq.client_id,
+                        isq.lot_id
                     from (
 
                         select 
@@ -73,7 +75,8 @@ class is_stock_quant(models.Model):
                             sq.quantity            quantite, 
                             pt.uom_id              uom_id,
                             in_date                date_entree,
-                            pt.is_client_id        client_id
+                            pt.is_client_id        client_id,
+                            sq.lot_id
                         from stock_quant sq inner join product_product            pp on sq.product_id=pp.id
                                             inner join product_template           pt on pp.product_tmpl_id=pt.id
                                             inner join stock_location             sl on sq.location_id=sl.id
@@ -94,7 +97,8 @@ class is_stock_quant(models.Model):
                         isq.lot,
                         isq.lot_fournisseur,
                         isq.uom_id,
-                        isq.client_id
+                        isq.client_id,
+                        isq.lot_id
                 )
             """)
             _logger.info('## init is_stock_quant en %.2fs'%(time.time()-start))

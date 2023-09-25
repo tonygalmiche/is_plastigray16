@@ -41,17 +41,9 @@ Module Odoo 16 pour Plastigray
         "views/report_paperformat.xml",
 
 
+        "views/stock_inventory_view.xml",
 
-        "report/is_comparatif_livraison_facture.xml",
-
-
-        "report/is_comparatif_tarif_facture.xml",
-
-
-        "report/is_marge_contributive.xml",
-
-
-
+       
         "views/report_inventaire.xml",
         "views/report_inventaire_ecart.xml",
         "views/report_is_inventaire_line_tree.xml",
@@ -216,6 +208,9 @@ Module Odoo 16 pour Plastigray
         "report/is_users_groups.xml",
         "report/is_article_sans_cde_ouverte_fou.xml",
         "report/is_comparatif_gamme_standard_generique.xml",
+        "report/is_comparatif_livraison_facture.xml",
+        "report/is_comparatif_tarif_facture.xml",
+        "report/is_marge_contributive.xml",
 
         "wizard/assistent_report_view.xml",
         "wizard/generate_previsions_view.xml",

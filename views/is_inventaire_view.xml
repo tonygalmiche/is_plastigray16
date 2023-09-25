@@ -16,7 +16,7 @@
             <field name="arch" type="xml">
                 <form string="Form">  
                     <header>
-                        <button name="action_creer_feuille"               type="object" string="Nouvelle feuille"            states="creation" class="oe_highlight"/>
+                        <button name="action_creer_feuille"               type="object" string="Nouvelle feuille"            states="creation" class="btn-primary"/>
                         <button name="action_lignes_inventaire"           type="object" string="Lignes inventaire"/>
                         <button name="action_ecarts_inventaire"           type="object" string="Ecarts inventaire"           states="traite"/>
                         <button name="action_anomalies_import_inventaire" type="object" string="Anomalies import inventaire" states="traite"/>
@@ -46,15 +46,12 @@
                         <field name="inventory_ids" nolabel="1" states="cloture,traite">
                             <tree editable="bottom">
                                 <button title="Inventaire"   name="action_acceder_inventaire"  type="object" icon="fa-search-plus" />
-                                <!-- <field name="inventory_id"/> -->
+                                <field name="inventory_id"/>
                             </tree>
                         </field>
-                    </sheet>
-
-                    <footer>
                         <button name="action_fin_inventaire"    type="object" string="Fin d'inventaire" states="creation" confirm="Voulez-vous vraiment cloturer cet inventaire ?"/>
-                        <button name="action_valide_inventaire" type="object" string="Valider les inventaires"  class="oe_highlight" states="cloture"  confirm="Voulez-vous vraiment mettre à jour les stocks ?"/>
-                    </footer>
+                        <button name="action_valide_inventaire" type="object" string="Valider les inventaires"  class="btn-primary" states="cloture"  confirm="Voulez-vous vraiment mettre à jour les stocks ?"/>
+                    </sheet>
                 </form>
             </field>
         </record>

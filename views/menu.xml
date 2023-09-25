@@ -1314,10 +1314,21 @@
             ref('is_comptable_group'),
         ])]"/>
     </record>
-    <!-- 
-    <menuitem id="menu_is_production_inv_10" sequence="10" name="Inventaires"                parent="menu_is_production_inv" action="stock.action_inventory_form" />
-    <menuitem id="menu_is_production_inv_20" sequence="20" name="Lignes d'inventaires"       parent="menu_is_production_inv" action="is_stock_inventory_line_action" />
-    -->
+    <menuitem 
+        id="stock_inventory_menu" 
+        sequence="10" 
+        name="Inventaires"                
+        parent="menu_is_production_inv" 
+        action="stock_inventory_action"
+    />
+    <menuitem 
+        id="stock_inventory_line_menu" 
+        sequence="20" 
+        name="Lignes d'inventaires"       
+        parent="menu_is_production_inv" 
+        action="stock_inventory_line_action"
+    />
+    
     <record id="menu_is_production_inv_import" model="ir.ui.menu" >
         <field name="name">Inventaires semestriels</field>
         <field name="sequence">35</field>

@@ -13,6 +13,8 @@ _logger = logging.getLogger(__name__)
 #     return datetime.date.today() # Date du jour
 
 
+sequence=1
+
 class is_inventaire(models.Model):
     _name='is.inventaire'
     _description="Inventaire"
@@ -121,6 +123,7 @@ class is_inventaire(models.Model):
 
     def action_fin_inventaire_sans_lot(self):
         cr=self._cr
+        cr.commit()
         for obj in self:
             self.action_calcul_ecart()
 
@@ -161,10 +164,10 @@ class is_inventaire(models.Model):
 
                 # ** Liste des stocks actuels **********************************
                 SQL="""
-                    select sq.product_id, pt.uom_id, sq.lot_id, spl.create_date, sq.qty
+                    select sq.product_id, pt.uom_id, sq.lot_id, spl.create_date, sq.quantity
                     from stock_quant sq inner join product_product pp on sq.product_id=pp.id
                                         inner join product_template pt on pp.product_tmpl_id=pt.id
-                                        left outer join stock_production_lot spl on sq.lot_id=spl.id
+                                        left outer join stock_lot spl on sq.lot_id=spl.id
                     where sq.location_id='"""+str(location_id)+"""'
                 """
                 cr.execute(SQL)
@@ -211,7 +214,11 @@ class is_inventaire(models.Model):
                         }
                         tmp=self.env['is.inventaire.line.tmp'].create(vals)
 
+
+
+
                     #Si ecart négatif, il faut enlever les quantités sur les lots les plus anciens
+                    cr.commit()
                     if ecart.ecart<0:
                         SQL="""
                             select id,product_id, lot_id, date_lot, qt_us
@@ -236,6 +243,7 @@ class is_inventaire(models.Model):
 
 
                 # ** Création des inventaires à partir de la table temporaire **
+                cr.commit()
                 SQL="""
                     select product_id, us_id, lot_id, sum(qt_us)
                     from is_inventaire_line_tmp
@@ -247,12 +255,12 @@ class is_inventaire(models.Model):
                 for row2 in res2:
                     qty=row2[3]
                     vals={
-                        'inventory_id'  : inventory.id,
-                        'location_id'   : location_id,
-                        'product_id'    : row2[0],
-                        'product_uom_id': row2[1],
-                        'prod_lot_id'   : row2[2],
-                        'product_qty'   : qty,
+                        'inventory_id'   : inventory.id,
+                        'location_id'    : location_id,
+                        'product_id'     : row2[0],
+                        'product_uom_id' : row2[1],
+                        'prod_lot_id'    : row2[2],
+                        'product_qty'    : qty,
                     }
                     line_id=self.env['stock.inventory.line'].create(vals)
 
@@ -328,7 +336,7 @@ class is_inventaire(models.Model):
                     tmp=self.env['is.inventaire.line.tmp'].create(vals)
                 # ** Liste des stocks actuels pour les mettre à 0 **************
                 SQL="""
-                    select sq.product_id, pt.uom_id, sq.lot_id, sum(sq.qty)
+                    select sq.product_id, pt.uom_id, sq.lot_id, sum(sq.quantity)
                     from stock_quant sq inner join product_product pp on sq.product_id=pp.id
                                         inner join product_template pt on pp.product_tmpl_id=pt.id
                     where sq.location_id='"""+str(location_id)+"""'
@@ -383,7 +391,6 @@ class is_inventaire(models.Model):
             for row in obj.ecart_ids:
                 row.unlink()
 
-
             # ** Recherche de la liste des emplacements ************************
             SQL="""
                 select distinct location_id
@@ -398,9 +405,9 @@ class is_inventaire(models.Model):
                 SQL="""
                     select 
                         pt.is_code,
-                        pt.name,
+                        pt.name->>'fr_FR',
                         pt.uom_id,
-                        (   select sum(sq.qty) 
+                        (   select sum(sq.quantity) 
                             from stock_quant sq
                             where sq.location_id='"""+str(location_id)+"""' and
                                   sq.product_id=pp.id
@@ -487,7 +494,7 @@ class is_inventaire(models.Model):
         for obj in self:
 
             for row in obj.inventory_ids:
-                row.inventory_id.action_done()
+                row.inventory_id.valider_inventaire_action()
 
             for feuille in obj.line_ids:
                 feuille.state="traite"
@@ -627,7 +634,7 @@ class is_inventaire_feuille(models.Model):
             ('traite', u'Traité')
         ], u"État", readonly=True, index=True, default="creation")
 
-    sequence=1
+    #sequence=1
 
 
     def calculer_encours(self):
@@ -638,19 +645,22 @@ class is_inventaire_feuille(models.Model):
                     line.unlink()
 
             #Renumérotation des lignes
-            self.sequence=1
+            sequence=1
             for line in obj.line_ids:
-                line.sequence=self.sequence
-                self.sequence=self.sequence+1
+                #line.sequence=self.sequence
+                #self.sequence=self.sequence+1
+                line.sequence=sequence
+                sequence+=1
 
 
             #Création des lignes des composants
-            self.sequence=10000
+            sequence=10000
             for line in obj.line_ids:
                 if line.encours:
                     product_tmpl_id=line.product_id.product_tmpl_id.id
                     self.eclate_nomenclature(obj,product_tmpl_id,line.qt_us,line.location_id.id)
-                    self.sequence=self.sequence+1
+                    #self.sequence=self.sequence+1
+                    sequence+=1
 
 
 
@@ -667,7 +677,8 @@ class is_inventaire_feuille(models.Model):
                 else:
                     vals={
                         'feuille_id'        : obj.id,
-                        'sequence'          : self.sequence,
+                        #'sequence'          : self.sequence,
+                        'sequence'          : sequence,
                         'product_id'        : bom_line.product_id.id,
                         'encours'           : False,
                         'composant_encours' : True,
@@ -676,7 +687,8 @@ class is_inventaire_feuille(models.Model):
                         'lieu'              : code
                     }
                     tmp=self.env['is.inventaire.line'].create(vals)
-                self.sequence=self.sequence+1
+                #self.sequence=self.sequence+1
+                sequence+=1
 
 
     def action_acceder_feuille(self):
@@ -858,9 +870,9 @@ class is_inventaire_line(models.Model):
     uc                = fields.Char('UC', store=True, compute='_compute')
     uc_us             = fields.Integer('US par UC', store=True, compute='_compute')
     location_id       = fields.Many2one('stock.location', 'Emplacement', required=True,index=1)
-    qt_us             = fields.Float("Qt US saisie")
-    qt_uc             = fields.Float("Qt UC saisie")
-    qt_us_calc        = fields.Float('Qt US', store=True, compute='_compute')
+    qt_us             = fields.Float("Qt US saisie", digits='Product Unit of Measure')
+    qt_uc             = fields.Float("Qt UC saisie", digits='Product Unit of Measure')
+    qt_us_calc        = fields.Float('Qt US'       , digits='Product Unit of Measure', store=True, compute='_compute')
     lieu              = fields.Char('Lieu')
     lot_id            = fields.Many2one('stock.lot','Lot')
     state             = fields.Selection([
@@ -921,7 +933,7 @@ class is_inventaire_line_tmp(models.Model):
     product_id      = fields.Many2one('product.product', 'Article' , required=True)
     us_id           = fields.Many2one('uom.uom','US')
     location_id     = fields.Many2one('stock.location', 'Emplacement', required=True)
-    qt_us           = fields.Float("Qt US")
+    qt_us           = fields.Float("Qt US", digits='Product Unit of Measure')
     lot_id          = fields.Many2one('stock.lot','Lot')
     date_lot        = fields.Datetime('Date création lot')
 
@@ -932,12 +944,12 @@ class is_inventaire_inventory(models.Model):
     _description="is_inventaire_inventory"
     _order='inventaire_id'
 
-    inventaire_id   = fields.Many2one('is.inventaire', 'Inventaire', required=True, ondelete='cascade', readonly=True)
-    #inventory_id    = fields.Many2one('stock.inventory', 'Inventaire')
+    inventaire_id   = fields.Many2one('is.inventaire', 'Inventaire emplacement', required=True, ondelete='cascade', readonly=True)
+    inventory_id    = fields.Many2one('stock.inventory', 'Inventaire')
 
 
     def action_acceder_inventaire(self):
-        view_id = self.env.ref('stock.view_inventory_form', False).id
+        view_id = self.env.ref('is_plastigray16.stock_inventory_form').id
         for obj in self:
             return {
                 'name': "Inventaire",
@@ -961,9 +973,9 @@ class is_inventaire_ecart(models.Model):
     code               = fields.Char(u"Code")
     designation        = fields.Char(u"Désignation")
     us_id              = fields.Many2one('uom.uom',u'US')
-    qt_odoo            = fields.Float(u"Qt Odoo")
-    qt_inventaire      = fields.Float(u"Qt Inventaire")
-    ecart              = fields.Float(u"Ecart"             , digits=(12, 2), help="Qt Inventaire - Qt Odoo")
+    qt_odoo            = fields.Float(u"Qt Odoo"           , digits='Product Unit of Measure')
+    qt_inventaire      = fields.Float(u"Qt Inventaire"     , digits='Product Unit of Measure')
+    ecart              = fields.Float(u"Ecart"             , digits='Product Unit of Measure', help="Qt Inventaire - Qt Odoo")
     cout_actualise     = fields.Float(u"Coût actualisé"    , digits=(12, 4))
     valorisation_ecart = fields.Float(u"Valorisation écart", digits=(12, 0))
     lieu               = fields.Text(u'Emplacement')
@@ -996,13 +1008,13 @@ class is_inventaire_anomalie(models.Model):
     product_id      = fields.Many2one('product.product', 'Article' , required=True, index=True)
     code            = fields.Char("Code Article")
     designation     = fields.Char("Désignation")
-    qt_odoo         = fields.Float("Qt Odoo"                 , digits=(12, 2), help="Qt dans Odoo dans le programme 'Import inventaire'")
-    qt_inventaire   = fields.Float("Qt saisie inventaire"    , digits=(12, 2), help="Qt saisie (compté) dans le programme 'Import inventaire'")
-    ecart           = fields.Float("Ecart"                   , digits=(12, 2), help="Ecart calculé par le programme 'Import inventaire'")
-    theoretical_qty = fields.Float('Qt Odoo fiche inventaire', digits=(12, 2), help="Qt dans Odoo dans la fiche d'inventaire")
-    product_qty     = fields.Float("Qt fiche inventaire"     , digits=(12, 2), help="Qt à mettre à jour (nouvelle quantité) dans la fiche d'inventaire")
-    ecart_odoo      = fields.Float("Ecart Odoo"              , digits=(12, 2), help="Ecart de la fiche d'inventaire")
-    anomalie        = fields.Float("Anomalie"                , digits=(12, 2), help="Différence entre l'écart du programme 'Import inventaire' et l’écart calculé par Odoo dans la fiche d'inventaire")
+    qt_odoo         = fields.Float("Qt Odoo"                 , digits='Product Unit of Measure', help="Qt dans Odoo dans le programme 'Import inventaire'")
+    qt_inventaire   = fields.Float("Qt saisie inventaire"    , digits='Product Unit of Measure', help="Qt saisie (compté) dans le programme 'Import inventaire'")
+    ecart           = fields.Float("Ecart"                   , digits='Product Unit of Measure', help="Ecart calculé par le programme 'Import inventaire'")
+    theoretical_qty = fields.Float('Qt Odoo fiche inventaire', digits='Product Unit of Measure', help="Qt dans Odoo dans la fiche d'inventaire")
+    product_qty     = fields.Float("Qt fiche inventaire"     , digits='Product Unit of Measure', help="Qt à mettre à jour (nouvelle quantité) dans la fiche d'inventaire")
+    ecart_odoo      = fields.Float("Ecart Odoo"              , digits='Product Unit of Measure', help="Ecart de la fiche d'inventaire")
+    anomalie        = fields.Float("Anomalie"                , digits='Product Unit of Measure', help="Différence entre l'écart du programme 'Import inventaire' et l’écart calculé par Odoo dans la fiche d'inventaire")
 
 
 

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- stock.inventory.line -->
+        <record id="stock_inventory_line_tree" model="ir.ui.view">
+            <field name="name">stock_inventory_line_treee</field>
+            <field name="model">stock.inventory.line</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="inventory_id"    optional="hide"/>
+                    <field name="location_id"     optional="hide"/>
+                    <field name="product_id"      optional="show"/>
+                    <field name="theoretical_qty" optional="show" sum="Total"/>
+                    <field name="product_qty"     optional="show" sum="Total"/>
+                    <field name="product_uom_id"  optional="show"/>
+                    <field name="prod_lot_id"     optional="show"/>
+                    <field name="product_name"    optional="hide"/>
+                    <field name="location_name"   optional="hide"/>
+                    <field name="prodlot_name"    optional="hide"/>
+                    <field name="company_id"   invisible="1"/>
+                </tree>
+            </field>
+        </record>
+        <record id="stock_inventory_line_search" model="ir.ui.view">
+            <field name="name">stock_inventory_line_search</field>
+            <field name="model">stock.inventory.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="location_id"/>
+                    <field name="product_id"/>
+                    <field name="prod_lot_id"/>
+               </search>
+            </field>
+        </record>
+        <record id="stock_inventory_line_action" model="ir.actions.act_window" >
+            <field name="name">stock_inventory_line_action</field>
+            <field name="res_model">stock.inventory.line</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- stock.inventory -->
+        <record id="stock_inventory_tree" model="ir.ui.view">
+            <field name="name">stock_inventory_tree</field>
+            <field name="model">stock.inventory</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="location_id"/>
+                    <field name="filter"/>
+                    <field name="product_id"/>
+                    <field name="lot_id" invisible="1"/>
+                    <field name="state"/>
+                    <field name="company_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+        <record id="stock_inventory_form" model="ir.ui.view">
+            <field name="name">stock_inventory_form</field>
+            <field name="model">stock.inventory</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button
+                            name="demarrer_inventaire_action"
+                            type="object"
+                            string="Démarrer l'inventaire"
+                            class="btn-primary" 
+                            attrs="{'invisible':[('state', '!=', 'draft')]}"
+                        />
+                        <button
+                            name="continuer_inventaire_action"
+                            type="object"
+                            string="Continuer l'inventaire"
+                            attrs="{'invisible':[('state', '!=', 'confirm')]}"
+                        />
+                        <button
+                            name="valider_inventaire_action"
+                            type="object"
+                            string="Valider l'inventaire"
+                            class="btn-primary" 
+                            attrs="{'invisible':[('state', '!=', 'confirm')]}"
+                        />
+                        <button
+                            name="continuer_inventaire_action"
+                            type="object"
+                            string="Voir les lignes"
+                            attrs="{'invisible':[('state', '!=', 'done')]}"
+                        />
+                        <button
+                            name="voir_mouvements_action"
+                            type="object"
+                            string="Voir les mouvements"
+                            attrs="{'invisible':[('state', '!=', 'done')]}"
+                        />
+            <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="location_id"/>
+                            <field name="filter"/>
+                            <field 
+                                name="product_id" 
+                                attrs="{'invisible':[('filter', '!=', 'product')], 'required':[('filter', '=', 'product')]}"
+                            />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="stock_inventory_search" model="ir.ui.view">
+            <field name="name">stock_inventory_search</field>
+            <field name="model">stock.inventory</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="location_id"/>
+                    <field name="product_id"/>
+               </search>
+            </field>
+        </record>
+        <record id="stock_inventory_action" model="ir.actions.act_window">
+            <field name="name">Inventaire</field>
+            <field name="res_model">stock.inventory</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

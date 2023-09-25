@@ -89,6 +89,7 @@
                     <field name="picking_type_id"/>
                     <field name="production_id"              attrs="{'invisible':[('production_id','=',False)]}"/>
                     <field name="raw_material_production_id" attrs="{'invisible':[('raw_material_production_id','=',False)]}"/>
+                    <field name="inventory_id"               attrs="{'invisible':[('inventory_id','=',False)]}"/>
                     <field name="is_employee_theia_id"       attrs="{'invisible':[('is_employee_theia_id','=',False)]}"/>
                     <field name="create_uid"/>
                     <field name="write_uid"/>
@@ -204,6 +205,7 @@
                     <field name="write_uid" optional="show"/>
                     <field name="picking_type_id" optional="hide"/>
                     <field name="picking_id" optional="hide"/>
+                    <field name="inventory_id" optional="hide"/>
                     <field name="origin" optional="hide"/>
                     <!-- <field name="is_pg_stock_move_id" optional="hide"/> -->
                     <button 
@@ -234,6 +236,7 @@
                     <field name="origin"/>
                     <field name="picking_type_id"/>
                     <field name="picking_id"/>
+                    <field name="inventory_id"/>
                 </field>
             </field>
         </record>

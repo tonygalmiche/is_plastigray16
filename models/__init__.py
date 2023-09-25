@@ -42,24 +42,18 @@ from . import is_fiche_tampographie
 from . import is_gabarit_controle
 from . import is_galia_base
 from . import is_gestion_des_absences
-
-
 from . import is_mold
 from . import is_mold_project
-
 from . import product
-
-
 from . import is_historique_controle
 from . import is_import_budget_pk
 from . import is_indicateur_revue_jalon
 from . import is_instruction_particuliere
 from . import is_instrument_mesure
-from . import is_inventaire           # TODO à finaliser => Il n'y a plus le modele stock.inventory...
 from . import is_invest
 from . import is_liste_servir
 from . import is_mem_var
-from . import is_mini_delta_dore      # TODO à finaliser
+from . import is_mini_delta_dore
 from . import is_mode_operatoire
 from . import is_ot
 from . import is_pdc
@@ -76,7 +70,7 @@ from . import is_resource
 from . import is_rgpd
 from . import is_tarif_cial
 from . import is_theia
-from . import is_taux_rotation_stock  # TODO A revoir plus tard
+from . import is_taux_rotation_stock
 from . import mrp
 from . import mrp_prevision
 from . import mrp_production
@@ -88,9 +82,9 @@ from . import res_partner
 from . import res_users
 from . import sale
 from . import stock
+from . import stock_inventory
+from . import is_inventaire
 from . import stock_move
-
-
 from . import is_gestion_lot
 
 

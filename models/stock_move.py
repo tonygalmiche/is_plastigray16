@@ -68,6 +68,7 @@ class stock_move(models.Model):
     is_montant_cagnotage    = fields.Float('Montant cagnotage'         , digits=(14,2))
     is_montant_matiere      = fields.Float('Montant matière livrée'    , digits=(14,2))
     is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" ) #Champ ajouté pour Odoo 16 pour faire le lien entre les lignes des factures et les livraisons
+    inventory_id            = fields.Many2one("stock.inventory", "Inventaire", index=True ) #Champ dans Odoo 8 et supprimé dans Odoo 16
 
 
     #TODO Ce champ  a disparru dans Odoo 16 => Je l'ai remis pour conserver le même principe de facturation des réceptions
@@ -159,7 +160,6 @@ class stock_move(models.Model):
         for obj in self:
             move_id=False
             if obj.state=='done':
-
                 #** Regroupement des lignes identiques + somme qty ************
                 dict={}
                 for line in obj.move_line_ids:
@@ -184,33 +184,33 @@ class stock_move(models.Model):
                             qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
                     #**********************************************************
 
-                    vals={
-                        "move_id": obj.id,
-                        "date": obj.date,
-                        "product_id": obj.product_id.id,
-                        "name": obj.name,
-                        "origin": obj.origin,
-                        "category": obj.product_id.is_category_id.name,
-                        "mold": obj.product_id.is_mold_dossierf,
-                        "picking_type_id": obj.picking_type_id.id,
-                        "picking_id": obj.picking_id.id,
-                        "lot_id": line.lot_id.id,
-                        "lot_fournisseur": line.lot_id.is_lot_fournisseur,
-                        "qty": qty,
-                        "product_uom": product_uom.id,
-                        "location_dest_id": location_dest_id.id,
-                        "login": obj.write_uid.partner_id.name,
-                        "is_employee_theia_id": obj.is_employee_theia_id.id,
-                        "purchase_line_id": obj.purchase_line_id.id,
-                        "production_id": obj.production_id.id or obj.raw_material_production_id.id,
-                        "sale_line_id": obj.sale_line_id.id,
-                    }
-                    self._create_pg_stock_move(vals)
-
-                    if line.location_id.usage=="internal" and line.location_dest_id.usage=="internal":
-                        vals["location_dest_id"] = line.location_id.id
-                        vals["qty"]              = -qty
+                    if qty!=0:
+                        vals={
+                            "move_id": obj.id,
+                            "date": obj.date,
+                            "product_id": obj.product_id.id,
+                            "name": obj.name,
+                            "origin": obj.origin,
+                            "category": obj.product_id.is_category_id.name,
+                            "mold": obj.product_id.is_mold_dossierf,
+                            "picking_type_id": obj.picking_type_id.id,
+                            "picking_id": obj.picking_id.id,
+                            "lot_id": line.lot_id.id,
+                            "lot_fournisseur": line.lot_id.is_lot_fournisseur,
+                            "qty": qty,
+                            "product_uom": product_uom.id,
+                            "location_dest_id": location_dest_id.id,
+                            "login": obj.write_uid.partner_id.name,
+                            "is_employee_theia_id": obj.is_employee_theia_id.id,
+                            "purchase_line_id": obj.purchase_line_id.id,
+                            "production_id": obj.production_id.id or obj.raw_material_production_id.id,
+                            "sale_line_id": obj.sale_line_id.id,
+                        }
                         self._create_pg_stock_move(vals)
+                        if line.location_id.usage=="internal" and line.location_dest_id.usage=="internal":
+                            vals["location_dest_id"] = line.location_id.id
+                            vals["qty"]              = -qty
+                            self._create_pg_stock_move(vals)
         return True
 
 

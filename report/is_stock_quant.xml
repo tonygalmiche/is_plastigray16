@@ -17,7 +17,7 @@
                         <field name="ref_client" readonly="1"/>
                         <field name="ref_fournisseur" readonly="1"/>
                         <field name="location_id" readonly="1"/>
-                        <field name="lot" readonly="1"/>
+                        <field name="lot_id" readonly="1"/>
                         <field name="lot_fournisseur" readonly="1"/>
                         <field name="quantite" readonly="1"/>
                         <field name="uom_id" readonly="1"/>
@@ -41,7 +41,7 @@
                 <field name="ref_client" />
                 <field name="ref_fournisseur" />
                 <field name="emplacement" />
-                <field name="lot" />
+                <field name="lot_id" widget="many2one_clickable"/>
                 <field name="lot_fournisseur" />
                 <field name="quantite" sum="Total"/>
                 <field name="uom_id" />
@@ -83,7 +83,7 @@
                 <field name="ref_client" />
                 <field name="ref_fournisseur" />
                 <field name="location_id" />
-                <field name="lot" />
+                <field name="lot_id" />
                 <field name="lot_fournisseur" />
                 <group string="Regrouper par">
                     <filter string="Article"     name="group_by_product_id"  context="{'group_by': 'product_id'}"/>

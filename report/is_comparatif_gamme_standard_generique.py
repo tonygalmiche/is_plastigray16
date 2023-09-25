@@ -11,17 +11,17 @@ class is_comparatif_gamme_standard_generique(models.Model):
 
     product_id                 = fields.Many2one('product.template', 'Article')
     bom_id                     = fields.Many2one('mrp.bom', 'Nomenclature')
-    standard_routing_id        = fields.Many2one('mrp.routing', 'Gamme Standard')
+    standard_routing_id        = fields.Many2one('mrp.routing', 'Gamme standard')
     standard_sequence          = fields.Integer('Sequence standard')
     standard_name              = fields.Char('Nom standard')
-    standard_workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge')
+    standard_workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge standard')
     standard_nb_secondes       = fields.Float('Nb secondes standard')
 
-    generique_routing_id        = fields.Many2one('mrp.routing', 'Gamme Générique')
-    generique_sequence          = fields.Integer('Sequence generique')
-    generique_name              = fields.Char('Nom generique')
-    generique_workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge')
-    generique_nb_secondes       = fields.Float('Nb secondes generique')
+    generique_routing_id        = fields.Many2one('mrp.routing', 'Gamme générique')
+    generique_sequence          = fields.Integer('Sequence générique')
+    generique_name              = fields.Char('Nom générique')
+    generique_workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge générique')
+    generique_nb_secondes       = fields.Float('Nb secondes générique')
     delta_nb_secondes           = fields.Float('Delta Nb secondes')
 
 
