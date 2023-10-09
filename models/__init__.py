@@ -3,6 +3,7 @@ from . import mail
 from . import account_invoice
 from . import hr
 from . import ir_actions_act_url
+from . import ir_attachment
 from . import is_analyse_cbn
 from . import is_article
 from . import is_bl_manuel

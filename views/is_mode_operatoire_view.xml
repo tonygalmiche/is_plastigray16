@@ -87,7 +87,7 @@
                     <field name="menu_id"/>
                     <field name="createur_id"/>
                     <field name="date_demande"/>
-                    <field name="attachment_ids"  widget="many2many_binary" />
+                    <!-- <field name="attachment_ids"  widget="many2many_binary" /> -->
                 </tree>
             </field>
         </record>
