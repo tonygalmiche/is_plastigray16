@@ -626,7 +626,7 @@ class is_cde_ouverte_fournisseur(models.Model):
             #** Recherche du dernier numéro de BL ******************************
             for product in obj.product_ids:
                 SQL="""
-                    select sp.is_num_bl, sp.is_date_reception, sm.product_uom_qty
+                    select sp.is_num_bl, sp.is_date_reception, sm.product_uom_qty, sm.product_uom
                     from stock_picking sp inner join stock_move sm on sm.picking_id=sp.id
                     where 
                         sm.product_id="""+str(product.product_id.id)+""" and
@@ -646,8 +646,9 @@ class is_cde_ouverte_fournisseur(models.Model):
                 for row in result:
                     num_bl  = row[0]
                     date_bl = row[1]
-                    qt_bl   = row[2]
-
+                    product_uom = self.env['uom.uom'].browse(row[3])
+                    uom_po_id = product.product_id.uom_po_id
+                    qt_bl = product_uom._compute_quantity(row[2], uom_po_id)
                 product.num_bl  = num_bl
                 product.date_bl = date_bl
                 product.qt_bl   = qt_bl
@@ -711,7 +712,8 @@ class is_cde_ouverte_fournisseur(models.Model):
                         quantite_rcp=0
                         for move in moves:
                             if move.picking_id.state=='done':
-                                quantite_rcp=quantite_rcp+move.product_uom_qty
+                                qt = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_po_id)
+                                quantite_rcp+=qt
                         #*******************************************************
 
                         vals={
