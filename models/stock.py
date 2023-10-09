@@ -380,41 +380,57 @@ class stock_picking(models.Model):
             obj.invoice_state='none'
             #******************************************************************
 
-            #** Copie de la réception pour pouvoir la réfaire *****************
-            retour=obj.copy()
-            retour.location_id = obj.location_dest_id.id
-            retour.location_dest_id = obj.location_id.id
-
+            #** Copie du picking pour pourvoir refaire la réception ***********
+            new_picking=obj.copy()
+            new_picking.action_confirm()
             #******************************************************************
 
-            #** Création des mouvements inverses pour annuler la réception ****
+            #** Création des mouvements inverses pour annuller la rcp *********
             for move in obj.move_ids_without_package:
-                #move.location_id = move.location_dest_id.id
-                #move.location_dest_id = move.location_id.id
+                vals={
+                    "product_id": move.product_id.id,
+                    "product_uom": move.product_uom.id,
+                    "location_id": move.location_dest_id.id,
+                    "location_dest_id": move.location_id.id,
+                    "origin": move.origin,
+                    "name": move.name,
+                    "reference": move.reference,
+                    "procure_method": "make_to_stock",
+                    "product_uom_qty": move.product_uom_qty,
+                    "scrapped": False,
+                    "propagate_cancel": True,
+                    "additional": False,
+                    "picking_id":move.picking_id.id,
+                }
+                move_retour=self.env['stock.move'].create(vals)
                 for line in move.move_line_ids:
                     vals={
-                        "picking_id"      : retour.id,
-                        "location_id"     : line.location_dest_id.id,
-                        "location_dest_id": line.location_id.id,
-                        "lot_id"          : line.lot_id.id,
-                        "qty_done"        : line.qty_done,
-                        "product_id"      : line.product_id.id,
+                        "move_id": move_retour.id,
+                        "product_id": line.product_id.id,
+                        "product_uom_id": line.product_uom_id.id,
+                        "location_id": move.location_dest_id.id,
+                        "location_dest_id": move.location_id.id,
+                        "lot_id": line.lot_id.id,
+                        "qty_done": line.qty_done,
+                        "reference": line.reference,
                     }
-                    res=self.env['stock.move.line'].create(vals)
-                #action_confirm
-            #******************************************************************
+                    move_line_retour=self.env['stock.move.line'].create(vals)
+                move_retour._action_done()
+            # #******************************************************************
 
+            # #** Copie de la réception pour pouvoir la réfaire *****************
+            # retour=obj.copy()
+            # retour.location_id = obj.location_dest_id.id
+            # retour.location_dest_id = obj.location_id.id
+            # #******************************************************************
 
             # #** Création des mouvements inverses pour annuler la réception ****
             # for move in obj.move_ids_without_package:
-            #     copy = move.copy()
-            #     copy.location_id      = move.location_dest_id.id
-            #     copy.location_dest_id = move.location_id.id
-            #     copy.origin_returned_move_id = move.id
+            #     #move.location_id = move.location_dest_id.id
+            #     #move.location_dest_id = move.location_id.id
             #     for line in move.move_line_ids:
             #         vals={
-            #             "move_id"         : copy.id,
-            #             "picking_id"      : obj.id,
+            #             "picking_id"      : retour.id,
             #             "location_id"     : line.location_dest_id.id,
             #             "location_dest_id": line.location_id.id,
             #             "lot_id"          : line.lot_id.id,
@@ -422,26 +438,45 @@ class stock_picking(models.Model):
             #             "product_id"      : line.product_id.id,
             #         }
             #         res=self.env['stock.move.line'].create(vals)
-            #         #print(res, res.location_id.name, res.location_dest_id.name)
-            #     copy._action_confirm()
-            #     move.state = 'cancel'
-            #     copy.state = 'cancel'
+            #     #action_confirm
             # #******************************************************************
 
+            # # #** Création des mouvements inverses pour annuler la réception ****
+            # # for move in obj.move_ids_without_package:
+            # #     copy = move.copy()
+            # #     copy.location_id      = move.location_dest_id.id
+            # #     copy.location_dest_id = move.location_id.id
+            # #     copy.origin_returned_move_id = move.id
+            # #     for line in move.move_line_ids:
+            # #         vals={
+            # #             "move_id"         : copy.id,
+            # #             "picking_id"      : obj.id,
+            # #             "location_id"     : line.location_dest_id.id,
+            # #             "location_dest_id": line.location_id.id,
+            # #             "lot_id"          : line.lot_id.id,
+            # #             "qty_done"        : line.qty_done,
+            # #             "product_id"      : line.product_id.id,
+            # #         }
+            # #         res=self.env['stock.move.line'].create(vals)
+            # #         #print(res, res.location_id.name, res.location_dest_id.name)
+            # #     copy._action_confirm()
+            # #     move.state = 'cancel'
+            # #     copy.state = 'cancel'
+            # # #******************************************************************
 
-            #**Validation des mouvements et annulation des receptions *********
-            retour.action_confirm()
-            retour._action_done()
-            #******************************************************************
+            # #**Validation des mouvements et annulation des receptions *********
+            # retour.action_confirm()
+            # retour._action_done()
+            # #******************************************************************
 
-            #** Annulation du picking d'origigne, du retour et des mouvements *
+            #** Annulation du picking d'origigne et des mouvements **************
             for move in obj.move_ids_without_package:
                 move.state="cancel"
-            for move in retour.move_ids_without_package:
-                move.state="cancel"
+            obj.state="cancel"
+            #for move in retour.move_ids_without_package:
+            #    move.state="cancel"
             #******************************************************************
 
-            new_picking=obj.copy()
             return {
                 'name': "Réception annullée",
                 'view_mode': 'form',
