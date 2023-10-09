@@ -13,11 +13,11 @@ class mrp_prevision(models.Model):
     _description = 'Prevision des fabrication dans le secteur automobile'
 
 
+    @api.depends('quantity','product_id')
     def _compute(self):
-        uom_obj = self.env["uom.uom"]
-        #quantity_ha = uom_obj._compute_qty(self.uom_id.id, self.quantity, self.uom_po_id.id)
-        quantity_ha=0
-        self.quantity_ha = quantity_ha
+        for obj in self:
+            quantity_ha = obj.uom_id._compute_quantity(obj.quantity, obj.uom_po_id)
+            self.quantity_ha = quantity_ha
 
     def _get_company_id(self):
         company_id  = self.env.user.company_id.id
