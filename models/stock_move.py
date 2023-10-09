@@ -168,7 +168,8 @@ class stock_move(models.Model):
                         dict[key]={}
                         dict[key]["line"]=line
                         dict[key]["qty"]=0
-                    dict[key]["qty"]+=line.qty_done
+                    qty = line.product_uom_id._compute_quantity(line.qty_done, line.product_id.uom_id) #, round=True, rounding_method='UP', raise_if_failure=True):
+                    dict[key]["qty"]+=qty
                 #**************************************************************
                 for key in dict:
                     line = dict[key]["line"]
@@ -178,10 +179,11 @@ class stock_move(models.Model):
                         location_dest_id = line.location_id
                         qty=-qty
                     #** Convertire la qty dans l'unité de stock ***************
-                    product_uom = obj.product_id.uom_id
-                    if obj.product_uom!=obj.product_id.uom_id:
-                        if obj.product_uom.category_id==obj.product_id.uom_id.category_id:
-                            qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
+                    # product_uom = obj.product_id.uom_id
+                    # if obj.product_uom!=obj.product_id.uom_id:
+                    #     if obj.product_uom.category_id==obj.product_id.uom_id.category_id:
+                    #         #qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
+                    #         qty = product_uom._compute_quantity(qty, obj.product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
                     #**********************************************************
 
                     if qty!=0:
@@ -198,7 +200,7 @@ class stock_move(models.Model):
                             "lot_id": line.lot_id.id,
                             "lot_fournisseur": line.lot_id.is_lot_fournisseur,
                             "qty": qty,
-                            "product_uom": product_uom.id,
+                            "product_uom": obj.product_id.uom_id.id,
                             "location_dest_id": location_dest_id.id,
                             "login": obj.write_uid.partner_id.name,
                             "is_employee_theia_id": obj.is_employee_theia_id.id,
