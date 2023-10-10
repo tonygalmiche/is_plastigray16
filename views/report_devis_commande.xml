@@ -121,5 +121,15 @@
         <field name="report_name">is_plastigray16.devis_commande_template</field>
         <field name="report_file">is_plastigray16.devis_commande_template</field>
     </record>
+
+
+    <!-- Désactiver rapport existant -->
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
+        <field name="binding_model_id" ref=""/>
+    </record>
+  
+
+
+
 </data>
 </odoo>
