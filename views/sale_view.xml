@@ -300,6 +300,20 @@
                 <field name="picking_policy" position="after">
                     <field name="is_source_location_id" required="1"/>
                 </field>
+
+                <button name="action_view_delivery" position="attributes">
+                    <attribute name="groups">base.group_user</attribute>
+                </button>
+
+                <!-- <button type="object"
+                name="action_view_delivery"
+                class="oe_stat_button"
+                icon="fa-truck"
+                attrs="{'invisible': [('delivery_count', '=', 0)]}" groups="stock.group_stock_user">
+                <field name="delivery_count" widget="statinfo" string="Delivery"/>
+            </button> -->
+
+
             </field>
         </record>
         <record id="is_sale_order_form_quote" model="ir.ui.view">
