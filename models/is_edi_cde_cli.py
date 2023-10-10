@@ -648,6 +648,7 @@ class is_edi_cde_cli(models.Model):
                                     'pricelist_id'    : obj.partner_id.property_product_pricelist.id,
                                 }
                                 SaleOrder = self.env['sale.order'].create(vals)
+                                SaleOrder.pg_onchange_partner_id()
                             #***************************************************
 
 
@@ -1307,6 +1308,7 @@ class is_edi_cde_cli(models.Model):
                                 "is_type_commande": "standard",
                             }
                             order=self.env['sale.order'].create(vals)
+                            order.pg_onchange_partner_id()
                         else:
                             order=orders[0]
                         order_id=order.id
