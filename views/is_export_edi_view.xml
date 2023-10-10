@@ -40,7 +40,7 @@
                                 <field name="partner_id"/>
                                 <field name="contact_id" domain="[('parent_id','=',partner_id)]" />
                                 <field name="date_fin"/>
-                                <!-- <field name="attachment_ids" widget="many2many_binary"/> -->
+                                <field name="attachment_ids" widget="many2many_binary"/>
                             </group>
                         </group>
                         <field name="historique_ids" nolabel="1" readonly="1">
