@@ -189,7 +189,8 @@ class is_edi_cde_cli(models.Model):
                             product_id = product.id
 
                             #** Date de livraison sur le jour indiqué **********
-                            date_livraison=datetime.strptime(ligne["date_livraison"], "%Y-%m-%d").date()
+                            #date_livraison=datetime.strptime(ligne["date_livraison"], "%Y-%m-%d").date()
+                            date_livraison=ligne["date_livraison"]
 
                             if ligne["type_commande"]=='previsionnel' and date_livraison and obj.jour_semaine:
                                 d=date_livraison
