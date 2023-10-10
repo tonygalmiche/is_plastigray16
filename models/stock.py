@@ -372,17 +372,17 @@ class stock_picking(models.Model):
             if obj.state!='done':
                 raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
 
+            #** Copie du picking pour pourvoir refaire la réception ***********
+            new_picking=obj.copy()
+            new_picking.action_confirm()
+            #******************************************************************
+
             #** Recherche si les lignes de cette réception son facturées ******
             for line in obj.move_ids_without_package:
                 if line.invoice_state=='invoiced':
                     raise ValidationError('Annulation impossible car la réception est déjà facturée !')
                 line.invoice_state="none"
             obj.invoice_state='none'
-            #******************************************************************
-
-            #** Copie du picking pour pourvoir refaire la réception ***********
-            new_picking=obj.copy()
-            new_picking.action_confirm()
             #******************************************************************
 
             #** Création des mouvements inverses pour annuller la rcp *********
