@@ -181,7 +181,7 @@
                 <field name="intitule_id" readonly="1"/>
                 <field name="code"        readonly="1"/>
                 <field name="montant_variable" sum="Total"/>
-                <field name="montant_fixe"     sum="Total" invisible="context.get('montant_fixe',True)"/>
+                <field name="montant_fixe"     sum="Total" optional="show"/>
             </tree>
         </field>
     </record>
