@@ -122,7 +122,7 @@ class is_facturation_fournisseur(models.Model):
                         round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
                         sp.picking_type_id=1 and
                         pt.is_facturable='t' and
-                        --sm.invoice_state='2binvoiced' and
+                        sm.invoice_state='2binvoiced' and
                         sp.is_date_reception<='%s' and
                         sp.partner_id in(%s)
                     order by sp.name, pol.id
@@ -130,6 +130,8 @@ class is_facturation_fournisseur(models.Model):
                 cr.execute(sql)
                 result=cr.dictfetchall()
                 for row in result:
+                    move = self.env['stock.move'].browse(row["move_id"])
+
                     #** Recherche des taxes ****************************************
                     taxe_ids  = []
                     taxe_taux = 0
@@ -155,7 +157,10 @@ class is_facturation_fournisseur(models.Model):
                     account_id = product.property_account_expense_id.id
                     #***************************************************************
 
-                    total = row["qty"]*(row["price_unit"] or 0)
+                    #** Recalcul quantité en unité d'achat *************************
+                    qty = move.product_uom._compute_quantity(row["qty"], move.product_id.uom_po_id)
+                    #***************************************************************
+                    total = qty*(row["price_unit"] or 0)
                     test=True
                     if obj.masquer_montant_0 and total==0:
                         test=False
@@ -168,8 +173,8 @@ class is_facturation_fournisseur(models.Model):
                             'description'       : row["description"],
                             'account_id'        : account_id,
                             'ref_fournisseur'   : row["is_ref_fournisseur"],
-                            'quantite'          : row["qty"],
-                            'uom_id'            : row["product_uom"],
+                            'quantite'          : qty,
+                            'uom_id'            : move.product_id.uom_po_id.id,
                             'prix'              : row["price_unit"],
                             'prix_origine'      : row["price_unit"],
                             'total'             : total,
@@ -261,25 +266,18 @@ class is_facturation_fournisseur(models.Model):
                     }
                     lines.append([0,False,v]) 
 
-
-            # #** Ajout de la ligne pour l'écart de facturation ******************
-            # if obj.ecart_ht_compte_id:
-            #     product_id      = obj.ecart_ht_compte_id.id
-            #     uom_id          = obj.ecart_ht_compte_id.uom_id.id
-            #     name            = obj.ecart_ht_compte_id.name
-            #     invoice_type    = 'in_invoice'
-            #     partner_id      = obj.name.id
-            #     fiscal_position = vals['fiscal_position']
-            #     res=self.env['account.invoice.line'].product_id_change(product_id, uom_id, quantite, name, invoice_type, partner_id, fiscal_position)
-            #     v=res['value']
-            #     v.update({
-            #         'product_id'          : product_id,
-            #         'quantity'            : 1,
-            #         'price_unit'          : obj.ecart_ht,
-            #         'invoice_line_tax_id' : [(6,0,invoice_line_tax_id)],
-            #     })
-            #     lines.append([0,False,v]) 
-            # #*******************************************************************
+            #** Ajout de la ligne pour l'écart de facturation ******************
+            if obj.ecart_ht_compte_id:
+                product = obj.ecart_ht_compte_id
+                v = {
+                    'product_id'      : product.id,
+                    'name'            : product.name,
+                    'quantity'        : 1,
+                    'price_unit'      : obj.ecart_ht,
+                    'tax_ids'         : [(6,0,invoice_line_tax_id)],
+                }
+                lines.append([0,False,v]) 
+            #*******************************************************************
 
             vals.update({
                 'invoice_line_ids': lines,
@@ -289,18 +287,19 @@ class is_facturation_fournisseur(models.Model):
             view_id = self.env.ref('account.view_move_form').id
             obj.state='termine'
 
-            # #** Changement d'état des réceptions et des lignes *****************
-            # for line in obj.line_ids:
-            #     if line.selection:
-            #         if line.move_id:
-            #             line.move_id.invoice_state='invoiced'
-            #             #test=True
-            #             #for l in line.move_id.picking_id.move_ids_without_package:
-            #             #    if l.invoice_state=='2binvoiced':
-            #             #        test=False
-            #             #if test:
-            #             #    line.move_id.picking_id.invoice_state='invoiced'
-            # #*******************************************************************
+            #** Changement d'état des réceptions et des lignes *****************
+            for line in obj.line_ids:
+                if line.selection:
+                    if line.move_id:
+                        line.move_id.invoice_state='invoiced'
+                        line.move_id.picking_id._compute_invoice_state()
+                        #test=True
+                        #for l in line.move_id.picking_id.move_ids_without_package:
+                        #    if l.invoice_state=='2binvoiced':
+                        #        test=False
+                        #if test:
+                        #    line.move_id.picking_id.invoice_state='invoiced'
+            #*******************************************************************
 
             return {
                 'name': "Facture Fournisseur",
@@ -455,7 +454,7 @@ class is_facturation_fournisseur_line(models.Model):
     description        = fields.Char('Description')
     account_id         = fields.Many2one('account.account', 'Compte')
     ref_fournisseur    = fields.Char('Référence fournisseur')
-    quantite           = fields.Float('Reste à facturer', digits=(14,4))
+    quantite           = fields.Float('Reste à facturer', digits='Product Unit of Measure')
     uom_id             = fields.Many2one('uom.uom', 'Unité')
     prix               = fields.Float('Prix'          , digits=(14,4))
     prix_origine       = fields.Float("Prix d'origine", digits=(14,4))
