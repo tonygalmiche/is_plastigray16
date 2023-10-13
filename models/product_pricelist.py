@@ -179,6 +179,8 @@ class product_pricelist(models.Model):
         price=0
         justification=False
         if product and qty and date:
+            if isinstance(date, datetime.datetime):
+                date = date.date()
             qty=round(qty,6)
             for version in self.version_id:
                 if (version.date_start==False or version.date_start<=date) and (version.date_end==False or version.date_end>=date):

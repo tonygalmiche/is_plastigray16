@@ -189,9 +189,12 @@ class is_edi_cde_cli(models.Model):
                             product_id = product.id
 
                             #** Date de livraison sur le jour indiqué **********
-                            #date_livraison=datetime.strptime(ligne["date_livraison"], "%Y-%m-%d").date()
                             date_livraison=ligne["date_livraison"]
-
+                            if isinstance(date_livraison, str):
+                                if date_livraison!='':
+                                    date_livraison=datetime.strptime(ligne["date_livraison"], "%Y-%m-%d").date()
+                            if isinstance(date_livraison, datetime):
+                                date_livraison=date_livraison.date()
                             if ligne["type_commande"]=='previsionnel' and date_livraison and obj.jour_semaine:
                                 d=date_livraison
                                 jour_semaine_client = d.weekday() + 1
@@ -850,7 +853,8 @@ class is_edi_cde_cli(models.Model):
 
     def get_data_Millipore(self, attachment):
         res = []
-        mois=[u'janv.',u'févr.',u'mars',u'avr.',u'mai',u'juin',u'juil.',u'août',u'sept.',u'oct.',u'nov.',u'déc.']
+        #mois=[u'janv.',u'févr.',u'mars',u'avr.',u'mai',u'juin',u'juil.',u'août',u'sept.',u'oct.',u'nov.',u'déc.']
+        mois=['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
         for obj in self:
             csvfile = base64.decodebytes(attachment.datas).decode('cp1252')
             csvfile = csvfile.split("\r\n")
@@ -1250,8 +1254,9 @@ class is_edi_cde_cli(models.Model):
                         for DateHeureLivraisonAuPlusTot in detail_programme.xpath("DateHeureLivraisonAuPlusTot"):
                             date_livraison=DateHeureLivraisonAuPlusTot.text[:8]
                         if date_livraison!="":
-                            d=datetime.strptime(date_livraison, '%Y%m%d')
-                            date_livraison=d.strftime('%Y-%m-%d')
+                            date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
+                            #d=datetime.strptime(date_livraison, '%Y%m%d')
+                            #date_livraison=d.strftime('%Y-%m-%d')
                         quantite=""
                         for QuantiteALivrer in detail_programme.xpath("QuantiteALivrer"):
                             quantite=QuantiteALivrer.text
@@ -1330,8 +1335,9 @@ class is_edi_cde_cli(models.Model):
                             quantite=float(quantite)
                         except ValueError:
                             quantite=0
-                        d=datetime.strptime(date_livraison, '%Y%m%d')
-                        date_livraison=d.strftime('%Y-%m-%d')
+                        date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
+                        #d=datetime.strptime(date_livraison, '%Y%m%d')
+                        #date_livraison=d.strftime('%Y-%m-%d')
                         ligne = {
                             'quantite': quantite,
                             'type_commande': 'ferme',
@@ -1484,8 +1490,10 @@ class is_edi_cde_cli(models.Model):
                                                         qt=0
                                                 if col==17:
                                                     date_livraison=n5.text[:10]
-                                                    d=datetime.strptime(date_livraison, '%Y-%m-%d')
-                                                    date_livraison=d.strftime('%Y-%m-%d')
+                                                    date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d')
+                                                    #d=datetime.strptime(date_livraison, '%Y-%m-%d')
+                                                    #date_livraison=d.strftime('%Y-%m-%d')
+                                                    #date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d')
 
                                     val={
                                         'num_commande_client' : num_commande_client,
