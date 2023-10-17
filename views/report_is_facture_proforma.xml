@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
 
-
+    <!--
         <template id="report_is_facture_proforma_style">
             .header {
                 font-size:10pt;
@@ -31,13 +31,11 @@
 
 
         <template id="report_is_facture_proforma_layout" inherit_id="web.layout" primary="True">
-            <!-- Add report attributes -->
             <xpath expr="//html" position="attributes">
                 <attribute name="t-att-data-report-margin-top">data_report_margin_top if data_report_margin_top else None</attribute>
                 <attribute name="t-att-data-report-header-spacing">data_report_header_spacing if data_report_header_spacing else None</attribute>
                 <attribute name="t-att-data-report-dpi">data_report_dpi if data_report_dpi else None</attribute>
             </xpath>
-            <!-- Add report style -->
             <xpath expr="//head" position="inside">
                 <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
                 <link href="/website/static/src/css/website.css" rel="stylesheet"/>
@@ -47,7 +45,6 @@
                     <t t-call="is_plastigray16.report_is_facture_proforma_style"/>
                 </style>
             </xpath>
-            <!-- Remove conflicting style -->
             <xpath expr="//head/link[@href='/web/static/src/css/full.css']" position="replace"></xpath>
         </template>
 
@@ -60,68 +57,69 @@
             </t>
         </template>
 
-
+    -->
         <!-- Entête personnalisé Plastigray -->
-        <template id="report_is_facture_proforma_external_layout_header">
-            <div class="header">
-
-                <div class="row">
-                    <div class="col-xs-4  text-left">
-                        <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
-                        <!-- <div class="expediteur">
-                            <div>Expéditeur : </div>
-                            <b><div t-field="company.name"/></b>
-                            <b><div t-field="company.street"/></b>
-                            <div t-field="company.street2"/>
-                            <div><span t-field="company.zip"/> - <span t-field="company.city"/></div>
-                            <div t-field="company.country_id.name"/>
-                            <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 400, 40)"/><br/><br/>
-                        </div> -->
-                    </div>
-                    <div class="col-xs-1" />
-                    <div class="col-xs-7">
-                        <div class="titre">
-                            <span>Facture proforma N°</span>
-                            <span t-field="o.name"/>
-                             du <span t-field="o.date_facture"/><br />
+    <template id="report_is_facture_proforma_template">
+        <t t-set="company" t-value="res_company"/>
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <div class="header report_is_facture_proforma_header">
+    
+                    <div class="row">
+                        <div class="col-xs-4  text-left">
+                            <img t-if="company.is_logo" t-att-src="'data:image/png;base64,%s' % company.is_logo" style="max-height: 60px;"/>
+                            <!-- <div class="expediteur">
+                                <div>Expéditeur : </div>
+                                <b><div t-field="company.name"/></b>
+                                <b><div t-field="company.street"/></b>
+                                <div t-field="company.street2"/>
+                                <div><span t-field="company.zip"/> - <span t-field="company.city"/></div>
+                                <div t-field="company.country_id.name"/>
+                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 400, 40)"/><br/><br/>
+                            </div> -->
                         </div>
-                        <!-- <div class="destinataire">
-                            <b><span t-field="o.adresse_liv_id.name"/></b> (<span t-field="o.adresse_liv_id.is_code"/>)
-                            <div t-field="o.adresse_liv_id"
-                                 t-field-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
-                        </div> -->
+                        <div class="col-xs-1" />
+                        <div class="col-xs-7">
+                            <div class="titre">
+                                <span>Facture proforma N°</span>
+                                <span t-field="o.name"/>
+                                 du <span t-field="o.date_facture"/><br />
+                            </div>
+                            <!-- <div class="destinataire">
+                                <b><span t-field="o.adresse_liv_id.name"/></b> (<span t-field="o.adresse_liv_id.is_code"/>)
+                                <div t-field="o.adresse_liv_id"
+                                     t-field-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
+                            </div> -->
+                        </div>
                     </div>
                 </div>
-            </div>
-        </template>
-
-
-
-        <!-- Pied de page personnalisé Plastigray -->
-        <template id="report_is_facture_proforma_external_layout_footer">
-            <div class="footer">
-                <div class="text-center" style="border-top: 1px solid black">
-                    <table style="width:100%">
-                        <tr>
-                            <td class="text-left" style="width:80%">
-                                S.A.S. au capital de 2 200 000 € - Siège social : ZAC de Gray Sud - CS 10133 - 70104 GRAY Cedex<br />
-                                Siret B 377 846 381 00020 - Code NAF 2229 A - Registre du Commerce GRAY - N°Identification T.V.A. FR 65 377 846 381
-                            </td>
-                            <td class="text-right">
-                                Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
-                            </td>
-                        </tr>
-                    </table>
+                <div class="footer report_is_facture_proforma_footer">
+                    <div class="text-center" style="border-top: 1px solid black">
+                        <table style="width:100%">
+                            <tr>
+                                <td class="text-left" style="width:80%">
+                                    S.A.S. au capital de 2 200 000 € - Siège social : ZAC de Gray Sud - CS 10133 - 70104 GRAY Cedex<br />
+                                    Siret B 377 846 381 00020 - Code NAF 2229 A - Registre du Commerce GRAY - N°Identification T.V.A. FR 65 377 846 381
+                                </td>
+                                <td class="text-right">
+                                    Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <br />
-        </template>
+                <p style="page-break-before:always;"> </p>
+            </t>
+        </t>
+    </template>
 
 
 
 
 
-<template id="report_is_facture_proforma_external_layout">
+
+
+    <!--<template id="report_is_facture_proforma_external_layout">
     <t t-if="o and 'company_id' in o">
         <t t-set="company" t-value="o.company_id"></t>
     </t>
@@ -293,6 +291,30 @@
             <t t-raw="translate_doc(doc_id, doc_model, 'adresse_fac_id.lang', 'is_plastigray16.report_is_facture_proforma_document')"/>
         </t>
     </t>
-</template>
+    </template> -->
+    <record id="is_facture_proforma_paperformat" model="report.paperformat">
+        <field name="name">Facture proforma</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">7</field>
+        <field name="margin_bottom">12</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+        <record id="is_facture_proforma_reports" model="ir.actions.report">
+            <field name="name">Facture proforma</field>
+            <field name="model">is.facture.proforma</field>
+            <field name="binding_model_id" ref="model_is_facture_proforma"/>
+            <field name="paperformat_id" ref="is_plastigray16.is_facture_proforma_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.report_is_facture_proforma_template</field>
+            <field name="report_file">is_plastigray16.report_is_facture_proforma_template</field>
+        </record>
 </data>
-</openerp>
+</odoo>

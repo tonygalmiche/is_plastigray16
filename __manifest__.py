@@ -77,6 +77,7 @@ Module Odoo 16 pour Plastigray
         "views/report_purchaseorder.xml",
         "views/report_ar_commande.xml",
         "views/report_cde_ouverte_fournisseur.xml",
+        "views/report_is_facture_proforma.xml",
 
 
 
@@ -233,7 +234,6 @@ Module Odoo 16 pour Plastigray
         # 'views/is_head_model_view.xml',
         # "views/is_ot_report.xml",
         # "views/is_presse_report.xml",
-        # "views/report_is_facture_proforma.xml",
         # "views/report_paperformat.xml",
         # "views/report.xml",
         # "report/is_encres_utilisees_view.xml",
