@@ -47,39 +47,51 @@ class is_deb(models.Model):
             if obj.soc=='3':
                 departement='70'
             SQL="""
+                CREATE OR REPLACE FUNCTION get_property_account_position(partner_id integer) RETURNS integer AS $$
+                BEGIN
+                    RETURN (
+                        select substring(value_reference, 25)::int account_position_id
+                        from ir_property ip 
+                        where ip.name='property_account_position_id' and res_id=concat('res.partner,',partner_id)
+                        limit 1
+                    );
+                END;
+                $$ LANGUAGE plpgsql;
+
                 select 
                     ai.id,
-                    ai.internal_number,
-                    ai.date_invoice,
-                    ai.type,
+                    ai.name,
+                    ai.invoice_date,
+                    ai.move_type,
                     ai.is_type_facture,
                     COALESCE(sp.partner_id, ai.partner_id),
                     left(pt.is_nomenclature_douaniere,8),
                     pt.is_origine_produit_id,
-                    sum(fsens(ai.type)*pt.weight_net*ail.quantity),
-                    sum(fsens(ai.type)*ail.price_unit*ail.quantity)
-                from account_invoice ai inner join account_invoice_line ail on ai.id=ail.invoice_id 
+                    sum(fsens(ai.move_type)*pt.weight_net*ail.quantity),
+                    sum(fsens(ai.move_type)*ail.price_unit*ail.quantity)
+                from account_move ai inner join account_move_line ail on ai.id=ail.move_id 
                                         inner join product_product       pp on ail.product_id=pp.id
                                         inner join product_template      pt on pp.product_tmpl_id=pt.id
                                         left outer join stock_move       sm on ail.is_move_id=sm.id
                                         left outer join stock_picking    sp on sm.picking_id=sp.id
                 where 
-                    ai.date_invoice>=%s and
-                    ai.date_invoice<=%s and
+                    ai.invoice_date>=%s and
+                    ai.invoice_date<=%s and
                     pt.is_code not like %s and
                     get_property_account_position(COALESCE(sp.partner_id, ai.partner_id))=1 and
                     ai.state not in ('draft','cancel')
                 group by
                     ai.id,
-                    ai.internal_number,
-                    ai.date_invoice,
-                    ai.type,
+                    ai.name,
+                    ai.invoice_date,
+                    ai.move_type,
                     ai.is_type_facture,
                     sp.partner_id, 
                     ai.partner_id,
                     pt.is_nomenclature_douaniere,
                     pt.is_origine_produit_id
             """
+
             cr.execute(SQL,[obj.date_debut, obj.date_fin, '608005%'])
             result = cr.fetchall()
             for row in result:
@@ -137,10 +149,10 @@ class is_deb(models.Model):
                     if nb>0:
                         SQL="""
                             select
-                                COALESCE(sum(fsens(ai.type)*ail.price_unit*ail.quantity),0)
-                            from account_invoice ai inner join account_invoice_line ail on ai.id=ail.invoice_id 
-                                                    inner join product_product       pp on ail.product_id=pp.id
-                                                    inner join product_template      pt on pp.product_tmpl_id=pt.id
+                                COALESCE(sum(fsens(ai.move_type)*ail.price_unit*ail.quantity),0)
+                            from account_move ai inner join account_move_line ail on ai.id=ail.move_id 
+                                                 inner join product_product       pp on ail.product_id=pp.id
+                                                 inner join product_template      pt on pp.product_tmpl_id=pt.id
                             where 
                                 ai.id="""+str(line.invoice_id.id)+""" and
                                 pt.is_code like '608005%' 

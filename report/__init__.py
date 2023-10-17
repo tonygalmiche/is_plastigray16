@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#from . import is_create_postgres_function => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
+#from . import is_create_postgres_function # => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
 
 from . import is_account_invoice_line
 

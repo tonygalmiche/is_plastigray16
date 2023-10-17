@@ -13,7 +13,6 @@ class is_create_postgres_function(models.Model):
         cr = self._cr
 
 
-
         # cr.execute("""
 
         #     CREATE OR REPLACE FUNCTION get_property_account_receivable(partner_id integer) RETURNS integer AS $$
@@ -40,16 +39,6 @@ class is_create_postgres_function(models.Model):
         #     $$ LANGUAGE plpgsql;
 
 
-        #     CREATE OR REPLACE FUNCTION get_property_account_position(partner_id integer) RETURNS integer AS $$
-        #     BEGIN
-        #         RETURN (
-        #             select substring(value_reference, 25)::int account_position_id
-        #             from ir_property ip 
-        #             where ip.name='property_account_position' and res_id=concat('res.partner,',partner_id)
-        #             limit 1
-        #         );
-        #     END;
-        #     $$ LANGUAGE plpgsql;
 
 
         #     CREATE OR REPLACE FUNCTION get_property_payment_term(partner_id integer) RETURNS integer AS $$

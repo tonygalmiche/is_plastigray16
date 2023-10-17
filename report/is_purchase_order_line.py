@@ -62,13 +62,14 @@ class is_purchase_order_line(models.Model):
         if self.env.company.is_activer_init:
             start = time.time()
             cr = self._cr
-            cr.execute("""        
+
+            cr.execute("""
+                       
                 CREATE OR REPLACE FUNCTION is_unit_coef(uom1 integer, uom2 integer) RETURNS float AS $$
                 DECLARE
                     factor1 float := 1;
                     factor2 float := 1;
                 BEGIN
-
                     factor1 := (
                         select factor 
                         from uom_uom
