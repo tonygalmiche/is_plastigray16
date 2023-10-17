@@ -92,8 +92,8 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="state" position="before">
-			<field name="is_date_envoi_mail"/>
-			<field name="is_export_cegid_id"/>
+			<field name="is_date_envoi_mail" optional="show"/>
+			<field name="is_export_cegid_id" optional="show"/>
 		</field>
             </field>
         </record>
