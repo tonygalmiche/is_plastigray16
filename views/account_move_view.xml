@@ -81,9 +81,43 @@
                 <field name="name" position="after">
                         <field name="partner_id" optional="show"/>
                 </field>
+
+                <field name="activity_ids" position="replace"/>
+                <field name="amount_total_in_currency_signed" position="replace"/>
+                <field name="invoice_user_id" position="replace"/>
+                <field name="payment_state"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="amount_residual_signed"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
             </field>
         </record>
-        
+
+
+        <record id="is_account_edi_view_out_invoice_tree_inherit" model="ir.ui.view">
+            <field name="name">account_edi.view_out_invoice_tree_inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account_edi.view_out_invoice_tree_inherit" />
+            <field name="arch" type="xml">
+                <field name="edi_state"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="edi_blocking_level"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="edi_error_message"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="company_currency_id"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="to_check"  position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record>
+
 
         <!-- Envoi par mail -->
         <record id="envoi_par_mail_action_server" model="ir.actions.server">
