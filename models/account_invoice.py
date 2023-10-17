@@ -85,6 +85,11 @@ class account_invoice(models.Model):
     ], "Mode d'envoi de la facture")
     is_date_envoi_mail = fields.Datetime("Mail envoyé le", readonly=False)
     is_masse_nette     = fields.Float("Masse nette (Kg)")
+    state = fields.Selection([
+        ('draft' , 'Brouillon'),
+        ('posted', 'Validée'),
+        ('cancel', 'Annulée'),
+    ], "État")
 
 
     def _compute_name(self):

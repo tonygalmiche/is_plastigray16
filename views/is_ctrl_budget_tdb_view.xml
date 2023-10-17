@@ -171,8 +171,8 @@
     </record>
 
     <!-- is.ctrl.budget.tdb -->
-    <record id="is_ctrl_budget_tdb_tree_view" model="ir.ui.view">
-        <field name="name">is_ctrl_budget_tdb_tree_view</field>
+    <record id="is_ctrl_budget_tdb_tree_view1" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_tree_view1</field>
         <field name="model">is.ctrl.budget.tdb</field>
         <field name="arch" type="xml">
             <tree editable="bottom" create="false">
@@ -181,10 +181,28 @@
                 <field name="intitule_id" readonly="1"/>
                 <field name="code"        readonly="1"/>
                 <field name="montant_variable" sum="Total"/>
-                <field name="montant_fixe"     sum="Total" optional="show"/>
             </tree>
         </field>
     </record>
+
+    <record id="is_ctrl_budget_tdb_tree_view2" model="ir.ui.view">
+        <field name="name">is_ctrl_budget_tdb_tree_view2</field>
+        <field name="model">is.ctrl.budget.tdb</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" create="false">
+                <field name="famille_id"/>
+                <field name="ordre"       readonly="1"/>
+                <field name="intitule_id" readonly="1"/>
+                <field name="code"        readonly="1"/>
+                <field name="montant_variable" sum="Total"/>
+                <field name="montant_fixe"     sum="Total"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+
     <record id="is_ctrl_budget_tdb_form_view" model="ir.ui.view">
         <field name="name">is_ctrl_budget_tdb_form_view</field>
         <field name="model">is.ctrl.budget.tdb</field>

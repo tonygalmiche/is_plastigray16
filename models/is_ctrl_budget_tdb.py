@@ -41,12 +41,16 @@ class is_ctrl_budget_tdb_famille_rel(models.Model):
     def lignes_famille_action(self):
         for obj in self:
             name=str(obj.saisie_id.mois)+u'/'+str(obj.saisie_id.annee)+u':'+_get_destination(obj.saisie_id.destination)+u':'+obj.famille_id.name
-            montant_fixe_filter=False
+            tree_view=self.env.ref('is_plastigray16.is_ctrl_budget_tdb_tree_view1')
             if obj.famille_id.fixe:
-                montant_fixe_filter=True
+                tree_view=self.env.ref('is_plastigray16.is_ctrl_budget_tdb_tree_view2')
+            # montant_fixe_filter=False
+            # if obj.famille_id.fixe:
+            #     montant_fixe_filter=True
             return {
                 'name': name,
                 'view_mode': 'tree,form',
+                'views': [[tree_view.id, "list"], [False, "form"]],
                 'res_model': 'is.ctrl.budget.tdb',
                 'domain': [
                     ('saisie_id' ,'=',obj.saisie_id.id),
@@ -55,7 +59,7 @@ class is_ctrl_budget_tdb_famille_rel(models.Model):
                 'context':{
                     'default_saisie_id' : obj.saisie_id.id,
                     'default_famille_id': obj.famille_id.id,
-                    'search_default_montant_fixe_filter': montant_fixe_filter,
+                    #'search_default_montant_fixe_filter': montant_fixe_filter,
                 },
                 'type': 'ir.actions.act_window',
                 'limit': 1000,
