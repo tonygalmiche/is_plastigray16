@@ -91,6 +91,10 @@
                 <field name="amount_residual_signed"  position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
+                <field name="state" position="before">
+			<field name="is_date_envoi_mail"/>
+			<field name="is_export_cegid_id"/>
+		</field>
             </field>
         </record>
 
