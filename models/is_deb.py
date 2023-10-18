@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api,SUPERUSER_ID
 import datetime
-#import xmlrpclib
+from xmlrpc import client as xmlrpclib
 
 
 class is_deb(models.Model):
@@ -232,7 +232,7 @@ class is_deb(models.Model):
             for database in databases:
                 if database.database:
                     DB = database.database
-                    USERID = SUPERUSER_ID
+                    USERID = 2
                     DBLOGIN = database.login
                     USERPASS = database.password
                     DB_SERVER = database.ip_server
