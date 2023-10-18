@@ -13,7 +13,7 @@
 
         <!-- stock.picking -->
         <record id="creer_factures_action_server" model="ir.actions.server">
-            <field name="name">Créer les factures</field>
+            <field name="name">Créer les factures brouillon</field>
            <field name="model_id" ref="model_stock_picking"/>
            <field name="binding_model_id" ref="model_stock_picking"/>
            <field name="state">code</field>

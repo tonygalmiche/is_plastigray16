@@ -123,6 +123,14 @@
         </record>
 
 
+        <!-- Valider les factures brouillon -->
+        <record id="valider_facture_brouillon_action_server" model="ir.actions.server">
+            <field name="name">Valider les factures brouillon</field>
+           <field name="model_id" ref="model_account_move"/>
+           <field name="binding_model_id" ref="model_account_move"/>
+           <field name="state">code</field>
+           <field name="code">action = records.valider_facture_brouillon_action()</field>
+       </record>
         <!-- Envoi par mail -->
         <record id="envoi_par_mail_action_server" model="ir.actions.server">
              <field name="name">Envoi par mail</field>
@@ -139,6 +147,27 @@
             <field name="state">code</field>
             <field name="code">action = records.imprimer_simple_double()</field>
         </record>
+
+
+        <!-- Permet de masquer le menu "Comptabiliser les écritures" -->
+        <record id="account.action_validate_account_move" model="ir.actions.act_window">
+            <field name="binding_view_types">calendar</field>
+        </record>
+
+        <!-- Permet de masquer le menu "Enregister un paiment" -->
+        <record id="account.action_account_invoice_from_list" model="ir.actions.server">
+            <field name="binding_view_types">calendar</field>
+        </record>
+        <!-- Permet de masquer le menu "Envoyer et imrimer" -->
+        <record id="account.invoice_send" model="ir.actions.server">
+            <field name="binding_view_types">calendar</field>
+        </record>
+        <!-- Permet de masquer le menu "Extourner" -->
+        <record id="account.action_view_account_move_reversal" model="ir.actions.act_window">
+            <field name="binding_view_types">calendar</field>
+        </record>
+
+
 
 
         <!-- Folio -->

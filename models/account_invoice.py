@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models,fields,api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError, UserError
 import time
 from datetime import date, datetime
 import base64
@@ -179,6 +179,15 @@ class account_invoice(models.Model):
                 'domain': [('type','=','in_invoice')],
             }
             return res
+
+
+    def valider_facture_brouillon_action(self):
+        """Valider les factures brouillon"""
+        domain = [('id', 'in', self._context.get('active_ids', [])), ('state', '=', 'draft')]
+        moves = self.env['account.move'].search(domain).filtered('line_ids')
+        if not moves:
+            raise UserError('There are no journal items in the draft state to post.')
+        moves._post()
 
 
     def invoice_print(self):
