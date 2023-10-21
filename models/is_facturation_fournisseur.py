@@ -262,7 +262,7 @@ class is_facturation_fournisseur(models.Model):
                         'is_document'     : is_document,
                         'is_move_id'      : line.move_id.id,
                         'purchase_line_id': line.move_id.purchase_line_id.id,
-                        'is_section_analytique_id': line.product_id.is_section_analytique_id.id,
+                        'is_section_analytique_id': line.product_id.is_section_analytique_ha_id.id,
                     }
                     lines.append([0,False,v]) 
 
