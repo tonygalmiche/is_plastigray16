@@ -172,7 +172,7 @@
             ('state','=', 'done'),
             ('picking_state','!=', 'cancel'),
             ('is_facturable','=',True),
-            ('invoice_state','not in', ['cancel','invoiced']),
+            ('invoice_state','=', '2binvoiced'),
         ]</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>

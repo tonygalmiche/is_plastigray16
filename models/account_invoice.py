@@ -100,6 +100,7 @@ class account_invoice(models.Model):
                 if obj.state=="posted":
                     state="invoiced"
                 line.is_move_id.invoice_state = state
+                line.is_move_id.picking_id._compute_invoice_state()
         return res
 
 
@@ -113,15 +114,8 @@ class account_invoice(models.Model):
 
     # @api.depends('state')
     # def pg_onchange_state(self):
-
-    #     print("pg_onchange_state",self)
-
-
-
     #     for obj in self:
-    #         print("pg_onchange_state",self)
     #         for line in obj.invoice_line_ids:
-    #             print(obj, obj.state, line, line.is_move_id.invoice_state)
 
 
 
@@ -541,6 +535,7 @@ class account_invoice(models.Model):
                 for line in obj.invoice_line:
                     if line.is_move_id:
                         line.is_move_id.invoice_state='none'
+                        line.is_move_id.picking_id._compute_invoice_state()
                     line.is_move_id=False
         super(account_invoice, self).action_cancel()
 

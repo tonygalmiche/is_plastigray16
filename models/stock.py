@@ -458,7 +458,6 @@ class stock_picking(models.Model):
             # #             "product_id"      : line.product_id.id,
             # #         }
             # #         res=self.env['stock.move.line'].create(vals)
-            # #         #print(res, res.location_id.name, res.location_dest_id.name)
             # #     copy._action_confirm()
             # #     move.state = 'cancel'
             # #     copy.state = 'cancel'

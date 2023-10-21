@@ -106,7 +106,9 @@ class is_facturation_fournisseur(models.Model):
                             sp.is_date_reception, 
                             sm.product_id,
                             pt.is_ref_fournisseur,
-                            round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as qty,
+
+                            sm.product_uom_qty as qty,
+                            -- round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as qty,
                             sm.product_uom, 
                             pol.price_unit,
                             sm.id as move_id,
@@ -119,7 +121,7 @@ class is_facturation_fournisseur(models.Model):
                     where 
                         sm.state='done' and 
                         sp.state='done' and
-                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
+                        -- round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
                         sp.picking_type_id=1 and
                         pt.is_facturable='t' and
                         sm.invoice_state='2binvoiced' and

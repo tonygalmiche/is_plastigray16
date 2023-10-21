@@ -401,7 +401,7 @@
         ])]"/>
     </record>
 
-    <record id="is_ligne_reception_a_facturer_menu" model="ir.ui.menu" >
+    <!-- <record id="is_ligne_reception_a_facturer_menu" model="ir.ui.menu" >
         <field name="name">Réceptions à facturer</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_is_achats_fac')"/>
@@ -419,7 +419,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_comptable_group'),
         ])]"/>
-    </record>
+    </record> -->
    
     <record id="menu_is_creation_facture_achat" model="ir.ui.menu" >
         <field name="name">Création facture</field>
