@@ -36,7 +36,7 @@
                                     <span t-if="o.destinataire_id.lang != 'en_US'">BL MANUEL N°</span>
                                     <span t-if="o.destinataire_id.lang == 'en_US'">MANUAL DELIVERY NOTE N°</span>
                                     <span t-field="o.initiales"/>-<span t-field="o.name"/>
-                                    du <span t-field="o.date_bl"  t-field-options='{"format": "dd/MM/yyyy"}' /><br />
+                                    du <span t-field="o.date_bl"  t-options='{"format": "dd/MM/yyyy"}' /><br />
                                 </div>
                                 <div t-if="o.destinataire_id.lang != 'en_US'">Destinataire : </div>
                                 <div t-if="o.destinataire_id.lang == 'en_US'">Addressee : </div>
