@@ -275,6 +275,7 @@ class is_facturation_fournisseur(models.Model):
                     'quantity'        : 1,
                     'price_unit'      : obj.ecart_ht,
                     'tax_ids'         : [(6,0,invoice_line_tax_id)],
+                    'is_section_analytique_id': product.is_section_analytique_ha_id.id,
                 }
                 lines.append([0,False,v]) 
             #*******************************************************************
