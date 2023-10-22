@@ -1140,6 +1140,7 @@
              <field name="name">Corriger stock négatif</field>
             <field name="model_id" ref="model_product_template"/>
             <field name="binding_model_id" ref="model_is_invest_detail"/>
+            <field name="state">code</field>
             <field name="code">action = records.corriger_stock_negatif_action()</field>
         </record>
 

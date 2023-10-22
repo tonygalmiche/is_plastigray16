@@ -17,6 +17,7 @@
              <field name="name">Affecter les UCs aux lignes</field>
             <field name="model_id" ref="model_is_bon_transfert"/>
             <field name="binding_model_id" ref="model_is_bon_transfert"/>
+            <field name="state">code</field>
             <field name="code">action = model.affecter_uc_aux_lignes_bt_action()</field>
         </record>
 

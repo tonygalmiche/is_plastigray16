@@ -511,6 +511,7 @@
              <field name="name">Copier coût actualisé dans coût standard</field>
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="state">code</field>
             <field name="code">action = model.copie_cout_actualise_dans_cout_standard()</field>
         </record>
 
@@ -519,6 +520,7 @@
              <field name="name">Copier coût actualisé dans coût budget</field>
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="state">code</field>
             <field name="code">action = model.copie_cout_actualise_dans_cout_budget()</field>
         </record>
 
@@ -527,6 +529,7 @@
              <field name="name">Initialisation du prix de vente standard</field>
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="state">code</field>
             <field name="code">action = model.initialisation_prix_vente_standard()</field>
         </record>
 
@@ -535,6 +538,7 @@
              <field name="name">Coût standard = Coût standard de l'indice précédent</field>
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
+            <field name="state">code</field>
             <field name="code">action = model.cout_standard_indice_precedent()</field>
         </record>
   </data>

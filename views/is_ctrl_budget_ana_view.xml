@@ -6,6 +6,7 @@
             <field name="name">Initialiser les articles</field>
             <field name="model_id" ref="model_is_ctrl_budget_ana_annee"/>
             <field name="binding_model_id" ref="model_is_ctrl_budget_ana_annee"/>
+            <field name="state">code</field>
             <field name="code">action = model.initialiser_articles()</field>
         </record>
         <record id="is_ctrl_budget_ana_annee_tree_view" model="ir.ui.view">

@@ -56,9 +56,12 @@ class mrp_prevision(models.Model):
 
 
     def convertir_sa(self):
-        rules=self.env['auditlog.rule'].sudo().search([('name','=','purchase.order')])
-        if rules:
-            rules[0].unsubscribe()
+
+        print(self)
+
+        #rules=self.env['auditlog.rule'].sudo().search([('name','=','purchase.order')])
+        #if rules:
+        #    rules[0].unsubscribe()
 
         ids=[]
         for obj in self:

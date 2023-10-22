@@ -173,6 +173,7 @@
              <field name="name">Convertir FS en ordre de fabrication</field>
             <field name="model_id" ref="model_mrp_prevision"/>
             <field name="binding_model_id" ref="model_mrp_prevision"/>
+            <field name="state">code</field>
             <field name="code">action = records.convertir_fs()</field>
         </record>
 
@@ -181,6 +182,7 @@
              <field name="name">Convertir SA en commande fournisseur</field>
             <field name="model_id" ref="model_mrp_prevision"/>
             <field name="binding_model_id" ref="model_mrp_prevision"/>
+            <field name="state">code</field>
             <field name="code">action = records.convertir_sa()</field>
         </record>
     </data>
