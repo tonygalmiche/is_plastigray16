@@ -17,7 +17,7 @@ class mrp_prevision(models.Model):
     def _compute(self):
         for obj in self:
             quantity_ha = obj.uom_id._compute_quantity(obj.quantity, obj.uom_po_id)
-            self.quantity_ha = quantity_ha
+            obj.quantity_ha = quantity_ha
 
     def _get_company_id(self):
         company_id  = self.env.user.company_id.id
@@ -56,13 +56,9 @@ class mrp_prevision(models.Model):
 
 
     def convertir_sa(self):
-
-        print(self)
-
         #rules=self.env['auditlog.rule'].sudo().search([('name','=','purchase.order')])
         #if rules:
         #    rules[0].unsubscribe()
-
         ids=[]
         for obj in self:
             if obj.type=='sa':
@@ -70,109 +66,155 @@ class mrp_prevision(models.Model):
                     ids.append(obj)
                 else:
                     obj.note="Aucun fournisseur indiqué dans la fiche article => Convertion en commande impossible"
-
         order_obj      = self.env['purchase.order']
         order_line_obj = self.env['purchase.order.line']
         for obj in ids:
-            partner=obj.product_id.seller_ids[0].name
-            if partner.property_product_pricelist_purchase:
-                is_contact_id=False
-                r=order_obj.onchange_partner_id(partner.id)
-                if r and 'value' in r:
-                    v=r['value']
-                    if 'is_contact_id' in v:
-                        is_contact_id=v['is_contact_id']
-                vals={
-                    'partner_id'      : partner.id,
-                    'is_contact_id'   : is_contact_id,
-                    'is_livre_a_id'   : partner.is_livre_a_id.id,
-                    'location_id'     : partner.is_source_location_id.id,
-                    'fiscal_position' : partner.property_account_position.id,
-                    'payment_term_id' : partner.property_supplier_payment_term.id,
-                    'pricelist_id'    : partner.property_product_pricelist_purchase.id,
-                    'incoterm_id'     : partner.is_incoterm.id,
-                    'is_lieu'         : partner.is_lieu,
-                }
-                order=order_obj.create(vals)
-                if order:
-                    unlink=True
-                    note=False
-                    vals=False
-                    try:
-                        res=order_line_obj.onchange_product_id(
-                            order.pricelist_id.id, 
-                            obj.product_id.id, 
-                            obj.quantity_ha, 
-                            obj.uom_po_id.id, 
-                            partner.id, 
-                            date_order         = str(obj.start_date_cq)+' 12:00:00', 
-                            fiscal_position_id = partner.property_account_position.id, 
-                            date_planned       = obj.start_date_cq, 
-                            name               = False, 
-                            price_unit         = False, 
-                            state              = 'draft'
-                        )
-                        vals=res['value']
-                    except:
-                        unlink=False
-                        note='\n'.join(sys.exc_info()[1])
+            partner=obj.product_id.seller_ids[0].partner_id
+            if partner.pricelist_purchase_id:
+                price, justification = partner.pricelist_purchase_id.price_get(product=obj.product_id, qty=obj.quantity_ha, date=obj.start_date_cq)
+                # si le prix est nul ou s'il y a une justification du prix nul
+                if price or justification and obj.quantity>=obj.product_id.lot_mini:
+                    vals={
+                        'partner_id'      : partner.id,
+                        'is_livre_a_id'   : partner.is_livre_a_id.id,
+                        'location_id'     : partner.is_source_location_id.id,
+                        'fiscal_position_id': partner.property_account_position_id.id,
+                        'payment_term_id' : partner.property_supplier_payment_term_id.id,
+                        'pricelist_id'    : partner.pricelist_purchase_id.id,
+                        'currency_id'     : partner.pricelist_purchase_id.currency_id.id,
+                        'incoterm_id'     : partner.is_incoterm.id,
+                        'is_lieu'         : partner.is_lieu,
+                    }
+                    order=order_obj.create(vals)
+                    vals={}
+                    vals['product_qty']  = obj.quantity_ha
+                    vals['price_unit']   = price
+                    vals['is_justification'] = justification
+                    vals['order_id']     = order.id
+                    vals['date_planned'] = obj.start_date_cq
+                    vals['product_id']   = obj.product_id.id
+                    order_line_obj.create(vals)
+                    order.button_confirm()
+                else:
+                    #** Création d'une demande d'achat série ***************
+                    user        = self.env["res.users"].browse(self._uid)
+                    company     = user.company_id
+                    acheteur_id = company.is_acheteur_id.id
+                    vals={
+                        'acheteur_id'      : acheteur_id, 
+                        'fournisseur_id'   : partner.id, 
+                        'delai_livraison'  : obj.start_date_cq, 
+                        'motif'            : 'pas_tarif', 
+                    }
+                    if partner.is_livre_a_id.id:
+                        vals["lieu_livraison_id"]=partner.is_livre_a_id.id
+                    da=self.env['is.demande.achat.serie'].create(vals)
+                    vals={
+                        'da_id'     : da.id, 
+                        'sequence'  : 10, 
+                        'product_id': obj.product_id.id, 
+                        'uom_id'    : obj.uom_po_id.id, 
+                        'quantite'  : obj.quantity_ha,
+                        'prix'      : price,
+                    }
+                    line=self.env['is.demande.achat.serie.line'].create(vals)
+                    da.vers_transmis_achat_action()
+                obj.unlink()
 
-                    prix=0
-                    if vals and vals['price_unit']:
-                        prix = vals['price_unit']
-
-                    # si le prix est nul ou s'il y a une justification du prix nul
-                    if vals and (vals['price_unit'] or vals.get('is_justification')) and obj.quantity>=obj.product_id.lot_mini:
-                        #** Création d'une commande ****************************
-                        vals['order_id']=order.id
-                        vals['product_id']=obj.product_id.id
-                        if 'taxes_id' in vals:
-                            vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
-                        try:
-                            order_line=order_line_obj.create(vals)
-                            order.wkf_bid_received() 
-                            order.wkf_confirm_order()
-                            order.action_picking_create() 
-                            order.wkf_approve_order()
-                        except:
-                            unlink=False
-                            if note==False:
-                                note='\n'.join(sys.exc_info()[1])
-                            else:
-                                note=note+'\n'+'\n'.join(sys.exc_info()[1])
-                        obj.note=unicode(note)
-                    else:
-                        #** Création d'une demande d'achat série ***************
-                        order.unlink()
-                        #TODO : Voir comment gérer l'acheteur pour ne pas le mettre en dur ici
-                        user        = self.env["res.users"].browse(self._uid)
-                        company     = user.company_id
-                        acheteur_id = company.is_acheteur_id.id
-                        vals={
-                            'acheteur_id'      : acheteur_id, 
-                            'fournisseur_id'   : partner.id, 
-                            'delai_livraison'  : obj.start_date_cq, 
-                            'motif'            : 'pas_tarif', 
-                        }
-                        if partner.is_livre_a_id.id:
-                            vals["lieu_livraison_id"]=partner.is_livre_a_id.id
-                        da=self.env['is.demande.achat.serie'].create(vals)
-                        vals={
-                            'da_id'     : da.id, 
-                            'sequence'  : 10, 
-                            'product_id': obj.product_id.id, 
-                            'uom_id'    : obj.uom_po_id.id, 
-                            'quantite'  : obj.quantity_ha,
-                            'prix'      : prix,
-                        }
-                        line=self.env['is.demande.achat.serie.line'].create(vals)
-                        da.vers_transmis_achat_action()
-                        obj.unlink()
-                    if unlink:
-                        obj.unlink()
-
-        if rules:
-            rules[0].subscribe()
+        #         is_contact_id=False
+        #         #r=order_obj.onchange_partner_id(partner.id)
+        #         #if r and 'value' in r:
+        #         #    v=r['value']
+        #         #    if 'is_contact_id' in v:
+        #         #        is_contact_id=v['is_contact_id']
+        #         vals={
+        #             'partner_id'      : partner.id,
+        #             'is_contact_id'   : is_contact_id,
+        #             'is_livre_a_id'   : partner.is_livre_a_id.id,
+        #             'location_id'     : partner.is_source_location_id.id,
+        #             'fiscal_position_id' : partner.property_account_position_id.id,
+        #             'payment_term_id' : partner.property_supplier_payment_term_id.id,
+        #             'pricelist_id'    : partner.pricelist_purchase_id.id,
+        #             'incoterm_id'     : partner.is_incoterm.id,
+        #             'is_lieu'         : partner.is_lieu,
+        #         }
+        #         order=order_obj.create(vals)
+        #         if order:
+        #             unlink=True
+        #             note=False
+        #             vals=False
+        #             # try:
+        #             #     res=order_line_obj.onchange_product_id(
+        #             #         order.pricelist_id.id, 
+        #             #         obj.product_id.id, 
+        #             #         obj.quantity_ha, 
+        #             #         obj.uom_po_id.id, 
+        #             #         partner.id, 
+        #             #         date_order         = str(obj.start_date_cq)+' 12:00:00', 
+        #             #         fiscal_position_id = partner.property_account_position_id.id, 
+        #             #         date_planned       = obj.start_date_cq, 
+        #             #         name               = False, 
+        #             #         price_unit         = False, 
+        #             #         state              = 'draft'
+        #             #     )
+        #             #     vals=res['value']
+        #             # except:
+        #             #     unlink=False
+        #             #     note='\n'.join(sys.exc_info()[1])
+        #             prix=0
+        #             if vals and vals['price_unit']:
+        #                 prix = vals['price_unit']
+        #             # si le prix est nul ou s'il y a une justification du prix nul
+        #             if vals and (vals['price_unit'] or vals.get('is_justification')) and obj.quantity>=obj.product_id.lot_mini:
+        #                 #** Création d'une commande ****************************
+        #                 vals['order_id']=order.id
+        #                 vals['product_id']=obj.product_id.id
+        #                 if 'taxes_id' in vals:
+        #                     vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
+        #                 try:
+        #                     order_line=order_line_obj.create(vals)
+        #                     order.wkf_bid_received() 
+        #                     order.wkf_confirm_order()
+        #                     order.action_picking_create() 
+        #                     order.wkf_approve_order()
+        #                 except:
+        #                     unlink=False
+        #                     if note==False:
+        #                         note='\n'.join(sys.exc_info()[1])
+        #                     else:
+        #                         note=note+'\n'+'\n'.join(sys.exc_info()[1])
+        #                 obj.note=unicode(note)
+        #             else:
+        #                 #** Création d'une demande d'achat série ***************
+        #                 order.unlink()
+        #                 #TODO : Voir comment gérer l'acheteur pour ne pas le mettre en dur ici
+        #                 user        = self.env["res.users"].browse(self._uid)
+        #                 company     = user.company_id
+        #                 acheteur_id = company.is_acheteur_id.id
+        #                 vals={
+        #                     'acheteur_id'      : acheteur_id, 
+        #                     'fournisseur_id'   : partner.id, 
+        #                     'delai_livraison'  : obj.start_date_cq, 
+        #                     'motif'            : 'pas_tarif', 
+        #                 }
+        #                 if partner.is_livre_a_id.id:
+        #                     vals["lieu_livraison_id"]=partner.is_livre_a_id.id
+        #                 da=self.env['is.demande.achat.serie'].create(vals)
+        #                 vals={
+        #                     'da_id'     : da.id, 
+        #                     'sequence'  : 10, 
+        #                     'product_id': obj.product_id.id, 
+        #                     'uom_id'    : obj.uom_po_id.id, 
+        #                     'quantite'  : obj.quantity_ha,
+        #                     'prix'      : prix,
+        #                 }
+        #                 line=self.env['is.demande.achat.serie.line'].create(vals)
+        #                 da.vers_transmis_achat_action()
+        #                 obj.unlink()
+        #             if unlink:
+        #                 obj.unlink()
+        # #if rules:
+        # #    rules[0].subscribe()
 
 
     def convertir_fs(self):
