@@ -207,7 +207,7 @@ class mrp_generate_previsions(models.TransientModel):
         res={}
         cr.execute(sql)
         for row in cr.fetchall():
-            res[row[0]]=row[1]
+            res[row[0]]=row[1] or 0
         return res
 
 
@@ -382,6 +382,7 @@ class mrp_generate_previsions(models.TransientModel):
                         if product.id==product_id_test:
                            print("stock_theorique avant calcul=",stock_theorique[product.id])
 
+                        #print(product.is_code, qt_cde_cli,qt_cde_fou,qt_fl,qt_fm,qt_fs,qt_sa,qt_ft)
                         stock_theorique[product.id] = stock_theorique[product.id] - qt_cde_cli + qt_cde_fou + qt_fl - qt_fm + qt_fs + qt_sa - qt_ft
 
                         #** Uniquement pour le debuggage à l'écran *****************
