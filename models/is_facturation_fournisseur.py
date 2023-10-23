@@ -224,8 +224,8 @@ class is_facturation_fournisseur(models.Model):
                 'invoice_date'    : obj.date_facture,
                 'date'            : obj.date_facture,
                 'invoice_date_due': obj.date_facture,
-                #'supplier_invoice_number': obj.num_facture,
-                'ref'             : obj.num_facture,
+                'supplier_invoice_number': obj.num_facture,
+                #'ref'             : obj.num_facture,
                 'is_bon_a_payer'  : bon_a_payer,
                 'is_masse_nette'  : obj.is_masse_nette,
             }

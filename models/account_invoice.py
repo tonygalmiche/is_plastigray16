@@ -61,6 +61,7 @@ class account_invoice(models.Model):
 
     is_document        = fields.Char('Document'     , help="Ce champ est utilisé dans les factures diverses pour saisir le moule ou le n° d'investissement")
     is_num_cde_client  = fields.Char('N° Cde Client', help="Ce champ est utilisé dans les factures diverses sans commande client dans Odoo")
+    supplier_invoice_number  = fields.Char('N° facture fournisseur')
     is_num_bl_manuel   = fields.Char('N° BL manuel' , help="Ce champ est utilisé dans les factures diverses sans bon de livraison dans Odoo")
     is_escompte        = fields.Float("Escompte", compute='_compute')
     is_tva             = fields.Float("TVA"     , compute='_compute', help="Taxes sans l'escompte")

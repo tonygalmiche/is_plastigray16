@@ -155,7 +155,7 @@ class is_account_invoice_line(models.Model):
                         ai.name internal_number,
                         ai.invoice_date_due,
                         ai.invoice_origin,
-                        ai.ref supplier_invoice_number,
+                        ai.supplier_invoice_number,
                         ai.state,
                         ai.move_type,
                         ai.journal_id,
