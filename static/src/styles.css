@@ -54,3 +54,8 @@
     display: none !important;
 }
 
+
+.o_main_navbar .o_menu_systray > * > a, .o_main_navbar .o_menu_systray > * > .dropdown > a, .o_main_navbar .o_menu_systray > * > button, .o_main_navbar .o_menu_systray > * > label, .o_main_navbar .o_menu_brand, .o_main_navbar .o_navbar_apps_menu .dropdown-toggle, .o_main_navbar .dropdown-toggle, .o_main_navbar .o_nav_entry {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
