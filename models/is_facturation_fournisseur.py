@@ -259,6 +259,7 @@ class is_facturation_fournisseur(models.Model):
                         'product_id'      : product_id,
                         'name'            : description,
                         'quantity'        : quantite,
+                        'product_uom_id'  : line.uom_id.id,
                         'price_unit'      : line.prix,
                         'tax_ids'         : [(6,0,invoice_line_tax_id)],
                         'is_document'     : is_document,
