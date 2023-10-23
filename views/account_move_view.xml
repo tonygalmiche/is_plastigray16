@@ -25,6 +25,7 @@
                 </field>
                 <field name="quick_edit_total_amount"  position="after">
                     <field name="move_type"/>
+                    <field name="invoice_origin"/>
                     <field name="supplier_invoice_number" attrs="{'invisible': [('move_type', 'not in', ['in_invoice','in_refund'])]}"/>
                 </field>
                 <field name="invoice_vendor_bill_id"  position="after">
@@ -83,7 +84,7 @@
             <field name="inherit_id" ref="account.view_invoice_tree" />
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <!-- <field name="partner_id" optional="show"/> -->
+                    <field name="partner_id" optional="show"/>
                     <field name="supplier_invoice_number" optional="show"/>
                 </field>
 
