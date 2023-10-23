@@ -2,12 +2,12 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import datetime
-# import codecs
-# import unicodedata
+import codecs
+import unicodedata
 import base64
 # import csv, cStringIO
 # import sys
-# import os
+import os
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -31,9 +31,9 @@ def float2txt(val,lg):
 def s(txt,lg):
     if type(txt)==int or type(txt)==float:
         txt=str(txt)
-    if type(txt)!=unicode:
-        txt = unicode(txt,'utf-8')
-    txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore')
+    #if type(txt)!=unicode:
+    #    txt = unicode(txt,'utf-8')
+    txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore').decode('utf8')
     txt=txt+'                                                                                                                           '
     txt=txt[:lg]
     return txt
@@ -110,14 +110,14 @@ class is_export_cegid(models.Model):
             else:
                 type_facture=['in_invoice','in_refund' ]
             invoices = self.env['account.move'].search([
-                ('state'       , '=' , 'open'),
-                ('date_invoice', '>=', obj.date_debut),
-                ('date_invoice', '<=', obj.date_fin),
+                ('state'       , '=' , 'posted'),
+                ('invoice_date', '>=', obj.date_debut),
+                ('invoice_date', '<=', obj.date_fin),
                 ('is_export_cegid_id', '=' , False),
                 ('is_folio_id'      ,  '=' , False),
-                ('type'        , 'in', type_facture),
+                ('move_type'        , 'in', type_facture),
                 #('id'          , '=' , 12865),
-            ], order='is_bon_a_payer, number')
+            ], order='is_bon_a_payer, name')
 
             if len(invoices)==0:
                 raise ValidationError('Aucune facture à traiter')
@@ -130,34 +130,65 @@ class is_export_cegid(models.Model):
                 #***************************************************************
 
 
+                # sql="""
+                #     SELECT  ai.name, 
+                #             ai.invoice_date, 
+                #             rp.is_code, 
+                #             rp.name, 
+                #             aa.code, 
+                #             isa.name, 
+                #             ai.move_type, 
+                #             ai.date_due,
+                #             aj.code,
+                #             sum(aml.debit), 
+                #             sum(aml.credit),
+                #             rp.supplier,
+                #             ai.is_bon_a_payer,
+                #             ai.supplier_invoice_number,
+                #             rp.is_adr_groupe,
+                #             ail.is_document,
+                #             ai.id
+                #     FROM account_move_line aml inner join account_invoice ai             on aml.move_id=ai.move_id
+                #                                inner join account_account aa             on aml.account_id=aa.id
+                #                                inner join res_partner rp                 on ai.partner_id=rp.id
+                #                                left outer join account_invoice_line ail  on aml.is_account_invoice_line_id=ail.id
+                #                                left outer join is_section_analytique isa on ail.is_section_analytique_id=isa.id
+                #                                left outer join account_journal aj        on rp.is_type_reglement=aj.id
+                #     WHERE ai.id="""+str(invoice.id)+"""
+                #     GROUP BY ai.is_bon_a_payer, ai.name, ai.invoice_date, rp.is_code, rp.name, aa.code, isa.name, ai.move_type, ai.date_due, aj.code, rp.supplier,ai.supplier_invoice_number,rp.is_adr_groupe,ail.is_document,ai.id
+                #     ORDER BY ai.is_bon_a_payer, ai.name, ai.invoice_date, rp.is_code, rp.name, aa.code, isa.name, ai.move_type, ai.date_due, aj.code, rp.supplier,ai.supplier_invoice_number,rp.is_adr_groupe,ail.is_document,ai.id
+                # """
+
+
                 sql="""
-                    SELECT  ai.number, 
-                            ai.date_invoice, 
+                    SELECT  am.name, 
+                            am.invoice_date, 
                             rp.is_code, 
                             rp.name, 
                             aa.code, 
                             isa.name, 
-                            ai.type, 
-                            ai.date_due,
+                            am.move_type, 
+                            am.invoice_date_due,
                             aj.code,
                             sum(aml.debit), 
                             sum(aml.credit),
                             rp.supplier,
-                            ai.is_bon_a_payer,
-                            ai.supplier_invoice_number,
+                            am.is_bon_a_payer,
+                            am.supplier_invoice_number,
                             rp.is_adr_groupe,
-                            ail.is_document,
-                            ai.id
-                    FROM account_move_line aml inner join account_invoice ai             on aml.move_id=ai.move_id
+                            aml.is_document,
+                            am.id
+                    FROM account_move_line aml inner join account_move am                on aml.move_id=am.id
                                                inner join account_account aa             on aml.account_id=aa.id
-                                               inner join res_partner rp                 on ai.partner_id=rp.id
-                                               left outer join account_invoice_line ail  on aml.is_account_invoice_line_id=ail.id
-                                               left outer join is_section_analytique isa on ail.is_section_analytique_id=isa.id
+                                               inner join res_partner rp                 on am.partner_id=rp.id
+                                               left outer join is_section_analytique isa on aml.is_section_analytique_id=isa.id
                                                left outer join account_journal aj        on rp.is_type_reglement=aj.id
-                    WHERE ai.id="""+str(invoice.id)+"""
-                    GROUP BY ai.is_bon_a_payer, ai.number, ai.date_invoice, rp.is_code, rp.name, aa.code, isa.name, ai.type, ai.date_due, aj.code, rp.supplier,ai.supplier_invoice_number,rp.is_adr_groupe,ail.is_document,ai.id
-                    ORDER BY ai.is_bon_a_payer, ai.number, ai.date_invoice, rp.is_code, rp.name, aa.code, isa.name, ai.type, ai.date_due, aj.code, rp.supplier,ai.supplier_invoice_number,rp.is_adr_groupe,ail.is_document,ai.id
+                    WHERE am.id="""+str(invoice.id)+"""
+                    GROUP BY am.is_bon_a_payer, am.name, am.invoice_date, rp.is_code, rp.name, aa.code, isa.name, am.move_type, am.invoice_date_due, aj.code, rp.supplier,am.supplier_invoice_number,rp.is_adr_groupe,aml.is_document,am.id
+                    ORDER BY am.is_bon_a_payer, am.name, am.invoice_date, rp.is_code, rp.name, aa.code, isa.name, am.move_type, am.invoice_date_due, aj.code, rp.supplier,am.supplier_invoice_number,rp.is_adr_groupe,aml.is_document,am.id
                 """
+
+
 
 
 
@@ -444,8 +475,15 @@ class is_export_cegid(models.Model):
             id = self.env['ir.attachment'].create(vals)
 
             #** Enregistrement dans le dossier de destination ******************
+
+
             company  = self.env.user.company_id
             dossier_interface_cegid = company.is_dossier_interface_cegid
+            dossier_interface_cegid = 'root@freedom:"/Utilisateurs/Interface\\ CEGID/PLASTIGRAY/Odoo16"'
+
+            print("dossier_interface_cegid=",dossier_interface_cegid)
+
+
             if dossier_interface_cegid:
                 #TODO : Avec rsync, il est possible de faire le chmod en même temps 
                 cde='rsync -a -e "ssh -o ConnectTimeout=20 -o StrictHostKeyChecking=no -o PubkeyAuthentication=yes -o PasswordAuthentication=no" --chmod=u+rwx,g+rwx,o+rwx --chown=root:root '+dest+' '+dossier_interface_cegid+' 2>&1'
