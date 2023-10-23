@@ -98,7 +98,7 @@ class account_invoice(models.Model):
         for obj in self:
             for line in obj.invoice_line_ids:
                 state="2binvoiced"
-                if obj.state=="posted":
+                if obj.state in ["posted","draft"]:
                     state="invoiced"
                 line.is_move_id.invoice_state = state
                 line.is_move_id.picking_id._compute_invoice_state()

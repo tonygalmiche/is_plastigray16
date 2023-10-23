@@ -54,7 +54,8 @@ class sale_order(models.Model):
 
         for invoice in invoices:
             pickings=[]
-            invoice.is_mode_envoi_facture = invoice.partner_id.is_mode_envoi_facture
+            invoice.is_mode_envoi_facture   = invoice.partner_id.is_mode_envoi_facture
+            invoice.invoice_payment_term_id = invoice.partner_id.property_payment_term_id.id
             for line in invoice.line_ids:
                 for sale_line in line.sale_line_ids:
                     for move in sale_line.move_ids:
