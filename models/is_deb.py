@@ -102,6 +102,9 @@ class is_deb(models.Model):
                 masse_nette=row[8]
                 if type_deb=='introduction':
                     masse_nette=0
+                    code_regime='11'
+                else:
+                    code_regime='21'
                 country=self.env['res.country'].browse(row[7])
                 pays_origine=''
                 if country:
@@ -111,6 +114,7 @@ class is_deb(models.Model):
                 vals={
                     'deb_id'                : obj.id,
                     'type_deb'              : type_deb,
+                    'code_regime'           : code_regime,
                     'invoice_id'            : row[0],
                     'num_facture'           : row[1],
                     'date_facture'          : row[2],
