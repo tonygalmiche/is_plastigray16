@@ -32,6 +32,11 @@ class is_facturation_fournisseur(models.Model):
     masquer_montant_0   = fields.Boolean(u"Masquer les montants à 0", default=True)
     name                = fields.Many2one('res.partner', 'Fournisseur à facturer', required=True)
     is_incoterm         = fields.Many2one('account.incoterms', "Incoterm  / Conditions de livraison", related='name.is_incoterm', readonly=True)
+
+    account_position_id = fields.Many2one('account.fiscal.position', string="Position fiscale", related='name.property_account_position_id')
+
+                    # 'fiscal_position_id': partner.property_account_position_id.id, , 
+
     partner_ids         = fields.Many2many('res.partner', "is_facturation_fournisseur_partner_rel", 'facturation_id', 'partner_id', string='Autres fournisseurs')
     date_fin            = fields.Date('Date de fin'                      , required=True, default=lambda *a: fields.datetime.now())
     date_facture        = fields.Date('Date facture fournisseur'         , required=True)

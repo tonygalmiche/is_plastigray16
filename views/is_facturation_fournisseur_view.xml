@@ -42,6 +42,7 @@
                                     attrs="{'readonly':[('state','=','termine')]}"
                                 />
                                 <field name="is_incoterm"/>
+                                <field name="account_position_id"/>
                                 <field 
                                     name="partner_ids" 
                                     domain="[('supplier','=',True),('is_company','=',True)]"
