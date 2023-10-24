@@ -288,7 +288,7 @@ class is_etuve_of(models.Model):
             besoin_total_of=qty=0.0
             for row in result:
                 matiere = row[0]
-                qty     = row[1]
+                qty     = row[1] or 0
                 #Si le code est du broyé, il faut multiplier la quantité par deux pour doubler le temps d'étuvage
                 if matiere[0:2]=='59':
                     qty=qty*2
