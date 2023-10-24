@@ -73,6 +73,7 @@ class stock_transfer_details(models.TransientModel):
                 vals={
                     "move_id"    : line.id,
                     "product_id" : line.product_id.id,
+                    "product_uom_id": line.product_uom.id,
                     "name"       : line.description_picking,
                     "quantity"   : line.product_uom_qty,
                     "lot_id"     : lot_id,
@@ -180,7 +181,8 @@ class stock_transfer_details_items(models.TransientModel):
     product_id            = fields.Many2one('product.product', 'Article') #, required=True)
     name                  = fields.Char('Description')
     quantity              = fields.Float("Quantité"         , digits=(14, 6))
-    product_uom_id        = fields.Many2one(string="Unité", related='product_id.uom_id')
+    #product_uom_id        = fields.Many2one(string="Unité", related='product_id.uom_id')
+    product_uom_id        = fields.Many2one('uom.uom', string="Unité")
     lot_id                = fields.Many2one('stock.lot', 'Lot')
     is_lot_fournisseur    = fields.Char("Lot fournisseur / Date péremption")
     is_produit_perissable = fields.Boolean(related="product_id.is_produit_perissable")
