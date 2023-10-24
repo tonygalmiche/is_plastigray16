@@ -193,7 +193,8 @@
                                 <field name="etuve_id"        widget="selection"/>
                                 <field name="capacite"/>
                                 <field name="dessication"/>
-                                <field name="matiere_id" on_change=""/>
+                                <field name="matiere_id"/>
+                                <!-- on_change="" -->
                                 <field name="tmp_etuvage"/>
                                 <field name="tps_etuvage"/>
                                 <field name="densite"/>
@@ -207,9 +208,9 @@
                             <group>
                                 <field name="num_ordre_matiere"/>
                                 <field name="rsp_etuve_id"    widget="selection"/>
-                                <field name="mot_de_passe"    password="True"/>
                                 <field name="commentaire_id"  widget="selection"/>
                                 <field name="commentaire_optionel"/>
+                                <field name="mot_de_passe" password="True"/>
                             </group>
                         </group>
                         <field name="of_ids" nolabel="1">
