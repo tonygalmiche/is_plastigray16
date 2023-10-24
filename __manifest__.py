@@ -24,6 +24,7 @@ Module Odoo 16 pour Plastigray
         "sticky_header_tree_and_form_view",
         "web_chatter_position",
         "web_company_color",
+        "mail_group",
     ],
     "data" : [
         "security/res.groups.xml",
