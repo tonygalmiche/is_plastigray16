@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <!-- IsProgressbar -->
+    <t t-name="is_plastigray16.IsProgressbar" owl="1">
+        <div class="o_progressbar w-100 d-flex align-items-center">
+            <div class="o_progress align-middle overflow-hidden" aria-valuemin="0" aria-valuemax="100" t-att-aria-valuenow="props.value">
+                <div t-attf-class="{{ props.value > 100 ? 'bg-danger' : 'bg-primary' }} h-100" t-att-style="'width: min(' + 100 * props.value / 100 + '%, 100%)'"></div>
+            </div>
+            <div><t t-esc="Math.round(props.value)"/>%</div>
+        </div>
+    </t>
+</templates>

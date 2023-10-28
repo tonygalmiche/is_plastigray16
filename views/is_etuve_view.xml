@@ -53,8 +53,9 @@
                     <field name="num_ordre_matiere"/>
                     <field name="of"/>
                     <field name="moule"/>
-                    <field name="taux_utilisation"/>
-                    <field name="progressbar" widget="progressbar"/>
+                    <!-- <field name="taux_utilisation"/> -->
+                    <field name="progressbar" widget="is_progressbar"/>
+                    <!-- <field name="progressbar" widget="progressbar"/> -->
                     <field name="test_taux" invisible="1"/>
                     <field name="rsp_etuve_id" optional="show"/>
                     <field name="commentaire"  optional="show"/>
@@ -210,7 +211,10 @@
                                 <field name="rsp_etuve_id"    widget="selection"/>
                                 <field name="commentaire_id"  widget="selection"/>
                                 <field name="commentaire_optionel"/>
-                                <field name="mot_de_passe" password="True"/>
+                                <field name="fake_mot_de_passe" string="" style="visibility: hidden"/>
+                                <field name="mot_de_passe" password="True" autocomplete="off"/>
+
+
                             </group>
                         </group>
                         <field name="of_ids" nolabel="1">
@@ -245,7 +249,9 @@
                     <field name="dessication"/>
                     <field name="matiere_id"/>
                     <field name="num_ordre_matiere"/>
-                    <field name="taux_utilisation" widget="progressbar"/>
+                    <!-- <field name="taux_utilisation" widget="progressbar"  options="{'title': 'test title'}" /> -->
+                    <field name="taux_utilisation" widget="is_progressbar"/>
+
                     <field name="rsp_etuve_id"         optional="show"/>
                     <field name="commentaire_id"       optional="show"/>
                     <field name="commentaire_optionel" optional="show"/>
@@ -265,7 +271,7 @@
             </field>
         </record>
         <record id="is_etuve_saisie_action" model="ir.actions.act_window" >
-            <field name="name">Étuves</field>
+            <field name="name">Saisies</field>
             <field name="res_model">is.etuve.saisie</field>
             <field name="view_mode">tree,form</field>
         </record>

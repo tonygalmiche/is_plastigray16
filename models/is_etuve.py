@@ -168,9 +168,12 @@ class is_etuve_saisie(models.Model):
     dessication          = fields.Selection(string="Dessication", related='etuve_id.dessication', readonly=True)
     num_ordre_matiere    = fields.Char("N°ordre matière", required=True)
     rsp_etuve_id         = fields.Many2one('is.etuve.rsp', 'Rsp étuve', required=True)
-    mot_de_passe         = fields.Char("Mot de passe"   , required=True)
-    commentaire_id       = fields.Many2one('is.etuve.commentaire', 'Commenaire', required=True)
-    commentaire_optionel = fields.Char("Commenaire optionnel")
+
+    fake_mot_de_passe    = fields.Char("Fake mot de passe", store=False) #Astuce pour ne pas afficher la liste des mots de passe dans le champ au dessus de mot_de_passe
+    mot_de_passe         = fields.Char("Mot de passe", required=True)
+
+    commentaire_id       = fields.Many2one('is.etuve.commentaire', 'Commentaire', required=True)
+    commentaire_optionel = fields.Char("Commentaire optionnel")
 
     matiere_id           = fields.Many2one('product.product', 'Matière', required=True, domain=[('family_id.name','=','MATIERE')] )
     tmp_etuvage          = fields.Float("Température d'étuvage"    , readonly=True, compute='_compute', store=True)
@@ -184,7 +187,8 @@ class is_etuve_saisie(models.Model):
     message              = fields.Char("Message"                    , readonly=True, compute='_compute', store=True)
     of_ids               = fields.One2many('is.etuve.of', 'etuve_id', u"OFs")
     
-
+    #test         = fields.Char("Test")
+# <field name="fake_password" password="True" string = " " style="visibilité : cachée"/> 
 
     @api.model_create_multi
     def create(self, vals_list):
