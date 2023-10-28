@@ -450,3 +450,6 @@ access_mrp_document_base,access_mrp_document_base,mrp.model_mrp_document,base.gr
 access_is_marge_contributive,access_is_marge_contributive,model_is_marge_contributive,base.group_user,1,0,0,0
 access_is_comparatif_tarif_facture,access_is_comparatif_tarif_facture,model_is_comparatif_tarif_facture,base.group_user,1,0,0,0
 access_is_comparatif_livraison_facture,access_is_comparatif_livraison_facture,model_is_comparatif_livraison_facture,base.group_user,1,0,0,0
+
+
+access_ir_actions_act_url_users,access_ir_actions_act_url_users,model_ir_actions_act_url,base.group_user,1,0,0,0
