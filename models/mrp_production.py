@@ -202,6 +202,10 @@ class IsMrpProductionBom(models.Model):
             obj.qt_reste=qt
 
 
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        self.product_uom_id = self.product_id.uom_id.id
+       
 
 
     # def action_product_forecast_report(self):
@@ -333,7 +337,8 @@ class MrpProduction(models.Model):
 
     @api.onchange('product_id')
     def onchange_product_id_pg(self):
-        self.product_qty = self.package_qty
+        #self.product_qty = self.package_qty
+        self.product_qty = self.product_id.lot_mini
 
 
     @api.depends('bom_id', 'product_id', 'product_qty', 'product_uom_id')
