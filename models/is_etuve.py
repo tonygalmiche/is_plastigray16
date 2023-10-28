@@ -31,7 +31,7 @@ class is_etuve(models.Model):
     test_taux         = fields.Boolean("Test Taux"                  , readonly=True)
     message           = fields.Char("Message"                       , readonly=True)
     rsp_etuve_id      = fields.Many2one('is.etuve.rsp', 'Rsp étuve' , readonly=True)
-    commentaire       = fields.Char("Commenaire optionnel"          , readonly=True)
+    commentaire       = fields.Char("Commentaire optionnel"          , readonly=True)
 
 
     def action_saisie_etuve(self):
