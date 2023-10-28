@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, Command
 from odoo.tools import float_compare, float_round
+from odoo.exceptions import AccessError, ValidationError, UserError
 import time
 from datetime import datetime, timedelta
 import logging
@@ -318,6 +319,14 @@ class MrpProduction(models.Model):
     move_lines_produits_finis       = fields.One2many('stock.move', 'production_id', 'Produits finis', domain=[('state', 'in', ['done'])]                                 , readonly=True)
     is_bom_line_ids                 = fields.One2many('is.mrp.production.bom', 'production_id', "Nomenclature", copy=False, states={'done': [('readonly', True)]})
     
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_done(self):
+        if any(production.state == 'done' for production in self):
+            raise UserError('Impossible de supprimer un OF terminé')
+        if any(production.move_lines_produits_finis for production in self):
+            raise UserError('Impossible de supprimer un OF démarré')
+
 
     @api.depends('product_id', 'bom_id', 'product_qty', 'product_uom_id', 'location_dest_id', 'date_planned_finished')
     def _compute_move_finished_ids(self):
