@@ -483,6 +483,10 @@ class is_liste_servir(models.Model):
             vals.update(values)
         if vals:
             new_id = order_obj.create(vals)
+            new_id.pg_onchange_partner_id()
+
+
+
 
         #** Supprimer les lignes des commandes d'origine ***********************
         SQL="""
