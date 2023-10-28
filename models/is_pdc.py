@@ -167,6 +167,23 @@ class is_pdc(models.Model):
             self.action_recalculer()
 
 
+    def action_detail_par_moule(self):
+        for obj in self:
+
+            print(obj)
+
+            return {
+                'name': obj.name,
+                'view_mode': 'tree,form',
+                'res_model': 'is.pdc.mold',
+                'domain': [
+                    ('pdc_id' ,'=',obj.id),
+                ],
+                'type': 'ir.actions.act_window',
+                'limit': 1000,
+            }
+
+
     def action_recalculer(self):
         cr      = self._cr
         for obj in self:

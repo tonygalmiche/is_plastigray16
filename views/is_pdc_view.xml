@@ -18,7 +18,7 @@
                             <field name="quantite"/>
                             <field name="temps_h"/>
                             <field name="capacite"/>
-                            <field name="temps_pourcent" digit=""/>
+                            <field name="temps_pourcent"/>
                             <field name="cumul_pourcent"/>
                             <field name="cumul_h"/>
                             <field name="cumul_j"/>
@@ -40,13 +40,13 @@
                     <field name="mold_dossierf"/>
                     <field name="matiere"/>
                     <field name="quantite" sum="Total"/>
-                    <field name="temps_u"         digits="(14, 2)" />
-                    <field name="temps_h"         digits="(14, 2)" sum="Total"/>
-                    <field name="capacite"        digits="(14, 0)" />
-                    <field name="temps_pourcent"  digits="(14, 0)" />
-                    <field name="cumul_pourcent"  digits="(14, 0)" />
-                    <field name="cumul_h"         digits="(14, 0)" />
-                    <field name="cumul_j"         digits="(14, 2)" />
+                    <field name="temps_u"/>
+                    <field name="temps_h" sum="Total"/>
+                    <field name="capacite"/>
+                    <field name="temps_pourcent"/>
+                    <field name="cumul_pourcent"/>
+                    <field name="cumul_h"/>
+                    <field name="cumul_j"/>
                 </tree>
             </field>
         </record>
@@ -59,20 +59,21 @@
                     <field name="workcenter_id"/>
                     <field name="resource_type"/>
                     <field name="mold_dossierf"/>
-                    <filter string="MO"       name="type_mo"      domain="[('resource_type','=','user')]"/>
-                    <filter string="Machine"  name="type_machine" domain="[('resource_type','=','material')]"/>
+                    <filter string="MO"              name="type_mo"      domain="[('resource_type','=','user')]"/>
+                    <filter string="Machine"         name="type_machine" domain="[('resource_type','=','material')]"/>
                     <filter string="Poste de charge" name="group_by_workcenter_id" context="{'group_by':'workcenter_id'}"/>
                     <filter string="Type"            name="group_by_resource_type" context="{'group_by':'resource_type'}"/>
                     <filter string="Moule"           name="group_by_mold_dossierf" context="{'group_by':'mold_dossierf'}"/>
                 </search>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="is_pdc_mold_action">
+        <!-- <record model="ir.actions.act_window" id="is_pdc_mold_action">
             <field name="name">Charge par moule</field>
             <field name="res_model">is.pdc.mold</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('pdc_id','=',active_id)]</field>
-        </record>
+        </record> -->
+
 
 
         <!-- is.pdc -->
@@ -88,9 +89,9 @@
                         }
                     </style>
                     <header>
-                        <button name="action_importer_cbn"    type="object" string="Importer les données du CBN" class="oe_highlight" states="creation" />
-                        <button name="action_recalculer"      type="object" string="Recalculer" class="oe_highlight"                  states="analyse"  />
-                        <button name="%(is_pdc_mold_action)d" type="action" string="Détail par moule et par section"                  states="analyse"  />
+                        <button name="action_importer_cbn"     type="object" string="Importer les données du CBN" class="oe_highlight" states="creation" />
+                        <button name="action_recalculer"       type="object" string="Recalculer" class="oe_highlight"                  states="analyse"  />
+                        <button name="action_detail_par_moule" type="object" string="Détail par moule et par section"                  states="analyse"  />
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
