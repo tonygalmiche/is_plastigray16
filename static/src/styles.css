@@ -61,3 +61,7 @@
     font-weight: bold;
   }
 
+
+.table {
+    --table-striped-bg: rgba(0, 0, 0, 0.02);
+}

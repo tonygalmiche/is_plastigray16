@@ -21,6 +21,7 @@ Module Odoo 16 pour Plastigray
         "l10n_fr",
         "l10n_fr_fec",
         "web",
+        "auth_signup",
         "sticky_header_tree_and_form_view",
         "web_chatter_position",
         "web_company_color",
@@ -187,6 +188,7 @@ Module Odoo 16 pour Plastigray
 
         "views/is_donnee_machine_view.xml",
         "views/is_capteur_view.xml",
+        "views/webclient_templates.xml",
 
 
         "report/is_account_invoice_line.xml",
@@ -268,7 +270,6 @@ Module Odoo 16 pour Plastigray
         # "views/web_view.xml",
         # "views/layouts.xml",
         # "views/report_mrpbomstructure.xml",
-        # "views/webclient_templates.xml",
         # "views/report_paperformat.xml",
         # "views/report_document_fabrication.xml",
         # "views/report_liste_article.xml",
