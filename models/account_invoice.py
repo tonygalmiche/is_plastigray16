@@ -59,6 +59,7 @@ class account_invoice(models.Model):
     _inherit = 'account.move'
     _order   = 'id desc'
 
+    invoice_date       = fields.Date(default=fields.Datetime.now)
     is_document        = fields.Char('Document'     , help="Ce champ est utilisé dans les factures diverses pour saisir le moule ou le n° d'investissement")
     is_num_cde_client  = fields.Char('N° Cde Client', help="Ce champ est utilisé dans les factures diverses sans commande client dans Odoo")
     supplier_invoice_number  = fields.Char('N° facture fournisseur')
@@ -103,6 +104,11 @@ class account_invoice(models.Model):
                 line.is_move_id.invoice_state = state
                 line.is_move_id.picking_id._compute_invoice_state()
         return res
+
+
+    @api.onchange('partner_id')
+    def pg_onchange_partner_id(self):
+        self.is_mode_envoi_facture = self.partner_id.is_mode_envoi_facture
 
 
     # invoice_state = fields.Selection([

@@ -14,6 +14,22 @@
                         }
                     </style>
                 </xpath>
+                <xpath expr="//button[@name='action_invoice_sent'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='action_invoice_sent'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_register_payment']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='preview_invoice']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <field name="partner_id" position="attributes">
+                    <attribute name="domain">[('is_company','=',True)]</attribute>
+                </field>
                 <field name="fiscal_position_id"  position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -30,6 +46,9 @@
                 </field>
                 <field name="invoice_vendor_bill_id"  position="after">
                     <field name="fiscal_position_id"/>
+                    <field name="is_document"       attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refound'])]}"/>
+                    <field name="is_num_cde_client" attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refound'])]}"/>
+                    <field name="is_num_bl_manuel"  attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refound'])]}"/>
                 </field>
                 <field name="payment_reference"  position="before">
                     <field name="invoice_payment_term_id"/>
@@ -84,10 +103,14 @@
             <field name="inherit_id" ref="account.view_invoice_tree" />
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="partner_id" optional="show"/>
-                    <field name="supplier_invoice_number" optional="show"/>
+                    <field name="is_type_facture" invisible="context.get('default_move_type') in ('in_invoice', 'in_refund','in_receipt')"/>
                 </field>
-
+                <field name="invoice_date" position="before">
+                    <field name="supplier_invoice_number" invisible="context.get('default_move_type') not in ('in_invoice', 'in_refund','in_receipt')" />
+                    <field name="is_document"       optional="hide"/>
+                    <field name="is_num_cde_client" optional="hide"/>
+                    <field name="is_num_bl_manuel"  optional="hide"/>
+                </field>
                 <field name="activity_ids" position="replace"/>
                 <field name="amount_total_in_currency_signed" position="replace"/>
                 <field name="invoice_user_id" position="replace"/>
@@ -103,6 +126,8 @@
 		</field>
             </field>
         </record>
+
+
 
 
         <record id="is_account_edi_view_out_invoice_tree_inherit" model="ir.ui.view">
@@ -128,6 +153,23 @@
             </field>
         </record>
 
+        <!-- account.view_account_invoice_filter -->
+        <record id="is_view_account_invoice_filter" model="ir.ui.view">
+            <field name="name">is_view_account_invoice_filter</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter" />
+            <field name="arch" type="xml">
+                <field name='name' position="after" >
+                    <field name="move_type"/> 
+                    <field name="is_type_facture"/>
+                    <field name="supplier_invoice_number"/>
+                    <field name="is_document"/>
+                    <field name="is_num_cde_client"/>
+                    <field name="is_num_bl_manuel"/>
+                    <field name="is_export_cegid_id"/> 
+                </field>
+            </field>
+        </record>
 
         <!-- Valider les factures brouillon -->
         <record id="valider_facture_brouillon_action_server" model="ir.actions.server">
@@ -226,21 +268,6 @@
         -->
 
 
-        <!-- account.view_account_invoice_filter -->
-        <!-- <record id="is_view_account_invoice_filter" model="ir.ui.view">
-            <field name="name">is_view_account_invoice_filter</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.view_account_invoice_filter" />
-            <field name="arch" type="xml">
-                <field name='number' position="after" >
-                    <field name="type"/> 
-                    <field name="is_type_facture"/>
-                    <field name="is_export_cegid_id"/> 
-                </field>
-            </field>
-        </record> -->
-
-
         <!-- account.invoice_tree -->
         <!-- <record id="is_invoice_tree" model="ir.ui.view">
             <field name="name">is_invoice_tree</field>
@@ -306,11 +333,6 @@
                     <field name="is_section_analytique_id"/>
                     <field name="is_document"/>
                 </xpath>
-                <xpath expr="//field[@name='fiscal_position']" position="after">
-                    <field name="is_document"/>
-                    <field name="is_num_cde_client"/>
-                    <field name="is_num_bl_manuel"/>
-                </xpath>
                 <xpath expr="//field[@name='move_id']" position="after" >
                     <field name="internal_number"/> 
                 </xpath>
@@ -353,6 +375,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.move</field>
             <field name="domain">[('state','=', 'draft'),'|',('move_type','=', 'out_invoice'),('move_type','=', 'out_refund')]</field>
+            <field name="context">{'default_move_type': 'out_invoice'}</field>
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -376,6 +399,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.move</field>
             <field name="domain">[('is_folio_id','=', False),('is_export_cegid_id','=', False),('state','=', 'posted'),'|',('move_type','=', 'out_invoice'),('move_type','=', 'out_refund')]</field>
+            <field name="context">{'default_move_type': 'out_invoice'}</field>
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -404,6 +428,7 @@
                 ('state','=','posted'),
                 '|',('move_type','=','out_invoice'),('move_type','=','out_refund')
             ]</field>
+            <field name="context">{'default_move_type': 'out_invoice'}</field>
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>

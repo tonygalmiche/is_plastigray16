@@ -200,10 +200,10 @@
                             </table>
                         </div>
                     </div>
-                    <!-- <p t-if="o.comment">
-                        <strong>Comment:</strong>
-                        <span t-field="o.comment"/>
-                    </p> -->
+                    <p t-if="o.narration">
+                        <strong>Note:</strong>
+                        <span t-field="o.narration"/>
+                    </p>
                     <p t-if="o.invoice_payment_term_id.note">
                         <strong>Conditions de règlement : </strong>
                         <span t-field="o.invoice_payment_term_id.note"/><br />
