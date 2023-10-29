@@ -75,6 +75,14 @@
                     <!-- <button string="Créer Lot"    name="is_creer_lot_action"    type="object" groups="base.group_no_one"/> -->
                     <!-- <button string="Done"         name="is_done_action"         type="object" groups="base.group_no_one"/> -->
                 </xpath>
+
+                <xpath expr="//form" position="attributes">
+                    <attribute name="edit">1</attribute>
+                </xpath>
+
+
+
+
                 <xpath expr="//group[@name='main_grp_col2']/field[@name='name']" position="before">
                     <field name="quantity_done" readonly="1"/>
                 </xpath>

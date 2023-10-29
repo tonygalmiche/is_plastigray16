@@ -76,7 +76,7 @@ class stock_move(models.Model):
         ('2binvoiced', u'à Facturer'),
         ('none'      , u'Annulé'),
         ('invoiced'  , u'Facturé'),
-    ], u"État facturation", readonly=True, index=True)
+    ], u"État facturation", index=True)
 
 
     def name_get(self):
