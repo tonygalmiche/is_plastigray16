@@ -17,6 +17,7 @@
                 <field name="invoice_price"/>
                 <field name="pricelist_price"/>
                 <field name="price_delta"/>
+                <field name="is_justification"/>
                 <field name="lot_livraison"/>
                 <field name="prix_lot_livraison"/>
            </tree>

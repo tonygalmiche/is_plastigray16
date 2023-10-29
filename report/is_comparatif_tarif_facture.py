@@ -21,6 +21,7 @@ class is_comparatif_tarif_facture(models.Model):
     price_delta        = fields.Float('Ecart de prix', digits=(14, 4))
     lot_livraison      = fields.Float('Lot de livraison', digits=(14, 2))
     prix_lot_livraison = fields.Float('Prix au lot de livraison', digits=(14, 4))
+    is_justification   = fields.Char('Justification')
 
 
     def init(self):
@@ -102,7 +103,8 @@ CREATE OR REPLACE view is_comparatif_tarif_facture AS (
                 ai.invoice_date
             ),
             0
-        ) as prix_lot_livraison
+        ) as prix_lot_livraison,
+        sol.is_justification
     from account_move_line ail inner join account_move  ai on ail.move_id=ai.id
                                inner join stock_move       sm on ail.is_move_id=sm.id
                                inner join sale_order_line sol on sm.sale_line_id=sol.id

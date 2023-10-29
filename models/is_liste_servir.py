@@ -458,16 +458,18 @@ class is_liste_servir(models.Model):
                 mem=key
 
             quotation_line={
-                "product_id"     : line.product_id.id,
-                "sequence"       : 1,
-                #"name"           : name,
-                "product_uom_qty": line.quantite,
-                "price_unit"     : line.prix,
-                "product_uom"    : line.product_id.uom_id.id,
+                "product_id"         : line.product_id.id,
+                "sequence"           : 1,
+                "product_uom_qty"    : line.quantite,
+                "price_unit"         : line.prix,
+                "is_justification"   : line.justification,
+                "product_uom"        : line.product_id.uom_id.id,
                 "is_client_order_ref": line.client_order_ref,
+                "is_date_livraison"  : line.date_livraison,
+                "is_date_expedition" : line.date_expedition,
+                "is_type_commande"   : 'ferme',
             }
             lines.append([0,False,quotation_line]) 
-
             values = {
                 'partner_id': obj.partner_id.id,
                 'is_source_location_id': obj.is_source_location_id.id,

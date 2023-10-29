@@ -164,8 +164,8 @@
                                 <field name="stocka" optional="show"/>
                                 <field name="stockq" optional="show"/>
                                 <field name="quantite" optional="show"/>
-                                <field name="prix"           invisible="1"/>
-                                <field name="justification"  invisible="1"/>
+                                <field name="prix"           optional="hide" readonly="1"/>
+                                <field name="justification"  optional="hide" readonly="1"/>
 
                                 <field name="uc_id"      optional="show"/>
                                 <field name="stock01_uc" optional="show"/>
