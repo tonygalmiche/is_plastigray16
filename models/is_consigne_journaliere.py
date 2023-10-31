@@ -254,48 +254,42 @@ class is_consigne_journaliere_inj(models.Model):
             obj.info_planning1 = info
        
 
-    def of1_id_change(self, mpwl_id):
-        values = {}
-        if mpwl_id:
-            mpwl = self.env['is.mrp.production.workcenter.line'].browse(mpwl_id)
-            mod=0
+    @api.onchange('of1_id')
+    def of1_id_change(self): #, mpwl_id):
+        if self.of1_id:
             matieres=[]
-            for line in mpwl.name.product_lines:
+            for line in self.of1_id.name.is_bom_line_ids:
                 code=line.product_id.is_code
                 if code[:1]=='5':
                     if code not in matieres:
                         matieres.append(code)
-            matieres=u', '.join(matieres)
-            for line in mpwl.name.routing_id.workcenter_lines:
-                if line.is_nb_mod:
-                    mod=line.is_nb_mod
-            values['mod1']     = mod
-            values['moule1']   = mpwl.name.product_id.is_mold_dossierf
-            values['matiere1'] = matieres
-        return {'value': values}
-
-
-    def of2_id_change(self, mpwl_id):
-        values = {}
-        if mpwl_id:
-            mpwl = self.env['is.mrp.production.workcenter.line'].browse(mpwl_id)
+            matieres=', '.join(matieres)
+            self.matiere1 = matieres
             mod=0
+            for line in self.of1_id.name.bom_id.routing_id.workcenter_lines:
+               if line.is_nb_mod:
+                   mod=line.is_nb_mod
+            self.mod1 = mod
+            self.moule1 = self.of1_id.name.product_id.is_mold_dossierf
+
+
+    @api.onchange('of2_id')
+    def of2_id_change(self): #, mpwl_id):
+        if self.of2_id:
             matieres=[]
-            for line in mpwl.name.product_lines:
+            for line in self.of2_id.name.is_bom_line_ids:
                 code=line.product_id.is_code
                 if code[:1]=='5':
                     if code not in matieres:
                         matieres.append(code)
-            matieres=u', '.join(matieres)
-            for line in mpwl.name.routing_id.workcenter_lines:
-                if line.is_nb_mod:
-                    mod=line.is_nb_mod
-            matiere=mpwl.name.product_id.is_couleur
-            values['mod2']     = mod
-            values['moule2']   = mpwl.name.product_id.is_mold_dossierf
-            values['matiere2'] = matieres
-        return {'value': values}
-
+            matieres=', '.join(matieres)
+            self.matiere2 = matieres
+            mod=0
+            for line in self.of2_id.name.bom_id.routing_id.workcenter_lines:
+               if line.is_nb_mod:
+                   mod=line.is_nb_mod
+            self.mod2 = mod
+            self.moule2 = self.of2_id.name.product_id.is_mold_dossierf
 
 
 class is_consigne_journaliere_ass(models.Model):
