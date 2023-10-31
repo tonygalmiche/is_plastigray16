@@ -129,6 +129,10 @@
                         <tr style="height:220mm">
                             <td colspan="3">
                                 <!-- <img t-att-src="'data:image/png;base64,%s' % o.image" style="max-width:180mm;max-height:210mm"/> -->
+
+                                <img t-if="o.image" t-att-src="image_data_uri(o.image)" style="max-width:180mm;max-height:210mm" alt="Emballage"/>
+
+
                             </td>
                         </tr>
                     </table>

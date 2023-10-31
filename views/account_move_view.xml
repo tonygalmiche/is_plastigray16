@@ -46,9 +46,9 @@
                 </field>
                 <field name="invoice_vendor_bill_id"  position="after">
                     <field name="fiscal_position_id"/>
-                    <field name="is_document"       attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refound'])]}"/>
-                    <field name="is_num_cde_client" attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refound'])]}"/>
-                    <field name="is_num_bl_manuel"  attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refound'])]}"/>
+                    <field name="is_document"       attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refund'])]}"/>
+                    <field name="is_num_cde_client" attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refund'])]}"/>
+                    <field name="is_num_bl_manuel"  attrs="{'invisible': [('move_type', 'not in', ['out_invoice','out_refund'])]}"/>
                 </field>
                 <field name="payment_reference"  position="before">
                     <field name="invoice_payment_term_id"/>
