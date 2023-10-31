@@ -85,7 +85,7 @@ class account_invoice(models.Model):
         ('mail_client_bl'  , 'Envoi par mail avec BL (1 mail par client)'),
         ('mail_regroupe_bl', 'Regroupement des BL sur une même facture et envoi par mail'),
     ], "Mode d'envoi de la facture")
-    is_date_envoi_mail = fields.Datetime("Mail envoyé le", readonly=False)
+    is_date_envoi_mail = fields.Datetime("Mail envoyé le", readonly=False, copy=False)
     is_masse_nette     = fields.Float("Masse nette (Kg)")
     state = fields.Selection([
         ('draft' , 'Brouillon'),
