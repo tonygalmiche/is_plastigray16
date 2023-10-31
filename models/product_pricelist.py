@@ -187,7 +187,7 @@ class product_pricelist(models.Model):
                     for item in version.item_ids:
                         if item.product_id==product:
                             if (item.date_start==False or item.date_start<=date) and (item.date_end==False or item.date_end>=date):
-                                if qty>=item.min_quantity:
+                                if qty>=round(item.min_quantity,6):
                                     price = item.price_surcharge
                                     justification = item.justification
                                     break

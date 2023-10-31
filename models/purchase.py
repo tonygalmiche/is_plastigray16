@@ -28,22 +28,23 @@ class purchase_order_line(models.Model):
         self.is_justification = justifcation
 
 
+    #@api.onchange('product_id','product_uom','product_qty')
+    #def pg_onchange_product_qty(self):
+    #    self.set_price_justification()
+
+
     @api.onchange('product_id','product_uom','product_qty')
-    def pg_onchange_product_qty(self):
-        self.set_price_justification()
-
-
-    @api.onchange('product_id','product_uom')
     def onchange_product_id(self):
         if not self.product_uom:
             self.product_uom = self.product_id.uom_po_id.id
         if self.product_id and self.product_uom:
-            self.name        = self.product_id._name_get()
+            self.name = self.product_id._name_get()
             qty      = self.product_qty 
             lot      = self.product_id.lot_mini
             multiple = self.product_id.multiple
             if multiple==0:
                 multiple=1
+            qty = self.product_uom._compute_quantity(qty, self.product_id.uom_id, round=True, rounding_method='UP', raise_if_failure=True)
             if qty<lot:
                 qty=lot
             else:
@@ -53,6 +54,24 @@ class purchase_order_line(models.Model):
             self.product_qty = round(qty,6)
             self.set_price_justification()
         self._compute_tax_id()
+
+
+
+            # qty = product_uom_obj._compute_qty(uom_id, qty, product.uom_id.id)
+            # lot      = product.lot_mini
+            # multiple = product.multiple
+            # if multiple==0:
+            #     multiple=1
+            # if qty<lot:
+            #     qty=lot
+            # else:
+            #     delta=round(qty-lot,8)
+            #     qty=lot+multiple*ceil(delta/multiple)
+            # qty = product_uom_obj._compute_qty(product.uom_id.id, qty, uom_id)
+            # res['value']['product_qty'] = qty
+
+
+
 
 
     @api.onchange('date_planned')
