@@ -30,7 +30,7 @@
                                         <td style="width:47%;border:0">
                                             <h2>Client</h2>
                                             <div t-foreach="o.seller_ids" t-as="l">
-                                                <b><span t-field="l.name.name"/></b> (<span t-field="l.name.is_code"/>/<span t-field="l.name.is_adr_code"/>)
+                                                <b><span t-field="l.partner_id.name"/></b> (<span t-field="l.partner_id.is_code"/>/<span t-field="l.partner_id.is_adr_code"/>)
                                             </div>
                                             <br />
                                             <h2>Palettisation</h2>
