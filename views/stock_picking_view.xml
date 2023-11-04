@@ -197,6 +197,25 @@
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='company_id']" position="after">
                     <button title="Mouvement de stock" name="access_stock_move_action" type="object" icon="fa-search-plus"/>
+
+
+
+                    <field name="is_certificat_conformite_vsb" invisible="1"/>
+                    <button 
+                        title="Certificat" 
+                        name="imprimer_certificat_action"  
+                        type="object" icon="fa-print" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',1)]}"  
+                    />
+                    <button 
+                        title="Pas de certificat !" 
+                        name="pas_de_certifcat_action"  
+                        type="object" icon="fa-exclamation-triangle" 
+                        attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
+                    />
+
+
+
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="attributes">
                     <attribute name="invisible">1</attribute>

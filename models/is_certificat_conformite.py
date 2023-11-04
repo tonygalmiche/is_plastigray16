@@ -2,10 +2,10 @@
 from odoo import models,fields,api
 from datetime import datetime
 import base64
-
-#import os
+import os
 #from pyPdf import PdfFileWriter, PdfFileReader
-#import tempfile
+from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
+import tempfile
 #from contextlib import closing
 
 
@@ -76,7 +76,7 @@ class is_bon_transfert(models.Model):
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         certificat.qt_liv           = lots[lot]["qt"]
                         #result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
-                        result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_certificat_conformite_report',[certificat.id])[0]
+                        result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.certificat_conformite_report',[certificat.id])[0]
                         file_name = path + '/'+str(line.id) + '-' + str(x) + '.pdf'
                         fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                         try:
@@ -196,24 +196,34 @@ class stock_picking(models.Model):
     is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
 
 
+    # def _merge_pdf(self, documents):
+    #     """Merge PDF files into one.
+    #     :param documents: list of path of pdf files
+    #     :returns: path of the merged pdf
+    #     """
+    #     writer = PdfFileWriter()
+    #     streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
+    #     for document in documents:
+    #         pdfreport = file(document, 'rb')
+    #         streams.append(pdfreport)
+    #         reader = PdfFileReader(pdfreport)
+    #         for page in range(0, reader.getNumPages()):
+    #             writer.addPage(reader.getPage(page))
+    #     merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
+    #     with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
+    #         writer.write(merged_file)
+    #     for stream in streams:
+    #         stream.close()
+    #     return merged_file_path
+
+
     def _merge_pdf(self, documents):
-        """Merge PDF files into one.
-        :param documents: list of path of pdf files
-        :returns: path of the merged pdf
-        """
-        writer = PdfFileWriter()
-        streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
-        for document in documents:
-            pdfreport = file(document, 'rb')
-            streams.append(pdfreport)
-            reader = PdfFileReader(pdfreport)
-            for page in range(0, reader.getNumPages()):
-                writer.addPage(reader.getPage(page))
         merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
-        with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
-            writer.write(merged_file)
-        for stream in streams:
-            stream.close()
+        merger = PdfFileMerger()
+        for document in documents:
+            merger.append(document)
+        merger.write(merged_file_path)
+        merger.close()
         return merged_file_path
 
 
@@ -230,7 +240,7 @@ class stock_picking(models.Model):
             if not os.path.exists(path):
                 os.makedirs(path)
             paths=[]
-            for move in obj.move_lines:
+            for move in obj.move_ids_without_package:
                 certificat = self.env['is.certificat.conformite'].GetCertificat(obj.partner_id, move.product_id.id)
                 if certificat:
                     self.env['is.certificat.conformite'].WriteCertificat(certificat,move)
@@ -247,7 +257,8 @@ class stock_picking(models.Model):
                                                 lots[uc.production] = {}
                                                 lots[uc.production]["qt"]=0
                                             lots[uc.production]["qt"]+=uc.qt_pieces
-                                            date_fabrication = uc.date_creation[:10]
+                                            #date_fabrication = uc.date_creation[:10]
+                                            date_fabrication = uc.date_creation
                                             lots[uc.production]["date_fabrication"]=date_fabrication   
                     if lots=={}:
                         lots[' ']={}
@@ -275,8 +286,8 @@ class stock_picking(models.Model):
                         certificat.num_lot          = lot
                         certificat.date_fabrication = lots[lot]["date_fabrication"]
                         x+=1
-                        #result = self.env['report'].get_pdf(certificat, 'is_plastigray16.is_certificat_conformite_report')
-                        result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_certificat_conformite_report',[obj.id])[0]
+                        #result = self.env['report'].get_pdf(certificat, 'is_plastigray16.certificat_conformite_report')
+                        result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.certificat_conformite_report',[certificat.id])[0]
                         file_name = path + '/'+str(move.id) + '-' + str(x) + '.pdf'
                         fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                         try:
@@ -318,8 +329,9 @@ class stock_picking(models.Model):
             if attachment_id:
                 return {
                     'type' : 'ir.actions.act_url',
-                    'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                    'target': 'new',
+                    'url': '/web/content/%s?download=true'%(attachment_id),
+                    #'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
+                    #'target': 'new',
                 }
             #***********************************************************************
 
@@ -437,7 +449,7 @@ class is_certificat_conformite(models.Model):
                 certificat.num_lot          = False
                 certificat.date_fabrication = False
             orders=[]
-            for line in move.picking_id.move_lines:
+            for line in move.picking_id.move_ids_without_package:
                 if line.product_id==move.product_id:
                     order = line.sale_line_id.is_client_order_ref
                     if order not in orders:
