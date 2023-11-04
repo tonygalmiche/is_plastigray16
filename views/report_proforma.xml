@@ -75,7 +75,8 @@
                             </tbody>
                         </table>
                         <div class="row">
-                            <div class="col-4 pull-right">
+                            <div class="col-8"/>
+                            <div class="col-4">
                                 <table class="table table-condensed">
                                     <tr class="border-black">
                                         <td><strong>Total H.T.</strong></td>
@@ -98,6 +99,7 @@
                                 </table>
                             </div>
                         </div>
+                        <br />
     
                         <p t-if="o.payment_term_id.note">
                             <strong>Conditions de règlement : </strong>
