@@ -232,6 +232,7 @@ class is_outillage_constructeur(models.Model):
 
 class is_equipement(models.Model):
     _name = "is.equipement"
+    _inherit=['mail.thread']
     _description="is_equipement"
     _order = 'type_id,numero_equipement,designation'
     _rec_name="numero_equipement"

@@ -221,7 +221,7 @@ class stock_picking(models.Model):
         merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
         merger = PdfFileMerger()
         for document in documents:
-            merger.append(document)
+            merger.append(document, import_bookmarks=False)
         merger.write(merged_file_path)
         merger.close()
         return merged_file_path

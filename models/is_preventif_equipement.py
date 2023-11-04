@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, tools
 from odoo.exceptions import ValidationError
 import time
 from datetime import date,datetime,timedelta
 import base64
-#import os
+import os
 #from pyPdf import PdfFileWriter, PdfFileReader
-#from shutil import copy
-#import magic
+#from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
+from shutil import copy
+import magic
+
+
+#                data_dir=odoo.tools.config['data_dir']
 
 
 TYPE_PREVENTIF_EQUIPEMENT = [
@@ -87,7 +91,9 @@ class is_preventif_equipement_zone(models.Model):
             #******************************************************************
 
             # ** Ajout des gammes *********************************************
-            filestore = os.environ.get('HOME')+"/.local/share/Odoo/filestore/"+db+"/"
+            #filestore = os.environ.get('HOME')+"/.local/share/Odoo/filestore/"+db+"/"
+            data_dir=tools.config['data_dir']
+            filestore = "%s/filestore/%s/"%(data_dir,db)
             for line in obj.preventif_ids:
                 if line.nb_heures_avant_preventif<=0:
                     for gamme in line.gamme_ids:
@@ -103,7 +109,7 @@ class is_preventif_equipement_zone(models.Model):
             try:
                 path_merged=self.env['stock.picking']._merge_pdf(paths)
             except:
-                raise ValidationError(u"Impossible de générer le PDF => Les gammes doivent être au format PDF")
+                raise ValidationError("Impossible de générer le PDF => Les gammes doivent être au format PDF")
             #pdfs = open(path_merged,'rb').read().encode('base64')
             pdfs = open(path_merged,'rb').read()
             # ******************************************************************
