@@ -70,8 +70,9 @@ class is_pdc(models.Model):
     def action_importer_cbn(self):
         cr      = self._cr
         for obj in self:
-            for row in obj.mold_ids:
-                row.unlink()
+            obj.mold_ids.unlink()
+            #for row in obj.mold_ids:
+            #    row.unlink()
 
             #** Importation des FS *********************************************
             cr.execute("""
@@ -111,45 +112,75 @@ class is_pdc(models.Model):
 
 
             #** Importation des FL *********************************************
-            cr.execute("""
-                select  mrw.workcenter_id                        as workcenter_id,
-                        pt.is_mold_dossierf                      as mold_dossierf,
-                        pt.is_couleur                            as matiere,
-                        sum(sm.product_uom_qty)                         as quantite,
-                        sum(sm.product_uom_qty*mrw.is_nb_secondes) as temps_total
-                from stock_move sm    inner join product_product  pp on sm.product_id=pp.id
-                                      inner join product_template pt on pp.product_tmpl_id=pt.id
-                                      inner join mrp_bom          mb on pt.id=mb.product_tmpl_id and mb.sequence=0
-                                      inner join mrp_routing_workcenter mrw on mb.routing_id=mrw.routing_id
-                where sm.state in('confirmed','assigned') 
-                        and sm.date>='"""+str(obj.date_debut)+"""'
-                        and sm.date<='"""+str(obj.date_fin)+"""'
-                        and sm.production_id is not null
-                group by mrw.workcenter_id, pt.is_mold_dossierf, pt.is_couleur
-                order by mrw.workcenter_id;
-            """)
-            result = cr.fetchall()
-            for row in result:
-                key=str(row[0])+"/"+str(row[1])+"/"+str(row[2])
-                temps_u=temps_h=0
-                if row[3]!=0:
-                    temps_u=row[4]/row[3]
-                    temps_h=row[4]/3600
-                vals={
-                    'workcenter_id': row[0],
-                    'mold_dossierf': row[1],
-                    'matiere'      : row[2],
-                    'quantite'     : row[3],
-                    'temps_u'      : temps_u,
-                    'temps_h'      : temps_h,
-                }
-                if not key in res:
-                    res[key]=vals
-                else:
-                    res[key]['quantite'] = res[key]['quantite']+row[3]
-                    res[key]['temps_h']  = res[key]['temps_h']+row[4]
-
+            filtre=[
+                ('state','=',"draft"),
+                ('date_planned_start','>=',obj.date_debut),
+                ('date_planned_start','<=',obj.date_fin),
+            ]
+            productions = self.env['mrp.production'].search(filtre)
+            for production in productions:
+                for line in production.bom_id.routing_id.workcenter_lines:
+                    qt_reste = production.is_qt_reste_uom
+                    if qt_reste>0:
+                        key="%s/%s/%s"%(line.workcenter_id.id,production.product_id.is_mold_dossierf,production.product_id.is_couleur)
+                        temps_u=line.is_nb_secondes
+                        temps_h=qt_reste*line.is_nb_secondes/3600
+                        vals={
+                            'workcenter_id': line.workcenter_id.id,
+                            'mold_dossierf': production.product_id.is_mold_dossierf,
+                            'matiere'      : production.product_id.is_couleur,
+                            'quantite'     : qt_reste,
+                            'temps_u'      : temps_u,
+                            'temps_h'      : temps_h,
+                        }
+                        if not key in res:
+                            res[key]=vals
+                        else:
+                            res[key]['quantite'] = res[key]['quantite']+qt_reste
+                            res[key]['temps_h']  = res[key]['temps_h']+temps_h
             #*******************************************************************
+
+
+            # #** Importation des FL *********************************************
+            # cr.execute("""
+            #     select  mrw.workcenter_id                        as workcenter_id,
+            #             pt.is_mold_dossierf                      as mold_dossierf,
+            #             pt.is_couleur                            as matiere,
+            #             sum(sm.product_uom_qty)                         as quantite,
+            #             sum(sm.product_uom_qty*mrw.is_nb_secondes) as temps_total
+            #     from stock_move sm    inner join product_product  pp on sm.product_id=pp.id
+            #                           inner join product_template pt on pp.product_tmpl_id=pt.id
+            #                           inner join mrp_bom          mb on pt.id=mb.product_tmpl_id and mb.sequence=0
+            #                           inner join mrp_routing_workcenter mrw on mb.routing_id=mrw.routing_id
+            #     where sm.state in('confirmed','assigned') 
+            #             and sm.date>='"""+str(obj.date_debut)+"""'
+            #             and sm.date<='"""+str(obj.date_fin)+"""'
+            #             and sm.production_id is not null
+            #     group by mrw.workcenter_id, pt.is_mold_dossierf, pt.is_couleur
+            #     order by mrw.workcenter_id;
+            # """)
+            # result = cr.fetchall()
+            # for row in result:
+            #     print(row[1])
+            #     key=str(row[0])+"/"+str(row[1])+"/"+str(row[2])
+            #     temps_u=temps_h=0
+            #     if row[3]!=0:
+            #         temps_u=row[4]/row[3]
+            #         temps_h=row[4]/3600
+            #     vals={
+            #         'workcenter_id': row[0],
+            #         'mold_dossierf': row[1],
+            #         'matiere'      : row[2],
+            #         'quantite'     : row[3],
+            #         'temps_u'      : temps_u,
+            #         'temps_h'      : temps_h,
+            #     }
+            #     if not key in res:
+            #         res[key]=vals
+            #     else:
+            #         res[key]['quantite'] = res[key]['quantite']+row[3]
+            #         res[key]['temps_h']  = res[key]['temps_h']+row[4]
+            # #*******************************************************************
 
             pdc_mold_obj = self.env['is.pdc.mold']
             for key in res:

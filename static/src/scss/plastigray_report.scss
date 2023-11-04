@@ -813,16 +813,30 @@ $ma_couleur: yellow;
     font-size:7pt;
 }
 .is_reach_page {
-    font-size:10pt;
+    font-size:12pt;
+    padding:2mm;
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 1em;
 }
-.is_reach_header .titre {
+
+.is_reach_page p {
+    font-size:12pt;
+    margin-top:2mm;
+}
+
+.is_reach_page li {
+    font-size:12pt;
+    margin-top:2mm;
+}
+
+
+
+.is_reach_page .titre {
     font-size:13pt;
     font-weight: bold;
 }
-.is_reach_header .titre2 {
+.is_reach_page .titre2 {
     font-weight: bold;
     text-decoration: underline;
     text-align: center;

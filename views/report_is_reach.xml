@@ -38,7 +38,7 @@
                     <div style="page-break-after:always;margin-right: 8em;margin-left: 8em;">
                         <p class="text-center">Règlement REACH (CE) N° 1907/2006 et N° 1272/2013</p>
                         <p class="text-center">Certificat sur la présence de SVHC</p>
-                        La société PLASTIGRAY SAS, ZAC de Gray Sud, 70104 GRAY Cedex, certifie que :
+                        <p>La société PLASTIGRAY SAS, ZAC de Gray Sud, 70104 GRAY Cedex, certifie que :</p>
                         <p>
                             <ol style="margin-left: 3em;">
                                 <li>Les articles livrés actuellement à la société <span t-field="o.partner_id.name"/> ne contiennent pas à notre connaissance et suivant les informations de nos fournisseurs, de substances extrêmement préoccupantes (SVHC) figurant dans la dernière version de la « Candidate list » de l'ECHA, dans une concentration supérieure à 0,1% en masse et de l'annexe XVII du règlement n° 1907/2006 pour le PAH limite.<br/>
@@ -47,7 +47,10 @@
                                 <li>Cumul par code CAS des substances livrées : annexe 2</li>
                             </ol>
                         </p>
-                        <p style='margin-top: 3em;'>Fait à Gray, le :<br /><br />Nom :<br />Fonction<br />Signature :</p>
+                        <p style='margin-top: 3em;'>Fait à Gray, le :</p>
+                        <p style='margin-top: 3em;'>Nom :</p>
+                        <p style='margin-top: 3em;'>Fonction:</p>
+                        <p style='margin-top: 3em;'>Signature:</p>
                     </div>
                     <div style="page-break-after:always;">
                         <p class='titre2'>ANNEXE 1</p>
@@ -107,7 +110,8 @@
                             </div>
                         </div>
                     </div>
-                    <div style="page-break-after:always;">
+                    <div style="page-break-after:always;"/>
+                    <div>
                         <p class='titre2'>ANNEXE 2</p>
                         <p class='titre2'>CUMUL PAR CODE CAS DES SUBSTANCES LIVREES</p>
                         <p><span style='text-decoration:underline;'>Période</span> : du <span t-field='o.date_debut'/> au <span t-field='o.date_fin'/></p>
@@ -142,7 +146,7 @@
                         <table style="width:100%">
                             <tr>
                                 <td class="text-right">
-                                    Page <span class="page" style="font-size:10pt;"/> / <span class="topage"/>
+                                    Page <span class="page" style="font-size:9pt;"/> / <span class="topage"/>
                                 </td>
                             </tr>
                         </table>
