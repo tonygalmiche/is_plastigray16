@@ -12,12 +12,12 @@ class AccountMoveReversal(models.TransientModel):
         return {
             'supplier_invoice_number': False,
             'ref'                    : self.reason,
-            'invoice_origin'         : '%s %s'%(move.name, move.supplier_invoice_number),
+            'invoice_origin'         : '%s %s'%(move.name, (move.supplier_invoice_number or '')),
             'date'                   : reverse_date,
             'invoice_date_due'       : reverse_date,
             'invoice_date'           : move.is_invoice(include_receipts=True) and (self.date or move.date) or False,
             'journal_id'             : self.journal_id.id,
-            'invoice_payment_term_id': None,
+            'invoice_payment_term_id': move.invoice_payment_term_id.id,
             'invoice_user_id'        : move.invoice_user_id.id,
             'auto_post'              : 'at_date' if reverse_date > fields.Date.context_today(self) else 'no',
         }
