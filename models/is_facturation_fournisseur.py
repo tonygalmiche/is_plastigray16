@@ -179,7 +179,7 @@ class is_facturation_fournisseur(models.Model):
                             'quantite'          : qty,
                             'uom_id'            : move.product_id.uom_po_id.id,
                             'prix'              : row["price_unit"],
-                            'prix_origine'      : row["price_unit"],
+                            #'prix_origine'      : row["price_unit"],
                             'total'             : total,
                             'taxe_ids'          : [(6,0,taxe_ids)],
                             'taxe_taux'         : taxe_taux,
@@ -451,6 +451,12 @@ class is_facturation_fournisseur_line(models.Model):
             obj.taxe_taux=taxe_taux
 
 
+    @api.depends('product_id')
+    def _compute_prix_origine(self):
+        for obj in self:
+            obj.prix_origine = obj.prix
+
+
     facturation_id     = fields.Many2one('is.facturation.fournisseur', 'Facturation fournisseur', required=True, ondelete='cascade')
     num_reception      = fields.Char('N° de réception')
     num_bl_fournisseur = fields.Char('N° BL fournisseur')
@@ -462,7 +468,7 @@ class is_facturation_fournisseur_line(models.Model):
     quantite           = fields.Float('Reste à facturer', digits='Product Unit of Measure')
     uom_id             = fields.Many2one('uom.uom', 'Unité')
     prix               = fields.Float('Prix'          , digits=(14,4))
-    prix_origine       = fields.Float("Prix d'origine", digits=(14,4))
+    prix_origine       = fields.Float("Prix d'origine", digits=(14,4), compute='_compute_prix_origine', readonly=True, store=True)
     total              = fields.Float("Total" , digits=(14,4), compute='_compute', readonly=True, store=False)
     taxe_ids           = fields.Many2many('account.tax', 'is_facturation_fournisseur_line_taxe_ids', 'facturation_id', 'taxe_id', 'Taxes')
     taxe_taux          = fields.Float('Taux', compute='_compute', readonly=True, store=False)

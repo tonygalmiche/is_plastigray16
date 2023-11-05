@@ -99,7 +99,7 @@
                                 <field name="account_id" optional="show"/>
                                 <field name="quantite" optional="show"/>
                                 <field name="uom_id" optional="show"/>
-                                <field name="prix_origine" optional="show" readonly="1"/>
+                                <field name="prix_origine" optional="show"/>
                                 <field name="prix" optional="show"/>
                                 <field name="total" optional="show" sum="Total"/>
                                 <field name="taxe_ids" widget="many2many_tags" optional="show"/>
