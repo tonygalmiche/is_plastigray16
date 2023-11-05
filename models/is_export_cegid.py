@@ -86,7 +86,7 @@ class is_export_cegid(models.Model):
     date_debut         = fields.Date(u"Date de début", required=True)
     date_fin           = fields.Date(u"Date de fin"  , required=True)
     ligne_ids          = fields.One2many('is.export.cegid.ligne', 'export_cegid_id', u'Lignes')
-    #invoice_ids        = fields.One2many('account.move', 'is_export_cegid_id', 'Factures', readonly=True)
+    invoice_ids        = fields.One2many('account.move', 'is_export_cegid_id', 'Factures', readonly=True)
 
 
     @api.model_create_multi

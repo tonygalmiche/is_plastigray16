@@ -152,7 +152,8 @@ class account_invoice(models.Model):
 
     def voir_facture_client_action(self):
         for obj in self:
-            view_id=self.env.ref('is_plastigray16.is_invoice_form')
+            #view_id=self.env.ref('is_plastigray16.is_invoice_form')
+            view_id=self.env.ref('is_plastigray16.is_account_view_move_form')
             res= {
                 'name': 'Facture Client',
                 'view_mode': 'form',
@@ -160,15 +161,16 @@ class account_invoice(models.Model):
                 'res_id': obj.id,
                 'view_id': view_id.id,
                 'type': 'ir.actions.act_window',
-                'context': {'default_type':'out_invoice', 'type':'out_invoice', 'journal_type': 'sale'},
-                'domain': [('type','=','out_invoice'),('journal_type','=','sale')],
+                'context': {'default_move_type':'out_invoice', 'move_type':'out_invoice', 'journal_type': 'sale'},
+                'domain': [('move_type','=','out_invoice'),('journal_type','=','sale')],
             }
             return res
 
 
     def voir_facture_fournisseur_action(self):
         for obj in self:
-            view_id=self.env.ref('is_plastigray16.is_invoice_supplier_form')
+            #view_id=self.env.ref('is_plastigray16.is_invoice_supplier_form')
+            view_id=self.env.ref('is_plastigray16.is_account_view_move_form')
             res= {
                 'name': 'Facture Client',
                 'view_mode': 'form',
@@ -176,8 +178,8 @@ class account_invoice(models.Model):
                 'res_id': obj.id,
                 'view_id': view_id.id,
                 'type': 'ir.actions.act_window',
-                'context': {'default_type':'in_invoice', 'type':'in_invoice'},
-                'domain': [('type','=','in_invoice')],
+                'context': {'default_move_type':'in_invoice', 'move_type':'in_invoice'},
+                'domain': [('move_type','=','in_invoice')],
             }
             return res
 
