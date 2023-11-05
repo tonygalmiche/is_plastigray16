@@ -570,15 +570,15 @@ $ma_couleur: yellow;
 .is_proforma_chine_page {
     font-size:10pt;
 }
-.is_proforma_chine_page .titre {
+.is_proforma_chine_header .titre {
     font-size:11pt;
     font-weight: bold;
 }
-.is_proforma_chine_page .expediteur {
+.is_proforma_chine_header .expediteur {
     font-size:9pt;
     text-align:center;
 }
-.is_proforma_chine_page .destinataire {
+.is_proforma_chine_header .destinataire {
     text-align:left;
     border: 1px solid black;
     padding:5mm;
