@@ -5,6 +5,7 @@
 
 
 from . import is_stock_valorise
+from . import is_taux_rotation_stock
 
 
 from . import is_account_invoice_line

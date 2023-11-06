@@ -71,7 +71,6 @@ from . import is_resource
 from . import is_rgpd
 from . import is_tarif_cial
 from . import is_theia
-from . import is_taux_rotation_stock
 from . import mrp
 from . import mrp_prevision
 from . import mrp_production

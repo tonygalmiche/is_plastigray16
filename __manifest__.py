@@ -44,7 +44,7 @@ Module Odoo 16 pour Plastigray
 
 
 
-        "views/is_taux_rotation_stock_view.xml",
+        "report/is_taux_rotation_stock_view.xml",
 
 
         "views/stock_inventory_view.xml",
