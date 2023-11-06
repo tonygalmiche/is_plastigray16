@@ -267,7 +267,6 @@
             <field name="domain">[('state','in',['draft','waiting','confirmed','assigned'])]</field>
             <field name="limit">200</field>
             <field name="view_id" ref="is_view_move_tree"/>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record> -->
         <!-- Mouvements Terminés -->
@@ -278,7 +277,6 @@
             <field name="domain">[('state','in',['done'])]</field>
             <field name="limit">200</field>
             <field name="view_id" ref="is_mouvements_termines_tree"/>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record> -->
         <!-- Tous les mouvements -->
@@ -289,7 +287,6 @@
             <field name="domain">[]</field>
             <field name="limit">200</field>
             <field name="view_id" ref="is_view_move_tree"/>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
  -->

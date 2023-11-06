@@ -43,6 +43,10 @@ Module Odoo 16 pour Plastigray
         "views/report_paperformat.xml",
 
 
+
+        "views/is_taux_rotation_stock_view.xml",
+
+
         "views/stock_inventory_view.xml",
 
        
@@ -190,6 +194,8 @@ Module Odoo 16 pour Plastigray
         "views/is_capteur_view.xml",
         "views/webclient_templates.xml",
 
+        "report/is_stock_valorise.xml",
+
 
         "report/is_account_invoice_line.xml",
         "report/is_anomalie_position_fiscale.xml",
@@ -258,7 +264,6 @@ Module Odoo 16 pour Plastigray
         # "log_view.xml",
         # "purchase_workflow.xml",
         # "email_template.xml",
-        # "is_taux_rotation_stock_view.xml",
         # "calendar_view.xml",
         # "wizard/is_stock_mise_rebut_view.xml",
         # "wizard/mrp_product_produce_view.xml",
@@ -285,7 +290,6 @@ Module Odoo 16 pour Plastigray
         # "report/is_comparatif_tarif_commande.xml",
         # "report/is_comparatif_lot_prix.xml",
         # "report/is_nomenclature_sans_gamme.xml",
-        # "report/is_stock_valorise.xml",
         # "report/is_mouvement_stock.xml",
         # "report/is_model_groups.xml",
         # "report/is_comparatif_tarif_reception.xml",

@@ -23,7 +23,6 @@
         <record id="is_export_ventes_seriem_action" model="ir.actions.act_window">
             <field name="name">Exportation Série-M Ventes</field>
             <field name="res_model">is.export.seriem</field>
-            <field name="view_type">form</field>
             <field name="view_mode">form</field>
            <field name="view_id" ref="is_export_seriem_from_view"/>
             <field name="context">{'default_type_interface': 'ventes'}</field>
@@ -32,7 +31,6 @@
         <record id="is_export_achats_seriem_action" model="ir.actions.act_window">
             <field name="name">Exportation Série-M Achats</field>
             <field name="res_model">is.export.seriem</field>
-            <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="is_export_seriem_from_view"/>
             <field name="context">{'default_type_interface': 'achats'}</field>

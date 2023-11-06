@@ -23,7 +23,6 @@
             <field name="name">Sauvegarde coûts en PDF</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">shedule.cout.article.report</field>
-            <field name="view_type">form</field>
             <field name="view_id" ref="is_shedule_cout_article_report_view"/>
             <field name="target">new</field>
         </record>

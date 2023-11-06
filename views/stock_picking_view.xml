@@ -368,7 +368,6 @@
             <field name="res_model">stock.picking</field>
             <field name="domain">[('picking_type_id','=', 1),('state','not in', ('draft', 'cancel','done'))]</field>
             <field name="limit">200</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
  -->
@@ -379,7 +378,6 @@
             <field name="res_model">stock.picking</field>
             <field name="domain">[('picking_type_id','=', 1)]</field>
             <field name="limit">200</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record> -->
 

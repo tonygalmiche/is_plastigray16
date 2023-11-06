@@ -59,9 +59,8 @@
     <record id="is_article_sans_cde_ouverte_fou_action" model="ir.actions.act_window">
         <field name="name">Articles achetés sans commande ouverte</field>
         <field name="res_model">is.article.sans.cde.ouverte.fou</field>
-        <!--field name="domain">[]</field>
+        <field name="domain">[]</field>
         <field name="context">{"search_default_sans_cde_ouverte":1}</field>
-        <field name="view_type">form</field-->
         <field name="view_mode">tree</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,api, tools
 
 
 class is_anomalie_declar_prod(models.Model):
@@ -22,8 +19,9 @@ class is_anomalie_declar_prod(models.Model):
     qt_composant        = fields.Integer('Qt Composant / Lien')
 
 
-    def init(self, cr):
-        tools.drop_view_if_exists(cr, 'is_anomalie_declar_prod')
+    def init(self):
+        cr = self._cr
+        tools.drop_view_if_exists(cr,'is_anomalie_declar_prod')
         cr.execute("""
             CREATE OR REPLACE view is_anomalie_declar_prod AS (
                 select

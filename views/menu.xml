@@ -1646,8 +1646,10 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+-->
 
-    <menuitem id="is_analyse_stock_menu" sequence="30" name="Analyses Stocks" parent="menu_is_analyse"/>
+    <!-- Production / Analyses Stocks -->
+    <menuitem id="is_analyse_stock_menu" sequence="21" name="Analyses Stocks" parent="menu_is_production"/>
     <record id="is_liste_stock_negatif_menu" model="ir.ui.menu" >
         <field name="name">Stocks négatifs</field>
         <field name="sequence">20</field>
@@ -1678,7 +1680,6 @@
             ref('is_rsp_production_group'),
         ])]"/>
     </record>
-
     <record id="is_stock_valorise_menu" model="ir.ui.menu" >
         <field name="name">Stocks valorisés</field>
         <field name="sequence">40</field>
@@ -1698,7 +1699,7 @@
             ref('is_rsp_production_group'),
         ])]"/>
     </record>
-    <record id="is_anomalie_declar_prod_menu" model="ir.ui.menu" >
+    <!-- <record id="is_anomalie_declar_prod_menu" model="ir.ui.menu" >
         <field name="name">Anomalies de production</field>
         <field name="sequence">60</field>
         <field name="parent_id" eval="ref('is_analyse_stock_menu')"/>
@@ -1707,9 +1708,9 @@
             ref('is_gestionnaire_donnees_techniques_group'),
             ref('is_rsp_production_group'),
         ])]"/>
-    </record>
+    </record> -->
 
-    -->
+   
     <menuitem id="is_analyse_fournisseur_menu" sequence="50" name="Analyses Fournisseurs" parent="menu_is_analyse"/>
     <record id="is_res_partner_menu" model="ir.ui.menu" >
         <field name="name">Fournisseurs sans Cde</field>

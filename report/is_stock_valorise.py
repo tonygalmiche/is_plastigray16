@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import models,fields,tools
+import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_stock_valorise(models.Model):
     _name='is.stock.valorise'
+    _description="Stock valorisé"
     _order='is_code'
     _auto = False
 
@@ -16,7 +17,7 @@ class is_stock_valorise(models.Model):
     is_category_id     = fields.Many2one('is.category'       , 'Catégorie')
     is_gestionnaire_id = fields.Many2one('is.gestionnaire'   , 'Gestionnaire')
     segment_id         = fields.Many2one('is.product.segment', 'Segment')
-    uom_id             = fields.Many2one('product.uom'       , 'Unité')
+    uom_id             = fields.Many2one('uom.uom'       , 'Unité')
     stock_a            = fields.Float('Stock A')
     stock_q            = fields.Float('Stock Q')
     stock              = fields.Float('Stock Total')
@@ -27,14 +28,16 @@ class is_stock_valorise(models.Model):
     cout_act_total     = fields.Float("Coût act Total"         , digits=(12, 4))
     stock_valorise     = fields.Float('Stock Valorisé'         , digits=(12, 4))
 
-    def init(self, cr):
+    def init(self):
+        start = time.time()
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_stock_valorise')
         cr.execute("""
 
             CREATE OR REPLACE FUNCTION is_stocka(pp_id integer) RETURNS float AS $$
             BEGIN
                 RETURN (
-                        select sum(qty) 
+                        select sum(quantity) 
                         from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
                         where sl.usage='internal' 
                               and (sl.control_quality is null or sl.control_quality='f')
@@ -46,7 +49,7 @@ class is_stock_valorise(models.Model):
             CREATE OR REPLACE FUNCTION is_stockq(pp_id integer) RETURNS float AS $$
             BEGIN
                 RETURN (
-                        select sum(qty) 
+                        select sum(quantity) 
                         from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
                         where sl.usage='internal' 
                               and sl.control_quality='t'
@@ -58,7 +61,7 @@ class is_stock_valorise(models.Model):
             CREATE OR REPLACE FUNCTION is_stock(pp_id integer) RETURNS float AS $$
             BEGIN
                 RETURN (
-                        select sum(qty) 
+                        select sum(quantity) 
                         from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
                         where sl.usage='internal' 
                               and sq.product_id=pp_id
@@ -71,7 +74,7 @@ class is_stock_valorise(models.Model):
                     pt.id                 as id,
                     pt.id                 as product_id,
                     pt.is_code            as is_code,
-                    pt.name               as designation,
+                    pt.name->>'fr_FR'     as designation,
                     pt.is_category_id     as is_category_id,
                     pt.is_gestionnaire_id as is_gestionnaire_id,
                     pt.segment_id         as segment_id,
@@ -94,4 +97,6 @@ class is_stock_valorise(models.Model):
                       and ic.name::int<70
             )
         """)
+        _logger.info('## init is_stock_quant en %.2fs'%(time.time()-start))
+
 
