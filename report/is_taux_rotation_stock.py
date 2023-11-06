@@ -86,9 +86,10 @@ class is_taux_rotation_stock_view(models.Model):
 
         user = self.env["res.users"].browse(self._uid)
         company = user.company_id
-        annee = company.is_annee_pic_3ans
+        annee = company.is_annee_pic_3ans or '2023'
 
 
+        _logger.info('## init is_taux_rotation_stock_view annee=%s'%annee)
 
 
         tools.drop_view_if_exists(cr, 'is_taux_rotation_stock_view')
