@@ -520,6 +520,8 @@ class is_pic_3ans(models.Model):
 
 
     def get_pic_3ans(self,client,fournisseur,codepg,cat,gest,moule,annee_realise,annee_prev):
+        debut=datetime.now()
+        _logger.info('Début')
         cr = self._cr
         SQL="""
             select 
@@ -601,129 +603,25 @@ class is_pic_3ans(models.Model):
                     col="m%02d"%(x)
                     vals[col]=''
                     cols[col] = {"key":col, "quantite":"", "mois":"", "livraison":""}
-
                 vals["cols"]=cols
                 TabTmp1[key]=vals
-
             if row["quantite"]:
                 quantite  = "{:,.0f}".format(row["quantite"]).replace(",", " ")
-
-
                 livraison=0
                 if realise:
                     livraison=self.get_livraison(annee_realise, row["mois"], row["code"])
 
                 livraison = "{:,.0f}".format(livraison).replace(",", " ")
                 TabTmp1[key]["cols"][mois] = {"key":mois, "mois":row["mois"], "quantite":quantite, "livraison":livraison}
-            TabTmp1[key]["listcols"] = list(TabTmp1[key]["cols"].values())
-
-
-
-
-
-
-        res = list(TabTmp1.values())
+            #TabTmp1[key]["listcols"] = list(TabTmp1[key]["cols"].values())
+        #res = list(TabTmp1.values())
+        #res = TabTmp1.values()
+        res={}
+        res["dict"] = TabTmp1
+        #res["list"] = list(TabTmp1.values())
+        duree = datetime.now()-debut
+        _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
         return res
-
-
-
-
-        # Tab={};
-        # foreach($TabTmp1 as $k1=>$v1) {
-        #     $code=$k1;
-        #     foreach($v1 as $k2=>$v2) {
-        #         $i=0; $TotalRea=0; $TotalPrv=0;
-        #         $Tab[$i][]=$Soc; $i++;
-        #         $Tab[$i][]=$code; $i++;
-        #         $Tab[$i][]=$TabTmp2[$code]["cat"]; $i++;
-        #         $Tab[$i][]=$TabTmp2[$code]["gest"]; $i++;
-        #         $Tab[$i][]=$TabTmp2[$code]["moule"]; $i++;
-        #         $Tab[$i][]=$TabTmp2[$code]["designation"]; $i++;
-        #         $Tab[$i][]=$TabTmp2[$code]["us"]; $i++;
-        #         $annee=$k2;
-        #         //$Tab[$i][]=$annee; $i++;
-        #         //$Tab[$i][]="Prv"; $i++;
-
-        #         if ($AnneeRea!="") $Tab[$i][]=$annee." <br /><span style='color:gray'>$AnneeRea</span>"; else $Tab[$i][]=$annee;
-        #         $i++;
-        #         if ($AnneeRea!="") $Tab[$i][]=utf8_decode("Prv<br /><span style='color:gray'>Réa</span>"); else $Tab[$i][]="Prv";
-        #         $i++;
-
-        #         $TotalPrv=0;
-        #         $TotalRea=0;
-        #         for ($j=1;$j<=12;$j++){
-        #             if ($AnneeRea!="") {
-        #                 $mois=substr("00$j",-2);
-        #                 $start = "$AnneeRea-$mois-01";
-        #                 $end = new DateTime($start);
-        #                 $end->add(new DateInterval('P1M')); //Où 'P12M' indique 'Période de 12 Mois'
-        #                 $end=$end->format('Y-m-d');
-        #                 $SQL="
-        #                     select sum(sm.product_uom_qty*is_unit_coef(pt.uom_id, sm.product_uom)) qt
-        #                     from stock_picking sp inner join stock_move                sm on sm.picking_id=sp.id 
-        #                                         inner join product_product           pp on sm.product_id=pp.id
-        #                                         inner join product_template          pt on pp.product_tmpl_id=pt.id
-        #                     where 
-        #                         sm.state='done' and
-        #                         sm.date>='$start' and sm.date<'$end' and
-        #                         pt.is_code like '$code%' 
-        #                 ";
-
-        #                 if ($CodeCli!="") {
-        #                     $SQL="$SQL and sp.picking_type_id=2 ";
-        #                 } else {
-        #                     $SQL="$SQL and sp.picking_type_id=1 ";
-        #                 }
-
-        #                 $result = pg_query($cnx, $SQL) or die(pg_last_error($cnx));
-        #                 while($row = pg_fetch_array($result)) {
-        #                     $QtRea=round($row["qt"]);
-        #                 }
-        #                 $TotalRea+=$QtRea;
-        #                 if ($QtRea==0) $QtRea_txt="&nbsp;"; else $QtRea_txt=number_format($QtRea,0,',',' ');
-        #             }
-        #             $mois=$annee."-".substr("00$j",-2);
-        #             $quantite=0;
-        #             if(array_key_exists($mois , $TabTmp1[$code][$annee])) $quantite=$TabTmp1[$code][$annee][$mois];
-        #             if ($quantite==0) $quantite_txt="&nbsp;"; else $quantite_txt=number_format($quantite,0,',',' ');
-        #             if ($AnneeRea!="") {
-        #                 $Tab[$i][]="<span style='white-space:nowrap'>$quantite_txt<br><span style='color:gray'>$QtRea_txt</span></span>"; $i++;
-        #             } else {
-        #                 $Tab[$i][]="<span style='white-space:nowrap'>$quantite_txt</span>"; $i++;
-        #             }
-
-        #             $TotalPrv+=$quantite;
-        #         }
-
-
-
-        #         if ($TotalPrv==0) $TotalPrv="&nbsp;"; else $TotalPrv=number_format($TotalPrv,0,',',' ');
-        #         if ($TotalRea==0) $TotalRea="&nbsp;"; else $TotalRea=number_format($TotalRea,0,',',' ');
-        #         if ($AnneeRea!="") {
-        #             $Tab[$i][]="<span style='white-space:nowrap'>$TotalPrv<br><span style='color:gray'>$TotalRea</span></span>"; $i++;
-        #         } else {
-        #             $Tab[$i][]="<span style='white-space:nowrap'>$TotalPrv</span>"; $i++;
-        #         }
-        #     }
-        # }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -31,6 +31,10 @@
                 </div>
             </t>
             <div class="pic3ans" style="width:99%; height:99vh; overflow: auto;">
+                <!-- <t t-set="test" t-value="Object.values(state.dict or {})"/>
+                <t t-foreach="test" t-as="line" t-key="line.key">
+                    <div t-esc="line.code"/>
+                </t> -->
                 <table style="width:100%;overflow-y:auto">
                     <thead>
                         <tr>
@@ -57,7 +61,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <t t-foreach="state.lines" t-as="line" t-key="line.key">
+                        <t t-foreach="Object.values(state.dict or {})" t-as="line" t-key="line.key">
+                        <!-- <t t-foreach="state.lines" t-as="line" t-key="line.key"> -->
                             <tr 
                                 t-att-style="line.trstyle"
                                 t-att-memstyle="line.trstyle"
@@ -67,7 +72,6 @@
                                 t-att-productid="line.product_tmpl_id"
                                 t-att-click="-1"
                             >
-
                                 <td 
                                     style="text-align:left" 
                                     t-esc="line.code" 
@@ -75,24 +79,19 @@
                                     t-on-click="OKclickCode" 
                                     t-att-productid="line.product_tmpl_id"
                                 />
-
-
-
-
                                 <td style="text-align:center" t-esc="line.cat"/>
                                 <td style="text-align:center" t-esc="line.gest"/>
                                 <td style="text-align:center" t-esc="line.moule"/>
-                                <td style="text-align:left" t-esc="line.designation"/>
+                                <td style="text-align:left"   t-esc="line.designation"/>
                                 <td style="text-align:center" t-esc="line.us"/>
                                 <td style="text-align:center" t-esc="line.annee"/>
                                 <td style="text-align:right">
                                     Prv
                                     <div t-if="line.realise" style="color:gray;font-style: italic;">Réa</div>
                                 </td>
-
-                                <t t-foreach="line.listcols" t-as="col" t-key="col.key">
-                                    <!-- <td style="text-align:right" t-esc="col.quantite"/> -->
-                                    <td style="text-align:right">
+                                <!-- <t t-foreach="line.listcols" t-as="col" t-key="col.key"> -->
+                                <t t-foreach="Object.values(line.cols or {})" t-as="col" t-key="col.key">
+                                        <td style="text-align:right">
                                         <div 
                                             class="link" 
                                             t-esc="col.quantite"
@@ -108,27 +107,6 @@
                                         />
                                     </td>
                                 </t>
-
-                                
-                                <!-- t-esc="col.quantite"  -->
-
-
-                                <!-- 
-                                <td style="text-align:right" t-esc="line.m01" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m02" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m03" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m04" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m05" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m06" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m07" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m08" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m09" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m10" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m11" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                <td style="text-align:right" t-esc="line.m12" class="link" t-on-click="OKclickQt" t-att-mois="line.mois" t-att-productid="line.id"/>
-                                -->
-
-
                                 <td/>
                             </tr>
                         </t>

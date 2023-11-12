@@ -22,7 +22,8 @@ class Pic3Ans extends Component {
             'pic3ans_moule': false,
             'pic3ans_annee_realise': false,
             'pic3ans_annee_prev': false,
-            'lines': [],
+            //'lines': [],
+            'dict':{},
         });
         // PIC/PDP
         // Nb Lignes/Page
@@ -53,15 +54,12 @@ class Pic3Ans extends Component {
     } 
 
     OKclick(ev) {
-        console.log("OKclick",ev);
         this.getPic3ans();
     }
 
     OKclickQt(ev) {
         const product_id = parseInt(ev.target.attributes.productid.value);
         const mois       = ev.target.attributes.mois.value;
-        console.log("OKclickQt",ev,product_id,mois);
-
         this.action.doAction({
             type: 'ir.actions.act_window',
             name: product_id,
@@ -77,11 +75,7 @@ class Pic3Ans extends Component {
     }
 
     OKclickCode(ev) {
-        console.log("OKclickCode",ev);
-        console.log("OKclickQt",ev.target.attributes.productid);
-
         const product_id = parseInt(ev.target.attributes.productid.value);
-
         this.action.doAction({
             type: 'ir.actions.act_window',
             name: product_id,
@@ -94,7 +88,6 @@ class Pic3Ans extends Component {
     }
 
     onChangeInput(ev) {
-        console.log("onChangeInput",ev);
         this.state[ev.target.name] = ev.target.value;
         this.orm.call("is.mem.var", 'set', [false, this.user_id, ev.target.name, ev.target.value]);
     }
@@ -139,9 +132,8 @@ class Pic3Ans extends Component {
     }
 
 
-
     async getPic3ans(){
-        var lines = await this.orm.call("is.pic.3ans", 'get_pic_3ans', [
+        var res = await this.orm.call("is.pic.3ans", 'get_pic_3ans', [
             false,
             this.state.pic3ans_client,
             this.state.pic3ans_fournisseur,
@@ -152,19 +144,15 @@ class Pic3Ans extends Component {
             this.state.pic3ans_annee_realise,
             this.state.pic3ans_annee_prev,
         ]);
-        this.state.lines=lines;
-        
-        this.state.lines.forEach(function (line) {
-            console.log("line=",line);
-        });
+        //this.state.lines=res.list;
+        this.state.dict=res.dict;
+        // console.log(Object.keys(res.dict));
+        // console.log(Object.values(res.dict));
+        // this.state.lines.forEach(function (line) {
+        //     console.log("line=",line);
+        // });
         
     }
-
-
-
-
-    
-
 
 }
 Pic3Ans.components = {
