@@ -54,19 +54,16 @@ class AnalyseCbn extends Component {
     } 
 
     OKclick(ev) {
-        console.log("OKclick",ev);
         this.getAnalyseCbn(true);
     }
 
     onChangeInput(ev) {
-        console.log("onChangeInput",ev);
         this.state[ev.target.name] = ev.target.value;
         //this.orm.call("is.mem.var", 'set', [false, this.user_id, ev.target.name, ev.target.value]);
     }
 
     OKkey(ev) {
         if (ev.keyCode === 13) {
-            console.log("OKkey", ev.target.id, ev.target.value);
             this.getAnalyseCbn(true);
         }
     }
@@ -103,6 +100,9 @@ class AnalyseCbn extends Component {
     }
 
 
+
+
+
     QtClick(ev) {
         const typeod = ev.target.attributes.name_typeod.value;
         const ids = ev.target.attributes.ids.value;
@@ -122,7 +122,8 @@ class AnalyseCbn extends Component {
             if(tids.length>1){
                 this.action.doAction({
                     type: 'ir.actions.act_window',
-                    target: 'current',
+                    //target: 'current',
+                    target: 'new',
                     res_model: model,
                     views: [[false, 'list'], [false, 'form']],
                     domain: [['id', 'in', tids]],
@@ -130,7 +131,8 @@ class AnalyseCbn extends Component {
             } else {
                 this.action.doAction({
                     type: 'ir.actions.act_window',
-                    target: 'current',
+                    //target: 'current',
+                    target: 'new',
                     res_id: parseInt(tids[0]),
                     res_model: model,
                     views: [[false, 'form']],
@@ -139,6 +141,48 @@ class AnalyseCbn extends Component {
         }
     }
 
+
+    DeleteClick(ev) {
+        const product_id = ev.target.attributes.productid.value;
+        this.state.lines.forEach((item, index) => {
+            if (item.product_id==product_id){
+                this.state.lines.splice(index, 1);
+            }
+        })
+    }
+
+
+    RefreshClick(ev) {
+        const product_id = ev.target.attributes.productid.value;
+        this.state.lines.forEach((item, index) => {
+            if (item.product_id==product_id){
+                var Code = this.state.lines[index].Code+" => FAIT"
+                this.state.lines[index].Code=Code;
+                this.getAnalyseCbnProduct(product_id);
+                //this.state.lines[index].typeodlist=[];
+                //this.getAnalyseCbnProduct(true);
+            }
+        })
+    }
+
+
+
+    async getAnalyseCbnProduct(product_id=false){
+        const params={
+            "product_id"  : product_id,
+            "type_rapport": this.state.analyse_cbn_type_rapport,
+        }
+        var res = await this.orm.call("product.product", 'get_analyse_cbn', [false],params);
+        res.lines.forEach((line) => {
+            this.state.lines.forEach((item, index) => {
+                if (item.product_id==line.product_id){
+                    //var Code = this.state.lines[index].Code+" => FAIT"
+                    this.state.lines[index] = line;
+                    //this.state.lines[index].Code=Code;
+                }
+            })
+        })
+    }
 
     async getAnalyseCbn(ok=false){
         const params={
@@ -197,13 +241,6 @@ class AnalyseCbn extends Component {
         this.state.type_rapport_options     = res.type_rapport_options;
         this.state.calage_options           = res.calage_options;
         this.state.valorisation_options     = res.valorisation_options;
-
-
-        console.log("lines = ",this.state.lines);
-        console.log("TabIni = ",this.state.TabIni  );
-        console.log("state = ",this.state  );
-
-        
     }
 }
 

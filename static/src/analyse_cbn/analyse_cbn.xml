@@ -203,7 +203,34 @@
                                         t-att-rowspan="line.rowspan"
                                     >
                                         <span t-esc="line.Code"/><br />
-                                        <span t-esc="line.designation"/> <br />
+
+                                        <span 
+                                            class="fa fa-refresh link"
+                                            alt="Refresh"
+                                            t-on-click="RefreshClick" 
+                                            t-att-productid="line.product_id"
+                                            style="margin-right:0.5em"
+                                        />
+                                        <!-- <img 
+                                            src="/is_plastigray16/static/src/img/refresh-icon.png" 
+                                            style="max-height:15px;max-width:15px;margin-right:0.5em"
+                                            alt="Refresh"
+                                            class="link"
+                                            t-on-click="RefreshClick" 
+                                            t-att-productid="line.product_id"
+                                        /> -->
+                                        <span t-esc="line.designation"/>
+                                        <span 
+                                            class="fa fa-trash link"
+                                            alt="Refresh"
+                                            t-on-click="DeleteClick" 
+                                            t-att-productid="line.product_id"
+                                            style="margin-left:0.5em"
+                                        />
+
+
+
+                                        <br />
                                         <span t-esc="line.StockSecu"/> / <span t-esc="line.Delai"/> / <span t-esc="line.lot_mini"/> / <span t-esc="line.multiple"/> / <span t-esc="line.StockA"/> / <span t-esc="line.StockQ"/>
                                     </td>
                                     <td>

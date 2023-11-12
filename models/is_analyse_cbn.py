@@ -36,11 +36,8 @@ class product_product(models.Model):
             valorisation=False,
             product_id=False,
     ):
+        mem_product_id = product_id
         cr = self._cr
-
-
-
-
         debut=datetime.now()
         _logger.info('Début')
 
@@ -151,6 +148,8 @@ class product_product(models.Model):
         _logger.info("select_fournisseur (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # *********************************************************************
 
+        if len(select_fournisseur)==1:
+            fournisseur=False
 
         #Liste de choix *******************************************************
         debut2=datetime.now()
@@ -459,11 +458,9 @@ class product_product(models.Model):
         #     for typeod in res[code_pg]["typeod"]:
         #         cols=[]
         #         for col in res[code_pg]["typeod"][typeod]["cols"]:
-        #             print(code_pg, typeod, col)
         #             cols.append(res[code_pg]["typeod"][typeod]["cols"][col])
         #         types.append(cols)
         #     lines.append(types)
-        # print(lines)
         # #**********************************************************************
 
 
@@ -529,7 +526,6 @@ class product_product(models.Model):
         #     for p in totaux:
         #         line=p
         #         f.write("%s\n"%line)
-        #         print(p, totaux[p])
         #     f.close()
 
 
@@ -653,25 +649,30 @@ class product_product(models.Model):
         debut2=datetime.now()
         sorted_dict = dict(sorted(res.items())) 
         trcolor=""
+
+
+
+
+
         for k in sorted_dict:
             if trcolor=="#ffffff":
                 trcolor="#f2f3f4"
             else:
                 trcolor="#ffffff"
+
+            if mem_product_id:
+                trcolor="#00FAA2"
+
+
+
             trstyle="background-color:%s"%(trcolor)
             sorted_dict[k]["trstyle"] = trstyle
         lines = list(sorted_dict.values())
         _logger.info("Ajout de la couleur des lignes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
-
-
         duree = datetime.now()-debut
-
-
         _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
-
-
         res={
             "titre"       : titre,
             "lines"       : lines,
@@ -1096,12 +1097,6 @@ class product_product(models.Model):
         """
         cr.execute(SQL)
         result = cr.dictfetchall()
-
-        #print(result)
-        #for line in result:
-        #    print(line)
-
-
         return result
 
 
