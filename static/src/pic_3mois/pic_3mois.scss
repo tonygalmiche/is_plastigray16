@@ -49,9 +49,6 @@ span.info:hover pre {
     text-align: left;
 }
 
-
-
-
 .pic3mois {
     width:98%; 
     height:85vh; 
@@ -68,6 +65,43 @@ table.pic3mois {
 td.pic3mois {
     width:40em;
 }
+
+.pic3mois table {
+    border: 1px solid gray;
+}
+.pic3mois td {
+    border: 1px solid gray;
+    padding-left:5pt;
+    padding-right:2pt;
+}
+.pic3mois th {
+    border: 1px solid gray;
+    padding-left:5pt;
+    padding-right:2pt;
+    // border-left: 1px solid red;
+    // border-right: 1px solid red;
+}
+
+
+// style="" 
+
+
+// .pic3mois thead tr:nth-child(1) th {
+//     border: 1px solid black;
+//     border-bottom: 1px solid black;
+//     border-left: 1px solid red;
+//     border-right: 1px solid red;
+// }
+
+
+.pic3mois thead tr:nth-child(1) th {
+    // background-color: unset;
+    background-color: #FFFBCC;
+    // border: 1px solid gray;
+    // border-left: 1px solid red;
+    // border-right: 1px solid red;
+}
+
 
 
 

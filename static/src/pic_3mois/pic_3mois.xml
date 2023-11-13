@@ -116,7 +116,7 @@
                                 Moule / Code / Gest / Stock A / Stock Q / Lot / StockSecu / Délai
                             </th>
                             <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
-                                <th style="text-align:right;min-width:25pt" t-if="o.affiche_col">
+                                <th style="text-align:center;min-width:25pt" t-if="o.affiche_col">
                                     <t t-esc="o.jour"/><br /><t t-esc="o.mois"/>
                                 </th>
                             </t>
@@ -175,7 +175,7 @@
                                         </t>
                                         <span class="info" t-if="ferme">
                                             <span 
-                                                t-esc="ferme" 
+                                                t-esc="ferme.toLocaleString('fr-FR')" 
                                                 class="link"
                                                 t-on-click="QtClick" 
                                                 style="color:#008000;font-weight: bold;"
@@ -191,7 +191,7 @@
                                         </span><br />
                                         <span class="info" t-if="prev">
                                             <span 
-                                                t-esc="prev" 
+                                                t-esc="prev.toLocaleString('fr-FR')" 
                                                 class="link"
                                                 t-on-click="QtClick" 
                                                 t-att-ids="col.ids_prev.join(',')"
@@ -213,7 +213,7 @@
                             <th style="text-align:left">Total :</th>
                             <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
                                 <th style="text-align:right" t-if="o.affiche_col">
-                                    <div t-esc="o.total" style="padding-left:6pt" />
+                                    <div t-esc="o.total.toLocaleString('fr-FR')"/>
                                 </th>
                             </t>
                             <!-- <th style="width:1%"/> -->
