@@ -307,7 +307,7 @@ class sale_order(models.Model):
                 if col not in TotalCol:
                     TotalCol[col]=0
                 TotalCol[col]+=qt
-            lines[key]["listcols"] = list(lines[key]["cols"].values())
+            #lines[key]["listcols"] = list(lines[key]["cols"].values())
             if lig>int(nb_lig):
                 break
 
@@ -330,7 +330,8 @@ class sale_order(models.Model):
         #**********************************************************************
 
         res={
-            "lines"           : list(lines.values()),
+            #"lines"           : list(lines.values()),
+            "dict"            : lines,
             "date_cols"       : date_cols,
             "code_cli"        : code_cli,
             "adr_cli"         : adr_cli,

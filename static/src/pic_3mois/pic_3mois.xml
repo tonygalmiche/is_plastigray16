@@ -124,7 +124,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <t t-foreach="state.lines" t-as="line" t-key="line.key">
+                        <!-- <t t-foreach="state.lines" t-as="line" t-key="line.key"> -->
+                        <t t-foreach="Object.values(state.dict or {})" t-as="line" t-key="line.key">
                             <tr 
                                 t-att-style="line.trstyle"
                                 t-att-memstyle="line.trstyle"
@@ -155,8 +156,9 @@
                                     <span t-esc="line.row.is_delai_transport"/><br />
                                     <span t-esc="line.row.designation"/>
                                 </td>
-                                <t t-foreach="line.listcols" t-as="col" t-key="col.key">
-                                    <td 
+                                <!-- <t t-foreach="line.listcols" t-as="col" t-key="col.key"> -->
+                                <t t-foreach="Object.values(line.cols or {})" t-as="col" t-key="col.key">
+                                        <td 
                                         style="text-align:right" 
                                         t-if="state.date_cols[col.key-1].affiche_col"
                                     >

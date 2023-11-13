@@ -26,7 +26,8 @@ class Pic3Mois extends Component {
         this.orm     = useService("orm");
         this.Pic3MoisService = useService("Pic3MoisService"); // Cache network calls with a service 
         this.state   = useState({
-            'lines': [],
+            //'lines': [],
+            'dict' : {},
         });
         useSubEnv({
             config: {
@@ -163,7 +164,8 @@ class Pic3Mois extends Component {
             "ok"              : ok,
         }
         var res = await this.orm.call("sale.order", 'get_pic_3mois', [false],params);
-        this.state.lines                     = res.lines;
+        //this.state.lines                     = res.lines;
+        this.state.dict                      = res.dict;
         this.state.date_cols                 = res.date_cols;
         this.state.pic3mois_code_cli         = res.code_cli;
         this.state.pic3mois_adr_cli          = res.adr_cli;

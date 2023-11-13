@@ -433,7 +433,7 @@ class product_product(models.Model):
                         "qt_signe": qt_signe,
                         "od_txt"  : od_txt,
                     })
-            res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
+            #res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
         _logger.info("Résultat (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
@@ -510,9 +510,9 @@ class product_product(models.Model):
                     res[p]["typeod"]["92-Stock Valorisé"]["cols"][c]["qt_txt"] = int(val)
 
                 ct+=1
-            res[p]["typeod"]["90-Stock"]["colslist"] = list(res[p]["typeod"]["90-Stock"]["cols"].values())
-            if valorisation=="Oui":
-                res[p]["typeod"]["92-Stock Valorisé"]["colslist"] = list(res[p]["typeod"]["92-Stock Valorisé"]["cols"].values())
+            #res[p]["typeod"]["90-Stock"]["colslist"] = list(res[p]["typeod"]["90-Stock"]["cols"].values())
+            #if valorisation=="Oui":
+            #    res[p]["typeod"]["92-Stock Valorisé"]["colslist"] = list(res[p]["typeod"]["92-Stock Valorisé"]["cols"].values())
         _logger.info("Calcul du stock cumulé par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
@@ -667,7 +667,7 @@ class product_product(models.Model):
 
             trstyle="background-color:%s"%(trcolor)
             sorted_dict[k]["trstyle"] = trstyle
-        lines = list(sorted_dict.values())
+        #lines = list(sorted_dict.values())
         _logger.info("Ajout de la couleur des lignes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
@@ -675,7 +675,8 @@ class product_product(models.Model):
         _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
         res={
             "titre"       : titre,
-            "lines"       : lines,
+            #"lines"       : lines,
+            "dict"        : sorted_dict,
             "date_cols"   : list(TabSemaines.values()),
             "code_pg"     : code_pg,
             "gest"        : gest,

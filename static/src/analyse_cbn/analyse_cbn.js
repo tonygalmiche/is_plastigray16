@@ -24,7 +24,8 @@ class AnalyseCbn extends Component {
             // 'analyse_cbn_type_rapport': false,
             // 'analyse_cbn_calage': false,
             // 'analyse_cbn_val': false,
-            'lines': [],
+            //'lines': [],
+            'dict': {},
         });
 
         useSubEnv({
@@ -142,46 +143,75 @@ class AnalyseCbn extends Component {
     }
 
 
+    // DeleteClick(ev) {
+    //     const product_id = ev.target.attributes.productid.value;
+    //     this.state.lines.forEach((item, index) => {
+    //         if (item.product_id==product_id){
+    //             this.state.lines.splice(index, 1);
+    //         }
+    //     })
+    // }
+
+
     DeleteClick(ev) {
-        const product_id = ev.target.attributes.productid.value;
-        this.state.lines.forEach((item, index) => {
-            if (item.product_id==product_id){
-                this.state.lines.splice(index, 1);
-            }
-        })
+        const key = ev.target.attributes.key.value;
+        console.log(key);
+        console.log(this.state.dict);
+        delete this.state.dict[key];
+        //this.state.dict.splice(key, 1);
+        // this.state.lines.forEach((item, index) => {
+        //     if (item.product_id==product_id){
+        //         this.state.lines.splice(index, 1);
+        //     }
+        // })
     }
 
 
     RefreshClick(ev) {
-        const product_id = ev.target.attributes.productid.value;
-        this.state.lines.forEach((item, index) => {
-            if (item.product_id==product_id){
-                var Code = this.state.lines[index].Code+" => FAIT"
-                this.state.lines[index].Code=Code;
-                this.getAnalyseCbnProduct(product_id);
-                //this.state.lines[index].typeodlist=[];
-                //this.getAnalyseCbnProduct(true);
-            }
-        })
+        const key = ev.target.attributes.key.value;
+        //const product_id = ev.target.attributes.productid.value;
+        this.state.dict[key];
+
+        var Code = this.state.dict[key].Code+" => FAIT"
+        this.state.dict[key].Code=Code;
+        this.getAnalyseCbnProduct(key);
+
+
+        // this.state.lines.forEach((item, index) => {
+        //     if (item.product_id==product_id){
+        //         var Code = this.state.lines[index].Code+" => FAIT"
+        //         this.state.lines[index].Code=Code;
+        //         this.getAnalyseCbnProduct(product_id);
+        //     }
+        // })
     }
 
 
 
-    async getAnalyseCbnProduct(product_id=false){
+    // RefreshClick(ev) {
+    //     const product_id = ev.target.attributes.productid.value;
+    //     this.state.lines.forEach((item, index) => {
+    //         if (item.product_id==product_id){
+    //             var Code = this.state.lines[index].Code+" => FAIT"
+    //             this.state.lines[index].Code=Code;
+    //             this.getAnalyseCbnProduct(product_id);
+    //             //this.state.lines[index].typeodlist=[];
+    //             //this.getAnalyseCbnProduct(true);
+    //         }
+    //     })
+    // }
+
+
+
+    async getAnalyseCbnProduct(key=false){
+        const product_id =  this.state.dict[key].product_id
         const params={
             "product_id"  : product_id,
             "type_rapport": this.state.analyse_cbn_type_rapport,
         }
         var res = await this.orm.call("product.product", 'get_analyse_cbn', [false],params);
-        res.lines.forEach((line) => {
-            this.state.lines.forEach((item, index) => {
-                if (item.product_id==line.product_id){
-                    //var Code = this.state.lines[index].Code+" => FAIT"
-                    this.state.lines[index] = line;
-                    //this.state.lines[index].Code=Code;
-                }
-            })
-        })
+        console.log(res);
+        this.state.dict[key] = res.dict[key];
     }
 
     async getAnalyseCbn(ok=false){
@@ -218,8 +248,10 @@ class AnalyseCbn extends Component {
         //     this.state.analyse_cbn_val,
         // ]);
 
+
         this.state.titre                    = res.titre;
-        this.state.lines                    = res.lines;
+        //this.state.lines                    = res.lines;
+        this.state.dict                     = res.dict;
         this.state.date_cols                = res.date_cols;
         this.state.analyse_cbn_code_pg      = res.code_pg;
         this.state.analyse_cbn_gest         = res.gest;
@@ -241,6 +273,11 @@ class AnalyseCbn extends Component {
         this.state.type_rapport_options     = res.type_rapport_options;
         this.state.calage_options           = res.calage_options;
         this.state.valorisation_options     = res.valorisation_options;
+
+        console.log(this.state.dict);
+
+
+
     }
 }
 
