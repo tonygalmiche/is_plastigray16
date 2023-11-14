@@ -201,7 +201,7 @@
                         </div>
                     </div>
                     <p t-if="o.narration">
-                        <strong>Note:</strong>
+                        <strong>Commentaires:</strong>
                         <span t-field="o.narration"/>
                     </p>
                     <p t-if="o.invoice_payment_term_id.note">
