@@ -123,8 +123,8 @@ class AnalyseCbn extends Component {
             if(tids.length>1){
                 this.action.doAction({
                     type: 'ir.actions.act_window',
-                    //target: 'current',
-                    target: 'new',
+                    target: 'current',
+                    //target: 'new',
                     res_model: model,
                     views: [[false, 'list'], [false, 'form']],
                     domain: [['id', 'in', tids]],
@@ -158,12 +158,6 @@ class AnalyseCbn extends Component {
         console.log(key);
         console.log(this.state.dict);
         delete this.state.dict[key];
-        //this.state.dict.splice(key, 1);
-        // this.state.lines.forEach((item, index) => {
-        //     if (item.product_id==product_id){
-        //         this.state.lines.splice(index, 1);
-        //     }
-        // })
     }
 
 
@@ -187,7 +181,6 @@ class AnalyseCbn extends Component {
     }
 
 
-
     // RefreshClick(ev) {
     //     const product_id = ev.target.attributes.productid.value;
     //     this.state.lines.forEach((item, index) => {
@@ -201,6 +194,25 @@ class AnalyseCbn extends Component {
     //     })
     // }
 
+
+    DeleteODClick(ev) {
+        const result = confirm("Voulez-vous vraiment supprimer cet OD ?");
+        if (result){
+            const key    = ev.target.attributes.key.value;
+            const typeod = ev.target.attributes.name_typeod.value;
+            const ids    = ev.target.attributes.ids.value;
+            this.DeleteOD(key,typeod,ids);
+        }
+    }
+
+    async DeleteOD(key,typeod,ids){
+        if (typeod=='FS' || typeod=='FL' || typeod=='SA') {
+            console.log(typeod,ids);
+            var res = await this.orm.call("mrp.prevision", 'unlink', [parseInt(ids)]);
+            console.log(res);
+            this.getAnalyseCbnProduct(key);
+        }
+    }
 
 
     async getAnalyseCbnProduct(key=false){

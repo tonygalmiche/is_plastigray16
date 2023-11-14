@@ -426,12 +426,22 @@ class product_product(models.Model):
                     if row["name"] not in res[key]["typeod"][key2]["cols"][DateLundi]["od"]:
                         res[key]["typeod"][key2]["cols"][DateLundi]["od"].append(row["name"])
                     od_txt = ", ".join(res[key]["typeod"][key2]["cols"][DateLundi]["od"])
+
+                    #** Afficher l'icon trash si un seul OD et du type accecpté *********
+                    trash=False
+                    if qt_txt!="":
+                        if len(res[key]["typeod"][key2]["cols"][DateLundi]["od"])==1:
+                            if key2[3:] in ['FL','FS','SA']:
+                                trash=True
+                        #********************************************************************
+
                     res[key]["typeod"][key2]["cols"][DateLundi].update({
                         "qt"      : qt,
                         "color_qt": color_qt,
                         "qt_txt"  : qt_txt,
                         "qt_signe": qt_signe,
                         "od_txt"  : od_txt,
+                        "trash"   : trash,
                     })
             #res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
         _logger.info("Résultat (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())

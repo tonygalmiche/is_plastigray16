@@ -247,9 +247,29 @@
                                     </td>
                                     <!-- <t t-foreach="t.colslist or []" t-as="col" t-key="col.key"> -->
                                     <t t-foreach="Object.values(t.cols or {})" t-as="col" t-key="col.key">
-                                            <td style="text-align:right">
+                                        <td style="text-align:right">
                                             <!-- <span t-esc="col.qt_txt" t-att-style="col.style"/> -->
                                             <!-- <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt"/> -->
+
+                                            <!-- t-if="(col.od or []).length==1 and (t.name_typeod.includes('FT') or t.name_typeod.includes('SF') or t.name_typeod.includes('CF'))" -->
+
+
+                                            <!-- <span 
+                                                t-esc="col.trash"
+                                            /> -->
+                                            <span 
+                                                t-if="col.trash"
+                                                class="fa fa-trash link"
+                                                alt="Refresh"
+                                                t-on-click="DeleteODClick" 
+                                                style="margin-right:0.2em"
+                                                t-att-ids="(col.ids or []).join(',')"
+                                                t-att-name_typeod="t.name_typeod"
+                                                t-att-key="line.key"
+                                            />
+
+
+
                                             <span class="info">
                                                 <span 
                                                     t-esc="col.qt_txt" 
