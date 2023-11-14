@@ -2263,7 +2263,7 @@
         sequence="10"
         action="is_demande_conges_action"
     />
-    <record id="is_demande_collective_menu" model="ir.ui.menu">
+    <!-- <record id="is_demande_collective_menu" model="ir.ui.menu">
         <field name="name">Demande collective</field>
         <field name="sequence">15</field>
         <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
@@ -2271,7 +2271,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_manager_des_absences_group'),
         ])]"/>
-    </record>
+    </record> -->
     <record id="menu_is_demande_absence" model="ir.ui.menu">
         <field name="name">Absence</field>
         <field name="sequence">20</field>
