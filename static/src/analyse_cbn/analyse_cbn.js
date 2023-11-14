@@ -124,6 +124,7 @@ class AnalyseCbn extends Component {
                 this.action.doAction({
                     type: 'ir.actions.act_window',
                     target: 'current',
+                    // flags: {'action_buttons': True},
                     //target: 'new',
                     res_model: model,
                     views: [[false, 'list'], [false, 'form']],
@@ -132,8 +133,9 @@ class AnalyseCbn extends Component {
             } else {
                 this.action.doAction({
                     type: 'ir.actions.act_window',
-                    //target: 'current',
-                    target: 'new',
+                    target: 'current',
+                    //action_buttons: true,
+                    //target: 'new',
                     res_id: parseInt(tids[0]),
                     res_model: model,
                     views: [[false, 'form']],
