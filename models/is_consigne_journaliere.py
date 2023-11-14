@@ -72,10 +72,10 @@ class is_consigne_journaliere_inj(models.Model):
     def _compute_info_planning1(self):
         cr=self._cr
         company = self.env.user.company_id
-        base0="odoo0"
+        base0="odoo16-0"
         cr0 = False
         if company.is_postgres_host=='localhost':
-            base0="pg-odoo0"
+            base0="pg-odoo16-0"
         try:
             cnx0 = psycopg2.connect("dbname='"+base0+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
             cr0 = cnx0.cursor(cursor_factory=RealDictCursor)
@@ -93,9 +93,9 @@ class is_consigne_journaliere_inj(models.Model):
                 cr_dynacase=False
  
         for obj in self:
+            _logger.info("TEST connexion %s %s %s"%(cr0, cr_dynacase,company.is_postgres_host))
             info=[]
-            if cr0 and cr_dynacase:
-
+            if cr0:
                 if obj.of1_id:
                     #** Moule à verion ********************************************
                     moule = obj.of1_id.product_id.is_mold_id
@@ -106,7 +106,7 @@ class is_consigne_journaliere_inj(models.Model):
                             info.append("-Moule à version")
 
                     #** Reprise humidité ******************************************
-                    if obj.of1_id.name.routing_id.is_reprise_humidite==True:
+                    if obj.of1_id.name.bom_id.routing_id.is_reprise_humidite==True:
                         info.append("-Reprise humidité")
 
                     #** Recherche si OT sur le moule ******************************
