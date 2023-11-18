@@ -301,5 +301,8 @@
     <record id="account.account_invoices_without_payment" model="ir.actions.report">
         <field name="binding_model_id" ref=""/>
     </record>
+    <record id="account.action_account_original_vendor_bill" model="ir.actions.report">
+        <field name="binding_model_id" ref=""/>
+    </record>
 </data>
 </odoo>
