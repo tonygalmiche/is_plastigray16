@@ -35,7 +35,7 @@ class is_facture_pk(models.Model):
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now())
     annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True)
     semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True)
-    num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True) #, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
+    num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
     num_import_matiere = fields.Char(u"N° d'import matière première")
     matiere_premiere   = fields.Float('Total Matière première (€)'       , digits=(14, 4), readonly=True)
     main_oeuvre        = fields.Float("Total Main d'oeuvre (€)"          , digits=(14, 4), readonly=True)
