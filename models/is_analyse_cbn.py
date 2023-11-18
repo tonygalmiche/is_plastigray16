@@ -323,9 +323,9 @@ class product_product(models.Model):
                 k = code_fournisseur+'/'+str(product_id)
                 t=TypeCde.get(k)
                 if t:
-                    Code = "%s / %s (%s)"%(code_fournisseur,code,t)
+                    Code = "%s / %s / %s (%s)"%(code_fournisseur,code,row["moule"],t)
                 else:
-                    Code = "%s / %s"%(code_fournisseur,code)
+                    Code = "%s / %s / %s "%(code_fournisseur,code,row["moule"])
             else:
                 key="%s/%s"%(row["moule"],code)
                 Code = "%s / %s"%(row["moule"],code)
@@ -414,7 +414,7 @@ class product_product(models.Model):
                 DateLundi=self.datelundi(row["date_fin"], TabSemaines)
             if DateLundi:
                 if DateLundi in TabSemaines:
-                    qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+row["qt"]
+                    qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+round(row["qt"],6)
                     color_qt = self._get_color_qt(key2,qt)
                     qt_signe = qt * self._get_sens(typeod)
                     qt_txt=""
