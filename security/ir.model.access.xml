@@ -882,9 +882,9 @@
 
 
 
-    <!-- <record id="is_stock_inventory_rsp_production_access"  model="ir.model.access" >
+    <record id="is_stock_inventory_rsp_production_access"  model="ir.model.access" >
         <field name="name">is_stock_inventory_rsp_production_access</field>
-        <field name="model_id"    eval="ref('stock.model_stock_inventory')"/>
+        <field name="model_id"    eval="ref('model_stock_inventory')"/>
         <field name="group_id"    eval="ref('is_rsp_production_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
@@ -893,13 +893,13 @@
     </record>
     <record id="is_stock_inventory_line_rsp_production_access"  model="ir.model.access" >
         <field name="name">is_stock_inventory_line_rsp_production_access</field>
-        <field name="model_id"    eval="ref('stock.model_stock_inventory_line')"/>
+        <field name="model_id"    eval="ref('model_stock_inventory_line')"/>
         <field name="group_id"    eval="ref('is_rsp_production_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
         <field name="perm_unlink" eval="True"/>
         <field name="perm_create" eval="True"/>
-    </record> -->
+    </record>
     <record id="is_mrp_prevision_rsp_production_access"  model="ir.model.access" >
         <field name="name">is_mrp_prevision_rsp_production_access</field>
         <field name="model_id"    eval="ref('model_mrp_prevision')"/>
@@ -1140,9 +1140,9 @@
 
 
 
-    <!-- <record id="is_stock_inventory_inventaire_jour_access"  model="ir.model.access" >
+    <record id="is_stock_inventory_inventaire_jour_access"  model="ir.model.access" >
         <field name="name">is_stock_inventory_inventaire_access</field>
-        <field name="model_id"    eval="ref('stock.model_stock_inventory')"/>
+        <field name="model_id"    eval="ref('model_stock_inventory')"/>
         <field name="group_id"    eval="ref('is_inventaire_jour_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
@@ -1151,13 +1151,13 @@
     </record>
     <record id="is_stock_inventory_line_inventaire_jour_access"  model="ir.model.access" >
         <field name="name">is_stock_inventory_line_inventaire_access</field>
-        <field name="model_id"    eval="ref('stock.model_stock_inventory_line')"/>
+        <field name="model_id"    eval="ref('model_stock_inventory_line')"/>
         <field name="group_id"    eval="ref('is_inventaire_jour_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
         <field name="perm_unlink" eval="True"/>
         <field name="perm_create" eval="True"/>
-    </record> -->
+    </record>
 
 
     <record id="is_stock_move_inventaire_jour_access"  model="ir.model.access" >
