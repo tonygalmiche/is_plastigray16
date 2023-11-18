@@ -289,7 +289,7 @@
     <record id="account.account_invoices" model="ir.actions.report">
         <field name="name">Facture</field>
         <field name="model">account.move</field>
-        <field name="binding_model_id" ref="model_account_move"/>
+        <field name="binding_model_id" ref=""/>
         <field name="paperformat_id" ref="is_report_invoice_paperformat"/>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">is_plastigray16.is_report_invoice_template</field>
@@ -297,5 +297,9 @@
         <field name="attachment">(object.state in ('posted')) and ('INV'+(object.name or '').replace('/','')+'.pdf')</field>
     </record>
 
+    <!-- Désactiver le rapport dans le bouton "Imprimer" -->
+    <record id="account.account_invoices_without_payment" model="ir.actions.report">
+        <field name="binding_model_id" ref=""/>
+    </record>
 </data>
 </odoo>

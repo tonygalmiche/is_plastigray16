@@ -968,7 +968,7 @@ class product_product(models.Model):
                                left outer join is_mold_project imp1 on im.project=imp1.id
                                left outer join is_mold_project imp2 on id.project=imp2.id
                                left outer join res_partner     rp   on pt.is_client_id=rp.id
-            WHERE sol.id>0 """+filtre+""" and sol.state<>'done' and sol.state<>'cancel'
+            WHERE sol.id>0 """+filtre+""" and so.state in ('draft','sent')
             ORDER BY sol.name
         """
         cr.execute(SQL)
