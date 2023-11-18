@@ -669,7 +669,7 @@ class product_template(models.Model):
                 quants=self.env['stock.quant'].search([('product_id','=',product.id)])
                 locations=[]
                 for quant in quants:
-                    if quant.location_id.usage=='internal' and quant.qty<0:
+                    if quant.location_id.usage=='internal' and quant.quantity<0:
                         location=quant.location_id
                         if location not in locations:
                             locations.append(location)
@@ -681,7 +681,7 @@ class product_template(models.Model):
                         'product_id': product.id,
                     }
                     inventory=self.env['stock.inventory'].create(vals)
-                    inventory.prepare_inventory()
+                    inventory.demarrer_inventaire_action()
                     create_date=False
                     qty=0
                     for line in inventory.line_ids:
@@ -698,7 +698,7 @@ class product_template(models.Model):
                                 line.product_qty=0
                             if qty<=0:
                                 break
-                    inventory.action_done()
+                    inventory.valider_inventaire_action()
 
 
     def _name_get(self):
