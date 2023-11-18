@@ -373,6 +373,7 @@ class MrpProduction(models.Model):
                         if operation._skip_operation_line(bom_data['product']):
                             continue
                         workorders_values += [{
+                            'sequence': operation.sequence,
                             'name': operation.name,
                             'production_id': production.id,
                             'workcenter_id': operation.workcenter_id.id,
