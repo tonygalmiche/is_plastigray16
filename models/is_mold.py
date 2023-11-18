@@ -94,6 +94,7 @@ class IsMoldBridage(models.Model):
 
 class is_mold(models.Model):
     _name='is.mold'
+    _inherit=['mail.thread']
     _description = "Moule"
     _order='name'
     _sql_constraints = [('name_uniq','UNIQUE(name)', 'Ce moule existe deja')]
