@@ -8,6 +8,7 @@ from odoo.exceptions import ValidationError
 
 class is_facture_pk(models.Model):
     _name='is.facture.pk'
+    _inherit=['mail.thread']
     _description="Facture PK"
     _rec_name = 'num_facture'
     _order = 'num_facture desc'
