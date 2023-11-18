@@ -31,16 +31,9 @@
                         }
                     </style>
                 </xpath>
-
-
                 <form position="attributes">
                     <attribute name="create">0</attribute>
                 </form>
-
-
-
-
-
                 <xpath expr="//button[@name='action_assign']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -54,6 +47,23 @@
                 <xpath expr="//header/button[10]" position="attributes"> <!-- Bouton 'Retourner' -->
                     <attribute name="invisible">1</attribute> 
                 </xpath>
+
+                <xpath expr="//button[@name='do_print_picking']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='action_open_label_type']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@data-hotkey='o'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+
+
+                <!-- <button name="do_print_picking" string="Print" groups="stock.group_stock_user" type="object" attrs="{'invisible': [('state', '!=', 'assigned')]}" data-hotkey="o"/>
+                <button string="Print Labels" type="object" name="action_open_label_type"/>
+                <button name="308" string="Print" attrs="{'invisible': [('state', '!=', 'done')]}" type="action" groups="base.group_user" data-hotkey="o"/> -->
+
+
                 <xpath expr="//button[@name='button_validate'][1]" position="before">
                     <button 
                         name="action_assign" 

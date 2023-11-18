@@ -271,5 +271,14 @@
             <field name="report_name">is_plastigray16.is_stock_picking_template</field>
             <field name="report_file">is_plastigray16.is_stock_picking_template</field>
         </record>
+
+
+        <!-- Désactiver le rapport dans le bouton "Imprimer" -->
+        <record id="stock.action_report_picking_packages" model="ir.actions.report">
+            <field name="binding_model_id" ref=""/>
+        </record>
+        <record id="stock.action_report_picking" model="ir.actions.report">
+            <field name="binding_model_id" ref=""/>
+        </record>
     </data>
 </odoo>
