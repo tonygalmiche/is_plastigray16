@@ -626,18 +626,23 @@ $ma_couleur: yellow;
 .is_facture_pk_page {
     font-size:9pt;
 }
-.is_facture_pk_header .titre {
+.is_facture_pk_page .titre {
     font-size:11pt;
     font-weight: bold;
 }
-.is_facture_pk_header .expediteur {
-    font-size:9pt;
+.is_facture_pk_page .expediteur {
+    font-size:10pt;
     text-align:left;
+    //padding:3mm;
+    //color:red;
+    line-height: 1.4;
+
+
 }
-.is_facture_pk_header .destinataire {
+.is_facture_pk_page .destinataire {
     text-align:left;
     border: 1px solid black;
-    padding:5mm;
+    padding:3mm;
 }
 
 
