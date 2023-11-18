@@ -75,6 +75,7 @@ class is_export_cegid_ligne(models.Model):
 
 class is_export_cegid(models.Model):
     _name='is.export.cegid'
+    _inherit=['mail.thread']
     _description="Export Cegid"
     _order='name desc'
 
