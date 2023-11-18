@@ -53,9 +53,14 @@
             <!-- <div class="latable" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%; font-size:1rem"> -->
             <!-- <div style="width:98%; height:85vh;margin-left:1%;margin-right:1%; font-size:1rem"> -->
                 <!-- <table style="width:100%;overflow-y:auto"> -->
-            <div style="display:block;width:100%">
-                <table style="display:table;width:100%">
-                    <thead style="display:block;width:100%;">
+            <!-- <div style="display:block;width:100%"> -->
+
+            <div class="calendrier_absence">
+
+
+
+                <table>
+                    <thead>
                          <tr>
                             <th colspan="5"/>
                             <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
@@ -76,8 +81,9 @@
                             </t>
                         </tr>
                     </thead>
-                    <tbody style="display:block;width:100%;max-height:70vh;overflow:scroll;">
-                        <t t-foreach="state.lines or []" t-as="line" t-key="line.employe_id">
+                    <!-- <tbody style="display:block;width:100%;max-height:70vh;overflow:scroll;"> -->
+                    <tbody>
+                            <t t-foreach="state.lines or []" t-as="line" t-key="line.employe_id">
                             <tr 
                                 t-att-style="line.trstyle"
                                 t-att-memstyle="line.trstyle"

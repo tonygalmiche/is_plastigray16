@@ -761,7 +761,8 @@ class is_demande_conges(models.Model):
             for i in range(0,int(nb_jours)):
                 color="inherit"
                 if ladate.weekday() in [5,6]:
-                    color="#f2f3f4"
+                    #color="#f2f3f4"
+                    color="PeachPuff"
                 absences=[]
                 conges = self.env['is.demande.conges'].sudo().search([
                     ('demandeur_id', '=', employe.user_id.id),
