@@ -13,7 +13,7 @@ class stock_inventory(models.Model):
         ('done', 'Validé'),
     ]
     INVENTORY_FILTER_SELECTION = [
-        ('none', 'Tous les article'),
+        ('none'   , 'Tous les articles'),
         ('product', 'Un article seulement'),
     ]
 

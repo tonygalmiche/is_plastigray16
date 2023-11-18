@@ -130,6 +130,8 @@
                             <tree editable="bottom"  
                                     create="true"  
                                     domain="[('location_id','=',location_id.id)]"
+                                    decoration-danger="composant_encours"
+                                    decoration-info="encours"
                             >
                                 <field name="sequence" widget="handle"/>
                                 <field name="product_id"  on_change="onchange_product_id(product_id)" />
@@ -138,9 +140,8 @@
                                 <field name="us_id" width="100px"/>
                                 <field name="uc"    width="100px"/>
                                 <field name="uc_us" width="100px"/>
-                                <field name="location_id" 
-                                        domain="[('usage','=','internal')]"  
-                                        on_change="onchange_location_id(product_id,location_id,qt_us,qt_uc,lieu)"/> 
+                                <field name="location_id" domain="[('usage','=','internal')]"/> 
+                                        <!-- on_change="onchange_location_id(product_id,location_id,qt_us,qt_uc,lieu)" -->
                                 <field name="qt_us" width="100px"/>
                                 <field name="qt_uc" width="100px"/>
                                 <field name="qt_us_calc"/>
@@ -296,8 +297,7 @@
             <field name="model">is.inventaire.ecart</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <!-- create="false" editable="false" -->
-                <tree>
+                <tree  create="false" editable="bottom">
                     <field name="product_id"         readonly="1" widget="many2one_clickable"/>
                     <field name="code"               readonly="1"/>
                     <field name="designation"        readonly="1"/>
@@ -309,11 +309,11 @@
                     <field name="cout_actualise"     readonly="1"/>
                     <field name="valorisation_ecart" readonly="1" sum="Total"/>
                     <field name="lieu"               readonly="1"/>
-                    <field name="selection"/>
+                    <field name="selection" widget="boolean_toggle"/> 
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="is_inventaire_ecart_form_view">
+        <!-- <record model="ir.ui.view" id="is_inventaire_ecart_form_view">
             <field name="name">is_inventaire_ecart_form_view</field>
             <field name="model">is.inventaire.ecart</field>
             <field name="type">form</field>
@@ -334,7 +334,7 @@
                     </sheet>
                 </form>
             </field>
-        </record>
+        </record> -->
         <record model="ir.ui.view" id="is_inventaire_ecart_search_view" >
             <field name="name">is_inventaire_ecart_search_view</field>
             <field name="model">is.inventaire.ecart</field>

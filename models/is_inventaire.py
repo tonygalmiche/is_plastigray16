@@ -904,23 +904,26 @@ class is_inventaire_line(models.Model):
                 else:
                     obj.qt_us_calc=obj.qt_us
 
-    def onchange_product_id(self,product_id):
-        v={}
+    @api.onchange('product_id')
+    def onchange_product_id(self):
         valeur=self.env['is.mem.var'].get(self._uid,'location_id')
-        v['location_id'] = int(valeur)
-        return {'value': v}
+        self.location_id = int(valeur)
 
 
-    def onchange_location_id(self,product_id,location_id,qt_us,qt_uc,lieu):
-        v={}
-        v['product_id']  = product_id
-        v['location_id'] = location_id
-        v['qt_us']       = qt_us
-        v['qt_uc']       = qt_uc
-        v['lieu']        = lieu
-        if location_id:
-            self.env['is.mem.var'].set(self._uid, 'location_id', location_id)
-        return {'value': v}
+    @api.onchange('location_id')
+    def onchange_location_id(self):
+        print("onchange_location_id", self)
+        # vals={
+        #     'product_id' : self.product_id,
+        #     'location_id': self.location_id,
+        #     'qt_us'      : self.qt_us,
+        #     'qt_uc'      : self.qt_uc,
+        #     'lieu'       : self.lieu,
+        # }
+        # print(vals)
+        if self.location_id:
+            self.env['is.mem.var'].set(self._uid, 'location_id', self.location_id.id)
+        #return {'value': v}
 
 
 
