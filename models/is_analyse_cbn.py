@@ -91,12 +91,6 @@ class product_product(models.Model):
         # height        = filter.get('height')
         # #***********************************************************************
 
-
-
-
-
-
-
         # ** Filtre pour les requêtes ******************************************
         debut2=datetime.now()
         filtre=""
@@ -275,11 +269,6 @@ class product_product(models.Model):
         _logger.info("Titres des colonnes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
-
-
-
-
-
         #** Stock *************************************************************
         #TabSemaines = self._get_TabSemaines(semaines)   # Tableau des semaines
 
@@ -405,8 +394,8 @@ class product_product(models.Model):
                         "key"   : d,
                         "qt"    : 0,
                         "qttxt" : "",
-                        "od"    : [],
-                        "ids"   : [],
+                        "od"    : {},
+                        #"ids"   : [],
                     }
             if calage=='' or calage=='Date de fin':
                 DateLundi=self.datelundi(row["date_fin"], TabSemaines)
@@ -421,34 +410,47 @@ class product_product(models.Model):
                     if qt>0:
                         qt_txt = int(qt_signe)
 
-                    if row["numod"] not in res[key]["typeod"][key2]["cols"][DateLundi]["ids"]:
-                        res[key]["typeod"][key2]["cols"][DateLundi]["ids"].append(row["numod"])
-                    if row["name"] not in res[key]["typeod"][key2]["cols"][DateLundi]["od"]:
-                        res[key]["typeod"][key2]["cols"][DateLundi]["od"].append(row["name"])
-                    od_txt = ", ".join(res[key]["typeod"][key2]["cols"][DateLundi]["od"])
+                    #if row["numod"] not in res[key]["typeod"][key2]["cols"][DateLundi]["ids"]:
+                    #    res[key]["typeod"][key2]["cols"][DateLundi]["ids"].append(row["numod"])
 
                     #** Afficher l'icon trash si un seul OD et du type accecpté *********
                     trash=False
-                    if qt_txt!="":
-                        if len(res[key]["typeod"][key2]["cols"][DateLundi]["od"])==1:
-                            if key2[3:] in ['FL','FS','SA']:
-                                trash=True
-                        #********************************************************************
+                    if qt_txt!="" and key2[3:] in ['FS','SA']:
+                        trash=True
+                    #********************************************************************
+                    numod = row["numod"]
+                    v={
+                        "numod": numod,
+                        "name" : row["name"],
+                        "qt"   : round(row["qt"],4),
+                        "trash": trash,
+                    }
+                    res[key]["typeod"][key2]["cols"][DateLundi]["od"][numod] = v
+
+
+                    #if row["name"] not in res[key]["typeod"][key2]["cols"][DateLundi]["od"]:
+                    #    res[key]["typeod"][key2]["cols"][DateLundi]["od"].append(row["name"])
+                    #od_txt = ", ".join(res[key]["typeod"][key2]["cols"][DateLundi]["od"])
+
+                    #** Afficher l'icon trash si un seul OD et du type accecpté *********
+                    # trash=False
+                    # if qt_txt!="":
+                    #     if len(res[key]["typeod"][key2]["cols"][DateLundi]["od"])==1:
+                    #         if key2[3:] in ['FL','FS','SA']:
+                    #             trash=True
+                    # #********************************************************************
 
                     res[key]["typeod"][key2]["cols"][DateLundi].update({
                         "qt"      : qt,
                         "color_qt": color_qt,
                         "qt_txt"  : qt_txt,
                         "qt_signe": qt_signe,
-                        "od_txt"  : od_txt,
-                        "trash"   : trash,
+                        #"od_txt"  : od_txt,
+                        #"trash"   : trash,
                     })
             #res[key]["typeod"][key2]["colslist"] = list(res[key]["typeod"][key2]["cols"].values())
         _logger.info("Résultat (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
-
-
-
 
         #Convertir un dictionnaire en list (pour owl) avec un tri sur les clés => Voir pour optimiser le temps de traitement
         debut2=datetime.now()
@@ -459,20 +461,6 @@ class product_product(models.Model):
             res[key]["rowspan"]    = len(res[key]["typeodlist"])
         _logger.info("Convertir un dictionnaire en list (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
-
-
-        # #TODO : Tentatvie d'optimisation convertion dictionnaire en liste *****
-        # lines=[]
-        # for code_pg in res:
-        #     types=[]
-        #     for typeod in res[code_pg]["typeod"]:
-        #         cols=[]
-        #         for col in res[code_pg]["typeod"][typeod]["cols"]:
-        #             cols.append(res[code_pg]["typeod"][typeod]["cols"][col])
-        #         types.append(cols)
-        #     lines.append(types)
-        # #**********************************************************************
-
 
         #** Calcul du total des besoins par date ******************************
         debut2=datetime.now()
@@ -491,7 +479,6 @@ class product_product(models.Model):
         #print(json.dumps(totaux, indent = 4))
         _logger.info("Calcul du total des besoins par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
-
 
         #** Calcul du stock cumulé par date ***********************************
         debut2=datetime.now()
@@ -527,7 +514,6 @@ class product_product(models.Model):
         #**********************************************************************
 
 
-
         # if valorisation=="Oui":
         #     name = "test.csv"
         #     path = "/tmp/%s"%name
@@ -537,8 +523,6 @@ class product_product(models.Model):
         #         line=p
         #         f.write("%s\n"%line)
         #     f.close()
-
-
 
             # #** Génération du fichier CSV **************************************
             # attachment_id=''
@@ -570,7 +554,6 @@ class product_product(models.Model):
             #             for col in range(2,len(Tab)):
             #                 csv[CodePG][col*1000+2]=Tab[col][lig]
 
-
             #     #** Ecriture fichier CSV  **************************************
             #     user  = self.env['res.users'].browse(uid)
             #     name  = 'analyse-cbn-'+user.login+'.csv'
@@ -599,7 +582,6 @@ class product_product(models.Model):
             #     f.close()
             #     #***************************************************************
 
-
             #     # ** Creation ou modification de la pièce jointe *******************
             #     attachment_obj = self.env['ir.attachment']
             #     attachments = attachment_obj.search([('res_id','=',user.id),('name','=',name)])
@@ -622,70 +604,38 @@ class product_product(models.Model):
             #     #*******************************************************************
 
 
-            # #*******************************************************************
-
-
-
-
-# file1 = open("myfile.txt","w")
-# L = ["This is Delhi \n","This is Paris \n","This is London \n"]
- 
-# # \n is placed to indicate EOL (End of Line)
-# file1.write("Hello \n")
-# file1.writelines(L)
-# file1.close() #to change file access modes
- 
-
-
-#0684/271092 {'20230508': 0.0, '20230515': 0, '20230522': 0, '20230529': 0, '20230605': 0, '20230612': 0, '20230619': 0, '20230626': 0, '20230703': 0, '20230710': 0, '20230717': 0, '20230724': 0, '20230731': 0, '20230807': 0, '20230814': 0, '20230821': 0, '20230828': 0, '20230904': 0, '20230911': 0, '20230918': 0}
-
-
-        #    name='export-cegid-'+obj.journal+'-'+obj.name+'.TRA'
-        #     model='is.export.cegid'
-        #     attachments = self.env['ir.attachment'].search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)])
-        #     attachments.unlink()
-        #     dest     = '/tmp/'+name
-        #     f = codecs.open(dest,'wb',encoding='utf-8')
-        #     f.write('!\r\n')
-        #     for l in obj.ligne_ids:
-        #         f.write(s(l.journal,3))
-        #         f.write(date2txt(l.datecomptable))
-        #         f.write(s(l.type_piece,2))
-
-
-
-
         #** Ajout de la couleur des lignes ************************************
         debut2=datetime.now()
         sorted_dict = dict(sorted(res.items())) 
         trcolor=""
-
-
-
-
-
         for k in sorted_dict:
             if trcolor=="#ffffff":
                 trcolor="#f2f3f4"
             else:
                 trcolor="#ffffff"
-
             if mem_product_id:
                 trcolor="#00FAA2"
-
-
-
             trstyle="background-color:%s"%(trcolor)
             sorted_dict[k]["trstyle"] = trstyle
         #lines = list(sorted_dict.values())
         _logger.info("Ajout de la couleur des lignes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
+
+        #** Sauvegarde du résultat ********************************************
+        #TODO : Cela ne semble pas pertinent, car Odoo met moins de 2s à générer le résultat, 
+        # mais le navigateur 6s à traiter les 8Mo d'informations
+        # x = json.dumps(sorted_dict)
+        # print("Taille du json : %.1fMo"%(len(x)/1024/1024))
+        # self.env['is.mem.var'].set(self._uid, 'analyse_cbn_dict', x)
+        # _logger.info("enregistrement json (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+        #**********************************************************************
+
+
         duree = datetime.now()-debut
         _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
         res={
             "titre"       : titre,
-            #"lines"       : lines,
             "dict"        : sorted_dict,
             "date_cols"   : list(TabSemaines.values()),
             "code_pg"     : code_pg,
@@ -831,18 +781,10 @@ class product_product(models.Model):
             filtre=filtre+" and ig.name='"+gest+"' "
 
         #** Recherche des articles ayant des données ***************************
-        #debut=datetime.datetime.now()
-        #_logger.info('Début')
-        #_logger.info('Fin '+_now(debut))
-
         _logger.info("filtre=%s"%(filtre))
-
-
-
         debut2=datetime.now()
         r1=self._get_FS_SA(filtre)
         _logger.info("_get_FS_SA (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
-
 
         debut2=datetime.now()
         r2=self._get_CF_CP(filtre)
@@ -860,16 +802,11 @@ class product_product(models.Model):
         r5=self._get_SF(filtre)
         _logger.info("_get_SF (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
 
-
-
-
-
         product_ids=[]
         for row in (r1+r2+r3+r4+r5):
             product_id=str(row["product_id"])
             if product_id not in product_ids:
                 product_ids.append(product_id)
-        #_logger.info('Fin '+_now(debut))
         #***********************************************************************
 
         SQL="""

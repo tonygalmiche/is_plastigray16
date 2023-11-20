@@ -5,63 +5,10 @@
             .o_control_panel{
                 display: none;
             }
-            .filtre_pic{
-                margin-bottom: 0.5rem;
-            }
-            table.filtre_pic thead tr:nth-child(1) th {
-                background-color: white;
-                font-size: 1rem;
-                color: gray;
-            }
-            .link {
-                cursor: pointer;
-            }
- 
-            .analysecbn {
-                border-bottom: 1px solid #dee2e6;
-                padding-top: 0;
-                /*padding-right: 16px;*/
-                padding-bottom: 0.5rem;
-                /*margin-right: 16px;*/
-                /*margin-left: 16px;*/
-                background-color: #f2f3f4;
-            }
-
-
-            span.info {
-                position: relative;
-                text-decoration: none;
-                /*border-bottom: 1px gray dotted; */ /* on souligne le texte */
-            }
-            span.info pre {
-                display: none; /* on masque l'infobulle */
-            }
-            span.info:hover {
-                background: none; /* correction d'un bug IE */
-                z-index: 500; /* on définit une valeur pour l'ordre d'affichage */
-            }
-            span.info:hover pre {
-                display: inline; /* on affiche l'infobulle */
-                position: absolute;
-                white-space: nowrap; /* on change la valeur de la propriété white-space pour qu'il n'y ait pas de retour à la ligne non-désiré */
-                top: 20px; /* on positionne notre infobulle */
-                left: 0px;
-                background: white;
-                color: blue;
-                padding: 3px;
-                border: 1px solid blue;
-                border-left: 4px solid blue;
-                text-align: left;
-            }
-
-
-
-
-
         </style>
         <Layout display="display">
             <h2 style="margin-left:1%;margin-right:1%;color:gray"><t t-esc="state.titre"/></h2>
-            <table style="width:98%;margin-left:1%;margin-right:1%" class="filtre_pic">
+            <table style="width:98%;margin-left:1%;margin-right:1%" class="filtre_analysecbn">
                 <thead>
                     <tr>
                         <th>Code PG (Début)</th>
@@ -154,22 +101,7 @@
                 </tbody>
             </table>
 
-
             <div class="analysecbn" style="width:98%; height:85vh; overflow: auto;margin-left:1%;margin-right:1%">
-
-        <!-- TODO : Test sans succès pour utiliser directmement un dictionnaire et non pas une liste -->
-        <!-- <t t-foreach="props.group_vals.items_vals" t-as="item_vals" t-key="item_vals_index"> -->
-                <!-- <t t-foreach="state.TabSemaines" t-as="semaine">
-                    <div><t t-esc="semaine.key"/>Test</div>
-                </t> -->
-
-            <!-- TabSemaines[key] = {
-                "key": key,
-                "semaine": d.strftime("S%W"),
-                "date": d.strftime("%d.%m"),
-            } -->
-
-
                 <table style="width:100%;overflow-y:auto">
                     <thead>
                         <tr>
@@ -186,7 +118,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- <t t-foreach="state.lines or []" t-as="line" t-key="line.key"> -->
                         <t t-foreach="Object.values(state.dict or {})" t-as="line" t-key="line.key">
                             <t t-set="test" t-value="1" />
                             <t t-foreach="line.typeodlist or []" t-as="t" t-key="t.key">
@@ -204,7 +135,6 @@
                                         t-att-rowspan="line.rowspan"
                                     >
                                         <span t-esc="line.Code"/><br />
-
                                         <span 
                                             class="fa fa-refresh link"
                                             alt="Refresh"
@@ -212,22 +142,7 @@
                                             t-att-key="line.key"
                                             style="margin-right:0.5em"
                                         />
-                                        <!-- <img 
-                                            src="/is_plastigray16/static/src/img/refresh-icon.png" 
-                                            style="max-height:15px;max-width:15px;margin-right:0.5em"
-                                            alt="Refresh"
-                                            class="link"
-                                            t-on-click="RefreshClick" 
-                                            t-att-productid="line.product_id"
-                                        /> -->
                                         <span t-esc="line.designation"/>
-                                        <!-- <span 
-                                            class="fa fa-trash link"
-                                            alt="Refresh"
-                                            t-on-click="DeleteClick" 
-                                            t-att-productid="line.product_id"
-                                            style="margin-left:0.5em"
-                                        /> -->
                                         <span 
                                             class="fa fa-trash link"
                                             alt="Refresh"
@@ -235,42 +150,18 @@
                                             t-att-key="line.key"
                                             style="margin-left:0.5em"
                                         />
-
-
-
-
                                         <br />
                                         <span t-esc="line.StockSecu"/> / <span t-esc="line.Delai"/> / <span t-esc="line.lot_mini"/> / <span t-esc="line.multiple"/> / <span t-esc="line.StockA"/> / <span t-esc="line.StockQ"/>
                                     </td>
                                     <td>
                                         <span t-esc="t.name_typeod"/>
                                     </td>
-                                    <!-- <t t-foreach="t.colslist or []" t-as="col" t-key="col.key"> -->
                                     <t t-foreach="Object.values(t.cols or {})" t-as="col" t-key="col.key">
                                         <td style="text-align:right">
-                                            <!-- <span t-esc="col.qt_txt" t-att-style="col.style"/> -->
-                                            <!-- <span t-esc="col.qt_txt" t-att-style="'color:'+col.color_qt"/> -->
-
-                                            <!-- t-if="(col.od or []).length==1 and (t.name_typeod.includes('FT') or t.name_typeod.includes('SF') or t.name_typeod.includes('CF'))" -->
-
-
-                                            <!-- <span 
-                                                t-esc="col.trash"
-                                            /> -->
-                                            <span 
-                                                t-if="col.trash"
-                                                class="fa fa-trash link"
-                                                alt="Refresh"
-                                                t-on-click="DeleteODClick" 
-                                                style="margin-right:0.2em"
-                                                t-att-ids="(col.ids or []).join(',')"
-                                                t-att-name_typeod="t.name_typeod"
-                                                t-att-key="line.key"
-                                            />
 
 
 
-                                            <span class="info">
+                                            <span class="infocbn">
                                                 <span 
                                                     t-esc="col.qt_txt" 
                                                     t-att-style="'color:'+col.color_qt" 
@@ -278,13 +169,59 @@
                                                     t-on-click="QtClick" 
                                                     t-att-ids="(col.ids or []).join(',')"
                                                     t-att-name_typeod="t.name_typeod"
+                                                    t-att-col_key="col.key"
                                                 />
-                                                <pre t-if="(col.od or []).length>0">
-                                                    <t t-foreach="col.od or []" t-as="o" t-key="o">
-                                                        <t t-esc="o"/><br />
+                                                <pre 
+                                                    style="display:none"
+                                                    t-if="(Object.values(col.od or {})).length>0"
+                                                >
+                                                    <t t-foreach="Object.values(col.od or {})" t-as="o" t-key="o.numod">
+                                                        <div>
+                                                            <span 
+                                                                class="fa fa-search-plus link"
+                                                                t-on-click="VoirODClick" 
+                                                                style="margin-right:0.2em"
+                                                                t-att-name_typeod="t.name_typeod"
+                                                                t-att-numod="o.numod"
+                                                                t-att-key="line.key"
+                                                                title="Voir cet OD"
+                                                            />
+                                                            <span 
+                                                                t-if="o.trash"
+                                                                class="fa fa-copy link"
+                                                                t-on-click="DupliquerODClick" 
+                                                                style="margin-right:0.2em"
+                                                                t-att-name_typeod="t.name_typeod"
+                                                                t-att-numod="o.numod"
+                                                                t-att-key="line.key"
+                                                                title="Dupliquer cet OD"
+                                                            />
+                                                            <span 
+                                                                t-if="o.trash"
+                                                                class="fa fa-cog link"
+                                                                t-on-click="ConvertirODClick" 
+                                                                style="margin-right:0.2em"
+                                                                t-att-name_typeod="t.name_typeod"
+                                                                t-att-numod="o.numod"
+                                                                t-att-key="line.key"
+                                                                title="Convertir cet OD en FL ou SF"
+                                                            />
+                                                            <span 
+                                                                t-if="o.trash"
+                                                                class="fa fa-trash link"
+                                                                t-on-click="DeleteODClick" 
+                                                                style="margin-right:0.2em"
+                                                                t-att-name_typeod="t.name_typeod"
+                                                                t-att-numod="o.numod"
+                                                                t-att-key="line.key"
+                                                                title="Supprimer cet OD"
+                                                            />
+                                                            <t t-esc="o.name"/>
+                                                            <t t-esc="o.qt"/>
+                                                        </div>
                                                     </t>
                                                 </pre>
-                                            </span>
+                                             </span>
                                         </td>
                                     </t>
                                     <td/>

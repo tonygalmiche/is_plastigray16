@@ -12,19 +12,6 @@ class AnalyseCbn extends Component {
         this.action  = useService("action");
         this.orm     = useService("orm");
         this.state   = useState({
-            // 'analyse_cbn_code_pg': false,
-            // 'analyse_cbn_gest': false,
-            // 'analyse_cbn_cat': false,
-            // 'analyse_cbn_moule': false,
-            // 'analyse_cbn_projet': false,
-            // 'analyse_cbn_client': false,
-            // 'analyse_cbn_fournisseur': false,
-            // 'analyse_cbn_semaines': false,
-            // 'analyse_cbn_type_cde': false,
-            // 'analyse_cbn_type_rapport': false,
-            // 'analyse_cbn_calage': false,
-            // 'analyse_cbn_val': false,
-            //'lines': [],
             'dict': {},
         });
 
@@ -38,18 +25,6 @@ class AnalyseCbn extends Component {
             controlPanel: { "top-right": false, "bottom-right": false },
         };
         onWillStart(async () => {
-            // this.state.analyse_cbn_code_pg = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_code_pg"]);
-            // this.state.analyse_cbn_gest = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_gest"]);
-            // this.state.analyse_cbn_cat = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_cat"]);
-            // this.state.analyse_cbn_moule = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_moule"]);
-            // this.state.analyse_cbn_projet = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_projet"]);
-            // this.state.analyse_cbn_client = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_client"]);
-            // this.state.analyse_cbn_fournisseur = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_fournisseur"]);
-            // this.state.analyse_cbn_semaines = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_semaines"]);
-            // this.state.analyse_cbn_type_cde = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_type_cde"]);
-            // this.state.analyse_cbn_type_rapport = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_type_rapport"]);
-            // this.state.analyse_cbn_calage = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_calage"]);
-            // this.state.analyse_cbn_val = await this.orm.call("is.mem.var", 'get', [false, this.user_id, "analyse_cbn_val"]);
             this.getAnalyseCbn();
         });
     } 
@@ -101,13 +76,34 @@ class AnalyseCbn extends Component {
     }
 
 
-
-
-
     QtClick(ev) {
+        var pre = $(ev.target).parent().find('pre').first();
+        if (pre.css('display', )=='none'){
+            pre.css('display', 'inline'); /* on affiche l'infobulle */
+        } else {
+            pre.css('display', 'none');   /* on masque l'infobulle */
+        }
+    }
+
+
+    DeleteClick(ev) {
+        const key = ev.target.attributes.key.value;
+        delete this.state.dict[key];
+    }
+
+
+    RefreshClick(ev) {
+        const key = ev.target.attributes.key.value;
+        this.state.dict[key];
+        var Code = this.state.dict[key].Code+" => FAIT"
+        this.state.dict[key].Code=Code;
+        this.getAnalyseCbnProduct(key);
+    }
+
+
+    VoirODClick(ev) {
+        const numod  = ev.target.attributes.numod.value;
         const typeod = ev.target.attributes.name_typeod.value;
-        const ids = ev.target.attributes.ids.value;
-        const tids = ids.split(","); 
         const dict = {
             "CF": "sale.order",
             "CP": "sale.order",
@@ -120,98 +116,66 @@ class AnalyseCbn extends Component {
         };
         const model = dict[typeod];
         if (model!==undefined){
-            if(tids.length>1){
-                this.action.doAction({
-                    type: 'ir.actions.act_window',
-                    target: 'current',
-                    // flags: {'action_buttons': True},
-                    //target: 'new',
-                    res_model: model,
-                    views: [[false, 'list'], [false, 'form']],
-                    domain: [['id', 'in', tids]],
-                });
-            } else {
-                this.action.doAction({
-                    type: 'ir.actions.act_window',
-                    target: 'current',
-                    //action_buttons: true,
-                    //target: 'new',
-                    res_id: parseInt(tids[0]),
-                    res_model: model,
-                    views: [[false, 'form']],
-                });
-            }
+            this.action.doAction({
+                type: 'ir.actions.act_window',
+                target: 'new',
+                res_id: parseInt(numod),
+                res_model: model,
+                views: [[false, 'form']],
+            });
         }
     }
 
 
-    // DeleteClick(ev) {
-    //     const product_id = ev.target.attributes.productid.value;
-    //     this.state.lines.forEach((item, index) => {
-    //         if (item.product_id==product_id){
-    //             this.state.lines.splice(index, 1);
-    //         }
-    //     })
-    // }
-
-
-    DeleteClick(ev) {
-        const key = ev.target.attributes.key.value;
-        console.log(key);
-        console.log(this.state.dict);
-        delete this.state.dict[key];
+    ConvertirODClick(ev) {
+        const result = confirm("Voulez-vous vraiment convertir cet OD en FL ou SA ?");
+        if (result){
+            const key    = ev.target.attributes.key.value;
+            const numod  = ev.target.attributes.numod.value;
+            const typeod = ev.target.attributes.name_typeod.value;
+            this.ConvertirOD(key,typeod,numod);
+        }
     }
-
-
-    RefreshClick(ev) {
-        const key = ev.target.attributes.key.value;
-        //const product_id = ev.target.attributes.productid.value;
-        this.state.dict[key];
-
-        var Code = this.state.dict[key].Code+" => FAIT"
-        this.state.dict[key].Code=Code;
+    async ConvertirOD(key,typeod,numod){
+        if (typeod=='SA') {
+            var res = await this.orm.call("mrp.prevision", 'convertir_sa', [parseInt(numod)]);
+        }
+        if (typeod=='FS') {
+            var res = await this.orm.call("mrp.prevision", 'convertir_fs', [parseInt(numod)]);
+        }
         this.getAnalyseCbnProduct(key);
-
-
-        // this.state.lines.forEach((item, index) => {
-        //     if (item.product_id==product_id){
-        //         var Code = this.state.lines[index].Code+" => FAIT"
-        //         this.state.lines[index].Code=Code;
-        //         this.getAnalyseCbnProduct(product_id);
-        //     }
-        // })
     }
 
 
-    // RefreshClick(ev) {
-    //     const product_id = ev.target.attributes.productid.value;
-    //     this.state.lines.forEach((item, index) => {
-    //         if (item.product_id==product_id){
-    //             var Code = this.state.lines[index].Code+" => FAIT"
-    //             this.state.lines[index].Code=Code;
-    //             this.getAnalyseCbnProduct(product_id);
-    //             //this.state.lines[index].typeodlist=[];
-    //             //this.getAnalyseCbnProduct(true);
-    //         }
-    //     })
-    // }
+    DupliquerODClick(ev) {
+        const result = confirm("Voulez-vous vraiment dupliquer cet OD ?");
+        if (result){
+            const key    = ev.target.attributes.key.value;
+            const numod  = ev.target.attributes.numod.value;
+            const typeod = ev.target.attributes.name_typeod.value;
+            this.DupliquerOD(key,typeod,numod);
+        }
+    }
+    async DupliquerOD(key,typeod,numod){
+        if (typeod=='FS' || typeod=='SA') {
+            var res = await this.orm.call("mrp.prevision", 'copy', [parseInt(numod)]);
+            this.getAnalyseCbnProduct(key);
+        }
+    }
 
 
     DeleteODClick(ev) {
         const result = confirm("Voulez-vous vraiment supprimer cet OD ?");
         if (result){
             const key    = ev.target.attributes.key.value;
+            const numod  = ev.target.attributes.numod.value;
             const typeod = ev.target.attributes.name_typeod.value;
-            const ids    = ev.target.attributes.ids.value;
-            this.DeleteOD(key,typeod,ids);
+            this.DeleteOD(key,typeod,numod);
         }
     }
-
-    async DeleteOD(key,typeod,ids){
-        if (typeod=='FS' || typeod=='FL' || typeod=='SA') {
-            console.log(typeod,ids);
-            var res = await this.orm.call("mrp.prevision", 'unlink', [parseInt(ids)]);
-            console.log(res);
+    async DeleteOD(key,typeod,numod){
+        if (typeod=='FS' || typeod=='SA') {
+            var res = await this.orm.call("mrp.prevision", 'unlink', [parseInt(numod)]);
             this.getAnalyseCbnProduct(key);
         }
     }
@@ -224,10 +188,8 @@ class AnalyseCbn extends Component {
             "type_rapport": this.state.analyse_cbn_type_rapport,
         }
         var res = await this.orm.call("product.product", 'get_analyse_cbn', [false],params);
-        console.log(res);
         this.state.dict[key] = res.dict[key];
     }
-
     async getAnalyseCbn(ok=false){
         const params={
             "code_pg"     : this.state.analyse_cbn_code_pg,
@@ -245,26 +207,7 @@ class AnalyseCbn extends Component {
             "ok"          : ok,
         }
         var res = await this.orm.call("product.product", 'get_analyse_cbn', [false],params);
-
-        // var lines = await this.orm.call("product.product", 'get_analyse_cbn', [
-        //     false,
-        //     this.state.analyse_cbn_code_pg,
-        //     this.state.analyse_cbn_gest,
-        //     this.state.analyse_cbn_cat,
-        //     this.state.analyse_cbn_moule,
-        //     this.state.analyse_cbn_projet,
-        //     this.state.analyse_cbn_client,
-        //     this.state.analyse_cbn_fournisseur,
-        //     this.state.analyse_cbn_semaines,
-        //     this.state.analyse_cbn_type_cde,
-        //     this.state.analyse_cbn_type_rapport,
-        //     this.state.analyse_cbn_calage,
-        //     this.state.analyse_cbn_val,
-        // ]);
-
-
         this.state.titre                    = res.titre;
-        //this.state.lines                    = res.lines;
         this.state.dict                     = res.dict;
         this.state.date_cols                = res.date_cols;
         this.state.analyse_cbn_code_pg      = res.code_pg;
@@ -279,7 +222,6 @@ class AnalyseCbn extends Component {
         this.state.analyse_cbn_type_rapport = res.type_rapport;
         this.state.analyse_cbn_calage       = res.calage;
         this.state.analyse_cbn_valorisation = res.valorisation;
-
         this.state.gest_options             = res.gest_options;
         this.state.fournisseur_options      = res.fournisseur_options;
         this.state.semaines_options         = res.semaines_options;
@@ -288,15 +230,12 @@ class AnalyseCbn extends Component {
         this.state.calage_options           = res.calage_options;
         this.state.valorisation_options     = res.valorisation_options;
 
-        console.log(this.state.dict);
-
-
-
+        // Tentative d'enregistrer dans un coockie, mais la limite de 4096 est bien trop faible (Besoin de 8 Mo)
+        // var cookie = "analyse_cbn="+JSON.stringify(this.state.dict);
+        // cookie = cookie.substring(0, 2000); 
+        // document.cookie = cookie;
     }
 }
-
-
-
 
 AnalyseCbn.components = { Layout };
 AnalyseCbn.template = "is_plastigray16.analyse_cbn_template";

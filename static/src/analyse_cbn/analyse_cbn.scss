@@ -1,0 +1,43 @@
+
+.filtre_analysecbn{
+    margin-bottom: 0.5rem;
+}
+table.filtre_pic thead tr:nth-child(1) th {
+    background-color: white;
+    font-size: 1rem;
+    color: gray;
+}
+.link {
+    cursor: pointer;
+}
+
+.analysecbn {
+    border-bottom: 1px solid #dee2e6;
+    padding-top: 0;
+    padding-bottom: 0.5rem;
+    background-color: #f2f3f4;
+}
+
+
+//** infobulle ***************************************************************!
+.analysecbn span.infocbn {
+    position: relative;
+    text-decoration: none;
+}
+.analysecbn span.infocbn:hover pre {
+    background: gainsboro;
+}
+.analysecbn span.infocbn pre {
+    position: absolute;
+    white-space: nowrap;
+    top: 20px;
+    left: 0px;
+    background: white;
+    color: black;
+    padding: 3px;
+    border: 1px solid gray;
+    border-left: 4px solid black;
+    text-align: left;
+    z-index: 500;
+}
+//*****************************************************************************
