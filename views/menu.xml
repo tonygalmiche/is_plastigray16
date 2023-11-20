@@ -2295,11 +2295,11 @@
 
 
     <record model="ir.actions.client" id="calendrier_absence_actions_client">
-        <field name="name">Calendrier des absence</field>
+        <field name="name">Calendrier des absences</field>
         <field name="tag">is_plastigray16.calendrier_absence_registry</field>
     </record>
     <record id="calendrier_absence_menu" model="ir.ui.menu" >
-        <field name="name">Calendrier des absence</field>
+        <field name="name">Calendrier des absences</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_hr_gestion_des_absences')"/>
         <field name="action"    ref="calendrier_absence_actions_client"/>

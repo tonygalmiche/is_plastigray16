@@ -1111,17 +1111,12 @@ class is_edi_cde_cli(models.Model):
         return res
 
 
-
-
-
-
-
-
     def get_data_902810(self, attachment):
         res = []
         for obj in self:
             csvfile=base64.decodebytes(attachment.datas)
-            csvfile = csvfile.decode("utf-16")
+            #csvfile = csvfile.decode("utf-16")
+            csvfile = csvfile.decode("Windows-1252")
             csvfile=csvfile.split("\n")
             tab=[]
             ct=0
