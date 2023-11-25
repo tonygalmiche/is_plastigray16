@@ -870,9 +870,9 @@ class is_inventaire_line(models.Model):
     uc                = fields.Char('UC', store=True, compute='_compute')
     uc_us             = fields.Integer('US par UC', store=True, compute='_compute')
     location_id       = fields.Many2one('stock.location', 'Emplacement', required=True,index=1)
-    qt_us             = fields.Float("Qt US saisie", digits='Product Unit of Measure')
-    qt_uc             = fields.Float("Qt UC saisie", digits='Product Unit of Measure')
-    qt_us_calc        = fields.Float('Qt US'       , digits='Product Unit of Measure', store=True, compute='_compute')
+    qt_us             = fields.Float("Qt US saisie", digits=(12, 2))
+    qt_uc             = fields.Float("Qt UC saisie", digits=(12, 2))
+    qt_us_calc        = fields.Float('Qt US'       , digits=(12, 2), store=True, compute='_compute')
     lieu              = fields.Char('Lieu')
     lot_id            = fields.Many2one('stock.lot','Lot')
     state             = fields.Selection([
@@ -1011,13 +1011,13 @@ class is_inventaire_anomalie(models.Model):
     product_id      = fields.Many2one('product.product', 'Article' , required=True, index=True)
     code            = fields.Char("Code Article")
     designation     = fields.Char("Désignation")
-    qt_odoo         = fields.Float("Qt Odoo"                 , digits='Product Unit of Measure', help="Qt dans Odoo dans le programme 'Import inventaire'")
-    qt_inventaire   = fields.Float("Qt saisie inventaire"    , digits='Product Unit of Measure', help="Qt saisie (compté) dans le programme 'Import inventaire'")
-    ecart           = fields.Float("Ecart"                   , digits='Product Unit of Measure', help="Ecart calculé par le programme 'Import inventaire'")
-    theoretical_qty = fields.Float('Qt Odoo fiche inventaire', digits='Product Unit of Measure', help="Qt dans Odoo dans la fiche d'inventaire")
-    product_qty     = fields.Float("Qt fiche inventaire"     , digits='Product Unit of Measure', help="Qt à mettre à jour (nouvelle quantité) dans la fiche d'inventaire")
-    ecart_odoo      = fields.Float("Ecart Odoo"              , digits='Product Unit of Measure', help="Ecart de la fiche d'inventaire")
-    anomalie        = fields.Float("Anomalie"                , digits='Product Unit of Measure', help="Différence entre l'écart du programme 'Import inventaire' et l’écart calculé par Odoo dans la fiche d'inventaire")
+    qt_odoo         = fields.Float("Qt Odoo"                 , digits=(12, 2), help="Qt dans Odoo dans le programme 'Import inventaire'")
+    qt_inventaire   = fields.Float("Qt saisie inventaire"    , digits=(12, 2), help="Qt saisie (compté) dans le programme 'Import inventaire'")
+    ecart           = fields.Float("Ecart"                   , digits=(12, 2), help="Ecart calculé par le programme 'Import inventaire'")
+    theoretical_qty = fields.Float('Qt Odoo fiche inventaire', digits=(12, 2), help="Qt dans Odoo dans la fiche d'inventaire")
+    product_qty     = fields.Float("Qt fiche inventaire"     , digits=(12, 2), help="Qt à mettre à jour (nouvelle quantité) dans la fiche d'inventaire")
+    ecart_odoo      = fields.Float("Ecart Odoo"              , digits=(12, 2), help="Ecart de la fiche d'inventaire")
+    anomalie        = fields.Float("Anomalie"                , digits=(12, 2), help="Différence entre l'écart du programme 'Import inventaire' et l’écart calculé par Odoo dans la fiche d'inventaire")
 
 
 
