@@ -206,8 +206,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- DROP MATERIALIZED VIEW IF EXISTS is_taux_rotation_stock;
--- CREATE MATERIALIZED VIEW is_taux_rotation_stock AS (
+-- DROP MATERIALIZED VIEW IF EXISTS is_taux_rotation_stock_view;
+-- CREATE MATERIALIZED VIEW is_taux_rotation_stock_view AS (
 
 CREATE OR REPLACE VIEW is_taux_rotation_stock_view AS (
     select 
@@ -230,13 +230,12 @@ CREATE OR REPLACE VIEW is_taux_rotation_stock_view AS (
     from product_product pp inner join product_template      pt on pp.product_tmpl_id=pt.id
                             left outer join is_category      ic on pt.is_category_id=ic.id
                             left outer join is_gestionnaire  ig on pt.is_gestionnaire_id=ig.id
-
-    where ic.name not in('70','72','73','74','80') and is_stock(pp.id)<>0
-
-
+    where ic.name not in('70','71','72','73','74','75') and is_stock(pp.id)<>0
 )
-
         """)
+
+# Il manque la catégorie article 80 et il faut enlever les catégories 71 et 75.
+
 
         _logger.info('## init is_taux_rotation_stock_view en %.2fs'%(time.time()-start))
 
