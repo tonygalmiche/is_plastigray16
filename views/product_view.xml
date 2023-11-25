@@ -1027,15 +1027,64 @@
 
 
 
-        <!-- <record id="is_product_template_form_view_procurement_button" model="ir.ui.view">
+        <record id="is_product_template_form_view_procurement_button" model="ir.ui.view">
             <field name="name">is_product_template_form_view_procurement_button</field>
             <field name="model">product.template</field>
             <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
             <field name="arch" type="xml">
-                <xpath expr="//button[@name='action_view_orderpoints']" position="replace" />
-                <xpath expr="//button[@name='action_view_routes']" position="replace" />
+                <xpath expr="//button[@name='action_view_orderpoints'][1]"        position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//button[@name='action_view_orderpoints'][2]"        position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//button[@name='action_view_related_putaway_rules']" position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//t[1]" position="attributes">
+                    <attribute name="groups">base.group_user</attribute>
+                </xpath>             
             </field>
-        </record>  -->
+        </record> 
+
+
+
+<!-- 
+        <button type="object"
+        name="action_view_orderpoints"
+        attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '!=', 1)]}"
+        class="oe_stat_button" icon="fa-refresh">
+        <div class="o_field_widget o_stat_info mr4">
+            <span class="o_stat_text">Min:</span>
+            <span class="o_stat_text">Max:</span>
+        </div>
+        <div class="o_field_widget o_stat_info">
+            <span class="o_stat_value"><field name="reordering_min_qty"/></span>
+            <span class="o_stat_value"><field name="reordering_max_qty"/></span>
+        </div>
+    </button>
+    <button type="object"
+        name="action_view_orderpoints"
+        attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '==', 1)]}"
+        class="oe_stat_button"
+        icon="fa-refresh">
+        <field name="nbr_reordering_rules" widget="statinfo"/>
+    </button>
+    <button string="Lot/Serial Numbers" type="object"
+        name="action_open_product_lot"
+        attrs="{'invisible': [('tracking', '=', 'none')]}"
+        class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot"/>
+    <button string="Putaway Rules" type="object"
+        name="action_view_related_putaway_rules"
+        class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
+        attrs="{'invisible': [('type', '=', 'service')]}"
+        context="{
+            'invisible_handle': True,
+            'single_product': product_variant_count == 1,
+        }"/>
+
+ -->
+
+
+
+
+
+
+
 
         <record model="ir.ui.view" id="is_product_tree_view">
             <field name="name">is_product_tree_view</field>
@@ -1349,6 +1398,34 @@
             <field name="view_id" ref="is_article_achete_tree_view"/>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+
+
+                        <!-- <attribute name="string">Toto</attribute> -->
+
+
+        <record id="is_mrp_product_template_form_view_bom_button" model="ir.ui.view">
+            <field name="name">is_mrp_product_template_form_view_bom_button</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="mrp.product_template_form_view_bom_button"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@icon='fa-flask']" position="attributes">
+                    <attribute name="groups">base.group_user</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+
+
+
+
+
+
+
+
+
 
 
         <!-- product.product -->
