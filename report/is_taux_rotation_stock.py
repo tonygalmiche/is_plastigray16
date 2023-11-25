@@ -206,7 +206,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- DROP MATERIALIZED VIEW IF EXISTS is_taux_rotation_stock_view;
+DROP MATERIALIZED VIEW IF EXISTS is_taux_rotation_stock_view;
 -- CREATE MATERIALIZED VIEW is_taux_rotation_stock_view AS (
 
 CREATE OR REPLACE VIEW is_taux_rotation_stock_view AS (
