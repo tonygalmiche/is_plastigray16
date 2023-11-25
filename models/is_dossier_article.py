@@ -2,7 +2,10 @@
 from odoo import models,fields,api
 import datetime
 import pytz
-import os
+#import os
+
+from subprocess import PIPE, Popen
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from odoo.exceptions import ValidationError
@@ -108,9 +111,11 @@ class is_dossier_article(models.Model):
     def is_dossier_article_actualiser_action(self):
         cdes = self.env['is.commande.externe'].search([('name','=',"actualiser-dossier-article")])
         for cde in cdes:
-            lines=os.popen(cde.commande).readlines()
-            for line in lines:
-                _logger.info(line.strip())
+            p = Popen(cde.commande, shell=True, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate()
+            _logger.info("%s => %s"%(cde.commande,stdout))
+            if stderr:
+                raise ValidationError("Erreur dans commande externe '%s' => %s"%(cde.commande,stderr))
         now = datetime.datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M:%S')
         return {
             'name': u'Dossiers articles actualisés à '+str(now),
