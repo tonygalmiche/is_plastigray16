@@ -101,13 +101,24 @@
                 </search>
             </field>
         </record>
-        <record id="is_dossier_appel_offre_graph_view" model="ir.ui.view">
-            <field name="name">is_dossier_appel_offre_graph_view</field>
+        <record id="is_dossier_appel_offre_graph" model="ir.ui.view">
+            <field name="name">is_dossier_appel_offre_graph</field>
             <field name="model">is.dossier.appel.offre</field>
             <field name="arch" type="xml">
-                <pivot string="view">
-                    <field name="dao_client" type="row"/>
-                    <field name="dao_annee"  type="col"/>
+                <graph>
+                    <!-- <field name="dao_client" type="row"/> -->
+                    <!-- <field name="dao_annee"  type="col"/> -->
+                    <field name="dao_annee"  type="row"/>
+                    <field name="dao_ca"     type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record id="is_dossier_appel_offre_pivot" model="ir.ui.view">
+            <field name="name">is_dossier_appel_offre_pivot</field>
+            <field name="model">is.dossier.appel.offre</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="dao_annee"  type="row"/>
                     <field name="dao_ca"     type="measure"/>
                 </pivot>
             </field>
@@ -115,7 +126,7 @@
         <record model="ir.actions.act_window" id="is_dossier_appel_offre_action">
             <field name="name">Dossier appels d'offres</field>
             <field name="res_model">is.dossier.appel.offre</field>
-            <field name="view_mode">tree,form,graph</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
         </record>
     </data>
 </odoo>
