@@ -685,16 +685,16 @@ class product_template(models.Model):
                     create_date=False
                     qty=0
                     for line in inventory.line_ids:
-                        if line.product_qty<0:
-                            qty=qty-line.product_qty
+                        if line.theoretical_qty<0:
+                            qty=qty-line.theoretical_qty
                             line.product_qty=0
                     for line in inventory.line_ids:
-                        if line.product_qty>0:
-                            if line.product_qty>=qty:
-                                line.product_qty=line.product_qty-qty
+                        if line.theoretical_qty>0:
+                            if line.theoretical_qty>=qty:
+                                line.product_qty=line.theoretical_qty-qty
                                 qty=0
                             else:
-                                qty=qty-line.product_qty
+                                qty=qty-line.theoretical_qty
                                 line.product_qty=0
                             if qty<=0:
                                 break

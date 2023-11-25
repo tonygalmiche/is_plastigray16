@@ -46,7 +46,7 @@ class stock_inventory(models.Model):
                     "location_id": quant.location_id.id,
                     "product_id": quant.product_id.id,
                     "product_uom_id": quant.product_id.uom_id.id,
-                    #"theoretical_qty": quant.quantity,
+                    "product_qty": quant.quantity,
                     "prod_lot_id": quant.lot_id.id,
                 }
                 line=self.env['stock.inventory.line'].create(vals)

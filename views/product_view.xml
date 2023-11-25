@@ -1351,9 +1351,17 @@
         </record>
 
 
-        <!-- product_supplierinfo_tree_view2 -->
-        <!-- <field name="partner_id" domain="[('customer','=',True),('is_company','=',True)]" /> -->
-
+        <!-- product.product -->
+        <record id="is_product_normal_form_view" model="ir.ui.view">
+            <field name="name">is_product_normal_form_view</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <field name="segment_id" position="before">
+                    <field name="product_tmpl_id" readonly="1"/>
+                </field>
+            </field>
+        </record>
 
         <!-- product.supplierinfo -->
         <record id="is_product_supplierinfo_tree_view" model="ir.ui.view">
