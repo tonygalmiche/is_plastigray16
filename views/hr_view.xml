@@ -17,6 +17,39 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+        <!-- 
+                <page name="public" string="Work Information">
+                    <div id="o_work_employee_container" class="d-lg-flex"> 
+                        <div id="o_work_employee_main" class="flex-grow-1">
+                            <group string="Location">
+                                <field name="address_id" context="{'show_address': 1}" options="{&quot;always_reload&quot;: True, &quot;highlight_first_line&quot;: True}"/>
+                                <field name="work_location_id" context="{'default_address_id': address_id}"/>
+                            </group>
+                            <group name="managers" string="Approvers" class="hide-group-if-empty" invisible="1">
+                            </group>
+                            <group name="departure" string="Departure" attrs="{'invisible': [('active', '=', True)]}">
+                                <field name="departure_reason_id" options="{'no_edit': True, 'no_create': True, 'no_open': True}"/>
+                                <field name="departure_description"/>
+                                <field name="departure_date"/>
+                            </group>
+                            <group string="Schedule">
+                                <field name="resource_calendar_id" required="1"/>
+                                <field name="id" invisible="1"/>
+                                <field name="tz" attrs="{'required': [('id', '!=', False)]}"/>
+                            </group>
+                        </div>
+                    </div>
+                </page>
+                <page name="personal_information"
+
+
+    
+    -->
+
+    <!-- <page name="personal_information" string="Private Information" groups="hr.group_hr_user"> -->
+
+
         <record id="is_view_employee_form" model="ir.ui.view">
             <field name="name">is.hr.employee.form</field>
             <field name="model">hr.employee</field>
@@ -30,6 +63,17 @@
                             <field string="Pointages" name="is_pointage_count" widget="statinfo" />
                         </button>
                 </div>
+
+                <xpath expr="//sheet/div/h2"                                  position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//sheet/div/field[@name='category_ids']"         position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//sheet/group/group/field[@name='mobile_phone']" position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//sheet/group/group/field[@name='work_phone']"   position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//sheet/group/group/field[@name='work_email']"   position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//page[@name='personal_information']"            position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//div[@id='o_work_employee_main']"               position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//group[@name='identification_group']"           position="attributes"><attribute name="invisible">1</attribute></xpath>
+                <xpath expr="//header/button[1]"                              position="attributes"><attribute name="invisible">1</attribute></xpath>
+
                 <field name="address_id"     position="attributes"><attribute name="readonly">1</attribute></field>
                 <field name="mobile_phone"   position="attributes"><attribute name="readonly">1</attribute></field>
                 <field name="department_id"  position="attributes"><attribute name="readonly">1</attribute></field>
@@ -59,7 +103,7 @@
                                 <field name="is_jour6" readonly="1"/>
                                 <field name="is_jour7" readonly="1"/>
                             </group>
-                            <group string="Validation">
+                            <group string="Validation des absences">
                                 <field name="is_valideur_n1" readonly="1"/>
                                 <field name="is_valideur_n2" readonly="1"/>
                             </group>
