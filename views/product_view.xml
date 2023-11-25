@@ -1230,7 +1230,7 @@
             <field name="model">product.template</field>
             <field name="arch" type="xml">
                 <!-- <tree colors="red:qty_available &lt; 0 "> -->
-                <tree>
+                <tree create="0" edit="0">
                     <field name="is_code"/>
                     <field name="name"/>
                     <field name="segment_id"/>
@@ -1260,7 +1260,7 @@
             <field name="model">product.template</field>
             <field name="priority" eval="90" />
             <field name="arch" type="xml">
-                <tree>
+                <tree create="0" edit="0">
                     <field name="is_code"/>
                     <field name="name"/>
                     <field name="segment_id"/>
