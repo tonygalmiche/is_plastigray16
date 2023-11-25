@@ -90,11 +90,15 @@ class is_ctrl_budget_tdb_saisie(models.Model):
     ligne_ids    = fields.One2many('is.ctrl.budget.tdb', 'saisie_id', u"Lignes", copy=True)
     famille_ids  = fields.One2many('is.ctrl.budget.tdb.famille.rel','saisie_id', string="Familles", copy=True)
 
-    def copy(self,vals):
+
+    def copy(self, default=None):
         for obj in self:
-            vals['annee']=obj.annee+u' (copie)'
-            res=super(is_ctrl_budget_tdb_saisie, self).copy(vals)
+            default = dict(default or {})
+            print(default)
+            default['annee']="%s (copie)"%obj.annee
+            res=super(is_ctrl_budget_tdb_saisie, self).copy(default=default)
             return res
+
 
     # La fonction name_get est une fonction standard d'Odoo permettant de définir le nom des fiches (dans les relations x2x)
     # La fonction name_search permet de définir les résultats des recherches dans les relations x2x. En général, elle appelle la fonction name_get
