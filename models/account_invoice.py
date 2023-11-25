@@ -143,13 +143,6 @@ class account_invoice(models.Model):
             obj.is_tva      = tva
 
 
-    # def copy(self,vals):
-    #     vals['is_folio_id'] = False
-    #     vals['is_export_cegid_id'] = False
-    #     res=super(account_invoice, self).copy(vals)
-    #     return res
-
-
     def voir_facture_client_action(self):
         for obj in self:
             #view_id=self.env.ref('is_plastigray16.is_invoice_form')

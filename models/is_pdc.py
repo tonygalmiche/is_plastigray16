@@ -9,7 +9,7 @@ class is_pdc(models.Model):
     _description="is_pdc"
     _order='name desc'
 
-    name                  = fields.Date("Date du calcul")
+    name                  = fields.Date("Date du calcul", default=fields.Datetime.now)
     date_debut            = fields.Date("Date de début de période", required=True)
     date_fin              = fields.Date("Date de fin de période"  , required=True)
     nb_heures_total       = fields.Float("Nombres d'heures issues du calcul de charge dans la période", readonly=True)
