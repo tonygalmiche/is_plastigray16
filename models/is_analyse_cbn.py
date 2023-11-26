@@ -312,6 +312,9 @@ class product_product(models.Model):
         res={}
         for row in result:
             product_id = row["product_id"]
+
+
+
             code    = row["code_pg"]
             if type_rapport=='Achat':
                 code_fournisseur=Fournisseurs.get(product_id,"0000")
@@ -332,6 +335,8 @@ class product_product(models.Model):
 
             if key not in res:
                 product_id = row["product_id"]
+                product = self.env['product.product'].browse(product_id)
+                product_tmpl = product.product_tmpl_id
                 if type_rapport=='Achat':
                     Delai=Delai_Fournisseurs.get(product_id,0)
                 else:
@@ -340,6 +345,7 @@ class product_product(models.Model):
                     "key"        : key,
                     "Code"       : Code,
                     "product_id" : product_id,
+                    "product_tmpl_id": product_tmpl.id,
                     "code_pg"    : row["code_pg"],
                     "designation": row["designation"],
                     "cout"       : cout,

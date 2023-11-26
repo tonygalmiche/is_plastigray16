@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 
 #TODO : Permet d'indiquer l'id du produit à analyser (product.product)
 product_id_test=False
-#product_id_test=9427
+product_id_test=10604
 
 #TODO : 
 # Tester les résultats avec des commandes partielles, des réceptions partielles ou des OF partiels
@@ -156,7 +156,6 @@ class mrp_generate_previsions(models.TransientModel):
             res[row[0]]=row[1]
             #if row[0]==product_id_test:
             #    print "_cde_fou : ",row[0], row[1], date_debut, date_fin
-
         return res
 
 
@@ -167,13 +166,22 @@ class mrp_generate_previsions(models.TransientModel):
             date_debut="2000-01-01"
         date_debut = date_debut + ' 23:59:59'
         date_fin   = date_fin   + ' 23:59:59'
+        # sql="""
+        #     select sm.product_id, sum(sm.product_uom_qty)
+        #     from stock_move sm inner join mrp_production mp on sm.production_id=mp.id 
+        #     where sm.state not in ('cancel', 'done') 
+        #           and mp.date_planned_start>='"""+date_debut+"""'
+        #           and mp.date_planned_start<'"""+date_fin+"""'
+        #     group by sm.product_id
+        # """
         sql="""
-            select sm.product_id, sum(sm.product_uom_qty)
-            from stock_move sm inner join mrp_production mp on sm.production_id=mp.id 
-            where sm.state not in ('cancel', 'done') 
-                  and mp.date_planned_start>='"""+date_debut+"""'
-                  and mp.date_planned_start<'"""+date_fin+"""'
-            group by sm.product_id
+            select mp.product_id, sum(mp.is_qt_reste_uom)
+            from mrp_production mp
+            where 
+                mp.state='draft' and
+                mp.date_planned_start>='"""+date_debut+"""' and
+                mp.date_planned_start<'"""+date_fin+"""'
+            group by mp.product_id
         """
         res={}
         cr.execute(sql)

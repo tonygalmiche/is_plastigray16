@@ -114,6 +114,8 @@ class AnalyseCbn extends Component {
     VoirODClick(ev) {
         const numod  = ev.target.attributes.numod.value;
         const typeod = ev.target.attributes.name_typeod.value;
+        const pre = $(ev.target).parent().parent();
+        pre.css('display', 'none');   /* on masque l'infobulle */
         const dict = {
             "CF": "sale.order",
             "CP": "sale.order",
@@ -137,7 +139,21 @@ class AnalyseCbn extends Component {
     }
 
 
+    ProductClick(ev){
+        const product_tmpl_id  = ev.target.attributes.product_tmpl_id.value;
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            target: 'new',
+            res_id: parseInt(product_tmpl_id),
+            res_model: 'product.template',
+            views: [[false, 'form']],
+        });
+    }
+
+
     ConvertirODClick(ev) {
+        const pre = $(ev.target).parent().parent();
+        pre.css('display', 'none');   /* on masque l'infobulle */
         const result = confirm("Voulez-vous vraiment convertir cet OD en FL ou SA ?");
         if (result){
             const key    = ev.target.attributes.key.value;
@@ -158,6 +174,8 @@ class AnalyseCbn extends Component {
 
 
     DupliquerODClick(ev) {
+        const pre = $(ev.target).parent().parent();
+        pre.css('display', 'none');   /* on masque l'infobulle */
         const result = confirm("Voulez-vous vraiment dupliquer cet OD ?");
         if (result){
             const key    = ev.target.attributes.key.value;
@@ -175,6 +193,8 @@ class AnalyseCbn extends Component {
 
 
     DeleteODClick(ev) {
+        const pre = $(ev.target).parent().parent();
+        pre.css('display', 'none');   /* on masque l'infobulle */
         const result = confirm("Voulez-vous vraiment supprimer cet OD ?");
         if (result){
             const key    = ev.target.attributes.key.value;
@@ -241,7 +261,6 @@ class AnalyseCbn extends Component {
         this.state.valorisation_options     = res.valorisation_options;
         this.state.excel_attachment_id      = res.excel_attachment_id
 
-        console.log(res.excel_attachment_id);
 
         // Tentative d'enregistrer dans un coockie, mais la limite de 4096 est bien trop faible (Besoin de 8 Mo)
         // var cookie = "analyse_cbn="+JSON.stringify(this.state.dict);

@@ -144,7 +144,13 @@
                                         style="text-align:left" 
                                         t-att-rowspan="line.rowspan"
                                     >
-                                        <span t-esc="line.Code"/><br />
+                                        <span 
+                                            t-esc="line.Code"
+                                            t-att-product_tmpl_id="line.product_tmpl_id"
+                                            t-on-click="ProductClick" 
+                                            class="link"
+                                        />
+                                        <br />
                                         <span 
                                             class="fa fa-refresh link"
                                             alt="Refresh"
