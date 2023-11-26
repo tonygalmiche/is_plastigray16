@@ -23,6 +23,7 @@
                         <th>Rapport</th>
                         <th>Calage</th>
                         <th>Val</th>
+                        <th t-if="state.excel_attachment_id"></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -95,6 +96,15 @@
                                     </option>
                                 </t>
                             </select>
+                        </td>
+                        <td t-if="state.excel_attachment_id"><img 
+                                src="/is_plastigray16/static/src/analyse_cbn/logo-excel.svg" 
+                                style="max-height:2em;margin-left:0.5em;margin-right:0.5em"
+                                title="Télécharger le fichier Excel"
+                                class="link"
+                                t-att-excel_attachment_id="state.excel_attachment_id"
+                                t-on-click="ExcelClick"
+                            />
                         </td>
                         <td><button class="btn btn-primary ms-1" style="width:50px"  t-on-click="OKclick"> OK </button></td>
                     </tr>

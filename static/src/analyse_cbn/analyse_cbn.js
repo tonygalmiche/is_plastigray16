@@ -33,6 +33,16 @@ class AnalyseCbn extends Component {
         this.getAnalyseCbn(true);
     }
 
+
+    ExcelClick(ev) {
+        const excel_attachment_id = ev.target.attributes.excel_attachment_id.value;
+        this.action.doAction({
+            type: 'ir.actions.act_url',
+            url: '/web/content/'+excel_attachment_id+'?download=true',
+        });
+    }
+
+
     onChangeInput(ev) {
         this.state[ev.target.name] = ev.target.value;
         //this.orm.call("is.mem.var", 'set', [false, this.user_id, ev.target.name, ev.target.value]);
@@ -229,6 +239,9 @@ class AnalyseCbn extends Component {
         this.state.type_rapport_options     = res.type_rapport_options;
         this.state.calage_options           = res.calage_options;
         this.state.valorisation_options     = res.valorisation_options;
+        this.state.excel_attachment_id      = res.excel_attachment_id
+
+        console.log(res.excel_attachment_id);
 
         // Tentative d'enregistrer dans un coockie, mais la limite de 4096 est bien trop faible (Besoin de 8 Mo)
         // var cookie = "analyse_cbn="+JSON.stringify(this.state.dict);

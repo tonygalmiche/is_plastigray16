@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
+import odoo.tools as tools
 from datetime import datetime, timedelta
-import json 
+#import json 
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, PatternFill, Font, borders
+from openpyxl.styles.borders import Border
+from openpyxl.worksheet.page import PageMargins
+import base64
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -514,94 +521,9 @@ class product_product(models.Model):
         #**********************************************************************
 
 
-        # if valorisation=="Oui":
-        #     name = "test.csv"
-        #     path = "/tmp/%s"%name
-        #     f = open(path,'w',encoding='utf-8')
 
-        #     for p in totaux:
-        #         line=p
-        #         f.write("%s\n"%line)
-        #     f.close()
 
-            # #** Génération du fichier CSV **************************************
-            # attachment_id=''
-            # if valorisation:
-            #     csv={};
-            #     for lig in range(0,len(Tab[0])):
-            #         #** Recherche du CodePG et de la désignation ***************
-            #         Key=Tab[0][lig]
-            #         Key=Key.split('</b>')
-            #         Key=Key[0]
-            #         Key=Key.split('<b>')
-            #         Key=Key[1]
-            #         CodePG=Key
-            #         Key=Tab[0][lig]
-            #         Key=Key.split('<br />')
-            #         Key=Key[1]
-            #         Designation=Key
-            #         #***********************************************************
 
-            #         if CodePG not in csv:
-            #             csv[CodePG]={}
-            #         csv[CodePG][0]=CodePG
-            #         csv[CodePG][1]=Designation
-            #         Type=Tab[1][lig]
-            #         if Type=='90-Stock':
-            #             for col in range(2,len(Tab)):
-            #                 csv[CodePG][col*1000+1]=Tab[col][lig]
-            #         if Type=='92-Stock Valorisé':
-            #             for col in range(2,len(Tab)):
-            #                 csv[CodePG][col*1000+2]=Tab[col][lig]
-
-            #     #** Ecriture fichier CSV  **************************************
-            #     user  = self.env['res.users'].browse(uid)
-            #     name  = 'analyse-cbn-'+user.login+'.csv'
-            #     path='/tmp/'+name
-            #     f = open(path,'wb')
-            #     txt=[];
-            #     txt.append('CodePG')
-            #     txt.append('Désignation')
-            #     date=datetime.datetime.now()
-            #     jour=date.weekday()
-            #     date = date - datetime.timedelta(days=jour)
-            #     for i in range(0,int(nb_semaines)):
-            #         v='Stock S'+str(date.isocalendar()[1])+' '+date.strftime('%d.%m')
-            #         txt.append(v)
-            #         v='Valorisé S'+str(date.isocalendar()[1])+' '+date.strftime('%d.%m')
-            #         txt.append(v)
-            #         date = date + datetime.timedelta(days=7)
-
-            #     f.write(u'\t'.join(txt)+'\r\n')
-            #     for k, v in csv.iteritems():
-            #         v=self.ksort(v)
-            #         txt=[]
-            #         for k2, v2 in v:
-            #             txt.append(str(v2).replace('.',','))
-            #         f.write(u'\t'.join(txt)+'\r\n')
-            #     f.close()
-            #     #***************************************************************
-
-            #     # ** Creation ou modification de la pièce jointe *******************
-            #     attachment_obj = self.env['ir.attachment']
-            #     attachments = attachment_obj.search([('res_id','=',user.id),('name','=',name)])
-            #     csv = open(path,'rb').read()
-            #     vals = {
-            #         'name':        name,
-            #         'datas_fname': name,
-            #         'type':        'binary',
-            #         'res_id':      user.id,
-            #         'datas':       csv.encode('base64'),
-            #     }
-            #     attachment_id=False
-            #     if attachments:
-            #         for attachment in attachments:
-            #             attachment.write(vals)
-            #             attachment_id=attachment.id
-            #     else:
-            #         attachment = attachment_obj.create(vals)
-            #         attachment_id=attachment.id
-            #     #*******************************************************************
 
 
         #** Ajout de la couleur des lignes ************************************
@@ -622,6 +544,118 @@ class product_product(models.Model):
         #**********************************************************************
 
 
+
+
+        #** Création fichier Excel ********************************************
+        excel_attachment_id = False
+        if valorisation=="Oui":
+            #** Création du workbook ******************************************
+            user  = self.env['res.users'].browse(self._uid)
+            name  = 'analyse-cbn-%s.xlsx'%user.login
+            path = '/tmp/%s'%name
+            workbook = Workbook()
+            ws = workbook.active
+            ws.title = "Analyse CBN"
+            #******************************************************************
+
+            #** Ligne d'entête ************************************************
+            clr_background = PatternFill(start_color='FFFACD', end_color='FFFACD', fill_type="solid")
+            cell = ws.cell(row=1, column=1, value="Code PG")
+            cell.fill = clr_background
+            cell.font = Font(name='Calibri', bold=True)
+            cell = ws.cell(row=1, column=2, value="Désignation")
+            cell.font = Font(name='Calibri', bold=True)
+            cell.fill = clr_background
+            for key in sorted_dict:
+                line = sorted_dict[key]["typeod"]["92-Stock Valorisé"]["cols"]
+                column = 3
+                for col in line:
+                    date = line[col]["key"]
+                    date = datetime.strptime(date, '%Y%m%d')
+                    cell = ws.cell(row=1, column=column, value=date)
+                    cell.number_format = 'DD/MM/YYYY'
+                    cell.alignment = Alignment(horizontal='center')
+                    cell.fill = clr_background
+                    cell.font = Font(name='Calibri', bold=True)
+                    column+=1
+                break
+            #******************************************************************
+
+            #** Contenu *******************************************************
+            row = 2
+            for key in sorted_dict:
+                code        = sorted_dict[key]["code_pg"]
+                designation = sorted_dict[key]["designation"]
+                d = ws.cell(row=row, column=1, value=code)
+                d = ws.cell(row=row, column=2, value=designation)
+                line = sorted_dict[key]["typeod"]["92-Stock Valorisé"]["cols"]
+                column = 3
+                for col in line:
+                    date = line[col]["key"]
+                    qt   = line[col]["qt_txt"]
+                    cell = ws.cell(row=row, column=column, value=qt)
+                    cell.number_format = '# ##0'  # Number formatting
+                    column+=1
+                row+=1
+            #******************************************************************
+
+            #** Bordures des cellules *****************************************
+            border1 = borders.Side(style = None, color = 'FF000000', border_style = 'thin')
+            thin_border = Border(left = border1, right = border1, bottom = border1, top = border1)
+            for row in ws.iter_rows():
+                for cell in row:
+                    cell.border = thin_border
+            #******************************************************************
+
+            #** Ajustement de la largeur des colonnes *************************
+            for idx, col in enumerate(ws.columns, 1):
+                ws.column_dimensions[get_column_letter(idx)].auto_size = True
+            ws.column_dimensions['B'].width=30
+            #******************************************************************
+  
+            #** Mise en page **************************************************
+            ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+            ws.sheet_properties.pageSetUpPr.fitToPage = True
+            ws.page_setup.fitToHeight = False
+            ws.oddFooter.center.text = "Page &[Page] of &N"
+            ws.page_margins = PageMargins(left=0.3, right=0.3, top=0.3, bottom=0.7, header=0, footer=0.3)
+            ws.print_title_rows = '1:1' # the first two rows 
+            #******************************************************************
+
+            #** Fixer les lignes et les colonnes ******************************
+            cel = ws['C2']
+            ws.freeze_panes = cel
+            #******************************************************************
+
+            #** Enregistrement du workbook ************************************
+            workbook.save(path)
+            #******************************************************************
+
+            # ** Creation ou modification de la pièce jointe ******************
+            attachment_obj = self.env['ir.attachment']
+            attachments = attachment_obj.search([('res_id','=',user.id),('name','=',name)])
+            xlsx = open(path,'rb').read()
+            vals = {
+                'name':        name,
+                'type':        'binary',
+                'res_id':      user.id,
+                'datas':       base64.b64encode(xlsx),
+            }
+            attachment_id=False
+            if attachments:
+                for attachment in attachments:
+                    attachment.write(vals)
+                    attachment_id=attachment.id
+            else:
+                attachment = attachment_obj.create(vals)
+                attachment_id=attachment.id
+            excel_attachment_id = attachment_id
+            #*******************************************************************
+        #**********************************************************************
+
+
+
+
         #** Sauvegarde du résultat ********************************************
         #TODO : Cela ne semble pas pertinent, car Odoo met moins de 2s à générer le résultat, 
         # mais le navigateur 6s à traiter les 8Mo d'informations
@@ -630,7 +664,6 @@ class product_product(models.Model):
         # self.env['is.mem.var'].set(self._uid, 'analyse_cbn_dict', x)
         # _logger.info("enregistrement json (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
-
 
         duree = datetime.now()-debut
         _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
@@ -657,6 +690,7 @@ class product_product(models.Model):
             "type_rapport_options": type_rapport_options,
             "calage_options"      : calage_options,
             "valorisation_options": valorisation_options,
+            "excel_attachment_id" : excel_attachment_id,
         }
         return res
 
