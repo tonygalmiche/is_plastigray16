@@ -433,14 +433,25 @@
                 </search>
             </field>
         </record>
-        <record id="is_ctrl100_defaut_graph_view" model="ir.ui.view">
-            <field name="name">is_ctrl100_defaut_graph_view</field>
+        <record id="is_ctrl100_defaut_graph" model="ir.ui.view">
+            <field name="name">is_ctrl100_defaut_graph</field>
             <field name="model">is.ctrl100.defaut</field>
             <field name="arch" type="xml">
-                <pivot string="view">
+                <graph order="desc">
                     <field name="moule_dossierf" type="row"/>
-                    <field name="date_saisie" interval="month" type="col"/>
-                    <field name="tps_passe" type="measure"/>
+                    <field name="date_saisie"    type="col" interval="year" />
+                    <field name="tps_passe"      type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record id="is_ctrl100_defaut_pivot" model="ir.ui.view">
+            <field name="name">is_ctrl100_defaut_pivot</field>
+            <field name="model">is.ctrl100.defaut</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="moule_dossierf" type="row"/>
+                    <field name="date_saisie"    type="col" interval="year" />
+                    <field name="tps_passe"      type="measure"/>
                 </pivot>
             </field>
         </record>
@@ -448,7 +459,7 @@
             <field name="name">Saisie mur qualité</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.ctrl100.defaut</field>
-            <field name="view_mode">tree,form,graph</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
         </record>
 
         <!-- Rapport de contrôle -->
