@@ -113,7 +113,7 @@ Module Odoo 16 pour Plastigray
         "views/purchase_view.xml",
         "views/sale_view.xml",   # TODO : Il faut tout revoir dans les vues
         "views/resource_view.xml",
-        # "views/hr_view.xml",
+        "views/hr_view.xml",
         "views/is_article_view.xml",
         "views/is_bl_manuel_view.xml",
         "views/is_bon_achat_ville_view.xml",
