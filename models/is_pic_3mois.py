@@ -188,12 +188,12 @@ class sale_order(models.Model):
                 coalesce(im.name, id.name) moule,
                 imp.name projet,
                 (select route_id from stock_route_product srp where srp.product_id=pt.id  limit 1) route_id,
-                (   select round(sum(sq.quantity)) 
+                COALESCE((   select round(sum(sq.quantity)) 
                     from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
-                    where sl.usage='internal' and sl.active='t' and sq.product_id=pp.id and sl.control_quality='f' ) stocka,
-                (   select round(sum(sq.quantity))
+                    where sl.usage='internal' and sl.active='t' and sq.product_id=pp.id and sl.control_quality='f' ),0) stocka,
+                COALESCE((   select round(sum(sq.quantity))
                     from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
-                    where sl.usage='internal' and sl.active='t' and sq.product_id=pp.id and sl.control_quality='t' ) stockq
+                    where sl.usage='internal' and sl.active='t' and sq.product_id=pp.id and sl.control_quality='t' ), 0) stockq
             FROM sale_order so inner join sale_order_line      sol on so.id=sol.order_id 
                             inner join res_partner           rp on so.partner_id=rp.id 
                             inner join product_product       pp on pp.id = sol.product_id
@@ -265,6 +265,11 @@ class sale_order(models.Model):
         trcolor=""
         TotalCol={}
         for row in result:
+
+
+            print(row['is_code'], row['stocka'], row['stockq'])
+
+
             DebSemTxt = DebSem.strftime("%Y%m%d")
             if key!=row['is_code']:
                 key=row['is_code']
