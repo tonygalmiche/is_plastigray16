@@ -138,22 +138,27 @@
                                     style="text-align:left;white-space: nowrap;" 
                                     t-att-productid="line.product_tmpl_id"
                                 >
+
+                                <!-- Moule / Code / Gest / Stock A / Stock Q / Lot / StockSecu / Délai  -->
+
+
                                     <span t-esc="line.row.code_client"/> / 
                                     <span t-esc="line.row.is_ref_client"/> / 
                                     <span t-esc="line.row.client_order_ref"/><br />
-                                    <span t-esc="line.moule"/> / 
+                                    <span t-esc="line.moule" title="Moule"/> / 
                                     <span 
                                         t-esc="line.row.is_code" 
                                         class="link" 
                                         t-on-click="clickCode"
                                         t-att-productid="line.product_tmpl_id"
+                                        title="Code PG"
                                     /> / 
-                                    <span t-esc="line.row.gestionnaire"/> / 
-                                    <b><span t-esc="line.row.stocka"/></b> / 
-                                    <b><span t-esc="line.row.stockq"/></b> / 
-                                    <span t-esc="line.lot_mini"/> / 
-                                    <span t-esc="line.row.is_stock_secu"/> / 
-                                    <span t-esc="line.row.is_delai_transport"/><br />
+                                    <span t-esc="line.row.gestionnaire"  title="Gest"/> / 
+                                    <b><span t-esc="line.row.stocka" title="Stock A"/></b> / 
+                                    <b><span t-esc="line.row.stockq" title="Stock Q"/></b> / 
+                                    <span t-esc="line.lot_mini" title="Lot"/> / 
+                                    <span t-esc="line.row.is_stock_secu"  title="Stock sécu"/> / 
+                                    <span t-esc="line.row.is_delai_transport" title="Délai"/><br />
                                     <span t-esc="line.row.designation"/>
                                 </td>
                                 <!-- <t t-foreach="line.listcols" t-as="col" t-key="col.key"> -->
