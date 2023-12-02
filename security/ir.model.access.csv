@@ -424,7 +424,7 @@ access_is_gestion_lot_report,access_is_gestion_lot_report,model_is_gestion_lot_r
 access_is_cas_emploi_wizard_new,access_is_cas_emploi_wizard_new,model_is_cas_emploi_wizard_new,base.group_user,1,1,1,1
 access_is_cas_emploi_line,access_is_cas_emploi_line,model_is_cas_emploi_line,base.group_user,1,1,1,1
 access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servir_wizard,base.group_user,1,0,0,0
-access_assistent_report1,access_assistent_report1,model_assistent_report1,base.group_user,1,0,0,0
+access_assistent_report1,access_assistent_report1,model_assistent_report1,base.group_user,1,1,1,1
 access_is_product_ul,access_is_product_ul,model_is_product_ul,base.group_user,1,0,0,0
 
 access_is_liste_servir_wizard,access_is_liste_servir_wizard,model_is_liste_servir_wizard,base.group_user,1,1,1,1

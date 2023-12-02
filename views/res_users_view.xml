@@ -21,6 +21,12 @@
             <field name="model">res.users</field>
             <field name="inherit_id" ref="base.view_users_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//div/label[@for='login']" position="attributes" >
+                    <attribute name="string">Login</attribute>
+                </xpath>
+                <xpath expr="//div/group/field[@name='partner_id']" position="after" >
+                    <field name="email"/>
+                </xpath>
                 <page name="access_rights" position="after">
                     <page name="Plastigray">
                         <group>
@@ -44,6 +50,7 @@
             <field name="inherit_id" ref="base.view_users_tree"/>
             <field name="arch" type="xml">
                 <field name="login" position="after">
+                    <field name="email"/>
                     <field name="is_site_id"/>
                     <field name="is_site_ids"/>
                     <field name="is_service_id"/>

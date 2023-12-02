@@ -83,7 +83,7 @@
         <field name="dpi">90</field>
     </record>
     <record id="inventaire_report" model="ir.actions.report">
-        <field name="name">Ecarts d'inventairee</field>
+        <field name="name">Ecarts d'inventaire</field>
         <field name="model">is.inventaire</field>
         <field name="binding_model_id" ref="model_is_inventaire"/>
         <field name="paperformat_id" ref="inventaire_paperformat"/>

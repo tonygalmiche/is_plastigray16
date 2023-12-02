@@ -66,7 +66,18 @@ class hr_employee(models.Model):
     is_courriel = fields.Char(u"Courriel", help="Courriel utilisé pour l'envoi des informations pour les demandes de congés")
 
     message_main_attachment_id = fields.Many2one(groups="base.group_user") # Etait : groups="hr.group_hr_user"
+    is_editable = fields.Boolean('Champs éditables', compute='_compute_is_editable', readonly=True, store=False)
 
+
+
+    def _compute_is_editable(self):
+        test=False
+        if self.env['res.users'].has_group('hr.group_hr_manager'):
+            test=True
+        for obj in self:
+            print(obj,test)
+            obj.is_editable = test
+            
 
     def name_get(self):
         res = []
