@@ -106,9 +106,19 @@
                             <field name="nb_heures_total"/> 
                             <field name="tps_brut"/> 
                         </group>
+
+
+                        <!-- -Nombre de jours ouvrables
+
+                        -Nombre de personnes inscrites à l'effectif
+                    
+                        - Absents sur la totalité de la période
+                    
+                        -Temps d'ouverture -->
+
                         <group>
-                            <field name="nb_jours_ouvrables"/> 
-                            <field name="nb_inscrits"/> 
+                            <field name="nb_jours_ouvrables" required="1"/> 
+                            <field name="nb_inscrits"        required="1"/> 
                             <field name="nb_absents"/> 
                             <field name="effectif_operationnel"/> 
                         </group>
@@ -125,7 +135,7 @@
                             </tree>
                         </field>
                         <group>
-                            <field name="temps_ouverture"/>
+                            <field name="temps_ouverture" required="1"/>
                         </group>
                         <field name="workcenter_ids" readonly="1" nolabel="1">
                             <tree>
