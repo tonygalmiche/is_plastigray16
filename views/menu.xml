@@ -320,7 +320,7 @@
         ])]"/>
     </record>
     
-    <record id="is_cde_ouverte_fournisseur_message_menu" model="ir.ui.menu">
+    <!-- <record id="is_cde_ouverte_fournisseur_message_menu" model="ir.ui.menu">
         <field name="name">Message cde  prévisionnelles</field>
         <field name="sequence">50</field>
         <field name="parent_id" eval="ref('menu_is_achats_cde_ouverte')"/>
@@ -329,7 +329,7 @@
             ref('is_rsp_achats_group'),
             ref('is_rsp_production_group'),
         ])]"/>
-    </record>
+    </record> -->
 
     <!-- Achats / Réceptions -->
     <record id="menu_is_achats_rcp" model="ir.ui.menu">
