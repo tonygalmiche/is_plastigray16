@@ -1321,13 +1321,13 @@
         parent="menu_is_production_inv" 
         action="stock_inventory_action"
     />
-    <menuitem 
+    <!-- <menuitem 
         id="stock_inventory_line_menu" 
         sequence="20" 
         name="Lignes d'inventaires"       
         parent="menu_is_production_inv" 
         action="stock_inventory_line_action"
-    />
+    /> -->
     
     <record id="menu_is_production_inv_import" model="ir.ui.menu" >
         <field name="name">Inventaires semestriels</field>
