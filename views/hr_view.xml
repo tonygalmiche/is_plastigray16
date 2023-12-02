@@ -40,15 +40,7 @@
                 <xpath expr="//div[@id='o_work_employee_main']"                position="attributes"><attribute name="invisible">1</attribute></xpath>
                 <xpath expr="//group[@name='identification_group']"            position="attributes"><attribute name="invisible">1</attribute></xpath>
                 <xpath expr="//header/button[1]"                               position="attributes"><attribute name="invisible">1</attribute></xpath>
-
-                <!-- <field name="address_id"     position="attributes"><attribute name="readonly">1</attribute></field>
-                <field name="mobile_phone"   position="attributes"><attribute name="readonly">1</attribute></field>
-                <field name="department_id"  position="attributes"><attribute name="readonly">1</attribute></field>
-                <field name="job_id"         position="attributes"><attribute name="readonly">1</attribute></field>
-                <field name="parent_id"      position="attributes"><attribute name="readonly">1</attribute></field>
-                <field name="coach_id"       position="attributes"><attribute name="readonly">1</attribute></field>
-                <field name="user_id"        position="attributes"><attribute name="readonly">1</attribute></field> -->
-                <field name="mobile_phone"   position="replace"/>
+                 <field name="mobile_phone"   position="replace"/>
                 <field name="parent_id"      position="replace"/>
                 <field name="coach_id"       position="replace"/>
                 <page name="public" position="before">
@@ -63,16 +55,7 @@
                                 <field name="is_interimaire" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_pointage"    attrs="{'readonly': [('is_editable', '=', False)]}"/>
                             </group>
-                            <!-- <group string="Horaires">
-                                <field name="is_jour1" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                                <field name="is_jour2" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                                <field name="is_jour3" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                                <field name="is_jour4" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                                <field name="is_jour5" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                                <field name="is_jour6" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                                <field name="is_jour7" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                            </group> -->
-                            <group string="Validation des absences">
+                             <group string="Validation des absences">
                                 <field name="is_valideur_n1" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_valideur_n2" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                             </group>
@@ -125,36 +108,6 @@
         </record>
 
 
-        <!-- <record id="is_view_employee_form_manager" model="ir.ui.view">
-            <field name="name">is_view_employee_form_manager</field>
-            <field name="model">hr.employee</field>
-            <field name="inherit_id" ref="is_plastigray16.is_view_employee_form" />
-            <field name="inherit_id" ref="hr.view_employee_form" />
-            <field name="groups_id" eval="[(4, ref('hr.group_hr_manager'))]"/>
-            <field name="arch" type="xml">
-                <field name="is_site"  groups="hr.group_hr_manager" position="attributes"><attribute name="readonly"/>0</field>
-                <field name="is_site"  groups="hr.group_hr_manager" position="attributes"><attribute name="string">Site Test Manager</attribute></field>
-                <field name="is_site"  groups="hr.group_hr_manager" position="replace"/>
-                <field name="is_matricule"   position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_categorie"   position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_interimaire" position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_pointage"    position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour1"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour2"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour3"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour4"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour5"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour6"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_jour7"       position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="address_id"     position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="department_id"  position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="job_id"         position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="user_id"        position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_valideur_n1" position="attributes"><attribute name="readonly" position="replace"/></field>
-                <field name="is_valideur_n2" position="attributes"><attribute name="readonly" position="replace"/></field>
-            </field>
-        </record> -->
-
         <record id="is_view_employee_tree" model="ir.ui.view">
             <field name="name">is.hr.employee.tree</field>
             <field name="model">hr.employee</field>
@@ -177,13 +130,6 @@
                     <field name="is_courriel" optional="hide"/>
                     <field name="is_mobile" optional="hide"/>
                     <field name="is_pointage" optional="hide"/>
-                    <field name="is_jour1" optional="hide"/>
-                    <field name="is_jour2" optional="hide"/>
-                    <field name="is_jour3" optional="hide"/>
-                    <field name="is_jour4" optional="hide"/>
-                    <field name="is_jour5" optional="hide"/>
-                    <field name="is_jour6" optional="hide"/>
-                    <field name="is_jour7" optional="hide"/>
                 </field>
                 <field name="parent_id" position="replace" />
 

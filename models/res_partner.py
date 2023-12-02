@@ -432,7 +432,7 @@ class res_partner(models.Model):
     is_num_siret            = fields.Char(u'N° de SIRET')
     is_code_client          = fields.Char('Code client', help=u'Notre code client chez le fourniseur')
     is_segment_achat        = fields.Many2one('is.segment.achat', "Segment d'achat")
-    is_famille_achat_ids    = fields.Many2many('is.famille.achat', "res_partner_famille_achat_rel", 'partner_id', 'famille_id', string="Famille d'achat")
+    is_famille_achat_ids    = fields.Many2many('is.famille.achat', "is_famille_achat_res_partner_rel", 'partner_id', 'famille_id', string="Famille d'achat")
     is_fournisseur_imp      = fields.Boolean(u'Fournisseur imposé')
     is_fournisseur_da_fg    = fields.Boolean(u'Fournisseur pour DA-FG', default=False)
     is_site_livre_ids       = fields.Many2many('is.site', "is_site_res_partner_rel", 'partner_id', 'site_id', string='sites livrés')
