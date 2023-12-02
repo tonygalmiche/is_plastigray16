@@ -63,7 +63,7 @@
                                 <field name="is_interimaire" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_pointage"    attrs="{'readonly': [('is_editable', '=', False)]}"/>
                             </group>
-                            <group string="Horaires">
+                            <!-- <group string="Horaires">
                                 <field name="is_jour1" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_jour2" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_jour3" attrs="{'readonly': [('is_editable', '=', False)]}"/>
@@ -71,7 +71,7 @@
                                 <field name="is_jour5" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_jour6" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_jour7" attrs="{'readonly': [('is_editable', '=', False)]}"/>
-                            </group>
+                            </group> -->
                             <group string="Validation des absences">
                                 <field name="is_valideur_n1" attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_valideur_n2" attrs="{'readonly': [('is_editable', '=', False)]}"/>
