@@ -548,6 +548,15 @@ class stock_picking(models.Model):
                 res=self.env['mail.message'].create(vals)
 
 
+
+    def action_assign(self):
+        for obj in self : 
+            print(obj)
+            for move in obj.move_ids_without_package:
+                move.quantity_done = move.product_uom_qty
+
+
+
 class stock_quant(models.Model):
     _inherit = "stock.quant"
     _order   = "product_id, location_id"

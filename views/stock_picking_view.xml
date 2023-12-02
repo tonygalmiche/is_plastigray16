@@ -83,10 +83,10 @@
                         name="button_validate" 
                         class="oe_highlight" 
                         attrs="{'invisible': ['|',
-                            ('state', '!=', 'assigned'),
-                            ('picking_type_id','!=',2),
+                            ('state','in', ['done','cancel']),
+                            ('picking_type_id','!=',2)
                         ]}"
-                    />
+                     />
                     <button 
                         string="Transfert" 
                         type="action" 
