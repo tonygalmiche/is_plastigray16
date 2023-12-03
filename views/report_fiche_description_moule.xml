@@ -34,7 +34,7 @@
                     </div>
 
                     <!-- page -->
-                    <div class="page" style="border: 1px solid black;font-size:11pt">
+                    <div class="page description_moule" style="border: 1px solid black;font-size:11pt">
                         <table style="border-collapse: collapse;" width="100%">
                             <tr>
                                 <td style="width:50%;vertical-align:top">
