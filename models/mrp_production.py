@@ -556,7 +556,7 @@ class MrpProduction(models.Model):
         vals = {
             'product_id': production.product_id.id,
             #'product_qty': 1.0,
-            'qt': 1.0,
+            'nb_uc': 1.0,
             #'mode': 'consume_produce',
             #'lot_id': False,
             #'consume_lines': self.get_consume_lines(production.id, 1.0),
