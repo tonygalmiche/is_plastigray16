@@ -33,7 +33,7 @@ class IsMrpProductionWizard(models.TransientModel):
     line_ids         = fields.One2many('is.mrp.production.wizard.line', 'wizard_id', "Lignes")
 
 
-    def ok_action(self):
+    def ok_action(self,is_employee_theia_id=False):
         active_id = self.env.context.get("active_id")
         if active_id:
             production       = self.env['mrp.production'].browse(active_id)
@@ -57,15 +57,10 @@ class IsMrpProductionWizard(models.TransientModel):
                     "product_uom_qty" : abs(qty),
                     "product_id"      : line.product_id.id,
                     "name"            : name,
+                    "is_employee_theia_id": is_employee_theia_id,
                 }
                 move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
-
-
-
                 move._action_confirm()
-
-
-
                 if product_qty<0:
                     move.location_dest_id = location_dest_id # Il faut forcer location_dest_id, sinon il met la même chose que location_id
                     move_lines = self.env['stock.move.line'].search([('product_id','=',line.product_id.id),('lot_id','!=', False)], limit=1, order="id desc")
@@ -107,9 +102,6 @@ class IsMrpProductionWizard(models.TransientModel):
                 "qty_done"        : qty,
                 "product_id"      : product_id,
             }
-
-
-
             move_vals={
                 #"production_id"   : production_id, # Si j'indique ce champ avant la création du lot, j'ai message => La quantité de xxx débloquée ne peut pas être supérieure à la quantité en stock
                 "location_id"     : location_id,
@@ -117,6 +109,7 @@ class IsMrpProductionWizard(models.TransientModel):
                 "product_uom_qty" : qty,
                 "product_id"      : product_id,
                 "name"            : name,
+                "is_employee_theia_id": is_employee_theia_id,
                 "move_line_ids"   : [[0,False,line_vals]],
             }
 
@@ -159,7 +152,7 @@ class IsMrpProductionWizard(models.TransientModel):
                     qt = float_round(line.product_qty * self.product_qty, precision_rounding=line.product_id.uom_id.rounding)
                     vals={
                         "product_id" : line.product_id.id,
-                        "qt"         : qt,
+                        "qt"         : round(qt,6),
                     }
                     bom_lines.append([0, False, vals])
         return bom_lines
@@ -462,7 +455,7 @@ class MrpProduction(models.Model):
             obj.state="done"
 
 
-    def fabriquer_action(self):
+    def _get_fabrication_context(self):
         for obj in self:
             new_context = dict(self.env.context).copy()
             new_context.update({
@@ -473,6 +466,12 @@ class MrpProduction(models.Model):
                 "default_package_qty"     : obj.package_qty,
                 "default_product_qty"     : obj.package_qty,
             })
+            return new_context
+
+
+    def fabriquer_action(self):
+        for obj in self:
+            new_context = obj._get_fabrication_context()
             return {
                 'name': "Déclaration de production %s"%(obj.name),
                 'view_mode': 'form',
@@ -483,12 +482,26 @@ class MrpProduction(models.Model):
             }
 
 
+    def test_declaration_theia_uc_action(self):
+        "TEST Déclaration THEIA 1 UC"
+        for obj in self:
+            employe_id = 560 # Tony
+            obj.declaration_production_theia_action(obj.package_qty,0,employe_id)
+
+
+    def test_declaration_theia_rebut_action(self):
+        "TEST Déclaration THEIA 10 rebuts"
+        for obj in self:
+            employe_id = 560 # Tony
+            obj.declaration_production_theia_action(0,10,employe_id)
 
 
     def declaration_production_theia_action(self,qt_bonne, qt_rebut, is_employee_theia_id=False):
         err=""
         for obj in self:
             qt=0
+            err=""
+            location_id = False
             if qt_bonne>0:
                 qt=qt_bonne
                 filtre = [
@@ -509,7 +522,28 @@ class MrpProduction(models.Model):
                 if location_id==False:
                     err="Emplacement non trouve"
             if err=="":
-                wiz = obj.get_wizard(obj)
+                #** Création du wizard ****************************************
+                wiz_obj = self.env['is.mrp.production.wizard']
+                vals = {
+                    'product_id'      : obj.product_id.id,
+                    'bom_id'          : obj.bom_id.id,
+                    'ul_id'           : obj.product_package.id,
+                    'location_dest_id': location_id,
+                    'package_qty'     : obj.package_qty,
+                    'product_qty'     : qt,
+                    'nb_uc'           : 0,
+                }
+                wiz = wiz_obj.create(vals)
+                wiz.onchange_qt()
+                lines = wiz.with_context(active_id=obj.id)._get_bom_lines()
+                wiz.line_ids = lines
+                if qt_rebut>0:
+                    for line in wiz.line_ids:
+                        code = line.product_id.is_code
+                        if code[:1]!="5":
+                            line.unlink()
+                res = wiz.with_context(active_id=obj.id).ok_action(is_employee_theia_id=is_employee_theia_id)
+                #**************************************************************
 
                 # #** Recherche / Création du lot *******************************
                 # lot_obj = self.env["stock.lot"]
@@ -529,21 +563,6 @@ class MrpProduction(models.Model):
                 #     lot_id = lot.id
                 # wiz.lot_id = lot_id
                 #**************************************************************
-
-                wiz.location_dest_id = location_id
-                wiz.nb_uc = qt
-                #res = wiz.with_context(active_id=obj.id).on_change_qty(qt, False)
-                #wiz.consume_lines.unlink()
-                #wiz.write(res["value"])
-
-                if qt_rebut>0:
-                    for line in wiz.consume_lines:
-                        code = line.product_id.is_code
-                        if code[:1]!="5":
-                            line.unlink()
-                obj.action_produce(obj.id, qt, 'consume_produce', wiz, is_employee_theia_id=is_employee_theia_id)
-                #if qt_rebut>0:
-                #    obj.sudo().importer_nomenclature() #Sinon, j'ai un soucis avec la déclaration des rebuts
         res=True
         if err!="":
             res={"err": err}
@@ -566,15 +585,6 @@ class MrpProduction(models.Model):
         return wiz
 
 
-
-    # product_id       = fields.Many2one("product.product", "Article", readonly=True)
-    # bom_id           = fields.Many2one("mrp.bom", "Nomenclature", readonly=True)
-    # ul_id            = fields.Many2one("is.product.ul", "Conditionnement (UC)", readonly=True)
-    # package_qty      = fields.Float("Quantité par UC", readonly=True)
-    # nb_uc            = fields.Float("Nombre d'UC à déclarer", required=1)
-    # product_qty      = fields.Float("Quantité à déclarer"   , required=1)
-    # location_dest_id = fields.Many2one("stock.location", "Emplacement des produits finis", required=1)
-    # line_ids         = fields.One2many('is.mrp.production.wizard.line', 'wizard_id', "Lignes")
 
 
 

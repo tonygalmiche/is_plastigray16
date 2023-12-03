@@ -210,6 +210,7 @@
                     <field name="product_uom" optional="show" string="Unité"/>
                     <field name="lot_ids"               optional="show" widget="many2many_tags"/>
                     <field name="write_uid" optional="show"/>
+                    <field name="is_employee_theia_id" optional="hide"/>
                     <field name="picking_type_id" optional="hide"/>
                     <field name="picking_id" optional="hide"/>
                     <field name="inventory_id" optional="hide"/>

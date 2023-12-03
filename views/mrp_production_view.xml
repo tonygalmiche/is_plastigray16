@@ -84,6 +84,16 @@
                         type="object"
                         confirm="Voulez-vous vraiment solder cet OF ?"
                     />
+                    <!-- <button 
+                        name="test_declaration_theia_uc_action"
+                        string="Déclaration THEIA 1 UC"
+                        type="object"
+                    />
+                    <button 
+                        name="test_declaration_theia_rebut_action"
+                        string="Déclaration THEIA 10 rebuts"
+                        type="object"
+                    /> -->
                 </xpath>
                 <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="invisible">1</attribute>
