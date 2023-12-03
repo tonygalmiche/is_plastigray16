@@ -176,7 +176,7 @@
                     <sheet>
                         <group>
                             <field name="name"/>
-                            <!-- <field name="liste_servir_id"/> -->
+                            <field name="liste_servir_id"/>
                             <field name="bon_transfert_id"/>
                             <field name="production_id"/>
                             <field name="product_id"/>
@@ -186,6 +186,7 @@
                         </group>
                         <field name="uc_ids" nolabel="1" >
                             <tree editable="bottom">
+                                <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
                                 <field name="num_eti"/>
                                 <field name="type_eti"/>
                                 <field name="num_carton"/>
@@ -205,7 +206,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <!-- <field name="liste_servir_id"/> -->
+                    <field name="liste_servir_id"/>
                     <field name="bon_transfert_id"/>
                     <field name="production_id"/>
                     <field name="product_id"/>
@@ -224,7 +225,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
-                    <!-- <field name="liste_servir_id"/> -->
+                    <field name="liste_servir_id"/>
                     <field name="bon_transfert_id"/>
                     <field name="production_id"/>
                 </search>

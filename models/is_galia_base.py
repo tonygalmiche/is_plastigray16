@@ -113,3 +113,17 @@ class is_galia_base_uc(models.Model):
     bt_line_id       = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert')
     stock_move_id    = fields.Many2one('stock.move', 'Ligne livraison')
 
+
+    def acceder_uc_action(self):
+        #view_id = self.env.ref('is_plastigray16.is_galia_base_um_form_view').id
+        for obj in self:
+            return {
+                'name': "Etiquettes UC",
+                'view_mode': 'form',
+                #'view_id': view_id,
+                'res_model': 'is.galia.base.uc',
+                'type': 'ir.actions.act_window',
+                'res_id': obj.id,
+                'domain': '[]',
+            }
+
