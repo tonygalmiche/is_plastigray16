@@ -320,7 +320,7 @@
         <field name="name">is.of.tree</field>
         <field name="model">is.of</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="0">
                 <field name="name"/>
                 <field name="prioritaire" optional="show"/>
                 <field name="moule"/>
@@ -354,7 +354,7 @@
         <field name="name">is.of.form</field>
         <field name="model">is.of</field>
         <field name="arch" type="xml">
-        <form>
+        <form create="0">
             <!-- <header>
                 <button 
                     name="envoyer_par_mail_action"
