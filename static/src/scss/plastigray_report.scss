@@ -1469,14 +1469,15 @@ $ma_couleur: yellow;
 }
 
 
-.description_moule{
-    color: red;
-}
+// .description_moule{
+//     color: red;
+// }
 .description_moule table{
-    border: 2px solid green;
+    // border: 2px solid green;
+    border: 0 solid white;
     // border: none;
 }
 .description_moule td{
-    border: 1px solid blue;
-    // border: none;
+    //border: 1px solid blue;
+    border: 0 solid white;
 }
