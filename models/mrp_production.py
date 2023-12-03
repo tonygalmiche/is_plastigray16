@@ -483,6 +483,111 @@ class MrpProduction(models.Model):
             }
 
 
+
+
+    def declaration_production_theia_action(self,qt_bonne, qt_rebut, is_employee_theia_id=False):
+        err=""
+        for obj in self:
+            qt=0
+            if qt_bonne>0:
+                qt=qt_bonne
+                filtre = [
+                    ('name' , '=', 'ATELIER'),
+                    ('usage', '=', 'internal'),
+                ]
+            if qt_rebut>0:
+                qt=qt_rebut
+                filtre = [
+                    ('name' , '=', 'Rebuts'),
+                    ('usage', '=', 'inventory'),
+                ]
+            if qt==0:
+                err="Qt = 0"
+            if err=="":
+                lines = self.env["stock.location"].search(filtre)
+                location_id = lines and lines[0].id or False
+                if location_id==False:
+                    err="Emplacement non trouve"
+            if err=="":
+                wiz = obj.get_wizard(obj)
+
+                # #** Recherche / Création du lot *******************************
+                # lot_obj = self.env["stock.lot"]
+                # filtre = [
+                #     ('name'      , '=', obj.name),
+                #     ('product_id', '=', obj.product_id.id),
+                # ]
+                # lots = lot_obj.search(filtre)
+                # if lots:
+                #     lot_id=lots[0].id
+                # else:
+                #     vals={
+                #         'name'      : obj.name,
+                #         'product_id': obj.product_id.id,
+                #     }
+                #     lot = lot_obj.create(vals)
+                #     lot_id = lot.id
+                # wiz.lot_id = lot_id
+                #**************************************************************
+
+                wiz.location_dest_id = location_id
+                wiz.nb_uc = qt
+                #res = wiz.with_context(active_id=obj.id).on_change_qty(qt, False)
+                #wiz.consume_lines.unlink()
+                #wiz.write(res["value"])
+
+                if qt_rebut>0:
+                    for line in wiz.consume_lines:
+                        code = line.product_id.is_code
+                        if code[:1]!="5":
+                            line.unlink()
+                obj.action_produce(obj.id, qt, 'consume_produce', wiz, is_employee_theia_id=is_employee_theia_id)
+                #if qt_rebut>0:
+                #    obj.sudo().importer_nomenclature() #Sinon, j'ai un soucis avec la déclaration des rebuts
+        res=True
+        if err!="":
+            res={"err": err}
+        return res
+    
+
+    def get_wizard(self, production):
+        #wiz_obj = self.env['mrp.product.produce']
+        wiz_obj = self.env['is.mrp.production.wizard']
+        vals = {
+            'product_id': production.product_id.id,
+            #'product_qty': 1.0,
+            'qt': 1.0,
+            #'mode': 'consume_produce',
+            #'lot_id': False,
+            #'consume_lines': self.get_consume_lines(production.id, 1.0),
+            #'track_production': self.get_track(production.product_id.id)
+        }
+        wiz = wiz_obj.create(vals)
+        return wiz
+
+
+
+    # product_id       = fields.Many2one("product.product", "Article", readonly=True)
+    # bom_id           = fields.Many2one("mrp.bom", "Nomenclature", readonly=True)
+    # ul_id            = fields.Many2one("is.product.ul", "Conditionnement (UC)", readonly=True)
+    # package_qty      = fields.Float("Quantité par UC", readonly=True)
+    # nb_uc            = fields.Float("Nombre d'UC à déclarer", required=1)
+    # product_qty      = fields.Float("Quantité à déclarer"   , required=1)
+    # location_dest_id = fields.Many2one("stock.location", "Emplacement des produits finis", required=1)
+    # line_ids         = fields.One2many('is.mrp.production.wizard.line', 'wizard_id', "Lignes")
+
+
+
+
+    # _name = "is.mrp.production.wizard"
+    # wizard_id   = fields.Many2one('is.mrp.production.wizard', 'Wizard', required=True, ondelete='cascade')
+    # product_id  = fields.Many2one("product.product", "Article", required=True)
+    # qt          = fields.Float("Quantité", required=1, digits='Product Unit of Measure')
+    # bom_line_id = fields.Many2one("mrp.bom.line", "Ligne")
+
+
+
+
     # def action_confirm(self):
     #     res=super(MrpProduction, self).action_confirm()
     #     for obj in self:
@@ -788,86 +893,6 @@ class MrpProduction(models.Model):
     # def get_track(self, product_id):
     #     prod_obj = self.env["product.product"]
     #     return product_id and prod_obj.browse(product_id).track_production or False
-
-
-    # def get_wizard(self, production):
-    #     wiz_obj = self.env['mrp.product.produce']
-    #     vals = {
-    #         'product_id': production.product_id.id,
-    #         'product_qty': 1.0,
-    #         'mode': 'consume_produce',
-    #         'lot_id': False,
-    #         'consume_lines': self.get_consume_lines(production.id, 1.0),
-    #         'track_production': self.get_track(production.product_id.id)
-    #     }
-    #     wiz = wiz_obj.create(vals)
-    #     return wiz
-
-
-    # def declaration_production_theia_action(self,qt_bonne, qt_rebut, is_employee_theia_id=False):
-    #     err=""
-    #     for obj in self:
-    #         qt=0
-    #         if qt_bonne>0:
-    #             qt=qt_bonne
-    #             filtre = [
-    #                 ('name' , '=', 'ATELIER'),
-    #                 ('usage', '=', 'internal'),
-    #             ]
-    #         if qt_rebut>0:
-    #             qt=qt_rebut
-    #             filtre = [
-    #                 ('name' , '=', 'Rebuts'),
-    #                 ('usage', '=', 'inventory'),
-    #             ]
-    #         if qt==0:
-    #             err="Qt = 0"
-    #         if err=="":
-    #             lines = self.env["stock.location"].search(filtre)
-    #             location_id = lines and lines[0].id or False
-    #             if location_id==False:
-    #                 err="Emplacement non trouve"
-    #         if err=="":
-    #             wiz = obj.get_wizard(obj)
-
-    #             #** Recherche / Création du lot *******************************
-    #             lot_obj = self.env["stock.production.lot"]
-    #             filtre = [
-    #                 ('name'      , '=', obj.name),
-    #                 ('product_id', '=', obj.product_id.id),
-    #             ]
-    #             lots = lot_obj.search(filtre)
-    #             if lots:
-    #                 lot_id=lots[0].id
-    #             else:
-    #                 vals={
-    #                     'name'      : obj.name,
-    #                     'product_id': obj.product_id.id,
-    #                 }
-    #                 lot = lot_obj.create(vals)
-    #                 lot_id = lot.id
-    #             wiz.lot_id = lot_id
-    #             #**************************************************************
-
-    #             wiz.finished_products_location_id = location_id
-    #             wiz.product_package_qty = qt
-    #             res = wiz.with_context(active_id=obj.id).on_change_qty(qt, False)
-    #             wiz.consume_lines.unlink()
-    #             wiz.write(res["value"])
-
-    #             if qt_rebut>0:
-    #                 for line in wiz.consume_lines:
-    #                     code = line.product_id.is_code
-    #                     if code[:1]!="5":
-    #                         line.unlink()
-    #             obj.action_produce(obj.id, qt, 'consume_produce', wiz, is_employee_theia_id=is_employee_theia_id)
-    #             if qt_rebut>0:
-    #                 obj.sudo().importer_nomenclature() #Sinon, j'ai un soucis avec la déclaration des rebuts
-    #     res=True
-    #     if err!="":
-    #         res={"err": err}
-    #     return res
-    
 
 
 
