@@ -1670,7 +1670,7 @@
             ref('is_rsp_production_group'),
         ])]"/>
     </record>
-    <record id="is_liste_stock_sans_lot_menu" model="ir.ui.menu" >
+    <!-- <record id="is_liste_stock_sans_lot_menu" model="ir.ui.menu" >
         <field name="name">Stocks sans lot</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_analyse_stock_menu')"/>
@@ -1679,7 +1679,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
             ref('is_rsp_production_group'),
         ])]"/>
-    </record>
+    </record> -->
     <record id="is_stock_valorise_menu" model="ir.ui.menu" >
         <field name="name">Stocks valorisés</field>
         <field name="sequence">40</field>
