@@ -154,8 +154,8 @@
                                         title="Code PG"
                                     /> / 
                                     <span t-esc="line.row.gestionnaire"  title="Gest"/> / 
-                                    <b><span t-esc="line.row.stocka" title="Stock A"/></b> / 
-                                    <b><span t-esc="line.row.stockq" title="Stock Q"/></b> / 
+                                    <strong><span t-esc="line.row.stocka" title="Stock A"/></strong> / 
+                                    <strong><span t-esc="line.row.stockq" title="Stock Q"/></strong> / 
                                     <span t-esc="line.lot_mini" title="Lot"/> / 
                                     <span t-esc="line.row.is_stock_secu"  title="Stock sécu"/> / 
                                     <span t-esc="line.row.is_delai_transport" title="Délai"/><br />
