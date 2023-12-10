@@ -2,8 +2,8 @@
 from odoo import models,fields,api
 import datetime
 import pytz
-#import os
 
+#import os
 from subprocess import PIPE, Popen
 
 import psycopg2

@@ -9,7 +9,11 @@ import time
 from datetime import datetime, date
 #from xml.dom.minidom import parseString
 #import re
+
 #import os
+from subprocess import PIPE, Popen
+
+
 #from collections import OrderedDict
 import logging
 _logger = logging.getLogger(__name__)
@@ -520,7 +524,14 @@ class stock_picking(models.Model):
 
     def desadv_action(self):
         for obj in self : 
-            cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv")])
+            name='edi-tenor-desadv-odoo16'
+            cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
+
+            print(cdes, len(cdes))
+            if (len(cdes)==0):
+                raise ValidationError("Commande externe '%s' non trouvée"%name)
+
+
             for cde in cdes:
                 model=self._name
                 uid=self._uid
@@ -532,21 +543,28 @@ class stock_picking(models.Model):
                 x = x.replace("#res_id", str(obj.id))
                 x = x.replace("#uid"   , str(uid))
                 _logger.info(x)
-                lines=os.popen(x).readlines()
-                for line in lines:
-                    _logger.info(line.strip())
+
+                # lines=os.popen(x).readlines()
+                # for line in lines:
+                #     _logger.info(line.strip())
+
+                p = Popen(x, shell=True, stdout=PIPE, stderr=PIPE)
+                stdout, stderr = p.communicate()
+                _logger.info("cde:%s, stdout:%s, stderr:%s"%(x,stdout.decode("utf-8"),stderr.decode("utf-8")))
+                if stderr:
+                    raise ValidationError("%s\n%s"%(x,stderr.decode("utf-8")))
                 now = datetime.now()
                 obj.is_date_traitement_edi = now
+                lines = stdout.decode("utf-8").split('\n')
                 body = u"<b>DESADV envoyé</b><br>"+"<br>".join(lines)
                 vals={
                     'author_id': user.partner_id.id,
-                    'type'     : "notification",
+                    'subtype_id': self.env.ref('mail.mt_comment').id,
                     'body'     : body,
                     'model'    : model,
                     'res_id'   : obj.id
                 }
                 res=self.env['mail.message'].create(vals)
-
 
 
     def action_assign(self):

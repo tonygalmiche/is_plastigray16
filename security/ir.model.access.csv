@@ -220,7 +220,10 @@ access_is_galia_base_um_manager,access_is_galia_base_um_manager,model_is_galia_b
 access_is_galia_base_uc_manager,access_is_galia_base_uc_manager,model_is_galia_base_uc,is_administration_vente_group,1,1,1,1
 
 access_is_vente_message,access_is_vente_message,model_is_vente_message,base.group_user,1,1,1,1
+
 access_is_commande_externe,access_is_commande_externe,model_is_commande_externe,base.group_user,1,0,0,0
+access_is_commande_externe_admin,access_is_commande_externe_admin,model_is_commande_externe,base.group_system,1,1,1,1
+
 access_pg_stock_move,access_pg_stock_move,model_pg_stock_move,base.group_user,1,1,1,1
 
 access_user_is_fiche_tampographie_constituant,access_is_fiche_tampographie_constituant,model_is_fiche_tampographie_constituant,base.group_user,1,1,1,1

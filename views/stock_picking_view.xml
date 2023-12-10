@@ -125,13 +125,13 @@
                         attrs="{'invisible': ['|',('purchase_id', '=', False),('state','!=','done')]}" 
                         confirm="Voulez-vous vraiment annuler cette réception ?"
                         type="object"/>
-                    <!-- <button 
+                    <button 
                         name="desadv_action" 
                         string="DESADV" 
                         type="object"
                         confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
                         attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
-                    /> -->
+                    />
                 </xpath>
                 <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
                     <attribute name="invisible">1</attribute> 
@@ -263,6 +263,10 @@
                 </xpath>
                 <xpath expr="//page[@name='extra']/group/group/field[@name='company_id']" position="after">
                     <field name="invoice_state"/>
+                    <field name="is_mode_envoi_facture"/> 
+                    <field name="is_facture_pk_id" attrs="{'invisible': [('sale_id', '=', False)]}"/> 
+                    <field name="is_traitement_edi"/> 
+                    <field name="is_date_traitement_edi" attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </xpath>
              </field>
         </record>
@@ -364,13 +368,7 @@
                 </field>
 
                 
-                <field name="priority" position="after">
-                    <field name="is_mode_envoi_facture"/> 
-                    <field name="is_facture_pk_id" attrs="{'invisible': [('sale_id', '=', False)]}"/> 
-                    <field name="is_traitement_edi"/> 
-                    <field name="is_date_traitement_edi" attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
-                </field>
-            </field>
+             </field>
         </record> -->
         
         <!-- <record id="is_view_picking_inherit_form2" model="ir.ui.view">

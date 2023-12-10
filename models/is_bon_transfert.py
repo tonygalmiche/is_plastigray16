@@ -249,7 +249,7 @@ class is_bon_transfert(models.Model):
 
     def desadv_action(self):
         for obj in self : 
-            cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv")])
+            cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
             for cde in cdes:
                 model=self._name
                 uid=self._uid
