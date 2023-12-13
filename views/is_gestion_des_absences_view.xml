@@ -580,6 +580,12 @@
         </record>
 
         <!-- is.demande.conges.export.cegid -->
+         <record id="is_demande_conges_export_cegid_seq" model="ir.sequence">
+            <field name="name">Export Cegid</field>
+            <field name="code">is.demande.conges.export.cegid</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+        </record>
         <record model="ir.ui.view" id="view_is_demande_conges_export_cegid_form">
             <field name="name">view.is.demande.conges.export.cegid.form</field>
             <field name="model">is.demande.conges.export.cegid</field>
@@ -599,6 +605,10 @@
                             <field name="date_fin"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>

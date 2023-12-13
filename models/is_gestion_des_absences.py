@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 
 #import os
 #import unicodedata
-#import codecs
+import codecs
 import base64
 #import csv, cStringIO
 #import xmlrpclib
@@ -920,7 +920,8 @@ class is_droit_conges(models.Model):
 
 class is_demande_conges_export_cegid(models.Model):
     _name        = 'is.demande.conges.export.cegid'
-    _description="is_demande_conges_export_cegid"
+    _inherit     = ['mail.thread']
+    _description = "is_demande_conges_export_cegid"
 
     name       = fields.Char(u"N°export")
     date_debut = fields.Date(string='Date de début', required=True, default=lambda self: self._date_debut())
@@ -937,15 +938,23 @@ class is_demande_conges_export_cegid(models.Model):
 
 
     def _date_fin(self):
-        now  = datetime.date.today()            # Ce jour
+        now  = date.today()            # Ce jour
         j    = now.day                          # Numéro du jour dans le mois
         d    = now - timedelta(days=j) # Dernier jour du mois précédent
         return d.strftime('%Y-%m-%d')
 
 
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].get('is.demande.conges.export.cegid') or ''
-        return super(is_demande_conges_export_cegid, self).create(vals)
+    # def create(self, vals):
+    #     vals['name'] = self.env['ir.sequence'].get('is.demande.conges.export.cegid') or ''
+    #     return super(is_demande_conges_export_cegid, self).create(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.demande.conges.export.cegid')
+        return super().create(vals_list)
+
+
 
 
     def get_employe(self,user):
@@ -955,15 +964,15 @@ class is_demande_conges_export_cegid(models.Model):
         return False
 
     def fdate(self,date):
-        d=datetime.strptime(date, '%Y-%m-%d')
-        return d.strftime('%d/%m/%Y')
+        #d=datetime.strptime(date, '%Y-%m-%d')
+        return date.strftime('%d/%m/%Y')
 
 
     def export_cegid_action(self):
         cr=self._cr
         for obj in self:
-            filename='export-conges-dans-cegid-'+obj.name+'.txt'
-            dest='/tmp/'+filename
+            filename='export-conges-dans-cegid-%s.txt'%obj.name
+            dest='/tmp/%s'%filename
             t1={
                 'matin'     : u'Matin',
                 'apres_midi': u'Apres-midi',
@@ -983,21 +992,21 @@ class is_demande_conges_export_cegid(models.Model):
                     idc.matin_ou_apres_midi
                 FROM is_demande_conges idc inner join res_users ru on idc.demandeur_id=ru.id
                 WHERE 
-                    ((idc.date_debut>='"""+obj.date_debut+"""' and idc.date_debut<='"""+obj.date_fin+"""') or
-                    (idc.le>='"""+obj.date_debut+"""' and idc.le<='"""+obj.date_fin+"""')) and
+                    ((idc.date_debut>=%s and idc.date_debut<=%s) or
+                    (idc.le>=%s and idc.le<=%s)) and
                     idc.type_demande not in ('autre','sans_solde') and
                     idc.state in ('solde','validation_rh') and
                     (idc.cp>0 or idc.rtt>0 or idc.rc>0)
                 ORDER BY ru.login,idc.name
             """
-            cr.execute(SQL)
+            cr.execute(SQL,[obj.date_debut,obj.date_fin,obj.date_debut,obj.date_fin])
             rows = cr.dictfetchall()
             f = codecs.open(dest,'wb',encoding='utf-8')
             annee = str(obj.date_debut)[:4]
             f.write('***DEBUT***\r\n')
             f.write('000	000000	01/01/'+annee+'	31/12/'+annee+'\r\n')
             for row in rows:
-                login = (u'0000000000'+row['login'])[-10:]
+                login = ('0000000000'+row['login'])[-10:]
                 if row['type_demande'] in ['le','rc_heures','cp_rtt_demi_journee']:
                     date_debut = row['le']
                     date_fin   = row['le']
@@ -1007,13 +1016,13 @@ class is_demande_conges_export_cegid(models.Model):
                 code      = u''
                 nb_heures = nb_jours = 0
                 comment   = u''
-                if row['rc']>0:
+                if (row['rc'] or 0)>0:
                     nb_heures = row['rc']
                     nb_jours  = 0
                     code      = u'HRC'
                     comment   = u'Heures RC Pris '+self.fdate(date_debut)+u' au '+self.fdate(date_fin)
 
-                if row['cp']>0:
+                if (row['cp'] or 0)>0:
                     nb_heures = row['cp']*7
                     nb_jours  = row['cp']
                     code      = u'PRI'
@@ -1022,7 +1031,7 @@ class is_demande_conges_export_cegid(models.Model):
                     else:
                         comment   = u'Conges payes '+self.fdate(date_debut)+u' au '+self.fdate(date_fin)
 
-                if row['rtt']>0:
+                if (row['rtt'] or 0)>0:
                     nb_heures = row['rtt']*7
                     nb_jours  = row['rtt']
                     code      = u'RTT'

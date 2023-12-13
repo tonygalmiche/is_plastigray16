@@ -2330,10 +2330,10 @@
     /> 
 
     <!-- Export Congés CEGID -->
-    <!-- <menuitem
+    <menuitem
         name="Export Congés CEGID"
         id="is_demande_conges_export_cegid_main_menu"
-        groups="base.group_hr_manager"
+        groups="hr.group_hr_manager"
         parent="menu_absences_root"
         sequence="20"
     />
@@ -2343,10 +2343,10 @@
         name="Export Congés CEGID"
         sequence="10"
         action="is_demande_conges_export_cegid_action"
-    /> -->
+    />
 
     <!-- Tables -->
-    <!-- <menuitem
+    <menuitem
         name="Tables"
         id="menu_hr_gestion_des_absences_table"
         groups="is_gestionnaire_des_absences_group"
@@ -2366,7 +2366,7 @@
         name="Autres congés"
         sequence="20"
         action="is_demande_conges_autre_action"
-    /> -->
+    />
 
     <!-- is.proforma.chine -->
     <menuitem

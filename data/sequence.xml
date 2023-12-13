@@ -5,17 +5,6 @@
 
 
 
-        <!-- Export Cegid -->
-        <record id="is_demande_conges_export_cegid_seq_type" model="ir.sequence.type">
-            <field name="name">Export Cegid</field>
-            <field name="code">is.demande.conges.export.cegid</field>
-        </record>
-        <record id="is_demande_conges_export_cegid_seq" model="ir.sequence">
-            <field name="name">Export Cegid</field>
-            <field name="code">is.demande.conges.export.cegid</field>
-            <field name="padding">5</field>
-        </record>
-
 
     </data>
 </openerp>
