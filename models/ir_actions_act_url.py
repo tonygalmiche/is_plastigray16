@@ -12,8 +12,12 @@ class ir_actions_report(models.Model):
     def render_qweb_pdf_xmlrpc(self, report_ref, res_ids=None, data=None):
         print("TEST")
         pdf_content = self._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
-        #pdf_content_encoded = base64.b64encode(pdf_content[0]) # needs to be encoded to be able to access with xmlrpc
-        return pdf_content
+        print("pdf_content=",pdf_content)
+
+        pdf_content_encoded = base64.b64encode(pdf_content[0]) # needs to be encoded to be able to access with xmlrpc
+        print("pdf_content_encoded=",pdf_content_encoded)
+
+        return pdf_content_encoded
 
 
 class ir_actions_act_url(models.Model):
