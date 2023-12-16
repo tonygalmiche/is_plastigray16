@@ -10,7 +10,7 @@ class ir_actions_report(models.Model):
     _inherit = "ir.actions.report"
 
     def render_qweb_pdf_xmlrpc(self, report_ref, res_ids=None, data=None):
-        print("TEST")
+        print("report_ref=",report_ref,res_ids)
         pdf_content = self._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
         print("pdf_content=",pdf_content)
 
