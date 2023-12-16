@@ -1,6 +1,20 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.http import request
+import base64
+
+
+
+class ir_actions_report(models.Model):
+    "Utilisé pour obtenir le PDF du bilan de fin d'OF en XML-RCP"
+    _inherit = "ir.actions.report"
+
+    def render_qweb_pdf_xmlrpc(self, report_ref, res_ids=None, data=None):
+        print("TEST")
+        pdf_content = self._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
+        pdf_content_encoded = base64.b64encode(pdf_content[0]) # needs to be encoded to be able to access with xmlrpc
+        return pdf_content_encoded
+
 
 class ir_actions_act_url(models.Model):
     _inherit = 'ir.actions.act_url'
