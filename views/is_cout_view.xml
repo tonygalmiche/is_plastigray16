@@ -27,7 +27,7 @@
             </field>
         </record> -->
 
-        <!-- <record model="ir.cron" id="cron_cout_article_report">
+        <record model="ir.cron" id="cron_cout_article_report">
             <field name="name">Save Cout Article Report in file system</field>
             <field name="interval_number">1</field>
             <field name="active" eval="False"/>
@@ -36,10 +36,29 @@
             <field name="interval_type"></field>
             <field name="numbercall">0</field>
             <field name="doall" eval="False"/>
-            <field name="model" eval="'is.cout'"/>
-            <field name="function" eval="'print_btn_report'"/>
-            <field name="args" eval="'()'"/>
+            <field name="model_id" ref="model_is_cout"/>
+            <field name="state">code</field>
+            <field name="code">model.print_btn_report()</field>
+
+
+            <!-- <field name="function" eval="'print_btn_report'"/> -->
+            <!-- <field name="args" eval="'()'"/> -->
+        </record>
+
+
+        <!-- <record id="is_taux_rotation_stock_new_scheduler_action" model="ir.cron">
+            <field name="name">REFRESH is_taux_rotation_stock_new</field>
+            <field name="model_id" ref="model_is_taux_rotation_stock_new"/>
+            <field name="state">code</field>
+            <field name="code">model.run_is_taux_rotation_stock_new_scheduler_action()</field>
+            <field name="interval_type">days</field>
+            <field name="interval_number">1</field>
+            <field name="numbercall">-1</field>
         </record> -->
+    
+    
+
+
 
         <!-- Fiche de calcul des couts -->
         <record model="ir.ui.view" id="is_cout_calcul_form_view">

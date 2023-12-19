@@ -7,6 +7,8 @@ from . import is_gestion_des_absences_wiz
 from . import generate_previsions
 from . import stock_transfer_details
 from . import account_move_reversal
+from . import set_sheduler_cout_article
+
 
 # import is_stock_mise_rebut
 # import mrp_product_produce
@@ -15,7 +17,5 @@ from . import account_move_reversal
 # import change_production_qty
 # import audit_log_wizard
 # import is_cas_emploi_wizard
-# import is_cas_emploi_wizard_new
-# import set_sheduler_cout_article
 # import is_change_emplacement_wizard
 

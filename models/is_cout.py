@@ -7,6 +7,7 @@ import pytz
 import base64
 import tempfile
 import os
+from subprocess import PIPE, Popen
 #from pyPdf import PdfFileWriter, PdfFileReader
 from contextlib import closing
 import threading
@@ -1206,26 +1207,29 @@ class is_cout(models.Model):
 
     def save_cout_report(self):
         user = self.env['res.users'].browse(self._uid)
-        #with api.Environment.manage():
         new_cr = self.pool.cursor()
         self = self.with_env(self.env(cr=new_cr))
-        report_service = 'is_plastigray16.report_is_cout'
         db=self._cr.dbname
-        path="/tmp/couts-" + db
-        cde="rm -Rf " + path
-        os.popen(cde).readlines()
+        path="/tmp/couts-%s"%db
+        cde="rm -Rf %s"%path
+        p = Popen(cde, shell=True, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        if stderr:
+            new_cr.close()
+            _logger.info("%s => %s"%(cde,stderr.decode()))
+            return True
         if not os.path.exists(path):
             os.makedirs(path)
-        recs=self.search([], order="name",limit=50000)
+
+        recs=self.search([], order="name",limit=2)
         nb=len(recs)
-        _logger.info("#### Début sauvegarde Coûts ####")
+        _logger.info("#### Début sauvegarde Coûts (nb=%s) ####"%nb)
         ct=0
         for rec in recs:
             ct=ct+1
             code_pg=rec.name.is_code
             _logger.info('- '+str(ct)+'/'+str(nb)+' : '+str(code_pg))
-            #result = self.env['report'].get_pdf(rec, report_service), 'pdf'
-            result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_service',[rec.id])[0]
+            result = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.is_cout_report',[rec.id])[0]
             file_name = path + '/'+str(code_pg) +'.pdf'
             fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
             try:
@@ -1233,12 +1237,15 @@ class is_cout(models.Model):
             finally:
                 os.close(fd)
         filename="/var/www/odoo/couts/"+db+".zip"
-        cde="rm -f " + filename + " && cd /tmp && zip -r " + filename + " couts-" +db+" && chmod 755 "+filename
-        os.popen(cde).readlines()
+        cde="rm -f " + filename + " && cd /tmp && zip -r " + filename + " couts-" +db+" >/dev/null && chmod 755 "+filename
+        _logger.info(cde)
+        p = Popen(cde, shell=True, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        _logger.info("%s : %s : %s : "%(cde,stdout.decode(),stderr.decode()))
         self.send_mail_notyfy_user()
         new_cr.close()
         _logger.info("#### Fin sauvegarde Coûts ####")
-        return {}
+        return True
 
     def send_mail_notyfy_user(self):
         db=self._cr.dbname
@@ -1248,7 +1255,7 @@ class is_cout(models.Model):
         values.update({'subject': 'Génération des PDF des coûts terminée'})
         values.update({'email_from': user.partner_id.email})
         values.update({'email_to': user.partner_id.email})
-        values.update({'body_html': '<p>Bonjour,</p><p>Le zip contenant tous les PDF est disponible <a href="http://odoo/couts/'+db+'.zip">ici</a></p>' })
+        values.update({'body_html': '<p>Bonjour,</p><p>Le zip contenant tous les PDF est disponible <a href="http://odoo16/couts/'+db+'.zip">ici</a></p>' })
         values.update({'model': 'is.cout' }) #[optional] here is the object(like 'project.project')  to whose record id you want to post that email after sending
         msg_id = mail_pool.sudo().create(values)
         if msg_id:

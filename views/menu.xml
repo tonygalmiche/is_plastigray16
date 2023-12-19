@@ -116,7 +116,7 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
-    <!-- <record id="menu_sauvegarde_cout_pdf" model="ir.ui.menu" >
+    <record id="menu_sauvegarde_cout_pdf" model="ir.ui.menu" >
         <field name="name">Sauvegarde coûts en PDF</field>
         <field name="sequence">60</field>
         <field name="parent_id" eval="ref('menu_is_cout')"/>
@@ -124,7 +124,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
-    </record> -->
+    </record>
 
     <!-- Société -->
     <record id="menu_is_societes" model="ir.ui.menu">

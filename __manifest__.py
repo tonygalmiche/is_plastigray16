@@ -42,6 +42,7 @@ Module Odoo 16 pour Plastigray
 
         "views/report_paperformat.xml",
 
+        "wizard/set_sheduler_cout_article.xml",
 
 
         "report/is_taux_rotation_stock_view.xml",
@@ -270,7 +271,6 @@ Module Odoo 16 pour Plastigray
         # "wizard/is_export_seriem_view.xml",
         # "wizard/audit_log_wizard.xml",
         # "wizard/is_cas_emploi_wizard.xml",
-        # "wizard/set_sheduler_cout_article.xml",
         # "wizard/is_change_emplacement_wizard_view.xml",
         # "views/web_view.xml",
         # "views/layouts.xml",
