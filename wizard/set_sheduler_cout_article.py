@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api
+from odoo import models,fields,api,tools
+from odoo.exceptions import ValidationError
 from datetime import datetime
 
 # from openerp.exceptions import except_orm
 # from openerp import models, fields, api, _
 # from openerp.exceptions import Warning
-# import pytz
+import pytz
 # from openerp import tools
 
 
@@ -30,27 +31,23 @@ class shedule_cout_article_report(models.TransientModel):
 
 
     def set_sheduler_cout_article(self):
-
-        print(self)
-
-
-        # view_id = self.env.ref('is_plastigray16.cron_cout_article_report').id
-        # if view_id:
-        #     sheduler_brw = self.env['ir.cron'].browse(view_id)
-        #     if sheduler_brw.active:
-        #         utc = sheduler_brw.nextcall
-        #         datetime_format = tools.misc.DEFAULT_SERVER_DATETIME_FORMAT
-        #         from_zone=pytz.utc
-        #         to_zone = self.env.user.tz
-        #         user_tz = self.env.user.tz or pytz.utc
-        #         local = pytz.timezone(user_tz)
-        #         display_date_result = datetime.datetime.strftime(pytz.utc.localize(datetime.datetime.strptime(utc, datetime_format)).astimezone(local),u"%d/%m/%Y à %H:%M") 
-        #         raise Warning(u"Cette action est déjà plannifiée le "+display_date_result)
-        #     sheduler_brw.sudo().write({
-        #         'active':True, 
-        #         'nextcall':self.next_call, 'numbercall':1,
-        #         'user_id': self._uid,
-        #     })
+        view_id = self.env.ref('is_plastigray16.cron_cout_article_report').id
+        if view_id:
+            sheduler_brw = self.env['ir.cron'].browse(view_id)
+            if sheduler_brw.active:
+                utc = sheduler_brw.nextcall
+                datetime_format = tools.misc.DEFAULT_SERVER_DATETIME_FORMAT
+                from_zone=pytz.utc
+                to_zone = self.env.user.tz
+                user_tz = self.env.user.tz or pytz.utc
+                #local = pytz.timezone(user_tz)
+                #display_date_result = datetime.strftime(pytz.utc.localize(datetime.strptime(utc, datetime_format)).astimezone(local),u"%d/%m/%Y à %H:%M") 
+                raise ValidationError("Cette action est déjà plannifiée le %s"%sheduler_brw.nextcall)
+            sheduler_brw.sudo().write({
+                'active':True, 
+                'nextcall':self.next_call, 'numbercall':1,
+                'user_id': self._uid,
+            })
         return True
     
     

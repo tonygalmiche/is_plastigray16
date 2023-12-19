@@ -1168,8 +1168,6 @@ class is_cout(models.Model):
             self._copie_cout_actualise_dans_cout_standard(obj)
 
 
-
-
     def _copie_cout_actualise_dans_cout_budget(self,obj):
         vals={
             'cout_budget_matiere'    : obj.cout_act_matiere,
@@ -1186,14 +1184,6 @@ class is_cout(models.Model):
     def copie_cout_actualise_dans_cout_budget(self):
         for obj in self:
             self._copie_cout_actualise_dans_cout_budget(obj)
-
-
-
-
-
-
-
-
 
 
     def initialisation_prix_vente_standard(self):
