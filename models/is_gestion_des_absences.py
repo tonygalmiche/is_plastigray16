@@ -157,12 +157,12 @@ class is_demande_conges(models.Model):
                 self.creer_notification(subject,body_html)
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation Niveau 1'."""
-                    res,err = self.envoi_sms(obj.mobile, message)
-                    if err=='':
-                        subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                        self.creer_notification(subject,message)
-                    else:
-                        self.creer_notification(u'ATTENTION : SMS non envoyé', err)
+                    # res,err = self.envoi_sms(obj.mobile, message)
+                    # if err=='':
+                    #     subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
+                    #     self.creer_notification(subject,message)
+                    # else:
+                    #     self.creer_notification(u'ATTENTION : SMS non envoyé', err)
 
             #obj.signal_workflow('validation_n1')
             obj.state = "validation_n1"
@@ -202,12 +202,12 @@ class is_demande_conges(models.Model):
 
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation Niveau 2'."""
-                    res,err = self.envoi_sms(obj.mobile, message)
-                    if err=='':
-                        subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                        self.creer_notification(subject,message)
-                    else:
-                        self.creer_notification(u'ATTENTION : SMS non envoyé', err)
+                    # res,err = self.envoi_sms(obj.mobile, message)
+                    # if err=='':
+                    #     subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
+                    #     self.creer_notification(subject,message)
+                    # else:
+                    #     self.creer_notification(u'ATTENTION : SMS non envoyé', err)
 
             #obj.signal_workflow('validation_n2')
             obj.state = "validation_n2"
@@ -241,12 +241,12 @@ class is_demande_conges(models.Model):
                 self.creer_notification(subject,body_html)
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation RH'."""
-                    res,err = self.envoi_sms(obj.mobile, message)
-                    if err=='':
-                        subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                        self.creer_notification(subject,message)
-                    else:
-                        self.creer_notification(u'ATTENTION : SMS non envoyé', err)
+                    # res,err = self.envoi_sms(obj.mobile, message)
+                    # if err=='':
+                    #     subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
+                    #     self.creer_notification(subject,message)
+                    # else:
+                    #     self.creer_notification(u'ATTENTION : SMS non envoyé', err)
 
                 #** Creation du commentaire de pointage ************************
                 if obj.type_demande in ['sans_solde','autre']:

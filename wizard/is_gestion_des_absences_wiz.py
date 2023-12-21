@@ -45,12 +45,12 @@ class is_gestion_des_absences_wiz(models.TransientModel):
 
             if conges.mode_communication in ['sms','courriel+sms'] and conges.mobile:
                 message = u'Bonjour, ' + nom + u' vient de passer la Demande de congés ' + conges.name + u" à l'état 'Brouillon'. Motif du retour : "+self.conges_reason
-                res,err = conges.envoi_sms(conges.mobile, message)
-                if err=='':
-                    subject = u'SMS envoyé sur le '+conges.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                    conges.creer_notification(subject,message)
-                else:
-                    conges.creer_notification(u'ATTENTION : SMS non envoyé', err)
+                # res,err = conges.envoi_sms(conges.mobile, message)
+                # if err=='':
+                #     subject = u'SMS envoyé sur le '+conges.mobile+u' (il reste '+res+u' SMS sur le compte)'
+                #     conges.creer_notification(subject,message)
+                # else:
+                #     conges.creer_notification(u'ATTENTION : SMS non envoyé', err)
         return {'type': 'ir.actions.act_window_close'}
 
 
@@ -98,12 +98,12 @@ class is_gestion_vers_annuler_wiz(models.TransientModel):
 
             if conges.mode_communication in ['sms','courriel+sms'] and conges.mobile:
                 message = u'Bonjour, ' + nom + u' vient de passer la Demande de congés ' + conges.name + u" à l'état 'Annulé'. Motif de l'annulation : "+motif
-                res,err = conges.envoi_sms(conges.mobile, message)
-                if err=='':
-                    subject = u'SMS envoyé sur le '+conges.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                    conges.creer_notification(subject,message)
-                else:
-                    conges.creer_notification(u'ATTENTION : SMS non envoyé', err)
+                # res,err = conges.envoi_sms(conges.mobile, message)
+                # if err=='':
+                #     subject = u'SMS envoyé sur le '+conges.mobile+u' (il reste '+res+u' SMS sur le compte)'
+                #     conges.creer_notification(subject,message)
+                # else:
+                #     conges.creer_notification(u'ATTENTION : SMS non envoyé', err)
         return {'type': 'ir.actions.act_window_close'}
 
 
@@ -151,12 +151,12 @@ class is_gestion_vers_refuse_wiz(models.TransientModel):
 
             if conges.mode_communication in ['sms','courriel+sms'] and conges.mobile:
                 message = u'Bonjour, ' + nom + u' vient de passer la Demande de congés ' + conges.name + u" à l'état 'Refusé'. Motif du refus : "+motif
-                res,err = conges.envoi_sms(conges.mobile, message)
-                if err=='':
-                    subject = u'SMS envoyé sur le '+conges.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                    conges.creer_notification(subject,message)
-                else:
-                    conges.creer_notification(u'ATTENTION : SMS non envoyé', err)
+                # res,err = conges.envoi_sms(conges.mobile, message)
+                # if err=='':
+                #     subject = u'SMS envoyé sur le '+conges.mobile+u' (il reste '+res+u' SMS sur le compte)'
+                #     conges.creer_notification(subject,message)
+                # else:
+                #     conges.creer_notification(u'ATTENTION : SMS non envoyé', err)
         return {'type': 'ir.actions.act_window_close'}
 
 
