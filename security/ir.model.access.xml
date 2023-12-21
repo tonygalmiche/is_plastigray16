@@ -1694,6 +1694,28 @@
         <field name="perm_unlink" eval="True"/>
         <field name="perm_create" eval="True"/>
     </record>
+    <record id="is_stock_picking_homme_flux_access"  model="ir.model.access" >
+        <field name="name">is_stock_picking_homme_flux_access</field>
+        <field name="model_id"    eval="ref('stock.model_stock_picking')"/>
+        <field name="group_id"    eval="ref('is_homme_flux_group')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="perm_create" eval="True"/>
+    </record>
+
+    <record id="is_mrp_production_homme_flux_access"  model="ir.model.access" >
+        <field name="name">is_mrp_production_homme_flux_access</field>
+        <field name="model_id"    eval="ref('mrp.model_mrp_production')"/>
+        <field name="group_id"    eval="ref('is_homme_flux_group')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="perm_create" eval="False"/>
+    </record>
+
+
+
     <!-- <record id="is_mrp_production_workcenter_line_homme_flux_access"  model="ir.model.access" >
         <field name="name">is_mrp_production_workcenter_line_homme_flux_access</field>
         <field name="model_id"    eval="ref('mrp.model_mrp_production_workcenter_line')"/>

@@ -460,8 +460,9 @@ access_ir_actions_act_url_users,access_ir_actions_act_url_users,model_ir_actions
 access_is_stock_valorise,access_is_stock_valorise,model_is_stock_valorise,base.group_user,1,0,0,0
 access_is_taux_rotation_stock_view,access_is_taux_rotation_stock_view,model_is_taux_rotation_stock_view,base.group_user,1,0,0,0
 
-
 access_mrp_bom_byproduct_base,access_mrp_bom_byproduct_base,mrp.model_mrp_bom_byproduct,base.group_user,1,0,0,0
 
-
 access_shedule_cout_article_report,access_shedule_cout_article_report,model_shedule_cout_article_report,base.group_user,1,1,1,1
+
+access_stock_immediate_transfer_base,access_stock_immediate_transfer_base,stock.model_stock_immediate_transfer,base.group_user,1,1,1,1
+access_stock_immediate_transfer_line_base,access_stock_immediate_transfer_line_base,stock.model_stock_immediate_transfer_line,base.group_user,1,1,1,1
