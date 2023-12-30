@@ -27,7 +27,7 @@ class ir_actions_act_url(models.Model):
 
     def is_parc_presses_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://raspberry-theia4-16/atelier.php?atelier=inj&soc=%s&uid=%s"%(soc,uid)
+        url = "http://raspberry-theia4/atelier.php?atelier=inj&soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
@@ -36,7 +36,7 @@ class ir_actions_act_url(models.Model):
 
     def is_parc_assemblage_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://raspberry-theia4-16/atelier.php?atelier=ass&soc=%s&uid=%s"%(soc,uid)
+        url = "http://raspberry-theia4/atelier.php?atelier=ass&soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
@@ -45,7 +45,7 @@ class ir_actions_act_url(models.Model):
 
     def is_indicateur_rebut_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://odoo16/odoo-theia/rebuts.php?soc=%s&uid=%s"%(soc,uid)
+        url = "http://odoo/odoo-theia/rebuts.php?soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
@@ -54,7 +54,7 @@ class ir_actions_act_url(models.Model):
 
     def is_indicateur_trs_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://odoo16/odoo-theia/trs.php?soc=%s&uid=%s"%(soc,uid)
+        url = "http://odoo/odoo-theia/trs.php?soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
@@ -63,7 +63,7 @@ class ir_actions_act_url(models.Model):
 
     def is_planning_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://odoo16/odoo-erp/planning/?soc=%s&uid=%s"%(soc,uid)
+        url = "http://odoo/odoo-erp/planning/?soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
@@ -72,7 +72,7 @@ class ir_actions_act_url(models.Model):
 
     def is_pic_3ans_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://odoo16/odoo-erp/analyses/pic-3-ans.php?soc=%s&uid=%s"%(soc,uid)
+        url = "http://odoo/odoo-erp/analyses/pic-3-ans.php?soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
@@ -81,7 +81,7 @@ class ir_actions_act_url(models.Model):
 
     def is_pic_3mois_url_action(self):
         soc,uid=self.get_soc_uid()
-        url = "http://odoo16/odoo-erp/analyses/pic-3-mois.php?soc=%s&uid=%s"%(soc,uid)
+        url = "http://odoo/odoo-erp/analyses/pic-3-mois.php?soc=%s&uid=%s"%(soc,uid)
         return {
             'type'  : 'ir.actions.act_url',
             'target': 'new',
