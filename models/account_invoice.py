@@ -59,6 +59,8 @@ class account_invoice(models.Model):
     _inherit = 'account.move'
     _order   = 'id desc'
 
+    amount_untaxed_signed = fields.Monetary(string='Montant HT')
+  
     invoice_date       = fields.Date(default=fields.Datetime.now)
     is_document        = fields.Char('Document'     , help="Ce champ est utilisé dans les factures diverses pour saisir le moule ou le n° d'investissement")
     is_num_cde_client  = fields.Char('N° Cde Client', help="Ce champ est utilisé dans les factures diverses sans commande client dans Odoo")
