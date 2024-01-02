@@ -531,7 +531,7 @@
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
             <field name="state">code</field>
-            <field name="code">action = model.copie_cout_actualise_dans_cout_standard()</field>
+            <field name="code">action = records.copie_cout_actualise_dans_cout_standard()</field>
         </record>
 
         <!-- Copier coût actualisé dans coût budget -->
@@ -540,7 +540,7 @@
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
             <field name="state">code</field>
-            <field name="code">action = model.copie_cout_actualise_dans_cout_budget()</field>
+            <field name="code">action = records.copie_cout_actualise_dans_cout_budget()</field>
         </record>
 
         <!-- Initialisation du prix de vente standard -->
@@ -549,7 +549,7 @@
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
             <field name="state">code</field>
-            <field name="code">action = model.initialisation_prix_vente_standard()</field>
+            <field name="code">action = records.initialisation_prix_vente_standard()</field>
         </record>
 
         <!-- Coût standard = Coût standard de l'indice précédent -->
@@ -558,7 +558,7 @@
             <field name="model_id" ref="model_is_cout"/>
             <field name="binding_model_id" ref="model_is_cout"/>
             <field name="state">code</field>
-            <field name="code">action = model.cout_standard_indice_precedent()</field>
+            <field name="code">action = records.cout_standard_indice_precedent()</field>
         </record>
   </data>
 </odoo>
