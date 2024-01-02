@@ -254,6 +254,18 @@
                 <field name="show_credit_limit" position="after">
                     <group>
                         <field name="property_account_position_id" options="{'no_create': True, 'no_open': True}"/>
+
+
+                        <field 
+                            name="is_num_autorisation_tva" 
+                            attrs="{'invisible': ['|','|',
+                                ('is_company', '=', False),
+                                ('customer','!=', True),
+                                ('property_account_position_id', '!=', 5 )
+                            ]}" 
+                        /> 
+
+
                     </group>
                     <group>
                         <group string="Achats">
@@ -275,6 +287,10 @@
                             <field name="is_adr_liv_sur_facture" attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                         </group>
                     </group>
+
+
+
+
                     <group>
                         <field name="active"/>
                     </group>

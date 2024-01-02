@@ -151,20 +151,16 @@ class stock_picking(models.Model):
         self.is_date_livraison = date_livraison
 
 
-
-
     def creer_factures_action(self):
-        ids=[]
+        # ids=[]
+        # for obj in self:
+        #     id = obj.sale_id.id
+        #     if id and id not in ids:
+        #         ids.append(id)
+        # self.env['sale.order'].search([('id','in',ids)])._create_invoices() #  def _create_invoices(self, grouped=False, final=False, date=None)
+
         for obj in self:
-            id = obj.sale_id.id
-            if id and id not in ids:
-                ids.append(id)
-        self.env['sale.order'].search([('id','in',ids)])._create_invoices() #  def _create_invoices(self, grouped=False, final=False, date=None)
-
-
-
-
-
+           self.env['sale.order'].search([('id','in',[obj.sale_id.id])])._create_invoices() #  def _create_invoices(self, grouped=False, final=False, date=None)
 
 
     def transfert_action(self):

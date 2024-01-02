@@ -52,6 +52,10 @@ class sale_order(models.Model):
         "Fonction surchargée pour faire le lien entre les factures et les mouvements de stocks"
         invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
 
+        print("_create_invoices",invoices)
+
+
+
         for invoice in invoices:
             pickings=[]
             invoice.is_mode_envoi_facture   = invoice.partner_id.is_mode_envoi_facture
@@ -60,6 +64,9 @@ class sale_order(models.Model):
                 line.is_section_analytique_id = line.product_id.is_section_analytique_id.id
                 for sale_line in line.sale_line_ids:
                     for move in sale_line.move_ids:
+
+                        print(move,move.is_account_move_line_id, move.state)
+
                         if not move.is_account_move_line_id and move.state=="done":
                             move.is_account_move_line_id = line.id
                             move.invoice_state='invoiced'
