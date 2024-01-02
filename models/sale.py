@@ -64,7 +64,7 @@ class sale_order(models.Model):
                             move.is_account_move_line_id = line.id
                             move.invoice_state='invoiced'
                             move.picking_id._compute_invoice_state()
-                            invoice.invoice_date = move.picking_id.date_done
+                            invoice.invoice_date = move.picking_id.is_date_expedition
                             line.is_move_id = move.id
                             if move.picking_id.name not in pickings:
                                 pickings.append(move.picking_id.name)
