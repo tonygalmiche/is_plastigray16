@@ -346,8 +346,19 @@ class MrpProduction(models.Model):
     @api.depends('bom_id', 'product_id', 'product_qty', 'product_uom_id')
     def _compute_workorder_ids(self):
         for production in self:
-            if production.state != 'draft':
+
+
+            #for line in production.workorder_ids:
+            #    print(line.operation_id)
+
+
+            if production.state != 'draft' or len(production.workorder_ids)>0:
                 continue
+
+
+            #print("TEST")
+
+
             workorders_list = [Command.link(wo.id) for wo in production.workorder_ids.filtered(lambda wo: not wo.operation_id)]
             if not production.bom_id and not production._origin.product_id:
                 production.workorder_ids = workorders_list
