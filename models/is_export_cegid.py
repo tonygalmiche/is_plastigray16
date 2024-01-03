@@ -480,9 +480,9 @@ class is_export_cegid(models.Model):
 
             company  = self.env.user.company_id
             dossier_interface_cegid = company.is_dossier_interface_cegid
-            dossier_interface_cegid = 'root@freedom:"/Utilisateurs/Interface\\ CEGID/Odoo16/"'
+            #dossier_interface_cegid = 'root@freedom:"/Utilisateurs/Interface\\ CEGID/Odoo16/"'
 
-            print("dossier_interface_cegid=",dossier_interface_cegid)
+            #print("dossier_interface_cegid=",dossier_interface_cegid)
 
 
             if dossier_interface_cegid:
