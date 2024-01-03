@@ -250,7 +250,7 @@ class stock_picking(models.Model):
         for obj in self:
             #** Recherche des articles du BL **********************************
             product_ids=[]
-            for line in obj.move_lines:
+            for line in obj.move_ids_without_package:
                 if line.state=="done":
                     product_id = line.product_id.id
                     if product_id not in product_ids:
