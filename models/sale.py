@@ -546,6 +546,13 @@ class sale_order_line(models.Model):
             obj.is_justification = justifcation
 
 
+    @api.onchange('product_id')
+    def onchange_product_id_qty(self):
+        print("TEST",self)
+        for obj in self:
+            obj._compute_price_unit()
+
+
     @api.onchange('is_date_livraison')
     def onchange_date_livraison(self):
         if self.order_id:
