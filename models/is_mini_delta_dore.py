@@ -153,6 +153,8 @@ class is_mini_delta_dore(models.Model):
                         #* Dates en semaines => Lundi de la semaine ************
                         if ct>=(10+nb_jours) and ct<(10+nb_jours+nb_semaines):
                             cel=cel.strip()
+                            if cel[0:1]=="S" and len(cel)==2:
+                                cel="S0%s"%cel[1:2]
                             semaine=cel+'/'+str(annee)
                             d=tsemaines[semaine]
                             tdates.append([cel,d])
