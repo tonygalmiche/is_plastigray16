@@ -405,8 +405,8 @@ class is_liste_servir(models.Model):
                     key2=str(order[0])+"-"+str(order[1])
                     if key1==key2:
                         anomalie=""
-                        if line.quantite>order[5]:
-                            anomalie="Qt en commande = "+ str(order[5])
+                        #if line.quantite>order[5]:
+                        #    anomalie="Qt en commande = "+ str(order[5])
                 line.anomalie=anomalie
                 if anomalie!="":
                     Test=False
