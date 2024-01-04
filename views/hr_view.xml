@@ -50,6 +50,7 @@
                                 <field name="is_editable" invisible="1"/>
                                 <field name="is_site"        attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="department_id"  attrs="{'readonly': [('is_editable', '=', False)]}"/>
+                                <field name="parent_id"      attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_matricule"   attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_categorie"   attrs="{'readonly': [('is_editable', '=', False)]}"/>
                                 <field name="is_interimaire" attrs="{'readonly': [('is_editable', '=', False)]}"/>
