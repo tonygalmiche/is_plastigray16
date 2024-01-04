@@ -112,13 +112,9 @@ class IsMrpProductionWizard(models.TransientModel):
                 "is_employee_theia_id": is_employee_theia_id,
                 "move_line_ids"   : [[0,False,line_vals]],
             }
-
-
-
             move=self.env['stock.move'].with_context({}).create(move_vals) # Il faut effacer le context, sinon erreur avec le champ product_qty
-            move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
             move._action_done()
-            #move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
+            move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
             move.production_id._compute_qt_reste()
             #******************************************************************
 
