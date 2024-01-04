@@ -179,7 +179,7 @@ class sale_order(models.Model):
             #** Génération du PDF **********************************************
             name=u'ar_commande-' + obj.client_order_ref + u'.pdf'
             #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.report_ar_commande')
-            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_ar_commande',[obj.id])[0]
+            pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.ar_commande_report',[obj.id])[0]
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************
