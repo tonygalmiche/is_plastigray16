@@ -398,14 +398,11 @@ class MrpProduction(models.Model):
                 production.workorder_ids = [Command.delete(wo.id) for wo in production.workorder_ids.filtered(lambda wo: wo.operation_id)]
 
 
-
-
     def init_nomenclature_action(self):
         for obj in self:
             if obj.state=='draft' and not obj.is_bom_line_ids:
                 obj._compute_is_bom_line_ids()
         return True
-
 
 
     def init_qt_reste_action(self):
@@ -414,6 +411,13 @@ class MrpProduction(models.Model):
         return True
 
 
+    def init_operation_id_action(self):
+        for obj in self:
+            for line in obj.bom_id.routing_id.workcenter_lines:
+                for operation in obj.workorder_ids:
+                    if line.sequence==operation.sequence and line.workcenter_id==operation.workcenter_id and not operation.operation_id:
+                        operation.operation_id = line.id
+        return True
 
 
     def voir_composants_consommes_action(self):
