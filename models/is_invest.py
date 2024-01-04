@@ -49,14 +49,26 @@ class IsInvestGlobal(models.Model):
             annee=0
         if annee<2019 or annee>2099:
             raise ValidationError(u"L'année doit-être comprise entre 2019 et 2099 !")
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','is_invest_global_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals_list[0]['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-        #obj = super(IsInvestGlobal, self).create(vals)
-        res=super().create(vals_list)
-        return res
+        #data_obj = self.env['ir.model.data']
+        #sequence_ids = data_obj.search([('name','=','is_invest_global_seq')])
+        #if sequence_ids:
+        #    sequence_id = data_obj.browse(sequence_ids[0].id).res_id
+        #    vals_list[0]['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
+
+        for vals in vals_list:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.invest.global')
+        return super().create(vals_list)
+
+
+
+
+
+
+        #     vals['name'] = self.env['ir.sequence'].next_by_code('is.gestion.demandes')
+        # return super().create(vals_list)
+
+
+
 
 
     def creer_detail_action(self):
