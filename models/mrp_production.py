@@ -116,6 +116,7 @@ class IsMrpProductionWizard(models.TransientModel):
             move._action_done()
             move.production_id = production_id # Permet d'associer le mouvement à l'ordre de fabrication après sa création
             move.production_id._compute_qt_reste()
+            move.create_pg_stock_move_action() # Permet de remettre le lien avec production_id
             #******************************************************************
 
 
