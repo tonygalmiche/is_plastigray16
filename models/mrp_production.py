@@ -234,8 +234,14 @@ class MrpProduction(models.Model):
                     if line.location_dest_id.usage=='internal' and line.state=='done':
                         is_qt_fabriquee=is_qt_fabriquee+line.product_uom_qty
             for line in obj.move_lines_produits_finis:
-                if line.location_id.usage=='internal' and line.state=='done':
-                    is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
+
+                if line.location_id.scrap_location and line.state=='done':
+                    is_qt_rebut=is_qt_rebut-line.product_uom_qty
+                else:
+                    if line.location_id.usage=='internal' and line.state=='done':
+                        is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
+                # if line.location_id.usage=='internal' and line.state=='done':
+                #     is_qt_fabriquee=is_qt_fabriquee-line.product_uom_qty
             product_package = False
             if obj.product_id and obj.product_id.packaging_ids:
                 pack_brw        = obj.product_id.packaging_ids[0]
