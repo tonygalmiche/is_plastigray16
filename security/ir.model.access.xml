@@ -1618,10 +1618,16 @@
     </record>
 
 
-
-
-
     <!-- Qualité -->
+    <record id="is_stock_picking_qualite_access"  model="ir.model.access" >
+        <field name="name">is_stock_picking_qualite_access</field>
+        <field name="model_id"    eval="ref('stock.model_stock_picking')"/>
+        <field name="group_id"    eval="ref('is_qualite_group')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="perm_create" eval="True"/>
+    </record>
     <record id="is_stock_move_qualite_access"  model="ir.model.access" >
         <field name="name">is_stock_move_qualite_access</field>
         <field name="model_id"    eval="ref('stock.model_stock_move')"/>
