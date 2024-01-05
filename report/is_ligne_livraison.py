@@ -64,9 +64,9 @@ class is_ligne_livraison(models.Model):
         now = datetime.now(timezone('Europe/Paris')).strftime('%H:%M:%S')
         return {
             'name'     : 'Lignes des livraisons actualisées à '+str(now),
-            'view_mode': 'tree,form,graph',
+            'view_mode': 'tree,form,graph,pivot',
             'res_model': 'is.ligne.livraison',
-            'views'    : [(view_id, 'tree'),(False, 'form'),(False, 'graph')],
+            'views'    : [(view_id, 'tree'),(False, 'form'),(False, 'graph'),(False, 'pivot')],
             'type'     : 'ir.actions.act_window',
         }
 

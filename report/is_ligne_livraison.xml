@@ -122,13 +122,6 @@
         </field>
     </record>
 
-    <record id="is_ligne_livraison_action" model="ir.actions.act_window">
-        <field name="name">Lignes de livraisons</field>
-        <field name="res_model">is.ligne.livraison</field>
-        <field name="domain">[]</field>
-        <field name="view_id" ref="is_ligne_livraison_tree_view"/>
-        <field name="view_mode">tree,form,graph</field>
-    </record>
 
 
     <!-- Indicateur CA sur livraisons -->
@@ -159,26 +152,52 @@
            </tree>
         </field>
     </record>
-    <record id="is_indicateur_ca_livraison_graph_view" model="ir.ui.view">
+    <record id="is_indicateur_ca_livraison_graph_view2" model="ir.ui.view">
         <field name="name">is_indicateur_ca_livraison_graph_view</field>
         <field name="model">is.ligne.livraison</field>
         <field name="arch" type="xml">
-            <pivot>
-                <field name="partner_id"        type="row"/>
+            <graph>
+                <!-- <field name="partner_id"        type="row"/>
                 <field name="date_expedition"   type="col"/>
                 <field name="price_subtotal"    type="measure"/>
                 <field name="montant_amt_moule" type="measure"/>
-                <field name="montant_matiere"   type="measure"/>
+                <field name="montant_matiere"   type="measure"/> -->
+
+                <field name="family_id"        type="row"/>
+                <field name="product_uom_qty"    type="measure"/>
+
+
+            </graph>
+        </field>
+    </record>
+
+    <record id="is_indicateur_ca_livraison_pivot_view2" model="ir.ui.view">
+        <field name="name">is_indicateur_ca_livraison_pivot_view</field>
+        <field name="model">is.ligne.livraison</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="family_id"        type="row"/>
+                <field name="product_uom_qty"    type="measure"/>
             </pivot>
         </field>
     </record>
+
+    <record id="is_ligne_livraison_action" model="ir.actions.act_window">
+        <field name="name">Lignes de livraisons</field>
+        <field name="res_model">is.ligne.livraison</field>
+        <field name="domain">[]</field>
+        <field name="view_id" ref="is_ligne_livraison_tree_view"/>
+        <field name="view_mode">tree,form,graph,pivot</field>
+    </record>
+
+
 
     <!-- Action en précisant les vues graph et tree -->
     <record id="is_indicateur_ca_livraison_action" model="ir.actions.act_window">
         <field name="name">CA sur livraisons</field>
         <field name="res_model">is.ligne.livraison</field>
         <field name="domain">[]</field>
-        <field name="view_mode">tree,form,graph</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
     <record id="is_indicateur_ca_livraison_action_tree" model="ir.actions.act_window.view" >
         <field name="sequence" eval="1"/>
@@ -188,8 +207,8 @@
     </record>
     <record id="is_indicateur_ca_livraison_action_graph" model="ir.actions.act_window.view" >
         <field name="sequence" eval="2"/>
-        <field name="view_mode">graph</field>
-        <field name="view_id" ref="is_indicateur_ca_livraison_graph_view"/>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="is_indicateur_ca_livraison_pivot_view2"/>
         <field name="act_window_id" ref="is_indicateur_ca_livraison_action"/>
     </record>
 
