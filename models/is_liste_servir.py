@@ -449,10 +449,10 @@ class is_liste_servir(models.Model):
 
             key=key+(line.point_dechargement or '')
 
-
             if mem!=key:
                 if vals:
                     new_id = order_obj.create(vals)
+                    new_id.pg_onchange_partner_id()
                     vals={}
                     lines = []
                 mem=key
