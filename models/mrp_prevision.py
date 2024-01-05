@@ -86,6 +86,7 @@ class mrp_prevision(models.Model):
                         'is_lieu'         : partner.is_lieu,
                     }
                     order=order_obj.create(vals)
+                    order.onchange_partner_id()
                     vals={}
                     vals['product_qty']  = obj.quantity_ha
                     vals['price_unit']   = price
