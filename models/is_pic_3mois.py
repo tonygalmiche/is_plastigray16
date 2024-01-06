@@ -251,7 +251,8 @@ class sale_order(models.Model):
         SQL+=" ORDER BY rp.is_code, im.name, pt.is_code limit %s"%(int(nb_lig)*100)
         #**********************************************************************
 
-        NbColMax = math.floor(int(nb_semaines)*7/int(periodicite))
+        periodicite=int(periodicite)
+        NbColMax = math.floor(int(nb_semaines)*7/periodicite)
         LaDate = datetime.now()
         JourSem = LaDate.weekday()
         DebSem = LaDate
@@ -331,10 +332,11 @@ class sale_order(models.Model):
             DateCol = DateCol + timedelta(days=int(periodicite))
         #**********************************************************************
 
-        sorted_dict = dict(sorted(lines.items())) 
+        #sorted_dict = dict(sorted(lines.items())) 
         res={
             #"lines"           : list(lines.values()),
-            "dict"            : sorted_dict,
+            #dict"            : sorted_dict,
+            "dict"            : lines,
             "date_cols"       : date_cols,
             "code_cli"        : code_cli,
             "adr_cli"         : adr_cli,
