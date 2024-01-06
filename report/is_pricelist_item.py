@@ -25,8 +25,8 @@ class is_pricelist_item(models.Model):
     sequence           = fields.Integer('Sequence')
     product_uom_id     = fields.Many2one('uom.uom', "Unité")
     product_po_uom_id  = fields.Many2one('uom.uom', "Unité d'achat")
-    min_quantity       = fields.Float('Quantité min.')
-    price_surcharge    = fields.Float('Prix')
+    min_quantity       = fields.Float('Quantité min.', digits=(14,3))
+    price_surcharge    = fields.Float('Prix'         , digits=(14,3))
     item_date_start    = fields.Date('Date début ligne')
     item_date_end      = fields.Date('Date fin ligne')
 
