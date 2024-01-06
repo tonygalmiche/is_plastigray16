@@ -27,8 +27,12 @@ class is_comparatif_tarif_reception(models.Model):
     def init(self):
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_tarif_reception')
+
+# CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt numeric, date timestamp without time zone) RETURNS float AS $$
+
+
         cr.execute("""
-CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt numeric, date timestamp without time zone) RETURNS float AS $$
+CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt float, date) RETURNS float AS $$
 BEGIN
     RETURN (
         select price_surcharge 
@@ -80,7 +84,7 @@ CREATE OR REPLACE view is_comparatif_tarif_reception AS (
             pol.product_uom       pol_uom_id,
             pt.uom_po_id          pricelist_uom_id,
             is_unit_coef(pol.product_uom, pt.uom_po_id) factor,
-            COALESCE(is_prix_achat(po.pricelist_id,sm.product_id,pol.product_qty,pol.date_planned), 0) as pricelist_price
+            COALESCE(is_prix_achat(po.pricelist_id,sm.product_id,pol.product_qty,pol.date_planned::date), 0) as pricelist_price
         from stock_move sm inner join purchase_order_line pol on sm.purchase_line_id=pol.id
                            inner join purchase_order       po on pol.order_id=po.id 
                            inner join product_product      pp on pol.product_id=pp.id
