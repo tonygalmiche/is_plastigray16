@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
     <record id="is_comparatif_tarif_reception_tree_view" model="ir.ui.view">
         <field name="name">is_comparatif_tarif_reception_tree_view</field>
@@ -11,15 +11,15 @@
                 <field name="partner_id"         widget="many2one_clickable"  />
                 <field name="pricelist_id"       widget="many2one_clickable"  />
                 <field name="product_id"         widget="many2one_clickable"  />
-                <field name="qty"                digits="(14, 4)"/>
+                <field name="qty"/>
                 <field name="date_planned" />
                 <field name="justification" />
-                <field name="pol_price"          digits="(14, 4)"/>
+                <field name="pol_price"/>
                 <field name="pol_uom_id"/>
-                <field name="pricelist_price"    digits="(14, 4)"/>
+                <field name="pricelist_price"/>
                 <field name="pricelist_uom_id" />
-                <field name="factor"             digits="(14, 6)"/>
-                <field name="price_delta"        digits="(14, 4)"/>
+                <field name="factor"/>
+                <field name="price_delta"/>
            </tree>
         </field>
     </record>
@@ -45,4 +45,4 @@
         </field>
     </record>
 </data>
-</openerp>
+</odoo>

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_tarif_cial_vente(models.Model):
     _name='is.comparatif.tarif.cial.vente'
+    _description='Comparatif liste de prix tarif commercial'
     _order='pricelist_id, version_id, sequence, product_id'
     _auto = False
 
@@ -25,7 +23,8 @@ class is_comparatif_tarif_cial_vente(models.Model):
     tarif_cial         = fields.Float('Tarif cial'   , digits=(12, 4))
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_tarif_cial_vente')
         cr.execute("""
             CREATE OR REPLACE FUNCTION get_tarif_cial(productid integer, partnercode char) RETURNS float AS $$
@@ -74,33 +73,3 @@ class is_comparatif_tarif_cial_vente(models.Model):
                 order by ic.name,ppl.name, ppv.name, pt.is_code
             )
         """)
-
-
-
-
-
-
-
-
-#    select
-#        pt.id                as id,
-#        pt.id                as product_id,
-#        pt.is_code           as is_code,
-#        pt.name              as designation,
-#        pt.is_category_id    as is_category_id,
-#        pt.is_client_id      as partner_id,
-#        get_product_pricelist(pt.is_client_id)    as pricelist_id,
-
-#        get_lot_livraison(pt.id, pt.is_client_id) as lot_livraison,
-#        coalesce(get_tarif_cial(pt.id,rp.is_code),0) as tarif_cial,
-#        coalesce(is_prix_vente(get_product_pricelist(pt.is_client_id), pp.id, get_lot_livraison(pt.id, pt.is_client_id), CURRENT_DATE),0) as tarif_vente
-
-#    from product_template pt inner join product_product pp on pp.product_tmpl_id=pt.id
-#                             inner join res_partner     rp on pt.is_client_id=rp.id
-#    where 
-#        pt.active='t' and 
-
-#        coalesce(get_tarif_cial(pt.id,rp.is_code),0)<>coalesce(is_prix_vente(get_product_pricelist(pt.is_client_id), pp.id, get_lot_livraison(pt.id, pt.is_client_id), CURRENT_DATE),0)
-#    order by pt.is_code
-
-

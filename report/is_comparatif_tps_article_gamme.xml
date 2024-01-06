@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
-
     <record id="is_comparatif_tps_article_gamme_tree_view" model="ir.ui.view">
         <field name="name">is_comparatif_tps_article_gamme_tree_view</field>
         <field name="model">is.comparatif.tps.article.gamme</field>
         <field name="arch" type="xml">
-
-            <tree colors="red:delta_nb_secondes!=0">
+            <!-- colors="red:delta_nb_secondes!=0" -->
+            <tree>
                 <field name="product_id"     widget="many2one_clickable" />
                 <field name="is_category_id"     />
                 <field name="sequence" />
@@ -37,6 +36,5 @@
         <field name="domain">[]</field>
         <field name="view_mode">tree</field>
     </record>
-
 </data>
-</openerp>
+</odoo>

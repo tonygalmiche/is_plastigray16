@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_tps_article_gamme(models.Model):
     _name='is.comparatif.tps.article.gamme'
+    _description='is_comparatif_tps_article_gamme'
     _order='product_id'
     _auto = False
 
@@ -20,11 +18,8 @@ class is_comparatif_tps_article_gamme(models.Model):
     nb_secondes_article = fields.Float('Temps de realisation Article')
     delta_nb_secondes   = fields.Float('Delta Nb secondes')
 
-
-#                    sum(mrw.is_nb_secondes*mr.is_nb_empreintes*mr.is_coef_theia) as nb_secondes_gamme,
-
-
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_tps_article_gamme')
         cr.execute("""
 

@@ -1562,7 +1562,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    <!--record id="is_comparatif_lot_prix_menu" model="ir.ui.menu" >
+    <record id="is_comparatif_lot_prix_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Lot liv / Prix</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('is_analyse_article_menu')"/>
@@ -1571,7 +1571,6 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    -->
     <menuitem id="is_analyse_gamme_menu" sequence="15" name="Analyses Gammes" parent="menu_is_analyse"/>
     <record id="is_comparatif_gamme_standard_generique_menu" model="ir.ui.menu" >
         <field name="name">Gamme standard / générique</field>
@@ -1582,7 +1581,6 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    <!--
     <record id="is_comparatif_tps_article_gamme_menu" model="ir.ui.menu" >
         <field name="name">Tps article/gamme</field>
         <field name="sequence">20</field>
@@ -1592,7 +1590,6 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-
     <record id="is_nomenclature_sans_gamme_menu" model="ir.ui.menu" >
         <field name="name">Nomenclatures sans gamme</field>
         <field name="sequence">40</field>
@@ -1625,6 +1622,8 @@
         ])]"/>
     </record>
 
+
+
     <menuitem id="is_analyse_tarif_achat_menu" sequence="25" name="Analyses Tarifs Achat" parent="menu_is_analyse"/>
     <record id="is_comparatif_tarif_reception_menu" model="ir.ui.menu" >
         <field name="name">Prix Tarif / Réception</field>
@@ -1646,7 +1645,7 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
--->
+
 
     <!-- Production / Analyses Stocks -->
     <menuitem id="is_analyse_stock_menu" sequence="21" name="Analyses Stocks" parent="menu_is_production"/>
@@ -1743,7 +1742,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
-    <!--record id="is_comparatif_cout_pk_tarif_menu" model="ir.ui.menu" >
+    <record id="is_comparatif_cout_pk_tarif_menu" model="ir.ui.menu" >
         <field name="name">Comparatif Coût PK Tarif</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_analyse_cout_menu')"/>
@@ -1751,7 +1750,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
-    </record> -->
+    </record>
 
     <!-- Suivi d'activité -->
     <!-- <record id="base.menu_reporting" model="ir.ui.menu" >

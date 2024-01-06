@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_tarif_commande(models.Model):
     _name='is.comparatif.tarif.commande'
+    _description='Comparatif Prix Liste de prix / Commandes'
     _order='product_id'
     _auto = False
 
@@ -20,7 +18,8 @@ class is_comparatif_tarif_commande(models.Model):
     delta           = fields.Float('Delta'                     , digits=(12, 4))
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_tarif_commande')
         cr.execute("""
 CREATE OR REPLACE view is_comparatif_tarif_commande AS (

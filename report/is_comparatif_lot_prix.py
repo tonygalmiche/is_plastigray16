@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_lot_prix(models.Model):
     _name='is.comparatif.lot.prix'
+    _description='Comparatif Lot liv / Prix'
     _order='product_id'
     _auto = False
 
@@ -19,7 +17,8 @@ class is_comparatif_lot_prix(models.Model):
     test_mini_liste_prix = fields.Float('Test Mini liste de prix')
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_lot_prix')
         cr.execute("""
 

@@ -42,15 +42,17 @@ Module Odoo 16 pour Plastigray
 
         "views/report_paperformat.xml",
 
-        "wizard/set_sheduler_cout_article.xml",
 
-
-        "report/is_taux_rotation_stock_view.xml",
-
+        "report/is_nomenclature_sans_gamme.xml",
+        "report/is_comparatif_tps_article_gamme.xml",
+        "report/is_comparatif_cout_pk_tarif.xml",
+        "report/is_comparatif_lot_prix.xml",
+        "report/is_comparatif_tarif_commande.xml",
+        "report/is_comparatif_tarif_cial_vente.xml",
+        "report/is_comparatif_tarif_reception.xml",
+        "report/is_comparatif_lot_appro_prix.xml",
 
         "views/stock_inventory_view.xml",
-
-       
         "views/report_inventaire.xml",
         "views/report_inventaire_ecart.xml",
         "views/report_is_inventaire_line_tree.xml",
@@ -222,12 +224,17 @@ Module Odoo 16 pour Plastigray
         "report/is_comparatif_livraison_facture.xml",
         "report/is_comparatif_tarif_facture.xml",
         "report/is_marge_contributive.xml",
+        "report/is_taux_rotation_stock_view.xml",
+
+
 
         "wizard/assistent_report_view.xml",
         "wizard/generate_previsions_view.xml",
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
         "wizard/stock_transfer_details.xml",
+        "wizard/set_sheduler_cout_article.xml",
+
 
         #"wizard/is_gestion_des_absences_wiz_view.xml",
 
@@ -285,19 +292,11 @@ Module Odoo 16 pour Plastigray
         # "report/stock_change_location_lot.xml",
         # "report/stock_rebut_lot.xml",
         # "report/is_pic_3mois.xml",
-        # "report/is_comparatif_tps_article_gamme.xml",
-        # "report/is_comparatif_tarif_cial_vente.xml",
-        # "report/is_comparatif_tarif_commande.xml",
-        # "report/is_comparatif_lot_prix.xml",
-        # "report/is_nomenclature_sans_gamme.xml",
         # "report/is_mouvement_stock.xml",
         # "report/is_model_groups.xml",
-        # "report/is_comparatif_tarif_reception.xml",
         # "report/is_comparatif_cde_draft_done.xml",
         # "report/is_suivi_budget_analytique.xml",
-        # "report/is_comparatif_lot_appro_prix.xml",
         # "report/is_anomalie_declar_prod.xml",
-        # "report/is_comparatif_cout_pk_tarif.xml",
 
 
 

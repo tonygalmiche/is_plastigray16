@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
 <data>
-    
     <record id="is_comparatif_tarif_commande_tree_view" model="ir.ui.view">
         <field name="name">is_comparatif_tarif_commande_tree_view</field>
         <field name="model">is.comparatif.tarif.commande</field>
@@ -39,10 +38,6 @@
                 <h3>Aucune anomalie trouvée</h3>
             </p>
         </field>
-
-
-
     </record>
-
 </data>
-</openerp>
+</odoo>

@@ -14,10 +14,10 @@ class is_comparatif_cout_pk_tarif(models.Model):
     lot_mini             = fields.Char("Lot d'appro")
     partner_id           = fields.Many2one('res.partner', 'Fournisseur')
     cout_id              = fields.Many2one('is.cout', 'Coût')
-    cout_ma              = fields.Float(u'Coût machine', digits=(14,4))
-    cout_mo              = fields.Float(u'Coût MO'     , digits=(14,4))
-    cout_total           = fields.Float(u'Coût Total'  , digits=(14,4))
-    prix_achat           = fields.Float(u'Tarif achat' , digits=(14,4))
+    cout_ma              = fields.Float('Coût machine', digits=(14,4))
+    cout_mo              = fields.Float('Coût MO'     , digits=(14,4))
+    cout_total           = fields.Float('Coût Total'  , digits=(14,4))
+    prix_achat           = fields.Float('Tarif achat' , digits=(14,4))
 
     def init(self):
         cr = self._cr
@@ -30,7 +30,7 @@ class is_comparatif_cout_pk_tarif(models.Model):
                     ig.name        gest,
                     pt.lot_mini    lot_mini,
                     rp.id          partner_id,
-                    get_product_pricelist_purchase(rp.id) product_pricelist_purchase,
+                    rp.pricelist_purchase_id,
                     ic.id          cout_id,
                     (   select sum(ma.cout_total)
                         from is_cout_gamme_ma_pk ma
@@ -50,7 +50,7 @@ class is_comparatif_cout_pk_tarif(models.Model):
                             where mo.cout_id=ic.id
                         )
                     ) cout_total,
-                    is_prix_achat(get_product_pricelist_purchase(rp.id),pp.id, pt.lot_mini/is_unit_coef(pt.uom_id, pt.uom_po_id),CURRENT_DATE)/is_unit_coef(pt.uom_id, pt.uom_po_id) prix_achat
+                    is_prix_achat(rp.pricelist_purchase_id,pp.id, pt.lot_mini/is_unit_coef(pt.uom_id, pt.uom_po_id),CURRENT_DATE)/is_unit_coef(pt.uom_id, pt.uom_po_id) prix_achat
                 from is_cout ic inner join product_product  pp on ic.name=pp.id
                                 inner join product_template pt on pp.product_tmpl_id=pt.id
                                 inner join res_partner      rp on pt.is_fournisseur_id=rp.id
@@ -69,7 +69,7 @@ class is_comparatif_cout_pk_tarif(models.Model):
                         ) -
                         (
                             COALESCE(
-                                is_prix_achat(get_product_pricelist_purchase(rp.id),pp.id, pt.lot_mini/is_unit_coef(pt.uom_id, pt.uom_po_id),CURRENT_DATE)/is_unit_coef(pt.uom_id, pt.uom_po_id),
+                                is_prix_achat(rp.pricelist_purchase_id,pp.id, pt.lot_mini/is_unit_coef(pt.uom_id, pt.uom_po_id),CURRENT_DATE)/is_unit_coef(pt.uom_id, pt.uom_po_id),
                                 0
                             )
                         )

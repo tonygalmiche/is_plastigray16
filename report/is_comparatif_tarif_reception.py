@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_comparatif_tarif_reception(models.Model):
     _name='is.comparatif.tarif.reception'
+    _description='Comparatif Prix Liste de prix / Réception en cours'
     _order='order_id,product_id'
     _auto = False
 
@@ -15,21 +13,22 @@ class is_comparatif_tarif_reception(models.Model):
     partner_id       = fields.Many2one('res.partner', 'Fournisseur')
     pricelist_id     = fields.Many2one('product.pricelist', 'Liste de prix')
     product_id       = fields.Many2one('product.product', 'Article')
-    qty              = fields.Float('Quantité')
+    qty              = fields.Float('Quantité',  digits=(14, 4))
     date_planned     = fields.Date('Date prévue')
     justification    = fields.Char('Justification')
-    pol_price        = fields.Float('Prix commande')
-    pol_uom_id       = fields.Many2one('product.uom', 'Unité Commande')
-    pricelist_price  = fields.Float('Prix liste de prix')
-    pricelist_uom_id = fields.Many2one('product.uom', 'Unité Liste de prix')
-    factor           = fields.Float('Coeficient')
-    price_delta      = fields.Float('Ecart de prix')
+    pol_price        = fields.Float('Prix commande',  digits=(14, 4))
+    pol_uom_id       = fields.Many2one('uom.uom', 'Unité Commande')
+    pricelist_price  = fields.Float('Prix liste de prix',  digits=(14, 4))
+    pricelist_uom_id = fields.Many2one('uom.uom', 'Unité Liste de prix')
+    factor           = fields.Float('Coeficient'   ,  digits=(14, 6))
+    price_delta      = fields.Float('Ecart de prix',  digits=(14, 4))
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_comparatif_tarif_reception')
         cr.execute("""
-CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt float, date date) RETURNS float AS $$
+CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt numeric, date timestamp without time zone) RETURNS float AS $$
 BEGIN
     RETURN (
         select price_surcharge 
@@ -48,9 +47,6 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql;
-
-
-
 
 CREATE OR REPLACE view is_comparatif_tarif_reception AS (
     select 

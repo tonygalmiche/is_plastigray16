@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from openerp import tools
-from openerp import models,fields,api
-from openerp.tools.translate import _
+from odoo import tools,models,fields
 
 
 class is_nomenclature_sans_gamme(models.Model):
     _name='is.nomenclature.sans.gamme'
+    _description="is_nomenclature_sans_gamme"
     _order='bom_id, product_id'
     _auto = False
 
@@ -21,7 +19,8 @@ class is_nomenclature_sans_gamme(models.Model):
     is_gamme_generique_id = fields.Many2one('mrp.routing', 'Gamme générique')
 
 
-    def init(self, cr):
+    def init(self):
+        cr = self._cr
         tools.drop_view_if_exists(cr, 'is_nomenclature_sans_gamme')
         cr.execute("""
             CREATE OR REPLACE view is_nomenclature_sans_gamme AS (
