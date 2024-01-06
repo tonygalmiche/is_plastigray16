@@ -223,30 +223,19 @@ class mrp_prevision(models.Model):
         for obj in self:
             if obj.type=='fs':
                 if len(obj.ft_ids)>0:
-                    ids.append(obj)
+                    ids.append(obj.id)
                 else:
                     obj.note="Aucune nomenclature pour cet article => Convertion en OF impossible"
-
-        for obj in ids:
+        lines = self.search([('id','in',ids)], order='start_date')
+        for obj in lines:
             if obj.type=='fs':
                 mrp_production_obj = self.env['mrp.production']
-                #bom_obj = self.env['mrp.bom']
-                #bom_id = bom_obj._bom_find(product_id=obj.product_id.id, properties=[])
-                #bom_id = bom_obj.with_context(active_test=True)._bom_find(productions.product_id, picking_type=picking_type, company_id=company_id, bom_type='normal')
-                #routing_id = False
-                #if bom_id:
-                #    bom_point = bom_obj.browse(bom_id)
-                #    routing_id = bom_point.routing_id.id or False
                 vals={
                     'product_id': obj.product_id.id,
-                    #'product_uom': obj.product_id.uom_id.id,
                     'product_qty': obj.quantity,
                     'date_planned_start': obj.start_date,
-                    #'bom_id': bom_id,
-                    #'routing_id': routing_id,
                     'origin': obj.name,
                 }
-
                 if obj.product_id.is_emplacement_destockage_id:
                     location_id = obj.product_id.is_emplacement_destockage_id.id
                     vals["location_src_id"] = location_id
@@ -255,9 +244,6 @@ class mrp_prevision(models.Model):
                 unlink=True
                 try:
                     mrp_id._compute_is_bom_line_ids()
-                    #mrp_id.action_confirm()
-                    #mrp_id.force_production()
-                    #mrp_id.action_in_production()
                 except Exception as inst:
                     unlink=False
                     msg="Impossible de convertir la "+name+'\n('+str(inst)+')'
