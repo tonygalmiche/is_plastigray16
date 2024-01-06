@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 #from . import is_create_postgres_function # => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
 
+from . import is_comparatif_lot_prix
 from . import is_comparatif_lot_appro_prix
 from . import is_nomenclature_sans_gamme
 from . import is_comparatif_tps_article_gamme
 from . import is_comparatif_cout_pk_tarif
-from . import is_comparatif_lot_prix
 from . import is_comparatif_tarif_reception
 from . import is_comparatif_tarif_commande
 from . import is_comparatif_tarif_cial_vente
