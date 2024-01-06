@@ -413,7 +413,7 @@ class product_product(models.Model):
             if calage=='' or calage=='Date de fin':
                 DateLundi=self.datelundi(row["date_fin"], TabSemaines)
             else:
-                DateLundi=self.datelundi(row["date_fin"], TabSemaines)
+                DateLundi=self.datelundi(row["date_debut"], TabSemaines)
             if DateLundi:
                 if DateLundi in TabSemaines:
                     qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+round(row["qt"],6)
