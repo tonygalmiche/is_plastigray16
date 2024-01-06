@@ -177,7 +177,7 @@ class sale_order(models.Model):
                 pt.lot_mini,
                 pt.is_stock_secu,
                 ig.name gestionnaire,
-                concat (pt.is_code, ' ', pt.name, ' (', im.name, ')') description,
+                -- concat (pt.is_code, ' ', pt.name, ' (', im.name, ')') description,
                 pt.is_ref_client,
                 pt.is_mold_id,
                 sol.product_uom_qty,
@@ -265,15 +265,12 @@ class sale_order(models.Model):
         trcolor=""
         TotalCol={}
         for row in result:
-
-
-            print(row['is_code'], row['stocka'], row['stockq'])
-
-
             DebSemTxt = DebSem.strftime("%Y%m%d")
-            if key!=row['is_code']:
-                key=row['is_code']
-
+            k="%s-%s-%s"%(row['code_client'],row['moule'],row['is_code'])
+            #if key!=row['is_code']:
+            #    key=row['is_code']
+            if key!=k:
+                key=k
                 if trcolor=="#ffffff":
                     trcolor="#f2f3f4"
                 else:
@@ -334,9 +331,10 @@ class sale_order(models.Model):
             DateCol = DateCol + timedelta(days=int(periodicite))
         #**********************************************************************
 
+        sorted_dict = dict(sorted(lines.items())) 
         res={
             #"lines"           : list(lines.values()),
-            "dict"            : lines,
+            "dict"            : sorted_dict,
             "date_cols"       : date_cols,
             "code_cli"        : code_cli,
             "adr_cli"         : adr_cli,
