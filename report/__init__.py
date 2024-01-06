@@ -6,7 +6,7 @@ from . import is_comparatif_lot_prix
 #from . import is_comparatif_lot_appro_prix
 from . import is_nomenclature_sans_gamme
 from . import is_comparatif_tps_article_gamme
-from . import is_comparatif_cout_pk_tarif
+#from . import is_comparatif_cout_pk_tarif
 from . import is_comparatif_tarif_commande
 from . import is_comparatif_tarif_cial_vente
 
