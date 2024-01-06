@@ -3,7 +3,7 @@
 
 from . import is_comparatif_tarif_reception
 from . import is_comparatif_lot_prix
-from . import is_comparatif_lot_appro_prix
+#from . import is_comparatif_lot_appro_prix
 from . import is_nomenclature_sans_gamme
 from . import is_comparatif_tps_article_gamme
 from . import is_comparatif_cout_pk_tarif

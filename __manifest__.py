@@ -50,7 +50,7 @@ Module Odoo 16 pour Plastigray
         "report/is_comparatif_tarif_commande.xml",
         "report/is_comparatif_tarif_cial_vente.xml",
         "report/is_comparatif_tarif_reception.xml",
-        "report/is_comparatif_lot_appro_prix.xml",
+        #"report/is_comparatif_lot_appro_prix.xml",
 
         "views/stock_inventory_view.xml",
         "views/report_inventaire.xml",

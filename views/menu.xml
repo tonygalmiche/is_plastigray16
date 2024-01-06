@@ -1635,7 +1635,7 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
-    <record id="is_comparatif_lot_appro_prix_menu" model="ir.ui.menu" >
+    <!-- <record id="is_comparatif_lot_appro_prix_menu" model="ir.ui.menu" >
         <field name="name">Lot appro / mini liste prix</field>
         <field name="sequence">30</field>
         <field name="parent_id" eval="ref('is_analyse_tarif_achat_menu')"/>
@@ -1644,7 +1644,7 @@
             ref('is_gestionnaire_donnees_techniques_group'),
             ref('is_comptable_group')
         ])]"/>
-    </record>
+    </record> -->
 
 
     <!-- Production / Analyses Stocks -->
