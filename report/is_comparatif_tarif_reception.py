@@ -32,7 +32,7 @@ class is_comparatif_tarif_reception(models.Model):
 
 
         cr.execute("""
-CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt float, date) RETURNS float AS $$
+CREATE OR REPLACE FUNCTION is_prix_achat(pricelistid integer, productid integer, qt float, date date) RETURNS float AS $$
 BEGIN
     RETURN (
         select price_surcharge 
