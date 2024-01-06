@@ -116,6 +116,30 @@ class AnalyseCbn extends Component {
         const typeod = ev.target.attributes.name_typeod.value;
         const pre = $(ev.target).parent().parent();
         pre.css('display', 'none');   /* on masque l'infobulle */
+        this.VoirOD(typeod,numod)
+        // const dict = {
+        //     "CF": "sale.order",
+        //     "CP": "sale.order",
+        //     "FL": "mrp.production",
+        //     "SF": "purchase.order",
+        //     "FS": "mrp.prevision",
+        //     "FM": "mrp.prevision",
+        //     "FT": "mrp.prevision",
+        //     "SA": "mrp.prevision",
+        // };
+        // const model = dict[typeod];
+        // if (model!==undefined){
+        //     this.action.doAction({
+        //         type: 'ir.actions.act_window',
+        //         target: 'new',
+        //         res_id: parseInt(numod),
+        //         res_model: model,
+        //         views: [[false, 'form']],
+        //     });
+        // }
+    }
+
+    VoirOD(typeod,numod) {
         const dict = {
             "CF": "sale.order",
             "CP": "sale.order",
@@ -137,6 +161,7 @@ class AnalyseCbn extends Component {
             });
         }
     }
+
 
 
     ProductClick(ev){
@@ -187,6 +212,12 @@ class AnalyseCbn extends Component {
     async DupliquerOD(key,typeod,numod){
         if (typeod=='FS' || typeod=='SA') {
             var res = await this.orm.call("mrp.prevision", 'copy', [parseInt(numod)]);
+
+            console.log('res=',res);
+            this.VoirOD(typeod,res)
+
+
+
             this.getAnalyseCbnProduct(key);
         }
     }
