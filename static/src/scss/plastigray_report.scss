@@ -75,6 +75,29 @@ $ma_couleur: yellow;
 .bon_achat_ville_footer {
     font-size:9pt;
 }
+.bon_achat_ville {
+    font-size:10pt;
+}
+.bon_achat_ville table{
+    border:0px solid black;
+}
+.bon_achat_ville td{
+    padding:4pt;
+    border:1px solid black;
+}
+.bon_achat_ville th{
+    font-weight: bold;
+    padding:4pt;
+    border:1px solid black;
+}
+.bon_achat_ville .entete th{
+    text-align:left;
+}
+.bon_achat_ville .lignes th{
+    text-align:center;
+}
+
+
 
 
 //** BL manuel ****************************************************************

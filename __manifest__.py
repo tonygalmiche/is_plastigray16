@@ -29,7 +29,6 @@ Module Odoo 16 pour Plastigray
     ],
     "data" : [
         "security/res.groups.xml",
-        #"security/res.groups.csv", #TODO : Permet de réorgnaiser les groupes mais ralenti fortement la mise à jour du module => Voir pour ne pas faire
         "security/ir.model.access.csv",
         "security/ir.model.access.xml", 
         "security/ir.model.access.is.liste.servir.xml",
@@ -41,8 +40,6 @@ Module Odoo 16 pour Plastigray
         "security/is_demande_conges_security.xml",
 
         "views/report_paperformat.xml",
-
-
         "report/is_nomenclature_sans_gamme.xml",
         "report/is_comparatif_tps_article_gamme.xml",
         "report/is_comparatif_cout_pk_tarif.xml",
@@ -63,7 +60,6 @@ Module Odoo 16 pour Plastigray
         "views/report_stockpicking.xml",
         "views/report_preventif_equipement_zone.xml",
         "views/report_stockmovement_tree.xml",
-        #"views/report_stockdetails_tree.xml",
         "views/report_relance_fournisseur.xml",
         "views/report_ligne_reception_tree.xml",
         'views/report_is_reach.xml',
@@ -87,8 +83,6 @@ Module Odoo 16 pour Plastigray
         "views/report_ar_commande.xml",
         "views/report_cde_ouverte_fournisseur.xml",
         "views/report_is_facture_proforma.xml",
-
-
 
         "views/account_move_view.xml",
         "views/report_is_fiche_tampographie.xml",
@@ -114,7 +108,7 @@ Module Odoo 16 pour Plastigray
         "views/stock_move_view.xml",
         "report/is_purchase_order_line.xml",
         "views/purchase_view.xml",
-        "views/sale_view.xml",   # TODO : Il faut tout revoir dans les vues
+        "views/sale_view.xml",
         "views/resource_view.xml",
         "views/hr_view.xml",
         "views/is_article_view.xml",
@@ -144,7 +138,6 @@ Module Odoo 16 pour Plastigray
         "views/is_export_cegid_view.xml",
         "views/is_export_edi_view.xml",
         "views/is_gabarit_controle_view.xml",
-        # "views/is_gestion_des_absences_workflow.xml",
         "views/is_gestion_des_absences_view.xml",
         "views/is_import_budget_pk_view.xml",
         "views/is_indicateur_revue_jalon_view.xml",
@@ -162,14 +155,11 @@ Module Odoo 16 pour Plastigray
         "views/is_galia_base_view.xml",
         "views/is_historique_controle_view.xml",
         "views/is_liste_servir_view.xml",
-
-
         "views/is_mem_var_view.xml",
         "views/is_mini_delta_dore_view.xml",
         "views/is_mode_operatoire_view.xml",
         "views/is_mold_view.xml",
         "views/is_mold_project_view.xml",
-        #"views/is_ot_workflow.xml",
         "views/is_ot_view.xml",
         "views/is_pdc_view.xml",
         "views/is_pic_3ans.xml",
@@ -186,20 +176,14 @@ Module Odoo 16 pour Plastigray
         "views/mrp_prevision_view.xml",
         "views/mrp_view.xml",
         "views/product_view.xml",
-        "views/product_pricelist_view.xml", #TODO : A revoir car il y a eu besaucoup de changement sur les pricelist 
-
+        "views/product_pricelist_view.xml", 
         "views/res_company_view.xml",
         "views/res_country_view.xml",
         "views/res_users_view.xml",
-
-
         "views/is_donnee_machine_view.xml",
         "views/is_capteur_view.xml",
         "views/webclient_templates.xml",
-
         "report/is_stock_valorise.xml",
-
-
         "report/is_account_invoice_line.xml",
         "report/is_anomalie_position_fiscale.xml",
         "report/is_article_sans_fournisseur.xml",
@@ -225,23 +209,20 @@ Module Odoo 16 pour Plastigray
         "report/is_comparatif_tarif_facture.xml",
         "report/is_marge_contributive.xml",
         "report/is_taux_rotation_stock_view.xml",
-
-
-
         "wizard/assistent_report_view.xml",
         "wizard/generate_previsions_view.xml",
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
         "wizard/stock_transfer_details.xml",
         "wizard/set_sheduler_cout_article.xml",
-
-
-        #"wizard/is_gestion_des_absences_wiz_view.xml",
-
         "views/menu.xml",
 
 
-
+        #"views/is_ot_workflow.xml",
+        #"wizard/is_gestion_des_absences_wiz_view.xml",
+        #"views/report_stockdetails_tree.xml",
+        #"security/res.groups.csv", #TODO : Permet de réorgnaiser les groupes mais ralenti fortement la mise à jour du module => Voir pour ne pas faire
+        # "views/is_gestion_des_absences_workflow.xml",
 
 
         # TODO is_pg_2019

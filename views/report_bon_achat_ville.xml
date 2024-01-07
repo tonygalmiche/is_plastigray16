@@ -1,49 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="bon_achat_ville_template">
-            <t t-set="company" t-value="res_company"/>
-            <!-- <t t-set="data_report_landscape" t-value="True"/> TODO : Permet de passer en mode paysage --> 
-            <t t-call="web.basic_layout">
-                <STYLE>
-                    .page {
-                        font-size:10pt;
-                    }
-                    table{
-                        border:0px solid black;
-                    }
-                    td{
-                        padding:4pt;
-                        border:1px solid black;
-                    }
-                    th{
-                        font-weight: bold;
-                        padding:4pt;
-                        border:1px solid black;
-                    }
-                    .entete th{
-                        text-align:left;
-                    }
-                    .lignes th{
-                        text-align:center;
-                    }
-                </STYLE>
-                <t t-foreach="docs" t-as="o">
-                    <!-- header -->
-                    <div class="header bon_achat_ville_header">
-                        <table style="width:100%">
-                            <tr>
-                                <td style="width:15%;font-size:1pt;">
-                                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
-                                </td>
-                                <td style="width:70%"><h1>BON D'ACHAT EN VILLE</h1></td>
-                                <td style="width:15%"><h1 t-field="o.name"/></td>
-                            </tr>
-                        </table>
+        <template id="bon_achat_ville_external_layout_standard">
+            <div class="header bon_achat_ville_header">
+                <table style="width:100%">
+                    <tr>
+                        <td style="width:15%;font-size:1pt;">
+                            <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                        </td>
+                        <td style="width:70%"><h1>BON D'ACHAT EN VILLE</h1></td>
+                        <td style="width:15%"><h1 t-field="o.name"/></td>
+                    </tr>
+                </table>
+            </div>
+             <div 
+                t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_report_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}" 
+                t-att-data-oe-model="o and o._name" 
+                t-att-data-oe-id="o and o.id" 
+                t-att-data-oe-lang="o and o.env.context.get('lang')"
+            >
+                <t t-out="0"/>
+            </div>
+            <div class="footer bon_achat_ville_footer">
+                <div class="row" style="border-top: 1px solid black">
+                    <div class="col-5 text-left">
+                        Imprimé le <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> 
+                        à <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%H:%M')"/>
                     </div>
+                    <div class="col-2" />
+                    <div class="col-5 text-right">
+                        Page <span class="page" style="font-size:9pt;"/> / <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <template id="bon_achat_ville_external_layout">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+            <t t-call="is_plastigray16.bon_achat_ville_external_layout_standard"><t t-out="0"/></t> 
+        </template>
 
-                    <!-- page -->
-                    <div class="page">
+        <template id="bon_achat_ville_document">
+            <t t-call="is_plastigray16.bon_achat_ville_external_layout">
+                <div class="mt-5">
+                    <div class="page bon_achat_ville">
                         <table style="width:40%" class="entete">
                             <tr>
                                 <th style="width:50mm">Demandeur : </th>
@@ -126,21 +137,14 @@
                             </tr>
                         </table>
                     </div>
+                </div>
+            </t>
+        </template>
 
-                    <!-- footer -->
-                    <div class="footer bon_achat_ville_footer">
-                        <div class="row" style="border-top: 1px solid black">
-                            <div class="col-5 text-left">
-                                Imprimé le <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> 
-                                à <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%H:%M')"/>
-                            </div>
-                            <div class="col-2" />
-                            <div class="col-5 text-right">
-                                Page <span class="page" style="font-size:9pt;"/> / <span class="topage"/>
-                            </div>
-                        </div>
-                    </div>
-                    <p style="page-break-before:always;"> </p>
+        <template id="bon_achat_ville_report_new">
+            <t t-call="web.html_container"> 
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="is_plastigray16.bon_achat_ville_document"/>
                 </t>
             </t>
         </template>
@@ -161,14 +165,14 @@
             <field name="dpi">90</field>
         </record>
 
-        <record id="bon_achat_ville_report" model="ir.actions.report">
+        <record id="bon_achat_ville_actions_report" model="ir.actions.report">
             <field name="name">Bon d'achat en ville</field>
             <field name="model">is.bon.achat.ville</field>
             <field name="binding_model_id" ref="model_is_bon_achat_ville"/>
             <field name="paperformat_id" ref="bon_achat_ville_paperformat"/>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">is_plastigray16.bon_achat_ville_template</field>
-            <field name="report_file">is_plastigray16.bon_achat_ville_template</field>
+            <field name="report_name">is_plastigray16.bon_achat_ville_report_new</field>
+            <field name="report_file">is_plastigray16.bon_achat_ville_report_new</field>
         </record>
     </data>
 </odoo>
