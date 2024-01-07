@@ -143,6 +143,29 @@
                <field name="client_order_ref" position="attributes">
                    <attribute name="invisible">1</attribute>
                 </field>
+
+
+
+
+
+
+                <!-- <group name="order_details">
+                    <label for="pricelist_id" groups="product.group_product_pricelist"/>
+                    <div groups="product.group_product_pricelist" class="o_row">
+                        <field name="pricelist_id" options="{'no_open':True,'no_create': True}"/>
+                        <button name="action_update_prices" type="object" string=" Update Prices" help="Recompute all prices based on this pricelist" class="btn-link mb-1 px-0" icon="fa-refresh" confirm="This will update all unit prices based on the currently set pricelist." attrs="{'invisible': ['|', ('show_update_pricelist', '=', False), ('state', 'in', ['sale', 'done', 'cancel'])]}"/>
+                    </div> -->
+
+
+
+                <xpath expr="//group[@name='order_details']/label[@for='pricelist_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> 
+                <xpath expr="//group[@name='order_details']/div/field[@name='pricelist_id']/.." position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> 
+    
+
                 <xpath expr="//group[@name='order_details']/field[@name='date_order']" position="after">
                     <field name="date_order"/>
                     <field name="is_transporteur_id" domain="[('is_company', '=', True),('supplier','=', True)]"/>
