@@ -4,6 +4,8 @@ from odoo import models, fields, api
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
+from xmlrpc import client as xmlrpclib
+import ssl
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -12,9 +14,8 @@ _logger = logging.getLogger(__name__)
 import codecs
 import base64
 #import csv, cStringIO
-#import xmlrpclib
 #from openerp import SUPERUSER_ID
-#import pytz
+import pytz
 
 
 _TYPE_DEMANDE = [
@@ -270,7 +271,8 @@ class is_demande_conges(models.Model):
                             }
                             res=self.env['is.pointage.commentaire'].sudo().create(vals)
                 #***************************************************************
-
+            # if obj.demande_collective=='non':
+            #     obj.ajouter_dans_agenda()
             try:
                 if obj.demande_collective=='non':
                     obj.ajouter_dans_agenda()
@@ -338,13 +340,17 @@ class is_demande_conges(models.Model):
         offset=tz.utcoffset(now).total_seconds()
         events=[]
         if self.type_demande in ["cp_rtt_journee","sans_solde","autre"]:
-            dt1 = datetime.strptime(self.date_debut + " 08:00:00", '%Y-%m-%d %H:%M:%S')
-            dt2 = datetime.strptime(self.date_fin   + " 08:00:00", '%Y-%m-%d %H:%M:%S')
+            dt1 = datetime.strptime(str(self.date_debut) + " 08:00:00", '%Y-%m-%d %H:%M:%S')
+            dt2 = datetime.strptime(str(self.date_fin)   + " 08:00:00", '%Y-%m-%d %H:%M:%S')
+
+
+            print(dt1, dt2)
+
             start = dt1
             while start <= dt2:
                 events.append([
                     start - timedelta(seconds=offset), 
-                    start - timedelta(seconds=offset) + datetime.timedelta(hours=10), 
+                    start - timedelta(seconds=offset) + timedelta(hours=10), 
                 ])
                 start = start + timedelta(days=1)
         if self.type_demande=="cp_rtt_demi_journee":
@@ -375,7 +381,7 @@ class is_demande_conges(models.Model):
         USERID = 2
         DBLOGIN = "admin"
         USERPASS = company.is_agenda_pwd
-        url = company.is_agenda_url+'/xmlrpc/2/common'
+        url = '%s/xmlrpc/2/common'%company.is_agenda_url
         common = xmlrpclib.ServerProxy(url, verbose=False, use_datetime=True, context=ssl._create_unverified_context())
         uid = common.authenticate(DB, DBLOGIN, USERPASS, {})
         url = company.is_agenda_url+'/xmlrpc/object'
