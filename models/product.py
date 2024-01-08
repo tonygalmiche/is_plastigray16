@@ -873,6 +873,20 @@ class product_product(models.Model):
                 RETURN (select qty from product_packaging where product_id=productid order by id limit 1);
             END;
             $$ LANGUAGE plpgsql;
+                   
+            CREATE OR REPLACE FUNCTION get_account_expense(pt_id integer) RETURNS integer AS $$
+            BEGIN
+                RETURN (
+                    select aa.code
+                    from (
+                        select substring(value_reference, 17)::int account_id
+                        from ir_property ip 
+                        where ip.name='property_account_expense_id' and res_id=concat('product.template,',pt_id)
+                        limit 1
+                    ) property inner join account_account aa on account_id=aa.id
+                );
+            END;
+            $$ LANGUAGE plpgsql;
         """)
         _logger.info('## init product.product is_qt_par_uc en %.2fs'%(time.time()-start))
 
