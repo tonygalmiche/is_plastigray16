@@ -525,7 +525,7 @@ class is_pic_3ans(models.Model):
         cr = self._cr
         SQL="""
             select 
-                pic.id,
+                max(pic.id)              id,
                 pt.id                    product_tmpl_id,
                 pp.id                    product_id,
                 pt.is_code               code,
@@ -537,7 +537,8 @@ class is_pic_3ans(models.Model):
                 pic.type_donnee          type_donnee,
                 pic.annee                annee,
                 pic.mois                 mois,
-                pic.quantite             quantite
+                
+                sum(pic.quantite)        quantite
             from product_product pp inner join product_template     pt on pp.product_tmpl_id=pt.id
                                     inner join uom_uom          pu on pt.uom_id=pu.id
                                     left outer join is_pic_3ans    pic on pp.id=pic.product_id
@@ -564,7 +565,10 @@ class is_pic_3ans(models.Model):
         # if PicPdp=="PIC":
         #     SQL+=" AND (pic.type_donnee='pic' or pic.type_donnee is null) "
         # # if ($PicPdp=="PDP") $SQL="$SQL AND pic.type_donnee='pdp' "; 
-        SQL+=" order by pt.is_code,pic.mois"
+        SQL+="""
+            group by pt.id,pp.id,pt.is_code,pt.name->>'fr_FR',ic.name,ig.name,pu.name->>'fr_FR',pt.is_mold_dossierf,pic.type_donnee,pic.annee,pic.mois
+            order by pt.is_code,pic.mois
+        """
         cr.execute(SQL)
         result = cr.dictfetchall()
         TabTmp1={}
