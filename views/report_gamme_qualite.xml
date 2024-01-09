@@ -192,11 +192,11 @@
                                     <tr>
                                         <td>
                                             <div align="left">
-                                                <t t-raw="rec.operation.replace('\n', '&lt;br&gt;')" />
+                                                <t  t-if="rec.operation" t-raw="rec.operation.replace('\n', '&lt;br&gt;')" />
                                             </div>
                                         </td>
                                         <td>
-                                            <img t-if="rec.photo"       t-att-src="image_data_uri(rec.photo)" class="gamme_qualite_imgclass0"/>
+                                            <img t-if="rec.photo" t-att-src="image_data_uri(rec.photo)" class="gamme_qualite_imgclass0"/>
                                         </td>
                                         <td>
                                             <span t-esc="rec.temps_etape" />
