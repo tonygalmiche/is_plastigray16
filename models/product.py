@@ -305,9 +305,9 @@ class product_template(models.Model):
     def _compute_is_fournisseur_id(self):
         for obj in self:
             fournisseur_id=False
-            # for line in obj.seller_ids:
-            #     fournisseur_id=line.name
-            #     break
+            for line in obj.seller_ids:
+                fournisseur_id=line.partner_id.id
+                break
             obj.is_fournisseur_id=fournisseur_id
 
 
