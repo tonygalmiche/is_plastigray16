@@ -312,9 +312,6 @@ class product_product(models.Model):
         res={}
         for row in result:
             product_id = row["product_id"]
-
-
-
             code    = row["code_pg"]
             if type_rapport=='Achat':
                 code_fournisseur=Fournisseurs.get(product_id,"0000")
@@ -416,7 +413,11 @@ class product_product(models.Model):
                 DateLundi=self.datelundi(row["date_debut"], TabSemaines)
             if DateLundi:
                 if DateLundi in TabSemaines:
-                    qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+round(row["qt"],6)
+                    v=round(row["qt"],6)
+                    if row["typeod"]=='FL' and v<0:
+                        v=0
+                    qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+v
+                    #qt = res[key]["typeod"][key2]["cols"][DateLundi]["qt"]+round(row["qt"],6)
                     color_qt = self._get_color_qt(key2,qt)
                     qt_signe = qt * self._get_sens(typeod)
                     qt_txt=""
