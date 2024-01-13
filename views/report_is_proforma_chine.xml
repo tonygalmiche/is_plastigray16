@@ -295,7 +295,7 @@
                                             </th>
                                         </tr>
                                         <tr><th>Part number       </th><td><span t-field="line.product_id.is_code"/></td></tr>
-                                        <tr><th>Designation       </th><td><span t-field="line.designation"/></td></tr>
+                                        <tr style="height:25mm;line-height:0.8;"><th>Designation       </th><td><span t-field="line.designation"/></td></tr>
                                         <tr><th>Country of origin </th><td><span t-field="line.country_origin"/></td></tr>
                                         <tr>
                                             <th>Mold</th>
@@ -307,7 +307,7 @@
                                         </tr>
                                         <tr><th>Net Weight        </th><td><span t-field="line.qty_per_pack"/> Kg</td></tr>
                                         <t t-if="space==1"> 
-                                            <tr style="height:60mm"><th> </th><td> </td></tr>
+                                            <tr style="height:50mm"><th> </th><td> </td></tr>
                                         </t>
                                     </tbody>
                                 </table>
