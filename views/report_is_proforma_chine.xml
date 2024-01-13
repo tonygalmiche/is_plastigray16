@@ -289,10 +289,10 @@
                                 <table class="table table-condensed">
                                     <tbody>
                                         <tr>
-                                            <th>Consignee         </th>
-                                            <td>
+                                            <th>Consignee</th>
+                                            <th>
                                                 <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="height: 40mm" alt="Logo"/>
-                                            </td>
+                                            </th>
                                         </tr>
                                         <tr><th>Part number       </th><td><span t-field="line.product_id.is_code"/></td></tr>
                                         <tr><th>Designation       </th><td><span t-field="line.designation"/></td></tr>
@@ -311,6 +311,9 @@
                                         </t>
                                     </tbody>
                                 </table>
+                                <t t-if="space!=1"> 
+                                    <p style="page-break-before:always;"> </p>
+                                </t>
                             </t>
                         </t>
                     </div>
