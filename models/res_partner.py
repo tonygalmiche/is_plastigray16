@@ -5,6 +5,9 @@ import time
 import datetime
 import base64
 from xmlrpc import client as xmlrpclib
+import logging
+_logger = logging.getLogger(__name__)
+
 
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -464,7 +467,7 @@ class res_partner(models.Model):
     is_type_cde_fournisseur = fields.Selection(type_commande_list, "Type commande fourniseur", readonly=True)
     is_horizon_besoins      = fields.Integer(u'Horizon des besoins (jour)', default=7, help=u"Champ utilisé pour le mail de l'horizon des besoins (7 jours en général ou 21 jours pendant la période de vacances)")
 
-    is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True)
+    is_database_origine_id = fields.Integer("Id d'origine", readonly=True, index=True, copy=False)
     is_database_line_ids   = fields.Many2many('is.database','partner_database_rel','partner_id','database_id', string="Sites")
 
     calendar_line   = fields.One2many('resource.calendar.leaves', 'partner_id', 'Congés')
@@ -520,17 +523,24 @@ class res_partner(models.Model):
         for obj in self:
             if "active" in vals:
                 if vals["active"]==False:
-                    filtre=[
-                        ('partner_id','=',obj.id)
-                    ]
-                    users = self.env['res.users'].search(filtre)
+                    users = self.env['res.users'].search([('partner_id','=',obj.id)])
                     if len(users)>0:
                         vals["active"]=True
-        #******************************************************************        
-        res=super().write(vals)
+        #******************************************************************     
+
+        #** Ne pas syncroniser le partner si il est relié à un utilisateur
+        test=True
         for obj in self:
-            filtre=obj._get_partner_filtre()
-            self.env['is.database'].copy_other_database(obj,filtre)
+            users = self.env['res.users'].search([('partner_id','=',obj.id)])
+            if len(users)>0:
+                test=False
+        #******************************************************************     
+
+        res=super().write(vals)
+        if test:
+            for obj in self:
+                filtre=obj._get_partner_filtre()
+                self.env['is.database'].copy_other_database(obj,filtre)
         return res
             
     @api.model_create_multi
@@ -604,6 +614,11 @@ class res_partner(models.Model):
             'active'                           : self._get_active(DB, USERID, USERPASS, sock),
             'is_database_origine_id'           : self.id
         }
+
+        #print(vals)
+        _logger.info("database=%s : vals=%s"%(DB,vals))
+
+
         return vals
     
     def _get_parent_id(self, DB, USERID, USERPASS, sock):
