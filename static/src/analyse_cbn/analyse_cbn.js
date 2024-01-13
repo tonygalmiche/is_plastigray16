@@ -212,16 +212,11 @@ class AnalyseCbn extends Component {
     async DupliquerOD(key,typeod,numod){
         if (typeod=='FS' || typeod=='SA') {
             var res = await this.orm.call("mrp.prevision", 'copy', [parseInt(numod)]);
-
             console.log('res=',res);
             this.VoirOD(typeod,res)
-
-
-
             this.getAnalyseCbnProduct(key);
         }
     }
-
 
     DeleteODClick(ev) {
         const pre = $(ev.target).parent().parent();
