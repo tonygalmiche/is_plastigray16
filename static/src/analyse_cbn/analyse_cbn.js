@@ -153,6 +153,7 @@ class AnalyseCbn extends Component {
         const model = dict[typeod];
         if (model!==undefined){
             this.action.doAction({
+                name:'OK',
                 type: 'ir.actions.act_window',
                 target: 'new',
                 res_id: parseInt(numod),

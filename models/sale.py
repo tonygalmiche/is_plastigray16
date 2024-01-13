@@ -268,6 +268,11 @@ class sale_order(models.Model):
             for line in lines:
                 sequence=sequence+1
                 line.sequence=sequence
+        # return {
+        #     #"type": "ir.actions.do_nothing",
+        #     "type": "set_scrollTop",
+        # }
+
 
 
 

@@ -212,6 +212,26 @@
                         on_change="onchange_client_order_ref(client_order_ref,partner_id)"
                     />
                 </xpath> -->
+
+
+
+ 
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="before">
+                    <button 
+                        name="numeroter_lignes" 
+                        string="Renuméroter les lignes par date d'expédition"
+                        type="object"
+                    />
+                    <button 
+                        name="actualiser_prix_commande" 
+                        string="Actualiser prix commande"
+                        type="object"
+                    />
+                </xpath>
+
+
+
+
                 <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree/field[@name='sequence']" position="replace">
                     <field name="sequence"/>
                 </xpath>
