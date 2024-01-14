@@ -271,6 +271,7 @@ class is_demande_conges(models.Model):
                             }
                             res=self.env['is.pointage.commentaire'].sudo().create(vals)
                 #***************************************************************
+
             # if obj.demande_collective=='non':
             #     obj.ajouter_dans_agenda()
             try:
@@ -278,7 +279,7 @@ class is_demande_conges(models.Model):
                     obj.ajouter_dans_agenda()
             except:
                 pass
-            #obj.signal_workflow('validation_rh')
+
             obj.state = "validation_rh"
         return True
 
@@ -293,8 +294,6 @@ class is_demande_conges(models.Model):
                     raise ValidationError(u'Il est nécessaire de solder chaque demande individuellement pour pouvoir solder cette demande collective !')
             subject   = u"vers Soldé"
             self.creer_notification(subject,"")
-
-            #obj.signal_workflow('solde')
             obj.state = "solde"
         return True
 
@@ -331,9 +330,6 @@ class is_demande_conges(models.Model):
         return res
 
 
-
-
-
     def ajouter_dans_agenda(self):
         now = datetime.now()
         tz = pytz.timezone('CET')
@@ -342,10 +338,6 @@ class is_demande_conges(models.Model):
         if self.type_demande in ["cp_rtt_journee","sans_solde","autre"]:
             dt1 = datetime.strptime(str(self.date_debut) + " 08:00:00", '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime(str(self.date_fin)   + " 08:00:00", '%Y-%m-%d %H:%M:%S')
-
-
-            print(dt1, dt2)
-
             start = dt1
             while start <= dt2:
                 events.append([
@@ -356,9 +348,9 @@ class is_demande_conges(models.Model):
         if self.type_demande=="cp_rtt_demi_journee":
             start = self.le
             if self.matin_ou_apres_midi=="matin":
-                start = self.le+" 08:00:00"
+                start = str(self.le) +" 08:00:00"
             else:
-                start = self.le+" 13:30:00"
+                start = str(self.le)+" 13:30:00"
             start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
             start = start - timedelta(seconds=offset)
             stop = start + timedelta(hours=4)
@@ -368,10 +360,10 @@ class is_demande_conges(models.Model):
             debut = " %02d:%02d:00"%(hours,minutes)
             hours, minutes = divmod(self.heure_fin*60, 60)
             fin   = " %02d:%02d:00"%(hours,minutes)
-            start = self.le + debut
+            start = str(self.le) + debut
             start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
             start = start - timedelta(seconds=offset)
-            stop = self.le + fin
+            stop = str(self.le) + fin
             stop = datetime.strptime(stop, '%Y-%m-%d %H:%M:%S')
             stop = stop - timedelta(seconds=offset)
             events.append([start, stop])
