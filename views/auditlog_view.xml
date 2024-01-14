@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="is_view_auditlog_rule_form" model="ir.ui.view">
+            <field name="name">is_view_auditlog_rule_form</field>
+            <field name="model">auditlog.rule</field>
+            <field name="inherit_id" ref="auditlog.view_auditlog_rule_form" />
+            <field name="arch" type="xml">
+                <field name="action_id" position="after">
+                    <field name="is_duree_conservation"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="is_view_auditlog_rule_tree" model="ir.ui.view">
+            <field name="name">is_view_auditlog_rule_tree</field>
+            <field name="model">auditlog.rule</field>
+            <field name="inherit_id" ref="auditlog.view_auditlog_rule_tree" />
+            <field name="arch" type="xml">
+                <field name="state" position="after">
+                    <field name="is_duree_conservation"/>
+                </field>
+            </field>
+        </record>
+
+
+
+<!-- 
+        <record model="ir.ui.view" id="view_auditlog_rule_form">
+            <field name="name">auditlog.rule.form</field>
+            <field name="model">auditlog.rule</field>
+            <field name="arch" type="xml">
+                <form string="Rule">
+                    <header>
+                        <button string="Subscribe" name="subscribe"
+                            type="object" states="draft" class="oe_highlight"/>
+                        <button string="Unsubscribe" name="unsubscribe"
+                            type="object" states="subscribed"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group string="Rule">
+                            <group colspan="1">
+                                <field name="name" required="1"/>
+                                <field name="model_id"/>
+                                <field name="log_type"/>
+                                <field name="action_id" readonly="1" groups="base.group_no_one"/>
+                            </group>
+                            <group colspan="1">
+                                <field name="log_read"/>
+                                <field name="log_write"/>
+                                <field name="log_unlink"/>
+                                <field name="log_create"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_auditlog_rule_tree">
+            <field name="name">auditlog.rule.tree</field>
+            <field name="model">auditlog.rule</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state == 'draft';black:state == 'subscribed'" string="Rules">
+                    <field name="name"/>
+                    <field name="model_id"/>
+                    <field name="log_type"/>
+                    <field name="log_read"/>
+                    <field name="log_write"/>
+                    <field name="log_unlink"/>
+                    <field name="log_create"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+ -->
+
+    </data>
+</odoo>

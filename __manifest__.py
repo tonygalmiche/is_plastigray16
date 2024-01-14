@@ -26,6 +26,7 @@ Module Odoo 16 pour Plastigray
         "web_chatter_position",
         "web_company_color",
         "mail_group",
+        "auditlog"
     ],
     "data" : [
         "security/res.groups.xml",
@@ -38,6 +39,11 @@ Module Odoo 16 pour Plastigray
         "security/ir_model_access_is_ctrl100.xml",
         "security/ot_security_view.xml",
         "security/is_demande_conges_security.xml",
+
+
+        "views/auditlog_view.xml",
+
+
 
         "views/report_paperformat.xml",
         "report/is_nomenclature_sans_gamme.xml",
@@ -228,7 +234,6 @@ Module Odoo 16 pour Plastigray
         # TODO is_pg_2019
         # "data/sequence.xml",
         # "security/res_groups.xml",
-        # "views/auditlog_view.xml",
         # 'views/is_head_model_view.xml',
         # "views/is_ot_report.xml",
         # "views/is_presse_report.xml",

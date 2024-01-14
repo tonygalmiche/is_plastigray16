@@ -86,13 +86,13 @@ from . import stock_inventory
 from . import is_inventaire
 from . import stock_move
 from . import is_gestion_lot
+from . import auditlog
 
 
 
 # TODO : is_pg_2019
 # import is_gestion_des_absences_report TODO : A revoir avec l'analyse du CBN (Javascript)
 # from . import is_head_model           TODO : Ne pas migrer pour le moment
-# import auditlog                       TODO : A revoir avec l'installation du moule auditlog quant il sera dispo
 
 # TODO : is_plastigray
 # is_type_equipement                 TODO : N'est plus utilisé => Ne pas migrer
