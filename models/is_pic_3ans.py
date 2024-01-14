@@ -572,6 +572,8 @@ class is_pic_3ans(models.Model):
         cr.execute(SQL)
         result = cr.dictfetchall()
         TabTmp1={}
+        TotalQuantite={}
+        TotalLivraison={}
         trcolor=""
         for row in result:
             code  = row["code"][0:6]
@@ -579,6 +581,9 @@ class is_pic_3ans(models.Model):
             key = "%s-%s"%(code,annee)
             mois  = row["mois"] and "m"+row["mois"][-2:] or ''
             if key not in TabTmp1:
+                TotalQuantite[key]=0
+                TotalLivraison[key]=0
+
                 if trcolor=="#ffffff":
                     trcolor="#f2f3f4"
                 else:
@@ -606,17 +611,40 @@ class is_pic_3ans(models.Model):
                 for x in range(1, 13):
                     col="m%02d"%(x)
                     vals[col]=''
-                    cols[col] = {"key":col, "quantite":"", "mois":"", "livraison":""}
+                    cols[col] = {"key":col , "quantite":"", "mois":"", "livraison":""}
+                cols["total"] = {"key":"total", "quantite":0, "mois":"", "livraison":0}
+
+
+
                 vals["cols"]=cols
                 TabTmp1[key]=vals
             if row["quantite"]:
+
+                TotalQuantite[key]+=row["quantite"]
+
                 quantite  = "{:,.0f}".format(row["quantite"]).replace(",", " ")
                 livraison=0
                 if realise:
                     livraison=self.get_livraison(annee_realise, row["mois"], row["code"])
+                TotalLivraison[key]+=livraison
+
+
 
                 livraison = "{:,.0f}".format(livraison).replace(",", " ")
-                TabTmp1[key]["cols"][mois] = {"key":mois, "mois":row["mois"], "quantite":quantite, "livraison":livraison}
+                TabTmp1[key]["cols"][mois] = {
+                    "key":mois, 
+                    "mois":row["mois"], 
+                    "quantite":quantite, 
+                    "livraison":livraison
+                }
+                TabTmp1[key]["cols"]["total"] = {
+                    "key"      : "total", 
+                    "mois"     : "", 
+                    "quantite" : "{:,.0f}".format(TotalQuantite[key]).replace(",", " "), 
+                    "livraison": "{:,.0f}".format(TotalLivraison[key]).replace(",", " "),
+                }
+
+
             #TabTmp1[key]["listcols"] = list(TabTmp1[key]["cols"].values())
         #res = list(TabTmp1.values())
         #res = TabTmp1.values()
