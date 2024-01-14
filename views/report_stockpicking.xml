@@ -1,53 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="is_stock_picking_template">
-            <t t-set="company" t-value="res_company"/>
-            <t t-call="web.basic_layout">
-                <t t-foreach="docs" t-as="o">
-                    <div class="header is_stock_picking_header">
-                        <div class="row">
-                            <div class="col-4  text-center">
-                                <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
-                                <div class="expediteur">
-                                    S.A.S. au capital de 2 200 000 € <br />
-                                    Siège social : ZAC de Gray Sud <br />
-                                    CS 10133 - <b>70104 GRAY Cedex</b><br />
-                                    Tél. : 03 84 64 77 00 - Fax : 03 84 65 51 09 <br />
-                                    Siret B 377 846 381 00020 - Code NAF 2229 A <br />
-                                    Registre du Commerce GRAY <br />
-                                    N°Identification T.V.A. FR 65 377 846 381 <br />
-                                    <span t-if="o.partner_id.lang == 'fr_FR'">Fournisseur N°</span>
-                                    <span t-if="o.partner_id.lang != 'fr_FR'">Supplier N°</span>
-                                    <span t-field="o.partner_id.is_cofor"/>
-                                </div>
-                            </div>
-                            <div class="col-1" />
-                            <div class="col-7">
-                                <div class="titre">
-                                    <span t-if="o.partner_id.lang == 'fr_FR'">BORDEREAU DE LIVRAISON N°</span>
-                                    <span t-if="o.partner_id.lang != 'fr_FR'">DELIVERY NOTE N°</span>
-                                    <span t-field="o.name"/>
-                                     du <span t-field="o.is_date_expedition"  t-options='{"format": "dd/MM/yyyy"}' /><br />
-                                </div>
-                                <div t-if="o.partner_id.lang == 'fr_FR'">Destinataire : </div>
-                                <div t-if="o.partner_id.lang != 'fr_FR'">Addressee : </div>
-                                <div class="destinataire">
-                                    <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)
-                                    <div t-field="o.partner_id"
-                                         t-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
-                                    <div t-if="o.partner_id.vat">VAT : <span t-field="o.partner_id.vat"/></div>
-                                </div>
-                                <div>
-                                    <span t-if="o.partner_id.lang == 'fr_FR'">Arrivée prévue le</span>
-                                    <span t-if="o.partner_id.lang != 'fr_FR'">Delivery Date</span>
-                                    <span t-field="o.is_date_livraison" t-options='{"format": "dd/MM/yyyy"}'/>
-                                </div>
-        
-                            </div>
+        <template id="is_stock_picking_external_layout_standard">
+            <div class="header is_stock_picking_header">
+                <div class="row">
+                    <div class="col-4  text-center">
+                        <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                        <div class="expediteur">
+                            S.A.S. au capital de 2 200 000 € <br />
+                            Siège social : ZAC de Gray Sud <br />
+                            CS 10133 - <b>70104 GRAY Cedex</b><br />
+                            Tél. : 03 84 64 77 00 - Fax : 03 84 65 51 09 <br />
+                            Siret B 377 846 381 00020 - Code NAF 2229 A <br />
+                            Registre du Commerce GRAY <br />
+                            N°Identification T.V.A. FR 65 377 846 381 <br />
+                            <span t-if="o.partner_id.lang == 'fr_FR'">Fournisseur N°</span>
+                            <span t-if="o.partner_id.lang != 'fr_FR'">Supplier N°</span>
+                            <span t-field="o.partner_id.is_cofor"/>
                         </div>
-
                     </div>
+                    <div class="col-1" />
+                    <div class="col-7">
+                        <div class="titre">
+                            <span t-if="o.partner_id.lang == 'fr_FR'">BORDEREAU DE LIVRAISON N°</span>
+                            <span t-if="o.partner_id.lang != 'fr_FR'">DELIVERY NOTE N°</span>
+                            <span t-field="o.name"/>
+                                du <span t-field="o.is_date_expedition"  t-options='{"format": "dd/MM/yyyy"}' /><br />
+                        </div>
+                        <div t-if="o.partner_id.lang == 'fr_FR'">Destinataire : </div>
+                        <div t-if="o.partner_id.lang != 'fr_FR'">Addressee : </div>
+                        <div class="destinataire">
+                            <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)
+                            <div t-field="o.partner_id"
+                                    t-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
+                            <div t-if="o.partner_id.vat">VAT : <span t-field="o.partner_id.vat"/></div>
+                        </div>
+                        <div>
+                            <span t-if="o.partner_id.lang == 'fr_FR'">Arrivée prévue le</span>
+                            <span t-if="o.partner_id.lang != 'fr_FR'">Delivery Date</span>
+                            <span t-field="o.is_date_livraison" t-options='{"format": "dd/MM/yyyy"}'/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div 
+                t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_report_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}" 
+                t-att-data-oe-model="o and o._name" 
+                t-att-data-oe-id="o and o.id" 
+                t-att-data-oe-lang="o and o.env.context.get('lang')"
+            >
+                <t t-out="0"/>
+            </div>
+            <div class="footer is_stock_picking_footer">
+                <div class="text-center" style="border-top: 1px solid black">
+                    <table style="width:100%">
+                        <tr>
+                            <td class="text-left" style="width:90%;text-align: justify;text-justify: inter-word;">
+                                <b>CONDITIONS D'EXPEDITION : </b> 
+                                Les marchandises, même expédiées franco, voyagent aux risques et périls du transporteur. Il appartient en cas d'avarie ou de manquant de faire des protestations motivées au dit transporteur par acte judiciaire ou par lettre recommandée avec accusé de réception dans les 3 jours qui suivent la réception de la marchandise, non compris les jours fériés.
+                                Sans préjudice, des dispositions à prendre vis à vis du transporteur, les réclamations sur le vice apparent ou sur la non conformité des produits livrés doivent être formulées par écrit dans les 8 jours sous peine d'irrecevabilité.<br />
+                                <b>CLAUSE D'ATTRIBUTION DE COMPETENCE : </b>
+                                Sauf convention expresse et conformément à nos conditions générales de vente, seul le tribunal de Vesoul-Gray sera compétent pour connaître de tous les délits pouvant survenir à l'occasion de cette livraison.<br />
+                            </td>
+                            <td class="text-right">
+                                Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </template>
+        
+        <template id="is_stock_picking_external_layout">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+            <t t-call="is_plastigray16.is_stock_picking_external_layout_standard"><t t-out="0"/></t> 
+        </template>
+
+        <template id="is_stock_picking_document">
+            <t t-call="is_plastigray16.is_stock_picking_external_layout">
+                <div class="mt-5">
                     <div class="page is_stock_picking_page">
                         <table class="table table-condensed">
                             <thead>
@@ -223,28 +265,19 @@
                             </table>
                         </t>
                     </div>
-                    <div class="footer is_stock_picking_footer">
-                        <div class="text-center" style="border-top: 1px solid black">
-                            <table style="width:100%">
-                                <tr>
-                                    <td class="text-left" style="width:90%;text-align: justify;text-justify: inter-word;">
-                                        <b>CONDITIONS D'EXPEDITION : </b> 
-                                        Les marchandises, même expédiées franco, voyagent aux risques et périls du transporteur. Il appartient en cas d'avarie ou de manquant de faire des protestations motivées au dit transporteur par acte judiciaire ou par lettre recommandée avec accusé de réception dans les 3 jours qui suivent la réception de la marchandise, non compris les jours fériés.
-                                        Sans préjudice, des dispositions à prendre vis à vis du transporteur, les réclamations sur le vice apparent ou sur la non conformité des produits livrés doivent être formulées par écrit dans les 8 jours sous peine d'irrecevabilité.<br />
-                                        <b>CLAUSE D'ATTRIBUTION DE COMPETENCE : </b>
-                                        Sauf convention expresse et conformément à nos conditions générales de vente, seul le tribunal de Vesoul-Gray sera compétent pour connaître de tous les délits pouvant survenir à l'occasion de cette livraison.<br />
-                                    </td>
-                                    <td class="text-right">
-                                        Page <span class="page" style="font-size:7pt;"/> / <span class="topage"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    <p style="page-break-before:always;"> </p>
+                </div>
+            </t>
+        </template>
+
+        <template id="is_stock_picking_report">
+            <t t-call="web.html_container"> 
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="is_plastigray16.is_stock_picking_document"/>
                 </t>
             </t>
         </template>
+
+
         <record id="is_stock_picking_paperformat" model="report.paperformat">
             <field name="name">Zone préventif équipement</field>
             <field name="default" eval="True" />
@@ -260,16 +293,17 @@
             <field name="header_spacing">50</field>
             <field name="dpi">90</field>
         </record>
+
+
         <!-- TODO : En mettant l'id d'origine du rapport cela permet de le remplacer -->
         <record id="stock.action_report_delivery" model="ir.actions.report">
-        <!-- <record id="is_stock_picking_report" model="ir.actions.report"> -->
             <field name="name">Bon de livraison PG</field>
             <field name="model">stock.picking</field>
             <field name="binding_model_id" ref="model_stock_picking"/>
             <field name="paperformat_id" ref="is_stock_picking_paperformat"/>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">is_plastigray16.is_stock_picking_template</field>
-            <field name="report_file">is_plastigray16.is_stock_picking_template</field>
+            <field name="report_name">is_plastigray16.is_stock_picking_report</field>
+            <field name="report_file">is_plastigray16.is_stock_picking_report</field>
         </record>
 
 
