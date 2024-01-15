@@ -163,8 +163,9 @@
                                 'invisible': [('type_gamme', 'not in', ['securisation','reprise'])],
                                 'required' : [('type_gamme', 'in'    , ['securisation','reprise'])]
                             }"
-                            domain="[('is_mold_dossierf','=',moule_dossierf),('is_gestionnaire_id.name','not in',['04','07','12','14','23'])]"
+                            domain="[('is_mold_dossierf','=',moule_dossierf)]"
                         />
+                        <!-- ,('is_gestionnaire_id.name','not in',['04','07','12','14','23']) -->
                         <field
                             name="cout_actualise"
                             attrs="{

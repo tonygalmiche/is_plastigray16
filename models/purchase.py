@@ -130,13 +130,21 @@ class purchase_order(models.Model):
         return True
 
 
-    def button_confirm(self):
-        res = super().button_confirm()
-        if self.location_id:
-            for picking in self.picking_ids:
-                if picking.state=="assigned":
-                    picking.location_dest_id = self.location_id.id
-        return res
+    #TODO : Désactvié le 15/01/2024, car cela posait des problèmes d'emplacement lors de la modification des commandes
+    # def button_confirm(self):
+    #     res = super().button_confirm()
+    #     if self.location_id:
+    #         for picking in self.picking_ids:
+    #             if picking.state=="assigned":
+    #                 picking.location_dest_id = self.location_id.id
+    #                 for move in picking.move_ids_without_package:
+    #                     if move.state not in ('done','cancel'):
+    #                         print(move, move.state,move.location_dest_id)
+    #                         for line in move.move_line_ids:
+    #                             if line.state not in ('done','cancel'):
+    #                                 print(line, line.state, line.location_dest_id)
+    #                                 line.location_dest_id=self.location_id.id
+    #    return res
 
 
     def envoyer_par_mail(self):

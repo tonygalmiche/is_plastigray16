@@ -161,6 +161,11 @@
                 <xpath expr="//field[@name='lot_ids']" position="attributes">
                     <attribute name="optional">hide</attribute> 
                 </xpath>
+
+                <xpath expr="//group/group/field[@name='location_dest_id'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+
                 <xpath expr="//group/group/field[@name='picking_type_id']" position="attributes">
                     <attribute name="attrs"> {'invisible': False, 'readonly': [('state', '!=', 'draft')]}</attribute> 
                 </xpath>
