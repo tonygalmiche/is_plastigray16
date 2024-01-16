@@ -263,10 +263,13 @@ class is_equipement(models.Model):
             for cl in obj.type_id.champ_line_ids:
                 exclude = ["is_database_origine_id","active","type_id","numero_equipement","designation","database_id"]
                 if cl.name.name not in exclude:
-                    if cl.vsb:
-                        setattr(obj, cl.name.name + '_vsb', True)
-                    if cl.obligatoire:
-                        setattr(obj, cl.name.name + '_obl', True)
+                    try:
+                        if cl.vsb:
+                            setattr(obj, cl.name.name + '_vsb', True)
+                        if cl.obligatoire:
+                            setattr(obj, cl.name.name + '_obl', True)
+                    except:
+                        print(obj, cl.name.name)
 
 
     def write(self, vals):
