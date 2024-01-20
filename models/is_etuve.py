@@ -278,7 +278,7 @@ class is_etuve_of(models.Model):
             suffix  = matiere[-4:]
             broye   = '59'+suffix
             SQL="""
-                select pt.is_code, sum(bom.product_qty*mp.is_qt_reste_uom) 
+                select pt.is_code, sum(bom.product_qty*mp.product_qty) 
                 from mrp_production mp join is_mrp_production_bom bom on mp.id=bom.production_id 
                                        join product_product pp on bom.product_id=pp.id 
                                        join product_template pt on pp.product_tmpl_id=pt.id 
