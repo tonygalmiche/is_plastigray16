@@ -285,11 +285,11 @@ class is_bon_transfert(models.Model):
                 lines = stdout.decode("utf-8").split('\n')
                 body = "<b>DESADV envoyé</b><br>"+"<br>".join(lines)
                 vals={
-                    'author_id': user.partner_id.id,
-                    'type'     : "notification",
-                    'body'     : body,
-                    'model'    : model,
-                    'res_id'   : obj.id
+                    'author_id' : user.partner_id.id,
+                    'subtype_id': self.env.ref('mail.mt_comment').id,
+                    'body'      : body,
+                    'model'     : model,
+                    'res_id'    : obj.id
                 }
                 res=self.env['mail.message'].create(vals)
 
