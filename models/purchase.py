@@ -14,6 +14,12 @@ class purchase_order_line(models.Model):
     #date_planned     = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
 
 
+    @api.depends('product_qty', 'product_uom')
+    def _compute_price_unit_and_date_planned_and_name(self):
+        'Désactivation de cette fonction le 20/01/2024'
+        return
+
+
     def set_price_justification(self):
         """Recherche prix et justifcation dans liste de prix pour date et qt et mise à jour"""
         price = 0
@@ -114,15 +120,23 @@ class purchase_order(models.Model):
     pricelist_id         = fields.Many2one('product.pricelist','Liste de prix')
     #date_planned         = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
     location_id          = fields.Many2one('stock.location', 'Destination') #TODO : Ce champ n'existait plus dans Odoo 16 
-    is_type_cde_fournisseur = fields.Selection(related='partner_id.is_type_cde_fournisseur')
+    is_type_cde_fournisseur  = fields.Selection(related='partner_id.is_type_cde_fournisseur')
+    is_date_creation_picking = fields.Date("Date création picking", compute='_compute_is_date_creation_picking')
+
+
+    def _compute_is_date_creation_picking(self):
+        for obj in self:
+            d = False
+            pickings = self.env['stock.picking'].search([('is_purchase_order_id','=',obj.id),('state','!=','cancel')])
+            for picking in pickings:
+                d = picking.create_date
+            obj.is_date_creation_picking = d
 
 
     # def _message_auto_subscribe_notify(self, partner_ids, template):
     #     "Désactiver les notifications d'envoi des mails"
     #     print("_message_auto_subscribe_notify")
     #     return True
-
-
 
 
     def _add_supplier_to_product(self):

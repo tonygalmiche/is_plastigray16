@@ -146,6 +146,8 @@
                 </field>
 
                 <field name="date_order" position="after">
+                    <field name="create_date"/>
+                    <field name="is_date_creation_picking"/>
                     <field name="is_date_envoi_mail"/>
                     <field name="is_livre_a_id"  domain="[('is_company','=',True)]"/>
                     <field name="location_id"/>

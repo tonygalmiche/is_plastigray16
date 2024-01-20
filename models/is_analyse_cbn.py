@@ -925,7 +925,6 @@ class product_product(models.Model):
                 so.id as numod, 
                 sol.is_date_expedition as date_debut, 
                 sol.is_date_expedition as date_fin, 
-                sol.product_uom_qty as qt, 
                 sol.is_type_commande as typeod, 
                 sol.product_id, 
                 pt.is_code as code_pg, 
@@ -935,7 +934,11 @@ class product_product(models.Model):
                 pt.lot_mini, 
                 pt.multiple,
                 pt.is_mold_dossierf as moule,
-                so.name as name
+                so.name as name,
+
+                sum(sol.product_uom_qty) as qt
+
+
             FROM sale_order_line sol inner join sale_order           so   on sol.order_id=so.id 
                                inner join product_product      pp   on sol.product_id=pp.id
                                inner join product_template     pt   on pp.product_tmpl_id=pt.id
@@ -947,7 +950,10 @@ class product_product(models.Model):
                                left outer join is_mold_project imp2 on id.project=imp2.id
                                left outer join res_partner     rp   on pt.is_client_id=rp.id
             WHERE sol.id>0 """+filtre+""" and so.state in ('draft','sent')
-            ORDER BY sol.name
+            GROUP BY 
+                so.id, sol.is_date_expedition, sol.is_type_commande, sol.product_id, pt.is_code, pt.name, pt.is_stock_secu, pt.produce_delay,
+                pt.lot_mini, pt.multiple, pt.is_mold_dossierf, so.name
+            ORDER BY so.name
         """
         cr.execute(SQL)
         result = cr.dictfetchall()

@@ -521,7 +521,9 @@ class is_liste_servir(models.Model):
                             order.unlink()
                         #*******************************************************
                     else:
-                        order_line.product_uom_qty=qty-quantite
+                        reste=qty-quantite
+                        self.env.context = self.with_context(no_compute_price_unit=True).env.context
+                        order_line.write({'product_uom_qty':reste})
                     quantite=quantite-qty
         #***********************************************************************
 

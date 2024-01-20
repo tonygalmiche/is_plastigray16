@@ -51,11 +51,6 @@ class sale_order(models.Model):
     def _create_invoices(self, grouped=False, final=False, date=None):
         "Fonction surchargée pour faire le lien entre les factures et les mouvements de stocks"
         invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
-
-        print("_create_invoices",invoices)
-
-
-
         for invoice in invoices:
             pickings=[]
             invoice.is_mode_envoi_facture   = invoice.partner_id.is_mode_envoi_facture
@@ -64,9 +59,6 @@ class sale_order(models.Model):
                 line.is_section_analytique_id = line.product_id.is_section_analytique_id.id
                 for sale_line in line.sale_line_ids:
                     for move in sale_line.move_ids:
-
-                        print(move,move.is_account_move_line_id, move.state)
-
                         if not move.is_account_move_line_id and move.state=="done":
                             move.is_account_move_line_id = line.id
                             move.invoice_state='invoiced'
@@ -429,7 +421,6 @@ class sale_order_line(models.Model):
     is_ind_plan           = fields.Char("Indice plan", related='product_id.is_ind_plan', readonly=True)
 
 
-
     # Le 22/06/2020 à 12:02, Caroline CHEVALLIER a écrit :
     # Date de livraison - délai de transport = date d'expédition.
     # Il faut ensuite comparer la date d'expédition au calendrier usine. 
@@ -474,7 +465,7 @@ class sale_order_line(models.Model):
                     #num_day = int(time.strftime('%w', time.strptime( date_txt, '%Y-%m-%d')))
                     num_day = new_date.strftime('%w')
 
-                    if (num_day in jours_fermes or new_date in leave_dates):
+                    if (num_day in jours_fermes or str(new_date) in leave_dates):
                         new_date = new_date - timedelta(days=1)
                     else:
                         break
@@ -553,7 +544,6 @@ class sale_order_line(models.Model):
 
     @api.onchange('product_id')
     def onchange_product_id_qty(self):
-        print("TEST",self)
         for obj in self:
             obj._compute_price_unit()
 
@@ -580,15 +570,14 @@ class sale_order_line(models.Model):
 
     @api.depends('product_id', 'product_uom', 'product_uom_qty')
     def _compute_price_unit(self):
-
-
-        for obj in self:
-            #** Arrondir au lot et au multiple du lot *****************************
-            qty = self.env['product.template'].get_arrondi_lot_livraison(obj.product_id, obj.order_id.partner_id, obj.product_uom_qty)
-            obj.product_uom_qty = qty
-            #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
-            obj.set_price_justification()
-
+        context=self._context
+        if 'no_compute_price_unit' not in context:
+            for obj in self:
+                #** Arrondir au lot et au multiple du lot *****************************
+                qty = self.env['product.template'].get_arrondi_lot_livraison(obj.product_id, obj.order_id.partner_id, obj.product_uom_qty)
+                obj.product_uom_qty = qty
+                #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
+                obj.set_price_justification()
 
 
             # # check if there is already invoiced amount. if so, the price shouldn't change as it might have been
