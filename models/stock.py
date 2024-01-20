@@ -522,12 +522,8 @@ class stock_picking(models.Model):
         for obj in self : 
             name='edi-tenor-desadv-odoo16'
             cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
-
-            print(cdes, len(cdes))
             if (len(cdes)==0):
                 raise ValidationError("Commande externe '%s' non trouvée"%name)
-
-
             for cde in cdes:
                 model=self._name
                 uid=self._uid

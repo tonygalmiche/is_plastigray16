@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 from odoo import models,fields,api
-import os
+from odoo.exceptions import ValidationError
+from subprocess import PIPE, Popen
+#import os
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -249,7 +251,10 @@ class is_bon_transfert(models.Model):
 
     def desadv_action(self):
         for obj in self : 
-            cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
+            name='edi-tenor-desadv-odoo16'
+            cdes = self.env['is.commande.externe'].search([('name','=',name)])
+            if (len(cdes)==0):
+                raise ValidationError("Commande externe '%s' non trouvée"%name)
             for cde in cdes:
                 model=self._name
                 uid=self._uid
@@ -260,12 +265,25 @@ class is_bon_transfert(models.Model):
                 x = x.replace("#model" , model)
                 x = x.replace("#res_id", str(obj.id))
                 x = x.replace("#uid"   , str(uid))
-                lines=os.popen(x).readlines()
-                for line in lines:
-                    _logger.info(line.strip())
+                _logger.info(x)
+
+                # lines=os.popen(x).readlines()
+                # for line in lines:
+                #     _logger.info(line.strip())
+
+                p = Popen(x, shell=True, stdout=PIPE, stderr=PIPE)
+                stdout, stderr = p.communicate()
+                _logger.info("cde:%s, stdout:%s, stderr:%s"%(x,stdout.decode("utf-8"),stderr.decode("utf-8")))
+                if stderr:
+                    raise ValidationError("%s\n%s"%(x,stderr.decode("utf-8")))
+
+                #lines=os.popen(x).readlines()
+                #for line in lines:
+                #    _logger.info(line.strip())
                 now = datetime.datetime.now()
                 obj.date_traitement_edi = now
-                body = u"<b>DESADV envoyé</b><br>"+"<br>".join(lines)
+                lines = stdout.decode("utf-8").split('\n')
+                body = "<b>DESADV envoyé</b><br>"+"<br>".join(lines)
                 vals={
                     'author_id': user.partner_id.id,
                     'type'     : "notification",
