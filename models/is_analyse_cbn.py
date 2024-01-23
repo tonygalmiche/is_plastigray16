@@ -255,7 +255,7 @@ class product_product(models.Model):
                         )="""+str(partner_id)+"""
                     )
             """
-        filtre=filtre+" AND ic.name!='80' "
+        #filtre=filtre+" AND ic.name!='80' "
         _logger.info("Filtre sur le fournisseur (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # **********************************************************************
 

@@ -313,7 +313,7 @@ class MrpProduction(models.Model):
     #move_lines_composants_prevus    = fields.One2many('stock.move', 'raw_material_production_id', 'Composants prévus'   , domain=[('state', 'in' , ['draft', 'assigned'])], readonly=True)
     move_lines_composants_consommes = fields.One2many('stock.move', 'raw_material_production_id', 'Composants consommés', domain=[('state', 'in', ['done'])]              , readonly=True)
     move_lines_produits_finis       = fields.One2many('stock.move', 'production_id', 'Produits finis', domain=[('state', 'in', ['done'])]                                 , readonly=True)
-    is_bom_line_ids                 = fields.One2many('is.mrp.production.bom', 'production_id', "Nomenclature", copy=False, states={'done': [('readonly', True)]})
+    is_bom_line_ids                 = fields.One2many('is.mrp.production.bom', 'production_id', "Composants à consommer", copy=False, states={'done': [('readonly', True)]})
     
 
     @api.ondelete(at_uninstall=False)

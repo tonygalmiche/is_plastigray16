@@ -1119,6 +1119,20 @@
             ref('is_chef_equipe_group'),
         ])]"/>
     </record>
+
+
+    <record id="is_mrp_production_bom_menu" model="ir.ui.menu" >
+        <field name="name">Composants des OF</field>
+        <field name="sequence">12</field>
+        <field name="parent_id" eval="ref('menu_is_production_production')"/>
+        <field name="action"    ref="is_mrp_production_bom_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_rsp_production_group'),
+        ])]"/>
+    </record>
+
+
+
     <record id="menu_is_declaration_fabrication" model="ir.ui.menu" >
         <field name="name">Déclaration de fabrication</field>
         <field name="sequence">20</field>

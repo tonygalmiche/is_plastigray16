@@ -209,7 +209,10 @@ class mrp_generate_previsions(models.TransientModel):
         sql="""
             select bom.product_id, sum(bom.product_qty*mp.is_qt_reste_uom)
             from is_mrp_production_bom bom inner join mrp_production mp on bom.production_id=mp.id 
-            where mp.date_planned_start>='"""+date_debut+"""' and mp.date_planned_start<'"""+date_fin+"""'
+            where 
+                mp.date_planned_start>='"""+date_debut+"""' and 
+                mp.date_planned_start<'"""+date_fin+"""' and
+                mp.state not in ('done','cancel') 
             group by bom.product_id
         """
         res={}
