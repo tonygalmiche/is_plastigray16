@@ -128,7 +128,10 @@
                             <field name="product_uom_id"   optional="show"/>
                             <field name="is_locked"        optional="hide"/>
                             <field name="lots_visible"     optional="hide"/>
+                            <field name="id"               optional="hide"/>
+                            <field name="create_date"      optional="hide"/>
                             <field name="state" widget="badge" optional="show" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+
                             <field name="company_id"                 invisible="1"/>
                             <field name="move_id"                    invisible="1"/>
                             <field name="picking_id"                 invisible="1"/>

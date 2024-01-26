@@ -59,11 +59,6 @@
                 </xpath>
 
 
-                <!-- <button name="do_print_picking" string="Print" groups="stock.group_stock_user" type="object" attrs="{'invisible': [('state', '!=', 'assigned')]}" data-hotkey="o"/>
-                <button string="Print Labels" type="object" name="action_open_label_type"/>
-                <button name="308" string="Print" attrs="{'invisible': [('state', '!=', 'done')]}" type="action" groups="base.group_user" data-hotkey="o"/> -->
-
-
                 <xpath expr="//button[@name='button_validate'][1]" position="before">
                     <button 
                         name="action_assign" 
@@ -152,6 +147,26 @@
                 <xpath expr="//button[@name='action_put_in_pack']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
+
+
+
+
+
+                <xpath expr="//button[@name='action_assign'][1]" position="before">
+                    <!-- Bouton pour debugage -->
+                    <button name="test_action"                          string="TEST"                          type="object" groups="base.group_system"/>
+                    <button name="action_confirm"                       string="confirm"                       type="object" groups="base.group_system"/>
+                    <button name="action_assign"                        string="assign"                        type="object" groups="base.group_system"/>
+                    <button name="action_set_quantities_to_reservation" string="set_quantities_to_reservation" type="object" groups="base.group_system"/>
+                    <button name="action_clear_quantities_to_zero"      string="clear_quantities_to_zero"      type="object" groups="base.group_system"/>
+                    <button name="do_unreserve"                         string="do_unreserve"                  type="object" groups="base.group_system"/>
+                    <button name="action_toggle_is_locked"              string="toggle_is_locked"              type="object" groups="base.group_system"/>
+                </xpath>
+               
+
+
+
+
                 <xpath expr="//field[@name='product_packaging_id']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>

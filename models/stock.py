@@ -151,6 +151,8 @@ class stock_picking(models.Model):
         self.is_date_livraison = date_livraison
 
 
+
+
     def creer_factures_action(self):
         # ids=[]
         # for obj in self:
@@ -559,12 +561,25 @@ class stock_picking(models.Model):
                 res=self.env['mail.message'].create(vals)
 
 
+    def button_validate(self):
+        self.action_assign()
+        res=super().button_validate()
+        return True
+
+
     def action_assign(self):
         for obj in self : 
-            print(obj)
-            for move in obj.move_ids_without_package:
-                move.quantity_done = move.product_uom_qty
+            if obj.picking_type_id.code=='outgoing':
+                for move in obj.move_ids_without_package:
+                    move.move_line_ids.unlink()
+                    move.quantity_done = move.product_uom_qty
 
+
+    def test_action(self):
+        for obj in self:
+            for move in obj.move_ids_without_package:
+                move.move_line_ids.unlink()
+            obj.action_assign()
 
 
 class stock_quant(models.Model):
