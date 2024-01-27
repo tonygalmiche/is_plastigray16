@@ -245,7 +245,11 @@ class AnalyseCbn extends Component {
             "type_rapport": this.state.analyse_cbn_type_rapport,
         }
         var res = await this.orm.call("product.product", 'get_analyse_cbn', [false],params);
-        this.state.dict[key] = res.dict[key];
+        if (res.dict.hasOwnProperty(key)) {
+            this.state.dict[key] = res.dict[key];
+        } else {
+            this.state.dict[key] = {};
+        }
     }
     async getAnalyseCbn(ok=false){
         const params={
