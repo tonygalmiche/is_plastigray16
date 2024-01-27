@@ -93,6 +93,11 @@ class is_dossier_article(models.Model):
             except:
                 #cr_dynacase=False
                 raise ValidationError("Connexion à Dynacase impossible")
+            
+        _logger.info("Connexion Dynacase OK")
+
+
+
         #**********************************************************************
         for obj in self:
             url=False
@@ -102,9 +107,11 @@ class is_dossier_article(models.Model):
                 else:
                     SQL="select id from doc48613 where dosart_codepg=%s"
                 cr_dynacase.execute(SQL, [obj.code_pg])
+                _logger.info("SQL=%s (%s)"%(SQL,obj.code_pg))
                 result = cr_dynacase.fetchall()
                 for row in result:
                     url="https://dynacase-rp/?sole=Y&app=FDL&action=FDL_CARD&latest=Y&id="+str(row["id"])
+            _logger.info("url=%s"%url)
             obj.documents_techniques=url
 
 
