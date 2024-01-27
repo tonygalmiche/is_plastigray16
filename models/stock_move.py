@@ -70,6 +70,21 @@ class stock_move(models.Model):
     is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" ) #Champ ajouté pour Odoo 16 pour faire le lien entre les lignes des factures et les livraisons
     inventory_id            = fields.Many2one("stock.inventory", "Inventaire", index=True ) #Champ dans Odoo 8 et supprimé dans Odoo 16
 
+    is_location_dest_prevu_id = fields.Many2one('stock.location', 'Emplacement prévu', compute='_compute_is_location_dest_prevu_id', store=False, readonly=True)
+
+
+    @api.depends('location_dest_id')
+    def _compute_is_location_dest_prevu_id(self):
+        for obj in self:
+            location_id = obj.location_dest_id
+            if  obj.picking_id.is_purchase_order_id:
+                location_id = obj.picking_id.is_purchase_order_id.location_id.id
+                if obj.product_id.is_ctrl_rcp=='bloque':
+                    locations = self.env['stock.location'].search([('name','=','Q2')])
+                    for location in locations:
+                        location_id=location.id
+            obj.is_location_dest_prevu_id = location_id
+
 
     #TODO Ce champ  a disparru dans Odoo 16 => Je l'ai remis pour conserver le même principe de facturation des réceptions
     invoice_state = fields.Selection([

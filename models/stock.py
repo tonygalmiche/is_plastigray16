@@ -317,7 +317,6 @@ class stock_picking(models.Model):
         return res
 
 
-
     def check_date_livraison(self, date_livraison,  partner_id, context=None):
         res_partner = self.env['res.partner']
         if partner_id and date_livraison:
@@ -334,8 +333,6 @@ class stock_picking(models.Model):
             if int(num_day) in jours_fermes or date_livraison in leave_dates:
                 return False
         return True
-
-
 
 
     # def onchange_date_expedition(self, date_expedition, partner_id, company_id):
@@ -569,6 +566,10 @@ class stock_picking(models.Model):
 
     def action_assign(self):
         for obj in self : 
+
+            print('action_assign',obj)
+
+
             if obj.picking_type_id.code=='outgoing':
                 for move in obj.move_ids_without_package:
                     move.move_line_ids.unlink()

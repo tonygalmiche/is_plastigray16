@@ -39,7 +39,7 @@ class purchase_order_line(models.Model):
     #    self.set_price_justification()
 
 
-    @api.onchange('product_id','product_uom','product_qty')
+    @api.onchange('product_id','product_uom','product_qty','date_planned')
     def onchange_product_id(self):
         if not self.product_uom:
             self.product_uom = self.product_id.uom_po_id.id

@@ -848,6 +848,32 @@ class res_partner(models.Model):
         }
 
 
+
+    def copy(self, default=None):
+        for obj in self:
+            default = dict(default or {})
+
+            default['is_code']                           = self.is_code + ' (copie)'
+            default['is_adr_code']                       = self.is_adr_code + ' (copie)'
+            default['property_account_position_id']      = self.property_account_position_id
+            default['property_payment_term_id']          = self.property_payment_term_id
+            default['property_supplier_payment_term_id'] = self.property_supplier_payment_term_id
+
+
+
+            res=super().copy(default=default)
+
+            print("copy",default,self,res)
+
+
+
+
+
+            return res
+
+
+
+
     # #TODO : Suite à l'installation du module 'project', j'ai du remettre l'ancienne api sinon plantage
     # def copy(self, cr, uid, partner_id, default=None, context=None):
     #     if default is None:

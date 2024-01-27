@@ -156,19 +156,9 @@
                     <field name="is_modified"/>
                 </field>
                 <field name="picking_type_id" position="replace"/>
-                <!-- <field name="location_id" position="after">
-                    <field name="picking_type_id" on_change="onchange_picking_type_id(picking_type_id, context)" domain="[('code','=','incoming')]" options="{'no_create': True}" context="{'special_shortened_wh_name': True}" groups="stock.group_locations"/>
-                </field> -->
-                <!-- <field name="date_planned" position="replace">
-                    <field 
-                        name="date_planned"
-                        on_change="onchange_date_planned(
-                            date_planned,
-                            parent.partner_id, 
-                            parent.company_id
-                        )" 
-                    /> 
-                </field>-->
+                <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="replace">
+                    <field name="date_planned" attrs="{'required': [('display_type', '=', False)]}" force_save="1"/>
+                </xpath>
                 <xpath expr="//page[@name='products']/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
                     <field name="is_justification" optional="show"/>
                     <field name="is_num_chantier" optional="show"/>
@@ -199,7 +189,6 @@
                 <tree decoration-muted="state=='cancel'">
                     <field name="name"/>
                     <field name="date_order"/>
-                    <!-- <field name="date_planned"   optional="hide"/> -->
                     <field name="partner_id"/>
                     <field name="partner_ref"    optional="hide"/>
                     <field name="origin"         optional="hide"/>

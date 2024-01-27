@@ -456,6 +456,7 @@ class sale_order_line(models.Model):
                             delai_transport = delai_transport - 1
                 # jours de fermeture de la société
                 jours_fermes = res_partner.num_closing_days(order.order_id.company_id.is_calendrier_expedition_id)
+
                 # Jours de congé de la société
                 leave_dates = res_partner.get_leave_dates(order.order_id.company_id.is_calendrier_expedition_id)
                 #date_expedition = date_expedition - datetime.timedelta(days=delai_transport)
@@ -463,8 +464,7 @@ class sale_order_line(models.Model):
                 while True:
                     #date_txt=new_date.strftime('%Y-%m-%d')
                     #num_day = int(time.strftime('%w', time.strptime( date_txt, '%Y-%m-%d')))
-                    num_day = new_date.strftime('%w')
-
+                    num_day = int(new_date.strftime('%w'))
                     if (num_day in jours_fermes or str(new_date) in leave_dates):
                         new_date = new_date - timedelta(days=1)
                     else:

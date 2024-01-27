@@ -148,24 +148,17 @@
                     <attribute name="invisible">1</attribute> 
                 </xpath>
 
-
-
-
-
                 <xpath expr="//button[@name='action_assign'][1]" position="before">
                     <!-- Bouton pour debugage -->
                     <button name="test_action"                          string="TEST"                          type="object" groups="base.group_system"/>
-                    <button name="action_confirm"                       string="confirm"                       type="object" groups="base.group_system"/>
+                    <!-- <button name="action_confirm"                       string="confirm"                       type="object" groups="base.group_system"/>
                     <button name="action_assign"                        string="assign"                        type="object" groups="base.group_system"/>
                     <button name="action_set_quantities_to_reservation" string="set_quantities_to_reservation" type="object" groups="base.group_system"/>
                     <button name="action_clear_quantities_to_zero"      string="clear_quantities_to_zero"      type="object" groups="base.group_system"/>
                     <button name="do_unreserve"                         string="do_unreserve"                  type="object" groups="base.group_system"/>
-                    <button name="action_toggle_is_locked"              string="toggle_is_locked"              type="object" groups="base.group_system"/>
+                    <button name="action_toggle_is_locked"              string="toggle_is_locked"              type="object" groups="base.group_system"/> -->
                 </xpath>
                
-
-
-
 
                 <xpath expr="//field[@name='product_packaging_id']" position="attributes">
                     <attribute name="invisible">1</attribute> 
@@ -253,29 +246,17 @@
                         type="object" icon="fa-exclamation-triangle" 
                         attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
                     />
-
-
-
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="after">
+                    <field name="is_location_dest_prevu_id" string="Emplacement" optional="show"/>
+                    <!-- <field name="location_dest_id"          string="Emplacement" optional="show"/> -->
                     <field name="invoice_state"           optional="hide"/> 
                     <field name="is_account_move_line_id" optional="hide"/> 
-                    <!-- <field name="is_pg_stock_move_id" optional="hide" widget="many2one_clickable"/>  -->
-                </xpath>
-
-                <!-- <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="attributes">
-                    <attribute name="readonly">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="attributes">
-                    <attribute name="readonly">1</attribute>
-                </xpath> -->
-
+                </xpath> 
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="after">
-                    <!-- <field name="is_lots"                       optional="show"/> -->
                     <field name="sale_line_id"                  optional="hide" widget="many2one_clickable"/>
                     <field name="is_point_dechargement"         optional="show"/>
                     <field name="is_dosmat_ctrl_qual"           optional="show"/>
