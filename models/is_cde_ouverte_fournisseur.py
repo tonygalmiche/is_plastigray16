@@ -156,6 +156,17 @@ class is_cde_ouverte_fournisseur(models.Model):
     demandeur_id         = fields.Many2one('res.users', 'Demandeur', readonly=True)
     historique_ids       = fields.One2many('is.cde.ouverte.fournisseur.histo'  , 'order_id', u"Historique")
     message              = fields.Text("Message", readonly=True)
+    active               = fields.Boolean("Active", default=True)
+
+    # active = fields.Boolean(
+    #     string="Active",
+    #     default=True,
+    #     help="If unchecked, it will allow you to hide the pricelist without removing it.")
+    # sequence = fields.Integer(default=16)
+
+
+
+
 
 
     @api.model_create_multi

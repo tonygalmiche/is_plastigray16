@@ -421,6 +421,7 @@ class sale_order_line(models.Model):
     is_ind_plan           = fields.Char("Indice plan", related='product_id.is_ind_plan', readonly=True)
 
 
+
     # Le 22/06/2020 à 12:02, Caroline CHEVALLIER a écrit :
     # Date de livraison - délai de transport = date d'expédition.
     # Il faut ensuite comparer la date d'expédition au calendrier usine. 
@@ -562,22 +563,33 @@ class sale_order_line(models.Model):
                 return {'warning': warning}
 
 
-    # @api.onchange('product_id')
-    # def product_id_change(self):
-    #     #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
-    #     self.set_price_justification()
+    # def write(self, vals):
+    #     context=self.env.context 
+    #     print("write", context, vals)
+    #     res=super().write(vals)
+    #     return res
 
 
+    #TODO : Fonction créée le 03/02/2024 pour ne pas arrondir au lot la quantité depuis la liste à servir (uniquement en saisie directe)
+    @api.onchange('product_id', 'product_uom', 'product_uom_qty')
+    def _pg_onchange_product_uom_qty(self):
+        qty = self.env['product.template'].get_arrondi_lot_livraison(self.product_id, self.order_id.partner_id, self.product_uom_qty)
+        self.product_uom_qty = qty
+        self.set_price_justification()
+
+
+    #TODO : Fonction désactivée le 03/02/2024 pour ne pas arrondir au lot la quantité depuis la liste à servir (uniquement en saisie directe)
     @api.depends('product_id', 'product_uom', 'product_uom_qty')
     def _compute_price_unit(self):
-        context=self._context
-        if 'no_compute_price_unit' not in context:
-            for obj in self:
+        return
+        # context=self.env.context 
+        # if 'no_compute_price_unit' not in context:
+        #     for obj in self:
                 #** Arrondir au lot et au multiple du lot *****************************
-                qty = self.env['product.template'].get_arrondi_lot_livraison(obj.product_id, obj.order_id.partner_id, obj.product_uom_qty)
-                obj.product_uom_qty = qty
+                #qty = self.env['product.template'].get_arrondi_lot_livraison(obj.product_id, obj.order_id.partner_id, obj.product_uom_qty)
+                #obj.product_uom_qty = qty
                 #** Recherche et mise à jour prix et justification dans liste de prix pour date qt
-                obj.set_price_justification()
+                # obj.set_price_justification()
 
 
             # # check if there is already invoiced amount. if so, the price shouldn't change as it might have been
@@ -597,9 +609,6 @@ class sale_order_line(models.Model):
             #         product_price_unit=price,
             #         product_currency=line.currency_id
             #     )
-
-
-
 
 
 class is_vente_message(models.Model):

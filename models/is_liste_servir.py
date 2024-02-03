@@ -522,8 +522,9 @@ class is_liste_servir(models.Model):
                         #*******************************************************
                     else:
                         reste=qty-quantite
-                        self.env.context = self.with_context(no_compute_price_unit=True).env.context
-                        order_line.write({'product_uom_qty':reste})
+                        #self.env.context = self.with_context(no_compute_price_unit=True).env.context
+                        #order_line.with_context(no_compute_price_unit=True).write({'product_uom_qty':reste})
+                        order_line.product_uom_qty = reste
                     quantite=quantite-qty
         #***********************************************************************
 

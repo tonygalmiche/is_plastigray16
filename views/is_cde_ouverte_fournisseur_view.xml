@@ -150,6 +150,7 @@
                                 </field>
                                 <group>
                                     <field name="message"/> 
+                                    <field name="active" invisible="1"/> 
                                 </group>
                             </page>
                             <page string="Historique">

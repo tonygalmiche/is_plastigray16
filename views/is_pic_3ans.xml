@@ -256,19 +256,15 @@
 
 
         <!-- Lancement automatisé du CBB -->
-        <!-- <record forcecreate="True" id="is_pic_3ans_cbb_scheduler_action" model="ir.cron">
+        <record id="is_pic_3ans_cbb_scheduler_action" model="ir.cron">
             <field name="name">CBB sur PIC à 3 ans</field>
-            <field name="active" eval="True" />
-            <field name="user_id" ref="base.user_root"/>
+            <field name="model_id" ref="model_is_pic_3ans_saisie"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
-            <field eval="False" name="doall"/>
-            <field eval="'is.pic.3ans.saisie'" name="model"/>
-            <field eval="'run_cbb_scheduler_action'" name="function"/>
-            <field eval="'(True,)'" name="args"/>
+            <field name="state">code</field>
+            <field name="code">model.run_cbb()</field>
         </record>
- -->
 
 
         <!-- is.pic.3ans.desactive -->

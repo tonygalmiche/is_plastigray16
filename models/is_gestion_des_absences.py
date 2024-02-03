@@ -253,16 +253,16 @@ class is_demande_conges(models.Model):
                 if obj.type_demande in ['sans_solde','autre']:
                     employes = self.env['hr.employee'].search([('user_id', '=', obj.demandeur_id.id),('is_pointage','=',True)], limit=1)
                     for employe in employes:
-                        d0 = datetime.strptime(obj.date_debut, '%Y-%m-%d')
-                        d1 = datetime.strptime(obj.date_fin  , '%Y-%m-%d')
-                        nb_jours = (d1 - d0).days
+                        #d0 = datetime.strptime(obj.date_debut, '%Y-%m-%d')
+                        #d1 = datetime.strptime(obj.date_fin  , '%Y-%m-%d')
+                        nb_jours = (obj.date_fin - obj.date_debut).days
                         self.env['is.pointage.commentaire'].sudo().search([('demande_conges_id', '=', obj.id)]).unlink()
                         for x in range(nb_jours+1):
-                            name = d0 + timedelta(days=x)
+                            name = obj.date_debut + timedelta(days=x)
                             if obj.type_demande=='sans_solde':
-                                commentaire = u'[' + obj.name +u'] Congés sans solde'
+                                commentaire = '[' + obj.name +'] Congés sans solde'
                             else:
-                                commentaire = u'[' + obj.name +u'] '+obj.autre_id.name
+                                commentaire = '[' + obj.name +'] '+obj.autre_id.name
                             vals={
                                 'name'             : name,
                                 'employee'         : employe.id,

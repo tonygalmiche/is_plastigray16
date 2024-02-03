@@ -1100,8 +1100,13 @@ class product_product(models.Model):
         SQL="""
             SELECT 
                 po.id as numod, 
-                pol.date_planned as date_debut, 
-                pol.date_planned as date_fin, 
+                
+                -- pol.date_planned as date_debut, 
+                -- pol.date_planned as date_fin, 
+
+                pol.date_planned + interval '2 hours' as date_debut, 
+                pol.date_planned + interval '2 hours' as date_fin, 
+
                 sm.product_qty as qt, 
                 'SF' as typeod, 
                 pol.product_id, 
@@ -1130,6 +1135,10 @@ class product_product(models.Model):
         """
         cr.execute(SQL)
         result = cr.dictfetchall()
+
+        print(result)
+
+
         return result
 
 

@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 
 #TODO : Année de début du CBB du PIC à changer chaque année
-annee_debut_pic=2018
+#annee_debut_pic=2018
 
 
 def num(s):
@@ -325,11 +325,19 @@ class is_pic_3ans_saisie(models.Model):
                 pic=pic_obj.create(vals)
 
 
-    def run_cbb_scheduler_action(self, cr, uid, use_new_cursor=False, company_id = False, context=None):
-        self.run_cbb(cr, uid, context)
+    # def run_cbb_scheduler_action(self):
+    #     self.run_cbb(cr, uid, context)
 
 
     def run_cbb(self):
+
+        user = self.env["res.users"].browse(self._uid)
+        company = user.company_id
+        annee_debut_pic = company.is_annee_pic_3ans or '2024'
+
+
+
+
         cr = self._cr
         _logger.info("#### Début du CBB ####")
         _logger.info("Année de début du PIC = "+str(annee_debut_pic))
@@ -340,7 +348,7 @@ class is_pic_3ans_saisie(models.Model):
         pics=pic_obj.search([
             ('type_donnee','=' ,'pic'),
             ('annee'      ,'>=', str(annee_debut_pic)),
-        ],order='product_id,mois')
+        ],order='product_id,mois') #, limit=10)
         #*******************************************************************
 
         #** Suppression des données du calcul précédent ********************
@@ -409,17 +417,31 @@ class is_pic_3ans_saisie(models.Model):
     def cbb_multi_niveaux(self, pic, product, quantite=1, niveau=1):
         global ordre
         bom_obj = self.env['mrp.bom']
-        bom_id = bom_obj._bom_find(product.product_tmpl_id.id, properties=None)
-        bom = bom_obj.browse(bom_id)
+        boms_by_product = bom_obj.with_context(active_test=True)._bom_find(product)
+        bom = boms_by_product[product]
 
         if bom and bom.is_sous_traitance!=True and bom.is_negoce!=True:
 
             _logger.info(str(pic.product_id.is_code) + ' : ' + str(pic.quantite) + ' : bom OK')
 
+            # res = bom.explode_phantom(qty=row.quantity)
+            # for line in res:
+            #     vals={
+            #         'parent_id'       : row.id,
+            #         'type'            : 'ft',
+            #         'product_id'      : line["line"].product_id.id,
+            #         'start_date'      : row.start_date,
+            #         'start_date_cq'   : row.start_date,
+            #         'end_date'        : row.start_date,
+            #         'quantity'        : line["product_qty"],
+            #         'quantity_origine': line["product_qty"],
+            #         'state'           : 'valide',
+            #     }
+            #     self.create(vals)
 
-            res= bom_obj._bom_explode(bom, product, 1)
+            res= bom.explode_phantom(qty=1)
             pic_obj = self.env['is.pic.3ans']
-            for line in res[0]:
+            for line in res:
                 ordre=ordre+1
                 line_product  = self.env['product.product'].browse(line['product_id'])
                 line_quantite = quantite*line['product_qty']
