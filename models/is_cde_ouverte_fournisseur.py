@@ -9,6 +9,8 @@ import os
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 # from contextlib import closing
 import datetime
+import logging
+_logger = logging.getLogger(__name__)
 
 
 modele_mail=u"""
@@ -570,7 +572,8 @@ class is_cde_ouverte_fournisseur(models.Model):
         cr  = self._cr
         uid = self._uid
         for obj in self:
-
+            _logger.info('integrer_commandes %s'%(obj.name))
+ 
             if obj.pricelist_id.id==False:
                 raise ValidationError(u"Pas de liste de prix pour le fournisseur "+str(obj.partner_id.name))
 
@@ -579,16 +582,13 @@ class is_cde_ouverte_fournisseur(models.Model):
             for product in obj.product_ids:
                 product.imprimer=False
 
-
             #** Recherche messages *********************************************
-
             where=['|',('name','=',obj.partner_id.id),('name','=',False)]
             messages=[]
             for row in self.env['is.cde.ouverte.fournisseur.message'].search(where):
                 messages.append(row.message)
             obj.message='\n'.join(messages)
             #*******************************************************************
-
 
             #** Recherche du contact logistique ********************************
             SQL="""
@@ -610,6 +610,7 @@ class is_cde_ouverte_fournisseur(models.Model):
             for tarif in obj.tarif_ids:
                 tarif.unlink()
             for product in obj.product_ids:
+                _logger.info( 'integrer_commandes %s : tarif %s'%(obj.name,product.product_id.is_code))
                 SQL="""
                     select ppi.sequence, ppi.min_quantity, ppi.price_surcharge
                     from product_pricelist_version ppv inner join product_pricelist_item ppi on ppv.id=ppi.price_version_id
@@ -636,8 +637,9 @@ class is_cde_ouverte_fournisseur(models.Model):
 
             #** Recherche du dernier numéro de BL ******************************
             for product in obj.product_ids:
+                _logger.info( 'integrer_commandes %s : dernier BL %s'%(obj.name,product.product_id.is_code))
                 SQL="""
-                    select sp.is_num_bl, sp.is_date_reception, sm.product_uom_qty, sm.product_uom
+                    select sp.is_num_bl, sp.is_date_reception, sm.product_uom_qty, sm.product_uom, sp.name
                     from stock_picking sp inner join stock_move sm on sm.picking_id=sp.id
                     where 
                         sm.product_id="""+str(product.product_id.id)+""" and
@@ -659,7 +661,17 @@ class is_cde_ouverte_fournisseur(models.Model):
                     date_bl = row[1]
                     product_uom = self.env['uom.uom'].browse(row[3])
                     uom_po_id = product.product_id.uom_po_id
-                    qt_bl = product_uom._compute_quantity(row[2], uom_po_id)
+
+
+                    try:
+                        qt_bl = round(product_uom._compute_quantity(row[2], uom_po_id),6)
+                    except:
+                        qt_bl = 0
+
+                    _logger.info( 'integrer_commandes %s : dernier BL %s => %s (qt_bl=%s) (%s/%s)'%(obj.name,product.product_id.is_code,row[4],qt_bl, product_uom.name, uom_po_id.name))
+
+
+
                 product.num_bl  = num_bl
                 product.date_bl = date_bl
                 product.qt_bl   = qt_bl
@@ -670,6 +682,7 @@ class is_cde_ouverte_fournisseur(models.Model):
 
             attente_confirmation_total=0
             for product in obj.product_ids:
+                _logger.info( 'integrer_commandes %s : mrp.prevision %s'%(obj.name,product.product_id.is_code))
                 if obj.type_commande!='ferme_uniquement':
                     where=[
                         ('type'      , '=' ,'sa'),
