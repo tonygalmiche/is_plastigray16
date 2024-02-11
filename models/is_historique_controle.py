@@ -23,6 +23,15 @@ class is_historique_controle(models.Model):
             obj.operation_controle_code = obj.operation_controle_id.code
 
 
+    @api.depends('rapport_controle_ids')
+    def _compute_rapport_controle_name(self):
+        for obj in self:
+            names=[]
+            for line in obj.rapport_controle_ids:
+                names.append(line.name)
+            obj.rapport_controle_name = '\n'.join(names)
+
+
     plaquette_id  = fields.Many2one('is.plaquette.etalon' , string='Plaquette étalon')
     instrument_id = fields.Many2one('is.instrument.mesure', string='Instruments de mesure')
     gabarit_id    = fields.Many2one('is.gabarit.controle' , string='Gabarit de contrôle')
@@ -39,6 +48,7 @@ class is_historique_controle(models.Model):
     resultat                = fields.Char(string='Résultat/Erreur maxi')
     etat_conformite         = fields.Selection([('conforme', 'Conforme'), ('non_conforme', 'Non Conforme')], string="Etat de la conformité", required=True)
     rapport_controle_ids    = fields.Many2many('ir.attachment', 'rapport_controle_attachment_rel', 'rapport_controle_id', 'attachment_id', u'Pièces jointes')
+    rapport_controle_name   = fields.Text("Pièce jointe", compute="_compute_rapport_controle_name")
 
 
     def date_prochain_controle(self,rec):

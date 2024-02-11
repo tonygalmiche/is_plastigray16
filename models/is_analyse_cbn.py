@@ -128,6 +128,8 @@ class product_product(models.Model):
         # *********************************************************************
 
 
+
+
         #** Titre, TypeCde, Gest et Fournisseur *******************************
         titre              = self._get_titre(type_rapport,valorisation)
         #cat2id             = self._get_cat2id()                          # Catégories
@@ -255,9 +257,10 @@ class product_product(models.Model):
                         )="""+str(partner_id)+"""
                     )
             """
-        #filtre=filtre+" AND ic.name!='80' "
+        filtre=filtre+" AND ic.name not in ('70','71','72','73','74','75','82')"
         _logger.info("Filtre sur le fournisseur (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # **********************************************************************
+
 
         #** Titres des colonnes ***********************************************
         debut2=datetime.now()
@@ -1013,14 +1016,14 @@ class product_product(models.Model):
                                    left outer join is_mold        im   on pt.is_mold_id=im.id
                                    left outer join is_dossierf     id   on pt.is_dossierf_id=id.id
                                    left outer join is_gestionnaire ig   on pt.is_gestionnaire_id=ig.id
-                                   left outer join is_category     ic   on pt.is_category_id=ic.id and ic.name!='74'
+                                   left outer join is_category     ic   on pt.is_category_id=ic.id 
                                    left outer join is_mold_project imp1 on im.project=imp1.id
                                    left outer join is_mold_project imp2 on id.project=imp2.id
                                    left outer join res_partner     rp   on pt.is_client_id=rp.id
             WHERE mp.state not in ('done','cancel') """+filtre+""" 
             ORDER BY mp.name 
         """
-
+# and ic.name!='74'
 
 
         cr.execute(SQL)
@@ -1125,7 +1128,7 @@ class product_product(models.Model):
                                      left outer join is_mold              im    on pt.is_mold_id=im.id
                                      left outer join is_dossierf          id    on pt.is_dossierf_id=id.id
                                      left outer join is_gestionnaire      ig    on pt.is_gestionnaire_id=ig.id
-                                     left outer join is_category          ic    on pt.is_category_id=ic.id and ic.name not in ('70','72','73','74')
+                                     left outer join is_category          ic    on pt.is_category_id=ic.id 
                                      left outer join is_mold_project      imp1  on im.project=imp1.id
                                      left outer join is_mold_project      imp2  on id.project=imp2.id
                                      left outer join res_partner          rp    on pt.is_client_id=rp.id
@@ -1133,12 +1136,9 @@ class product_product(models.Model):
                     and sm.state in ('draft','waiting','confirmed','assigned')
               ORDER BY pol.name
         """
+        # and ic.name not in ('70','72','73','74')
         cr.execute(SQL)
         result = cr.dictfetchall()
-
-        print(result)
-
-
         return result
 
 
@@ -1236,13 +1236,14 @@ class product_product(models.Model):
                                    left outer join is_mold              im    on pt.is_mold_id=im.id
                                    left outer join is_dossierf          id    on pt.is_dossierf_id=id.id
                                    left outer join is_gestionnaire      ig    on pt.is_gestionnaire_id=ig.id
-                                   left outer join is_category          ic    on pt.is_category_id=ic.id and ic.name not in ('70','72','73','74')
+                                   left outer join is_category          ic    on pt.is_category_id=ic.id 
                                    left outer join is_mold_project      imp1  on im.project=imp1.id
                                    left outer join is_mold_project      imp2  on id.project=imp2.id
                                    left outer join res_partner          rp    on pt.is_client_id=rp.id
             WHERE pt.id>0 """+filtre+"""
             ORDER BY pt.is_code
         """
+        # and ic.name not in ('70','72','73','74')
         cr.execute(SQL)
         result = cr.dictfetchall()
         return result

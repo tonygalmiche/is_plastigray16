@@ -187,6 +187,20 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form create="false">
+
+                    <header>
+                        <button
+                            string="Validation"
+                            name="validation_action"
+                            type="object"
+                            states="brouillon"
+                            class="oe_highlight"
+                        />
+                        <field name="state" widget="statusbar" />
+                    </header>
+
+
+
                     <sheet class="oe_form_sheet_width_wider">
                         <group>
                             <group>

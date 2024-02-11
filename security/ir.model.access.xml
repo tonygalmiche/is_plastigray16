@@ -1666,10 +1666,34 @@
         <field name="model_id"    eval="ref('model_is_etuve_saisie')"/>
         <field name="group_id"    eval="ref('is_centrale_matiere_group')"/>
         <field name="perm_read"   eval="True"/>
-        <field name="perm_write"  eval="False"/>
+        <field name="perm_write"  eval="True"/>
         <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="True"/>
     </record>
+
+    <record id="is_etuve_saisie_brouillon_rule" model="ir.rule">
+        <field name="name">Accès en modification à l'état 'Brouillon' pour la centrale matière </field>
+        <field name="model_id" ref="model_is_etuve_saisie"/>
+        <field name="domain_force">[('state','=','brouillon')]</field>
+        <field name="groups" eval="[(4, ref('is_centrale_matiere_group'))]"/>
+        <field eval="0" name="perm_unlink"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_create"/>
+    </record>
+    <record id="is_etuve_saisie_valide_rule" model="ir.rule">
+        <field name="name">Accès en lecture seule à l'état 'Validé' pour tout le monde</field>
+        <field name="model_id" ref="model_is_etuve_saisie"/>
+        <field name="domain_force">[('state','=','valide')]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field eval="0" name="perm_unlink"/>
+        <field eval="0" name="perm_write"/>
+        <field eval="1" name="perm_read"/>
+        <field eval="0" name="perm_create"/>
+    </record>
+
+
+
     <record id="is_etuve_of_centrale_matiere_access"  model="ir.model.access" >
         <field name="name">is_etuve_of_centrale_matiere_access</field>
         <field name="model_id"    eval="ref('model_is_etuve_of')"/>

@@ -166,13 +166,13 @@ class is_etuve_saisie(models.Model):
     etuve_id             = fields.Many2one('is.etuve', 'Etuve', required=True)
     capacite             = fields.Integer('Capacité' , related='etuve_id.capacite'   , readonly=True)
     dessication          = fields.Selection(string="Dessication", related='etuve_id.dessication', readonly=True)
-    num_ordre_matiere    = fields.Char("N°ordre matière", required=True)
-    rsp_etuve_id         = fields.Many2one('is.etuve.rsp', 'Rsp étuve', required=True)
+    num_ordre_matiere    = fields.Char("N°ordre matière")                # required=True
+    rsp_etuve_id         = fields.Many2one('is.etuve.rsp', 'Rsp étuve')  # required=True
 
-    fake_mot_de_passe    = fields.Char("Fake mot de passe", store=False) #Astuce pour ne pas afficher la liste des mots de passe dans le champ au dessus de mot_de_passe
-    mot_de_passe         = fields.Char("Mot de passe", required=True)
+    fake_mot_de_passe    = fields.Char("Fake mot de passe", store=False) # Astuce pour ne pas afficher la liste des mots de passe dans le champ au dessus de mot_de_passe
+    mot_de_passe         = fields.Char("Mot de passe")                   # required=True
 
-    commentaire_id       = fields.Many2one('is.etuve.commentaire', 'Commentaire', required=True)
+    commentaire_id       = fields.Many2one('is.etuve.commentaire', 'Commentaire') # required=True
     commentaire_optionel = fields.Char("Commentaire optionnel")
 
     matiere_id           = fields.Many2one('product.product', 'Matière', required=True, domain=[('family_id.name','=','MATIERE')] )
@@ -187,47 +187,60 @@ class is_etuve_saisie(models.Model):
     message              = fields.Char("Message"                    , readonly=True, compute='_compute', store=True)
     of_ids               = fields.One2many('is.etuve.of', 'etuve_id', u"OFs")
     
-    #test         = fields.Char("Test")
-# <field name="fake_password" password="True" string = " " style="visibilité : cachée"/> 
+    state = fields.Selection(
+        [("brouillon", "Brouillon"), ("valide", "Validé")],
+        required=True,
+        default="brouillon",
+    )
+    active = fields.Boolean("Active", default=False)
+
+
+    def validation_action(self):
+        for obj in self:
+            if not obj.num_ordre_matiere or not obj.rsp_etuve_id or not obj.commentaire_id:
+                raise ValidationError("Les champs 'N°ordre matière', 'Rsp étuve' et 'Commentaire' sont obligatoires !")
+            if obj.rsp_etuve_id.mot_de_passe!=obj.mot_de_passe:
+                raise ValidationError("Mot de passe incorecte !")
+            
+            #** Mise à jour des données de l'étuve *********************************
+            etuve=obj.etuve_id.sudo()
+            etuve.matiere_id        = obj.matiere_id.id
+            etuve.num_ordre_matiere = obj.num_ordre_matiere
+            etuve.taux_utilisation  = obj.taux_utilisation
+            etuve.progressbar       = obj.taux_utilisation
+            etuve.test_taux         = obj.test_taux
+            etuve.message           = obj.message
+            etuve.rsp_etuve_id      = obj.rsp_etuve_id.id
+            of=[]
+            moule=[]
+            for row in obj.of_ids:
+                of.append(row.of_id.name)
+                moule.append(row.moule)
+            etuve.of=', '.join(of)
+            etuve.moule=', '.join(moule)
+            commentaire = obj.commentaire_id.name
+            if obj.commentaire_optionel:
+                commentaire=commentaire+u', '+obj.commentaire_optionel
+            etuve.commentaire = commentaire
+            #***********************************************************************
+
+            obj.active=True
+            obj.state='valide'
+
 
     @api.model_create_multi
     def create(self, vals_list):
         vals=vals_list[0]
 
-        rsp_obj = self.env['is.etuve.rsp']
-        rsp = rsp_obj.browse(vals['rsp_etuve_id'])
-        if rsp.mot_de_passe!=vals['mot_de_passe']:
-            raise ValidationError(u"Mot de passe incorecte !")
         vals['name'] = self.env['ir.sequence'].next_by_code('is.etuve.saisie')
         obj = super().create(vals_list)
 
         #** Vérfication des matières *******************************************
         for row in obj.of_ids:
             if not row.matiere:
-                raise ValidationError(u"Les matières des OF ne correspondent pas à la matière de l'étuve !")
+                raise ValidationError("Les matières des OF ne correspondent pas à la matière de l'étuve !")
         #***********************************************************************
 
-        #** Mise à jour des données de l'étuve *********************************
-        etuve=self.env['is.etuve'].browse(obj.etuve_id.id).sudo()
-        etuve.matiere_id        = obj.matiere_id.id
-        etuve.num_ordre_matiere = obj.num_ordre_matiere
-        etuve.taux_utilisation  = obj.taux_utilisation
-        etuve.progressbar       = obj.taux_utilisation
-        etuve.test_taux         = obj.test_taux
-        etuve.message           = obj.message
-        etuve.rsp_etuve_id      = obj.rsp_etuve_id.id
-        of=[]
-        moule=[]
-        for row in obj.of_ids:
-            of.append(row.of_id.name)
-            moule.append(row.moule)
-        etuve.of=', '.join(of)
-        etuve.moule=', '.join(moule)
-        commentaire = obj.commentaire_id.name
-        if obj.commentaire_optionel:
-            commentaire=commentaire+u', '+obj.commentaire_optionel
-        etuve.commentaire = commentaire
-        #***********************************************************************
         return obj
 
 

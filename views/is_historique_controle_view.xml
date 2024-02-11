@@ -41,20 +41,20 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Historique des contrôles" create="0">
-                    <field name="operation_controle_id" />
-                    <field name="cause_arret" />
-                    <field name="cause_visuel" />
-                    <field name="date_controle" />
-                    <field name="organisme_controleur" />
-                    <field name="fournisseur_id" />
-                    <field name="classe" />
-                    <field name="resultat" />
-                    <field name="etat_conformite" />
-                    <field name="rapport_controle_ids" />
-                    <field name="plaquette_id"  widget="many2one_clickable" />
-                    <field name="instrument_id" widget="many2one_clickable" />
-                    <field name="gabarit_id"    widget="many2one_clickable" />
-                    <field name="piece_id"      widget="many2one_clickable" />
+                    <field name="operation_controle_id" optional="show"/>
+                    <field name="cause_arret" optional="show" />
+                    <field name="cause_visuel" optional="show" />
+                    <field name="date_controle" optional="show" />
+                    <field name="organisme_controleur" optional="show" />
+                    <field name="fournisseur_id" optional="show" />
+                    <field name="classe" optional="show" />
+                    <field name="resultat" optional="show" />
+                    <field name="etat_conformite" optional="show" />
+                    <field name="rapport_controle_name" optional="show" />
+                    <field name="plaquette_id" optional="show"  widget="many2one_clickable" />
+                    <field name="instrument_id" optional="show" widget="many2one_clickable" />
+                    <field name="gabarit_id" optional="show"    widget="many2one_clickable" />
+                    <field name="piece_id" optional="show"      widget="many2one_clickable" />
 		    <field name="create_uid" string="Créé par" readonly="1"/>
                 </tree>
             </field>

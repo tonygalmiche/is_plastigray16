@@ -77,11 +77,15 @@ class is_stock_quant(models.Model):
                             in_date                date_entree,
                             pt.is_client_id        client_id,
                             sq.lot_id
-                        from stock_quant sq inner join product_product            pp on sq.product_id=pp.id
-                                            inner join product_template           pt on pp.product_tmpl_id=pt.id
-                                            inner join stock_location             sl on sq.location_id=sl.id
-                                            left outer join stock_lot spl on sq.lot_id=spl.id
-                        where sl.usage='internal' and sq.quantity<>0
+                        from stock_quant sq join product_product            pp on sq.product_id=pp.id
+                                            join product_template           pt on pp.product_tmpl_id=pt.id
+                                            join stock_location             sl on sq.location_id=sl.id
+                                            join is_category                ic on pt.is_category_id=ic.id
+                                            left outer join stock_lot      spl on sq.lot_id=spl.id
+                        where 
+                            sl.usage='internal' and 
+                            sq.quantity<>0 and 
+                            ic.name not in ('70','71','72','73','74','75','82')
                     ) isq
                     group by
                         isq.product_id, 

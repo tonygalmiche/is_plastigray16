@@ -61,7 +61,7 @@
                                         <field name="organisme_controleur" />
                                         <field name="fournisseur_id" />
                                         <field name="etat_conformite" />
-                                        <field name="rapport_controle_ids"/>
+                                        <field name="rapport_controle_name"/>
                                     </tree>
                                 </field>
                             </page>

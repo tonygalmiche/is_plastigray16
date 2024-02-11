@@ -65,7 +65,7 @@
                                         <field name="organisme_controleur" />
                                         <field name="fournisseur_id" />
                                         <field name="etat_conformite" />
-                                        <field name="rapport_controle_ids"/>
+                                        <field name="rapport_controle_name"/>
                                         <field name="create_uid" string="Créé par" readonly="1"/>
                                     </tree>
                                 </field>

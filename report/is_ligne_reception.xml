@@ -20,6 +20,7 @@
                             <field name="partner_id" readonly="1"/>
                             <field name="product_id" readonly="1"/>
                             <field name="description" readonly="1"/>
+                            <field name="is_num_chantier" readonly="1"/>
                             <field name="segment_id" readonly="1"/>
                             <field name="is_ctrl_rcp" readonly="1"/>
                             <field name="ref_fournisseur" readonly="1"/>
@@ -65,7 +66,8 @@
                 <field name="commande_ouverte"              optional="hide" />
                 <field name="partner_id"                    optional="show"  widget="many2one_clickable"/>
                 <field name="description"                   optional="show" />
-               <field name="segment_id"                     optional="hide" />
+                <field name="is_num_chantier"               optional="hide"/>
+                <field name="segment_id"                    optional="hide" />
                 <field name="ref_fournisseur"               optional="hide" />
                 <field name="qt_receptionnee"               optional="show"  string="Quantité à réceptionner"/>
                 <field name="product_uom"                   optional="hide" />
@@ -89,6 +91,7 @@
                 <field name="partner_id"/>
                 <field name="product_id"/>
                 <field name="description"/>
+                <field name="is_num_chantier"/>
                 <field name="segment_id"/>
                 <field name="is_ctrl_rcp"/>
                 <field name="is_dosmat_ctrl_qual"/>
@@ -134,6 +137,7 @@
                 <field name="commande_ouverte"  optional="hide"/>
                 <field name="partner_id"        optional="show"  widget="many2one_clickable"/>
                 <field name="description"       optional="show"/>
+                <field name="is_num_chantier"   optional="hide"/>
                 <field name="ref_fournisseur"   optional="hide"/>
                 <field name="product_uom"       optional="hide"/>
                 <field name="price_unit"        optional="hide"/>

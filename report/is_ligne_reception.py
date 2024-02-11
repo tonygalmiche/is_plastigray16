@@ -22,6 +22,7 @@ class is_ligne_reception(models.Model):
     is_commentaire       = fields.Text('Commentaire')
     product_id           = fields.Many2one('product.template', 'Article')
     description          = fields.Char('Description')
+    is_num_chantier      = fields.Char("N°Chantier", help="Champ utilisé pour la gestion des investissements sous la forme Mxxxx/xxxxx")
     segment_id           = fields.Many2one('is.product.segment', 'Segment', readonly=True)
     is_ctrl_rcp          = fields.Selection([('bloque','Produit bloqué'),('aqp','AQP')], "Contrôle réception")
     is_facturable        = fields.Boolean('Article facturable')
@@ -129,7 +130,8 @@ class is_ligne_reception(models.Model):
                             select spl.is_lot_fournisseur 
                             from stock_move_line sml inner join stock_lot spl on sml.lot_id = spl.id
                             where sml.move_id=sm.id limit 1
-                        )  as lot_fournisseur
+                        )  as lot_fournisseur,
+                        pol.is_num_chantier
                 from stock_picking sp inner join stock_move                sm on sm.picking_id=sp.id 
                                     inner join product_product           pp on sm.product_id=pp.id
                                     inner join product_template          pt on pp.product_tmpl_id=pt.id
