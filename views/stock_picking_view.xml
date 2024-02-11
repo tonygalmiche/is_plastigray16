@@ -88,7 +88,7 @@
                         name="%(stock_transfer_details_action)d" 
                         class="oe_highlight" 
                         attrs="{'invisible': ['|',
-                            ('state', '!=', 'assigned'),
+                            ('state', 'not in', ['assigned','confirmed','waiting']),
                             ('picking_type_id','!=',1),
                         ]}"
                     />
@@ -150,7 +150,7 @@
 
                 <xpath expr="//button[@name='action_assign'][1]" position="before">
                     <!-- Bouton pour debugage -->
-                    <button name="test_action"                          string="TEST"                          type="object" groups="base.group_system"/>
+                    <!-- <button name="test_action"                          string="TEST"                          type="object" groups="base.group_system"/> -->
                     <!-- <button name="action_confirm"                       string="confirm"                       type="object" groups="base.group_system"/>
                     <button name="action_assign"                        string="assign"                        type="object" groups="base.group_system"/>
                     <button name="action_set_quantities_to_reservation" string="set_quantities_to_reservation" type="object" groups="base.group_system"/>

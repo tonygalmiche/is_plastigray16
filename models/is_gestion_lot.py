@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools,api
+from odoo.exceptions import ValidationError
 import time
 import logging
 _logger = logging.getLogger(__name__)
@@ -82,6 +83,11 @@ class is_gestion_lot(models.Model):
                 filtre=[('id', 'in', context["active_ids"])]
                 lines = self.env['is.gestion.lot.report'].search(filtre)
                 for line in lines:
+
+
+
+
+
                     move_obj = self.env["stock.move"]
                     location_dest_id = False
                     if data.operation == 'bloque':
@@ -92,11 +98,12 @@ class is_gestion_lot(models.Model):
                         location_dest_id = data.location_dest_change_id.id
                     if data.operation == 'rebut':
                         location_dest_id = data.location_dest_rebut_id.id
-
                     if data.operation in ['change_location_multiple']:
-                        qty_done = line.qty
+                        qty_done = round(line.qty,8)
                     else:
-                        qty_done = data.product_qty
+                        qty_done = round(data.product_qty,8)
+                    if qty_done>round(line.qty,8):
+                        raise ValidationError("Il n'est pas autorisé de déplacer plus que la quantité d'origine")
                     line_vals={
                         "location_id"     : line.location_id.id,
                         "location_dest_id": location_dest_id,
