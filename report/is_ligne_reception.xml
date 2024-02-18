@@ -102,20 +102,13 @@
                 <field name="lot_fournisseur"/>
                 <field name="picking_state"/>
                 <field name="is_demandeur_id"/>
-                <!-- <group expand="0" string="Regrouper par...">
-                    <filter string="Réception"    context="{'group_by':'picking_id'}"/>
-                    <filter string="Fournisseur"  context="{'group_by':'partner_id'}"/>
-                    <filter string="Article"      context="{'group_by':'product_id'}"/>
-                    <filter string="Etat"         context="{'group_by':'picking_state'}"/>
-                    <filter string="Mois prévu"   context="{'group_by':'date_planned:month'}"/>
-                </group> -->
             </search>
         </field>
     </record>
     <record id="is_ligne_reception_a_traiter_action" model="ir.actions.act_window">
         <field name="name">Réceptions à traiter</field>
         <field name="res_model">is.ligne.reception</field>
-        <field name="domain">[('state','not in', ('draft','cancel','waiting','confirmed','done'))]</field>
+        <field name="domain">[('state','in', ('waiting','confirmed','assigned'))]</field>
         <field name="view_id" ref="is_ligne_reception_a_traiter_tree_view"/>
         <field name="view_mode">tree,form</field>
     </record>

@@ -102,7 +102,6 @@
                     <field name="create_uid"/>
                     <field name="write_uid"/>
                     <field name="is_account_move_line_id"/>
-                    <!-- <field name="is_pg_stock_move_id"/> -->
                 </field>
                 <group name="origin_grp" position="after">
                     <group string="Amortissement Moule" groups="base.group_no_one">
@@ -113,6 +112,10 @@
                         <field name="is_montant_amt_interne"/>
                         <field name="is_montant_cagnotage"/>
                         <field name="is_montant_matiere"/>
+                    </group>
+                    <group string="Valorisation achat" groups="base.group_no_one">
+                        <field name="is_unit_coef"/>
+                        <field name="is_montant_reception"/>
                     </group>
                 </group>
                 <group name="linked_group" position="before">
@@ -147,58 +150,6 @@
             </field>
         </record>
 
-
-
-        <!-- <record id="is_view_move_form" model="ir.ui.view">
-            <field name="name">stock.move.form</field>
-            <field name="model">stock.move</field>
-            <field name="inherit_id" ref="stock.view_move_form"/>
-            <field name="arch" type="xml">
-                <field name="group_id" position="after">
-                    <field name="restrict_lot_id" />
-                    <field name="create_uid"/>
-                    <field name="write_uid"/>
-                    <field name="is_employee_theia_id"/>
-                </field>
-                <group name="destination_grp" position="after">
-                    <group string="Amortissement Moule">
-                        <field name="is_amortissement_moule"/>
-                        <field name="is_amt_interne"/>
-                        <field name="is_cagnotage"/>
-                        <field name="is_montant_amt_moule"/>
-                        <field name="is_montant_amt_interne"/>
-                        <field name="is_montant_cagnotage"/>
-                        <field name="is_montant_matiere"/>
-                    </group>
-                </group>
-            </field>
-        </record> -->
-
-        <!-- <record id="is_view_move_tree" model="ir.ui.view">
-            <field name="name">is_view_move_tree</field>
-            <field name="model">stock.move</field>
-            <field name="inherit_id" ref="stock.view_move_tree"/>
-            <field name="arch" type="xml">
-                <field name="name" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </field>
-                <field name="date_expected" position="after">
-                    <field name="create_uid"/>
-                    <field name="write_uid"/>
-                    <field name="is_employee_theia_id"/>
-                </field>
-                <field name="date" position="replace">
-                    <field name="date" />
-                </field>
-                <button string="Scrap Products" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </button>
-                <button name="action_done" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </button>
-            </field>
-        </record> -->
-
         <!-- Liste des mouvements terminés --> 
         <record id="is_mouvements_termines_tree" model="ir.ui.view">
             <field name="name">is_mouvements_termines_tree</field>
@@ -218,7 +169,9 @@
                     <field name="picking_id" optional="hide"/>
                     <field name="inventory_id" optional="hide"/>
                     <field name="origin" optional="hide"/>
-                    <!-- <field name="is_pg_stock_move_id" optional="hide"/> -->
+
+                    <field name="is_unit_coef"         optional="hide" groups="base.group_no_one"/>
+                    <field name="is_montant_reception" optional="hide" groups="base.group_no_one" sum="Total"/>
                     <button 
                         name="action_show_details" 
                         type="object" title="Show Details" icon="fa-list" 
@@ -234,15 +187,11 @@
                 </tree>
             </field>
         </record>
-
-        
-
         <record id="is_view_move_search" model="ir.ui.view">
             <field name="name">is_view_move_search</field>
             <field name="model">stock.move</field>
             <field name="inherit_id" ref="stock.view_move_search"/>
             <field name="arch" type="xml">
-                <!-- <field name="origin" filter_domain="['|', '|', ('origin', 'ilike', self), ('name', 'ilike', self), ('picking_id', 'ilike', self)]" string="Reference"/> -->
                 <field name="origin" position="replace">
                     <field name="origin"/>
                     <field name="picking_type_id"/>
@@ -251,69 +200,11 @@
                 </field>
             </field>
         </record>
-
-
         <record id="is_entrees_sorties_stock_action" model="ir.actions.act_window">
             <field name="name">Entrées-sorties de stocks</field>
             <field name="res_model">stock.move</field>
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="is_mouvements_termines_tree"/>
         </record>
-    
-
-
-
-        <!-- Mouvements en cours -->
-        <!-- <record id="is_mouvements_en_cours_action" model="ir.actions.act_window">
-            <field name="name">Mouvements en cours</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.move</field>
-            <field name="domain">[('state','in',['draft','waiting','confirmed','assigned'])]</field>
-            <field name="limit">200</field>
-            <field name="view_id" ref="is_view_move_tree"/>
-            <field name="view_mode">tree,form</field>
-        </record> -->
-        <!-- Mouvements Terminés -->
-        <!-- <record id="is_mouvements_termines_action" model="ir.actions.act_window">
-            <field name="name">Mouvements terminés</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.move</field>
-            <field name="domain">[('state','in',['done'])]</field>
-            <field name="limit">200</field>
-            <field name="view_id" ref="is_mouvements_termines_tree"/>
-            <field name="view_mode">tree,form</field>
-        </record> -->
-        <!-- Tous les mouvements -->
-        <!-- <record id="is_mouvements_tous_action" model="ir.actions.act_window">
-            <field name="name">Tous les mouvements</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.move</field>
-            <field name="domain">[]</field>
-            <field name="limit">200</field>
-            <field name="view_id" ref="is_view_move_tree"/>
-            <field name="view_mode">tree,form</field>
-        </record>
- -->
-
-        <!-- <record id="is_view_move_picking_tree" model="ir.ui.view">
-            <field name="name">is_view_move_picking_tree</field>
-            <field name="model">stock.move</field>
-            <field name="inherit_id" ref="stock.view_move_picking_tree"/>
-            <field name="arch" type="xml">
-                <button string="Scrap Products" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </button>
-                <field name="product_id" position="after">
-                    <field name="name" />
-                    <field name="is_lots"/>
-                    <field name="is_point_dechargement"/>
-                    <field name="is_dosmat_ctrl_qual"/>
-                    <field name="is_dosmat_conditions_stockage"/>
-                </field>
-            </field>
-        </record> -->
-
-
-
     </data>
 </odoo>

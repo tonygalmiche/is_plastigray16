@@ -88,6 +88,64 @@ class is_ligne_reception(models.Model):
         start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_ligne_reception')
+
+
+
+        # cr.execute("""
+        #     CREATE OR REPLACE view is_ligne_reception AS (
+        #         select  sm.id,
+        #                 pol.date_planned,
+        #                 sp.id                 as picking_id, 
+        #                 sp.is_num_bl          as num_bl,
+        #                 sp.date_done          as date_transfert,
+        #                 sp.is_date_reception  as date_reception,
+        #                 sm.date               as date_mouvement,
+        #                 -- po.id                 as order_id,  
+        #                 pol.order_id          as order_id,  
+        #                 po.is_cfc_id          as is_cfc_id,
+        #                 pol.id                as order_line_id,
+        #                 pol.price_unit        as price_unit,
+        #                 is_unit_coef(pol.product_uom,sm.product_uom)*pol.price_unit*sm.product_uom_qty as montant_reception,
+        #                 sp.partner_id            as partner_id, 
+        #                 po.is_demandeur_id       as is_demandeur_id,
+        #                 po.is_date_confirmation  as is_date_confirmation,
+        #                 po.is_commentaire        as is_commentaire,
+        #                 pt.id                    as product_id,
+        #                 sm.name                  as description,
+        #                 pt.segment_id            as segment_id,
+        #                 pt.is_ctrl_rcp           as is_ctrl_rcp,
+        #                 pt.is_facturable         as is_facturable,
+        #                 pt.is_ref_fournisseur    as ref_fournisseur,
+        #                 sm.product_uom           as product_uom,
+        #                 sm.product_uom_qty       as qt_receptionnee,
+        #                 coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0) as qt_facturee,
+        #                 round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as reste_a_facturer,
+        #                 is_unit_coef(pol.product_uom,sm.product_uom)*round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
+        #                 sm.state              as state,
+        #                 sp.state              as picking_state,
+        #                 sm.invoice_state      as invoice_state,
+        #                 sm.write_uid          as user_id,
+        #                 sm.id                 as move_id,
+        #                 sm.is_dosmat_ctrl_qual as is_dosmat_ctrl_qual,
+        #                 sm.is_dosmat_conditions_stockage as is_dosmat_conditions_stockage,
+        #                 (select icof.name from is_cde_ouverte_fournisseur icof where sp.partner_id=icof.partner_id limit 1) as commande_ouverte,
+        #                 (
+        #                     select spl.is_lot_fournisseur 
+        #                     from stock_move_line sml inner join stock_lot spl on sml.lot_id = spl.id
+        #                     where sml.move_id=sm.id limit 1
+        #                 )  as lot_fournisseur,
+        #                 pol.is_num_chantier
+        #         from stock_picking sp inner join stock_move                sm on sm.picking_id=sp.id 
+        #                             inner join product_product           pp on sm.product_id=pp.id
+        #                             inner join product_template          pt on pp.product_tmpl_id=pt.id
+        #                             left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
+        #                             left outer join purchase_order       po on pol.order_id=po.id
+        #         where sp.picking_type_id=1
+        #     )
+        # """)
+
+
+
         cr.execute("""
             CREATE OR REPLACE view is_ligne_reception AS (
                 select  sm.id,
@@ -97,12 +155,10 @@ class is_ligne_reception(models.Model):
                         sp.date_done          as date_transfert,
                         sp.is_date_reception  as date_reception,
                         sm.date               as date_mouvement,
-                        -- po.id                 as order_id,  
                         pol.order_id          as order_id,  
                         po.is_cfc_id          as is_cfc_id,
                         pol.id                as order_line_id,
                         pol.price_unit        as price_unit,
-                        is_unit_coef(pol.product_uom,sm.product_uom)*pol.price_unit*sm.product_uom_qty as montant_reception,
                         sp.partner_id            as partner_id, 
                         po.is_demandeur_id       as is_demandeur_id,
                         po.is_date_confirmation  as is_date_confirmation,
@@ -117,7 +173,13 @@ class is_ligne_reception(models.Model):
                         sm.product_uom_qty       as qt_receptionnee,
                         coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0) as qt_facturee,
                         round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as reste_a_facturer,
-                        is_unit_coef(pol.product_uom,sm.product_uom)*round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
+                        
+                        sm.is_montant_reception as montant_reception,
+                        round(sm.is_unit_coef*sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0)*pol.price_unit,4) as montant_reste,
+
+                        -- 8s !! => is_unit_coef(pol.product_uom,sm.product_uom)*pol.price_unit*sm.product_uom_qty as montant_reception,
+                        -- 9s !! => is_unit_coef(pol.product_uom,sm.product_uom)*round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
+
                         sm.state              as state,
                         sp.state              as picking_state,
                         sm.invoice_state      as invoice_state,
@@ -126,7 +188,7 @@ class is_ligne_reception(models.Model):
                         sm.is_dosmat_ctrl_qual as is_dosmat_ctrl_qual,
                         sm.is_dosmat_conditions_stockage as is_dosmat_conditions_stockage,
                         (select icof.name from is_cde_ouverte_fournisseur icof where sp.partner_id=icof.partner_id limit 1) as commande_ouverte,
-                        (
+                         (
                             select spl.is_lot_fournisseur 
                             from stock_move_line sml inner join stock_lot spl on sml.lot_id = spl.id
                             where sml.move_id=sm.id limit 1

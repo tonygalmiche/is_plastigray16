@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import string
 from odoo import models,fields,api
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class stock_move(models.Model):
@@ -71,6 +73,30 @@ class stock_move(models.Model):
     inventory_id            = fields.Many2one("stock.inventory", "Inventaire", index=True ) #Champ dans Odoo 8 et supprimé dans Odoo 16
 
     is_location_dest_prevu_id = fields.Many2one('stock.location', 'Emplacement prévu', compute='_compute_is_location_dest_prevu_id', store=False, readonly=True)
+
+    is_unit_coef         = fields.Float("Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
+    is_montant_reception = fields.Float('Montant réception'                 , digits=(14,2), compute='_compute_montant_reception', store=True, readonly=True)
+
+
+    @api.depends('purchase_line_id','state','product_uom','product_uom_qty')
+    def _compute_montant_reception(self):
+        for obj in self:
+            coef = 1
+            montant_reception=0
+            if obj.purchase_line_id:
+                try:
+                    coef = round(obj.purchase_line_id.product_uom._compute_quantity(1, obj.product_uom),6)
+                except Exception:
+                    coef = 1
+                if coef>0:
+                    montant_reception = round(obj.product_uom_qty*obj.purchase_line_id.price_unit/coef,6)
+
+                _logger.info("_compute_montant_reception (move_id=%s, article=%s, montant=%s)"%(obj.id, obj.product_id.is_code, montant_reception))
+
+
+
+            obj.is_unit_coef         = coef
+            obj.is_montant_reception = montant_reception
 
 
     @api.depends('location_dest_id')
