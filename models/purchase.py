@@ -17,7 +17,22 @@ class purchase_order_line(models.Model):
     @api.depends('product_qty', 'product_uom')
     def _compute_price_unit_and_date_planned_and_name(self):
         'Désactivation de cette fonction le 20/01/2024'
+        print("## _compute_price_unit_and_date_planned_and_name",self, self.product_qty)
         return
+
+
+    # @api.depends('product_packaging_qty')
+    # def _compute_product_qty(self):
+    #     'Désactivation de cette fonction le 18/02/2024'
+    #     print("## _compute_product_qty",self, self.product_qty, self.product_uom_qty)
+    #     return
+ 
+
+    # @api.depends('product_uom', 'product_qty', 'product_id.uom_id')
+    # def _compute_product_uom_qty(self):
+    #     'Désactivation de cette fonction le 18/02/2024'
+    #     print("## _compute_product_uom_qty",self, self.product_qty, self.product_uom_qty)
+    #     return
 
 
     def set_price_justification(self):
@@ -34,54 +49,54 @@ class purchase_order_line(models.Model):
         self.is_justification = justifcation
 
 
-    #@api.onchange('product_id','product_uom','product_qty')
-    #def pg_onchange_product_qty(self):
-    #    self.set_price_justification()
-
-
-    @api.onchange('product_id','product_uom','product_qty','date_planned')
-    def onchange_product_id(self):
+    def _suggest_quantity(self):
+        "La quantité par défaut est mise au lot (en unité d'achat)"
+        if not self.product_id:
+            return
+        if self.product_qty>0:
+            return
         if not self.product_uom:
             self.product_uom = self.product_id.uom_po_id.id
-        if self.product_id and self.product_uom:
-            self.name = self.product_id._name_get()
-            qty      = self.product_qty 
-            lot      = self.product_id.lot_mini
-            multiple = self.product_id.multiple
-            if multiple==0:
-                multiple=1
-            qty = self.product_uom._compute_quantity(qty, self.product_id.uom_id, round=True, rounding_method='UP', raise_if_failure=True)
-            if qty<lot:
-                qty=lot
-            else:
-                delta=round(qty-lot,8)
-                qty=lot+multiple*ceil(delta/multiple)
-            qty = self.product_id.uom_id._compute_quantity(qty, self.product_uom, round=True, rounding_method='UP', raise_if_failure=True)
-            self.product_qty = round(qty,6)
+        lot = self.product_id.lot_mini
+        # Convertir lot en unité d'achat
+        qty = self.product_id.uom_id._compute_quantity(lot, self.product_uom, round=True, rounding_method='UP', raise_if_failure=True)
+        self.product_qty = round(qty,6)
+        # Le prix est initialisé au début avec le lot est n'est plus calculé ensuite même si la quanité ou la date changent
+        self.set_price_justification()
+
+
+    @api.onchange('product_qty','product_uom')
+    def is_onchange_product_id(self):
+        "Si la quantité est modifiée, il faut l'arrondir au lot et au multiple du lot"
+        if not self.product_uom:
+            self.product_uom = self.product_id.uom_po_id.id
+        qty      = self.product_qty 
+        lot      = self.product_id.lot_mini
+        multiple = self.product_id.multiple
+        if multiple==0:
+            multiple=1
+        # Convertir qty en unité de stock pour pouvoir la comparer au lot
+        qty = self.product_uom._compute_quantity(qty, self.product_id.uom_id, round=True, rounding_method='UP', raise_if_failure=True)
+        if qty<lot:
+            qty=lot
+        else:
+            delta=round(qty-lot,8)
+            qty=lot+multiple*ceil(delta/multiple)
+        # Convertir qty en unité d'achat
+        qty = self.product_id.uom_id._compute_quantity(qty, self.product_uom, round=True, rounding_method='UP', raise_if_failure=True)
+        self.product_qty = round(qty,6)
+        # Le prix est calculé uniquement si il n'est pas déja renseigné
+        if not self.price_unit and not self.is_justification:
             self.set_price_justification()
         self._compute_tax_id()
 
 
-
-            # qty = product_uom_obj._compute_qty(uom_id, qty, product.uom_id.id)
-            # lot      = product.lot_mini
-            # multiple = product.multiple
-            # if multiple==0:
-            #     multiple=1
-            # if qty<lot:
-            #     qty=lot
-            # else:
-            #     delta=round(qty-lot,8)
-            #     qty=lot+multiple*ceil(delta/multiple)
-            # qty = product_uom_obj._compute_qty(product.uom_id.id, qty, uom_id)
-            # res['value']['product_qty'] = qty
-
-
-
-
-
     @api.onchange('date_planned')
     def onchange_date_planned(self):
+        #Le prix est actualisé uniquement si il n'est pas déjà renseigné"
+        if not self.price_unit and not self.is_justification:
+            self.set_price_justification()
+
         res=True
         #** Recherche si le partner est ouvert cette journée avec les jours fériés du pays
         partner=self.order_id.partner_id
