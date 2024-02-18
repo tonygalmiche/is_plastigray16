@@ -134,11 +134,11 @@
                 <field name="ref_fournisseur"   optional="hide"/>
                 <field name="product_uom"       optional="hide"/>
                 <field name="price_unit"        optional="hide"/>
-                <field name="qt_receptionnee"   optional="show"/>
-                <field name="qt_facturee"       optional="show"/>
-                <field name="reste_a_facturer"  optional="show"/>
-                <field name="montant_reception" optional="show"/>
-                <field name="montant_reste"     optional="show"/>
+                <field name="qt_receptionnee"   optional="show" sum="Total"/>
+                <field name="qt_facturee"       optional="show" sum="Total"/>
+                <field name="reste_a_facturer"  optional="show" sum="Total"/>
+                <field name="montant_reception" optional="show" sum="Total"/>
+                <field name="montant_reste"     optional="show" sum="Total"/>
                 <field name="lot_fournisseur"   optional="hide"/>
                 <field name="user_id"           optional="hide"/>
                 <field name="picking_state"     optional="hide"/>

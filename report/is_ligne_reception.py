@@ -21,7 +21,7 @@ class is_ligne_reception(models.Model):
     is_date_confirmation = fields.Date('Date de confirmation')
     is_commentaire       = fields.Text('Commentaire')
     product_id           = fields.Many2one('product.template', 'Article')
-    description          = fields.Char('Description')
+    description          = fields.Text('Description')
     is_num_chantier      = fields.Char("N°Chantier", help="Champ utilisé pour la gestion des investissements sous la forme Mxxxx/xxxxx")
     segment_id           = fields.Many2one('is.product.segment', 'Segment', readonly=True)
     is_ctrl_rcp          = fields.Selection([('bloque','Produit bloqué'),('aqp','AQP')], "Contrôle réception")
@@ -164,7 +164,7 @@ class is_ligne_reception(models.Model):
                         po.is_date_confirmation  as is_date_confirmation,
                         po.is_commentaire        as is_commentaire,
                         pt.id                    as product_id,
-                        sm.name                  as description,
+                        sm.description_picking   as description,
                         pt.segment_id            as segment_id,
                         pt.is_ctrl_rcp           as is_ctrl_rcp,
                         pt.is_facturable         as is_facturable,
