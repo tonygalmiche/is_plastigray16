@@ -3,6 +3,7 @@ from odoo import models,fields,api,tools,SUPERUSER_ID
 import os
 import time
 import datetime
+import pytz
 import base64
 from xmlrpc import client as xmlrpclib
 import logging
@@ -614,11 +615,7 @@ class res_partner(models.Model):
             'active'                           : self._get_active(DB, USERID, USERPASS, sock),
             'is_database_origine_id'           : self.id
         }
-
-        #print(vals)
         _logger.info("database=%s : vals=%s"%(DB,vals))
-
-
         return vals
     
     def _get_parent_id(self, DB, USERID, USERPASS, sock):
@@ -852,23 +849,12 @@ class res_partner(models.Model):
     def copy(self, default=None):
         for obj in self:
             default = dict(default or {})
-
             default['is_code']                           = self.is_code + ' (copie)'
             default['is_adr_code']                       = self.is_adr_code + ' (copie)'
             default['property_account_position_id']      = self.property_account_position_id
             default['property_payment_term_id']          = self.property_payment_term_id
             default['property_supplier_payment_term_id'] = self.property_supplier_payment_term_id
-
-
-
             res=super().copy(default=default)
-
-            print("copy",default,self,res)
-
-
-
-
-
             return res
 
 
@@ -945,16 +931,29 @@ class res_partner(models.Model):
         return jours_feries
 
 
-    def test_date_dispo(self, date, partner, avec_jours_feries=False):
+    def utc_offset(self):
+        now = datetime.datetime.now()
+        offset = int(pytz.timezone('Europe/Paris').localize(now).utcoffset().total_seconds()/3600)
+        return offset
+
+
+    def utc2local(self,date_utc):
+        offset = self.utc_offset()
+        date_local = date_utc + datetime.timedelta(hours=offset)
+        return date_local
+
+
+    def test_date_dispo(self, date_utc, partner, avec_jours_feries=False):
         """ Test si la date indiquée tombe sur un jour ouvert du partner 
         """
         res=True
-        if date:
+        if date_utc:
+            date_local = self.utc2local(date_utc)
             #num_day = int(time.strftime('%w', time.strptime(date, '%Y-%m-%d'))) #Jour de la semaine (avec dimanche=0)
-            num_day=int(date.strftime('%w'))
+            num_day=int(date_local.strftime('%w'))
             if num_day in self.num_closing_days(partner):
                 res=False
-            if date.strftime('%Y-%m-%d') in self.get_leave_dates(partner, avec_jours_feries):
+            if date_local.strftime('%Y-%m-%d') in self.get_leave_dates(partner, avec_jours_feries):
                 res=False
         return res
 

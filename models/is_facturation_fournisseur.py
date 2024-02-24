@@ -109,7 +109,7 @@ class is_facturation_fournisseur(models.Model):
                             pt.is_ref_fournisseur,
 
                             -- sm.product_uom_qty as qty,
-                            round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4) as qty,
+                            round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where  ail.parent_state='posted' and ail.is_move_id=sm.id ),0),4) as qty,
 
                             sm.product_uom, 
                             pol.price_unit,

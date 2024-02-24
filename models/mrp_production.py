@@ -349,19 +349,8 @@ class MrpProduction(models.Model):
     @api.depends('bom_id', 'product_id', 'product_qty', 'product_uom_id')
     def _compute_workorder_ids(self):
         for production in self:
-
-
-            #for line in production.workorder_ids:
-            #    print(line.operation_id)
-
-
             if production.state != 'draft' or len(production.workorder_ids)>0:
                 continue
-
-
-            #print("TEST")
-
-
             workorders_list = [Command.link(wo.id) for wo in production.workorder_ids.filtered(lambda wo: not wo.operation_id)]
             if not production.bom_id and not production._origin.product_id:
                 production.workorder_ids = workorders_list
@@ -607,6 +596,76 @@ class MrpProduction(models.Model):
 
 
 
+    def envoi_mail(self, email_from,email_to,email_cc,subject,body_html):
+        for obj in self:
+            vals={
+                'email_from'    : email_from, 
+                'email_to'      : email_to, 
+                'email_cc'      : email_cc,
+                'subject'       : subject,
+                'body_html'     : body_html, 
+                'model'         : self._name,
+                'res_id'        : obj.id,
+            }
+            email=self.env['mail.mail'].create(vals)
+            if email:
+                self.env['mail.mail'].send(email)
+
+
+    def mail_quantite_modifiee(self, qt1, qt2):
+        for obj in self:
+            test=False
+            date_planned = obj.date_planned_start
+            now = datetime.now()
+            date_fin = now + timedelta(days=1)
+            if date_planned<=date_fin:
+                test=True
+            if test==False:
+                ofs = self.env["is.of"].search([('name', '=', obj.name),('heure_debut','!=',False),('heure_fin','=',False)])
+                if len(ofs)>0:
+                    test=True
+            if test:
+                groupes = self.env["is.theia.validation.groupe"].search([('name', '=', "Mail modification quantité OF")])
+                email_to=[]
+                for groupe in groupes:
+                    for employe in groupe.employee_ids:
+                        if employe.is_courriel:
+                            email_to.append(employe.is_courriel)
+                        else:
+                            if employe.user_id.partner_id.email:
+                                email_to.append(employe.user_id.partner_id.email)
+                if email_to:
+                    subject=u"["+obj.name+u"] Quantité modifiée de %s vers %s"%(int(qt1), qt2)
+                    email_to = u','.join(email_to)
+                    _logger.info(subject+u" (%s)"%(email_to))
+                    user  = self.env['res.users'].browse(self._uid)
+                    email_from = user.email
+                    email_cc   = False
+                    nom   = user.name
+                    base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    url=base_url+u'/web#id='+str(obj.id)+u'&view_type=form&model=mrp.production'
+                    body_html=u"""
+                        <p>Bonjour,</p>
+                        <p>"""+nom+""" vient de modifier la quantité de <a href='"""+url+"""'>"""+obj.name+"""</a>.</p>
+                        <p>Merci d'en prendre connaissance.</p>
+                    """
+                    self.envoi_mail(email_from,email_to,email_cc,subject,body_html)
+
+
+    def write(self, vals):
+        vals = vals or {}
+        if 'product_qty' in vals:
+            for obj in self:
+                obj.mail_quantite_modifiee(obj.product_qty,  vals["product_qty"])
+        res=super(MrpProduction, self).write(vals)
+        return res
+
+
+
+
+
+
+
     # _name = "is.mrp.production.wizard"
     # wizard_id   = fields.Many2one('is.mrp.production.wizard', 'Wizard', required=True, ondelete='cascade')
     # product_id  = fields.Many2one("product.product", "Article", required=True)
@@ -802,86 +861,6 @@ class MrpProduction(models.Model):
     #                     line.hour  = row['hour']
     #         #*******************************************************************
 
-
-    # def envoi_mail(self, email_from,email_to,email_cc,subject,body_html):
-    #     for obj in self:
-    #         vals={
-    #             'email_from'    : email_from, 
-    #             'email_to'      : email_to, 
-    #             'email_cc'      : email_cc,
-    #             'subject'       : subject,
-    #             'body_html'     : body_html, 
-    #             'model'         : self._name,
-    #             'res_id'        : obj.id,
-    #         }
-    #         email=self.env['mail.mail'].create(vals)
-    #         if email:
-    #             self.env['mail.mail'].send(email)
-
-
-    # def mail_quantite_modifiee(self, qt1, qt2):
-    #     for obj in self:
-    #         test=False
-    #         date_planned = datetime.strptime(obj.date_planned, '%Y-%m-%d %H:%M:%S')
-    #         now = datetime.now()
-    #         date_fin = now + timedelta(days=1)
-    #         if date_planned<=date_fin:
-    #             test=True
-    #         if test==False:
-    #             ofs = self.env["is.of"].search([('name', '=', obj.name),('heure_debut','!=',False),('heure_fin','=',False)])
-    #             if len(ofs)>0:
-    #                 test=True
-    #         if test:
-    #             groupes = self.env["is.theia.validation.groupe"].search([('name', '=', "Mail modification quantité OF")])
-    #             email_to=[]
-    #             for groupe in groupes:
-    #                 for employe in groupe.employee_ids:
-    #                     if employe.is_courriel:
-    #                         email_to.append(employe.is_courriel)
-    #                     else:
-    #                         if employe.user_id.partner_id.email:
-    #                             email_to.append(employe.user_id.partner_id.email)
-    #             if email_to:
-    #                 subject=u"["+obj.name+u"] Quantité modifiée de %s vers %s"%(int(qt1), qt2)
-    #                 email_to = u','.join(email_to)
-    #                 _logger.info(subject+u" (%s)"%(email_to))
-    #                 user  = self.env['res.users'].browse(self._uid)
-    #                 email_from = user.email
-    #                 email_cc   = False
-    #                 nom   = user.name
-    #                 base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-    #                 url=base_url+u'/web#id='+str(obj.id)+u'&view_type=form&model=mrp.production'
-    #                 body_html=u"""
-    #                     <p>Bonjour,</p>
-    #                     <p>"""+nom+""" vient de modifier la quantité de <a href='"""+url+"""'>"""+obj.name+"""</a>.</p>
-    #                     <p>Merci d'en prendre connaissance.</p>
-    #                 """
-    #                 self.envoi_mail(email_from,email_to,email_cc,subject,body_html)
-
-
-    # def write(self, vals, update=False):
-    #     vals = vals or {}
-
-    #     if 'product_qty' in vals:
-    #         for obj in self:
-    #             obj.mail_quantite_modifiee(obj.product_qty,  vals["product_qty"])
-
-
-    #     if vals.get('date_planned',False):
-    #         stock_move_obj = self.env["stock.move"]
-    #         for rec in self:
-    #             move_ids = stock_move_obj.search([('production_id','=', rec.id)])
-    #             move_ids += rec.move_lines
-    #             for move in move_ids:
-    #                 if move.state not in ['cancel','done']:
-    #                     move.write({
-    #                         'date'         : vals.get('date_planned'),
-    #                         'date_expected': vals.get('date_planned'),
-    #                     })
-    #     res=super(MrpProduction, self).write(vals, update=update)
-    #     if 'product_lines' in vals or 'product_qty' in vals:
-    #         self.recreer_mouvements()
-    #     return res
 
 
     # def importer_nomenclature(self):

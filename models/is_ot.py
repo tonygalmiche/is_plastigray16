@@ -23,7 +23,8 @@ class is_ot_affectation(models.Model):
     _name = 'is.ot.affectation'
     _description="is_ot_affectation"
 
-    name = fields.Char("Affectation", required=True)
+    name   = fields.Char("Affectation", required=True)
+    active = fields.Boolean("Active", default=True)
 
 
 class is_ot_temps_passe(models.Model):

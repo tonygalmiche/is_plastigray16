@@ -82,21 +82,19 @@ class product_product(models.Model):
 
         semaines = semaines or 18
 
-        # #** Valeur par défaut **************************************************
-        # code_pg_debut = code_pg_debut  or ''
-        # gest          = gest           or ''
-        # cat           = cat            or ''
-        # moule         = moule          or ''
-        # projet        = projet         or ''
-        # client        = client         or ''
-        # fournisseur   = fournisseur    or ''
-        # type_commande = type_commande  or ''
-        # type_rapport  = type_rapport   or 'Fabrication'
-        # calage        = calage         or 'Date de fin'
-        # nb_semaines   = nb_semaines    or 18
-        # nb_semaines   = int(nb_semaines)
-        # height        = filter.get('height')
-        # #***********************************************************************
+        #** Valeur par défaut **************************************************
+        code_pg       = code_pg  or ''
+        gest          = gest           or ''
+        cat           = cat            or ''
+        moule         = moule          or ''
+        projet        = projet         or ''
+        client        = client         or ''
+        fournisseur   = fournisseur    or ''
+        type_cde      = type_cde       or ''
+        type_rapport  = type_rapport   or 'Fabrication'
+        calage        = calage         or 'Date de fin'
+        # print('calage=',calage)
+        #***********************************************************************
 
         # ** Filtre pour les requêtes ******************************************
         debut2=datetime.now()
