@@ -296,6 +296,7 @@ class is_mold(models.Model):
     fournisseur_bloc_chaud_id     = fields.Many2one('res.partner', string='Fournisseur du bloc chaud', domain="[('supplier','=',True)]")
     num_systeme                   = fields.Char(string=u'N° du système')
     garantie_outillage            = fields.Char(string=u"Garantie de l'outillage (en nombre de cycles)")
+    extension_garantie            = fields.Char(string=u"Extension de garantie")
     indice_creation_fiche         = fields.Char(string='Indice Fiche', default='A')
     createur_fiche_id             = fields.Many2one("res.users", string=u'Créateur Fiche')
     date_creation_fiche           = fields.Date(string=u'Date Création Fiche')
@@ -349,6 +350,7 @@ class is_mold(models.Model):
             'diametre_laiton'  : self.diametre_laiton,
             'diametre_fleche'  : self.diametre_fleche,
             'garantie_outillage': self.garantie_outillage,
+            'extension_garantie': self.extension_garantie,
             'is_database_id'        : self._get_is_database_id(DB, USERID, USERPASS, sock),
             'is_database_origine_id': self.id,
         }

@@ -84,6 +84,7 @@
                                 <field name="carcasse"/>
                                 <field name="emplacement"/>
                                 <field name="garantie_outillage" required="1"/>
+                                <field name="extension_garantie"/>
                                 <field name="numero_plaquette_interne"/>
                                 <field name="dateur_ids_vsb" invisible="1"/>
                                 <field name="is_database_id"/>
