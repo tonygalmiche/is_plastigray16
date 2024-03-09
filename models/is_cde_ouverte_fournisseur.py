@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import base64
 import tempfile
 import os
-#from pyPdf import PdfFileWriter, PdfFileReader
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
-# from contextlib import closing
 import datetime
+import pytz
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -568,6 +566,15 @@ class is_cde_ouverte_fournisseur(models.Model):
         histo=self.env['is.cde.ouverte.fournisseur.histo'].create(vals)
 
 
+
+    def utc_offset(self):
+        now = datetime.datetime.now()
+        offset = int(pytz.timezone('Europe/Paris').localize(now).utcoffset().total_seconds()/3600)
+        return offset
+ 
+
+
+
     def integrer_commandes(self):
         cr  = self._cr
         uid = self._uid
@@ -740,9 +747,16 @@ class is_cde_ouverte_fournisseur(models.Model):
                                 quantite_rcp+=qt
                         #*******************************************************
 
+                        #** Ajout offset entre heure UTC et heure local pour convertire un datetime en date
+                        date_planned = row.date_planned
+                        if date_planned:
+                            offset = self.utc_offset()
+                            date_planned+=datetime.timedelta(hours=offset)
+                        #******************************************************
+
                         vals={
                             'product_id'        : product.id,
-                            'date'              : row.date_planned,
+                            'date'              : date_planned,
                             'date_approve'      : row.order_id.date_approve,
                             'type_cde'          : 'ferme',
                             'quantite'          : row.product_qty,
