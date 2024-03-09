@@ -30,6 +30,41 @@
                 <field name="partner_id" position="attributes">
                     <attribute name="domain">[('is_company','=',True)]</attribute>
                 </field>
+
+
+                <!-- Permet d'afficher la liste des clients ou des fournisseurs en fonction du type de facture -->
+                <!-- <field name="partner_id" position="replace">
+                    <field 
+                        name="partner_id" widget="res_partner_many2one" nolabel="1" 
+                        context="{
+                            'res_partner_search_mode': 
+                                (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or 
+                                (context.get('default_move_type', 'entry') in ('in_invoice' , 'in_refund' , 'in_receipt')  and 'supplier') or 
+                                False,
+                            'show_address': 1, 'default_is_company': True, 'show_vat': True
+                        }" 
+                        domain="[('is_company','=',True),('customer','=',True)]" 
+                        options="{&quot;always_reload&quot;: True, &quot;no_quick_create&quot;: True}" 
+                        attrs="{
+                            'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund'))]
+                        }"
+                    />
+                    <field 
+                        name="partner_id" widget="res_partner_many2one" nolabel="1" 
+                        context="{
+                            'res_partner_search_mode': 
+                                (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or 
+                                (context.get('default_move_type', 'entry') in ('in_invoice' , 'in_refund' , 'in_receipt')  and 'supplier') or 
+                                False,
+                            'show_address': 1, 'default_is_company': True, 'show_vat': True
+                        }" 
+                        domain="[('is_company','=',True),('supplier','=',True)]" 
+                        options="{&quot;always_reload&quot;: True, &quot;no_quick_create&quot;: True}" 
+                        attrs="{
+                            'invisible': [('move_type', 'not in', ('in_invoice', 'in_refund'))]
+                        }"
+                    />
+                </field> -->
                 <field name="fiscal_position_id"  position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -63,16 +98,11 @@
                 <xpath expr="//group[@id='header_right_group']/div[2]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-
-
                 <field name="invoice_date" position="after">
                     <field name="is_type_facture" />
                     <field name="is_mode_envoi_facture" />
                     <field name="is_date_envoi_mail" attrs="{'invisible':[('is_mode_envoi_facture', '!=', 'mail'),('is_mode_envoi_facture', '!=', 'mail_client')]}" />
                 </field>
-
-
-
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="after" >
                     <field name="is_section_analytique_id" optional="show"/>
                     <field name="is_document" optional="show"/>
@@ -82,27 +112,17 @@
                     <field name="purchase_order_id" optional="hide" widget="many2one_clickable"/>
                     <field name="purchase_line_id"  optional="hide" widget="many2one_clickable"/>
                 </xpath>
-
-
-
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="attributes" >
                     <attribute name="domain">[]</attribute>
                 </xpath>
-
-                <!-- <field name="product_id" optional="show" domain="                                                     context.get('default_move_type') in ('out_invoice', 'out_refund', 'out_receipt')                                                     and [('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]                                                     or [('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]                                                "/> -->
-
-
-
-
-
                 <field name="narration" position="attributes">
                     <attribute name="placeholder">Commentaires</attribute>
                 </field>
-                
                 <!-- Suppression de l'apercu PDF sur la droite -->
                 <xpath expr="//div[hasclass('o_attachment_preview')]" position="replace"/>
             </field>
         </record>
+
         <record id="is_view_move_form_inherit_purchase" model="ir.ui.view">
             <field name="name">is_view_move_form_inherit_purchase</field>
             <field name="model">account.move</field>
@@ -151,17 +171,12 @@
                 <field name="amount_untaxed_signed"  position="attributes">
                     <attribute name="string">Montant HT</attribute>
                 </field>
-
-
                 <field name="state" position="before">
 			<field name="is_date_envoi_mail" optional="show"/>
 			<field name="is_export_cegid_id" optional="show"/>
 		</field>
             </field>
         </record>
-
-
-
 
         <record id="is_account_edi_view_out_invoice_tree_inherit" model="ir.ui.view">
             <field name="name">account_edi.view_out_invoice_tree_inherit</field>
@@ -186,7 +201,6 @@
             </field>
         </record>
 
-        <!-- account.view_account_invoice_filter -->
         <record id="is_view_account_invoice_filter" model="ir.ui.view">
             <field name="name">is_view_account_invoice_filter</field>
             <field name="model">account.move</field>
@@ -204,7 +218,6 @@
             </field>
         </record>
 
-        <!-- Valider les factures brouillon -->
         <record id="valider_facture_brouillon_action_server" model="ir.actions.server">
             <field name="name">Valider les factures brouillon</field>
            <field name="model_id" ref="model_account_move"/>
@@ -212,15 +225,15 @@
            <field name="state">code</field>
            <field name="code">action = records.valider_facture_brouillon_action()</field>
        </record>
-        <!-- Envoi par mail -->
-        <record id="envoi_par_mail_action_server" model="ir.actions.server">
+
+       <record id="envoi_par_mail_action_server" model="ir.actions.server">
              <field name="name">Envoi par mail</field>
             <field name="model_id" ref="model_account_move"/>
             <field name="binding_model_id" ref="model_account_move"/>
             <field name="state">code</field>
             <field name="code">action = records.envoi_par_mail()</field>
         </record>
-        <!-- Imprimer en simple ou double exemplaire -->
+
         <record id="imprimer_simple_double_action_server" model="ir.actions.server">
              <field name="name">Imprimer en simple ou double exemplaire</field>
             <field name="model_id" ref="model_account_move"/>
@@ -229,12 +242,10 @@
             <field name="code">action = records.imprimer_simple_double()</field>
         </record>
 
-
         <!-- Permet de masquer le menu "Comptabiliser les écritures" -->
         <record id="account.action_validate_account_move" model="ir.actions.act_window">
             <field name="binding_view_types">calendar</field>
         </record>
-
         <!-- Permet de masquer le menu "Enregister un paiment" -->
         <record id="account.action_account_invoice_from_list" model="ir.actions.server">
             <field name="binding_view_types">calendar</field>
@@ -248,159 +259,6 @@
             <field name="binding_view_types">calendar</field>
         </record>
 
-
-
-
-        <!-- Folio -->
-        <!--
-        <record id="is_account_folio_tree_view" model="ir.ui.view">
-            <field name="name">is.account.folio.tree.view</field>
-            <field name="model">is.account.folio</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name" />
-                    <field name="date_creation"/> 
-                    <field name="createur_id"/> 
-                </tree>
-            </field>
-        </record>
-        <record id="is_account_folio_form_view" model="ir.ui.view">
-            <field name="name">is.account.folio.form.view</field>
-            <field name="model">is.account.folio</field>
-            <field name="arch" type="xml">
-                <form>
-                    <sheet>
-                        <group>
-                            <group>
-                                <field name="name" />
-                                <field name="date_creation"/> 
-                                <field name="createur_id"/> 
-                            </group> 
-                        </group> 
-                        <group>
-                            <field name="invoice_ids" >
-                                <tree>
-                                    <field name="number"  />
-                                    <field name="name"  />
-                                    <field name="state" invisible="1" />
-                                </tree>
-                            </field>
-                        </group> 
-
-                    </sheet>
-                </form>
-            </field>
-        </record>
-        <record id="is_account_folio_action" model="ir.actions.act_window">
-            <field name="name">Folio</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">is.account.folio</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-        -->
-
-
-        <!-- account.invoice_tree -->
-        <!-- <record id="is_invoice_tree" model="ir.ui.view">
-            <field name="name">is_invoice_tree</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.invoice_tree" />
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='number']" position="replace" >
-                    <field name="internal_number"/> 
-                    <field name="type"/> 
-                    <field name="is_type_facture"/> 
-                </xpath>
-                <xpath expr="//field[@name='state']" position="after" >
-                    <field name="is_date_envoi_mail"/> 
-                    <field name="is_export_cegid_id"/> 
-                </xpath>
-            </field>
-        </record> -->
-
-
-        <!-- account.invoice_form -->
-        <!-- <record id="is_invoice_form" model="ir.ui.view">
-            <field name="name">is_invoice_form</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.invoice_form" />
-            <field name="arch" type="xml">
-                <xpath expr="//sheet" position="attributes">
-                    <attribute name="class">oe_form_sheet_width_wider</attribute>
-                </xpath>
-                <button name="action_invoice_sent" attrs="{'invisible':['|',('sent','=',True), ('state', '!=', 'open')]}"  position="replace" />
-                <button name="action_invoice_sent" attrs="{'invisible':['|',('sent','=',False), ('state', '!=', 'open')]}" position="replace" />
-                <xpath expr="//button[@name='invoice_pay_customer']" position="replace" />
-                <field name="date_invoice" position="after">
-                    <field name="is_type_facture" />
-                    <field name="is_mode_envoi_facture" />
-                    <field name="is_date_envoi_mail" attrs="{'invisible':[('is_mode_envoi_facture', '!=', 'mail'),('is_mode_envoi_facture', '!=', 'mail_client')]}" />
-                </field>
-                <xpath expr="//field[@name='account_id']" position="after" >
-                    <field name="is_export_cegid_id"/> 
-                </xpath>
-                <xpath expr="//label[@for='amount_tax']"  position="attributes" >
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='amount_tax']" position="attributes" >
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//field[@name='amount_total']" position="before">
-                    <field name="is_escompte" widget="monetary" options="{'currency_field': 'currency_id'}" attrs="{'invisible': [('is_escompte', '=', 0)]}"/>
-                    <field name="is_tva"      widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                </xpath>
-                <xpath expr="/form/sheet/notebook/page[@string='Invoice Lines']/field[@name='invoice_line']/tree/field[@name='product_id']" position="replace">
-                    <field 
-                        name="product_id"
-                        on_change="product_id_change(product_id, uos_id, quantity, name, parent.type, parent.partner_id, parent.fiscal_position, price_unit, parent.currency_id, parent.company_id, context)"
-                    />
-                </xpath>
-                <xpath expr="/form/sheet/notebook/page[@string='Invoice Lines']/field[@name='invoice_line']/tree/field[@name='quantity']" position="replace">
-                    <field 
-                        name="quantity"
-                        on_change="product_id_change(product_id, uos_id, quantity, name, parent.type, parent.partner_id, parent.fiscal_position, price_unit, parent.currency_id, parent.company_id, context)"
-                    />
-                </xpath>
-                <xpath expr="/form/sheet/notebook/page[@string='Invoice Lines']/field[@name='invoice_line']/tree/field[@name='account_id']" position="after">
-                    <field name="is_section_analytique_id"/>
-                    <field name="is_document"/>
-                </xpath>
-                <xpath expr="//field[@name='move_id']" position="after" >
-                    <field name="internal_number"/> 
-                </xpath>
-
-
-
-            </field>
-        </record>
-
-
-        <record id="is_invoice_form_cancel_inherit" model="ir.ui.view">
-            <field name="name">invoice.form.cancel.inherit</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account_cancel.invoice_form_cancel_inherit"/>
-            <field name="arch" type="xml">
-                <xpath expr="//button[@name='invoice_cancel']" position="replace">
-                    <button name="invoice_cancel" states="draft,proforma2,sale,open" string="Annuler cette facture" groups="is_plastigray.is_annulation_facture_group"/>
-                </xpath>
-            </field>
-        </record> -->
-
-
-
-
-        <!-- Supprimer le bouton 'Payer' sur la facture client -->
-        <!-- <record id="is_view_invoice_customer" model="ir.ui.view">
-            <field name="name">is_view_invoice_customer</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account_voucher.view_invoice_customer"/>
-            <field name="arch" type="xml">
-                <xpath expr="//button[@name='invoice_pay_customer']" position="replace" />
-            </field>
-        </record> -->
-
-
-
         <!-- Factures à valider -->
         <record id="is_factures_a_valider_action" model="ir.actions.act_window">
             <field name="name">Factures à valider</field>
@@ -411,19 +269,6 @@
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <!-- <record id="is_factures_a_valider_action_tree_view" model="ir.actions.act_window.view">
-            <field eval="1" name="sequence"/>
-            <field name="view_mode">tree</field>
-            <field name="act_window_id" ref="is_factures_a_valider_action"/>
-        </record>
-        <record id="is_factures_a_valider_action_form_view" model="ir.actions.act_window.view">
-            <field eval="2" name="sequence"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="account.invoice_form"/>
-            <field name="act_window_id" ref="is_factures_a_valider_action"/>
-        </record> -->
-
 
         <!-- Factures à imprimer -->
         <record id="is_factures_a_imprimer_action" model="ir.actions.act_window">
@@ -435,19 +280,6 @@
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <!-- <record id="is_factures_a_imprimer_action_tree_view" model="ir.actions.act_window.view">
-            <field eval="1" name="sequence"/>
-            <field name="view_mode">tree</field>
-            <field name="act_window_id" ref="is_factures_a_imprimer_action"/>
-        </record>
-        <record id="is_factures_a_imprimer_action_form_view" model="ir.actions.act_window.view">
-            <field eval="2" name="sequence"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="account.invoice_form"/>
-            <field name="act_window_id" ref="is_factures_a_imprimer_action"/>
-        </record> -->
-
 
         <!-- Factures à envoyer par mail -->
         <record id="is_factures_envoi_mail_action" model="ir.actions.act_window">
@@ -464,19 +296,6 @@
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <!-- <record id="is_factures_envoi_mail_action_tree_view" model="ir.actions.act_window.view">
-            <field eval="1" name="sequence"/>
-            <field name="view_mode">tree</field>
-            <field name="act_window_id" ref="is_factures_envoi_mail_action"/>
-        </record>
-        <record id="is_factures_envoi_mail_action_form_view" model="ir.actions.act_window.view">
-            <field eval="2" name="sequence"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="account.invoice_form"/>
-            <field name="act_window_id" ref="is_factures_envoi_mail_action"/>
-        </record> -->
-
 
         <!-- Factures diverses -->
         <record id="is_factures_diverses_action" model="ir.actions.act_window">
@@ -488,59 +307,5 @@
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <!-- Ces 2 vues permettent de préciser les vues à utiliser pour l'action précédente -->
-        <!-- <record id="is_factures_diverses_action_tree_view" model="ir.actions.act_window.view">
-            <field eval="1" name="sequence"/>
-            <field name="view_mode">tree</field>
-            <field name="act_window_id" ref="is_factures_diverses_action"/>
-        </record>
-        <record id="is_factures_diverses_action_form_view" model="ir.actions.act_window.view">
-            <field eval="2" name="sequence"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="account.invoice_form"/>
-            <field name="act_window_id" ref="is_factures_diverses_action"/>
-        </record> -->
-
-        <!-- Facture fournisseur -->
-        <!-- <record id="is_invoice_supplier_form" model="ir.ui.view">
-            <field name="name">is_invoice_supplier_form</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.invoice_supplier_form" />
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='account_id']" position="after" >
-                </xpath>
-                <xpath expr="//sheet" position="attributes">
-                    <attribute name="class">oe_form_sheet_width_wider</attribute>
-                </xpath>
-                <xpath expr="/form/sheet/notebook/page[@string='Invoice']/field[@name='invoice_line']/tree/field[@name='account_id']" position="after">
-                    <field name="is_section_analytique_id"/>
-                    <field name="is_document"/>
-                </xpath>
-            </field>
-        </record> -->
-
-        <!-- Supprimer le bouton 'Payer' sur la facture fournisseur -->
-        <!-- <record id="is_view_invoice_supplier" model="ir.ui.view">
-            <field name="name">is_view_invoice_supplier</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account_voucher.view_invoice_supplier"/>
-            <field name="arch" type="xml">
-                <xpath expr="//button[@name='invoice_pay_customer']" position="replace" />
-            </field>
-        </record>
-
-        <record id="is_view_invoice_line_form" model="ir.ui.view">
-            <field name="name">is_view_invoice_line_form</field>
-            <field name="model">account.invoice.line</field>
-            <field name="inherit_id" ref="account.view_invoice_line_form"/>
-            <field name="arch" type="xml">
-                <field name="price_unit" position="after">
-                    <field name="is_document"/>
-                </field>
-                <field name="invoice_line_tax_id" position="after">
-                    <field name="is_move_id"/>
-                </field>
-            </field>
-        </record> -->
     </data>
 </odoo>

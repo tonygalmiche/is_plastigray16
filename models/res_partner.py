@@ -795,6 +795,19 @@ class res_partner(models.Model):
         return active
 
 
+    @api.model
+    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
+        context =  self._context
+        args = args or []
+        if 'res_partner_search_mode' in context:
+            if 'customer' in context['res_partner_search_mode']:
+                args.append(['customer', '=', True])
+            if 'supplier' in context['res_partner_search_mode']:
+                args.append(['supplier', '=', True])
+        res= super()._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
+        return res
+
+
     def _get_name(self):
         """ Utility method to allow name_get to be overrided without re-browse the partner """
         partner = self
