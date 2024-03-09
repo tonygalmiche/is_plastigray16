@@ -7,6 +7,7 @@ import math
 
 class is_proforma_chine(models.Model):
     _name = 'is.proforma.chine'
+    _inherit=['mail.thread']
     _description="is_proforma_chine"
     _order = 'name desc'
 
