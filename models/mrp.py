@@ -26,30 +26,11 @@ class mrp_bom(models.Model):
             obj.is_qt_uc = obj.product_tmpl_id.get_uc()
             obj.is_qt_um = obj.product_tmpl_id.get_um()
 
-    # def explode_phantom(self, qty=1, lines=[]):
-    #     for obj in self:
-    #         for line in obj.bom_line_ids:
-    #             #print(line.product_id.is_code)
-    #             if line.type == 'phantom':
-    #                 #print("phantom")
-    #                 lines=line.child_bom_id.explode_phantom(qty=line.product_qty*qty, lines=lines)
-    #             else: 
-    #                 vals={
-    #                     "product_id"    : line.product_id.id,
-    #                     "product_uom_id": line.product_uom_id.id,
-    #                     "product_qty"   : line.product_qty*qty,
-    #                 }
-    #                 lines.append(vals)
-    #         print("len=",len(lines))
-    #         return lines
-
-
+ 
     def explode_phantom(self, qty=1):
         def explode(bom, qty=1, lines=[]):
             for line in bom.bom_line_ids:
-                #print(line.product_id.is_code)
                 if line.type == 'phantom':
-                    #print("phantom")
                     lines=explode(line.child_bom_id, qty=line.product_qty*qty, lines=lines)
                 else: 
                     vals={
@@ -64,9 +45,6 @@ class mrp_bom(models.Model):
         for obj in self:
             lines = explode(obj,qty=qty)
             return lines
-
-
-
 
 
 class mrp_bom_line(models.Model):

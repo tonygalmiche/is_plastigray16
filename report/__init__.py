@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 #from . import is_create_postgres_function # => J'ai déplacé les fonctions dans is_purchase_order_line.py en attendant de trovuer mieux
 
+from . import is_purchase_order_line
+
+
 from . import is_comparatif_tarif_reception
 from . import is_comparatif_lot_prix
 from . import is_comparatif_lot_appro_prix
@@ -28,7 +31,6 @@ from . import is_livraison_gefco
 from . import is_mrp_production_workcenter_line
 from . import is_pricelist_item
 from . import is_product_packaging
-from . import is_purchase_order_line
 from . import is_res_partner
 from . import is_sale_order_line
 from . import is_stock_move
