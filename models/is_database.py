@@ -22,7 +22,10 @@ class is_database(models.Model):
 
     def copy_other_database(self, obj, filtre=False):
         if not filtre:
-            filtre=[('name', '=', obj.name)]
+            if hasattr(obj, 'name'):
+                filtre=[('name', '=', obj.name)]
+            else:
+                filtre=[('id', '=', 0)] #Filtre qui ne retourne rien si pas de name
         databases = self.env['is.database'].search([])
         for database in databases:
             if obj and database.ip_server and database.database and database.port_server and database.login and database.password:

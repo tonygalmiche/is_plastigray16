@@ -411,25 +411,25 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="code_pg"/> 
-                    <field name="designation"/> 
-                    <field name="is_mold_dossierf"/> 
-                    <field name="partner_id"/> 
-                    <field name="is_category_id"/> 
-                    <field name="is_gestionnaire_id"/> 
-                    <field name="type_article"/> 
-                    <field name="cout_act_matiere"/> 
-                    <field name="cout_act_st"/> 
-                    <field name="cout_act_machine"/> 
-                    <field name="cout_act_mo"/> 
-                    <field name="prix_tarif" /> 
-                    <field name="prix_commande"/> 
-                    <field name="prix_facture"/> 
-                    <field name="prix_force"/> 
-                    <field name="prix_force_commentaire"/> 
-                    <field name="prix_calcule"/> 
-                    <field name="ecart_calcule_matiere"/> 
-                    <field name="cout_act_prix_vente" /> 
-                    <field name="cout_std_prix_vente" /> 
+                    <field name="designation" optional="show"/> 
+                    <field name="is_mold_dossierf" optional="show"/> 
+                    <field name="partner_id" optional="show"/> 
+                    <field name="is_category_id" optional="show"/> 
+                    <field name="is_gestionnaire_id" optional="show"/> 
+                    <field name="type_article" optional="show"/> 
+                    <field name="cout_act_matiere" optional="show"/> 
+                    <field name="cout_act_st" optional="show"/> 
+                    <field name="cout_act_machine" optional="show"/> 
+                    <field name="cout_act_mo" optional="show"/> 
+                    <field name="prix_tarif"  optional="show"/> 
+                    <field name="prix_commande" optional="show"/> 
+                    <field name="prix_facture" optional="show"/> 
+                    <field name="prix_force" optional="show"/> 
+                    <field name="prix_force_commentaire" optional="show"/> 
+                    <field name="prix_calcule" optional="show"/> 
+                    <field name="ecart_calcule_matiere" optional="show"/> 
+                    <field name="cout_act_prix_vente"  optional="show"/> 
+                    <field name="cout_std_prix_vente"  optional="show"/> 
                 </tree>
             </field>
         </record>

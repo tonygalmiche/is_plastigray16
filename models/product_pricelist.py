@@ -22,6 +22,7 @@ class product_pricelist_item(models.Model):
     pricelist_id       = fields.Many2one('product.pricelist', 'Liste de prix', required=False)
     price_version_id   = fields.Many2one('product.pricelist.version', 'Version', required=False, index=True)
     #company_id         = fields.Many2one(default=1)
+    applied_on         = fields.Selection(default='0_product_variant') # Modif valeur par défaut du 16/03/2024
 
 
     @api.model_create_multi
@@ -124,7 +125,7 @@ class product_pricelist_version(models.Model):
                     'justification': item.justification,
                     'price_surcharge': item.price_surcharge,
                     'company_id': item.company_id.id,
-                    'applied_on': item.applied_on,
+                    'applied_on': '0_product_variant', #item.applied_on,
                     'compute_price': item.compute_price,
                 }
                 id = self.env['product.pricelist.item'].create(vals)

@@ -33,6 +33,7 @@ import_function=[
     ('SIMU'           , 'SIMU'),
     ('SIMU-SOMFY'     , 'SIMU-SOMFY'),
     ('THERMOR'        , 'THERMOR'),
+    ('Valeo'          , 'Valeo'),
     ('Watts'          , 'Watts'),
 ]
 # ******************************************************************************
@@ -230,8 +231,9 @@ class is_certifications_qualite(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
-        filtre=[('is_norme', '=', res.is_norme.id),('is_date_validation', '=', res.is_date_validation)]
-        self.env['is.database'].copy_other_database(res,filtre)
+        for obj in res:
+            filtre=[('is_norme', '=', obj.is_norme.id),('is_date_validation', '=', obj.is_date_validation)]
+            self.env['is.database'].copy_other_database(obj,filtre)
         return res
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):

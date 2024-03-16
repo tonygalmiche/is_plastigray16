@@ -62,8 +62,8 @@
                                                     }"
                                                 />
                                                 <field name="instrument_id"  invisible="1"/>
-                                                <!-- <field name="classe_boolean" invisible="1"/> -->
-                                                <!-- <field name="classe" attrs="{'invisible':[('classe_boolean','!=',True)]}"/> -->
+                                                <field name="classe_boolean" invisible="1"/>
+                                                <field name="classe" attrs="{'invisible':[('classe_boolean','!=',True)]}"/>
                                                 <field name="resultat" />
                                                 <field name="etat_conformite" />
                                                 <field name="rapport_controle_ids" widget="many2many_binary" />

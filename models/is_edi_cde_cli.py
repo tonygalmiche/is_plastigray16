@@ -482,6 +482,8 @@ class is_edi_cde_cli(models.Model):
             datas=self.get_data_SIMU_SOMFY(attachment)
         if import_function=="THERMOR":
             datas=self.get_data_THERMOR(attachment)
+        if import_function=="Valeo":
+            datas=self.get_data_Valeo(attachment)
         if import_function=="Watts":
             datas=self.get_data_Watts(attachment)
 
@@ -1773,3 +1775,40 @@ class is_edi_cde_cli(models.Model):
                         val.update({'lignes': [ligne]})
                         res.append(val)
         return res
+
+
+    def get_data_Valeo(self, attachment):
+        res = []
+        for obj in self:
+            csvfile = base64.decodebytes(attachment.datas).decode()
+            csvfile = csvfile.split("\n")
+            csvfile = csv.reader(csvfile, delimiter=';')
+            for ct, lig in enumerate(csvfile):
+                if ct>0 and len(lig)>=42:
+                    type_commande = 'previsionnel'
+                    ref_article_client  = lig[17].strip() #[:-1]
+                    num_commande_client = lig[30].strip()
+                    date_livraison      = lig[40]
+                    quantite            = lig[41]
+                    try:
+                        quantite = float(quantite)
+                    except ValueError:
+                        quantite=False
+                    try:
+                        date_livraison = datetime.strptime(date_livraison, '%d.%m.%Y')
+                    except ValueError:
+                        date_livraison = False
+                    if quantite and date_livraison:
+                        val = {
+                            'num_commande_client' : num_commande_client,
+                            'ref_article_client'  : ref_article_client,
+                        }
+                        ligne = {
+                            'quantite'      : quantite,
+                            'type_commande' : type_commande,
+                            'date_livraison': date_livraison,
+                        }
+                        val.update({'lignes': [ligne]})
+                        res.append(val)
+        return res
+
