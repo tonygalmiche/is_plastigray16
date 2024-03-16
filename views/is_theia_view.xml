@@ -347,6 +347,7 @@
                 <field name="heure_debut" optional="show"/>
                 <field name="heure_fin" optional="show"/>
                 <field name="heure_fin_planning" optional="show"/>
+                <field name="apr_mission_id" optional="hide"/>
             </tree>
         </field>
     </record>
@@ -398,6 +399,7 @@
                         <field name="heure_fin"          readonly="1"/>
                         <field name="employee_id"        readonly="1"/>
                         <field name="heure_fin_planning" readonly="1"/>
+                        <field name="apr_mission_id" attrs="{'invisible':[('apr_mission_id','=', False)]}"/>
                     </group>
                 </group>
                 <table>
@@ -881,13 +883,14 @@
                 <field name="name"/>
                 <field name="adresse_mac"/>
                 <field name="last_presse_id"/>
-                <field name="onglet_indicateurs"/>
-                <field name="onglet_es"/>
-                <field name="onglet_actif"/>
-                <field name="declaration_odoo"/>
-                <field name="zebra_id"/>
-                <field name="create_date"/>
-                <field name="write_date"/>
+                <field name="onglet_indicateurs" optional="show"/>
+                <field name="onglet_es"          optional="show"/>
+                <field name="onglet_amr"         optional="show"/>
+                <field name="onglet_actif"       optional="show"/>
+                <field name="declaration_odoo"   optional="show"/>
+                <field name="zebra_id"           optional="show"/>
+                <field name="create_date"        optional="hide"/>
+                <field name="write_date"         optional="show"/>
             </tree>
         </field>
     </record>
@@ -904,6 +907,7 @@
                     <field name="last_presse_id"/>
                     <field name="onglet_indicateurs"/>
                     <field name="onglet_es"/>
+                    <field name="onglet_amr"/>
                     <field name="onglet_actif"/>
                     <field name="declaration_odoo"/>
                     <field name="zebra_id"/>

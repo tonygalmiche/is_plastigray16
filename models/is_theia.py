@@ -140,14 +140,15 @@ class is_raspberry(models.Model):
             obj.last_presse_id = presse_id
 
 
-    name               = fields.Char(u'Adresse IP' , required=True)
-    adresse_mac        = fields.Char(u'Adresse MAC', index=True)
+    name               = fields.Char('Adresse IP' , required=True)
+    adresse_mac        = fields.Char('Adresse MAC', index=True)
     last_presse_id     = fields.Many2one('is.equipement', u"Equipement", compute='_compute_presse_id', required=False, readonly=True)
-    onglet_indicateurs = fields.Boolean(u'Afficher onglet "Indicateurs"' , default=False)
-    onglet_es          = fields.Boolean(u'Afficher onglet "Entrées / Sorties"', default=False)
-    onglet_actif       = fields.Char(u'Onglet actif', readonly=True, help=u"Ce champ est utilsé pour détecter si une mise à jour de l'onglet Indicateurs est necessaire")
-    declaration_odoo   = fields.Boolean(u'Activer la déclaration de production dans Odoo', default=False)
-    zebra_id           = fields.Many2one('is.raspberry.zebra', u"Imprimante Zebra")
+    onglet_indicateurs = fields.Boolean('Afficher onglet "Indicateurs"' , default=False)
+    onglet_es          = fields.Boolean('Afficher onglet "Entrées / Sorties"', default=False)
+    onglet_amr         = fields.Boolean('Afficher onglet "AMR"', default=False)
+    onglet_actif       = fields.Char('Onglet actif', readonly=True, help=u"Ce champ est utilsé pour détecter si une mise à jour de l'onglet Indicateurs est necessaire")
+    declaration_odoo   = fields.Boolean('Activer la déclaration de production dans Odoo', default=False)
+    zebra_id           = fields.Many2one('is.raspberry.zebra', "Imprimante Zebra")
     entree_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Entrées du Raspberry",  domain=[('entree_sortie','=','entree')])
     sortie_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Sorties du Raspberry",  domain=[('entree_sortie','=','sortie')])
 
@@ -243,7 +244,9 @@ class is_of(models.Model):
     impression_bilan  = fields.Boolean('Bilan imprimé et envoyé par mail', index=True)
     impression_bilan_equipe = fields.Boolean(u"Bilan des OFs de l'équipe imprimé et envoyé par mail", index=True, default=False)
     prioritaire       = fields.Boolean('Ordre de fabrication prioritaire')
-    
+    apr_mission_id    = fields.Char('Id Mission APR', readonly=True, help="Mission en cours pour le fonctionnement des robots de l'APR de Gray")
+
+
     _sql_constraints = [
         ('name_uniq', 'unique(name)', u"Le numéro d'OF doit être unique !"),
     ]
