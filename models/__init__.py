@@ -88,6 +88,7 @@ from . import stock_move
 from . import is_gestion_lot
 from . import auditlog
 from . import mail_activity
+from . import is_head_model
 
 
 

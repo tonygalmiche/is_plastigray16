@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_is_head_model_form_view_form">
+            <field name="name">is.head.model.form.view.form.view</field>
+            <field name="model">is.head.model.form.view</field>
+            <field name="arch" type="xml">
+                <form string="Is Head Model">
+                    <sheet>
+                        <field name="picture" nolabel="1" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;picture&quot;, &quot;size&quot;: [90, 90]}" />
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" default_focus="1" placeholder="Name"/>
+                            </h1>
+                            <field name="model_id" placeholder="Model" />
+                            <field name="color" placeholder="Color code..."/>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+       <record model="ir.ui.view" id="view_is_head_model_form_tree">
+            <field name="name">is.head.model.form.view.tree.view</field>
+            <field name="model">is.head.model.form.view</field>
+            <field name="arch" type="xml">
+                <tree string="Is Head Model">
+                    <field name="model_id" />
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_is_head_model_form" model="ir.actions.act_window">
+            <field name="name">Head view</field>
+            <field name="res_model">is.head.model.form.view</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem sequence="30" parent="base.menu_users" id="menu_action_is_head_model_form" action="action_is_head_model_form"/>
+
+    </data>
+</odoo>
