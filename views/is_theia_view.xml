@@ -1475,5 +1475,50 @@
 
 
 
+    <!-- is.code.amr -->
+    <record model="ir.ui.view" id="is_code_amr_tree_view">
+        <field name="name">is.code.amr.tree</field>
+        <field name="model">is.code.amr</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="guid"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_code_amr_form_view">
+        <field name="name">is.code.amr.form</field>
+        <field name="model">is.code.amr</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="name"/>
+                    <field name="guid"/>
+                </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_code_amr_search_view" >
+        <field name="name">is.code.amr.search</field>
+        <field name="model">is.code.amr</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="guid"/>
+            </search>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="is_code_amr_action">
+        <field name="name">Code AMR</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.code.amr</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_code_amr_action" 
+              id="menu_is_code_amr" 
+              parent="is_theia_parametres_menu" 
+              sequence="50" groups="base.group_system"/>
     </data>
 </odoo>

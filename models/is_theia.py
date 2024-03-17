@@ -694,3 +694,9 @@ class is_theia_alerte(models.Model):
     active         = fields.Boolean(u'Active'       , index=True, default=True)
 
 
+class is_code_amr(models.Model):
+    _name = 'is.code.amr'
+    _description = "Code AMR pour le fonctionnement des robots avec THEIA"
+
+    name = fields.Char('Code AMR'    , required=True)
+    guid = fields.Char('guid API AMR', required=True)
