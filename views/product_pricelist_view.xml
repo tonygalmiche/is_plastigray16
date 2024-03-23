@@ -87,9 +87,10 @@
                 <tree editable="top">
                     <!-- on_change="on_change_product_id(product_id)" -->
                     <field name="product_id" required="1"/>
-                    <field name="is_gestionnaire_id"/>
-                    <field name="is_ref_client"/>
-                    <field name="is_mold_dossierf"/>
+                    <field name="is_ind_plan" optional="show"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="is_ref_client" optional="show"/>
+                    <field name="is_mold_dossierf" optional="show"/>
                     <field name="sequence"/>
                     <field name="min_quantity"    required="1"/>
                     <field name="product_uom_id"/>
@@ -109,8 +110,9 @@
                 <tree editable="top">
                     <!-- on_change="on_change_product_id(product_id)" -->
                     <field name="product_id" required="1"/>
-                    <field name="product_po_uom_id"/>
-                    <field name="is_gestionnaire_id"/>
+                    <field name="is_ind_plan" optional="show"/>
+                    <field name="product_po_uom_id" optional="show"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
                     <field name="sequence"/>
                     <field name="min_quantity"    required="1"/> 
                     <field name="price_surcharge" required="1" string="Prix" />
