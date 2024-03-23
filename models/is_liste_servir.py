@@ -11,20 +11,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-
-# def _acceder_commande(self,id):
-#     view_id = self.env.ref('sale.view_order_form').id
-#     return {
-#         'name': "Commande",
-#         'view_mode': 'form',
-#         'view_id': view_id,
-#         'res_model': 'sale.order',
-#         'type': 'ir.actions.act_window',
-#         'res_id': id,
-#         'domain': '[]',
-#     }
-
-
 class is_liste_servir_client(models.Model):
     _name='is.liste.servir.client'
     _description="Client Liste à servir"
@@ -478,7 +464,7 @@ class is_liste_servir(models.Model):
                 'origin'               : obj.name,
                 'order_line'           : lines,
                 'picking_policy'       : 'direct',
-                'is_transporteur_id'   : obj.transporteur_id.id,
+                #'is_transporteur_id'   : obj.transporteur_id.id,
                 'is_type_commande'     : 'ls',
                 'is_info_client'       : obj.info_client,
             }
@@ -486,7 +472,7 @@ class is_liste_servir(models.Model):
         if vals:
             new_id = order_obj.create(vals)
             new_id.pg_onchange_partner_id()
-
+            new_id.is_transporteur_id=obj.transporteur_id.id
 
 
 
