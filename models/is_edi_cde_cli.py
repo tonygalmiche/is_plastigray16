@@ -10,27 +10,6 @@ import math
 from datetime import date,datetime,timedelta
 import openpyxl
 
-# Modifié par Silique le 20/06/2023
-#> ecar
-#> ASTEELFLASH
-#> John-Deere
-#> Lacroix
-#> ACTIA
-#> Odoo
-#> Motus
-#> Millipore
-#> SIMU-SOMFY
-#> Watts
-# le 18/07/2023
-# DARWIN
-# Mini-Delta-Dore
-# 902810
-# THERMOR
-# 903410
-#FAIT le 11/09/23 par Tony
-#- eCar (Regroupement)
-#- SIMU-SOMFY
-
 
 _JOURS_SEMAINE=[
     ("1", 'Lundi'),
@@ -74,8 +53,6 @@ class is_edi_cde_cli_line(models.Model):
                 'res_id': obj.order_id.id,
                 'domain': '[]',
             }
-
-
 
 
 class is_edi_cde_cli(models.Model):
@@ -205,6 +182,7 @@ class is_edi_cde_cli(models.Model):
                                     date_livraison = d
                             #***************************************************
 
+
                             #** Recherche du prix ******************************
                             if quantite>0:
                                 context={}
@@ -219,7 +197,7 @@ class is_edi_cde_cli(models.Model):
                                         qty     = quantite, 
                                         date    = date_livraison
                                     )
-                                if prix==0:
+                                if prix==0 and obj.import_function not in ('Valeo'):
                                     anomalie2.append("Prix à 0")
                             #***************************************************
 
