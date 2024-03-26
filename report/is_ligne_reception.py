@@ -41,6 +41,7 @@ class is_ligne_reception(models.Model):
     date_mouvement       = fields.Datetime('Date mouvement')
     lot_fournisseur      = fields.Char('Lot fournisseur')
     is_dosmat_ctrl_qual  = fields.Char('Contrôle qualité')
+    is_produit_perissable = fields.Boolean('Produit Périssable')
     is_dosmat_conditions_stockage = fields.Char(u'Conditions de stockage')
     user_id              = fields.Many2one('res.users', 'Utilisateur')
     move_id              = fields.Many2one('stock.move', 'Mouvement de stock')
@@ -131,6 +132,7 @@ class is_ligne_reception(models.Model):
                         sm.id                 as move_id,
                         sm.is_dosmat_ctrl_qual as is_dosmat_ctrl_qual,
                         sm.is_dosmat_conditions_stockage as is_dosmat_conditions_stockage,
+                        pt.is_produit_perissable as is_produit_perissable,
                         (select icof.name from is_cde_ouverte_fournisseur icof where sp.partner_id=icof.partner_id limit 1) as commande_ouverte,
                          (
                             select spl.is_lot_fournisseur 

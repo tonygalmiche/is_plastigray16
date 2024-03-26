@@ -46,6 +46,7 @@
                             <field name="user_id" readonly="1"/>
                             <field name="is_facturable" readonly="1"/>
                             <field name="is_dosmat_ctrl_qual" readonly="1"/>
+                            <field name="is_produit_perissable" readonly="1"/>
                             <field name="is_dosmat_conditions_stockage" readonly="1"/>
                         </group>
                     </group>
@@ -75,6 +76,7 @@
                 <field name="is_date_confirmation"          optional="hide" />
                 <field name="is_ctrl_rcp"                   optional="hide" />
                 <field name="is_dosmat_ctrl_qual"           optional="hide" />
+                <field name="is_produit_perissable"         optional="hide" />
                 <field name="is_dosmat_conditions_stockage" optional="hide" />
                 <field name="is_commentaire"                optional="hide" />
            </tree>
@@ -95,6 +97,7 @@
                 <field name="segment_id"/>
                 <field name="is_ctrl_rcp"/>
                 <field name="is_dosmat_ctrl_qual"/>
+                <field name="is_produit_perissable"/>
                 <field name="is_dosmat_conditions_stockage"/>
                 <field name="ref_fournisseur"/>
                 <field name="is_cfc_id"/>
