@@ -110,9 +110,7 @@
                                 <field name="date_fin"    attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="livrable"    attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="commentaire" attrs="{'readonly':[('state','!=','creation')]}"/> 
-                                <field name="mixer"       widget="boolean_toggle"
-                                       on_change="onchange_mixer(mixer)"
-                                />
+                                <field name="mixer"       widget="boolean_toggle"/>
                             </group>
                             <group>
                                 <field name="is_source_location_id"/> 
