@@ -111,7 +111,8 @@
                             <t t-set="pas_aqp" t-value="pas_aqp+1"/>
                         </t>
                     </t>
-                    <t t-set="poids_total" t-value="0"/>
+                    <t t-set="poids_total_net" t-value="0"/>
+                    <t t-set="poids_total_brut" t-value="0"/>
                     <t t-foreach="o.tableaux()" t-as="t">
                         <t t-if="t and aqp"> 
                             <h2>Articles à livrer en AQP</h2>
@@ -149,7 +150,7 @@
                                                 <th class="text-left"   style="vertical-align:top">UM</th>
                                                 <th class="text-right"  style="vertical-align:top">Qt CDE<br />UM</th>
         
-                                                <th class="text-right"  style="vertical-align:top">Poids<br />(en kg)</th>
+                                                <th class="text-right"  style="vertical-align:top">Poids<br />net<br />brut</th>
                                                 <th class="text-center" style="vertical-align:top">Mixer</th>
                                                 <th class="text-left"   style="vertical-align:top">Commentaire</th>
                                             </tr>
@@ -207,11 +208,15 @@
                                                         <td class="text-right nowrap">  <t t-esc='"{:,.1f}".format(l.nb_um).replace(","," ").replace(".",",")'/>  </td>
         
         
-                                                        <t t-set="poids" t-value="l.quantite*l.product_id.product_tmpl_id.weight_net"/>
-                                                        <t t-set="poids_total" t-value="poids_total + poids"/>
+                                                        <t t-set="poids_net" t-value="l.quantite*l.product_id.product_tmpl_id.weight_net"/>
+                                                        <t t-set="poids_brut" t-value="l.quantite*l.product_id.product_tmpl_id.weight"/>
+                                                        <t t-set="poids_total_net" t-value="poids_total_net + poids_net"/>
+                                                        <t t-set="poids_total_brut" t-value="poids_total_brut + poids_brut"/>
         
                                                         <td class="text-right nowrap">  
-                                                            <t t-esc='"{:,.0f}".format(poids).replace(","," ").replace(".",",")'/> 
+                                                            <t t-esc='"{:,.0f}".format(poids_net).replace(","," ").replace(".",",")'/>
+                                                            <br/>
+                                                            <t t-esc='"{:,.0f}".format(poids_brut).replace(","," ").replace(".",",")'/>
                                                         </td>
         
         
@@ -229,7 +234,8 @@
                     </t>
                     <div class="row">
                         <div class="col-8">
-                            Poids net Total : <b><t t-esc='"{:,.0f}".format(poids_total).replace(","," ").replace(".",",")'/> Kg</b>
+                            Poids net Total : <b><t t-esc='"{:,.0f}".format(poids_total_net).replace(","," ").replace(".",",")'/> Kg</b> - 
+                            Poids brut Total : <b><t t-esc='"{:,.0f}".format(poids_total_brut).replace(","," ").replace(".",",")'/> Kg</b>
                         </div>
                     </div><br />
                     <div class="row">
