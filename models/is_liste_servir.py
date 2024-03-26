@@ -125,6 +125,14 @@ class is_liste_servir(models.Model):
     galia_um_ids           = fields.One2many('is.galia.base.um', 'liste_servir_id', u"UMs scannées", readonly=True)
     uc_non_affectes        = fields.Integer(u"UCs non affectés")
     is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
+    mixer              = fields.Boolean('Mixer', default=False)
+
+
+    @api.onchange('mixer')
+    def onchange_mixer(self):
+        for obj in self:
+            for line in obj.line_ids:
+                line.mixer = self.mixer
 
 
     def tableaux(self):
