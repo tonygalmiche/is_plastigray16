@@ -1080,12 +1080,6 @@
  -->
 
 
-
-
-
-
-
-
         <record model="ir.ui.view" id="is_product_tree_view">
             <field name="name">is_product_tree_view</field>
             <field name="model">product.template</field>
@@ -1093,10 +1087,10 @@
             <field name="arch" type="xml">
                 <tree string="tree">
                     <field name="is_code"/>
-                    <field name="name" string="Désignation"/>
-                    <field name="segment_id"/>
-                    <field name="family_id"/>
-                    <field name="is_category_id"/>
+                    <field name="name"               optional="show" string="Désignation"/>
+                    <field name="segment_id"         optional="show"/>
+                    <field name="family_id"          optional="show"/>
+                    <field name="is_category_id"     optional="show"/>
                     <field name="is_gestionnaire_id" optional="show"/>
                     <field name="is_mold_dossierf"   optional="show"/>
                     <field name="is_client_id"       optional="show" widget="many2one_clickable"/>
@@ -1108,6 +1102,7 @@
                     <field name="is_uc_qt"           optional="show"/>
                     <field name="uom_id"             optional="show"/>
                     <field name="qty_available"      optional="show" string="Stock"/>
+                    <field name="temps_realisation"  optional="hide"/>
                 </tree>
             </field>
         </record>
