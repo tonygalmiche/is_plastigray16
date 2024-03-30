@@ -241,6 +241,15 @@
             <field name="state">code</field>
             <field name="code">action = records.imprimer_simple_double()</field>
         </record>
+        <record id="compute_amortissement_moule_action_server" model="ir.actions.server">
+            <field name="name">Actualiser amortissement moule</field>
+            <field name="model_id" ref="model_account_move"/>
+            <field name="binding_model_id" ref="model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">action = records.compute_amortissement_moule_action()</field>
+            <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+    
 
         <!-- Permet de masquer le menu "Comptabiliser les écritures" -->
         <record id="account.action_validate_account_move" model="ir.actions.act_window">
@@ -280,6 +289,9 @@
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+
 
         <!-- Factures à envoyer par mail -->
         <record id="is_factures_envoi_mail_action" model="ir.actions.act_window">

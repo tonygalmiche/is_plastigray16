@@ -609,6 +609,11 @@ class account_invoice(models.Model):
         return res
 
 
+    def compute_amortissement_moule_action(self):
+        for obj in self:
+            obj.invoice_line_ids._compute_amortissement_moule()
+
+
 class account_invoice_line(models.Model):
     _inherit = "account.move.line"
 
@@ -644,34 +649,34 @@ class account_invoice_line(models.Model):
             montant_amt_interne = 0
             montant_cagnotage = 0
             montant_matiere = 0
-            # if obj.product_id and obj.quantity and obj.invoice_id and obj.invoice_id.partner_id and obj.invoice_id.date_invoice:
-            #     SQL="""
-            #         SELECT
-            #             get_amortissement_moule_a_date(rp.is_code, pt.id, ai.date_invoice) as amortissement_moule,
-            #             get_amt_interne_a_date(rp.is_code, pt.id, ai.date_invoice) as amt_interne,
-            #             get_cagnotage_a_date(rp.is_code, pt.id, ai.date_invoice) as cagnotage,
-            #             fsens(ai.type)*get_amortissement_moule_a_date(rp.is_code, pt.id, ai.date_invoice)*ail.quantity as montant_amt_moule,
-            #             fsens(ai.type)*get_amt_interne_a_date(rp.is_code, pt.id, ai.date_invoice)*ail.quantity as montant_amt_interne,
-            #             fsens(ai.type)*get_cagnotage_a_date(rp.is_code, pt.id, ai.date_invoice)*ail.quantity as montant_cagnotage,
-            #             fsens(ai.type)*get_cout_act_matiere_st(pp.id)*ail.quantity as montant_matiere,
-            #             ai.date_invoice,
-            #             ai.state
-            #         from account_invoice ai inner join account_invoice_line ail on ai.id=ail.invoice_id
-            #                                 inner join product_product       pp on ail.product_id=pp.id
-            #                                 inner join product_template      pt on pp.product_tmpl_id=pt.id
-            #                                 inner join res_partner           rp on ai.partner_id=rp.id
-            #         where ail.id=%s
-            #     """
-            #     cr.execute(SQL,[obj.id])
-            #     res_ids = cr.fetchall()
-            #     for res in res_ids:
-            #         amortissement_moule = res[0]
-            #         amt_interne         = res[1]
-            #         cagnotage           = res[2]
-            #         montant_amt_moule   = res[3]
-            #         montant_amt_interne = res[4]
-            #         montant_cagnotage   = res[5]
-            #         montant_matiere     = res[6]
+            if obj.product_id and obj.quantity and obj.move_id and obj.move_id.partner_id and obj.move_id.invoice_date:
+                SQL="""
+                    SELECT
+                        get_amortissement_moule_a_date(rp.is_code, pt.id, ai.invoice_date) as amortissement_moule,
+                        get_amt_interne_a_date(rp.is_code, pt.id, ai.invoice_date) as amt_interne,
+                        get_cagnotage_a_date(rp.is_code, pt.id, ai.invoice_date) as cagnotage,
+                        fsens(ai.move_type)*get_amortissement_moule_a_date(rp.is_code, pt.id, ai.invoice_date)*ail.quantity as montant_amt_moule,
+                        fsens(ai.move_type)*get_amt_interne_a_date(rp.is_code, pt.id, ai.invoice_date)*ail.quantity as montant_amt_interne,
+                        fsens(ai.move_type)*get_cagnotage_a_date(rp.is_code, pt.id, ai.invoice_date)*ail.quantity as montant_cagnotage,
+                        fsens(ai.move_type)*get_cout_act_matiere_st(pp.id)*ail.quantity as montant_matiere,
+                        ai.invoice_date,
+                        ai.state
+                    from account_move ai inner join account_move_line    ail on ai.id=ail.move_id
+                                         inner join product_product       pp on ail.product_id=pp.id
+                                         inner join product_template      pt on pp.product_tmpl_id=pt.id
+                                         inner join res_partner           rp on ai.partner_id=rp.id
+                    where ail.id=%s
+                """
+                cr.execute(SQL,[obj.id])
+                res_ids = cr.fetchall()
+                for res in res_ids:
+                    amortissement_moule = res[0]
+                    amt_interne         = res[1]
+                    cagnotage           = res[2]
+                    montant_amt_moule   = res[3]
+                    montant_amt_interne = res[4]
+                    montant_cagnotage   = res[5]
+                    montant_matiere     = res[6]
             obj.is_amortissement_moule = amortissement_moule
             obj.is_amt_interne         = amt_interne
             obj.is_cagnotage           = cagnotage
