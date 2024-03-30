@@ -2,6 +2,7 @@
 from odoo import models,fields,api,tools
 import time
 import datetime
+from dateutil.relativedelta import relativedelta
 import os
 #import subprocess
 from odoo.exceptions import ValidationError
@@ -587,6 +588,64 @@ class is_theia_habilitation_operateur(models.Model):
     operateur_id = fields.Many2one("hr.employee", u"Opérateur", required=True , index=True)
     valideur_id  = fields.Many2one("hr.employee", u"Valideur" , required=False, index=True)
     state        = fields.Selection(states, 'État'            , required=True , index=True)
+
+
+
+    def dequalification_operateur_action(self):
+        "Déqualification des opérateurs au bout d'un an"
+        cr=self._cr
+        SQL="""
+            select 
+                a.presse_id,
+                a.moule,
+                a.operateur_id, 
+                max(a.id) id,
+                (   select b.state       
+                    from is_theia_habilitation_operateur b 
+                    where a.presse_id=b.presse_id and a.moule=b.moule and a.operateur_id=b.operateur_id 
+                    order by b.id desc limit 1
+                ) state,
+                (   select c.heure_debut 
+                    from is_theia_habilitation_operateur c 
+                    where a.presse_id=c.presse_id and a.moule=c.moule and a.operateur_id=c.operateur_id 
+                    order by c.id desc limit 1
+                ) heure_debut
+            from is_theia_habilitation_operateur a 
+            -- where operateur_id in (336)
+            group by a.presse_id,a.moule,a.operateur_id
+            having 
+                (   select b.state       
+                    from is_theia_habilitation_operateur b 
+                    where a.presse_id=b.presse_id and a.moule=b.moule and a.operateur_id=b.operateur_id 
+                    order by b.id desc limit 1
+                )='poste' 
+                and 
+                ((   select c.heure_debut 
+                    from is_theia_habilitation_operateur c 
+                    where a.presse_id=c.presse_id and a.moule=c.moule and a.operateur_id=c.operateur_id 
+                    order by c.id desc limit 1
+                ) + interval '1 year')<NOW()
+            order by heure_debut
+        """
+        cr.execute(SQL)
+        result=cr.dictfetchall()
+        for row in result:
+            habilitation = self.env['is.theia.habilitation.operateur'].browse(row['id'])
+            if habilitation:
+                heure=habilitation.heure_fin or habilitation.heure_debut
+                heure = heure + relativedelta(years=1)
+                vals={
+                    'heure_debut' : heure,
+                    'heure_fin'   : heure,
+                    'presse_id'   : habilitation.presse_id.id,
+                    'moule'       : habilitation.moule,
+                    'operateur_id': habilitation.operateur_id.id,
+                    'state'       : 'dequalification',
+                }
+                res=self.env['is.theia.habilitation.operateur'].create(vals)
+                if res:
+                    msg="Déqualification de %s sur la presse %s et le moule %s (id=%s)"%(habilitation.operateur_id.name,habilitation.presse_id.numero_equipement,habilitation.moule,res.id)
+                    _logger.info(msg)
 
 
 class is_theia_habilitation_operateur_etat(models.Model):

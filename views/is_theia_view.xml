@@ -1184,6 +1184,15 @@
 
 
     <!-- is.theia.habilitation.operateur -->
+    <record id="dequalification_operateur_ir_cron" model="ir.cron">
+        <field name="name">Déqualification Opérateur au bout d'un an</field>
+        <field name="model_id" ref="model_is_theia_habilitation_operateur"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="state">code</field>
+        <field name="code">model.dequalification_operateur_action()</field>
+    </record>
     <record model="ir.ui.view" id="is_theia_habilitation_operateur_tree_view">
         <field name="name">is.theia.habilitation.operateur.tree</field>
         <field name="model">is.theia.habilitation.operateur</field>
@@ -1196,6 +1205,10 @@
                 <field name="operateur_id"/>
                 <field name="valideur_id"/>
                 <field name="state"/>
+                <field name="create_date" optional="hide"/>
+                <field name="create_uid"  optional="hide"/>
+                <field name="write_date"  optional="hide"/>
+                <field name="write_uid"   optional="hide"/>
             </tree>
         </field>
     </record>
