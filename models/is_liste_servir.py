@@ -126,6 +126,7 @@ class is_liste_servir(models.Model):
     uc_non_affectes        = fields.Integer(u"UCs non affectés")
     is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
     mixer              = fields.Boolean('Mixer', default=False)
+    saut_page_aqp      = fields.Boolean('Saut de page AQP', default=False)
 
 
     @api.onchange('mixer')

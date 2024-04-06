@@ -103,14 +103,12 @@
                                     style="background:orange"
                                     attrs="{'invisible': [('is_certificat_conformite_msg', '=', False)]}"
                                 />
-            
-
-
                                 <field name="date_debut"  attrs="{'readonly':[('state','!=','creation')]}" /> 
                                 <field name="date_fin"    attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="livrable"    attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="commentaire" attrs="{'readonly':[('state','!=','creation')]}"/> 
-                                <field name="mixer"       widget="boolean_toggle"/>
+                                <field name="mixer"         widget="boolean_toggle"/>
+                                <field name="saut_page_aqp" widget="boolean_toggle"/>
                             </group>
                             <group>
                                 <field name="is_source_location_id"/> 

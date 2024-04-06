@@ -6,6 +6,7 @@ from odoo import models,fields,api
 
 class is_demande_transport(models.Model):
     _name='is.demande.transport'
+    _inherit=['mail.thread']
     _description="Demande de transport"
     _order='name desc'
 

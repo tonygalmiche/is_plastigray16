@@ -118,11 +118,7 @@
                             <h2>Articles à livrer en AQP</h2>
                         </t>
         
-
-
                         <t t-if="not t and pas_aqp"> 
-                            <br />
-                            <br />
                             <h2>Articles à livrer non AQP</h2>
                         </t>
                         <t t-if="(t and aqp) or (not t and pas_aqp)"> 
@@ -231,6 +227,14 @@
                                 </div>
                             </div><br />
                         </t>
+
+
+                        <t t-if="o.saut_page_aqp"> 
+                            <p style="page-break-before:always;"> </p>
+                        </t>
+
+
+
                     </t>
                     <div class="row">
                         <div class="col-8">

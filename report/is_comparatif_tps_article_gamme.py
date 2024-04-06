@@ -14,9 +14,9 @@ class is_comparatif_tps_article_gamme(models.Model):
     sequence            = fields.Integer('Sequence')
     name                = fields.Char('Nom')
     workcenter_id       = fields.Many2one('mrp.workcenter', 'Poste de charge')
-    nb_secondes_gamme   = fields.Float('Nb secondes Gamme')
-    nb_secondes_article = fields.Float('Temps de realisation Article')
-    delta_nb_secondes   = fields.Float('Delta Nb secondes')
+    nb_secondes_gamme   = fields.Float('Nb secondes Gamme'           , digits=(14,4))
+    nb_secondes_article = fields.Float('Temps de realisation Article', digits=(14,4))
+    delta_nb_secondes   = fields.Float('Delta Nb secondes'           , digits=(14,4))
 
     def init(self):
         cr = self._cr

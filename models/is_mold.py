@@ -168,7 +168,7 @@ class is_mold(models.Model):
     dateur_ids     = fields.One2many('is.mold.dateur', 'mold_id', u"Dateurs")
     dateur_ids_vsb = fields.Boolean('Dateurs vsb', store=False, compute='_compute_dateur_ids_vsb')
     is_database_id         = fields.Many2one('is.database', "Site")
-    is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
+    is_database_origine_id = fields.Integer("Id d'origine", readonly=True, copy=False)
 
     numero_plaquette_interne = fields.Char(u"N° Plaquette interne client")
 
@@ -276,10 +276,10 @@ class is_mold(models.Model):
     fiche_description_date_creation = fields.Date(u"Date de création fiche")
     fiche_description_date_modif    = fields.Date(u"Date de modification")
 
-    date_dernier_preventif        = fields.Date(u"Date dernier préventif")
-    nb_cycles_dernier_preventif   = fields.Integer(u"Nb cycles dernier préventif")
-    nb_cycles_actuel              = fields.Integer(u"Nb cycles actuel")
-    nb_cycles_avant_preventif     = fields.Integer(u"Nb cycles avant préventif")
+    date_dernier_preventif        = fields.Date(u"Date dernier préventif", copy=False)
+    nb_cycles_dernier_preventif   = fields.Integer(u"Nb cycles dernier préventif", copy=False)
+    nb_cycles_actuel              = fields.Integer(u"Nb cycles actuel", copy=False)
+    nb_cycles_avant_preventif     = fields.Integer(u"Nb cycles avant préventif", copy=False)
     periodicite_maintenance_moule = fields.Integer(u"Périodicité maintenance moule (nb cycles)")
     gamme_preventif_ids           = fields.Many2many('ir.attachment', 'is_mold_attachment_rel', 'mold_id', 'file_id', u"Gamme préventif")
     preventif_inactif             = fields.Boolean(u"Préventif inactif suite FDV", default=False)
