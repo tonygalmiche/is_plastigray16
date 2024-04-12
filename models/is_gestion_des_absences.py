@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#import ssl
 from odoo import models, fields, api
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
@@ -8,29 +7,25 @@ from xmlrpc import client as xmlrpclib
 import ssl
 import logging
 _logger = logging.getLogger(__name__)
-
-#import os
-#import unicodedata
 import codecs
 import base64
-#import csv, cStringIO
-#from openerp import SUPERUSER_ID
 import pytz
 
 
 _TYPE_DEMANDE = [
-    ('cp_rtt_journee'     , u'CP ou RTT par journée entière'),
-    ('cp_rtt_demi_journee', u'CP ou RTT par ½ journée'),
-    ('rc_heures'          , u'RC en heures'),
-    ('sans_solde'         , u'Congés sans solde'),
-    ('autre'              , u'Autre'),
+    ('cp_rtt_journee'     , 'CP ou RTT par journée entière'),
+    ('cp_rtt_demi_journee', 'CP ou RTT par ½ journée'),
+    ('rc_journee'         , 'RC par journée entière'),
+    ('rc_heures'          , 'RC en heures'),
+    ('sans_solde'         , 'Congés sans solde'),
+    ('autre'              , 'Autre'),
 ]
 
 
 class is_demande_conges(models.Model):
     _name        = 'is.demande.conges'
     _inherit=['mail.thread']
-    _description = u'Demande de congés'
+    _description = 'Demande de congés'
     _order       = 'name desc'
 
 
@@ -101,9 +96,7 @@ class is_demande_conges(models.Model):
                 'body_html'     : body_html, 
                 'model'         : self._name,
                 'res_id'        : obj.id,
-                #'notification'  : True,
                 'author_id'     : user.partner_id.id
-                #'message_type'  : 'comment',
             }
             email=self.env['mail.mail'].sudo().create(vals)
 
@@ -113,14 +106,8 @@ class is_demande_conges(models.Model):
             if obj.demande_collective=='oui':
                 for employe in obj.demandeur_ids:
                     vals={
-                        #'name'               : obj.name,
-                        #'createur_id'        : obj.createur_id,
-                        #'date_creation'      : obj.date_creation,
                         'demandeur_id'         : employe.user_id.id,
-                        #'valideur_n1'        : obj.valideur_n1,
-                        #'valideur_n2'        : obj.valideur_n2,
-                        #'responsable_rh_id'  : obj.responsable_rh_id,
-                        'type_demande'         : obj.type_demande,
+                         'type_demande'         : obj.type_demande,
                         'autre_id'             : obj.autre_id.id,
                         'date_debut'           : obj.date_debut,
                         'date_fin'             : obj.date_fin,
@@ -158,14 +145,6 @@ class is_demande_conges(models.Model):
                 self.creer_notification(subject,body_html)
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation Niveau 1'."""
-                    # res,err = self.envoi_sms(obj.mobile, message)
-                    # if err=='':
-                    #     subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                    #     self.creer_notification(subject,message)
-                    # else:
-                    #     self.creer_notification(u'ATTENTION : SMS non envoyé', err)
-
-            #obj.signal_workflow('validation_n1')
             obj.state = "validation_n1"
         return True
 
@@ -174,19 +153,15 @@ class is_demande_conges(models.Model):
             if obj.demande_collective=='oui':
                 for demande in obj.demande_conges_ids:
                     demande.vers_validation_n2_action()
-
             obj.date_validation_n2 = datetime.today()
-
             if not obj.demande_collective_id:
                 subject = u'[' + obj.name + u'] Demande de congés - Envoyé au N+2 pour validation'
                 email_to = obj.valideur_n2.email
                 user = self.env['res.users'].browse(self._uid)
                 email_from = user.email
-
                 email_cc = ''
                 if obj.mode_communication in ['courriel','courriel+sms'] and obj.courriel:
                     email_cc = obj.courriel
-
                 nom = user.name
                 base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 url = base_url + u'/web#id=' + str(obj.id) + u'&view_type=form&model=is.demande.conges'
@@ -196,21 +171,11 @@ class is_demande_conges(models.Model):
                     <p>Merci d'en prendre connaissance.</p> 
                 """ 
                 self.envoi_mail(email_from, email_to, email_cc, subject, body_html)
-
                 subject   = u"vers Validation niveau 2"
                 body_html = u"<p>Mail envoyé de "+str(email_from)+u" à "+str(email_to)+u" (cc="+str(email_cc)+u")</p>"+body_html
                 self.creer_notification(subject,body_html)
-
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation Niveau 2'."""
-                    # res,err = self.envoi_sms(obj.mobile, message)
-                    # if err=='':
-                    #     subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                    #     self.creer_notification(subject,message)
-                    # else:
-                    #     self.creer_notification(u'ATTENTION : SMS non envoyé', err)
-
-            #obj.signal_workflow('validation_n2')
             obj.state = "validation_n2"
         return True
 
@@ -242,19 +207,10 @@ class is_demande_conges(models.Model):
                 self.creer_notification(subject,body_html)
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation RH'."""
-                    # res,err = self.envoi_sms(obj.mobile, message)
-                    # if err=='':
-                    #     subject = u'SMS envoyé sur le '+obj.mobile+u' (il reste '+res+u' SMS sur le compte)'
-                    #     self.creer_notification(subject,message)
-                    # else:
-                    #     self.creer_notification(u'ATTENTION : SMS non envoyé', err)
-
                 #** Creation du commentaire de pointage ************************
                 if obj.type_demande in ['sans_solde','autre']:
                     employes = self.env['hr.employee'].search([('user_id', '=', obj.demandeur_id.id),('is_pointage','=',True)], limit=1)
                     for employe in employes:
-                        #d0 = datetime.strptime(obj.date_debut, '%Y-%m-%d')
-                        #d1 = datetime.strptime(obj.date_fin  , '%Y-%m-%d')
                         nb_jours = (obj.date_fin - obj.date_debut).days
                         self.env['is.pointage.commentaire'].sudo().search([('demande_conges_id', '=', obj.id)]).unlink()
                         for x in range(nb_jours+1):
@@ -271,9 +227,6 @@ class is_demande_conges(models.Model):
                             }
                             res=self.env['is.pointage.commentaire'].sudo().create(vals)
                 #***************************************************************
-
-            # if obj.demande_collective=='non':
-            #     obj.ajouter_dans_agenda()
             try:
                 if obj.demande_collective=='non':
                     obj.ajouter_dans_agenda()
@@ -335,7 +288,7 @@ class is_demande_conges(models.Model):
         tz = pytz.timezone('CET')
         offset=tz.utcoffset(now).total_seconds()
         events=[]
-        if self.type_demande in ["cp_rtt_journee","sans_solde","autre"]:
+        if self.type_demande in ["cp_rtt_journee","sans_solde","autre","rc_journee"]:
             dt1 = datetime.strptime(str(self.date_debut) + " 08:00:00", '%Y-%m-%d %H:%M:%S')
             dt2 = datetime.strptime(str(self.date_fin)   + " 08:00:00", '%Y-%m-%d %H:%M:%S')
             start = dt1
@@ -597,26 +550,18 @@ class is_demande_conges(models.Model):
     date_validation_n2            = fields.Datetime(string='Date validation N1', copy=False)
     responsable_rh_id             = fields.Many2one('res.users', 'Responsable RH', default=lambda self: self.env.user.company_id.is_responsable_rh_id)
     date_validation_rh            = fields.Datetime(string='Date validation N2', copy=False)
-
-# - Date vers validation N1 => Ne sert à rien => Ou "Date de création" si tu veux
-# - Date vers validation N2 => Date validation N1
-# - Date vers  responsable RH => Date validation N2
-
     type_demande                  = fields.Selection(_TYPE_DEMANDE, string='Type de demande', required=True)
     autre_id                      = fields.Many2one('is.demande.conges.autre', 'Type autre')
     justificatif_ids              = fields.Many2many('ir.attachment', 'is_demande_conges_attachment_rel', 'demande_conges_id', 'file_id', u"Justificatif")
     cp                            = fields.Float(string='CP (jours)' , digits=(14,2), copy=False)
     rtt                           = fields.Float(string='RTT (jours)', digits=(14,2), copy=False)
     rc                            = fields.Float(string='RC (heures)', digits=(14,2), copy=False)
-
     droit_cp                      = fields.Float(string='Droit CP (jours)' , digits=(14,2), compute='_compute_mode_communication', readonly=True, store=True)
     droit_rtt                     = fields.Float(string='Droit RTT (jours)', digits=(14,2), compute='_compute_mode_communication', readonly=True, store=True)
     droit_rc                      = fields.Float(string='Droit RC (heures)', digits=(14,2), compute='_compute_mode_communication', readonly=True, store=True)
-
     droit_cp_actualise            = fields.Float(string='Droit CP actualisé (jours)' , digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
     droit_rtt_actualise           = fields.Float(string='Droit RTT actualisé (jours)', digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
     droit_rc_actualise            = fields.Float(string='Droit RC actualisé (heures)', digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
-
     date_debut                    = fields.Date(string=u'Date début', index=True)
     date_fin                      = fields.Date(string='Date fin', index=True)
     le                            = fields.Date(string='Le', index=True)
@@ -624,8 +569,6 @@ class is_demande_conges(models.Model):
                                         ('matin', 'Matin'),
                                         ('apres_midi', u'Après-midi')
                                         ], string=u'Matin ou après-midi')
-    #heure_debut                  = fields.Integer(string=u'Heure début')
-    #heure_fin                    = fields.Integer(string=u'Heure fin')
     heure_debut                   = fields.Float(u"Heure début", digits=(14, 2))
     heure_fin                     = fields.Float(u"Heure fin"  , digits=(14, 2))
     raison_du_retour              = fields.Text(string='Motif du retour'       , copy=False)
@@ -637,7 +580,6 @@ class is_demande_conges(models.Model):
     demandeur_ids                 = fields.Many2many('hr.employee', string=u'Demandeurs')
     demande_conges_ids            = fields.One2many('is.demande.conges', 'demande_collective_id', u"Demandes de congés")
     demande_collective_id         = fields.Many2one('is.demande.conges', u"Demandes collective d'origine")
-
     state                         = fields.Selection([
                                         ('creation', u'Brouillon'),
                                         ('validation_n1', 'Validation niveau 1'),
@@ -646,7 +588,6 @@ class is_demande_conges(models.Model):
                                         ('solde' , u'Soldé'),
                                         ('refuse', u'Refusé'),
                                         ('annule', u'Annulé')], string=u'État', readonly=True, default='creation', index=True)
-
     vers_creation_btn_vsb      = fields.Boolean(string='vers_creation_btn_vsb'     , compute='_get_btn_vsb', default=False, readonly=True)
     vers_annuler_btn_vsb       = fields.Boolean(string='vers_annuler_btn_vsb'      , compute='_get_btn_vsb', default=False, readonly=True)
     vers_refuse_btn_vsb        = fields.Boolean(string='vers_refuse_btn_vsb'       , compute='_get_btn_vsb', default=False, readonly=True)
@@ -656,6 +597,44 @@ class is_demande_conges(models.Model):
     vers_solde_btn_vsb         = fields.Boolean(string='vers_solde_btn_vsb'        , compute='_get_btn_vsb', default=False, readonly=True)
     fld_vsb                    = fields.Boolean(string='Field Vsb'                 , compute='_get_btn_vsb', default=False, readonly=True)
     droit_actualise_vsb        = fields.Boolean(string='droit_actualise_vsb'       , compute='_get_btn_vsb', default=False, readonly=True)
+    export_paye                = fields.Boolean(string='Exporté en paye', default=False, copy=False, tracking=True)
+    #demande_en_cours_ids       = fields.Many2many('is.demande.conges', 'is_demande_conges_demande_en_cours_ids_rel', 'demande_id', 'demande_en_cours_id', string='Demandes en cours',compute="_compute_demande_en_cours_ids",store=True,readonly=True,copy=False)
+    demande_en_cours_ids       = fields.Many2many('is.demande.conges', string='Demandes en cours',compute="_compute_demande_en_cours_ids",store=False,readonly=True,copy=False)
+
+
+    @api.depends('state','export_paye')
+    def _compute_demande_en_cours_ids(self):
+        for obj in self:
+            ids=[]
+            if str(obj.date_debut or '')>='2024-04-01' or str(obj.le or '')>='2024-04-01':
+                print(str(obj.date_debut),str(obj.le))
+                filtre=[
+                    ('id', '!=', obj.id),
+                    ('demandeur_id', '=', obj.demandeur_id.id),
+                    ('type_demande', 'not in', ['sans_solde','autre']),
+                    ('state', 'not in', ['creation','refuse','annule']),
+                    ('export_paye', '=', False),
+                    '|',('date_debut', '>=', '2024-04-01'),('le', '>=', '2024-04-01'),
+                ]
+                demandes = self.env['is.demande.conges'].search(filtre, limit=100)
+                for demande in demandes:
+                    ids.append(demande.id)
+            print(obj.name,ids)
+            obj.sudo().demande_en_cours_ids = ids
+
+
+
+# _TYPE_DEMANDE = [
+#     ('cp_rtt_journee'     , u'CP ou RTT par journée entière'),
+#     ('cp_rtt_demi_journee', u'CP ou RTT par ½ journée'),
+#     ('rc_heures'          , u'RC en heures'),
+#     ('sans_solde'         , u'Congés sans solde'),
+#     ('autre'              , u'Autre'),
+# ]
+
+
+
+
 
 
     def get_calendrier_absence(self, 
@@ -759,7 +738,6 @@ class is_demande_conges(models.Model):
             for i in range(0,int(nb_jours)):
                 color="inherit"
                 if ladate.weekday() in [5,6]:
-                    #color="#f2f3f4"
                     color="PeachPuff"
                 absences=[]
                 conges = self.env['is.demande.conges'].sudo().search([
@@ -942,17 +920,11 @@ class is_demande_conges_export_cegid(models.Model):
         return d.strftime('%Y-%m-%d')
 
 
-    # def create(self, vals):
-    #     vals['name'] = self.env['ir.sequence'].get('is.demande.conges.export.cegid') or ''
-    #     return super(is_demande_conges_export_cegid, self).create(vals)
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             vals['name'] = self.env['ir.sequence'].next_by_code('is.demande.conges.export.cegid')
         return super().create(vals_list)
-
-
 
 
     def get_employe(self,user):
@@ -962,7 +934,6 @@ class is_demande_conges_export_cegid(models.Model):
         return False
 
     def fdate(self,date):
-        #d=datetime.strptime(date, '%Y-%m-%d')
         return date.strftime('%d/%m/%Y')
 
 
@@ -987,7 +958,8 @@ class is_demande_conges_export_cegid(models.Model):
                     idc.cp,
                     idc.rtt,
                     idc.rc,
-                    idc.matin_ou_apres_midi
+                    idc.matin_ou_apres_midi,
+                    idc.id
                 FROM is_demande_conges idc inner join res_users ru on idc.demandeur_id=ru.id
                 WHERE 
                     ((idc.date_debut>=%s and idc.date_debut<=%s) or
@@ -1004,6 +976,9 @@ class is_demande_conges_export_cegid(models.Model):
             f.write('***DEBUT***\r\n')
             f.write('000	000000	01/01/'+annee+'	31/12/'+annee+'\r\n')
             for row in rows:
+                demande = self.env['is.demande.conges'].browse(row['id'])
+                if demande:
+                    demande.sudo().export_paye=True
                 login = ('0000000000'+row['login'])[-10:]
                 if row['type_demande'] in ['le','rc_heures','cp_rtt_demi_journee']:
                     date_debut = row['le']
@@ -1051,12 +1026,10 @@ class is_demande_conges_export_cegid(models.Model):
             model='is.demande.conges.export.cegid'
             attachments = self.env['ir.attachment'].search([('res_model','=',model),('res_id','=',obj.id),('name','=',filename)])
             attachments.unlink()
-            #r = open(dest,'rb').read().encode('base64')
             r = open(dest,'rb').read()
             datas = base64.b64encode(r)
             vals = {
                 'name':        filename,
-                #'datas_fname': filename,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,

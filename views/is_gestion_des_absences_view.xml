@@ -173,15 +173,15 @@
                                 <field 
                                     name="date_debut"
                                     attrs="{
-                                        'invisible': [('type_demande', 'not in', ['cp_rtt_journee','sans_solde','autre'])],
-                                        'required': [('type_demande', 'in', ['cp_rtt_journee','sans_solde','autre'])]
+                                        'invisible': [('type_demande', 'not in', ['cp_rtt_journee','sans_solde','autre','rc_journee'])],
+                                        'required': [('type_demande', 'in', ['cp_rtt_journee','sans_solde','autre','rc_journee'])]
                                     }" 
                                 />
                                 <field 
                                     name="date_fin"
                                     attrs="{
-                                        'invisible': [('type_demande', 'not in', ['cp_rtt_journee','sans_solde','autre'])],
-                                        'required': [('type_demande', 'in', ['cp_rtt_journee','sans_solde','autre'])]
+                                        'invisible': [('type_demande', 'not in', ['cp_rtt_journee','sans_solde','autre','rc_journee'])],
+                                        'required': [('type_demande', 'in', ['cp_rtt_journee','sans_solde','autre','rc_journee'])]
                                     }" 
                                 />
                                 <field 
@@ -237,82 +237,98 @@
                                     attrs="{'invisible': [('mobile','=',False)]}"
                                 />
                             </group>
+                        </group>
 
 
-                            <group string="CYCLE DE VALIDATION">
-                                <field name="valideur_n1" readonly="1" />
-                                <field name="valideur_n2" readonly="1" />
-                                <field name="responsable_rh_id" readonly="1" />
-                                <field name="date_validation_n1" readonly="1" />
-                                <field name="date_validation_n2" readonly="1" />
-                                <field name="date_validation_rh" readonly="1" />
-                            </group>
 
-
-                            <group string="INFORMATION SUR LA DEMANDE">
-                                <field name="name" readonly="1" />
-                                <field name="createur_id" readonly="1" />
-                                <!-- <field name="date_creation" readonly="1" /> -->
-                                <field name="demande_collective"    readonly="1"/>
-                                <field name="demande_collective_id" readonly="1" attrs="{'invisible': [('demande_collective_id','=',False)]}"/>
-                                <field 
-                                    name="employe_id"
-                                    attrs="{
-                                        'invisible': ['|',
-                                            ('demande_collective','!=','non'),
-                                            ('state','!=','creation'),
-                                        ],
+                        <notebook>
+                            <page string="Droits aux congés">
+                                <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
+                                    <group string="Droit aux congés">
+                                        <field name="droit_cp"/>
+                                        <field name="droit_rtt"/>
+                                        <field name="droit_rc"/>
+                                    </group>
+                                    <group string="Responsable RH">
+                                        <field name="cp"          attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="rtt"         attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="rc"          attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="export_paye" attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                    </group>
+                                </group>
+                                <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
+                                    <group string="Droit actualisé (RH)" attrs="{'invisible': [('droit_actualise_vsb','=',False)]}">
+                                        <field name="droit_cp_actualise"/>
+                                        <field name="droit_rtt_actualise"/>
+                                        <field name="droit_rc_actualise"/>
+                                    </group>
+                                </group>
+                                <field name="demande_en_cours_ids" attrs="{'invisible': [('demande_en_cours_ids','=',[])]}" >
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="type_demande" optional="show"/>
+                                        <field name="autre_id"     optional="hide"/>
+                                        <field name="date_debut"   optional="show"/>
+                                        <field name="date_fin"     optional="show"/>
+                                        <field name="le"           optional="show"/>
+                                        <field name="state"        optional="show"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Cycle de validation">
+                                <group>
+                                    <group string="CYCLE DE VALIDATION">
+                                        <field name="valideur_n1" readonly="1" />
+                                        <field name="valideur_n2" readonly="1" />
+                                        <field name="responsable_rh_id" readonly="1" />
+                                        <field name="date_validation_n1" readonly="1" />
+                                        <field name="date_validation_n2" readonly="1" />
+                                        <field name="date_validation_rh" readonly="1" />
+                                    </group>
+                                    <group string="INFORMATION SUR LA DEMANDE">
+                                        <field name="name" readonly="1" />
+                                        <field name="createur_id" readonly="1" />
+                                        <!-- <field name="date_creation" readonly="1" /> -->
+                                        <field name="demande_collective"    readonly="1"/>
+                                        <field name="demande_collective_id" readonly="1" attrs="{'invisible': [('demande_collective_id','=',False)]}"/>
+                                        <field 
+                                            name="employe_id"
+                                            attrs="{
+                                                'invisible': ['|',
+                                                    ('demande_collective','!=','non'),
+                                                    ('state','!=','creation'),
+                                                ],
+                                            }"
+                                            domain="['|','|',
+                                                ('user_id'       , '=', uid),
+                                                ('is_valideur_n1', '=', uid),
+                                                ('is_valideur_n2', '=', uid),
+                                            ]"
+                                        />
+                                        <field name="raison_annulation"  readonly="True" attrs="{'invisible': [('raison_annulation','=',False)]}"/>
+                                        <field name="raison_du_retour"   readonly="True" attrs="{'invisible': [('raison_du_retour','=',False)]}"/>
+                                        <field name="fld_vsb" invisible="1" />
+                                    </group>
+                                </group>
+                                <field nolabel="1"
+                                    name="demandeur_ids"
+                                    context="{
+                                        'form_view_ref' : 'is_plastigray16.view_hr_employee_form_inherit_is_plastigray16',
+                                        'tree_view_ref' : 'is_plastigray16.is_view_employee_tree2'
                                     }"
-                                    domain="['|','|',
-                                        ('user_id'       , '=', uid),
-                                        ('is_valideur_n1', '=', uid),
-                                        ('is_valideur_n2', '=', uid),
-                                    ]"
+                                    attrs="{
+                                        'invisible': [('demande_collective','!=','oui')],
+                                        'required' : [('demande_collective','=' ,'oui')]
+                                    }"
                                 />
-                                <field name="raison_annulation"  readonly="True" attrs="{'invisible': [('raison_annulation','=',False)]}"/>
-                                <field name="raison_du_retour"   readonly="True" attrs="{'invisible': [('raison_du_retour','=',False)]}"/>
-                                <field name="fld_vsb" invisible="1" />
-                            </group>
-                        </group>
-
-
-                        <field nolabel="1"
-                            name="demandeur_ids"
-                            context="{
-                                'form_view_ref' : 'is_plastigray16.view_hr_employee_form_inherit_is_plastigray16',
-                                'tree_view_ref' : 'is_plastigray16.is_view_employee_tree2'
-                            }"
-                            attrs="{
-                                'invisible': [('demande_collective','!=','oui')],
-                                'required' : [('demande_collective','=' ,'oui')]
-                            }"
-                        />
-                        <field name="demande_conges_ids" readonly="1" nolabel="1" attrs="{'invisible': [('demande_collective','!=','oui')]}">
-                            <tree>
-                                <field name="name"/>
-                                <field name="state"/>
-                            </tree>
-                        </field>
-                        <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
-                            <group string="Droit aux congés">
-                                <field name="droit_cp"/>
-                                <field name="droit_rtt"/>
-                                <field name="droit_rc"/>
-                            </group>
-
-                            <group string="Responsable RH">
-                                <field name="cp"  attrs="{'readonly': [('fld_vsb','=',False)]}" />
-                                <field name="rtt" attrs="{'readonly': [('fld_vsb','=',False)]}" />
-                                <field name="rc"  attrs="{'readonly': [('fld_vsb','=',False)]}" />
-                            </group>
-                        </group>
-                        <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
-                            <group string="Droit actualisé (RH)" attrs="{'invisible': [('droit_actualise_vsb','=',False)]}">
-                                <field name="droit_cp_actualise"/>
-                                <field name="droit_rtt_actualise"/>
-                                <field name="droit_rc_actualise"/>
-                            </group>
-                        </group>
+                                <field name="demande_conges_ids" readonly="1" nolabel="1" attrs="{'invisible': [('demande_collective','!=','oui')]}">
+                                    <tree>
+                                        <field name="name"/>
+                                         <field name="state"        optional="show"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
@@ -327,22 +343,23 @@
             <field name="arch" type="xml">
                 <tree string="Demande de congés">
                     <field name="name"/>
-                    <field name="date_creation"/>
-                    <field name="type_demande"/>
-                    <field name="autre_id"/>
-                    <field name="date_debut"/>
-                    <field name="date_fin"/>
-                    <field name="le"/>
-                    <field name="valideur_n1"/>
-                    <field name="valideur_n2"/>
-                    <field name="responsable_rh_id"/>
-                    <field name="createur_id"/>
-                    <field name="demandeur_id"/>
-                    <field name="matricule"/>
-                    <field name="date_validation_n1"/>
-                    <field name="date_validation_n2"/>
-                    <field name="date_validation_rh"/>
-                    <field name="state"/>
+                    <field name="date_creation" optional="show"/>
+                    <field name="type_demande" optional="show"/>
+                    <field name="autre_id" optional="show"/>
+                    <field name="date_debut" optional="show"/>
+                    <field name="date_fin" optional="show"/>
+                    <field name="le" optional="show"/>
+                    <field name="valideur_n1" optional="show"/>
+                    <field name="valideur_n2" optional="show"/>
+                    <field name="responsable_rh_id" optional="show"/>
+                    <field name="createur_id" optional="show"/>
+                    <field name="demandeur_id" optional="show"/>
+                    <field name="matricule" optional="show"/>
+                    <field name="date_validation_n1" optional="show"/>
+                    <field name="date_validation_n2" optional="show"/>
+                    <field name="date_validation_rh" optional="show"/>
+                    <field name="export_paye" optional="hide"/>
+                    <field name="state" optional="show"/>
                 </tree>
             </field>
         </record>
