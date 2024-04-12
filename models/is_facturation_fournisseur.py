@@ -170,22 +170,23 @@ class is_facturation_fournisseur(models.Model):
                         test=False
                     if test:
                         vals = {
-                            'num_reception'     : row["num_reception"],
-                            'num_bl_fournisseur': row["is_num_bl"],
-                            'date_reception'    : row["is_date_reception"],
-                            'product_id'        : row["product_id"],
-                            'description'       : row["description"],
-                            'account_id'        : account_id,
-                            'ref_fournisseur'   : row["is_ref_fournisseur"],
-                            'quantite'          : qty,
-                            'uom_id'            : move.product_id.uom_po_id.id,
-                            'prix'              : row["price_unit"],
+                            'num_reception'      : row["num_reception"],
+                            'num_bl_fournisseur' : row["is_num_bl"],
+                            'date_reception'     : row["is_date_reception"],
+                            'product_id'         : row["product_id"],
+                            'description'        : row["description"],
+                            'account_id'         : account_id,
+                            'ref_fournisseur'    : row["is_ref_fournisseur"],
+                            'quantite_facturable': qty,
+                            'quantite'           : qty,
+                            'uom_id'             : move.product_id.uom_po_id.id,
+                            'prix'               : row["price_unit"],
                             #'prix_origine'      : row["price_unit"],
-                            'total'             : total,
-                            'taxe_ids'          : [(6,0,taxe_ids)],
-                            'taxe_taux'         : taxe_taux,
-                            'move_id'           : row["move_id"],
-                            'selection'         : False,
+                            'total'              : total,
+                            'taxe_ids'           : [(6,0,taxe_ids)],
+                            'taxe_taux'          : taxe_taux,
+                            'move_id'            : row["move_id"],
+                            'selection'          : False,
                         }
                         lines.append([0,0,vals])
                 obj.line_ids = False
@@ -297,7 +298,8 @@ class is_facturation_fournisseur(models.Model):
             for line in obj.line_ids:
                 if line.selection:
                     if line.move_id:
-                        line.move_id.invoice_state='invoiced'
+                        if line.quantite>=line.quantite_facturable:
+                            line.move_id.invoice_state='invoiced'
                         line.move_id.picking_id._compute_invoice_state()
                         #test=True
                         #for l in line.move_id.picking_id.move_ids_without_package:
@@ -458,23 +460,24 @@ class is_facturation_fournisseur_line(models.Model):
             obj.prix_origine = obj.prix
 
 
-    facturation_id     = fields.Many2one('is.facturation.fournisseur', 'Facturation fournisseur', required=True, ondelete='cascade')
-    num_reception      = fields.Char('N° de réception')
-    num_bl_fournisseur = fields.Char('N° BL fournisseur')
-    date_reception     = fields.Date('Date réception')
-    product_id         = fields.Many2one('product.product', 'Article')
-    description        = fields.Char('Description')
-    account_id         = fields.Many2one('account.account', 'Compte')
-    ref_fournisseur    = fields.Char('Référence fournisseur')
-    quantite           = fields.Float('Reste à facturer', digits='Product Unit of Measure')
-    uom_id             = fields.Many2one('uom.uom', 'Unité')
-    prix               = fields.Float('Prix'          , digits=(14,4))
-    prix_origine       = fields.Float("Prix d'origine", digits=(14,4), compute='_compute_prix_origine', readonly=True, store=True)
-    total              = fields.Float("Total" , digits=(14,4), compute='_compute', readonly=True, store=False)
-    taxe_ids           = fields.Many2many('account.tax', 'is_facturation_fournisseur_line_taxe_ids', 'facturation_id', 'taxe_id', 'Taxes')
-    taxe_taux          = fields.Float('Taux', compute='_compute', readonly=True, store=False)
-    selection          = fields.Boolean('Sélection', default=True)
-    move_id            = fields.Many2one('stock.move', 'Mouvement de stock')
+    facturation_id      = fields.Many2one('is.facturation.fournisseur', 'Facturation fournisseur', required=True, ondelete='cascade')
+    num_reception       = fields.Char('N° de réception')
+    num_bl_fournisseur  = fields.Char('N° BL fournisseur')
+    date_reception      = fields.Date('Date réception')
+    product_id          = fields.Many2one('product.product', 'Article')
+    description         = fields.Char('Description')
+    account_id          = fields.Many2one('account.account', 'Compte')
+    ref_fournisseur     = fields.Char('Référence fournisseur')
+    quantite_facturable = fields.Float('Qt facturable', digits='Product Unit of Measure')
+    quantite            = fields.Float('Qt à facturer', digits='Product Unit of Measure')
+    uom_id              = fields.Many2one('uom.uom', 'Unité')
+    prix                = fields.Float('Prix'          , digits=(14,4))
+    prix_origine        = fields.Float("Prix d'origine", digits=(14,4), compute='_compute_prix_origine', readonly=True, store=True)
+    total               = fields.Float("Total" , digits=(14,4), compute='_compute', readonly=True, store=False)
+    taxe_ids            = fields.Many2many('account.tax', 'is_facturation_fournisseur_line_taxe_ids', 'facturation_id', 'taxe_id', 'Taxes')
+    taxe_taux           = fields.Float('Taux', compute='_compute', readonly=True, store=False)
+    selection           = fields.Boolean('Sélection', default=True)
+    move_id             = fields.Many2one('stock.move', 'Mouvement de stock')
 
 
     def action_cocher_lignes(self):

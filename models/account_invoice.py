@@ -99,12 +99,13 @@ class account_invoice(models.Model):
     def _compute_name(self):
         res=super()._compute_name()
         for obj in self:
-            for line in obj.invoice_line_ids:
-                state="2binvoiced"
-                if obj.state in ["posted","draft"]:
-                    state="invoiced"
-                line.is_move_id.invoice_state = state
-                line.is_move_id.picking_id._compute_invoice_state()
+            if obj.move_type in ['out_invoice','out_refund']:
+                for line in obj.invoice_line_ids:
+                    state="2binvoiced"
+                    if obj.state in ["posted","draft"]:
+                        state="invoiced"
+                    line.is_move_id.invoice_state = state
+                    line.is_move_id.picking_id._compute_invoice_state()
         return res
 
 

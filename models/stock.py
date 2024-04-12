@@ -566,10 +566,6 @@ class stock_picking(models.Model):
 
     def action_assign(self):
         for obj in self : 
-
-            print('action_assign',obj)
-
-
             if obj.picking_type_id.code=='outgoing':
                 for move in obj.move_ids_without_package:
                     move.move_line_ids.unlink()

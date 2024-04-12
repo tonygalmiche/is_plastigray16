@@ -97,6 +97,7 @@
                                 <field name="description" optional="show"/>
                                 <field name="ref_fournisseur" optional="show"/>
                                 <field name="account_id" optional="show"/>
+                                <field name="quantite_facturable" optional="hide" readonly="1" force_save="1"/>
                                 <field name="quantite" optional="show"/>
                                 <field name="uom_id" optional="show"/>
                                 <field name="prix_origine" optional="show"/>
