@@ -378,7 +378,7 @@ class is_demande_conges(models.Model):
 
     def write(self,vals):
         res=super(is_demande_conges, self).write(vals)
-        #self.test_dates()
+        self.test_dates()
         return res
 
 
