@@ -6,7 +6,6 @@
             <field name="model">res.company</field>
             <field name="inherit_id" ref="base.view_company_form" />
             <field name="arch" type="xml">
-
                 <xpath expr="//sheet[1]" position="inside">
                     <style>
                         .o_form_label{
@@ -14,15 +13,9 @@
                         }
                     </style>
                 </xpath>
-
-
                 <notebook position="inside">
                     <page string="Configuration Plastigray">
                         <group>
-                            <!-- <group string="Couleurs de l'interface">
-                                <field name="bg_color" widget="color"/>
-                                <field name="text_color" widget="color"/>
-                            </group> -->
                             <group string="Multi-coeurs">
                                 <field name="is_nb_threads"/>
                             </group>
@@ -52,8 +45,6 @@
                             <field name="is_acheteur_id"/>
                             <field name="is_gest_demande_transport_id"/>
                             <field name="is_responsable_rh_id" />
-
-
                         </group>
                         <group string="THEIA">
                             <field name="is_code_societe"/>
@@ -74,6 +65,7 @@
                         </group>
                         <group>
                             <group string="Autre">
+                                <field name="is_temps_effectif_par_jour"/>
                                 <field name="is_cout_ctrl_qualite"/>
                                 <field name="is_dossier_interface_cegid"/>
                                 <field name="is_calendrier_expedition_id"/>

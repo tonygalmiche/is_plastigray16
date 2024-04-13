@@ -31,9 +31,9 @@
                         }
                     </style>
                 </xpath>
-                <form position="attributes">
+                <!-- <form position="attributes">
                     <attribute name="create">0</attribute>
-                </form>
+                </form> -->
                 <xpath expr="//button[@name='action_assign']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>

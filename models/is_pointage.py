@@ -2,6 +2,7 @@
 
 from odoo import models,fields,api,tools
 from datetime import datetime
+from dateutil.relativedelta import relativedelta 
 import time
 import pytz
 from pytz import timezone
@@ -37,6 +38,20 @@ class is_jour_ferie(models.Model):
     name      = fields.Char("Intitulé",size=100,help='Intitulé du jour férié (ex : Pâques)', required=True, index=True)
     date      = fields.Date("Date",required=True)
     jour_fixe = fields.Boolean('jour férié fixe',  help="Cocher pour préciser que ce jour férié est valable tous les ans")
+
+
+    def get_jours_feries(self):
+        dates=[]
+        year = datetime.today().year
+        lines = self.env['is.jour.ferie'].search([])
+        for line in lines:
+            ladate = line.date
+            if line.jour_fixe:
+                nb_years = year-line.date.year
+                ladate = line.date + relativedelta(years=nb_years) 
+            if ladate not in dates:
+                dates.append(ladate)
+        return dates
 
 
 class is_pointage_commentaire(models.Model):

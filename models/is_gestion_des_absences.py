@@ -569,8 +569,10 @@ class is_demande_conges(models.Model):
                                         ('matin', 'Matin'),
                                         ('apres_midi', u'Après-midi')
                                         ], string=u'Matin ou après-midi')
+    nb_jours                      = fields.Float("Nb jours", digits=(14, 2), compute='_compute_nb_jours_nb_heures',store=True,readonly=True)
     heure_debut                   = fields.Float(u"Heure début", digits=(14, 2))
     heure_fin                     = fields.Float(u"Heure fin"  , digits=(14, 2))
+    nb_heures                     = fields.Float("Nb heures", digits=(14, 2), compute='_compute_nb_jours_nb_heures',store=True,readonly=True)
     raison_du_retour              = fields.Text(string='Motif du retour'       , copy=False)
     raison_annulation             = fields.Text(string='Motif refus/annulation', copy=False)
     demande_collective            = fields.Selection([
@@ -598,8 +600,119 @@ class is_demande_conges(models.Model):
     fld_vsb                    = fields.Boolean(string='Field Vsb'                 , compute='_get_btn_vsb', default=False, readonly=True)
     droit_actualise_vsb        = fields.Boolean(string='droit_actualise_vsb'       , compute='_get_btn_vsb', default=False, readonly=True)
     export_paye                = fields.Boolean(string='Exporté en paye', default=False, copy=False, tracking=True)
-    #demande_en_cours_ids       = fields.Many2many('is.demande.conges', 'is_demande_conges_demande_en_cours_ids_rel', 'demande_id', 'demande_en_cours_id', string='Demandes en cours',compute="_compute_demande_en_cours_ids",store=True,readonly=True,copy=False)
     demande_en_cours_ids       = fields.Many2many('is.demande.conges', string='Demandes en cours',compute="_compute_demande_en_cours_ids",store=False,readonly=True,copy=False)
+    recapitulatif              = fields.Html(string='Récapitulatif', compute='_compute_recapitulatif')
+
+
+
+    def get_cp_rc(self):
+        for obj in self:
+            demandes_cp=0
+            demandes_rc=0
+            if obj.type_demande=='rc_journee':
+                company = self.env.user.company_id
+                demandes_rc = obj.nb_jours*company.is_temps_effectif_par_jour
+            if obj.type_demande=='rc':
+                demandes_rc = obj.nb_heures
+            if obj.type_demande in ('cp_rtt_journee','cp_rtt_demi_journee'):
+                demandes_cp = obj.nb_jours
+            return (demandes_cp,demandes_rc)
+
+
+    @api.depends('state','date_debut','date_fin','le','heure_debut','heure_fin')
+    def _compute_recapitulatif(self):
+        company = self.env.user.company_id
+        for obj in self:
+            droit_cp = obj.droit_cp_actualise + obj.droit_rtt_actualise
+            droit_rc = obj.droit_rc_actualise
+            #demandes_cp, demandes_rc = obj.get_cp_rc()
+            demandes_cp = demandes_rc = 0
+            for line in obj.demande_en_cours_ids:
+                cp,rc = line.get_cp_rc()
+                demandes_cp+=cp
+                demandes_rc+=rc
+            solde_cp = droit_cp - demandes_cp
+            solde_rc = droit_rc - demandes_rc
+            style_cp=style_rc=""
+            if solde_cp<0:
+                style_cp = "background-color:orange"
+            if solde_rc<0:
+                style_rc = "background-color:orange"
+            html="""
+                <table style="width:100%%;margin-top:1em" class="o_list_table table table-sm table-hover position-relative mb-0 o_list_table_ungrouped table-striped">
+                    <thead>
+                        <tr><th>Intitulé</th><th>CP ou RTT (Jour)</th><th>RC (Heure)</th></tr>
+                    </thead
+                    <tbody>
+                        <tr><td>Droits état paye</td><td> %s </td><td> %s </td></tr>
+                        <tr><td>Demandes en cours</td><td> %s </td><td> %s </td></tr>
+                        <tr><td>Solde restant</td><td style="%s"> %s </td><td style="%s"> %s </td></tr>
+                    </tbody>
+                </table>
+            """%(droit_cp,droit_rc,demandes_cp,demandes_rc,style_cp,solde_cp,style_rc,solde_rc)
+            obj.recapitulatif=html
+
+
+    @api.onchange('type_demande')
+    def on_change_type_demande(self):
+        if self.type_demande=='rc_heures':
+            self.date_debut=False
+            self.date_fin=False
+            self.le=False
+            self.matin_ou_apres_midi=False
+        if self.type_demande=='cp_rtt_demi_journee':
+            self.date_debut=False
+            self.date_fin=False
+        if self.type_demande!='rc_heures':
+            self.heure_debut=False
+            self.heure_fin=False
+            self.le=False
+
+
+    def get_jours_ouvres(self,date_debut,date_fin):
+        "Compte les jours ouvrés entre 2 dates en enlevant les wwek-end et jours fériés"
+        for obj in self:
+            jours_feries = self.env['is.jour.ferie'].get_jours_feries()
+            nb_jours=0
+            nb = (date_fin-date_debut).days+1
+            ladate = date_debut
+            for d in range(0,nb):
+                if ladate.isoweekday() not in (6,7):
+                    if ladate not in jours_feries:
+                        nb_jours+=1
+                ladate += timedelta(days=1)
+            return nb_jours
+    
+
+    @api.depends('state','date_debut','date_fin','le','heure_debut','heure_fin')
+    def _compute_nb_jours_nb_heures(self):
+        for obj in self:
+            nb_jours=0
+            nb_heures=0
+            if obj.heure_debut and obj.heure_fin:
+                nb_heures = obj.heure_fin - obj.heure_debut
+            else:
+                if obj.date_debut and obj.date_fin:
+                    nb_jours = obj.get_jours_ouvres(obj.date_debut, obj.date_fin)
+                else:
+                    if obj.le:
+                        nb_jours=0.5
+            obj.nb_jours  = nb_jours
+            obj.nb_heures = nb_heures
+            if obj.state in ('creation','validation_n1','validation_n2'):
+                if obj.type_demande=='rc_journee':
+                    company = self.env.user.company_id
+                    nb_heures = obj.nb_jours*company.is_temps_effectif_par_jour
+                    print(company,company.is_temps_effectif_par_jour,nb_heures)
+                    obj.cp = 0
+                    obj.rc = nb_heures
+                else:
+                    obj.cp = nb_jours
+                    obj.rc = nb_heures
+
+
+
+
 
 
     @api.depends('state','export_paye')
@@ -607,34 +720,18 @@ class is_demande_conges(models.Model):
         for obj in self:
             ids=[]
             if str(obj.date_debut or '')>='2024-04-01' or str(obj.le or '')>='2024-04-01':
-                print(str(obj.date_debut),str(obj.le))
                 filtre=[
-                    ('id', '!=', obj.id),
+                    #('id', '!=', obj.id),
                     ('demandeur_id', '=', obj.demandeur_id.id),
                     ('type_demande', 'not in', ['sans_solde','autre']),
-                    ('state', 'not in', ['creation','refuse','annule']),
+                    ('state', 'not in', ['refuse','annule']),
                     ('export_paye', '=', False),
                     '|',('date_debut', '>=', '2024-04-01'),('le', '>=', '2024-04-01'),
                 ]
                 demandes = self.env['is.demande.conges'].search(filtre, limit=100)
                 for demande in demandes:
                     ids.append(demande.id)
-            print(obj.name,ids)
             obj.sudo().demande_en_cours_ids = ids
-
-
-
-# _TYPE_DEMANDE = [
-#     ('cp_rtt_journee'     , u'CP ou RTT par journée entière'),
-#     ('cp_rtt_demi_journee', u'CP ou RTT par ½ journée'),
-#     ('rc_heures'          , u'RC en heures'),
-#     ('sans_solde'         , u'Congés sans solde'),
-#     ('autre'              , u'Autre'),
-# ]
-
-
-
-
 
 
     def get_calendrier_absence(self, 

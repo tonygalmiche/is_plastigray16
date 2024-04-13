@@ -199,6 +199,12 @@
                                     }"
                                 />
                                 <field 
+                                    name="nb_jours"
+                                    attrs="{
+                                        'invisible': [('type_demande', 'not in', ['cp_rtt_journee','sans_solde','autre','rc_journee','cp_rtt_demi_journee'])],
+                                    }" 
+                                />
+                                <field 
                                     name="heure_debut"
                                     attrs="{
                                         'invisible': [('type_demande', '!=', 'rc_heures')],
@@ -211,6 +217,14 @@
                                     attrs="{
                                         'invisible': [('type_demande', '!=', 'rc_heures')],
                                         'required': [('type_demande', '==', 'rc_heures')]
+                                    }" 
+                                    widget="float_time"
+                                />
+
+                                <field 
+                                name="nb_heures"
+                                    attrs="{
+                                        'invisible': [('type_demande', '!=', 'rc_heures')],
                                     }" 
                                     widget="float_time"
                                 />
@@ -250,30 +264,37 @@
                                         <field name="droit_rc"/>
                                     </group>
                                     <group string="Responsable RH">
-                                        <field name="cp"          attrs="{'readonly': [('fld_vsb','=',False)]}" />
-                                        <field name="rtt"         attrs="{'readonly': [('fld_vsb','=',False)]}" />
-                                        <field name="rc"          attrs="{'readonly': [('fld_vsb','=',False)]}" />
-                                        <field name="export_paye" attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="cp"            attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="rtt"           attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="rc"            attrs="{'readonly': [('fld_vsb','=',False)]}" />
+                                        <field name="export_paye"   attrs="{'readonly': [('fld_vsb','=',False)]}" />
                                     </group>
                                 </group>
-                                <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
+                                <!-- <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
                                     <group string="Droit actualisé (RH)" attrs="{'invisible': [('droit_actualise_vsb','=',False)]}">
                                         <field name="droit_cp_actualise"/>
                                         <field name="droit_rtt_actualise"/>
                                         <field name="droit_rc_actualise"/>
                                     </group>
+                                </group> -->
+                                <group>
+                                    <group string="Demandes en cours">
+                                        <field name="demande_en_cours_ids" attrs="{'invisible': [('demande_en_cours_ids','=',[])]}" nolabel="1" colspan="2">
+                                            <tree>
+                                                <field name="name"/>
+                                                <field name="type_demande" optional="show"/>
+                                                <field name="autre_id"     optional="hide"/>
+                                                <field name="date_debut"   optional="show"/>
+                                                <field name="date_fin"     optional="show"/>
+                                                <field name="le"           optional="show"/>
+                                                <field name="state"        optional="show"/>
+                                            </tree>
+                                        </field>
+                                    </group>
+                                    <group string="Récapitulatif">
+                                        <field name="recapitulatif" attrs="{'readonly': [('fld_vsb','=',False)]}" nolabel="1" colspan="2"/>
+                                    </group>
                                 </group>
-                                <field name="demande_en_cours_ids" attrs="{'invisible': [('demande_en_cours_ids','=',[])]}" >
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="type_demande" optional="show"/>
-                                        <field name="autre_id"     optional="hide"/>
-                                        <field name="date_debut"   optional="show"/>
-                                        <field name="date_fin"     optional="show"/>
-                                        <field name="le"           optional="show"/>
-                                        <field name="state"        optional="show"/>
-                                    </tree>
-                                </field>
                             </page>
                             <page string="Cycle de validation">
                                 <group>

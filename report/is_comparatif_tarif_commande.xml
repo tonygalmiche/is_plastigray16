@@ -10,8 +10,10 @@
                 <field name="sale_id"        widget="many2one_clickable" />
                 <field name="partner_id"     widget="many2one_clickable" />
                 <field name="is_category_id" />
+                <field name="product_uom_qty" />
+                <field name="is_date_livraison" />
                 <field name="prix_commande" />
-                <field name="justification" />
+                <field name="justification" optional="hide"/>
                 <field name="prix_liste_prix" />
                 <field name="delta" />
            </tree>

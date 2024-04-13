@@ -50,9 +50,9 @@ class res_company(models.Model):
 
     is_responsable_rh_id = fields.Many2one('res.users', string='Responsable RH')
     is_zebra_id = fields.Many2one('is.raspberry.zebra', u"Imprimante Zebra par défaut", help=u"Utilisé pour imprimer les étiquettes des équipements")
-
     is_activer_init = fields.Boolean('Activer les fonctions init des modèles', default=True, help="Désactiver cette option en mode développement pour accélérer la mise à jour du module")
-
+    
+    is_temps_effectif_par_jour = fields.Float("Temps effectif par jour (H)", digits=(12, 2), default=7.66, help="Utilisé dans la gestion des congés")
 
 
     def write(self, vals):
