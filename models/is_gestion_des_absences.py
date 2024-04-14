@@ -267,8 +267,8 @@ class is_demande_conges(models.Model):
             ce_mois      = str(date.today())[:8]
             if mois_demande<ce_mois and self.responsable_rh_id.id!=uid and uid!=1:
                 raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
-            if str(self.date_debut)[:8]!=str(self.date_fin)[:8]:
-                raise ValidationError(u"La date de fin doit être dans le même mois que la date de début")
+            #if str(self.date_debut)[:8]!=str(self.date_fin)[:8]:
+            #    raise ValidationError(u"La date de fin doit être dans le même mois que la date de début")
             if self.date_debut>self.date_fin:
                 raise ValidationError(u"La date de fin doit être supérieure à la date de début")
         return True
