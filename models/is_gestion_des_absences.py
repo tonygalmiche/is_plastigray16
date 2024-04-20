@@ -1106,7 +1106,7 @@ class is_demande_conges_export_cegid(models.Model):
                     idc.type_demande not in ('autre','sans_solde') and
                     idc.state in ('solde','validation_rh') and
                     (idc.cp>0 or idc.rtt>0 or idc.rc>0) and
-                    ids.active='t'
+                    idc.active='t'
                 ORDER BY ru.login,idc.name
             """
             cr.execute(SQL,[obj.date_debut,obj.date_fin,obj.date_debut,obj.date_fin])
