@@ -94,7 +94,7 @@ class is_ligne_reception(models.Model):
         cr.execute("""
             CREATE OR REPLACE view is_ligne_reception AS (
                 select  sm.id,
-                        (pol.date_planned + interval '1 hour') as date_planned,
+                        (pol.date_planned + interval '2 hour') as date_planned,
                         sp.id                 as picking_id, 
                         sp.is_num_bl          as num_bl,
                         sp.date_done          as date_transfert,

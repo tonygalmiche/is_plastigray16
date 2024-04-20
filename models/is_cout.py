@@ -262,13 +262,13 @@ class is_cout_calcul(models.Model):
         """Recherche prix dernière commande"""
         cr = self._cr
         SQL="""
-            select pol.price_unit*pu.factor
-            from purchase_order_line pol inner join uom_uom pu on pol.product_uom=pu.id
-            where pol.product_id="""+str(product.id)+ """ 
-                  and state in('confirmed','done')
+            select pol.price_unit*pu.factor,pol.id,pol.date_planned,pol.order_id,po.state,po.name
+            from purchase_order_line pol join uom_uom pu on pol.product_uom=pu.id
+                                         join purchase_order po on pol.order_id=po.id 
+            where pol.product_id=%s and po.state in ('purchase','done')
             order by pol.id desc limit 1
         """
-        cr.execute(SQL)
+        cr.execute(SQL,[product.id])
         result = cr.fetchall()
         prix_commande=0
         for row in result:
@@ -632,7 +632,7 @@ class is_cout_calcul(models.Model):
             products=self.env['product.product'].search([('id', '=', obj.product_id.id), ('is_category_id', 'in', cats)])
         else:
             if obj.segment_id:
-                products=self.env['product.product'].search([('segment_id', '=', obj.segment_id.id), ('is_category_id', 'in', cats)], limit=10000)
+                products=self.env['product.product'].search([('segment_id', '=', obj.segment_id.id), ('is_category_id', 'in', cats)])
             else:
                 if obj.is_category_id:
                     products=self.env['product.product'].search([('is_category_id', '=', obj.is_category_id.id)], limit=10000)
@@ -1120,7 +1120,6 @@ class is_cout(models.Model):
             cout_calcul=self.env['is.cout.calcul'].create(vals)
             cout_calcul.action_calcul_prix_achat_thread(nb_threads=0)
             cout_calcul.action_calcul_prix_revient()
-            
             return {
                 'name': obj.name.name,
                 'view_mode': 'form',
