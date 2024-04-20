@@ -85,6 +85,14 @@
 
 
         <!-- Demande de congés -->
+        <record id="repartir_par_mois_action_server" model="ir.actions.server">
+            <field name="name">Répartir par mois</field>
+           <field name="model_id" ref="model_is_demande_conges"/>
+           <field name="binding_model_id" ref="model_is_demande_conges"/>
+           <field name="binding_view_types">form</field>
+           <field name="state">code</field>
+           <field name="code">action = records.repartir_par_mois_action()</field>
+       </record>
         <record id="seq_is_demande_conges" model="ir.sequence">
             <field name="name">Demande de congés Sequence</field>
             <field name="code">is.demande.conges</field>
@@ -144,6 +152,8 @@
                             statusbar_visible="creation,validation_n1,validation_n2,validation_rh,solde" />
                     </header>
                     <sheet>
+                        <widget name="web_ribbon" title="Archivée" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/> 
                         <group>
                             <group string="DEMANDE DE CONGÉS">
                                 <field 
@@ -220,7 +230,6 @@
                                     }" 
                                     widget="float_time"
                                 />
-
                                 <field 
                                 name="nb_heures"
                                     attrs="{
@@ -229,8 +238,9 @@
                                     widget="float_time"
                                 />
                             </group>
-
-                            <group string="INFORMATION DEMANDEUR">
+                            <group string="Informations">
+                                <field name="name" readonly="1" />
+                                <field name="demande_origine_id" attrs="{'invisible': [('demande_origine_id', '=', False)]}"/>
                                 <field 
                                     name="matricule"
                                     attrs="{
@@ -250,11 +260,22 @@
                                     name="mobile"
                                     attrs="{'invisible': [('mobile','=',False)]}"
                                 />
+                                <field 
+                                    name="employe_id"
+                                    attrs="{
+                                        'invisible': ['|',
+                                            ('demande_collective','!=','non'),
+                                            ('state','!=','creation'),
+                                        ],
+                                    }"
+                                    domain="['|','|',
+                                        ('user_id'       , '=', uid),
+                                        ('is_valideur_n1', '=', uid),
+                                        ('is_valideur_n2', '=', uid),
+                                    ]"
+                                />
                             </group>
                         </group>
-
-
-
                         <notebook>
                             <page string="Droits aux congés">
                                 <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
@@ -270,16 +291,9 @@
                                         <field name="export_paye"   attrs="{'readonly': [('fld_vsb','=',False)]}" />
                                     </group>
                                 </group>
-                                <!-- <group  attrs="{'invisible': [('demande_collective','!=','non')]}">
-                                    <group string="Droit actualisé (RH)" attrs="{'invisible': [('droit_actualise_vsb','=',False)]}">
-                                        <field name="droit_cp_actualise"/>
-                                        <field name="droit_rtt_actualise"/>
-                                        <field name="droit_rc_actualise"/>
-                                    </group>
-                                </group> -->
-                                <group>
-                                    <group string="Demandes en cours">
-                                        <field name="demande_en_cours_ids" attrs="{'invisible': [('demande_en_cours_ids','=',[])]}" nolabel="1" colspan="2">
+                                 <group>
+                                    <group string="Demandes en cours" attrs="{'invisible': ['|',('demande_en_cours_ids','=',[]),('active','=',False)]}">
+                                        <field name="demande_en_cours_ids" nolabel="1" colspan="2">
                                             <tree>
                                                 <field name="name"/>
                                                 <field name="type_demande" optional="show"/>
@@ -291,8 +305,8 @@
                                             </tree>
                                         </field>
                                     </group>
-                                    <group string="Récapitulatif">
-                                        <field name="recapitulatif" attrs="{'readonly': [('fld_vsb','=',False)]}" nolabel="1" colspan="2"/>
+                                    <group string="Récapitulatif" attrs="{'invisible': ['|',('demande_en_cours_ids','=',[]),('active','=',False)]}">
+                                        <field name="recapitulatif" nolabel="1" colspan="2"/>
                                     </group>
                                 </group>
                             </page>
@@ -307,26 +321,11 @@
                                         <field name="date_validation_rh" readonly="1" />
                                     </group>
                                     <group string="INFORMATION SUR LA DEMANDE">
-                                        <field name="name" readonly="1" />
                                         <field name="createur_id" readonly="1" />
                                         <!-- <field name="date_creation" readonly="1" /> -->
                                         <field name="demande_collective"    readonly="1"/>
                                         <field name="demande_collective_id" readonly="1" attrs="{'invisible': [('demande_collective_id','=',False)]}"/>
-                                        <field 
-                                            name="employe_id"
-                                            attrs="{
-                                                'invisible': ['|',
-                                                    ('demande_collective','!=','non'),
-                                                    ('state','!=','creation'),
-                                                ],
-                                            }"
-                                            domain="['|','|',
-                                                ('user_id'       , '=', uid),
-                                                ('is_valideur_n1', '=', uid),
-                                                ('is_valideur_n2', '=', uid),
-                                            ]"
-                                        />
-                                        <field name="raison_annulation"  readonly="True" attrs="{'invisible': [('raison_annulation','=',False)]}"/>
+                                         <field name="raison_annulation"  readonly="True" attrs="{'invisible': [('raison_annulation','=',False)]}"/>
                                         <field name="raison_du_retour"   readonly="True" attrs="{'invisible': [('raison_du_retour','=',False)]}"/>
                                         <field name="fld_vsb" invisible="1" />
                                     </group>
@@ -364,6 +363,7 @@
             <field name="arch" type="xml">
                 <tree string="Demande de congés">
                     <field name="name"/>
+                    <field name="demande_origine_id" optional="hide" widget="many2one_clickable"/>
                     <field name="date_creation" optional="show"/>
                     <field name="type_demande" optional="show"/>
                     <field name="autre_id" optional="show"/>

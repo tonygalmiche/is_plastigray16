@@ -2,6 +2,7 @@
 from odoo import models, fields, api
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+import calendar
 from odoo.exceptions import ValidationError
 from xmlrpc import client as xmlrpclib
 import ssl
@@ -179,8 +180,39 @@ class is_demande_conges(models.Model):
             obj.state = "validation_n2"
         return True
 
-    def vers_validation_rh_action(self):
+
+
+
+    def repartir_par_mois_action(self):
+        demandes=[]
         for obj in self:
+            if str(obj.date_debut)[:8]!=str(obj.date_fin)[:8]:
+                ladate=obj.date_debut
+                while ladate<=obj.date_fin:
+                    cemois=calendar.monthrange(ladate.year,ladate.month)
+                    dernier_du_mois=cemois[1]
+                    delta = dernier_du_mois - ladate.day
+                    date_debut=ladate
+                    date_fin = ladate+timedelta(days=delta)
+                    if str(date_debut)[:8]==str(obj.date_fin)[:8]:
+                        date_fin = obj.date_fin
+                    copy=obj.copy()
+                    copy.demande_origine_id = obj.id
+                    copy.date_debut = date_debut
+                    copy.date_fin   = date_fin
+                    copy._compute_nb_jours_nb_heures()
+                    copy.state      = obj.state
+                    ladate=date_fin+timedelta(days=1)
+                    demandes.append(copy)
+                obj.active=False
+            else:
+                demandes.append(obj)
+        return demandes
+
+
+    def vers_validation_rh_action(self):
+        demandes = self.repartir_par_mois_action()
+        for obj in demandes:
             if obj.demande_collective=='oui':
                 for demande in obj.demande_conges_ids:
                     demande.vers_validation_rh_action()
@@ -194,17 +226,17 @@ class is_demande_conges(models.Model):
                 if obj.mode_communication in ['courriel','courriel+sms'] and obj.courriel:
                     email_cc = obj.courriel
                 nom = user.name
-                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                base_url = obj.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 url = base_url + u'/web#id=' + str(obj.id) + u'&view_type=form&model=is.demande.conges'
                 body_html = u""" 
                     <p>Bonjour,</p> 
                     <p>""" + nom + """ vient de passer la Demande de congés <a href='""" + url + """'>""" + obj.name + """</a> à l'état 'Validation RH'.</p> 
                     <p>Merci d'en prendre connaissance.</p> 
                 """ 
-                self.envoi_mail(email_from, email_to, email_cc, subject, body_html)
+                obj.envoi_mail(email_from, email_to, email_cc, subject, body_html)
                 subject   = u"vers Validation RH"
                 body_html = u"<p>Mail envoyé de "+str(email_from)+u" à "+str(email_to)+u" (cc="+str(email_cc)+u")</p>"+body_html
-                self.creer_notification(subject,body_html)
+                obj.creer_notification(subject,body_html)
                 if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
                     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation RH'."""
                 #** Creation du commentaire de pointage ************************
@@ -232,9 +264,20 @@ class is_demande_conges(models.Model):
                     obj.ajouter_dans_agenda()
             except:
                 pass
-
             obj.state = "validation_rh"
-        return True
+        if len(demandes)>1:
+            ids=[]
+            for demande in demandes:
+                ids.append(demande.id)
+            return {
+                'name': "Demande de congés",
+                'view_mode': 'tree,form',
+                'res_model': 'is.demande.conges',
+                'type': 'ir.actions.act_window',
+                'domain': [('id','in',ids)],
+            }
+        else:
+            return True
 
     def vers_solde_action(self):
         for obj in self:
@@ -262,15 +305,16 @@ class is_demande_conges(models.Model):
 
     def test_dates(self):
         uid=self._uid
-        if self.date_debut and self.date_fin:
-            mois_demande = str(self.date_debut)[:8]
-            ce_mois      = str(date.today())[:8]
-            if mois_demande<ce_mois and self.responsable_rh_id.id!=uid and uid!=1:
-                raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
-            #if str(self.date_debut)[:8]!=str(self.date_fin)[:8]:
-            #    raise ValidationError(u"La date de fin doit être dans le même mois que la date de début")
-            if self.date_debut>self.date_fin:
-                raise ValidationError(u"La date de fin doit être supérieure à la date de début")
+        for obj in self:
+            if obj.date_debut and obj.date_fin:
+                mois_demande = str(obj.date_debut)[:8]
+                ce_mois      = str(date.today())[:8]
+                if mois_demande<ce_mois and obj.responsable_rh_id.id!=uid and uid!=1:
+                    raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
+                #if str(obj.date_debut)[:8]!=str(obj.date_fin)[:8]:
+                #    raise ValidationError(u"La date de fin doit être dans le même mois que la date de début")
+                if obj.date_debut>obj.date_fin:
+                    raise ValidationError(u"La date de fin doit être supérieure à la date de début")
         return True
 
 
@@ -602,7 +646,8 @@ class is_demande_conges(models.Model):
     export_paye                = fields.Boolean(string='Exporté en paye', default=False, copy=False, tracking=True)
     demande_en_cours_ids       = fields.Many2many('is.demande.conges', string='Demandes en cours',compute="_compute_demande_en_cours_ids",store=False,readonly=True,copy=False)
     recapitulatif              = fields.Html(string='Récapitulatif', compute='_compute_recapitulatif')
-
+    active                     = fields.Boolean(string='Active', default=True, copy=False)
+    demande_origine_id         = fields.Many2one('is.demande.conges', "Demande d'origine", readonly=True, copy=False)
 
 
     def get_cp_rc(self):
@@ -703,16 +748,11 @@ class is_demande_conges(models.Model):
                 if obj.type_demande=='rc_journee':
                     company = self.env.user.company_id
                     nb_heures = obj.nb_jours*company.is_temps_effectif_par_jour
-                    print(company,company.is_temps_effectif_par_jour,nb_heures)
                     obj.cp = 0
                     obj.rc = nb_heures
                 else:
                     obj.cp = nb_jours
                     obj.rc = nb_heures
-
-
-
-
 
 
     @api.depends('state','export_paye')
@@ -942,6 +982,8 @@ class is_demande_conges(models.Model):
 
 
 
+
+
 class is_demande_conges_autre(models.Model):
     _name        = 'is.demande.conges.autre'
     _description="is_demande_conges_autre"
@@ -1063,7 +1105,8 @@ class is_demande_conges_export_cegid(models.Model):
                     (idc.le>=%s and idc.le<=%s)) and
                     idc.type_demande not in ('autre','sans_solde') and
                     idc.state in ('solde','validation_rh') and
-                    (idc.cp>0 or idc.rtt>0 or idc.rc>0)
+                    (idc.cp>0 or idc.rtt>0 or idc.rc>0) and
+                    ids.active='t'
                 ORDER BY ru.login,idc.name
             """
             cr.execute(SQL,[obj.date_debut,obj.date_fin,obj.date_debut,obj.date_fin])

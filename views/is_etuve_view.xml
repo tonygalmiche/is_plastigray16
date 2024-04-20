@@ -209,14 +209,13 @@
                                 <field name="capacite"/>
                                 <field name="dessication"/>
                                 <field name="matiere_id"/>
-                                <!-- on_change="" -->
                                 <field name="tmp_etuvage"/>
                                 <field name="tps_etuvage"/>
                                 <field name="densite"/>
                                 <field name="dessication_matiere"/>
                                 <field name="capacite_maxi"/>
                                 <field name="conso_horaire"/>
-                                <field name="taux_utilisation"/>
+                                <field name="taux_utilisation" widget="is_progressbar"/>
                                 <field name="test_taux" invisible="1"/>
                                 <field style="background:orange;font-size:13pt" name="message" readonly="1" attrs="{'invisible':[('test_taux','=',False)]}"/>
                             </group>
@@ -227,8 +226,6 @@
                                 <field name="commentaire_optionel"/>
                                 <field name="fake_mot_de_passe" string="" style="visibility: hidden"/>
                                 <field name="mot_de_passe" password="True" autocomplete="off"/>
-
-
                             </group>
                         </group>
                         <field name="of_ids" nolabel="1">
@@ -263,9 +260,7 @@
                     <field name="dessication"/>
                     <field name="matiere_id"/>
                     <field name="num_ordre_matiere"/>
-                    <!-- <field name="taux_utilisation" widget="progressbar"  options="{'title': 'test title'}" /> -->
                     <field name="taux_utilisation" widget="is_progressbar"/>
-
                     <field name="rsp_etuve_id"         optional="show"/>
                     <field name="commentaire_id"       optional="show"/>
                     <field name="commentaire_optionel" optional="show"/>
