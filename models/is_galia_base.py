@@ -40,15 +40,16 @@ class is_galia_base_um(models.Model):
             obj.product_id = product_id
             obj.qt_pieces  = qt_pieces
 
-    name             = fields.Char(u"N°Étiquette UM", readonly=True             , index=True)
-    liste_servir_id  = fields.Many2one('is.liste.servir', u'Liste à servir'     , index=True)
-    bon_transfert_id = fields.Many2one('is.bon.transfert', u'Bon de transfert'  , index=True)
-    production_id    = fields.Many2one('mrp.production', u'Ordre de fabrication', index=True)
-    uc_ids           = fields.One2many('is.galia.base.uc'  , 'um_id', u"UCs")
-    product_id       = fields.Many2one('product.product', u'Article', readonly=True, compute='_compute', store=False)
-    qt_pieces        = fields.Integer(u"Qt Pièces"                 , readonly=True, compute='_compute', store=False)
-    employee_id      = fields.Many2one("hr.employee", u"Employé")
-    date_fin         = fields.Datetime(u"Date fin UM")
+    name             = fields.Char("N°Étiquette UM", readonly=True             , index=True)
+    liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True)
+    bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True)
+    production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True)
+    uc_ids           = fields.One2many('is.galia.base.uc'  , 'um_id', "UCs")
+    product_id       = fields.Many2one('product.product', 'Article', readonly=True, compute='_compute', store=False)
+    qt_pieces        = fields.Integer("Qt Pièces"                 , readonly=True, compute='_compute', store=False)
+    employee_id      = fields.Many2one("hr.employee", "Employé")
+    date_fin         = fields.Datetime("Date fin UM")
+    active           = fields.Boolean("Active", default=True, copy=False)
 
 
     @api.model_create_multi
