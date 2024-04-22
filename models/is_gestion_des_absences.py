@@ -657,7 +657,7 @@ class is_demande_conges(models.Model):
             if obj.type_demande=='rc_journee':
                 company = self.env.user.company_id
                 demandes_rc = obj.nb_jours*company.is_temps_effectif_par_jour
-            if obj.type_demande=='rc':
+            if obj.type_demande=='rc_heures':
                 demandes_rc = obj.nb_heures
             if obj.type_demande in ('cp_rtt_journee','cp_rtt_demi_journee'):
                 demandes_cp = obj.nb_jours
@@ -670,14 +670,13 @@ class is_demande_conges(models.Model):
         for obj in self:
             droit_cp = obj.droit_cp_actualise + obj.droit_rtt_actualise
             droit_rc = obj.droit_rc_actualise
-            #demandes_cp, demandes_rc = obj.get_cp_rc()
             demandes_cp = demandes_rc = 0
             for line in obj.demande_en_cours_ids:
                 cp,rc = line.get_cp_rc()
                 demandes_cp+=cp
                 demandes_rc+=rc
-            solde_cp = droit_cp - demandes_cp
-            solde_rc = droit_rc - demandes_rc
+            solde_cp = round(droit_cp - demandes_cp,2)
+            solde_rc = round(droit_rc - demandes_rc,2)
             style_cp=style_rc=""
             if solde_cp<0:
                 style_cp = "background-color:orange"
