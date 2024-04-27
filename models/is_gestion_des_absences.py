@@ -303,6 +303,14 @@ class is_demande_conges(models.Model):
         return res
 
 
+    @api.onchange('employe_id')
+    def _onchange_employe_id(self):
+        if self.employe_id and self.employe_id.user_id:
+            self.demandeur_id = self.employe_id.user_id.id
+            self.valideur_n1  = self.employe_id.is_valideur_n1.id
+            self.valideur_n2  = self.employe_id.is_valideur_n2.id
+
+
     def test_dates(self):
         uid=self._uid
         for obj in self:
@@ -567,11 +575,6 @@ class is_demande_conges(models.Model):
         for obj in self:
             obj.matricule = obj.demandeur_id.login
 
-
-    @api.onchange('employe_id')
-    def _onchange_employe_id(self):
-        if self.employe_id and self.employe_id.user_id:
-            self.demandeur_id = self.employe_id.user_id.id
 
  
     name                          = fields.Char(u"N° demande")
