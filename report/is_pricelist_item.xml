@@ -31,6 +31,7 @@
                                 <field name="product_uom_id"/>
                                 <field name="product_po_uom_id"/>
                                 <field name="price_surcharge"/>
+                                <field name="justification"/>
                                 <field name="item_date_start"/>
                                 <field name="item_date_end"/>
                             </group>
@@ -84,6 +85,7 @@
                     <field name="min_quantity"/>
                     <field name="product_po_uom_id" optional="show"/>
                     <field name="price_surcharge"/>
+                    <field name="justification" optional="show"/>
                     <field name="item_date_start"/>
                     <field name="item_date_end"/>
                     <!-- <field name="base"/> -->
@@ -116,6 +118,7 @@
                     <field name="min_quantity"/>
                     <field name="product_uom_id"  optional="show"/>
                     <field name="price_surcharge"/>
+                    <field name="justification" optional="show"/>
                     <field name="item_date_start"/>
                     <field name="item_date_end"/>
                     <!-- <field name="base"/> -->

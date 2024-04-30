@@ -28,6 +28,7 @@ class is_pricelist_item(models.Model):
     product_po_uom_id  = fields.Many2one('uom.uom', "Unité d'achat")
     min_quantity       = fields.Float('Quantité min.', digits=(14,3))
     price_surcharge    = fields.Float('Prix'         , digits=(14,4))
+    justification      = fields.Char('Justification')
     item_date_start    = fields.Date('Date début ligne')
     item_date_end      = fields.Date('Date fin ligne')
 
@@ -57,6 +58,7 @@ class is_pricelist_item(models.Model):
                         pt.uom_po_id          as product_po_uom_id,
                         ppi.min_quantity      as min_quantity,
                         ppi.price_surcharge   as price_surcharge,
+                        ppi.justification     as justification,
                         ppi.date_start        as item_date_start,
                         ppi.date_end          as item_date_end
                     FROM product_pricelist_item ppi inner join product_product   pp on ppi.product_id=pp.id
