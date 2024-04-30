@@ -1027,27 +1027,36 @@ class is_edi_cde_cli(models.Model):
 
 
     def get_data_lacroix(self, attachment):
-        nb_cols = 21
+        nb_cols = 22
         col_ref = 1
-        #col_qn = 13
-        col_qn = 15
+        col_qn = 16
         col_type = None
-        #col_date = 16
-        col_date = 18
+        col_date = 19
         data_previsionnel = 'P'
         res = []
         for obj in self:
-            csvfile = base64.decodebytes(attachment.datas).decode('iso-8859-1')
-            csvfile = csvfile.split("\r\n")
-            csvfile = csv.reader(csvfile, delimiter='\t')
-            tab=[]
+            #** Lecture du fichier xlsx ****************************************
+            xlsxfile = base64.decodebytes(attachment.datas)
+            path = '/tmp/THERMOR-'+str(obj.id)+'.xlsx'
+            f = open(path,'wb')
+            f.write(xlsxfile)
+            f.close()
+            type_fichier=False
+            #*******************************************************************
+
+            #** Ouverture du fichier *******************************************
             try:
-                for ct, lig in enumerate(csvfile):
-                    # Header CSV
-                    if ct == 0:
+                wb = openpyxl.load_workbook(filename = path)
+                ws = wb.active
+                cells = list(ws)
+            except:
+                raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx valide")
+            try:
+                for ct, lig in enumerate(ws):
+                    if not ct:
                         continue
                     if len(lig) == nb_cols:
-                        ref_article_client = lig[col_ref].strip()
+                        ref_article_client = lig[col_ref].value.strip()
                         order = self.env['sale.order'].search([
                             ('partner_id.is_code'   , '=', obj.partner_id.is_code),
                             ('is_ref_client', '=', ref_article_client)]
@@ -1059,11 +1068,8 @@ class is_edi_cde_cli(models.Model):
                             'num_commande_client' : num_commande_client,
                             'ref_article_client'  : ref_article_client,
                         }
-                        # '1\xc2\xa0456,000' => 1456.00
-                        quantite = lig[col_qn].encode().decode('utf8').strip()
-                        quantite = quantite.replace(u'\xa0', '')
-                        quantite = quantite.replace(u' ', '')
-                        quantite = quantite.replace(',', '.')
+                        # la quantite est normalement un int
+                        quantite = lig[col_qn].value
                         try:
                             qt = float(quantite)
                         except ValueError:
@@ -1071,14 +1077,14 @@ class is_edi_cde_cli(models.Model):
                         if col_type is None:
                             type_commande="previsionnel"
                         else:
-                            type_commande = lig[col_type].strip()
+                            type_commande = lig[col_type].value.strip()
                             if type_commande == data_previsionnel:
                                 type_commande = "previsionnel"
                             else:
                                 type_commande = "ferme"
-                        date_livraison = lig[col_date].strip()
-                        d = datetime.strptime(date_livraison, '%d/%m/%Y')
-                        date_livraison = d.strftime('%Y-%m-%d')
+                        # La date est un "datetime"
+                        date_livraison = lig[col_date].value
+                        date_livraison = date_livraison.strftime('%Y-%m-%d')
                         ligne = {
                             'quantite'      : qt,
                             'type_commande' : type_commande,
@@ -1089,6 +1095,71 @@ class is_edi_cde_cli(models.Model):
             except csv.Error:
                 raise ValidationError('Fichier vide ou non compatible (le fichier doit être au format CSV)')
         return res
+#
+#
+#    def get_data_lacroix(self, attachment):
+#        nb_cols = 21
+#        col_ref = 1
+#        #col_qn = 13
+#        col_qn = 15
+#        col_type = None
+#        #col_date = 16
+#        col_date = 18
+#        data_previsionnel = 'P'
+#        res = []
+#        for obj in self:
+#            csvfile = base64.decodebytes(attachment.datas).decode('iso-8859-1')
+#            csvfile = csvfile.split("\r\n")
+#            csvfile = csv.reader(csvfile, delimiter='\t')
+#            tab=[]
+#            try:
+#                for ct, lig in enumerate(csvfile):
+#                    # Header CSV
+#                    if ct == 0:
+#                        continue
+#                    if len(lig) == nb_cols:
+#                        ref_article_client = lig[col_ref].strip()
+#                        order = self.env['sale.order'].search([
+#                            ('partner_id.is_code'   , '=', obj.partner_id.is_code),
+#                            ('is_ref_client', '=', ref_article_client)]
+#                        )
+#                        num_commande_client = "??"
+#                        if len(order):
+#                            num_commande_client = order[0].client_order_ref
+#                        val = {
+#                            'num_commande_client' : num_commande_client,
+#                            'ref_article_client'  : ref_article_client,
+#                        }
+#                        # '1\xc2\xa0456,000' => 1456.00
+#                        quantite = lig[col_qn].encode().decode('utf8').strip()
+#                        quantite = quantite.replace(u'\xa0', '')
+#                        quantite = quantite.replace(u' ', '')
+#                        quantite = quantite.replace(',', '.')
+#                        try:
+#                            qt = float(quantite)
+#                        except ValueError:
+#                            continue
+#                        if col_type is None:
+#                            type_commande="previsionnel"
+#                        else:
+#                            type_commande = lig[col_type].strip()
+#                            if type_commande == data_previsionnel:
+#                                type_commande = "previsionnel"
+#                            else:
+#                                type_commande = "ferme"
+#                        date_livraison = lig[col_date].strip()
+#                        d = datetime.strptime(date_livraison, '%d/%m/%Y')
+#                        date_livraison = d.strftime('%Y-%m-%d')
+#                        ligne = {
+#                            'quantite'      : qt,
+#                            'type_commande' : type_commande,
+#                            'date_livraison': date_livraison,
+#                        }
+#                        val.update({'lignes': [ligne]})
+#                        res.append(val)
+#            except csv.Error:
+#                raise ValidationError('Fichier vide ou non compatible (le fichier doit être au format CSV)')
+#        return res
 
 
     def get_data_902810(self, attachment):
