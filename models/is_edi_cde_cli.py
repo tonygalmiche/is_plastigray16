@@ -1084,7 +1084,11 @@ class is_edi_cde_cli(models.Model):
                                 type_commande = "ferme"
                         # La date est un "datetime"
                         date_livraison = lig[col_date].value
-                        date_livraison = date_livraison.strftime('%Y-%m-%d')
+                        try:
+                            date_livraison = date_livraison.strftime('%Y-%m-%d')
+                        except ValueError:
+                            date_livraison=False
+
                         ligne = {
                             'quantite'      : qt,
                             'type_commande' : type_commande,
