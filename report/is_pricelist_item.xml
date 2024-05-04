@@ -23,6 +23,7 @@
                                 <field name="version_date_end"/>
                                 <field name="product_id"/>
                                 <field name="gestionnaire_id" />
+                                <field name="is_ref_plan"/>
                                 <field name="is_ind_plan"/>
                                 <field name="ref_fournisseur"/>
                                 <field name="moule" />
@@ -37,7 +38,6 @@
                             </group>
                             <group>
                                 <field name="pricelist_type"/>
-                                <!-- <field name="base"/> -->
                             </group>
                         </group>
                     </sheet>
@@ -77,15 +77,16 @@
                     <field name="version_date_start"/>
                     <field name="version_date_end"/>
                     <field name="product_id"           widget="many2one_clickable"/>
-                    <field name="is_ind_plan" optional="show"/>
-                    <field name="gestionnaire_id"  optional="show"/>
-                    <field name="ref_fournisseur" optional="show"/>
-                    <field name="moule"  optional="show"/>
-                    <field name="sequence" optional="show"/>
+                    <field name="is_ref_plan"       optional="show"/>
+                    <field name="is_ind_plan"       optional="show"/>
+                    <field name="gestionnaire_id"   optional="show"/>
+                    <field name="ref_fournisseur"   optional="show"/>
+                    <field name="moule"             optional="show"/>
+                    <field name="sequence"          optional="show"/>
                     <field name="min_quantity"/>
                     <field name="product_po_uom_id" optional="show"/>
                     <field name="price_surcharge"/>
-                    <field name="justification" optional="show"/>
+                    <field name="justification"     optional="show"/>
                     <field name="item_date_start"/>
                     <field name="item_date_end"/>
                     <!-- <field name="base"/> -->
@@ -110,6 +111,7 @@
                     <field name="version_date_start"/>
                     <field name="version_date_end" />
                     <field name="product_id"           widget="many2one_clickable"/>
+                    <field name="is_ref_plan"     optional="show"/>
                     <field name="is_ind_plan"     optional="show"/>
                     <field name="gestionnaire_id" optional="show" />
                     <field name="ref_client"      optional="show"/>

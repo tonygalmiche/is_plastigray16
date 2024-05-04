@@ -19,6 +19,7 @@ class is_pricelist_item(models.Model):
     version_date_end   = fields.Date('Date fin version')
     product_id         = fields.Many2one('product.product', 'Article')
     gestionnaire_id    = fields.Many2one('is.gestionnaire', 'Gestionnaire')
+    is_ref_plan        = fields.Char('Référence plan')
     is_ind_plan        = fields.Char('Indice plan')
     ref_client         = fields.Char('Référence client')
     ref_fournisseur    = fields.Char('Référence fournisseur')
@@ -49,6 +50,7 @@ class is_pricelist_item(models.Model):
                         ppv.date_end          as version_date_end,
                         ppi.product_id        as product_id,
                         pt.is_gestionnaire_id as gestionnaire_id,
+                        pt.is_ref_plan        as is_ref_plan,
                         pt.is_ind_plan        as is_ind_plan,
                         pt.is_ref_client      as ref_client,
                         pt.is_ref_fournisseur as ref_fournisseur,
@@ -72,11 +74,7 @@ class is_pricelist_item(models.Model):
 
 
     def action_liste_items(self):
-
-
         for obj in self:
-            #context=self._context
-            #context["type"] = obj.price_version_id.pricelist_id.type
             if obj.price_version_id.pricelist_id.type=='sale':
                 view_id=self.env.ref('is_plastigray16.is_product_pricelist_item_sale_tree_view').id
                 pricelist_type='sale'
