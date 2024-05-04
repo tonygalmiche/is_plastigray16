@@ -301,6 +301,9 @@
                                                 <field name="date_debut"   optional="show"/>
                                                 <field name="date_fin"     optional="show"/>
                                                 <field name="le"           optional="show"/>
+                                                <field name="cp"           optional="hide"/>
+                                                <field name="rtt"          optional="hide"/>
+                                                <field name="rc"           optional="hide"/>
                                                 <field name="state"        optional="show"/>
                                             </tree>
                                         </field>
@@ -313,9 +316,9 @@
                             <page string="Cycle de validation">
                                 <group>
                                     <group string="CYCLE DE VALIDATION">
-                                        <field name="valideur_n1" readonly="1" />
-                                        <field name="valideur_n2" readonly="1" />
-                                        <field name="responsable_rh_id" readonly="1" />
+                                        <field name="valideur_n1"        readonly="1" force_save="1"/>
+                                        <field name="valideur_n2"        readonly="1" force_save="1"/>
+                                        <field name="responsable_rh_id"  readonly="1" force_save="1"/>
                                         <field name="date_validation_n1" readonly="1" />
                                         <field name="date_validation_n2" readonly="1" />
                                         <field name="date_validation_rh" readonly="1" />

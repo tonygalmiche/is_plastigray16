@@ -300,11 +300,19 @@ class is_demande_conges(models.Model):
         if emp_id:
             res['valideur_n1'] = emp_id.is_valideur_n1.id
             res['valideur_n2'] = emp_id.is_valideur_n2.id
+
+        print("## default_get : res=",res)
+
         return res
 
 
     @api.onchange('employe_id')
     def _onchange_employe_id(self):
+
+        print("## _onchange_employe_id",self.employe_id.is_valideur_n1.name,self.employe_id.is_valideur_n2.name)
+
+
+
         if self.employe_id and self.employe_id.user_id:
             self.demandeur_id = self.employe_id.user_id.id
             self.valideur_n1  = self.employe_id.is_valideur_n1.id
@@ -447,20 +455,40 @@ class is_demande_conges(models.Model):
             vers_solde          = False
             fld_vsb             = False
             droit_actualise_vsb = False
-            test_date           = False
+
+            #** Le demandeur peux revenir en création 10 jours avant **********
+            test_date_demandeur = False
             current_date = date.today()
-            current_date_plus_ten = current_date + relativedelta(days=10)
+            current_date_plus_10 = current_date + relativedelta(days=10)
             if obj.date_debut:
-                if current_date_plus_ten < obj.date_debut:
-                    test_date = True
+                if current_date_plus_10 < obj.date_debut:
+                    test_date_demandeur = True
             if obj.le:
-                if current_date_plus_ten < obj.le:
-                    test_date = True
-            if test_date:
-                if obj.state == 'validation_n1' or obj.state == 'validation_n2' or obj.state == 'validation_rh':
-                    if obj.createur_id.id == uid or obj.demandeur_id.id == uid or obj.valideur_n1.id == uid or obj.valideur_n2.id == uid or obj.responsable_rh_id.id == uid:
+                if current_date_plus_10 < obj.le:
+                    test_date_demandeur = True
+            if obj.state == 'validation_n1' or obj.state == 'validation_n2' or obj.state == 'validation_rh':
+                if test_date_demandeur:
+                    if obj.createur_id.id == uid or obj.demandeur_id.id == uid:
                         vers_creation = True
                         vers_annuler  = True
+            #******************************************************************
+
+            #** Le valideur peux revenir en création 1 jours avant ************
+            test_date_valideur  = False
+            current_date_plus_1 = current_date + relativedelta(days=1)
+            if obj.date_debut:
+                if current_date_plus_1 < obj.date_debut:
+                    test_date_valideur = True
+            if obj.le:
+                if current_date_plus_1 < obj.le:
+                    test_date_valideur = True
+            if obj.state == 'validation_n1' or obj.state == 'validation_n2' or obj.state == 'validation_rh':
+                if test_date_valideur:
+                    if obj.valideur_n1.id == uid or obj.valideur_n2.id == uid or obj.responsable_rh_id.id == uid:
+                        vers_creation = True
+                        vers_annuler  = True
+            #******************************************************************
+
             if obj.state == 'validation_rh' and  obj.responsable_rh_id.id == uid:
                 fld_vsb = True
 
@@ -501,7 +529,7 @@ class is_demande_conges(models.Model):
                 if obj.responsable_rh_id.id == uid:
                     vers_solde   = True
                     vers_annuler = True
-                    vers_annuler = True
+                    vers_refuse = True
 
             if obj.responsable_rh_id.id == uid:
                 droit_actualise_vsb = True
@@ -667,7 +695,7 @@ class is_demande_conges(models.Model):
             return (demandes_cp,demandes_rc)
 
 
-    @api.depends('state','date_debut','date_fin','le','heure_debut','heure_fin')
+    @api.depends('state','date_debut','date_fin','le','heure_debut','heure_fin','cp','rtt','rc')
     def _compute_recapitulatif(self):
         company = self.env.user.company_id
         for obj in self:
@@ -675,9 +703,9 @@ class is_demande_conges(models.Model):
             droit_rc = obj.droit_rc_actualise
             demandes_cp = demandes_rc = 0
             for line in obj.demande_en_cours_ids:
-                cp,rc = line.get_cp_rc()
-                demandes_cp+=cp
-                demandes_rc+=rc
+                #cp,rc = line.get_cp_rc()
+                demandes_cp+=line.cp+line.rtt
+                demandes_rc+=line.rc
             solde_cp = round(droit_cp - demandes_cp,2)
             solde_rc = round(droit_rc - demandes_rc,2)
             style_cp=style_rc=""
