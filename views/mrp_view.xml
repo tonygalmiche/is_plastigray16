@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <!-- Entêtes des gammes -->
         <record id="mrp_routing_form_view" model="ir.ui.view">
             <field name="name">mrp_routing_form_view</field>
@@ -78,76 +77,6 @@
 
 
 
-        <!-- <record model="ir.ui.view" id="is_mrp_routing_form_view" >
-            <field name="name">is_mrp_routing_form_view</field>
-            <field name="model">mrp.routing</field>
-            <field name="type">form</field>
-            <field name="inherit_id" ref="mrp.mrp_routing_form_view"/>
-            <field name="arch" type="xml">
-                <field name="code" position="after"> 
-                    <field name="is_nb_empreintes"/>
-                    <field name="is_coef_theia"/>
-                    <field name="is_reprise_humidite"/>
-                </field>
-                <field name="location_id" position="replace"> 
-                    <field name="location_id" invisible="1"/> 
-                </field>
-                <field name="code" position="replace"> 
-                    <field name="code" invisible="1"/> 
-                </field>
-                <field name="active" position="after"> 
-                    <field name="is_presse_affectee"/>
-                    <field name="is_presse_generique"/>
-                </field>
-                <field name="workcenter_lines" position="replace"> 
-                    <field name="workcenter_lines">
-                        <tree editable="bottom">
-                            <field name="sequence"/>
-                            <field name="name"/>
-                            <field name="workcenter_id" widget="many2one_clickable"/>
-                            <field name="cycle_nbr" invisible="1"/>
-                            <field name="is_nb_secondes"/>
-                            <field name="hour_nbr" widget="float_time" invisible="1"/>
-                            <field name="is_nb_mod"/> 
-                            <field name="company_id" widget="selection" groups="base.group_multi_company"/>
-                            <field name="note" invisible="1"/>
-                        </tree>
-                    </field>
-                </field>
-            </field>
-        </record> -->
-        <!-- 
-        <record id="is_mrp_routing_tree_view" model="ir.ui.view">
-            <field name="name">is_mrp_routing_tree_view</field>
-            <field name="model">mrp.routing</field>
-            <field name="inherit_id" ref="mrp.mrp_routing_tree_view"/>
-            <field name="arch" type="xml">
-                <field name="location_id" position="replace"> 
-                    <field name="location_id" invisible="1"/> 
-                </field>
-                <field name="code" position="replace"> 
-                    <field name="code" invisible="1"/> 
-                </field>
-                <field name="name" position="after"> 
-                    <field name="is_presse_affectee"/>
-                    <field name="is_presse_generique"/>
-                    <field name="is_nb_empreintes"/>
-                    <field name="is_coef_theia"/>
-                    <field name="is_reprise_humidite"/>
-                </field>
-            </field>
-        </record>
-
-        <record id="is_mrp_routing_search_view" model="ir.ui.view">
-            <field name="name">is_mrp_routing_search_view</field>
-            <field name="model">mrp.routing</field>
-            <field name="inherit_id" ref="mrp.mrp_routing_search_view"/>
-            <field name="arch" type="xml">
-                <field name="name" position="after">
-                    <filter string="avec Reprise d'humidité" name="avec_reprise_humidite" domain="[('is_reprise_humidite','=',True)]"/>
-                </field>
-            </field>
-        </record> -->
 
 
         <!-- Lignes des gammes -->
@@ -166,12 +95,6 @@
                 <field name="bom_id" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
-                <!-- <field name="sequence" position="before"> 
-                    <field name="routing_id"/> 
-                </field> -->
-                <!-- <field name="cycle_nbr" position="replace"> 
-                    <field name="cycle_nbr" invisible="1"/> 
-                </field> -->
                 <field name="workcenter_id" position="after"> 
                         <field name="is_nb_mod"/> 
                 </field>
@@ -190,10 +113,6 @@
                     <field name="name"/>
                     <field name="routing_id"/>
                     <field name="workcenter_id"/>
-                    <!-- <group expand="1" string="Regroupé par">
-                        <filter string="Gamme"           context="{'group_by':'routing_id'}"/>
-                        <filter string="Poste de charge" context="{'group_by':'workcenter_id'}"/>
-                    </group> -->
                 </search>
             </field>
         </record>
@@ -213,17 +132,6 @@
             <field name="model">mrp.bom</field>
             <field name="inherit_id" ref="mrp.mrp_bom_form_view" />
             <field name="arch" type="xml">
-                <!-- <xpath expr="/form/group/group/div[@groups='mrp.group_mrp_routings']" position="after">
-                    <label for="is_gamme_generique_id" class="oe_inline" groups="mrp.group_mrp_routings"/>
-                    <div groups="mrp.group_mrp_routings">
-                        <field name="is_gamme_generique_id" class="oe_inline"/>
-                    </div>
-                </xpath> -->
-                <!-- <field name="name" position="attributes" > 
-                    <attribute name="invisible">1</attribute>
-                </field> -->
-
-
                 <page name="operations" position="attributes" > 
                     <attribute name="invisible">1</attribute>
                 </page>
@@ -234,9 +142,6 @@
                 <field name="product_qty" position="attributes" > 
                     <attribute name="readonly">1</attribute>
                 </field>
-                <!-- <field name="product_uom" position="attributes" > 
-                    <attribute name="readonly">1</attribute>
-                </field> -->
                 <field name="code" position="attributes" > 
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -251,7 +156,6 @@
                     <field name="is_qt_uc" />
                     <field name="is_qt_um" />
                 </field>
-
                 <field name="code" position="after" > 
                     <field name="is_sous_traitance" />
                     <field name="is_negoce" />
@@ -264,45 +168,29 @@
                             type="object" icon="fa-list"
                             attrs="{'invisible': [('is_bom', '=', False)]}"/>
                 </xpath>
-
                 <button name="action_see_attachments" position="attributes" > 
                     <attribute name="invisible">1</attribute>
                 </button>
                 <field name="attachments_count" position="attributes" > 
                     <attribute name="invisible">1</attribute>
                 </field>
-
-
-                <!-- <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label="Product Attachments" title="Product Attachments" class="float-end"/>
-                <field name="attachments_count" class="text-start" string=" "/>
-                            -->
-
-
-                <!-- <xpath expr="/notebook/page/field/tree/field[@name='type']" position="attributes">
-                    <attribute name="readonly">1</attribute>
-                </xpath> -->
-
-
                 <xpath expr="//notebook/page/field/tree/field[@name='product_id']" position="after">
                     <field name="type"              optional="show"/> 
                     <field name="is_article_fourni" optional="show"/> 
                 </xpath>
-
                 <xpath expr="//notebook/page/field/tree/field[@name='product_uom_id']" position="after">
                     <field name="is_qt_uc" optional="show"/> 
                     <field name="is_qt_um" optional="show"/> 
                 </xpath>
-
-                <!-- <xpath expr="/form/notebook/page/field/tree/field[@name='product_rounding']" position="attributes">
+                <xpath expr="//notebook/page/field/tree/field[@name='operation_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="/form/notebook/page/field/tree/field[@name='attribute_value_ids']" position="attributes">
+                <xpath expr="//notebook/page/field/tree/field[@name='manual_consumption']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="/form/notebook/page/field/tree/field[@name='property_ids']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath> -->
-
+                <xpath expr="//notebook/page/field/tree/field[@name='manual_consumption']" position="after">
+                    <field name="is_cbn" optional="show"/> 
+                </xpath>
             </field>
         </record>
         <record id="is_mrp_bom_tree_view" model="ir.ui.view">
@@ -336,7 +224,6 @@
                     <filter string="Gestionnaires 3,6,7,12" name="gest36712"  domain="[('is_gestionnaire_id','in',['03','06','07','12'])]"/>
                     <filter string="Gestionnaires 10,11,14" name="gest101114" domain="[('is_gestionnaire_id','in',['10','11','14'])]"/>
                 </field>
-                <!-- <field name="product_id" position="replace" />  -->
             </field>
         </record>
 
@@ -447,8 +334,6 @@
                 <field name="alternative_workcenter_ids" position="replace"/>
                 <field name="tag_ids" position="replace"/>
                 <field name="resource_calendar_id" position="replace"/>
-                <!-- <page name="capacity" position="replace"/> -->
-                <!-- <page name="general_info" position="replace"/>  -->
                 <notebook position="before">
 
                     <group>
@@ -456,9 +341,7 @@
                             <field name="code"/>
                             <field name="name"/>
                             <field name="resource_type"/>
-                            <!-- <field name="calendar_id" widget="selection"/> -->
                             <field name="resource_calendar_id" required="1"/>
-                            <!-- <field name="company_id" groups="base.group_multi_company" widget="selection"/> -->
                             <field name="active"/>
                         </group>
                         <group string="Configuration pour le Planning">
@@ -470,31 +353,18 @@
                     </group>
                     <group>
                         <group string="Information sur la capacité">
-                            <!-- <field name="time_efficiency"                 invisible="1"/> -->
-                            <!-- <field name="capacity_per_cycle"              invisible="1"/> -->
-                            <!-- <field name="time_cycle" widget="float_time"  invisible="1"/> -->
-                            <field name="time_efficiency"/>
+                             <field name="time_efficiency"/>
                             <field name="default_capacity"/>
                             <field name="time_start" widget="float_time"/>
                             <field name="time_stop" widget="float_time"/>
                         </group>
                         <group string="Information de coût">
-                            <!-- <field name="product_id" on_change="on_change_product_cost(product_id)"  invisible="1"/> -->
                             <field name="costs_hour"/>
                             <field name="is_cout_pk"/>
-                            <!-- <field name="costs_hour_account_id" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
-                            <!-- <field name="costs_cycle"/> -->
-                            <!-- <field name="costs_cycle_account_id" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
-                            <!-- <field name="costs_journal_id" attrs="{'required':['|',('costs_hour_account_id', '=', True),('costs_cycle_account_id', '=', True)]}" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
-                            <!-- <field name="costs_general_account_id" attrs="{ 'required':['|',('costs_cycle_account_id', '=', True),('costs_hour_account_id', '=', True)]}" groups="analytic.group_analytic_accounting"  invisible="1"/> -->
-                        </group>
+                         </group>
                     </group>
                 </notebook>
-
                 <notebook position="replace"/>
-
-
-
             </field>
         </record>
 
@@ -511,44 +381,5 @@
                 </field>
             </field>
         </record>
-
-
-
-        <!-- 
-        <record id="mrp.view_mrp_workcenter_search" model="ir.ui.view">
-            <field name="name">mrp.workcenter.search</field>
-            <field name="model">mrp.workcenter</field>
-            <field name="arch" type="xml">
-                <search string="Search for mrp workcenter">
-                    <field name="name" string="Mrp Workcenter" filter_domain="['|',('name','ilike',self),('code','ilike',self)]"/>
-                    <field name="resource_type"/>
-                    <field name="is_atelier_id"/>
-                    <field name="is_ilot_id"/>
-                    <field name="is_prioritaire"/>
-                    <filter string="Inactive" icon="terp-gdu-smart-failing" domain="[('active','=',False)]"/>
-                    <group expand="0" string="Group By...">
-                        <filter string="Type" icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'resource_type'}"/>
-                        <filter string="Atelier" icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'is_atelier_id'}"/>
-                        <filter string="Ilot"    icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'is_ilot_id'}"/>
-                        <filter string="Company" icon="terp-go-home"                domain="[]" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
-                    </group>
-                </search>
-            </field>
-        </record>
-
-        <record model="ir.ui.view" id="is_mrp_production_workcenter_form_view_inherit">
-            <field name="name">mrp.production.workcenter.line.form</field>
-            <field name="model">mrp.production.workcenter.line</field>
-            <field name="inherit_id" ref="mrp_operations.mrp_production_workcenter_form_view_inherit" />
-            <field name="arch" type="xml">
-                <field name="date_planned_end" position="after" > 
-                    <field name="is_ordre" />
-                    <field name="is_qt_restante" />
-                    <field name="is_tps_restant" widget="float_time" />
-                    <field name="is_date_tri" />
-                </field>
-            </field>
-        </record> -->
-
     </data>
 </odoo>

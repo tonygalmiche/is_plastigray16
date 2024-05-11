@@ -14,12 +14,6 @@ _logger = logging.getLogger(__name__)
 product_id_test=False
 product_id_test=10604
 
-#TODO : 
-# Tester les résultats avec des commandes partielles, des réceptions partielles ou des OF partiels
-# => Avec une livraison partielle, le calcul semble bon, mais l'affichage n'est pas bon dans l'intranet
-# Lancer le calcul dans un ordre logique : prendu vendu, produits fabriqués (semi-fini) produit achetés
-# Le calcul ne tient pas compte des SF actullement
-
 
 def duree(debut):
     dt = datetime.datetime.now() - debut
@@ -166,14 +160,6 @@ class mrp_generate_previsions(models.TransientModel):
             date_debut="2000-01-01"
         date_debut = date_debut + ' 23:59:59'
         date_fin   = date_fin   + ' 23:59:59'
-        # sql="""
-        #     select sm.product_id, sum(sm.product_uom_qty)
-        #     from stock_move sm inner join mrp_production mp on sm.production_id=mp.id 
-        #     where sm.state not in ('cancel', 'done') 
-        #           and mp.date_planned_start>='"""+date_debut+"""'
-        #           and mp.date_planned_start<'"""+date_fin+"""'
-        #     group by sm.product_id
-        # """
         sql="""
             select mp.product_id, sum(mp.is_qt_reste_uom)
             from mrp_production mp
@@ -198,14 +184,6 @@ class mrp_generate_previsions(models.TransientModel):
 
         date_debut = date_debut + ' 23:59:59'
         date_fin   = date_fin   + ' 23:59:59'
-        # sql="""
-        #     select sm.product_id, sum(sm.product_uom_qty)
-        #     from stock_move sm inner join mrp_production mp on sm.raw_material_production_id=mp.id 
-        #     where sm.state not in ('cancel', 'done')
-        #           and mp.date_planned_start>='"""+date_debut+"""'
-        #           and mp.date_planned_start<'"""+date_fin+"""'
-        #     group by sm.product_id
-        # """
         sql="""
             select bom.product_id, sum(bom.product_qty*mp.is_qt_reste_uom)
             from is_mrp_production_bom bom inner join mrp_production mp on bom.production_id=mp.id 
@@ -227,24 +205,6 @@ class mrp_generate_previsions(models.TransientModel):
         now=datetime.datetime.now().strftime('%Y-%m-%d')
         if date_debut<=now:
             date_debut="2000-01-01"
-
-        #TODO : La requete SQL ne fonctionne plus avec odoo16, car le write sur les FS n'est pas pris en compte
-        # sql="""
-        #     select product_id, sum(quantity)
-        #     from mrp_prevision  
-        #     where type='"""+str(type)+"""' 
-        #           and start_date>='"""+str(date_debut)+"""'
-        #           and start_date<'"""+str(date_fin)+"""'
-        #     group by product_id 
-        # """
-        # res={}
-        # cr.execute(sql)
-        # for row in cr.fetchall():
-        #     res[row[0]]=row[1]
-
-        #     # if row[0]==product_id_test:
-        #     #    print("#### _suggestions : ",type,  row[0], row[1], date_debut, date_fin)
-
         previsions = self.env['mrp.prevision'].search([
             ('type','=',type),
             ('start_date','>=',date_debut),
@@ -287,14 +247,6 @@ class mrp_generate_previsions(models.TransientModel):
                 if product.id==product_id_test:
                    print("creer_mrp_prevision : write : ", row.quantity, row.start_date, row.end_date)
                 return quantity
-
-        #** Tenir compte du délai CQ *******************************************
-        # TODO : Cela a été intégré dans la FS/SA le 10/02/2017
-        #date = datetime.datetime.strptime(date, '%Y-%m-%d')
-        #date = date - datetime.timedelta(days=product.delai_cq)
-        #date = date.strftime('%Y-%m-%d')
-        #***********************************************************************
-
         vals = {
             'type': type,
             'product_id': product.id,
@@ -313,20 +265,12 @@ class mrp_generate_previsions(models.TransientModel):
 
 
     def generate_previsions(self):
-        #pr=cProfile.Profile()
-        #pr.enable()
-
         cr=self._cr
         debut=datetime.datetime.now()
         _logger.info(_now(debut) + "## DEBUT")
 
-        #TODO : Mettre en place une liste d'étapes pour gérer les différentes phases du CBN 
-        #=> calcul brut => Regroupement des suggestions => Suggestions multiples du lot
         regroupement = False
-
-        #Etapes du cbn
         states=["cbb"]
-
         for obj in self:
             nb_jours=1
             if obj.regroupement=='semaine':
@@ -340,7 +284,6 @@ class mrp_generate_previsions(models.TransientModel):
             dates         = self._dates(obj.max_date,nb_jours)
 
             #** supprimer les previsions existantes ****************************
-            #prevision_ids = prevision_obj.search([]).unlink()
             _logger.info(_now(debut) + '## Début delete from mrp_prevision')
             sql="""
                 ALTER TABLE mrp_prevision DISABLE TRIGGER ALL; 
@@ -351,12 +294,7 @@ class mrp_generate_previsions(models.TransientModel):
             _logger.info(_now(debut) + '## Fin delete from mrp_prevision')
             #*******************************************************************
 
-            #break
-
-
             _logger.info(_now(debut) + '## Regroupement = ' + str(obj.regroupement))
-
-
             articles = self._articles()
             stocks   = self._stocks(articles)
             num_od=1
@@ -392,8 +330,6 @@ class mrp_generate_previsions(models.TransientModel):
                         
                         if product.id==product_id_test:
                            print("stock_theorique avant calcul=",stock_theorique[product.id])
-
-                        #print(product.is_code, qt_cde_cli,qt_cde_fou,qt_fl,qt_fm,qt_fs,qt_sa,qt_ft)
                         stock_theorique[product.id] = stock_theorique[product.id] - qt_cde_cli + qt_cde_fou + qt_fl - qt_fm + qt_fs + qt_sa - qt_ft
 
                         #** Uniquement pour le debuggage à l'écran *****************
@@ -421,11 +357,6 @@ class mrp_generate_previsions(models.TransientModel):
                                print("Création qt=",qt,stock_theorique[product.id])
                             num_od=num_od+1
                             nb=nb+1
-
-                            #print(nb,product.is_code, qt)
-                            #print("stock_theorique 2=",stock_theorique[product.id], product.id)
-
-
                         if product.id==product_id_test:
                            print("stock_theorique=",stock_theorique[product.id])
                         #***********************************************************
@@ -441,8 +372,6 @@ class mrp_generate_previsions(models.TransientModel):
                 compteur=compteur+1
                 if compteur>12:
                     break
-
-
             _logger.info(_now(debut) + "## Fin du CBN")
 
 
@@ -484,11 +413,6 @@ class mrp_generate_previsions(models.TransientModel):
             #*******************************************************************
 
         _logger.info(_now(debut) + "## FIN")
-
-
-        #pr.disable()
-        #pr.dump_stats('/tmp/analyse.cProfile')
-
 
 
         #** Action pour retourner à la liste des prévisions ********************
