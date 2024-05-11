@@ -34,13 +34,18 @@ class is_galia_base_um(models.Model):
         for obj in self:
             qt_pieces  = 0
             product_id = False
-            for line in obj.uc_ids:
-                qt_pieces += line.qt_pieces
-                product_id = line.product_id
+            if obj.mixte=='non':
+                for line in obj.uc_ids:
+                    qt_pieces += line.qt_pieces
+                    product_id = line.product_id
             obj.product_id = product_id
             obj.qt_pieces  = qt_pieces
 
     name             = fields.Char("N°Étiquette UM", readonly=True             , index=True)
+    mixte            = fields.Selection([
+            ('oui', 'Oui'),
+            ('non', 'Non'),
+        ], "UM mixte", default='non', required=True)
     liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True)
     bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True)
     production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True)

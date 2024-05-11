@@ -4,6 +4,15 @@ from odoo.exceptions import ValidationError
 import datetime
 
 
+class is_imputation_investissement(models.Model):
+    _name='is.imputation.investissement'
+    _description="Imputation investissement"
+    _order='name'
+
+    name   = fields.Char("Imputation investissement", required=True)
+    active = fields.Boolean("Active", default=True, copy=False)
+
+
 class is_demande_achat_moule(models.Model):
     _name='is.demande.achat.moule'
     _description="Demande d'achat moule"
@@ -67,7 +76,7 @@ class is_demande_achat_moule(models.Model):
 
 
     name                 = fields.Char("N°DA-M", readonly=True)
-    createur_id          = fields.Many2one('res.users', 'Demandeur', required=True, default=lambda self: self.env.uid)
+    createur_id          = fields.Many2one('res.users', 'Demandeur', required=True, default=lambda self: self.env.uid,copy=False)
     chef_service_id      = fields.Many2one('res.users', 'Chef de projet', required=True)
     direction_id         = fields.Many2one('res.users', 'Directeur technique', readonly=True, default=lambda self: self._dirigeant_id())
     date_creation        = fields.Date("Date de création", required=True, default=lambda *a: fields.datetime.now())
@@ -312,16 +321,17 @@ class is_demande_achat_moule_line(models.Model):
                 obj.uom_id=obj.product_id.uom_po_id
             obj.montant=obj.quantite*obj.prix
 
-    da_id                  = fields.Many2one('is.demande.achat.moule', "Demande d'achat", required=True, ondelete='cascade', readonly=True)
-    sequence               = fields.Integer('Ordre')
-    product_id             = fields.Many2one('product.product', 'Article', required=True, domain=[('is_code','=','607000MOUL')], default=lambda self: self._product_id())
-    designation1           = fields.Char("Désignation 1")
-    designation2           = fields.Char("Désignation 2")
-    uom_id                 = fields.Many2one('uom.uom', "Unité d'achat")
-    quantite               = fields.Float("Quantité", digits=(14,4), required=True)
-    prix                   = fields.Float("Prix"    , digits=(14,4))
-    montant                = fields.Float("Montant", compute='_compute', readonly=True, store=True)
-    num_chantier           = fields.Char("N° du chantier", required=True, help="N° du chantier (M0000/12345)")
+    da_id         = fields.Many2one('is.demande.achat.moule', "Demande d'achat", required=True, ondelete='cascade', readonly=True)
+    sequence      = fields.Integer('Ordre')
+    product_id    = fields.Many2one('product.product', 'Article', required=True, domain=[('is_code','=','607000MOUL')], default=lambda self: self._product_id())
+    imputation_id = fields.Many2one('is.imputation.investissement', 'Imputation')
+    designation1  = fields.Char("Désignation 1")
+    designation2  = fields.Char("Désignation 2")
+    uom_id        = fields.Many2one('uom.uom', "Unité d'achat")
+    quantite      = fields.Float("Quantité", digits=(14,4), required=True)
+    prix          = fields.Float("Prix"    , digits=(14,4))
+    montant       = fields.Float("Montant", compute='_compute', readonly=True, store=True)
+    num_chantier  = fields.Char("N° du chantier", required=True, help="N° du chantier (M0000/12345)")
 
 
     def _product_id(self):
