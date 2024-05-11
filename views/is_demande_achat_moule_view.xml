@@ -99,6 +99,7 @@
                                 <field name="imputation_id" required="1"/>
                                 <field name="designation1" />
                                 <field name="designation2" />
+                                <field name="num_dfn" />
                                 <field name="uom_id" />
                                 <field 
                                     name="quantite" 

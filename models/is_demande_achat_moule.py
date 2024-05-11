@@ -327,6 +327,7 @@ class is_demande_achat_moule_line(models.Model):
     imputation_id = fields.Many2one('is.imputation.investissement', 'Imputation')
     designation1  = fields.Char("Désignation 1")
     designation2  = fields.Char("Désignation 2")
+    num_dfn       = fields.Char("N°de DFN")
     uom_id        = fields.Many2one('uom.uom', "Unité d'achat")
     quantite      = fields.Float("Quantité", digits=(14,4), required=True)
     prix          = fields.Float("Prix"    , digits=(14,4))
