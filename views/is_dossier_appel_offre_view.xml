@@ -106,8 +106,6 @@
             <field name="model">is.dossier.appel.offre</field>
             <field name="arch" type="xml">
                 <graph>
-                    <!-- <field name="dao_client" type="row"/> -->
-                    <!-- <field name="dao_annee"  type="col"/> -->
                     <field name="dao_annee"  type="row"/>
                     <field name="dao_ca"     type="measure"/>
                 </graph>

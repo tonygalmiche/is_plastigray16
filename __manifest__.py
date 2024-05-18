@@ -134,7 +134,7 @@ Module Odoo 16 pour Plastigray
         "views/is_demande_achat_moule_view.xml",
         "views/is_demande_achat_serie_view.xml",
         "views/is_demande_transport_view.xml",
-        "views/is_dossier_appel_offre_view.xml",
+        # "views/is_dossier_appel_offre_view.xml",
         "views/is_dossier_article_view.xml",
         "views/is_dossierf_view.xml",
         "views/is_edi_cde_cli_view.xml",

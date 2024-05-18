@@ -27,7 +27,7 @@ from . import is_demande_achat_moule
 from . import is_demande_achat_serie
 from . import is_demande_transport
 from . import is_donnee_machine
-from . import is_dossier_appel_offre
+# from . import is_dossier_appel_offre
 from . import is_dossier_article
 from . import is_dossierf
 from . import is_edi_cde_cli          # TODO à finaliser
