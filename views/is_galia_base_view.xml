@@ -75,22 +75,24 @@
                         <group>
                             <group>
                                 <field name="um_id"/>
+                                <field name="um_mixte"/>
+                                <field name="um_active"/>
                                 <field name="num_eti"/>
                                 <field name="type_eti"/>
                                 <field name="num_carton"/>
                                 <field name="qt_pieces"/>
                                 <field name="date_creation"/>
                                 <field name="production"/>
-                                <field name="production_id"/>
-                                <field name="product_id"/>
+                                <field name="production_id" widget="many2one_clickable"/>
+                                <field name="product_id" widget="many2one_clickable"/>
                                 <field name="employee_id"/>
                             </group>
                             <group>
-                                <field name="liste_servir_id"/>
-                                <field name="ls_line_id"/>
-                                <field name="bon_transfert_id"/>
-                                <field name="bt_line_id"/>
-                                <field name="stock_move_id"/>
+                                <field name="liste_servir_id"  widget="many2one_clickable"/>
+                                <field name="ls_line_id"       widget="many2one_clickable"/>
+                                <field name="bon_transfert_id" widget="many2one_clickable"/>
+                                <field name="bt_line_id"       widget="many2one_clickable"/>
+                                <field name="stock_move_id"    widget="many2one_clickable"/>
                             </group>
                         </group>
                     </sheet>
@@ -103,22 +105,24 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="um_id" optional="show"/>
-                    <field name="num_eti" optional="show"/>
-                    <field name="type_eti" optional="show"/>
-                    <field name="num_carton" optional="show"/>
-                    <field name="qt_pieces" sum="Total" optional="show"/>
-                    <field name="date_creation" optional="show"/>
-                    <field name="production" optional="show"/>
-                    <field name="product_id" optional="show"/>
-                    <field name="employee_id" optional="show"/>
-                    <field name="liste_servir_id" optional="show"/>
-                    <field name="ls_line_id" optional="hide"/>
-                    <field name="bon_transfert_id" optional="show"/>
-                    <field name="bt_line_id" optional="hide"/>
-                    <field name="stock_move_id" optional="show"/>
-                    <field name="write_date" optional="show"/>
-                    <field name="create_date" optional="show"/>
+                    <field name="um_id"            optional="show" widget="many2one_clickable"/>
+                    <field name="um_mixte"         optional="show"/>
+                    <field name="um_active"        optional="show"/>
+                    <field name="num_eti"          optional="show"/>
+                    <field name="type_eti"         optional="show"/>
+                    <field name="num_carton"       optional="show"/>
+                    <field name="qt_pieces"        optional="show" sum="Total" />
+                    <field name="date_creation"    optional="show"/>
+                    <field name="production"       optional="show"/>
+                    <field name="product_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="employee_id"      optional="show"/>
+                    <field name="liste_servir_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="ls_line_id"       optional="hide" widget="many2one_clickable"/>
+                    <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
+                    <field name="bt_line_id"       optional="hide" widget="many2one_clickable"/>
+                    <field name="stock_move_id"    optional="show" widget="many2one_clickable"/>
+                    <field name="write_date"       optional="show"/>
+                    <field name="create_date"      optional="show"/>
                 </tree>
             </field>
         </record>
@@ -128,6 +132,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="um_id"/>
+                    <field name="um_mixte"/>
                     <field name="num_eti"/>
                     <field name="type_eti"/>
                     <field name="num_carton"/>
@@ -139,8 +144,10 @@
                     <field name="bt_line_id"/>
                     <field name="stock_move_id"/>
                     <group expand="0" string="Group By...">
-                        <!-- <filter name="group_ls_line_id" string="Ligne liste à servir"   domain="[]" context="{'group_by':'ls_line_id'}"/> -->
                         <filter name="group_bt_line_id" string="Ligne bon de transfert" domain="[]" context="{'group_by':'bt_line_id'}"/>
+                        <filter name="um_mixte"         string="UM mixte"    domain="[('um_mixte' ,'=','oui')]"/>
+                        <filter name="um_active"        string="UM active"   domain="[('um_active','=',True)]"/>
+                        <filter name="um_inactive"      string="UM inactive" domain="[('um_active','=',False)]"/>
                     </group>
                 </search>
             </field>
@@ -196,7 +203,7 @@
                                 <field name="qt_pieces"/>
                                 <field name="date_creation"/>
                                 <field name="production"/>
-                                <field name="product_id"/>
+                                <field name="product_id" widget="many2one_clickable"/>
                             </tree>
                         </field>
                     </sheet>
@@ -210,10 +217,10 @@
                 <tree>
                     <field name="name"/>
                     <field name="mixte"/>
-                    <field name="liste_servir_id"  optional="show"/>
-                    <field name="bon_transfert_id" optional="show"/>
-                    <field name="production_id"    optional="show"/>
-                    <field name="product_id"       optional="show"/>
+                    <field name="liste_servir_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
+                    <field name="production_id"    optional="show" widget="many2one_clickable"/>
+                    <field name="product_id"       optional="show" widget="many2one_clickable"/>
                     <field name="qt_pieces"        optional="show"/>
                     <field name="employee_id"      optional="show"/>
                     <field name="date_fin"         optional="show"/>

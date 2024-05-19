@@ -6,6 +6,10 @@ import os
 import logging
 _logger = logging.getLogger(__name__)
 
+_MIXTE=[
+    ('oui', 'Oui'),
+    ('non', 'Non'),
+]
 
 class is_galia_base(models.Model):
     _name='is.galia.base'
@@ -42,10 +46,7 @@ class is_galia_base_um(models.Model):
             obj.qt_pieces  = qt_pieces
 
     name             = fields.Char("N°Étiquette UM", readonly=True             , index=True)
-    mixte            = fields.Selection([
-            ('oui', 'Oui'),
-            ('non', 'Non'),
-        ], "UM mixte", default='non', required=True)
+    mixte            = fields.Selection(_MIXTE, "UM mixte", default='non', required=True)
     liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True)
     bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True)
     production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True)
@@ -104,6 +105,8 @@ class is_galia_base_uc(models.Model):
     _sql_constraints = [('num_eti_uniq','UNIQUE(num_eti,um_id)', u'Cette étiquette existe déjà dans cette UM')]
 
     um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade')
+    um_mixte      = fields.Selection(related="um_id.mixte")
+    um_active     = fields.Boolean(related="um_id.active")
     num_eti       = fields.Integer("N°Étiquette UC", required=True, index=True)
     type_eti      = fields.Char("Type étiquette", required=True   , index=True)
     num_carton    = fields.Integer("N°Carton", required=True      , index=True)
