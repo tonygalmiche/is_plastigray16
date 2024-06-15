@@ -717,6 +717,10 @@ class is_cde_ouverte_fournisseur(models.Model):
                 nb_ferme_imprime=0
                 attente_confirmation=0
                 for row in self.env['purchase.order.line'].search(where):
+
+
+                    print(row)
+
                     #** Test si réceptions en cours sur la ligne de cde ********
                     where=[
                         ('purchase_line_id','=', row.id),

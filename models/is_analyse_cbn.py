@@ -93,7 +93,6 @@ class product_product(models.Model):
         type_cde      = type_cde       or ''
         type_rapport  = type_rapport   or 'Fabrication'
         calage        = calage         or 'Date de fin'
-        # print('calage=',calage)
         #***********************************************************************
 
         # ** Filtre pour les requêtes ******************************************
@@ -307,6 +306,10 @@ class product_product(models.Model):
         result4 = self._get_FM(filtre)
         result5 = self._get_SF(filtre)
         result = result1+result2+result3+result4+result5
+
+
+
+
         if valorisation:
             result+=self._get_stock(filtre)
         result = result1+result2+result3+result4+result5
@@ -314,6 +317,9 @@ class product_product(models.Model):
         for row in result:
             product_id = row["product_id"]
             code    = row["code_pg"]
+
+
+
             if type_rapport=='Achat':
                 code_fournisseur=Fournisseurs.get(product_id,"0000")
                 key="%s/%s"%(code_fournisseur,code)
@@ -423,7 +429,7 @@ class product_product(models.Model):
                     qt_signe = qt * self._get_sens(typeod)
                     qt_txt=""
                     if qt>0:
-                        qt_txt = int(qt_signe)
+                        qt_txt = round(qt_signe)
 
                     #if row["numod"] not in res[key]["typeod"][key2]["cols"][DateLundi]["ids"]:
                     #    res[key]["typeod"][key2]["cols"][DateLundi]["ids"].append(row["numod"])
@@ -517,9 +523,9 @@ class product_product(models.Model):
                     color='Red'
                 res[p]["typeod"]["90-Stock"]["cols"][c]["qt_signe"]=cumul
                 res[p]["typeod"]["90-Stock"]["cols"][c]["color_qt"]=color
-                res[p]["typeod"]["90-Stock"]["cols"][c]["qt_txt"] = int(res[p]["typeod"]["90-Stock"]["cols"][c]["qt_signe"])
+                res[p]["typeod"]["90-Stock"]["cols"][c]["qt_txt"] = round(res[p]["typeod"]["90-Stock"]["cols"][c]["qt_signe"])
                 if valorisation=="Oui":
-                    res[p]["typeod"]["92-Stock Valorisé"]["cols"][c]["qt_txt"] = int(val)
+                    res[p]["typeod"]["92-Stock Valorisé"]["cols"][c]["qt_txt"] = round(val)
 
                 ct+=1
             #res[p]["typeod"]["90-Stock"]["colslist"] = list(res[p]["typeod"]["90-Stock"]["cols"].values())
