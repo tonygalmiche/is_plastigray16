@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 
 #TODO : Permet d'indiquer l'id du produit à analyser (product.product)
 product_id_test=False
-product_id_test=10604
+#product_id_test=10604
 
 
 def duree(debut):
@@ -85,7 +85,7 @@ class mrp_generate_previsions(models.TransientModel):
     def _articles(self):
         articles=[]
         filtre=[]
-        #filtre=[('is_code','like','262996')]
+        #filtre=[('is_code','like','262282')]
         #filtre=[('is_code','in',['261928A','262996','602468','502905','502521'])]
 
         for product in self.env['product.product'].search(filtre):
@@ -190,7 +190,8 @@ class mrp_generate_previsions(models.TransientModel):
             where 
                 mp.date_planned_start>='"""+date_debut+"""' and 
                 mp.date_planned_start<'"""+date_fin+"""' and
-                mp.state not in ('done','cancel') 
+                mp.state not in ('done','cancel') and
+                bom.is_cbn='t'
             group by bom.product_id
         """
         res={}

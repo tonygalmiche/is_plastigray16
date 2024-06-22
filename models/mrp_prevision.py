@@ -122,102 +122,7 @@ class mrp_prevision(models.Model):
                     da.vers_transmis_achat_action()
                 obj.unlink()
 
-        #         is_contact_id=False
-        #         #r=order_obj.onchange_partner_id(partner.id)
-        #         #if r and 'value' in r:
-        #         #    v=r['value']
-        #         #    if 'is_contact_id' in v:
-        #         #        is_contact_id=v['is_contact_id']
-        #         vals={
-        #             'partner_id'      : partner.id,
-        #             'is_contact_id'   : is_contact_id,
-        #             'is_livre_a_id'   : partner.is_livre_a_id.id,
-        #             'location_id'     : partner.is_source_location_id.id,
-        #             'fiscal_position_id' : partner.property_account_position_id.id,
-        #             'payment_term_id' : partner.property_supplier_payment_term_id.id,
-        #             'pricelist_id'    : partner.pricelist_purchase_id.id,
-        #             'incoterm_id'     : partner.is_incoterm.id,
-        #             'is_lieu'         : partner.is_lieu,
-        #         }
-        #         order=order_obj.create(vals)
-        #         if order:
-        #             unlink=True
-        #             note=False
-        #             vals=False
-        #             # try:
-        #             #     res=order_line_obj.onchange_product_id(
-        #             #         order.pricelist_id.id, 
-        #             #         obj.product_id.id, 
-        #             #         obj.quantity_ha, 
-        #             #         obj.uom_po_id.id, 
-        #             #         partner.id, 
-        #             #         date_order         = str(obj.start_date_cq)+' 12:00:00', 
-        #             #         fiscal_position_id = partner.property_account_position_id.id, 
-        #             #         date_planned       = obj.start_date_cq, 
-        #             #         name               = False, 
-        #             #         price_unit         = False, 
-        #             #         state              = 'draft'
-        #             #     )
-        #             #     vals=res['value']
-        #             # except:
-        #             #     unlink=False
-        #             #     note='\n'.join(sys.exc_info()[1])
-        #             prix=0
-        #             if vals and vals['price_unit']:
-        #                 prix = vals['price_unit']
-        #             # si le prix est nul ou s'il y a une justification du prix nul
-        #             if vals and (vals['price_unit'] or vals.get('is_justification')) and obj.quantity>=obj.product_id.lot_mini:
-        #                 #** Création d'une commande ****************************
-        #                 vals['order_id']=order.id
-        #                 vals['product_id']=obj.product_id.id
-        #                 if 'taxes_id' in vals:
-        #                     vals.update({'taxes_id': [[6, False, vals['taxes_id']]]})
-        #                 try:
-        #                     order_line=order_line_obj.create(vals)
-        #                     order.wkf_bid_received() 
-        #                     order.wkf_confirm_order()
-        #                     order.action_picking_create() 
-        #                     order.wkf_approve_order()
-        #                 except:
-        #                     unlink=False
-        #                     if note==False:
-        #                         note='\n'.join(sys.exc_info()[1])
-        #                     else:
-        #                         note=note+'\n'+'\n'.join(sys.exc_info()[1])
-        #                 obj.note=unicode(note)
-        #             else:
-        #                 #** Création d'une demande d'achat série ***************
-        #                 order.unlink()
-        #                 #TODO : Voir comment gérer l'acheteur pour ne pas le mettre en dur ici
-        #                 user        = self.env["res.users"].browse(self._uid)
-        #                 company     = user.company_id
-        #                 acheteur_id = company.is_acheteur_id.id
-        #                 vals={
-        #                     'acheteur_id'      : acheteur_id, 
-        #                     'fournisseur_id'   : partner.id, 
-        #                     'delai_livraison'  : obj.start_date_cq, 
-        #                     'motif'            : 'pas_tarif', 
-        #                 }
-        #                 if partner.is_livre_a_id.id:
-        #                     vals["lieu_livraison_id"]=partner.is_livre_a_id.id
-        #                 da=self.env['is.demande.achat.serie'].create(vals)
-        #                 vals={
-        #                     'da_id'     : da.id, 
-        #                     'sequence'  : 10, 
-        #                     'product_id': obj.product_id.id, 
-        #                     'uom_id'    : obj.uom_po_id.id, 
-        #                     'quantite'  : obj.quantity_ha,
-        #                     'prix'      : prix,
-        #                 }
-        #                 line=self.env['is.demande.achat.serie.line'].create(vals)
-        #                 da.vers_transmis_achat_action()
-        #                 obj.unlink()
-        #             if unlink:
-        #                 obj.unlink()
-        # #if rules:
-        # #    rules[0].subscribe()
-
-
+      
     def convertir_fs(self):
         ids=[]
         for obj in self:
@@ -264,14 +169,6 @@ class mrp_prevision(models.Model):
                 start_date= end_date - timedelta(days=days)
                 start_date = start_date.strftime('%Y-%m-%d')
         return start_date
-
-
-
-    # @api.model_create_multi
-    # def create(self, vals_list):
-    #     for vals in vals_list:
-    #         print(vals)
-    #     return super().create(vals_list)
 
 
     @api.model_create_multi
@@ -353,53 +250,19 @@ class mrp_prevision(models.Model):
                     bom = boms_by_product[row.product_id]
                     res = bom.explode_phantom(qty=row.quantity)
                     for line in res:
-                        vals={
-                            'parent_id'       : row.id,
-                            'type'            : 'ft',
-                            'product_id'      : line["line"].product_id.id,
-                            'start_date'      : row.start_date,
-                            'start_date_cq'   : row.start_date,
-                            'end_date'        : row.start_date,
-                            'quantity'        : line["product_qty"],
-                            'quantity_origine': line["product_qty"],
-                            'state'           : 'valide',
-                        }
-                        self.create(vals)
-
-
-                    # #** Recherche en tenant compte des articles fantomes *******
-                    # bom_obj = self.env['mrp.bom']
-                    # #bom_id = bom_obj._bom_find(row.product_id) #.product_tmpl_id) #.id, properties=None)
-                    # #bom = bom_obj.browse(bom_id)
-                    # #res= bom_obj._bom_explode(bom, row.product_id, row.quantity)
-                    # boms_by_product = bom_obj.with_context(active_test=True)._bom_find(row.product_id) #, picking_type=picking_type, company_id=company_id, bom_type='normal')
-                    # bom = boms_by_product[row.product_id]
-                    # #factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
-                    # factor=1
-                    # #factor=row.quantity
-                    # boms, lines = bom.explode(row.product_id, factor, picking_type=bom.picking_type_id)
-                    # for bom_line, line_data in lines:
-
-                    #     if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
-                    #             bom_line.product_id.type not in ['product', 'consu']:
-                    #         continue
-                    #     qty=row.quantity
-                    #     qt = float_round(bom_line.product_qty * qty, precision_rounding=bom_line.product_id.uom_id.rounding)
-                    #     #qt = bom_line.product_qty
-                    #     vals={
-                    #         'parent_id'       : row.id,
-                    #         'type'            : 'ft',
-                    #         'product_id'      : bom_line.product_id.id,
-                    #         'start_date'      : row.start_date,
-                    #         'start_date_cq'   : row.start_date,
-                    #         'end_date'        : row.start_date,
-                    #         'quantity'        : qt,
-                    #         'quantity_origine': qt,
-                    #         'state'           : 'valide',
-                    #     }
-                    #     #print(obj.name, bom_line.product_id.is_code)
-                    #     self.create(vals)
-                    # #***********************************************************
+                        if line["line"].is_cbn:
+                            vals={
+                                'parent_id'       : row.id,
+                                'type'            : 'ft',
+                                'product_id'      : line["line"].product_id.id,
+                                'start_date'      : row.start_date,
+                                'start_date_cq'   : row.start_date,
+                                'end_date'        : row.start_date,
+                                'quantity'        : line["product_qty"],
+                                'quantity_origine': line["product_qty"],
+                                'state'           : 'valide',
+                            }
+                            self.create(vals)
         return obj
 
 

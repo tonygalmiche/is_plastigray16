@@ -1029,34 +1029,6 @@ class product_product(models.Model):
 
     def _get_FM(self,filtre):
         cr = self._cr
-        # SQL="""
-        #     SELECT 
-        #         sm.id as numod, 
-        #         sm.date_deadline as date_debut, 
-        #         sm.date_deadline as date_fin, 
-        #         sm.product_qty as qt, 
-        #         'FM' as typeod, 
-        #         sm.product_id, 
-        #         pt.is_code as code_pg, 
-        #         pt.name->>'fr_FR' designation,
-        #         pt.is_stock_secu, 
-        #         pt.produce_delay, 
-        #         pt.lot_mini, 
-        #         pt.multiple,
-        #         pt.is_mold_dossierf as moule,
-        #         sm.name as name
-        #     FROM stock_move sm    inner join product_product      pp   on sm.product_id=pp.id
-        #                     inner join product_template     pt   on pp.product_tmpl_id=pt.id
-        #                     left outer join is_mold         im   on pt.is_mold_id=im.id
-        #                     left outer join is_dossierf     id   on pt.is_dossierf_id=id.id
-        #                     left outer join is_gestionnaire ig   on pt.is_gestionnaire_id=ig.id
-        #                     left outer join is_category     ic   on pt.is_category_id=ic.id
-        #                     left outer join is_mold_project imp1 on im.project=imp1.id
-        #                     left outer join is_mold_project imp2 on id.project=imp2.id
-        #                     left outer join res_partner     rp   on pt.is_client_id=rp.id
-        #     WHERE sm.id>0 """+filtre+""" and raw_material_production_id>0 and sm.state<>'done' and sm.state<>'cancel' 
-        #     ORDER BY sm.name
-        # """
         SQL="""
             SELECT 
                 bom.id as numod, 
@@ -1086,7 +1058,7 @@ class product_product(models.Model):
                             left outer join is_mold_project imp2 on id.project=imp2.id
                             left outer join res_partner     rp   on pt.is_client_id=rp.id
 
-            WHERE mp.state='draft' """+filtre+""" 
+            WHERE mp.state='draft' """+filtre+""" and bom.is_cbn='t'
             ORDER BY mp.name
         """
         cr.execute(SQL)

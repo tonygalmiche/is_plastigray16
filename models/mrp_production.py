@@ -184,6 +184,7 @@ class IsMrpProductionBom(models.Model):
     product_qty     = fields.Float("Qt nomenclature", required=True, digits='Product Unit of Measure')
     product_uom_id  = fields.Many2one("uom.uom", "Unité", required=True)
     qt_reste        = fields.Float("Qt reste", digits='Product Unit of Measure', compute="_compute_qt_reste")
+    is_cbn          = fields.Boolean('CBN', default=True, help="Prise en compte de cette linge dans le CBN")
 
 
     @api.depends('product_qty')
@@ -273,6 +274,7 @@ class MrpProduction(models.Model):
                             "product_id"    : line["line"].product_id.id,
                             "product_uom_id": line["line"].product_uom_id.id,
                             "product_qty"   : line["product_qty"],
+                            "is_cbn"        : line["line"].is_cbn,
                     }
                     bom_lines.append([0, False, vals])
                 # for bom_line, line_data in lines:

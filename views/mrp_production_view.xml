@@ -215,29 +215,10 @@
                                 <field name="product_qty"/>
                                 <field name="qt_reste"/>
                                 <field name="product_uom_id"/>
-                                <!-- <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="fa-area-chart" attrs="{'column_invisible': [('parent.state', '!=', 'draft')]}"/>
-                                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="fa-area-chart text-danger" attrs="{'column_invisible': [('parent.state', '!=', 'draft')], 'invisible': [('forecast_availability', '&gt;=', 0)]}"/> -->
+                                <field name="is_cbn"/> 
                             </tree>
                         </field>
                     </page>
-                    <!-- <page string="Composants prévus" states="draft">
-                        <field name="move_lines_composants_prevus">
-                            <tree default_order="id">
-                                <button type="object" name="access_stock_move_action" title="Accèder au mouvement de stock" icon="fa-search-plus"/>
-                                <field name="product_id" widget="many2one_clickable"/>
-                                <field name="location_id"           optional="show"/>
-                                <field name="location_dest_id"      optional="hide"/>
-                                <field name="date_deadline"         optional="hide"/>
-                                <field name="date"                  optional="hide"/>
-                                <field name="product_uom_qty"       optional="show"/>
-                                <field name="product_uom"           optional="hide"/>
-                                <field name="forecast_availability" invisible="1"/>
-                                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="fa-area-chart"             attrs="{'invisible': [('forecast_availability', '&lt;', 0)]}"/>
-                                <button type="object" name="action_product_forecast_report" title="Forecast Report" icon="fa-area-chart text-danger" attrs="{'invisible': [('forecast_availability', '&gt;=', 0)]}"/>
-                                <field name="state"                 optional="hide" widget="badge"/>
-                            </tree>
-                        </field>
-                    </page> -->
                     <page string="Composants consommés">
                         <button type="object" name="voir_composants_consommes_action" string="Voir les composants consommés"/>
                         <field name="move_lines_composants_consommes">
