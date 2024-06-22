@@ -297,7 +297,6 @@ class product_product(models.Model):
         #**********************************************************************
 
 
-
         #** Résultat **********************************************************
         debut2=datetime.now()
         result1 = self._get_FS_SA(filtre)
@@ -306,20 +305,13 @@ class product_product(models.Model):
         result4 = self._get_FM(filtre)
         result5 = self._get_SF(filtre)
         result = result1+result2+result3+result4+result5
-
-
-
-
-        if valorisation:
+        if valorisation=="Oui":
             result+=self._get_stock(filtre)
-        result = result1+result2+result3+result4+result5
+            
         res={}
         for row in result:
             product_id = row["product_id"]
             code    = row["code_pg"]
-
-
-
             if type_rapport=='Achat':
                 code_fournisseur=Fournisseurs.get(product_id,"0000")
                 key="%s/%s"%(code_fournisseur,code)
@@ -1174,7 +1166,7 @@ class product_product(models.Model):
         result = cr.fetchall()
         Stocks={}
         for row in result:
-            Stocks[row[0]]=row[1]
+            Stocks[row[0]]=row[1]        
         return Stocks
 
 

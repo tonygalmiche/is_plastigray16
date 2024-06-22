@@ -697,9 +697,20 @@ class account_invoice_line(models.Model):
 
 
 
-    @api.onchange('product_id')
+    @api.onchange('product_id','quantity')
     def pg_onchange_product_id(self):
         self.is_section_analytique_id = self.product_id.is_section_analytique_id.id
+        if self.move_id.is_type_facture=='diverse':
+            price = 0
+            pricelist = self.move_id.partner_id.property_product_pricelist
+            if pricelist:
+                price, justifcation = pricelist.price_get(
+                    product = self.product_id,
+                    qty     = self.quantity, 
+                    date    = self.move_id.invoice_date
+                )
+            self.price_unit = price
+
 
 
     # def product_id_change(self, product_id, uom_id, qty=0, name='', type='out_invoice',
