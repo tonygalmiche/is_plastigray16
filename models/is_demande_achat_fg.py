@@ -231,7 +231,7 @@ class is_demande_achat_fg_line(models.Model):
 
     da_id                  = fields.Many2one('is.demande.achat.fg', "Demande d'achat", required=True, ondelete='cascade', readonly=True)
     sequence               = fields.Integer('Ordre')
-    product_id             = fields.Many2one('product.product', 'Article', domain=[('is_category_id.name','in',['72','73'])])
+    product_id             = fields.Many2one('product.product', 'Article', domain=[('is_category_id.name','in',['71','72','73'])])
     designation1           = fields.Char("Désignation 1")
     designation2           = fields.Char("Désignation 2")
     uom_id                 = fields.Many2one('uom.uom', "Unité d'achat")
