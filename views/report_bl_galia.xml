@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <template id="bl_galia_external_layout_standard">
+        <div class="header bl_galia_header">
+            <div class="row">
+                <div class="col-3">
+                    <div class="titre">
+                        <span t-if="o.partner_id.lang == 'fr_FR'">BORDEREAU DE LIVRAISON N°</span>
+                        <span t-if="o.partner_id.lang != 'fr_FR'">DELIVERY NOTE N°</span>
+                        <span t-field="o.name"/>
+                    </div>
+                </div>
+                <div class="col-2">
+                </div>
+                <div class="col-3  text-left">
+                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                    <div class="titre">
+                        <span>BL Galia</span>
+                        <span style="font-size:12pt;" t-field="o.name"/>
+                         du <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/> 
+                         à <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%H')"/>H<br />
+                    </div>
+                </div>
+                <div class="col-2">
+                </div>
+                <div class="col-3">
+                    <div class="destinataire">
+                        <div t-if="o.partner_id.lang == 'fr_FR'">Destinataire : </div>
+                        <div t-if="o.partner_id.lang != 'fr_FR'">Address : </div>
+                        <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)
+                        <div t-field="o.partner_id"
+                                t-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
+                        <div t-if="o.partner_id.vat">VAT : <span t-field="o.partner_id.vat"/></div>
+                    </div>
+                    <div>
+                        <span>Point de déchargement : FIXME</span>
+                    </div>
+                    <div>
+                        <span>Départ le : </span>
+                        <span t-field="o.is_date_expedition" t-options='{"format": "dd/MM/yyyy"}'/>
+                        <span>A : </span>
+                    </div>
+                    <div>
+                        <span>Arrivée le : </span>
+                        <span t-field="o.is_date_livraison" t-options='{"format": "dd/MM/yyyy"}'/>
+                        <span>A : </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div 
+            t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_report_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}" 
+            t-att-data-oe-model="o and o._name" 
+            t-att-data-oe-id="o and o.id" 
+            t-att-data-oe-lang="o and o.env.context.get('lang')"
+        >
+            <t t-out="0"/>
+        </div>
+        <div class="footer bl_galia_footer">
+            <div style="border-top: 1px solid black">
+                <table style="width:100%">
+                    <tr>
+                        <td class="text-left" style="width:90%">
+                        </td>
+                        <td class="text-right">
+                            Page <span class="page" style="font-size:9pt;"/> / <span class="topage"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </template>
+    
+    <template id="bl_galia_external_layout">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not company">
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+        <t t-call="is_plastigray16.bl_galia_external_layout_standard"><t t-out="0"/></t> 
+    </template>
+
+    <template id="bl_galia_document">
+        <t t-call="is_plastigray16.bl_galia_external_layout">
+            <div class="mt-5">
+                <div class="page bl_galia_page">
+                    <div>
+                        CODE VENDEUR : FIXME
+                    </div>
+                    <table class="table table-condensed">
+                        <thead>
+                          <tr>
+                              <th class="text-left">Désignation article<br/>Pays d'origine<br/>N° de commande</th>
+                              <th class="text-left">N° article<br/>Commentaire</th>
+                              <th class="text-left">Quantité expédiée</th>
+                              <th class="text-left">Unité</th>
+                              <th class="text-left">Type de colis</th>
+                              <th class="text-left">Nbre</th>
+                              <th class="text-left">N° d'UC<br/>N° de lot</th>
+                              <th class="text-left">Qté par UC</th>
+                              <th class="text-left">N° de l'ordre</th>
+                              <th class="text-left">N° UM</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="pds_brut_total" t-value="0"/>
+                            <t t-set="pds_net_total" t-value="0"/>
+                            <tr t-foreach="o.move_ids_without_package" t-as="move">
+                                <t t-set="qt1" t-value="move.product_uom_qty"/>
+                                <t t-set="nb2"    t-value="0"/>
+                                <t t-set="unite2" t-value="x"/>
+                                <t t-set="nb3"    t-value="0"/>
+                                <t t-set="unite3" t-value="x"/>
+                                <t t-foreach="move.product_id.packaging_ids" t-as="l">
+                                    <t t-set="nb2"    t-value="l.qty"/>
+                                    <t t-set="unite2" t-value="l.ul.name"/>
+                                    <t t-set="nb3"    t-value="l.qty*l.ul_qty*l.rows"/>
+                                    <t t-set="unite3" t-value="l.ul_container.name"/>
+                                </t>
+                                <t t-set="um" t-value=""/>
+                                <t t-set="uc" t-value=""/>
+                                <t t-set="lot" t-value=""/>
+                                <t t-if="o.is_galia_um">
+                                    <t t-set="res" t-value="o.get_etiquettes()"/>
+                                    <tr t-foreach="res" t-as="obj">
+                                        <t t-if="obj['um_rowspan'] and obj['is_code'] == move.product_id.is_code" >
+                                            <t t-set="um"    t-value="obj['um']"/>
+                                            <t t-set="uc"    t-value="obj['uc']"/>
+                                            <t t-set="lot"    t-value="obj['lot']"/>
+                                        </t>
+                                    </tr>
+                                </t>
+                                <!--
+                                <t t-set="pds_brut" t-value="round(qt1*move.product_id.weight,1)"/>
+                                <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,1)"/>
+
+                                <t t-set="pds_net" t-value="round(qt1*move.product_id.weight_net,1)"/>
+                                <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,1)"/-->
+                                <td>
+                                    <span t-field="move.product_id.name"/><br/>
+                                    FIXME PAYS<br/>
+                                    <span t-field="move.sale_line_id.is_client_order_ref"/>
+                                </td>
+                                <td>
+                                    <span t-field="move.product_id.is_ref_client"/><br/>
+                                    <span t-field="move.product_id.is_code"/><br/>
+                                    <t t-if="move.product_id.is_nomenclature_douaniere">
+                                        <i>Nomenclature douanière : <span t-field="move.product_id.is_nomenclature_douaniere"/></i>
+                                    </t>
+                                </td>
+                                <td class="text-right">
+                                    <t t-esc='"{:,.2f}".format(qt1).replace(","," ").replace(".",",")'/> 
+                                </td>
+                                <td class="text-left">
+                                    <span t-field="move.product_uom" /> 
+                                </td>
+                                <td class="text-left">
+                                    <t t-if="nb2">
+                                        <span t-esc="unite2"/>
+                                    </t>
+                                </td>
+                                <td class="text-right">
+                                    <t t-if="nb2">
+                                        <t t-set="qt2" t-value="qt1/nb2"/>
+                                        <t t-esc='"{:,.1f}".format(qt2).replace(","," ").replace(".",",")'/> 
+                                    </t>
+                                </td>
+                                <td class="text-left">
+                                    <span t-esc="uc"/>
+                                    <span t-esc="lot"/>
+                                </td>
+                                <td class="text-right">
+                                    <t t-if="nb2">
+                                        <span t-esc="nb2"/>
+                                    </t>
+                                </td>
+                                <td class="text-left">
+                                    FIXME 
+                                </td>
+                                <td class="text-left">
+                                    <span t-esc="um"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="bl_galia_report">
+        <t t-call="web.html_container"> 
+            <t t-foreach="docs" t-as="o">
+                <t t-call="is_plastigray16.bl_galia_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="bl_galia_paperformat" model="report.paperformat">
+        <field name="name">BL Galia</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">50</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">45</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="bl_galia_actions_report" model="ir.actions.report">
+        <field name="name">BL Galia</field>
+        <field name="model">stock.picking</field>
+        <field name="binding_model_id" ref="model_stock_picking"/>
+        <field name="paperformat_id" ref="bl_galia_paperformat"/>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_plastigray16.bl_galia_report</field>
+        <field name="report_file">is_plastigray16.bl_galia_report</field>
+    </record>
+</data>
+</odoo>
