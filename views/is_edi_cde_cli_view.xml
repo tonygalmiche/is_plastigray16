@@ -38,7 +38,10 @@
                     <field name="product_id"          readonly="0" widget="many2one_clickable"/>
                     <field name="date_livraison"/>
                     <field name="quantite"            sum="Total"/>
-                    <field name="point_dechargement"  optional="show" />
+                    <field name="point_dechargement"    optional="show" />
+                    <field name="numero_document"       optional="hide" />
+                    <field name="date_heure_livraison"  optional="hide" />
+                    <field name="numero_identification" optional="hide" />
                     <field name="type_commande"/>
                     <field name="prix"/>
                     <field name="order_id"            readonly="0" widget="many2one_clickable"/>

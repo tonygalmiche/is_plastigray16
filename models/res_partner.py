@@ -32,6 +32,7 @@ import_function=[
     ('Plasti-ka'      , 'Plasti-ka'),
     ('SIMU'           , 'SIMU'),
     ('SIMU-SOMFY'     , 'SIMU-SOMFY'),
+    ('STELLANTIS'     , 'STELLANTIS / Weidplas'),
     ('THERMOR'        , 'THERMOR'),
     ('Valeo'          , 'Valeo'),
     ('Watts'          , 'Watts'),

@@ -258,6 +258,8 @@
                 </xpath> 
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="after">
                     <field name="sale_line_id"                  optional="hide" widget="many2one_clickable"/>
+                    <field name="is_uc_galia"                   optional="hide"/>
+                    <field name="is_um_galia"                   optional="hide"/>
                     <field name="is_point_dechargement"         optional="show"/>
                     <field name="is_dosmat_ctrl_qual"           optional="show"/>
                     <field name="is_dosmat_conditions_stockage" optional="show"/>
@@ -269,6 +271,24 @@
                     <field name="is_traitement_edi"/> 
                     <field name="is_date_traitement_edi" attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </xpath>
+
+                <page name="operations" position="after">
+                    <page string="Colisage">
+                        <group>
+                            <group>
+                                <field name="is_colisage_ids" nolabel="1" readonly="1" colspan="2" force_save="1">
+                                    <tree>
+                                        <field name="colis_id" />
+                                        <field name="nb"/>
+                                    </tree>
+                                </field>        
+                            </group>
+                        </group>
+                     </page>
+                </page>
+
+
+
              </field>
         </record>
 

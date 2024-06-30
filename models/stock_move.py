@@ -53,7 +53,6 @@ class stock_move(models.Model):
             obj.is_point_dechargement = x
 
 
-    #is_pg_stock_move_id           = fields.Many2one('pg.stock.move', 'Mouvement PG', compute='_compute_is_pg_stock_move_id', store=True, readonly=True)
     is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16 et remplacé par sale_line_id)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
     is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
     is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=False, readonly=True)
@@ -69,13 +68,79 @@ class stock_move(models.Model):
     is_montant_amt_interne  = fields.Float('Montant amt interne'       , digits=(14,2))
     is_montant_cagnotage    = fields.Float('Montant cagnotage'         , digits=(14,2))
     is_montant_matiere      = fields.Float('Montant matière livrée'    , digits=(14,2))
-    is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" ) #Champ ajouté pour Odoo 16 pour faire le lien entre les lignes des factures et les livraisons
-    inventory_id            = fields.Many2one("stock.inventory", "Inventaire", index=True ) #Champ dans Odoo 8 et supprimé dans Odoo 16
-
+    is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" )     # Champ ajouté pour Odoo 16 pour faire le lien entre les lignes des factures et les livraisons
+    inventory_id            = fields.Many2one("stock.inventory", "Inventaire", index=True ) # Champ dans Odoo 8 et supprimé dans Odoo 16
     is_location_dest_prevu_id = fields.Many2one('stock.location', 'Emplacement prévu', compute='_compute_is_location_dest_prevu_id', store=False, readonly=True)
+    is_unit_coef            = fields.Float("Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
+    is_montant_reception    = fields.Float('Montant réception'                 , digits=(14,2), compute='_compute_montant_reception', store=True, readonly=True)
+    is_uc_ids               = fields.One2many('is.galia.base.uc', 'stock_move_id', "UCs")
+    is_uc_galia             = fields.Text('UC (Galia)', compute='_compute_is_uc_galia', store=False, readonly=True)
+    is_um_galia             = fields.Text('UM (Galia)', compute='_compute_is_um_galia', store=False, readonly=True)
 
-    is_unit_coef         = fields.Float("Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
-    is_montant_reception = fields.Float('Montant réception'                 , digits=(14,2), compute='_compute_montant_reception', store=True, readonly=True)
+
+    @api.depends('is_uc_ids')
+    def _compute_is_um_galia(self):
+        cr = self._cr
+        for obj in self:
+            lines=[]
+            if type(obj.id)==int:
+                SQL="""
+                    SELECT um.name
+                    FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
+                    WHERE uc.stock_move_id=%s
+                    GROUP BY um.name
+                    ORDER BY um.name
+                """
+                cr.execute(SQL,[obj.id])
+                result = cr.dictfetchall()
+                first=False
+                def set_num(first,last):
+                    if first==last:
+                        num = "%s"%(str(first)[-3:])
+                    else:
+                        num = "%s à %s"%(str(first)[-3:],str(last)[-3:])
+                    return num
+                for row in result:
+                    num = int(row['name'])
+                    if not first:
+                        first = last = suivant = num
+                    if num==suivant:
+                        last=num
+                    else:
+                        lines.append(set_num(first,last))
+                        first=last=num
+                    suivant = num+1
+                if first:
+                    lines.append(set_num(first,last))
+            obj.is_um_galia = "\n".join(lines)
+
+
+    @api.depends('is_uc_ids')
+    def _compute_is_uc_galia(self):
+        for obj in self:
+            ucs = self.env['is.galia.base.uc'].search([('stock_move_id', '=', obj.id)],order="num_eti")
+            first=False
+            lines=[]
+            def set_num(first,last,lot):
+                if first==last:
+                    num = "%s [%s]"%(str(first)[-3:],lot)
+                else:
+                   num = "%s à %s [%s]"%(str(first)[-3:],str(last)[-3:],lot)
+                return num
+            for uc in ucs:
+                lot = uc.production
+                num = int(uc.num_eti)
+                if not first:
+                    first = last = suivant = num
+                if num==suivant:
+                    last=num
+                else:
+                    lines.append(set_num(first,last,lot))
+                    first=last=num
+                suivant = num+1
+            if first:
+                lines.append(set_num(first,last,lot))
+            obj.is_uc_galia = "\n".join(lines)
 
 
     @api.depends('purchase_line_id','state','product_uom','product_uom_qty')
@@ -90,11 +155,7 @@ class stock_move(models.Model):
                     coef = 1
                 if coef>0:
                     montant_reception = round(obj.product_uom_qty*obj.purchase_line_id.price_unit/coef,6)
-
                 _logger.info("_compute_montant_reception (move_id=%s, article=%s, montant=%s)"%(obj.id, obj.product_id.is_code, montant_reception))
-
-
-
             obj.is_unit_coef         = coef
             obj.is_montant_reception = montant_reception
 
@@ -170,12 +231,6 @@ class stock_move(models.Model):
         return res
 
 
-    # def _action_confirm(self, merge=True, merge_into=False):
-    #     res = super(stock_move, self)._action_confirm(merge=merge, merge_into=merge_into)
-    #     self.create_pg_stock_move()
-    #     return res
-
-
     def _action_done(self, cancel_backorder=False):
         res = super(stock_move, self)._action_done(cancel_backorder=cancel_backorder)
         self.create_pg_stock_move()
@@ -187,12 +242,6 @@ class stock_move(models.Model):
             self.env['pg.stock.move'].search([('move_id', '=', obj.id)]).unlink()
         self.create_pg_stock_move()
         return True
-
-
-    # def create_pg_stock_move_all(self):
-    #     #self.env['stock.move'].search([('state', '=', 'done')], order="date", limit=100).create_pg_stock_move()
-    #     self.env['stock.move'].search([('state', '=', 'done')], order="date").create_pg_stock_move()
-    #     return True
 
 
     #TODO : A revoir => Ne pas mettre de lien vers pg_stock_move depuis stock_move
@@ -219,14 +268,6 @@ class stock_move(models.Model):
                     if line.location_id.usage=="internal" and line.location_dest_id.usage!="internal":
                         location_dest_id = line.location_id
                         qty=-qty
-                    #** Convertire la qty dans l'unité de stock ***************
-                    # product_uom = obj.product_id.uom_id
-                    # if obj.product_uom!=obj.product_id.uom_id:
-                    #     if obj.product_uom.category_id==obj.product_id.uom_id.category_id:
-                    #         #qty = obj.product_uom._compute_quantity(qty, product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
-                    #         qty = product_uom._compute_quantity(qty, obj.product_uom) #, round=True, rounding_method='UP', raise_if_failure=True):
-                    #**********************************************************
-
                     if qty!=0:
                         vals={
                             "move_id": obj.id,
@@ -292,7 +333,6 @@ class stock_move(models.Model):
                 "location_id"     : obj.location_id.id,
                 "location_dest_id": obj.location_dest_id.id,
                 'move_line_ids'   : [[0,False,line_vals]],
-                #'move_ids'        : [[0,False,move_vals]],
             }
             picking=self.env['stock.picking'].create(picking_vals)
             obj.picking_id=picking.id
@@ -335,10 +375,6 @@ class stock_move(models.Model):
                 }
                 lot = self.env["stock.lot"].create(vals)
             vals = obj._prepare_move_line_vals(1)
-            # vals.update({
-            #     "lot_id"   : lot.id,
-            #     #"reserved_uom_qty": 0,
-            # })
             line=self.env['stock.move.line'].create(vals)
             obj.production_id.lot_producing_id = lot.id
 
@@ -348,17 +384,7 @@ class stock_move(models.Model):
             obj._action_done()
             for line in obj.move_line_ids:
                 line._action_done()
-            #obj._action_assign(force_qty=True)
-            # # obj._action_confirm()
-            # # obj._action_assign(force_qty=True)
-            # obj.move_line_ids.unlink()
-            # obj._action_confirm()
-            # for line in obj.move_line_ids:
-            #     line.qty_done = line.reserved_uom_qty
-            #obj._action_done()
-
-    #def _action_assign(self, force_qty=False):
-
+ 
 
     def update_amortissement_moule(self):
         cr = self._cr
@@ -410,62 +436,6 @@ class stock_move(models.Model):
             return vals
 
 
-    # def update_pg_stock_move(self):
-    #     cr = self._cr
-    #     for obj in self:
-    #         SQL=_SELECT_STOCK_MOVE+" WHERE sm2.id=%s"
-    #         cr.execute(SQL, [obj.id])
-    #         rows = cr.fetchall()
-    #         for row in rows:
-    #             SQL="delete from pg_stock_move where move_id=%s"
-    #             cr.execute(SQL,[row[1]])
-    #             SQL="""
-    #                 INSERT INTO pg_stock_move (
-    #                     move_id,
-    #                     date,
-    #                     product_id,
-    #                     category,
-    #                     mold,
-    #                     type_mv,
-    #                     name,
-    #                     picking_id,
-    #                     purchase_line_id,
-    #                     raw_material_production_id,
-    #                     production_id,
-    #                     sale_line_id,
-    #                     lot_id,
-    #                     lot_fournisseur,
-    #                     qty,
-    #                     product_uom,
-    #                     location_dest,
-    #                     is_employee_theia_id,
-    #                     login
-    #                 )
-    #                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
-    #             """
-    #             cr.execute(SQL,[
-    #                 row[1],
-    #                 row[2],
-    #                 row[3],
-    #                 row[4],
-    #                 row[5],
-    #                 row[6],
-    #                 row[7],
-    #                 row[8],
-    #                 row[9],
-    #                 row[10],
-    #                 row[11],
-    #                 row[12],
-    #                 row[13],
-    #                 row[14],
-    #                 row[15],
-    #                 row[16],
-    #                 row[17],
-    #                 row[18],
-    #                 row[19],
-    #             ])
-
-
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
         """
         Permet d'ajouter le lien avec la livraison et la section analytique sur
@@ -510,158 +480,6 @@ class stock_move(models.Model):
         for obj in self:
             date_livraison= self.env['res.partner'].get_date_livraison(obj.company_id, obj.partner_id, date_expedition)
         return date_livraison
-
-
-    # def _picking_assign(self, procurement_group, location_from, location_to):
-    #     """Assign a picking on the given move_ids, which is a list of move supposed to share the same procurement_group, location_from and location_to
-    #     (and company). Those attributes are also given as parameters.
-    #     """
-    #     cr       = self._cr
-    #     uid      = self._uid
-    #     context  = self._context
-    #     move_ids = self._ids
-    #     pick_obj = self.env["stock.picking"]
-    #     # Use a SQL query as doing with the ORM will split it in different queries with id IN (,,)
-    #     # In the next version, the locations on the picking should be stored again.
-    #     query = """
-    #         SELECT stock_picking.id FROM stock_picking, stock_move
-    #         WHERE
-    #             stock_picking.state in ('draft', 'confirmed', 'waiting') AND
-    #             stock_move.picking_id = stock_picking.id AND
-    #             stock_move.location_id = %s AND
-    #             stock_move.location_dest_id = %s AND
-    #     """
-    #     params = (location_from, location_to)
-    #     if not procurement_group:
-    #         query += "stock_picking.group_id IS NULL LIMIT 1"
-    #     else:
-    #         query += "stock_picking.group_id = %s LIMIT 1"
-    #         params += (procurement_group,)
-    #     cr.execute(query, params)
-    #     [pick] = cr.fetchone() or [None]
-    #     if not pick:
-    #         move = self.browse(move_ids)[0]
-    #         if move.origin:
-    #             sale_obj = self.env['sale.order']
-    #             sales = sale_obj.search([('name','=',move.origin)])
-    #             for sale_data in sales:
-    #                 date_expedition = time.strftime('%Y-%m-%d')
-    #                 date_livraison  = self._get_date_livraison(date_expedition)
-    #                 values = {
-    #                     'origin'             : move.origin,
-    #                     'company_id'         : move.company_id and move.company_id.id or False,
-    #                     'move_type'          : move.group_id and move.group_id.move_type or 'direct',
-    #                     'partner_id'         : move.partner_id.id or False,
-    #                     'picking_type_id'    : move.picking_type_id and move.picking_type_id.id or False,
-    #                     'sale_id'   : sale_data and sale_data.id or False,
-    #                     'is_transporteur_id' : sale_data and sale_data.is_transporteur_id.id or False,
-    #                     'is_date_expedition' : date_expedition,
-    #                     'is_date_livraison'  : date_livraison,
-    #                 }
-    #                 pick = pick_obj.create(values)
-    #     if pick:
-    #         self.write({'picking_id': pick.id})
-    #     return
-    
-
-    # def action_consume(self, cr, uid, ids, product_qty, location_id=False, restrict_lot_id=False, restrict_partner_id=False,
-    #                    consumed_for=False, context=None):
-    #     """ Consumed product with specific quantity from specific source location.
-    #     @param product_qty: Consumed/produced product quantity (= in quantity of UoM of product)
-    #     @param location_id: Source location
-    #     @param restrict_lot_id: optionnal parameter that allows to restrict the choice of quants on this specific lot
-    #     @param restrict_partner_id: optionnal parameter that allows to restrict the choice of quants to this specific partner
-    #     @param consumed_for: optionnal parameter given to this function to make the link between raw material consumed and produced product, for a better traceability
-    #     @return: New lines created if not everything was consumed for this line
-    #     """
-
-    #     if context is None:
-    #         context = {}
-    #     res = []
-    #     production_obj = self.pool.get('mrp.production')
-
-    #     #** Test si la quantité est négative pour inverser les emplacements ****
-    #     inverse=False
-    #     if product_qty <= 0:
-    #         inverse=True
-    #         product_qty=-product_qty
-
-    #     ids2 = []
-    #     for move in self.browse(cr, uid, ids, context=context):
-    #         if move.state == 'draft':
-    #             ids2.extend(self.action_confirm(cr, uid, [move.id], context=context))
-    #         else:
-    #             ids2.append(move.id)
-    #     prod_orders = set()
-
-    #     for move in self.browse(cr, uid, ids2, context=context):
-    #         prod_orders.add(move.raw_material_production_id.id or move.production_id.id)
-    #         move_qty = move.product_qty
-
-    #         #** Si la quantité est négative, il faut augmenter le reste à produire
-    #         if inverse:
-    #             quantity_rest = move_qty + product_qty
-    #         else:
-    #             quantity_rest = move_qty - product_qty
-            
-    #         # Compare with numbers of move uom as we want to avoid a split with 0 qty
-    #         quantity_rest_uom = move.product_uom_qty - self.pool.get("product.uom")._compute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)
-
-    #         #** Si la quantité est négative, ajout de 2 fois la quantité déclarée sur le mouvement en attente
-    #         #** La fonction slit ci-dessous enlevera fois la quantité => Du coup, nous seront bien à +1 comme souhaité
-    #         if inverse and product_qty>0:
-    #             move.product_uom_qty=move.product_uom_qty+2*product_qty
-
-    #         #Si la quantité restante est à 0 , mettre 0.00001 pour ne pas solder le mouvement
-    #         #if float_compare(quantity_rest_uom, 0, precision_rounding=move.product_uom.rounding) == 0:
-    #         #    quantity_rest=move.product_uom.rounding
-    #         #TODO : Modif du 09/09/17 pour corriger un pb de division par 0
-    #         if abs(quantity_rest)<0.00001:
-    #             quantity_rest=0.00001
-                
-    #         #** Invertion des emplacements pour faire un mouvement négatif
-    #         if inverse:
-    #             mem_location_id           = move.location_id.id
-    #             mem_location_dest_id      = move.location_dest_id.id
-    #             move.location_dest_id     = mem_location_id
-    #             move.location_id          = mem_location_dest_id
-
-    #         #** Création d'un nouveau mouvement qui contiendra le reste à fabriquer. Le mouvement en cours contiendra la quantité déclarée
-
-    #         new_mov = self.split(cr, uid, move, quantity_rest, context=context)
-
-    #         if move.production_id:
-    #             self.write(cr, uid, [new_mov], {'production_id': move.production_id.id}, context=context)
-
-    #         #** Sur le nouveau mouvement qui correspond au reste à produire, il faut remettre les emplacements dans l'ordre (nouvelle invertion)
-    #         if inverse:
-    #             v={
-    #                 'location_id'     : mem_location_id,
-    #                 'location_dest_id': mem_location_dest_id,
-    #             }
-    #             self.write(cr, uid, [new_mov], v, context)
-    #         res.append(new_mov)
-
-    #         vals = {'restrict_lot_id': restrict_lot_id,
-    #                 'restrict_partner_id': restrict_partner_id,
-    #                 'consumed_for': consumed_for}
-    #         self.write(cr, uid, [move.id], vals, context=context)
-
-
-    #     # Original moves will be the quantities consumed, so they need to be done
-    #     self.action_done(cr, uid, ids2, context=context)
-
-
-    #     #TODO : J'ai commenté ces lignes le 26/12/2017 pour ne pas réserver le stock sur les OF
-    #     #if res:
-    #     #    self.action_assign(cr, uid, res, context=context)
-
-
-    #     #TODO : J'ai désactivé ce code car cela bloquait les homes flux
-    #     #if prod_orders:
-    #     #    production_obj.signal_workflow(cr, uid, list(prod_orders), 'button_produce')
-    #     return res
-
 
 
 

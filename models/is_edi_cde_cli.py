@@ -27,18 +27,21 @@ class is_edi_cde_cli_line(models.Model):
     _description="Lignes EDI commandes client"
     _order = "anomalie desc, edi_cde_cli_id,ref_article_client,date_livraison"
 
-    edi_cde_cli_id      = fields.Many2one('is.edi.cde.cli', 'EDI Commandes Clients', required=True, ondelete='cascade')
-    num_commande_client = fields.Char('N° Cde Client')
-    ref_article_client  = fields.Char('Ref Article Client')
-    product_id          = fields.Many2one('product.product', 'Article')
-    quantite            = fields.Integer('Quantité')
-    date_livraison      = fields.Date('Date liv')
-    point_dechargement  = fields.Char(u'Point de déchargement')
-    type_commande       = fields.Selection([('ferme', 'Ferme'),('previsionnel', 'Prév.')], "Type")
-    prix                = fields.Float('Prix', digits=(14,4),)
-    order_id            = fields.Many2one('sale.order', 'Cde Odoo')
-    anomalie            = fields.Text('Anomalie')
-    file_id             = fields.Many2one('ir.attachment', 'Fichier')
+    edi_cde_cli_id        = fields.Many2one('is.edi.cde.cli', 'EDI Commandes Clients', required=True, ondelete='cascade')
+    num_commande_client   = fields.Char('N° Cde Client')
+    ref_article_client    = fields.Char('Ref Article Client')
+    product_id            = fields.Many2one('product.product', 'Article')
+    quantite              = fields.Integer('Quantité')
+    date_livraison        = fields.Date('Date liv')
+    point_dechargement    = fields.Char('Point de déchargement')
+    numero_document       = fields.Char('N° Document')          # NumeroDocument
+    date_heure_livraison  = fields.Char('Date Heure Livraison') # DateHeurelivraisonAuPlusTard
+    numero_identification = fields.Char('N° Identification')    # NumeroIdentificationAcheteur
+    type_commande         = fields.Selection([('ferme', 'Ferme'),('previsionnel', 'Prév.')], "Type")
+    prix                  = fields.Float('Prix', digits=(14,4),)
+    order_id              = fields.Many2one('sale.order', 'Cde Odoo')
+    anomalie              = fields.Text('Anomalie')
+    file_id               = fields.Many2one('ir.attachment', 'Fichier')
 
 
     def action_acceder_commande(self):
@@ -81,13 +84,13 @@ class is_edi_cde_cli(models.Model):
             obj.nb_fichiers = len(obj.file_ids)
 
 
-    @api.depends('partner_id')
-    def _import_function(self):
-        for obj in self:
-            v=False
-            if obj.partner_id:
-                v=obj.partner_id.is_import_function
-            obj.import_function=v
+    # @api.depends('partner_id')
+    # def _import_function(self):
+    #     for obj in self:
+    #         v=False
+    #         if obj.partner_id:
+    #             v=obj.partner_id.is_import_function
+    #         obj.import_function=v
 
 
     name            = fields.Date('Date de création', readonly='1', default=fields.Datetime.now)
@@ -95,7 +98,8 @@ class is_edi_cde_cli(models.Model):
     date_maxi       = fields.Date(u"Date de livraison limite d'intégration", help=u"Au delà de cette date, les nouvelles commandes ne seront pas importés et les commandes existantes ne seront pas supprimées")
     jour_semaine    = fields.Selection(_JOURS_SEMAINE, "Jour semaine"      , help=u"Jour de la semaine d'intégration du prévisionnel")
     date_debut_prev = fields.Date(u"Date de début du prévisionnel"         , help=u"A partir de cette date, toutes les commandes seront forcées en prévisionnel")
-    import_function = fields.Char("Fonction d'importation", compute='_import_function', readonly=True)
+    #import_function = fields.Char("Fonction d'importation", compute='_import_function', readonly=True)
+    import_function = fields.Selection(related="partner_id.is_import_function")
     file_ids        = fields.Many2many('ir.attachment', 'is_doc_attachment_rel', 'doc_id', 'file_id', 'Fichiers')
     create_id       = fields.Many2one('res.users', 'Importe par', readonly=True)
     create_date     = fields.Datetime("Date d'importation")
@@ -119,6 +123,10 @@ class is_edi_cde_cli(models.Model):
                     point_dechargement = False
                     if "point_dechargement" in row:
                         point_dechargement=row["point_dechargement"]
+
+
+
+
                     order_id = False
                     date_livraison=False
                     type_commande=False
@@ -235,21 +243,32 @@ class is_edi_cde_cli(models.Model):
                         anomalie=''
                         if len(anomalie2)>0:
                             anomalie='\n'.join(anomalie2)
+
+
+                        if obj.import_function=="STELLANTIS":
+                            point_dechargement = ligne.get('point_dechargement')
+
+
                         vals={
-                            'edi_cde_cli_id'     : obj.id,
-                            'num_commande_client': num_commande_client,
-                            'ref_article_client' : ref_article_client,
-                            'product_id'         : product_id,
-                            'quantite'           : ligne["quantite"],
-                            'date_livraison'     : date_livraison,
-                            'point_dechargement' : point_dechargement,
-                            'type_commande'      : type_commande,
-                            'prix'               : prix,
-                            'order_id'           : order_id,
-                            'anomalie'           : anomalie,
-                            'file_id'            : attachment.id,
+                            'edi_cde_cli_id'       : obj.id,
+                            'num_commande_client'  : num_commande_client,
+                            'ref_article_client'   : ref_article_client,
+                            'product_id'           : product_id,
+                            'quantite'             : ligne["quantite"],
+                            'date_livraison'       : date_livraison,
+                            'point_dechargement'   : point_dechargement,
+                            'numero_document'      : ligne.get('numero_document'),
+                            'date_heure_livraison' : ligne.get('date_heure_livraison'),
+                            'numero_identification': ligne.get('numero_identification'),
+                            'type_commande'        : type_commande,
+                            'prix'                 : prix,
+                            'order_id'             : order_id,
+                            'anomalie'             : anomalie,
+                            'file_id'              : attachment.id,
                         }
                         line_obj.create(vals)
+
+
 
 
  
@@ -458,6 +477,8 @@ class is_edi_cde_cli(models.Model):
             datas=self.get_data_SIMU(attachment)
         if import_function=="SIMU-SOMFY":
             datas=self.get_data_SIMU_SOMFY(attachment)
+        if import_function=="STELLANTIS":
+            datas=self.get_data_STELLANTIS(attachment)
         if import_function=="THERMOR":
             datas=self.get_data_THERMOR(attachment)
         if import_function=="Valeo":
@@ -1401,6 +1422,182 @@ class is_edi_cde_cli(models.Model):
                     continue
 
         return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_data_STELLANTIS(self, attachment):
+        res = []
+        for obj in self:
+            filename = '/tmp/%s.xml' % attachment.id
+            temp = open(filename, 'w+b')
+            temp.write((base64.decodebytes(attachment.datas))) 
+            temp.close()
+            tree = etree.parse(filename)
+            for partie_citee in tree.xpath("/DELINS/PARTIE_CITEE"):
+                for article_programme in partie_citee.xpath("ARTICLE_PROGRAMME"):
+                    ref_article_client=""
+                    for NumeroArticleClient in article_programme.xpath("NumeroArticleClient"):
+                        ref_article_client=NumeroArticleClient.text
+                    num_commande_client=""
+                    for NumeroArticleClient in article_programme.xpath("NumeroCommande"):
+                        num_commande_client=NumeroArticleClient.text
+                    point_dechargement=False
+                    for POINT_DE_DECHARGEMENT in article_programme.xpath("POINT_DE_DECHARGEMENT"):
+                        for CodeIdentificationPointDechargement in POINT_DE_DECHARGEMENT.xpath("CodeIdentificationPointDechargement"):
+                            point_dechargement = CodeIdentificationPointDechargement.text
+                    val = {
+                        'ref_article_client' : ref_article_client,
+                        'num_commande_client': num_commande_client,
+                        'point_dechargement' : point_dechargement,
+                        'lignes': []
+                    }
+                    res1 = []
+                    for detail_programme in article_programme.xpath("DETAIL_PROGRAMME"):
+                        type_commande=""
+                        for CodeStatutProgramme in detail_programme.xpath("CodeStatutProgramme"):
+                            type_commande=CodeStatutProgramme.text
+                        if type_commande=="4":
+                            type_commande="previsionnel"
+                        else:
+                            type_commande="ferme"
+                        date_livraison=""
+                        for DateHeureLivraisonAuPlusTot in detail_programme.xpath("DateHeureLivraison"):
+                            date_livraison=DateHeureLivraisonAuPlusTot.text[:8]
+                        if date_livraison!="":
+                            date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
+                        quantite=""
+                        for QuantiteALivrer in detail_programme.xpath("QuantiteALivrer"):
+                            quantite=QuantiteALivrer.text
+                            try:
+                                quantite=float(quantite)
+                            except ValueError:
+                                quantite=0
+
+                        ligne = {
+                            'quantite'      : quantite,
+                            'type_commande' : type_commande,
+                            'date_livraison': date_livraison,
+                        }
+                        res1.append(ligne)
+                    val.update({'lignes':res1})
+                    res.append(val)
+
+
+
+
+            for caldel in tree.xpath("/CALDEL"):
+                numero_document = str(int(caldel.xpath("NumeroDocument")[0].text))
+                for partie_citee in caldel.xpath("SEQUENCE_PRODUCTION"):
+
+
+
+                    if  partie_citee.xpath("ARTICLE_PROGRAMME"):
+                        ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
+                        products=self.env['product.product'].search([
+                            ('is_client_id' , '=', obj.partner_id.id),
+                            ('is_ref_client', '=', ref_article_client),
+                            ('is_gestionnaire_id', '!=', '04'), 
+                            ('is_gestionnaire_id', '!=', '07'), 
+                            ('is_gestionnaire_id', '!=', '12'), 
+                            ('is_gestionnaire_id', '!=', '14'), 
+                            ('is_gestionnaire_id', '!=', '23'), 
+                            ('segment_id', 'not ilike', 'fictif'), 
+                            ('segment_id', 'not ilike', 'fantome'), 
+                            ('segment_id', 'not ilike', 'consommable'), 
+                            ('segment_id', 'not ilike', 'comptable'),
+                        ])
+                        anomalie=False
+                        if len(products)==0:
+                            anomalie=u"Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
+                        if len(products)>1:
+                            anomalie=u"Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
+                        num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
+                        order_id=False
+                        product=False
+                        if not anomalie:
+                            product=products[0]
+                            orders=self.env['sale.order'].search([
+                                ('is_type_commande'  , '=', 'standard'),
+                                ('state'             , '=', 'draft'),
+                                ('partner_id'        , '=', obj.partner_id.id),
+                                ('client_order_ref'  , '=', num_commande_client),
+                            ])
+                            if len(orders)==0:
+                                vals={
+                                    "partner_id": obj.partner_id.id,
+                                    "client_order_ref": num_commande_client,
+                                    "is_type_commande": "standard",
+                                }
+                                order=self.env['sale.order'].create(vals)
+                                order.pg_onchange_partner_id()
+                            else:
+                                order=orders[0]
+                            order_id=order.id
+                        val = {
+                            'order_id'           : order_id,
+                            'ref_article_client' : ref_article_client,
+                            'num_commande_client': num_commande_client,
+                            'lignes'             : []
+                        }
+                        if product:
+                            val["product"]=product
+
+                        point_dechargement = False
+                        for POINT_DE_DECHARGEMENT in partie_citee.xpath("ARTICLE_PROGRAMME/POINT_DE_DECHARGEMENT"):
+                                for CodeIdentificationPointDechargement in POINT_DE_DECHARGEMENT.xpath("CodeIdentificationPointDechargement"):
+                                    point_dechargement = CodeIdentificationPointDechargement.text
+                        res1 = []
+                        for detail_programme in partie_citee.xpath("ARTICLE_PROGRAMME/DETAIL_PROGRAMME_ARTICLE"):
+                            date_livraison=detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text[:8]
+                            quantite=detail_programme.xpath("QteALivrer")[0].text
+                            date_heure_livraison  = detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text
+                            numero_identification = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
+                            try:
+                                quantite=float(quantite)
+                            except ValueError:
+                                quantite=0
+                            date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
+                            ligne = {
+                                'quantite'             : quantite,
+                                'type_commande'        : 'ferme',
+                                'date_livraison'       : date_livraison,
+                                'anomalie'             : anomalie,
+                                'point_dechargement'   : point_dechargement,
+                                'numero_document'      : numero_document,
+                                'date_heure_livraison' : date_heure_livraison,
+                                'numero_identification': numero_identification,
+                            }
+                            res1.append(ligne)
+                        val.update({'lignes':res1})
+                        res.append(val)
+                    else:
+                        continue
+
+        return res
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def get_data_GXS(self, attachment):
