@@ -283,6 +283,9 @@
                                     </tree>
                                 </field>        
                             </group>
+                            <group>
+                                <field name="is_nb_um" force_save="1"/>
+                            </group>
                         </group>
                      </page>
                 </page>

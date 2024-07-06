@@ -91,7 +91,7 @@ class is_export_edi(models.Model):
             result = cr.fetchall()
             datas=""
             for row in result:
-                lig=row[0]+'\t'+row[1]+'\t'+row[2]+'\t'+row[3]+'\t'+str(row[4])+'\t'+row[5]+'\t'+str(row[6])+'\n'
+                lig=row[0]+'\t'+row[1]+'\t'+row[2]+'\t'+row[3]+'\t'+str(row[4])+'\t'+row[5]+'\t'+str(round(row[6] or 0,6))+'\n'
                 datas=datas+lig
 
             #** Ajout en pièce jointe ******************************************

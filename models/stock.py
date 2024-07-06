@@ -123,7 +123,16 @@ class stock_picking(models.Model):
         ], "Facturation", default="2binvoiced", compute="_compute_invoice_state", store=True)
     is_point_dechargement = fields.Char('Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
     is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage")
+    is_nb_um              = fields.Integer('Nb UM') #, store=False, compute='_compute_is_nb_um', readonly=True)
 
+
+    # @api.depends('move_ids_without_package')
+    # def _compute_is_nb_um(self):
+    #     for obj in self:
+    #         x = 0
+    #         for line in obj.move_ids_without_package:
+    #             x+=1
+    #         obj.is_nb_um = x
 
 
     @api.onchange('is_date_expedition','move_ids_without_package','state')
@@ -131,30 +140,37 @@ class stock_picking(models.Model):
         for obj in self:
             #obj.is_colisage_ids.unlink()
             print('TEST',obj, obj.id)
+            nb_um=0
             colis={}
             lines=[]
+            um_ids=[]
+
             for move in obj.move_ids_without_package:
-                print(move)
+                for l in move.is_uc_ids:
+                    if l.um_id not in um_ids:
+                        um_ids.append(l.um_id)
+
+
+
+            for move in obj.move_ids_without_package:
                 for l in move.product_id.packaging_ids:
-                    print(l.ul.name)
                     if l.ul not in colis:
                         colis[l.ul]=0
                     if l.qty:
                         colis[l.ul]=move.product_uom_qty/l.qty
-            print(colis)
             for line in colis:
-                print(line)
                 vals={
                     'picking_id': obj.id,
                     'colis_id'  : line.id,
                     'nb'        : colis[line],
                 }
-                print(vals)
-                #self.env['is.stock.picking.colisage'].create(vals)
                 lines.append([0,0,vals])
+
+            print(um_ids)
+
             obj.is_colisage_ids = False
             obj.is_colisage_ids = lines
-
+            obj.is_nb_um = len(um_ids)
 
 
 

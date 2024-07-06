@@ -356,14 +356,6 @@
         <field name="model">is.of</field>
         <field name="arch" type="xml">
         <form create="0">
-            <!-- <header>
-                <button 
-                    name="envoyer_par_mail_action"
-                    string="Envoyer par mail le blian de fin d'OF"
-                    type="object"
-                    groups="base.group_system"
-                />
-            </header> -->
             <sheet>
                 <group>
                     <group>
@@ -886,6 +878,9 @@
                 <field name="onglet_indicateurs" optional="show"/>
                 <field name="onglet_es"          optional="show"/>
                 <field name="onglet_amr"         optional="show"/>
+                <field name="onglet_dms"         optional="show"/>
+                <field name="onglet_ot"          optional="show"/>
+                <field name="onglet_40"          optional="show"/>
                 <field name="onglet_actif"       optional="show"/>
                 <field name="declaration_odoo"   optional="show"/>
                 <field name="zebra_id"           optional="show"/>
@@ -908,11 +903,13 @@
                     <field name="onglet_indicateurs"/>
                     <field name="onglet_es"/>
                     <field name="onglet_amr"/>
+                    <field name="onglet_dms"/>
+                    <field name="onglet_ot"/>
+                    <field name="onglet_40"/>
                     <field name="onglet_actif"/>
                     <field name="declaration_odoo"/>
                     <field name="zebra_id"/>
                 </group>
-
                 <table>
                     <tr style="vertical-align: top">
                         <td style="width:50%">
