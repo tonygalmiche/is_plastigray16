@@ -89,6 +89,7 @@ from . import is_gestion_lot
 from . import auditlog
 from . import mail_activity
 from . import is_head_model
+from . import is_questionnaire_dms
 
 
 

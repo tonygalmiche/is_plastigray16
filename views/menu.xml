@@ -2031,6 +2031,38 @@
         ])]"/>
     </record>
 
+
+
+    <!-- THIEA / Questionnaire DMS -->
+    <record id="is_questionnaire_dms_main_menu" model="ir.ui.menu" >
+        <field name="name">Questionnaire DMS</field>
+        <field name="sequence">38</field>
+        <field name="parent_id" eval="ref('is_theia_root_menu')"/>
+     </record>
+     <record id="is_questionnaire_dms_questionnaire_menu" model="ir.ui.menu" >
+        <field name="name">Questionnaires</field>
+        <field name="sequence">10</field>
+        <field name="action"    ref="is_questionnaire_dms_questionnaire_action"/>
+        <field name="parent_id" eval="ref('is_questionnaire_dms_main_menu')"/>
+     </record>
+     <record id="is_questionnaire_dms_reponse_menu" model="ir.ui.menu" >
+        <field name="name">Réponses</field>
+        <field name="sequence">20</field>
+        <field name="action"    ref="is_questionnaire_dms_reponse_action"/>
+        <field name="parent_id" eval="ref('is_questionnaire_dms_main_menu')"/>
+     </record>
+
+    
+
+
+
+
+
+
+
+
+
+
     <!-- Tables Moules -->
     <record id="menu_tables_moules" model="ir.ui.menu" >
         <field name="name">Tables Moules</field>

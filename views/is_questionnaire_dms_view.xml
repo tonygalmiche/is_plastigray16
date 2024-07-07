@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="is_questionnaire_dms_form_view">
+            <field name="name">is_questionnaire_dms_form_view</field>
+            <field name="model">is.questionnaire.dms</field>
+            <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="type_questionnaire"/>
+                        </group>
+                        <group>
+                            <field name="questionnaire" invisible="1"/>
+                            <field name="of_id"           attrs="{'invisible': [('questionnaire', '=', True)]}"/>
+                            <field name="habilitation_id" attrs="{'invisible': [('questionnaire', '=', True)]}"/>
+                            <field name="employee_id"     attrs="{'invisible': [('questionnaire', '=', True)]}"/>
+                            <field name="date_reponse"    attrs="{'invisible': [('questionnaire', '=', True)]}"/>
+                        </group>
+                    </group>
+                     <group>
+                        <field name="question_ids" nolabel="1" colspan="2">
+                            <tree editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="question" />
+                                <field name="reponse" optional="hide"/>
+                                <field 
+                                    name="reponse_color" 
+                                    attrs="{'column_invisible': [('parent.questionnaire', '=', True)]}"
+                                    widget="badge" decoration-success="reponse_color == 'OK'" decoration-warning="reponse_color == 'nOK'"
+                                />
+                        </tree>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_questionnaire_dms_search_view" >
+            <field name="name">is_questionnaire_dms_search_view</field>
+            <field name="model">is.questionnaire.dms</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="type_questionnaire"/>
+                    <field name="of_id"/>
+                    <field name="habilitation_id"/>
+                    <field name="employee_id"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Questionnaires -->
+        <record model="ir.ui.view" id="is_questionnaire_dms_questionnaire_tree_view">
+            <field name="name">is_questionnaire_dms_tree_view</field>
+            <field name="model">is.questionnaire.dms</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="type_questionnaire"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_questionnaire_dms_questionnaire_action">
+            <field name="name">Questionnaire DMS</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.questionnaire.dms</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_questionnaire_dms_questionnaire_tree_view'), 'sequence': 1}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('is_questionnaire_dms_form_view'), 'sequence': 2})
+            ]"/>
+            <field name="domain">[('questionnaire','=',True)]</field>
+            <field name="context">{'default_questionnaire': True}</field>
+        </record>
+
+        <!-- Réponses -->
+        <record model="ir.ui.view" id="is_questionnaire_dms_reponse_tree_view">
+            <field name="name">is_questionnaire_dms_tree_view</field>
+            <field name="model">is.questionnaire.dms</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date_reponse"/>
+                    <field name="type_questionnaire"/>
+                    <field name="of_id"           widget="many2one_clickable"/>
+                    <field name="habilitation_id" widget="many2one_clickable"/>
+                    <field name="employee_id"     widget="many2one_clickable"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_questionnaire_dms_reponse_action">
+            <field name="name">Réponses</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.questionnaire.dms</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_questionnaire_dms_reponse_tree_view'), 'sequence': 1}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('is_questionnaire_dms_form_view'), 'sequence': 2})
+            ]"/>
+            <field name="domain">[('questionnaire','=',False)]</field>
+        </record>
+
+
+    </data>
+</odoo>

@@ -415,6 +415,23 @@
                         </td>
                     </tr>
                 </table>
+                <group string="Questionnaires DMS" attrs="{'invisible': [('questionnaire_ids', '=', [])]}">
+                    <group>
+                        <field name="questionnaire_ids" nolabel="1" readonly="1" colspan="2">
+                            <tree>
+                                <button title="Questionnaire" name="acceder_questionnaire_action" type="object" icon="fa-search-plus"/>
+                                <field name="type_questionnaire" />
+                                <field name="date_reponse" />
+                            </tree>
+                        </field>    
+                    </group>
+                    <group>
+                        <field name="date_dms_technique" />
+                        <field name="date_dms_logistique" />
+                        <field name="date_dms_qualite" />
+                        <field name="date_dms_operateur" /> 
+                    </group>
+                </group>
             </sheet>
         </form>
         </field>

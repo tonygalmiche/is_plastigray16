@@ -249,6 +249,11 @@ class is_of(models.Model):
     impression_bilan_equipe = fields.Boolean(u"Bilan des OFs de l'équipe imprimé et envoyé par mail", index=True, default=False)
     prioritaire       = fields.Boolean('Ordre de fabrication prioritaire')
     apr_mission_id    = fields.Char('Id Mission APR', readonly=True, help="Mission en cours pour le fonctionnement des robots de l'APR de Gray")
+    questionnaire_ids = fields.One2many('is.questionnaire.dms', 'of_id', 'Questionnaires DMS', readonly=True)
+    date_dms_technique  = fields.Datetime('Date DMS Technique')
+    date_dms_logistique = fields.Datetime('Date DMS Logistique')
+    date_dms_qualite    = fields.Datetime('Date DMS Qualité')
+    date_dms_operateur  = fields.Datetime('Date DMS Opérateur')
 
 
     _sql_constraints = [
