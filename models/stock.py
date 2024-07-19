@@ -122,42 +122,58 @@ class stock_picking(models.Model):
             ('invoiced'  , "Facturé"),
         ], "Facturation", default="2binvoiced", compute="_compute_invoice_state", store=True)
     is_point_dechargement = fields.Char('Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
-    is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage")
-    is_nb_um              = fields.Integer('Nb UM') #, store=False, compute='_compute_is_nb_um', readonly=True)
+    is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage", readonly=1)
+    is_nb_um              = fields.Integer('Nb UM', readonly=1)
+    is_alerte             = fields.Text('Alerte', readonly=1)
 
 
-    # @api.depends('move_ids_without_package')
-    # def _compute_is_nb_um(self):
-    #     for obj in self:
-    #         x = 0
-    #         for line in obj.move_ids_without_package:
-    #             x+=1
-    #         obj.is_nb_um = x
-
-
-    @api.onchange('is_date_expedition','move_ids_without_package','state')
-    def onchange_is_colisage_ids(self):
+    def mise_a_jour_colisage_action(self):
         for obj in self:
-            #obj.is_colisage_ids.unlink()
-            print('TEST',obj, obj.id)
-            nb_um=0
+            liste_servir_id=obj.sale_id.is_liste_servir_id.id
+            if not liste_servir_id:
+                raise ValidationError("Liste à servir non trouvée!")
+            for move in obj.move_ids_without_package:
+                quantite = move.product_uom_qty
+                filtre=[
+                    ('liste_servir_id','=',liste_servir_id)
+                ]
+                if obj.state!='done':
+                        raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
+                ums=self.env['is.galia.base.um'].search(filtre)
+                for  um in ums:
+                    ct=1
+                    for uc in um.uc_ids:
+                        if uc.product_id==move.product_id and not uc.stock_move_id:
+                            qt_pieces = uc.qt_pieces
+                            uc.stock_move_id = move.id
+                            quantite=quantite-qt_pieces
+                            if quantite<=0:
+                                break
+                            ct+=1
+            obj.compute_is_colisage_ids()
+            for move in obj.move_ids_without_package:
+                move.compute_is_uc_galia()
+            obj.compute_alerte()
+
+
+    def compute_is_colisage_ids(self):
+        for obj in self:
             colis={}
             lines=[]
             um_ids=[]
-
             for move in obj.move_ids_without_package:
                 for l in move.is_uc_ids:
                     if l.um_id not in um_ids:
                         um_ids.append(l.um_id)
-
-
-
             for move in obj.move_ids_without_package:
+                packaging=False
                 for l in move.product_id.packaging_ids:
-                    if l.ul not in colis:
-                        colis[l.ul]=0
-                    if l.qty:
-                        colis[l.ul]=move.product_uom_qty/l.qty
+                    packaging = l.ul
+                if packaging:
+                    for l in move.is_uc_ids:
+                        if packaging not in colis:
+                            colis[packaging]=0
+                        colis[packaging]+=1
             for line in colis:
                 vals={
                     'picking_id': obj.id,
@@ -165,13 +181,25 @@ class stock_picking(models.Model):
                     'nb'        : colis[line],
                 }
                 lines.append([0,0,vals])
-
-            print(um_ids)
-
-            obj.is_colisage_ids = False
+            obj.is_colisage_ids.unlink()
             obj.is_colisage_ids = lines
             obj.is_nb_um = len(um_ids)
 
+
+    def compute_alerte(self):
+        for obj in self:
+            alerte=False
+            is_qt_uc = quantity_done = 0
+            for move in obj.move_ids_without_package:
+                is_qt_uc+=move.is_qt_uc
+                quantity_done+=move.quantity_done
+            if is_qt_uc!=quantity_done and is_qt_uc>0:
+                alerte="La quantité totale scannée (%s) ne correspond pas à la quantité livrée (%s) !"%(is_qt_uc,quantity_done)
+            obj.is_alerte=alerte
+
+
+    def is_alerte_action(self):
+        print(self)
 
 
     @api.depends('move_ids_without_package')

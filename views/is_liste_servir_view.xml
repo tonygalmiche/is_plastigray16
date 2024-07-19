@@ -68,27 +68,6 @@
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
-
-
-
-
-        <!-- is.liste.servir -->
-        <!-- <record model="ir.ui.view" id="is_liste_servir_form_view_2019">
-            <field name="name">is_liste_servir_form_view_2019</field>
-            <field name="model">is.liste.servir</field>
-            <field name="inherit_id" ref="is_liste_servir_form_view"/>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <field name="partner_id" position="after">
-                </field>
-
-                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="before">
-                </xpath>
-            </field>
-        </record> -->
-
-
-
                         <group>
                             <group>
                                 <field name="name"/> 
@@ -97,7 +76,6 @@
                                         on_change="onchange_partner_id(partner_id)"
                                         attrs="{'readonly':[('state','!=','creation')]}" 
                                 /> 
-
                                 <field 
                                     name="is_certificat_conformite_msg"
                                     style="background:orange"

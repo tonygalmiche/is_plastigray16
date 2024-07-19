@@ -19,6 +19,13 @@
            <field name="state">code</field>
            <field name="code">action = records.creer_factures_action()</field>
        </record>
+       <record id="mise_a_jour_colisage_action_server" model="ir.actions.server">
+            <field name="name">Mise à jour du colisage</field>
+            <field name="model_id" ref="model_stock_picking"/>
+            <field name="binding_model_id" ref="model_stock_picking"/>
+            <field name="state">code</field>
+            <field name="code">action = records.mise_a_jour_colisage_action()</field>
+        </record>
         <record id="is_view_picking_form" model="ir.ui.view">
             <field name="name">is_view_picking_form</field>
             <field name="model">stock.picking</field>
@@ -121,6 +128,11 @@
                         confirm="Voulez-vous vraiment annuler cette réception ?"
                         type="object"/>
                     <button 
+                        string="Mise à jour du colisage" 
+                        type="object" 
+                        name="mise_a_jour_colisage_action" 
+                    />
+                    <button 
                         name="desadv_action" 
                         string="DESADV" 
                         type="object"
@@ -159,6 +171,18 @@
                     <button name="action_toggle_is_locked"              string="toggle_is_locked"              type="object" groups="base.group_system"/> -->
                 </xpath>
                
+
+                <xpath expr="//notebook" position="before">
+                    <div style="background:orange;font-size:11pt" attrs="{'invisible':[('is_alerte','=',False)]}">
+                        <field 
+                            name="is_alerte"
+                            readonly="1" nolabel="1" 
+                            attrs="{'invisible': [('is_alerte','=', False)],'readonly':True}"
+                        />
+                    </div>
+                </xpath>
+    
+
 
                 <xpath expr="//field[@name='product_packaging_id']" position="attributes">
                     <attribute name="invisible">1</attribute> 
@@ -264,6 +288,16 @@
                     <field name="is_dosmat_ctrl_qual"           optional="show"/>
                     <field name="is_dosmat_conditions_stockage" optional="show"/>
                 </xpath>
+
+
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="after">
+                    <field name="is_qt_uc" optional="hide" sum="Total"/>
+                </xpath>
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="attributes">
+                    <attribute name="sum">Total</attribute> 
+                </xpath>
+
+
                 <xpath expr="//page[@name='extra']/group/group/field[@name='company_id']" position="after">
                     <field name="invoice_state"/>
                     <field name="is_mode_envoi_facture"/> 
@@ -287,6 +321,8 @@
                                 <field name="is_nb_um" force_save="1"/>
                             </group>
                         </group>
+
+ 
                      </page>
                 </page>
 
@@ -320,6 +356,13 @@
                     <field name="is_date_expedition" optional="show"/>
                     <field name="is_date_livraison"  optional="show"/>
                     <field name="is_num_bl"          optional="show"/>
+                    <button 
+                        name="is_alerte_action" type="object" class="oe_stat_button" 
+                        icon="fa-exclamation-triangle"
+                        attrs="{'invisible': [('is_alerte', '=', False)]}"
+                        title="Alerte"
+                    />
+                    <field name="is_alerte"          optional="hide"/>
                 </field>
                 <field name="state" position="after" >
                     <field name="invoice_state" optional="show"/>

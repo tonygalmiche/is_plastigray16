@@ -190,7 +190,7 @@
                                         <t t-esc='"{:,.1f}".format(qt2).replace(","," ").replace(".",",")'/> 
                                     </t>
                                 </td>
-                                <td class="text-left">
+                                <td class="text-left" style="font-size:9pt">
                                     <span t-field="move.is_uc_galia" style="white-space: nowrap;"/>
                                 </td>
                                 <td class="text-right">
@@ -200,7 +200,7 @@
                                 </td>
                                 <td class="text-left">
                                 </td>
-                                <td class="text-left">
+                                <td class="text-left" style="font-size:9pt">
                                     <span t-field="move.is_um_galia" style="white-space: nowrap;"/>
                                 </td>
                             </tr>

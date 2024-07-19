@@ -74,73 +74,61 @@ class stock_move(models.Model):
     is_unit_coef            = fields.Float("Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
     is_montant_reception    = fields.Float('Montant réception'                 , digits=(14,2), compute='_compute_montant_reception', store=True, readonly=True)
     is_uc_ids               = fields.One2many('is.galia.base.uc', 'stock_move_id', "UCs")
-    is_uc_galia             = fields.Text('UC (Galia)', compute='_compute_is_uc_galia', store=False, readonly=True)
-    is_um_galia             = fields.Text('UM (Galia)', compute='_compute_is_um_galia', store=False, readonly=True)
+    is_qt_uc                = fields.Float('Qt UC'    , readonly=True, digits=(14,4), help="Total de la quantité des UC scannées")
+    is_uc_galia             = fields.Text('UC (Galia)', readonly=True)
+    is_um_galia             = fields.Text('UM (Galia)', readonly=True)
 
 
-    @api.depends('is_uc_ids')
-    def _compute_is_um_galia(self):
-        cr = self._cr
+    def compute_is_uc_galia(self):
         for obj in self:
-            lines=[]
-            if type(obj.id)==int:
-                SQL="""
-                    SELECT um.name
-                    FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
-                    WHERE uc.stock_move_id=%s
-                    GROUP BY um.name
-                    ORDER BY um.name
-                """
-                cr.execute(SQL,[obj.id])
-                result = cr.dictfetchall()
+            um_ids=[]
+            qt_uc=0
+            for uc in obj.is_uc_ids:
+                if uc.um_id.id not in um_ids:
+                    um_ids.append(uc.um_id.id)
+            ums = self.env['is.galia.base.um'].search([('id', 'in', um_ids)],order="name")
+            lines_uc=[] 
+            lines_um=[]
+            for um in ums: 
                 first=False
-                def set_num(first,last):
+                def set_num_uc(first,last,lot):
                     if first==last:
-                        num = "%s"%(str(first)[-3:])
+                        num = "%s [%s]"%(str(first),lot)
                     else:
-                        num = "%s à %s"%(str(first)[-3:],str(last)[-3:])
+                        num = "%s à %s [%s]"%(str(first),str(last)[-3:],lot)
                     return num
-                for row in result:
-                    num = int(row['name'])
+                def set_num_um(uc,um,ct):
+                    if ct==0:
+                        if uc.product_id.is_um_egale_uc:
+                            num=str(uc.num_eti)
+                        else:
+                            num = um.name
+                    else:
+                        num='.'
+                    return num
+                ucs = self.env['is.galia.base.uc'].search([('um_id', '=', um.id)],order="num_eti")
+                ct=0
+                for uc in ucs:
+                    qt_uc+=uc.qt_pieces
+                    lot = uc.production
+                    num = int(uc.num_eti)
                     if not first:
                         first = last = suivant = num
                     if num==suivant:
                         last=num
                     else:
-                        lines.append(set_num(first,last))
+                        lines_uc.append(set_num_uc(first,last,lot))
+                        lines_um.append(set_num_um(uc,um,ct))
+                        ct+=1
                         first=last=num
                     suivant = num+1
                 if first:
-                    lines.append(set_num(first,last))
-            obj.is_um_galia = "\n".join(lines)
-
-
-    @api.depends('is_uc_ids')
-    def _compute_is_uc_galia(self):
-        for obj in self:
-            ucs = self.env['is.galia.base.uc'].search([('stock_move_id', '=', obj.id)],order="num_eti")
-            first=False
-            lines=[]
-            def set_num(first,last,lot):
-                if first==last:
-                    num = "%s [%s]"%(str(first)[-3:],lot)
-                else:
-                   num = "%s à %s [%s]"%(str(first)[-3:],str(last)[-3:],lot)
-                return num
-            for uc in ucs:
-                lot = uc.production
-                num = int(uc.num_eti)
-                if not first:
-                    first = last = suivant = num
-                if num==suivant:
-                    last=num
-                else:
-                    lines.append(set_num(first,last,lot))
-                    first=last=num
-                suivant = num+1
-            if first:
-                lines.append(set_num(first,last,lot))
-            obj.is_uc_galia = "\n".join(lines)
+                    lines_uc.append(set_num_uc(first,last,lot))
+                    lines_um.append(set_num_um(uc,um,ct))
+                    ct+=1
+            obj.is_uc_galia = "\n".join(lines_uc)
+            obj.is_um_galia = "\n".join(lines_um)
+            obj.is_qt_uc = qt_uc
 
 
     @api.depends('purchase_line_id','state','product_uom','product_uom_qty')
