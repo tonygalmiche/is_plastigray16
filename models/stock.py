@@ -130,30 +130,31 @@ class stock_picking(models.Model):
     def mise_a_jour_colisage_action(self):
         for obj in self:
             liste_servir_id=obj.sale_id.is_liste_servir_id.id
-            if not liste_servir_id:
-                raise ValidationError("Liste à servir non trouvée!")
-            for move in obj.move_ids_without_package:
-                quantite = move.product_uom_qty
-                filtre=[
-                    ('liste_servir_id','=',liste_servir_id)
-                ]
-                if obj.state!='done':
-                        raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
-                ums=self.env['is.galia.base.um'].search(filtre)
-                for  um in ums:
-                    ct=1
-                    for uc in um.uc_ids:
-                        if uc.product_id==move.product_id and not uc.stock_move_id:
-                            qt_pieces = uc.qt_pieces
-                            uc.stock_move_id = move.id
-                            quantite=quantite-qt_pieces
-                            if quantite<=0:
-                                break
-                            ct+=1
-            obj.compute_is_colisage_ids()
-            for move in obj.move_ids_without_package:
-                move.compute_is_uc_galia()
-            obj.compute_alerte()
+            #if not liste_servir_id:
+            #    raise ValidationError("Liste à servir non trouvée!")
+            if liste_servir_id:
+                for move in obj.move_ids_without_package:
+                    quantite = move.product_uom_qty
+                    filtre=[
+                        ('liste_servir_id','=',liste_servir_id)
+                    ]
+                    if obj.state!='done':
+                            raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
+                    ums=self.env['is.galia.base.um'].search(filtre)
+                    for  um in ums:
+                        ct=1
+                        for uc in um.uc_ids:
+                            if uc.product_id==move.product_id and not uc.stock_move_id:
+                                qt_pieces = uc.qt_pieces
+                                uc.stock_move_id = move.id
+                                quantite=quantite-qt_pieces
+                                if quantite<=0:
+                                    break
+                                ct+=1
+                obj.compute_is_colisage_ids()
+                for move in obj.move_ids_without_package:
+                    move.compute_is_uc_galia()
+                obj.compute_alerte()
 
 
     def compute_is_colisage_ids(self):
