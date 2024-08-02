@@ -27,6 +27,7 @@
                             <field name="commande_ouverte" readonly="1"/>
                             <field name="product_uom" readonly="1"/>
                             <field name="price_unit" readonly="1"/>
+                            <field name="is_unit_coef" readonly="1"/>
                             <field name="qt_receptionnee" readonly="1"/>
                             <field name="qt_facturee" readonly="1"/>
                             <field name="reste_a_facturer" readonly="1"/>
@@ -136,6 +137,7 @@
                 <field name="is_num_chantier"   optional="hide"/>
                 <field name="ref_fournisseur"   optional="hide"/>
                 <field name="product_uom"       optional="hide"/>
+                <field name="is_unit_coef"      optional="hide"/>
                 <field name="price_unit"        optional="hide"/>
                 <field name="qt_receptionnee"   optional="show" sum="Total"/>
                 <field name="qt_facturee"       optional="show" sum="Total"/>

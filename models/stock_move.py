@@ -71,7 +71,7 @@ class stock_move(models.Model):
     is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" )     # Champ ajouté pour Odoo 16 pour faire le lien entre les lignes des factures et les livraisons
     inventory_id            = fields.Many2one("stock.inventory", "Inventaire", index=True ) # Champ dans Odoo 8 et supprimé dans Odoo 16
     is_location_dest_prevu_id = fields.Many2one('stock.location', 'Emplacement prévu', compute='_compute_is_location_dest_prevu_id', store=False, readonly=True)
-    is_unit_coef            = fields.Float("Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
+    is_unit_coef            = fields.Float('US/UA', help="Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
     is_montant_reception    = fields.Float('Montant réception'                 , digits=(14,2), compute='_compute_montant_reception', store=True, readonly=True)
     is_uc_ids               = fields.One2many('is.galia.base.uc', 'stock_move_id', "UCs")
     is_qt_uc                = fields.Float('Qt UC'    , readonly=True, digits=(14,4), help="Total de la quantité des UC scannées")

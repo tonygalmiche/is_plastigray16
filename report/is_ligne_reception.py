@@ -30,6 +30,7 @@ class is_ligne_reception(models.Model):
     commande_ouverte     = fields.Char('Commande ouverte')
     product_uom          = fields.Many2one('uom.uom', 'Unité')
     price_unit           = fields.Float('Prix commande'             , digits=(14,4))
+    is_unit_coef         = fields.Float('US/UA', help="Unité de réception / Unité d'achat", digits=(14,6))
     qt_receptionnee      = fields.Float('Quantité réceptionnée'     , digits=(14,4))
     qt_facturee          = fields.Float('Quantité facturée'         , digits=(14,4))
     reste_a_facturer     = fields.Float('Reste à facturer'          , digits=(14,4))
@@ -116,11 +117,13 @@ class is_ligne_reception(models.Model):
                         pt.is_ref_fournisseur    as ref_fournisseur,
                         sm.product_uom           as product_uom,
                         sm.product_uom_qty       as qt_receptionnee,
-                        coalesce((select sum(quantity) from account_move_line ail where  ail.parent_state='posted' and  ail.is_move_id=sm.id ),0) as qt_facturee,
-                        round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.parent_state='posted' and  ail.is_move_id=sm.id ),0),4) as reste_a_facturer,
+                        sm.is_unit_coef          as is_unit_coef,
+
+                        sm.is_unit_coef*coalesce((select sum(quantity) from account_move_line ail where  ail.parent_state='posted' and  ail.is_move_id=sm.id ),0) as qt_facturee,
+                        round(sm.product_uom_qty-sm.is_unit_coef*coalesce((select sum(quantity) from account_move_line ail where ail.parent_state='posted' and  ail.is_move_id=sm.id ),0),4) as reste_a_facturer,
                         
                         sm.is_montant_reception as montant_reception,
-                        round((sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.parent_state='posted' and ail.is_move_id=sm.id ),0))*pol.price_unit/sm.is_unit_coef ,4) as montant_reste,
+                        round((sm.product_uom_qty-sm.is_unit_coef*coalesce((select sum(quantity) from account_move_line ail where ail.parent_state='posted' and ail.is_move_id=sm.id ),0))*pol.price_unit/sm.is_unit_coef ,4) as montant_reste,
 
                         -- 8s !! => is_unit_coef(pol.product_uom,sm.product_uom)*pol.price_unit*sm.product_uom_qty as montant_reception,
                         -- 9s !! => is_unit_coef(pol.product_uom,sm.product_uom)*round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.parent_state='posted' and ail.is_move_id=sm.id ),0),4)*pol.price_unit as montant_reste,
