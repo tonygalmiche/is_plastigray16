@@ -133,14 +133,7 @@ class is_facturation_fournisseur(models.Model):
                 """%(obj.date_fin, ",".join(partner_ids))
                 cr.execute(sql)
                 result=cr.dictfetchall()
-
-                print(sql)
-
-
                 for row in result:
-
-                    print(row)
-
                     move = self.env['stock.move'].browse(row["move_id"])
 
                     #** Recherche des taxes ****************************************

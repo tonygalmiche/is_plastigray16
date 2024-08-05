@@ -48,6 +48,41 @@ class sale_order(models.Model):
     client_order_ref       = fields.Char(string='N° de commande client') # Référence client => N° de commande client
 
 
+    # def _prepare_invoice(self):
+    #     res = super()._prepare_invoice()
+    #     print(self,self.partner_id,self.partner_id.property_account_position_id)
+    #     res['fiscal_position_id'] = self.partner_id.property_account_position_id.id
+    #     print('_prepare_invoice',self,res)
+    #     return res
+        # """
+        # Prepare the dict of values to create the new invoice for a sales order. This method may be
+        # overridden to implement custom invoice generation (making sure to call super() to establish
+        # a clean extension chain).
+        # """
+        # self.ensure_one()
+
+        # return {
+        #     'ref': self.client_order_ref or '',
+        #     'move_type': 'out_invoice',
+        #     'narration': self.note,
+        #     'currency_id': self.currency_id.id,
+        #     'campaign_id': self.campaign_id.id,
+        #     'medium_id': self.medium_id.id,
+        #     'source_id': self.source_id.id,
+        #     'team_id': self.team_id.id,
+        #     'partner_id': self.partner_invoice_id.id,
+        #     'partner_shipping_id': self.partner_shipping_id.id,
+        #     'fiscal_position_id': (self.fiscal_position_id or self.fiscal_position_id._get_fiscal_position(self.partner_invoice_id)).id,
+        #     'invoice_origin': self.name,
+        #     'invoice_payment_term_id': self.payment_term_id.id,
+        #     'invoice_user_id': self.user_id.id,
+        #     'payment_reference': self.reference,
+        #     'transaction_ids': [Command.set(self.transaction_ids.ids)],
+        #     'company_id': self.company_id.id,
+        #     'invoice_line_ids': [],
+        # }
+
+
     def _create_invoices(self, grouped=False, final=False, date=None):
         "Fonction surchargée pour faire le lien entre les factures et les mouvements de stocks"
         invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
@@ -55,8 +90,25 @@ class sale_order(models.Model):
             pickings=[]
             invoice.is_mode_envoi_facture   = invoice.partner_id.is_mode_envoi_facture
             invoice.invoice_payment_term_id = invoice.partner_id.property_payment_term_id.id
+
+            #Modif du 02/08/2024 pour Céline => Position fiscale du client livré et non pas du client facturé
+            #invoice.fiscal_position_id = invoice.partner_shipping_id.property_account_position_id.id
+            #******************************************************************
+
             for line in invoice.line_ids:
                 line.is_section_analytique_id = line.product_id.is_section_analytique_id.id
+
+                #Modif du 02/08/2024 pour Céline => Position fiscale du client livré et non pas du client facturé
+                #line._compute_account_id()
+                # if line.display_type in ('line_section', 'line_note'):
+                #     continue
+                # if line.product_id or line.account_id.tax_ids or not line.tax_ids:
+                #tax_ids = line._get_computed_taxes()
+                #print(line,line.account_id.code,tax_ids)
+                #line.tax_ids = False
+                #line._compute_tax_ids()
+                #**************************************************************
+
                 for sale_line in line.sale_line_ids:
                     for move in sale_line.move_ids:
                         if not move.is_account_move_line_id and move.state=="done":
@@ -68,6 +120,7 @@ class sale_order(models.Model):
                             if move.picking_id.name not in pickings:
                                 pickings.append(move.picking_id.name)
             invoice.invoice_origin=','.join(pickings)
+            #print(invoice, invoice.name, invoice.fiscal_position_id.name, invoice.partner_shipping_id.name, invoice.partner_shipping_id.property_account_position_id.name)
         return invoices
 
 

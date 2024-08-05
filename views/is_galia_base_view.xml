@@ -178,6 +178,7 @@
                             name="imprimer_etiquette_um_action" 
                             string="Imprimer étiquette UM" 
                             type="object"
+                            attrs="{'invisible': [('active', '!=', True)]}"
                         />
                     </header>
                     <sheet>

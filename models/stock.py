@@ -213,7 +213,7 @@ class stock_picking(models.Model):
             obj.is_point_dechargement = x
 
 
-    @api.depends('state', 'move_ids_without_package')
+    @api.depends('state', 'move_ids', 'move_ids.invoice_state')
     def _compute_invoice_state(self):
         for obj in self:
             if obj.state=="cancel":
