@@ -76,7 +76,9 @@ class AnalyseCbn extends Component {
         if (click!==undefined){
             click.value=-click.value
             if (click.value==1){
-                ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
+                //ev.target.parentElement.style="background-color:rgb(204, 255, 204)";
+                //ev.target.parentElement.style="background-color:#e7fade";
+                ev.target.parentElement.style="background-color:#ecf5e8";
             } else {
                 const memstyle = ev.target.parentElement.attributes.memstyle.value;
                 ev.target.parentElement.style=memstyle;

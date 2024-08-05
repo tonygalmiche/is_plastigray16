@@ -116,7 +116,7 @@
                     <thead>
                         <tr>
                             <th style="text-align:left">
-                                Sécu / Délai / Lot / Multi / Stock A/Q
+                                Sécu / Délai / Lot / Multi / <span style="color:green;font-weight:bold;">Stock A</span> / <span style="color:orange;font-weight: bold;">Q</span>
                             </th>
                             <th>Type</th>
                             <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
@@ -167,7 +167,12 @@
                                             style="margin-left:0.5em"
                                         />
                                         <br />
-                                        <span t-esc="line.StockSecu"/> / <span t-esc="line.Delai"/> / <span t-esc="line.lot_mini"/> / <span t-esc="line.multiple"/> / <span t-esc="line.StockA"/> / <span t-esc="line.StockQ"/>
+                                        <span t-esc="line.StockSecu"/> / 
+                                        <span t-esc="line.Delai"/> / 
+                                        <span t-esc="line.lot_mini"/> / 
+                                        <span t-esc="line.multiple"/> / 
+                                        <span t-esc="line.StockA" style="color:green;font-weight: bold;"/> / 
+                                        <span t-esc="line.StockQ" style="color:orange;font-weight: bold;"/>
                                     </td>
                                     <td>
                                         <span t-esc="t.name_typeod"/>
