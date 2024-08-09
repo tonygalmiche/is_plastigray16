@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <record id="is_reception_inter_site_seq" model="ir.sequence">
+            <field name="name">Réception inter-site</field>
+            <field name="code">is.reception.inter.site</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record model="ir.ui.view" id="is_reception_inter_site_form_view">
+            <field name="name">is_reception_inter_site_form_view</field>
+            <field name="model">is.reception.inter.site</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">
+                    <header>
+                        <button 
+                            string="Effectuer la réception inter-sites" 
+                            type="object" 
+                            name="reception_inter_site_action" 
+                            class="btn-primary" 
+                        />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="site_livraison_id"/>
+                                <field name="fournisseur_reception_id"/>
+                                <field name="num_bl" required="1"/>
+                            </group>
+                            <group>
+                                <field name="name"/>
+                                <field name="create_date"/>
+                                <field name="create_uid"/>
+                            </group>
+                        </group>
+                        <group>
+                      
+                        </group>
+                        <div style="background:DarkOrange;font-size:11pt;font-family:courier, courier new, serif" attrs="{'invisible':[('alerte','=',False)]}">
+                            <field name="alerte" nolabel="1"/>
+                        </div>
+                        <div style="background:Gainsboro;font-size:11pt;font-family:courier, courier new, serif" attrs="{'invisible':[('info','=',False)]}">
+                            <field name="info" nolabel="1"/>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_reception_inter_site_tree_view">
+            <field name="name">is_reception_inter_site_tree_view</field>
+            <field name="model">is.reception.inter.site</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="site_livraison_id"/>
+                    <field name="fournisseur_reception_id"/>
+                    <field name="num_bl"/>
+                    <field name="create_date"/>
+                    <field name="create_uid"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_reception_inter_site_search_view" >
+            <field name="name">is_reception_inter_site_search_view</field>
+            <field name="model">is.reception.inter.site</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="site_livraison_id"/>
+                    <field name="fournisseur_reception_id"/>
+                    <field name="num_bl"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_reception_inter_site_action">
+            <field name="name">Réception inter-site</field>
+            <field name="res_model">is.reception.inter.site</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+  </data>
+</odoo>

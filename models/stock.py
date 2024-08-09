@@ -1,35 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import string
-from odoo import models,fields,api
+from odoo import models,fields,api,tools,SUPERUSER_ID
 from odoo.exceptions import ValidationError
+#from xmlrpc import client as xmlrpclib
 
-#from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
+#import psycopg2
+#from psycopg2.extras import RealDictCursor
+
 import time
-from datetime import datetime, date
-#from xml.dom.minidom import parseString
-#import re
-
-#import os
+from datetime import datetime, date, timedelta
 from subprocess import PIPE, Popen
-
-
-#from collections import OrderedDict
 import logging
 _logger = logging.getLogger(__name__)
-
-#from odoo.addons.is_plastigray16.report.is_stock_move import _SELECT_STOCK_MOVE
-# class stock_pack_operation(models.Model):
-#     _inherit = "stock.pack.operation"
-  
-#     move_id = fields.Many2one('stock.move', 'Stock Move')
 
 
 class stock_location(models.Model):
     _inherit = 'stock.location'
 
     control_quality = fields.Boolean(u'Contrôle qualité', default=False)
-
 
     def name_get(self):
         res = []
@@ -38,8 +27,6 @@ class stock_location(models.Model):
             #name = "%s (%s)"%(obj.name,(obj.is_matricule or ''))
             res.append((obj.id,name))
         return res
-
-
 
 
 class is_commentaire_mouvement_stock(models.Model):
@@ -125,6 +112,102 @@ class stock_picking(models.Model):
     is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage", readonly=1)
     is_nb_um              = fields.Integer('Nb UM', readonly=1)
     is_alerte             = fields.Text('Alerte', readonly=1)
+    # is_site_livraison_id        = fields.Many2one('is.database', 'Site de livraison')
+    # is_fournisseur_reception_id = fields.Many2one('res.partner', 'Fournisseur de réception', domain=[('is_company','=',True),('supplier','=',True)])
+    # is_alerte_inter_sites       = fields.Text('Alerte inter-sites', readonly=1)
+    # is_info_inter_sites         = fields.Text('Infos inter-sites', readonly=1)
+
+
+    # def reception_inter_sites_action(self):
+    #     for obj in self:
+    #         database = obj.is_site_livraison_id
+
+
+    #         company = self.env.user.company_id
+
+
+    #         DBNAME   = database.database
+    #         USER     = company.is_postgres_user
+    #         HOST     = company.is_postgres_host
+    #         PASSWORD = company.is_postgres_pwd
+    #         cnx = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'"%(DBNAME,USER,HOST,PASSWORD))
+    #         cr  = cnx.cursor(cursor_factory=RealDictCursor)
+    #         SQL="SELECT * FROM is_database" # WHERE database=%s"
+    #         cr.execute(SQL) #, [DBNAME])
+    #         rows = cr.fetchall()
+    #         for row in rows:
+    #             print(row)
+
+            # try:
+            #     #cnx = psycopg2.connect("dbname='"+self._cr.dbname+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
+
+            #     DBNAME   = database.database
+            #     USER     = company.is_postgres_user
+            #     HOST     = company.is_postgres_host
+            #     PASSWORD = company.is_postgres_pwd
+
+            #     cnx = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'"%(DBNAME,USER,HOST,PASSWORD))
+            # except Exception:
+            #     raise ValidationError('Postgresql 0 non disponible !')
+
+
+            # DB        = database.database
+            # USERID    = SUPERUSER_ID
+            # DBLOGIN   = database.login
+            # USERPASS  = database.password
+            # DB_SERVER = database.ip_server
+            # DB_PORT   = database.port_server
+
+            # sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object' % (DB_SERVER, DB_PORT))
+            # alerte=[]
+            # info=[]
+            # if not obj.is_site_livraison_id:
+            #     alerte.append("Site de livraison obligatoire")
+            # if not obj.is_fournisseur_reception_id:
+            #     alerte.append("Fournisseur de réception obligatoire")
+
+            # nb_rcp=nb_liv=0
+            # nb_liv = len(obj.move_ids_without_package)
+            # info.append("%s lignes livréees"%nb_liv)
+
+            # #** Recherche dans les réceptions validées ************************
+            # if not alerte:
+            #     date_debut = obj.date_done
+            #     date_fin   = obj.date_done + timedelta(days=7)
+            #     domain=[
+            #         ('is_num_bl','=',obj.name),
+            #         ('picking_type_id','=',1),
+            #         ('is_date_reception','>=',date_debut),
+            #         ('is_date_reception','<=',date_fin),
+            #         ('partner_id.is_code','=',obj.is_fournisseur_reception_id.is_code),
+            #         ('partner_id.is_adr_code','=',obj.is_fournisseur_reception_id.is_adr_code),
+            #         ('state','=','done'),
+            #     ]
+
+            #     lines = sock.execute_kw(DB, USERID, USERPASS, 'stock.picking', 'search_read', [domain], {'fields': ['name', 'id', 'is_date_reception'], 'limit': 100})
+            #     nb_rcp = len(lines)
+            #     info.append("%s réceptions trouvées"%nb_rcp)
+            #     for line in lines:
+            #         print(line['name'],line['is_date_reception'])
+            # #******************************************************************
+
+            # #** Alerte si nb_liv<>nb_rcp **************************************
+            # if nb_liv!=nb_rcp:
+            #     alerte.append('Nombre de lignes de réception (%s) différent du nombre lignes livrées (%s)'%(nb_rcp,nb_liv))
+
+
+
+            # if alerte==[]:
+            #     alerte=False
+            # else:
+            #     alerte='\n'.join(alerte)
+            # obj.is_alerte_inter_sites = alerte
+            # if info==[]:
+            #     info=False
+            # else:
+            #     info='\n'.join(info)
+            # obj.is_info_inter_sites = info
+
 
 
     def mise_a_jour_colisage_action(self):

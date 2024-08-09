@@ -127,12 +127,7 @@
                         attrs="{'invisible': ['|',('purchase_id', '=', False),('state','!=','done')]}" 
                         confirm="Voulez-vous vraiment annuler cette réception ?"
                         type="object"/>
-                    <button 
-                        string="Mise à jour du colisage" 
-                        type="object" 
-                        name="mise_a_jour_colisage_action" 
-                    />
-                    <button 
+                     <button 
                         name="desadv_action" 
                         string="DESADV" 
                         type="object"
@@ -321,13 +316,40 @@
                                 <field name="is_nb_um" force_save="1"/>
                             </group>
                         </group>
-
- 
+                        <group>
+                            <button 
+                                string="Mise à jour du colisage" 
+                                type="object" 
+                                name="mise_a_jour_colisage_action" 
+                                colspan="2"
+                                class="btn-primary" 
+                            />
+                        </group>
                      </page>
+                     <!-- <page string="Livraisons inter-sites" attrs="{'invisible': [('picking_type_id','!=',2)]}">
+                        <div style="background:Gainsboro;font-size:11pt" attrs="{'invisible':[('is_info_inter_sites','=',False)]}">
+                            <field name="is_info_inter_sites" nolabel="1"/>
+                        </div>
+                        <div style="background:DarkOrange;font-size:11pt" attrs="{'invisible':[('is_alerte_inter_sites','=',False)]}">
+                            <field name="is_alerte_inter_sites" nolabel="1"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="is_site_livraison_id"/>
+                                <field name="is_fournisseur_reception_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <button 
+                                string="Effectuer la réception inter-sites" 
+                                type="object" 
+                                name="reception_inter_sites_action" 
+                                colspan="2"
+                                class="btn-primary" 
+                            />
+                        </group>
+                     </page> -->
                 </page>
-
-
-
              </field>
         </record>
 

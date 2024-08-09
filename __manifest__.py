@@ -189,6 +189,7 @@ Module Odoo 16 pour Plastigray
         "views/is_head_model_view.xml",
         "views/report_bl_galia.xml",
         "views/is_questionnaire_dms_view.xml",
+        "views/is_reception_inter_site_view.xml",
         "report/is_stock_valorise.xml",
         "report/is_account_invoice_line.xml",
         "report/is_anomalie_position_fiscale.xml",
