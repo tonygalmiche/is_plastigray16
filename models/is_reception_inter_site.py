@@ -16,6 +16,16 @@ class is_reception_inter_site(models.Model):
     num_bl                   = fields.Char('N°BL fournisseur', copy=False)
     alerte                   = fields.Text('Alerte', readonly=1, copy=False)
     info                     = fields.Text('Info'  , readonly=1, copy=False)
+    picking_ids              = fields.One2many('stock.picking', 'is_reception_inter_site_id', "Réceptions", readonly=True)
+    etat_reception           = fields.Selection([
+            ('pret', 'Prêt'),
+            ('fait', 'Fait'),
+        ], "Etat réception", default='pret', required=True)
+    state = fields.Selection([
+            ('analyse'  , 'Analyse'),
+            ('reception', 'Réception'),
+            ('termine'  , 'Terminé'),
+        ], "Etat", default='analyse')
 
 
     @api.model_create_multi
@@ -25,7 +35,8 @@ class is_reception_inter_site(models.Model):
         return super().create(vals_list)
 
 
-    def reception_inter_site_action(self):
+    def analyse_action(self):
+        "Analyse et création des UM/UC"
         cr  = self._cr
         uid = self._uid
         alerte=[]
@@ -55,25 +66,24 @@ class is_reception_inter_site(models.Model):
                 WHERE 
                     sp.name='%s' and 
                     sp.state='done' and sm.state='done' and sp.picking_type_id=2
+                ORDER BY sm.sequence,sm.id
             """%(obj.num_bl)
             cr_liv.execute(SQL)
             rows_liv = cr_liv.fetchall()
             nb_liv=nb_rcp=0
-            UMs=[]
+            #UMs=[]
             for row_liv in rows_liv:
                 nb_liv+=1
                 is_code = row_liv['is_code']
                 qt_liv  = row_liv['quantity_done']
                 move_id = row_liv['move_id']
-
                 date_debut = row_liv['date_done']
                 date_fin   = date_debut + timedelta(days=7)
-
-                
 
                 #** Recherche de la réception *********************************
                 SQL="""
                     SELECT 
+                        sp.id picking_id,
                         sp.name, 
                         pt.is_code,
                         sm.product_uom_qty,
@@ -81,65 +91,151 @@ class is_reception_inter_site(models.Model):
                     FROM stock_picking sp join stock_move       sm on sm.picking_id=sp.id
                                         join product_product  pp on sm.product_id=pp.id 
                                         join product_template pt on pp.product_tmpl_id=pt.id
-                    WHERE 
-                        pt.is_code='%s' and sp.partner_id=%s and
-                        sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
-                        sp.is_date_reception>='%s' and sp.is_date_reception<='%s'
-                    limit 1
-                """%(is_code,obj.fournisseur_reception_id.id,date_debut,date_fin)
-
-
+                """
+                if obj.etat_reception=='fait':
+                    SQL="""%s
+                        WHERE 
+                            pt.is_code='%s' and sp.partner_id=%s and
+                            sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
+                            sp.is_date_reception>='%s' and sp.is_date_reception<='%s' 
+                            and sp.is_num_bl='%s'
+                        limit 1
+                    """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl)
+                else:
+                    SQL="""%s
+                        WHERE 
+                            pt.is_code='%s' and sp.partner_id=%s and
+                            sp.state not in ('done','cancel','draft') and 
+                            sm.state not in ('cancel','done') and sp.picking_type_id=1
+                        ORDER BY sp.scheduled_date
+                        limit 1
+                    """%(SQL, is_code, obj.fournisseur_reception_id.id)
                 cr.execute(SQL)
                 rows = cr.dictfetchall()
                 for row in rows:
                     nb_rcp+=1
-                    qt_rcp  = row['product_uom_qty']
+                    num_rcp    = row['name']
+                    picking_id = row['picking_id']
+                    qt_rcp     = row['product_uom_qty']
 
-                    #** Recherche des UC/UM ***********************************
+                    #** Lien entre picking et is_reception_inter_site *********
+                    picking = self.env['stock.picking'].browse(picking_id)
+                    if picking.id:
+                        picking.is_reception_inter_site_id = obj.id
+
+                        print(picking, picking.is_reception_inter_site_id)
+                    #**********************************************************
+
+                     #** Recherche des UC/UM ***********************************
                     SQL="""
-                        SELECT uc.num_eti,uc.qt_pieces,um.name
+                        SELECT uc.num_eti,uc.qt_pieces,um.name, uc.num_carton, uc.qt_pieces, uc.product_id, uc.type_eti, uc.date_creation,pt.is_code
                         FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
+                                                 join product_product  pp on uc.product_id=pp.id 
+                                                 join product_template pt on pp.product_tmpl_id=pt.id 
                         WHERE uc.stock_move_id=%s
                     """%move_id
                     cr_liv.execute(SQL)
                     lines = cr_liv.fetchall()
-                    qt_scan=0
+                    qt_scan = 0
+                    qt_uc   = 0
                     for line in lines:
+                        name    = line['name']
                         num_eti = line['num_eti']
+                        code_pg = line['is_code']
                         qt_scan+=line['qt_pieces']
-                        if line['name'] not in UMs:
-                            UMs.append(line['name'])
-                    #**********************************************************
+                        #if name not in UMs:
 
-                    msg = "%s : %s Liv : %s Rcp : %s Scan"%(is_code.ljust(9), str(qt_liv).rjust(10),str(qt_rcp).rjust(10),str(qt_scan).rjust(10))
-                    if qt_rcp==qt_liv and qt_liv==qt_scan:
+                        #UMs.append(name)
+                        #** Recherche si UM existe déjà *******************
+                        um_id=False
+                        SQL="SELECT id from is_galia_base_um where name='%s'"%name
+                        cr.execute(SQL)
+                        rows2 = cr.dictfetchall()
+                        if len(rows2)>0:
+                            for row2 in rows2:
+                                um_id=row2['id']
+                        else:
+                            #** Création UM *******************************
+                            SQL="""
+                                INSERT INTO is_galia_base_um(name,create_uid,write_uid,create_date,write_date,mixte,active)
+                                VALUES (%s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 'non', 't')
+                                RETURNING id
+                            """
+                            cr.execute(SQL,[name,uid,uid])
+                            rows2 = cr.dictfetchall()
+                            for row2 in rows2:
+                                um_id=row2['id']
+                                info.append('Création UM %s'%name)
+                        if not um_id:
+                            alerte.append("Impossible de trouver ou créer l'UM %s"%name)
+                        else:
+                            #** Recherche si UC existe déjà ***************
+                            uc_id=False
+                            SQL="SELECT id, qt_pieces from is_galia_base_uc where num_eti='%s' and um_id=%s"%(num_eti,um_id)
+                            cr.execute(SQL)
+                            rows2 = cr.dictfetchall()
+                            if len(rows2)>0:
+                                for row2 in rows2:
+                                    uc_id=row2['id']
+                                    qt_uc+=row2['qt_pieces']
+                            else:
+
+                                #** Cherche code PG dans base réception ***
+                                product_id = False
+                                SQL="""
+                                    SELECT pp.id 
+                                    FROM product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
+                                    WHERE pt.is_code=%s 
+                                    limit 1
+                                """
+                                cr.execute(SQL,[code_pg])
+                                rows3 = cr.dictfetchall()
+                                for row3 in rows3:
+                                    product_id=row3['id']
+                                if not product_id:
+                                    alerte.append("Code PG '%s' non trouvé dans %s"%(code_pg,DBNAME))
+                                else:
+                                    #** Création UC ***************************
+                                    SQL="""
+                                        INSERT INTO is_galia_base_uc(um_id,num_eti,num_carton,qt_pieces,product_id,type_eti,date_creation,create_uid,write_uid,create_date,write_date)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC')
+                                        RETURNING id
+                                    """
+                                    cr.execute(SQL,[
+                                        um_id,
+                                        num_eti,
+                                        line['num_carton'],
+                                        line['qt_pieces'],
+                                        product_id,
+                                        line['type_eti'],
+                                        line['date_creation'],
+                                        uid,
+                                        uid,
+                                    ])
+                                    rows2 = cr.dictfetchall()
+                                    for row2 in rows2:
+                                        uc_id=row2['id']
+                                        info.append('Création UC %s'%num_eti)
+                                        qt_uc+=line['qt_pieces']
+                    msg = "%s : %s Liv : %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(is_code.ljust(9), str(qt_liv).rjust(10),str(qt_rcp).rjust(10),num_rcp,str(qt_scan).rjust(10),str(qt_uc).rjust(10))
+                    if qt_rcp==qt_liv and qt_liv==qt_scan and qt_liv==qt_uc:
                         info.append(msg)
                     else:
                         alerte.append(msg)
-
-
-
-            #** Création des UMs **********************************************
-            for UM in UMs:
-                print(UM)
-                SQL="""
-                    INSERT INTO is_galia_base_um(name,create_uid,write_uid,create_date,write_date,mixte,active)
-                    VALUES (%s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 'non', 't')
-                """
-                cr.execute(SQL,[UM,uid,uid])
-            #******************************************************************
-
 
             info.append("%s lignes livrées"%nb_liv)
             info.append("%s réceptions trouvées"%nb_rcp)
             
             #** Alerte si nb_liv<>nb_rcp **************************************
             if nb_liv!=nb_rcp:
-                alerte.append('Nombre de lignes de réception (%s) différent du nombre lignes livrées (%s)'%(nb_rcp,nb_liv))
+                alerte.append('Nombre de lignes livrées (%s) différent du nombre lignes en réception (%s)'%(nb_liv,nb_rcp))
+            if nb_liv==0:
+                alerte.append('Nombre de lignes livrées à 0')
             #******************************************************************
 
             if alerte==[]:
                 alerte=False
+                obj.state='reception'
             else:
                 alerte='\n'.join(alerte)
             obj.alerte = alerte

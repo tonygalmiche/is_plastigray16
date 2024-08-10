@@ -112,6 +112,11 @@ class stock_picking(models.Model):
     is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage", readonly=1)
     is_nb_um              = fields.Integer('Nb UM', readonly=1)
     is_alerte             = fields.Text('Alerte', readonly=1)
+
+    is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site')
+
+
+
     # is_site_livraison_id        = fields.Many2one('is.database', 'Site de livraison')
     # is_fournisseur_reception_id = fields.Many2one('res.partner', 'Fournisseur de réception', domain=[('is_company','=',True),('supplier','=',True)])
     # is_alerte_inter_sites       = fields.Text('Alerte inter-sites', readonly=1)
@@ -207,6 +212,23 @@ class stock_picking(models.Model):
             # else:
             #     info='\n'.join(info)
             # obj.is_info_inter_sites = info
+
+
+
+    def voir_picking_action(self):
+        for obj in self:
+            #view_id=self.env.ref('is_plastigray16.is_account_view_move_form')
+            res= {
+                'name': obj.name,
+                'view_mode': 'form',
+                'res_model': 'stock.picking',
+                'res_id': obj.id,
+                #'view_id': view_id.id,
+                'type': 'ir.actions.act_window',
+                #'context': {'default_move_type':'out_invoice', 'move_type':'out_invoice', 'journal_type': 'sale'},
+                #'domain': [('move_type','=','out_invoice'),('journal_type','=','sale')],
+            }
+            return res
 
 
 

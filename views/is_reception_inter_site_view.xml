@@ -17,18 +17,21 @@
                 <form string="Form">
                     <header>
                         <button 
-                            string="Effectuer la réception inter-sites" 
+                            string="Analyse et création des UM/UC" 
                             type="object" 
-                            name="reception_inter_site_action" 
+                            name="analyse_action" 
                             class="btn-primary" 
+                            attrs="{'invisible': [('state', '!=', 'analyse')]}"
                         />
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="site_livraison_id"/>
-                                <field name="fournisseur_reception_id"/>
-                                <field name="num_bl" required="1"/>
+                                <field name="site_livraison_id"        attrs="{'readonly': [('state', '!=', 'analyse')]}"/>
+                                <field name="fournisseur_reception_id" attrs="{'readonly': [('state', '!=', 'analyse')]}"/>
+                                <field name="etat_reception"           attrs="{'readonly': [('state', '!=', 'analyse')]}"/>
+                                <field name="num_bl" required="1"      attrs="{'readonly': [('state', '!=', 'analyse')]}"/>
                             </group>
                             <group>
                                 <field name="name"/>
@@ -45,6 +48,16 @@
                         <div style="background:Gainsboro;font-size:11pt;font-family:courier, courier new, serif" attrs="{'invisible':[('info','=',False)]}">
                             <field name="info" nolabel="1"/>
                         </div>
+                        <field name="picking_ids" nolabel="1" >
+                            <tree>
+                                <button title="Réception" name="voir_picking_action" type="object" icon="fa-search-plus"/>
+                                <field name="name"/>
+                                <field name="partner_id"/>
+                                <field name="scheduled_date"/>
+                                <field name="is_date_reception"/>
+                                <field name="state"/>
+                            </tree>
+                        </field>
                     </sheet>
                 </form>
             </field>
@@ -56,11 +69,13 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="site_livraison_id"/>
-                    <field name="fournisseur_reception_id"/>
-                    <field name="num_bl"/>
-                    <field name="create_date"/>
-                    <field name="create_uid"/>
+                    <field name="site_livraison_id" optional="show"/>
+                    <field name="fournisseur_reception_id" optional="show"/>
+                    <field name="etat_reception" optional="show"/>
+                    <field name="num_bl" optional="show"/>
+                    <field name="create_date" optional="show"/>
+                    <field name="create_uid" optional="show"/>
+                    <field name="state" widget="badge" decoration-danger="state == 'analyse'" decoration-warning="state == 'reception'" decoration-success="state == 'termine'" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -72,7 +87,9 @@
                     <field name="name"/>
                     <field name="site_livraison_id"/>
                     <field name="fournisseur_reception_id"/>
+                    <field name="etat_reception"/>
                     <field name="num_bl"/>
+                    <field name="state"/>
                 </search>
             </field>
         </record>

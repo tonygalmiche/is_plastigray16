@@ -121,8 +121,10 @@
                     <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
                     <field name="bt_line_id"       optional="hide" widget="many2one_clickable"/>
                     <field name="stock_move_id"    optional="show" widget="many2one_clickable"/>
-                    <field name="write_date"       optional="show"/>
                     <field name="create_date"      optional="show"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_date"       optional="show"/>
+                    <field name="write_uid"        optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -226,8 +228,10 @@
                     <field name="employee_id"      optional="show"/>
                     <field name="date_fin"         optional="show"/>
                     <field name="uc_ids"           optional="show"/>
-                    <field name="write_date"       optional="show"/>
                     <field name="create_date"      optional="show"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_date"       optional="show"/>
+                    <field name="write_uid"        optional="hide"/>
                 </tree>
             </field>
         </record>
