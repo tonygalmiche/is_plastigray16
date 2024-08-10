@@ -88,11 +88,13 @@
                                 <field name="employee_id"/>
                             </group>
                             <group>
-                                <field name="liste_servir_id"  widget="many2one_clickable"/>
-                                <field name="ls_line_id"       widget="many2one_clickable"/>
-                                <field name="bon_transfert_id" widget="many2one_clickable"/>
-                                <field name="bt_line_id"       widget="many2one_clickable"/>
-                                <field name="stock_move_id"    widget="many2one_clickable"/>
+                                <field name="liste_servir_id"   widget="many2one_clickable"/>
+                                <field name="ls_line_id"        widget="many2one_clickable"/>
+                                <field name="bon_transfert_id"  widget="many2one_clickable"/>
+                                <field name="bt_line_id"        widget="many2one_clickable"/>
+                                <field name="stock_move_id"     widget="many2one_clickable"/>
+                                <field name="stock_move_rcp_id" widget="many2one_clickable"/>
+                                <field name="reception_inter_site_id" widget="many2one_clickable"/>
                             </group>
                         </group>
                     </sheet>
@@ -105,26 +107,28 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="um_id"            optional="show" widget="many2one_clickable"/>
-                    <field name="um_mixte"         optional="show"/>
-                    <field name="um_active"        optional="show"/>
-                    <field name="num_eti"          optional="show"/>
-                    <field name="type_eti"         optional="show"/>
-                    <field name="num_carton"       optional="show"/>
-                    <field name="qt_pieces"        optional="show" sum="Total" />
-                    <field name="date_creation"    optional="show"/>
-                    <field name="production"       optional="show"/>
-                    <field name="product_id"       optional="show" widget="many2one_clickable"/>
-                    <field name="employee_id"      optional="show"/>
-                    <field name="liste_servir_id"  optional="show" widget="many2one_clickable"/>
-                    <field name="ls_line_id"       optional="hide" widget="many2one_clickable"/>
-                    <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
-                    <field name="bt_line_id"       optional="hide" widget="many2one_clickable"/>
-                    <field name="stock_move_id"    optional="show" widget="many2one_clickable"/>
-                    <field name="create_date"      optional="show"/>
-                    <field name="create_uid"       optional="hide"/>
-                    <field name="write_date"       optional="show"/>
-                    <field name="write_uid"        optional="hide"/>
+                    <field name="um_id"             optional="show" widget="many2one_clickable"/>
+                    <field name="um_mixte"          optional="show"/>
+                    <field name="um_active"         optional="show"/>
+                    <field name="num_eti"           optional="show"/>
+                    <field name="type_eti"          optional="show"/>
+                    <field name="num_carton"        optional="show"/>
+                    <field name="qt_pieces"         optional="show" sum="Total" />
+                    <field name="date_creation"     optional="show"/>
+                    <field name="production"        optional="show"/>
+                    <field name="product_id"        optional="show" widget="many2one_clickable"/>
+                    <field name="employee_id"       optional="show"/>
+                    <field name="liste_servir_id"   optional="show" widget="many2one_clickable"/>
+                    <field name="ls_line_id"        optional="hide" widget="many2one_clickable"/>
+                    <field name="bon_transfert_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="bt_line_id"        optional="hide" widget="many2one_clickable"/>
+                    <field name="stock_move_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="stock_move_rcp_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="reception_inter_site_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="create_date"       optional="show"/>
+                    <field name="create_uid"        optional="hide"/>
+                    <field name="write_date"        optional="show"/>
+                    <field name="write_uid"         optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -145,7 +149,9 @@
                     <field name="bon_transfert_id"/>
                     <field name="bt_line_id"/>
                     <field name="stock_move_id"/>
+                    <field name="reception_inter_site_id"/>
                     <group expand="0" string="Group By...">
+                        <filter name="group_um_id"      string="Regrouper par UM"       domain="[]" context="{'group_by':'um_id'}"/>
                         <filter name="group_bt_line_id" string="Ligne bon de transfert" domain="[]" context="{'group_by':'bt_line_id'}"/>
                         <filter name="um_mixte"         string="UM mixte"    domain="[('um_mixte' ,'=','oui')]"/>
                         <filter name="um_active"        string="UM active"   domain="[('um_active','=',True)]"/>
@@ -181,6 +187,12 @@
                             string="Imprimer étiquette UM" 
                             type="object"
                             attrs="{'invisible': [('active', '!=', True)]}"
+                        />
+                        <button 
+                            string="Voir les UC" 
+                            type="object" 
+                            name="voir_uc_action" 
+                            attrs="{'invisible': [('uc_ids', '==', [])]}"
                         />
                     </header>
                     <sheet>

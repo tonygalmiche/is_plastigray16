@@ -79,6 +79,22 @@ class is_galia_base_um(models.Model):
             }
 
 
+    def voir_uc_action(self):
+        for obj in self:
+            res= {
+                'name': obj.name,
+                'view_mode': 'tree,form',
+                'res_model': 'is.galia.base.uc',
+                'type': 'ir.actions.act_window',
+                'domain': [('um_id','=',obj.id)],
+            }
+            return res
+
+
+
+
+
+
     def imprimer_etiquette_um_action(self):
         for obj in self : 
             cdes = self.env['is.commande.externe'].search([('name','=',"imprimer-etiquette-um")])
@@ -116,11 +132,13 @@ class is_galia_base_uc(models.Model):
     production    = fields.Char('Fabrication')
     product_id    = fields.Many2one('product.product', 'Article', required=True)
     employee_id   = fields.Many2one("hr.employee", "Employé")
-    liste_servir_id  = fields.Many2one('is.liste.servir' , 'Liste à servir'  , related='um_id.liste_servir_id')
-    bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert', related='um_id.bon_transfert_id')
-    ls_line_id       = fields.Many2one('is.liste.servir.line' , 'Ligne liste à servir')
-    bt_line_id       = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert')
-    stock_move_id    = fields.Many2one('stock.move', 'Ligne livraison')
+    liste_servir_id   = fields.Many2one('is.liste.servir' , 'Liste à servir'  , related='um_id.liste_servir_id')
+    bon_transfert_id  = fields.Many2one('is.bon.transfert', 'Bon de transfert', related='um_id.bon_transfert_id')
+    ls_line_id        = fields.Many2one('is.liste.servir.line' , 'Ligne liste à servir')
+    bt_line_id        = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert')
+    stock_move_id     = fields.Many2one('stock.move', 'Ligne livraison')
+    stock_move_rcp_id = fields.Many2one('stock.move', 'Ligne réception')
+    reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site')
 
 
     def acceder_uc_action(self):
