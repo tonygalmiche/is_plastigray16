@@ -289,7 +289,17 @@ class MrpProduction(models.Model):
                 #     }
                 #     bom_lines.append([0, False, vals])
             obj.is_bom_line_ids = bom_lines
-            #obj._compute_workorder_ids()
+
+
+    @api.depends('picking_type_id')
+    def _compute_locations(self):
+        res=super(MrpProduction, self)._compute_locations()
+        #Permet de mettre l'emplacement indiqué dans la fiche article
+        for obj in self:
+            location_dest_id = obj.product_id.is_emplacement_declaration_prod_id
+            if location_dest_id.usage=='internal':
+                obj.location_dest_id = location_dest_id.id
+        return res
 
 
     product_qty = fields.Float('Qt à fabriquer', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')

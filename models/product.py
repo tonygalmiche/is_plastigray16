@@ -362,7 +362,6 @@ class product_template(models.Model):
             #*******************************************************************
 
     purchase_ok                   = fields.Boolean('Peut être acheté', index=True) #Ajour d'un index sur ce champ
-
     is_code                       = fields.Char('Code PG', index=True, required=True)
     segment_id                    = fields.Many2one('is.product.segment', 'Segment', required=True)
     family_id                     = fields.Many2one('is.product.famille', 'Famille')
@@ -529,6 +528,7 @@ class product_template(models.Model):
     #***************************************************************************
 
     is_weight_delta = fields.Float("Ecart entre poids brut et poids net", compute='_compute_weight_delta', readonly=True, store=True,digits=(12,4))
+    is_emplacement_declaration_prod_id = fields.Many2one('stock.location', "Emplacement déclaration prod", domain="[('usage', '=', 'internal')]")
 
 
     #TODO à revoir car cela n'est plus executé avec Odoo 16
