@@ -46,6 +46,8 @@
                                 <field name="matiere_premiere"/>
                                 <field name="main_oeuvre"/>
                                 <field name="total_moules"/>
+                                <field name="frais_perturbation"/>
+                                <field name="frais_perturbation_commentaire" attrs="{'invisible': [('frais_perturbation', '=', 0)]}"/>
                                 <field name="total"/>
                             </group>
                             <group>

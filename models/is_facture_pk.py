@@ -13,14 +13,14 @@ class is_facture_pk(models.Model):
     _rec_name = 'num_facture'
     _order = 'num_facture desc'
     
-    @api.depends('date_facture','nb_colis','moule_ids')
+    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation')
     def _compute(self):
         for obj in self:
             total_moules=0
             for row in obj.moule_ids:
                 total_moules=total_moules+row.montant
             obj.total_moules=total_moules
-            obj.total=obj.matiere_premiere+obj.main_oeuvre+obj.total_moules
+            obj.total=obj.matiere_premiere+obj.main_oeuvre+obj.total_moules+obj.frais_perturbation
             obj.volume=ceil(obj.nb_colis*3.5)
             annee_facture = ''
             semaine_facture = ''
@@ -37,10 +37,12 @@ class is_facture_pk(models.Model):
     annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True)
     semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True)
     num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
-    num_import_matiere = fields.Char(u"N° d'import matière première")
+    num_import_matiere = fields.Char("N° d'import matière première")
     matiere_premiere   = fields.Float('Total Matière première (€)'       , digits=(14, 4), readonly=True)
     main_oeuvre        = fields.Float("Total Main d'oeuvre (€)"          , digits=(14, 4), readonly=True)
     total_moules       = fields.Float("Total des moules à taxer (€)"     , digits=(14, 4), compute='_compute', store=True)
+    frais_perturbation = fields.Float("Total frais de perturbations à taxer (€)", digits=(14, 4))
+    frais_perturbation_commentaire = fields.Char("Commentaire frais de perturbations")
     total              = fields.Float("TOTAL (€)"                        , digits=(14, 4), compute='_compute', store=True)
     nb_cartons         = fields.Integer("Nombre de cartons", readonly=True)
     nb_colis           = fields.Integer("Nombre de colis")
