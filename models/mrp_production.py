@@ -523,23 +523,30 @@ class MrpProduction(models.Model):
             location_id = False
             if qt_bonne>0:
                 qt=qt_bonne
-                filtre = [
-                    ('name' , '=', 'ATELIER'),
-                    ('usage', '=', 'internal'),
-                ]
+                location_id = obj.location_dest_id.id
+                # filtre = [
+                #     ('name' , '=', 'ATELIER'),
+                #     ('usage', '=', 'internal'),
+                # ]
             if qt_rebut>0:
                 qt=qt_rebut
                 filtre = [
                     ('name' , '=', 'Rebuts'),
                     ('usage', '=', 'inventory'),
                 ]
-            if qt==0:
-                err="Qt = 0"
-            if err=="":
                 lines = self.env["stock.location"].search(filtre)
                 location_id = lines and lines[0].id or False
                 if location_id==False:
                     err="Emplacement non trouve"
+
+
+            if qt==0:
+                err="Qt = 0"
+            # if err=="":
+            #     lines = self.env["stock.location"].search(filtre)
+            #     location_id = lines and lines[0].id or False
+            #     if location_id==False:
+            #         err="Emplacement non trouve"
             if err=="":
                 #** Création du wizard ****************************************
                 wiz_obj = self.env['is.mrp.production.wizard']
