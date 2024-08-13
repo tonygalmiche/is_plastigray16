@@ -92,7 +92,8 @@ class is_reception_inter_site(models.Model):
                         sp.name, 
                         pt.is_code,
                         sm.product_uom_qty,
-                        sm.id move_id
+                        sm.id move_id,
+                        sm.location_dest_id
                     FROM stock_picking sp join stock_move       sm on sm.picking_id=sp.id
                                         join product_product  pp on sm.product_id=pp.id 
                                         join product_template pt on pp.product_tmpl_id=pt.id
@@ -131,6 +132,7 @@ class is_reception_inter_site(models.Model):
                         picking_id  = row['picking_id']
                         qt_rcp      = row['product_uom_qty']
                         move_rcp_id = row['move_id']
+                        location_id = row['location_dest_id']
 
                         #** Lien entre picking et is_reception_inter_site *********
                         picking = self.env['stock.picking'].browse(picking_id)
@@ -167,11 +169,11 @@ class is_reception_inter_site(models.Model):
                             else:
                                 #** Création UM *******************************
                                 SQL="""
-                                    INSERT INTO is_galia_base_um(name,create_uid,write_uid,create_date,write_date,mixte,active)
-                                    VALUES (%s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 'non', 't')
+                                    INSERT INTO is_galia_base_um(name,create_uid,write_uid,location_id,create_date,write_date,mixte,active)
+                                    VALUES (%s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 'non', 't')
                                     RETURNING id
                                 """
-                                cr.execute(SQL,[name,uid,uid])
+                                cr.execute(SQL,[name,uid,uid,location_id])
                                 rows2 = cr.dictfetchall()
                                 for row2 in rows2:
                                     um_id=row2['id']
@@ -179,10 +181,6 @@ class is_reception_inter_site(models.Model):
                             if not um_id:
                                 alerte.append("Impossible de trouver ou créer l'UM %s"%name)
                             else:
-
-
-
-
                                 #** Recherche si UC existe déjà ***************
                                 uc_id=False
                                 SQL="SELECT id, qt_pieces from is_galia_base_uc where num_eti='%s' and um_id=%s"%(num_eti,um_id)
@@ -295,6 +293,23 @@ class is_reception_inter_site(models.Model):
             }
             return res
 
+
+    def voir_um_action(self):
+        for obj in self:
+            ids=[]
+            lines = self.env['is.galia.base.uc'].search([('reception_inter_site_id','=',obj.id)])
+            for line in lines:
+                um_id = line.um_id.id
+                if um_id not in ids:
+                    ids.append(um_id)
+            res= {
+                'name': obj.name,
+                'view_mode': 'tree,form',
+                'res_model': 'is.galia.base.um',
+                'type': 'ir.actions.act_window',
+                'domain': [('id','in',ids)],
+            }
+            return res
 
 
     def valider_receptions_action(self):

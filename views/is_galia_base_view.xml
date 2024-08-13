@@ -205,6 +205,7 @@
                             <field name="bon_transfert_id"/>
                             <field name="production_id" attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
                             <field name="product_id"    attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
+                            <field name="location_id"/>
                             <field name="qt_pieces"     attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
                             <field name="employee_id"/>
                             <field name="date_fin"/>
@@ -236,6 +237,7 @@
                     <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
                     <field name="production_id"    optional="show" widget="many2one_clickable"/>
                     <field name="product_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="location_id"      optional="show"/>
                     <field name="qt_pieces"        optional="show"/>
                     <field name="employee_id"      optional="show"/>
                     <field name="date_fin"         optional="show"/>
@@ -256,6 +258,8 @@
                     <field name="liste_servir_id"/>
                     <field name="bon_transfert_id"/>
                     <field name="production_id"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
                 </search>
             </field>
         </record>

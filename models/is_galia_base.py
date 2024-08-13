@@ -50,6 +50,7 @@ class is_galia_base_um(models.Model):
     liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True)
     bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True)
     production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True)
+    location_id      = fields.Many2one('stock.location', 'Emplacement'         , index=True, domain=[("usage","=","internal")], default=lambda self: self._get_location_id())
     uc_ids           = fields.One2many('is.galia.base.uc'  , 'um_id', "UCs")
     product_id       = fields.Many2one('product.product', 'Article', readonly=True, compute='_compute', store=False)
     qt_pieces        = fields.Integer("Qt Pièces"                 , readonly=True, compute='_compute', store=False)
@@ -58,11 +59,48 @@ class is_galia_base_um(models.Model):
     active           = fields.Boolean("Active", default=True, copy=False)
 
 
+    def _get_location_id(self):
+        filtre = [
+            ('name' , '=', 'ATELIER'),
+            ('usage', '=', 'internal'),
+        ]
+        lines = self.env["stock.location"].search(filtre)
+        location_id = lines and lines[0].id or False
+        return location_id
+       
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if 'production_id' in vals:
+                production_id = vals['production_id']
+                production = self.env['mrp.production'].browse(production_id)
+                location_id = production.location_dest_id.id
+                if location_id:
+                    vals['location_id'] = location_id
             vals['name'] = self.env['ir.sequence'].next_by_code('is.galia.base.um')
         return super().create(vals_list)
+
+
+    @api.onchange('liste_servir_id')
+    def onchange_liste_servir_id(self):
+        location_id = self.liste_servir_id.is_source_location_id.id
+        if location_id:
+            self.location_id = location_id
+
+
+    @api.onchange('bon_transfert_id')
+    def onchange_bon_transfert_id(self):
+        location_id = self.bon_transfert_id.location_id.id
+        if location_id:
+            self.location_id = location_id
+
+
+    @api.onchange('production_id')
+    def onchange_production_id(self):
+        location_id = self.production_id.location_dest_id.id
+        if location_id:
+            self.location_id = location_id
 
 
     def acceder_um_action(self):
@@ -89,10 +127,6 @@ class is_galia_base_um(models.Model):
                 'domain': [('um_id','=',obj.id)],
             }
             return res
-
-
-
-
 
 
     def imprimer_etiquette_um_action(self):

@@ -42,6 +42,12 @@
                             name="voir_uc_action" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                         />
+                        <button 
+                            string="Voir les UM" 
+                            type="object" 
+                            name="voir_um_action" 
+                            attrs="{'invisible': [('picking_ids', '==', [])]}"
+                        />
                     <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
