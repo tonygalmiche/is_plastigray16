@@ -80,6 +80,7 @@
                                 <field name="partner_id"/>
                                 <field name="scheduled_date"/>
                                 <field name="is_date_reception"/>
+                                <field name="is_qt_livree_inter_site"/>
                                 <field name="state" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
                             </tree>
                         </field>

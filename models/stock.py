@@ -95,7 +95,7 @@ class stock_picking(models.Model):
     is_date_livraison      = fields.Date("Date d'arrivée chez le client", compute='_compute_transporteur_dates', store=True, readonly=False)
     is_date_livraison_vsb  = fields.Boolean('Avertissement VSB', store=False, compute='_compute_is_date_livraison_vsb', readonly=True)
     is_date_livraison_msg  = fields.Char("Avertissement"       , store=False, compute='_compute_is_date_livraison_vsb', readonly=True)
-    is_num_bl              = fields.Char("N° BL fournisseur")
+    is_num_bl              = fields.Char("N° BL fournisseur", copy=False)
     is_date_reception      = fields.Date('Date de réception')
     is_facture_pk_id       = fields.Many2one('is.facture.pk', 'Facture PK')
     is_piece_jointe        = fields.Boolean(u"Pièce jointe", store=False, readonly=True, compute='_compute_is_piece_jointe')
@@ -113,8 +113,8 @@ class stock_picking(models.Model):
     is_nb_um              = fields.Integer('Nb UM', readonly=1)
     is_alerte             = fields.Text('Alerte', readonly=1)
 
-    is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site')
-
+    is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', copy=False)
+    is_qt_livree_inter_site    = fields.Float("Qt livrée inter-site", digits=(12, 6), copy=False)
 
 
     # is_site_livraison_id        = fields.Many2one('is.database', 'Site de livraison')

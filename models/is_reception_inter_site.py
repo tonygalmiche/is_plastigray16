@@ -105,8 +105,8 @@ class is_reception_inter_site(models.Model):
                             sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
                             sp.is_date_reception>='%s' and sp.is_date_reception<='%s'  and
                             sp.is_num_bl='%s' and
-                            sp.is_reception_inter_site_id is Null and
-                            sm.product_uom_qty=%s
+                            sp.is_reception_inter_site_id is Null 
+                            -- and sm.product_uom_qty=%s
                         limit 1
                     """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
                 else:
@@ -115,11 +115,15 @@ class is_reception_inter_site(models.Model):
                             pt.is_code='%s' and sp.partner_id=%s and
                             sp.state not in ('done','cancel','draft') and 
                             sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
-                            sp.is_reception_inter_site_id is Null and
-                            sm.product_uom_qty=%s
+                            sp.is_reception_inter_site_id is Null 
+                            -- and sm.product_uom_qty=%s
                         ORDER BY sp.scheduled_date
                         limit 1
                     """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
+
+
+                print(SQL)
+
                 cr.execute(SQL)
                 rows = cr.dictfetchall()
                 if len(rows)==0:
@@ -133,12 +137,6 @@ class is_reception_inter_site(models.Model):
                         qt_rcp      = row['product_uom_qty']
                         move_rcp_id = row['move_id']
                         location_id = row['location_dest_id']
-
-                        #** Lien entre picking et is_reception_inter_site *********
-                        picking = self.env['stock.picking'].browse(picking_id)
-                        if picking.id:
-                            picking.is_reception_inter_site_id = obj.id
-                        #**********************************************************
 
                         #** Recherche des UC/UM ***********************************
                         SQL="""
@@ -237,6 +235,14 @@ class is_reception_inter_site(models.Model):
                                     """%(move_rcp_id,obj.id,uc_id)
                                     cr.execute(SQL)
 
+
+                        #** Lien entre picking et is_reception_inter_site *********
+                        picking = self.env['stock.picking'].browse(picking_id)
+                        if picking.id:
+                            picking.is_reception_inter_site_id = obj.id
+                            picking.is_qt_livree_inter_site    = qt_scan # Quantitée scannée en livraison qu'il faudra réceptionner
+                        #**********************************************************
+
                         msg = "%s : %s Liv : %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(is_code.ljust(9), str(qt_liv).rjust(10),str(qt_rcp).rjust(10),num_rcp,str(qt_scan).rjust(10),str(qt_uc).rjust(10))
                         cr.commit()
                         if qt_rcp==qt_liv and qt_liv==qt_scan and qt_liv==qt_uc:
@@ -320,6 +326,13 @@ class is_reception_inter_site(models.Model):
                         'is_num_bl': obj.num_bl
                     }
                     transfert = self.env['stock.transfer_details'].with_context(active_id=picking.id).create(vals)
+                    print(transfert,transfert.line_ids)
+                    for line in transfert.line_ids:
+                        line.quantity = picking.is_qt_livree_inter_site
+                        print(line,line.quantity)
+
+
+
                     transfert.valider_action()
             obj.state='termine'
 

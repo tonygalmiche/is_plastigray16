@@ -299,6 +299,7 @@
                     <field name="is_facture_pk_id" attrs="{'invisible': [('sale_id', '=', False)]}"/> 
                     <field name="is_traitement_edi"/> 
                     <field name="is_reception_inter_site_id" attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
+                    <field name="is_qt_livree_inter_site"    attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
                     <field name="is_date_traitement_edi"     attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </xpath>
 
