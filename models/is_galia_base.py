@@ -72,12 +72,12 @@ class is_galia_base_um(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if 'production_id' in vals:
-                production_id = vals['production_id']
-                production = self.env['mrp.production'].browse(production_id)
-                location_id = production.location_dest_id.id
-                if location_id:
-                    vals['location_id'] = location_id
+            # if 'production_id' in vals:
+            #     production_id = vals['production_id']
+            #     production = self.env['mrp.production'].browse(production_id)
+            #     location_id = production.location_dest_id.id
+            #     if location_id:
+            #         vals['location_id'] = location_id
             vals['name'] = self.env['ir.sequence'].next_by_code('is.galia.base.um')
         return super().create(vals_list)
 
