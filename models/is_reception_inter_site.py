@@ -279,12 +279,18 @@ class is_reception_inter_site(models.Model):
 
     def voir_receptions_action(self):
         for obj in self:
+            ids=[]
+            lines = self.env['stock.picking'].search([('is_reception_inter_site_id','=',obj.id)])
+            for line in lines:
+                picking_id = line.id
+                if picking_id not in ids:
+                    ids.append(picking_id)
             res= {
                 'name': obj.name,
                 'view_mode': 'tree,form',
-                'res_model': 'stock.picking',
+                'res_model': 'is.ligne.reception',
                 'type': 'ir.actions.act_window',
-                'domain': [('is_reception_inter_site_id','=',obj.id)],
+                'domain': [('picking_id','in',ids)],
             }
             return res
 

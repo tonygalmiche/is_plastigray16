@@ -277,6 +277,7 @@
                 </xpath> 
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='description_picking']" position="after">
                     <field name="sale_line_id"                  optional="hide" widget="many2one_clickable"/>
+                    <field name="is_lots"                       optional="hide"/>
                     <field name="is_uc_galia"                   optional="hide"/>
                     <field name="is_um_galia"                   optional="hide"/>
                     <field name="is_point_dechargement"         optional="show"/>

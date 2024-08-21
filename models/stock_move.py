@@ -31,7 +31,7 @@ class stock_move(models.Model):
                 result = cr.fetchall()
                 lots=[]
                 for row in result:
-                    lots.append(u"Lot "+row[0]+u" : "+str(row[1]))
+                    lots.append("Lot "+(row[0] or '')+" : "+str(row[1]))
                 lots = u"\n".join(lots)
             obj.is_lots = lots
 
