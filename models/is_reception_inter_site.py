@@ -120,10 +120,6 @@ class is_reception_inter_site(models.Model):
                         ORDER BY sp.scheduled_date
                         limit 1
                     """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
-
-
-                print(SQL)
-
                 cr.execute(SQL)
                 rows = cr.dictfetchall()
                 if len(rows)==0:
@@ -140,7 +136,7 @@ class is_reception_inter_site(models.Model):
 
                         #** Recherche des UC/UM ***********************************
                         SQL="""
-                            SELECT uc.num_eti,uc.qt_pieces,um.name, uc.num_carton, uc.qt_pieces, uc.product_id, uc.type_eti, uc.date_creation,pt.is_code
+                            SELECT uc.num_eti,uc.qt_pieces,um.name, uc.num_carton, uc.qt_pieces, uc.product_id, uc.type_eti, uc.date_creation,uc.production,pt.is_code
                             FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
                                                     join product_product  pp on uc.product_id=pp.id 
                                                     join product_template pt on pp.product_tmpl_id=pt.id 
@@ -231,8 +227,10 @@ class is_reception_inter_site(models.Model):
                                 #** Lien entre UC et stock.move réception *****
                                 if uc_id:
                                     SQL="""
-                                        UPDATE is_galia_base_uc set stock_move_rcp_id=%s, reception_inter_site_id=%s WHERE id=%s
-                                    """%(move_rcp_id,obj.id,uc_id)
+                                        UPDATE is_galia_base_uc 
+                                        SET stock_move_rcp_id=%s, reception_inter_site_id=%s, production='%s'
+                                        WHERE id=%s
+                                    """%(move_rcp_id,obj.id,line['production'],uc_id)
                                     cr.execute(SQL)
 
 
@@ -332,13 +330,8 @@ class is_reception_inter_site(models.Model):
                         'is_num_bl': obj.num_bl
                     }
                     transfert = self.env['stock.transfer_details'].with_context(active_id=picking.id).create(vals)
-                    print(transfert,transfert.line_ids)
                     for line in transfert.line_ids:
                         line.quantity = picking.is_qt_livree_inter_site
-                        print(line,line.quantity)
-
-
-
                     transfert.valider_action()
             obj.state='termine'
 
