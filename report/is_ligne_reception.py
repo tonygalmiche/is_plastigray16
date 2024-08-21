@@ -46,6 +46,9 @@ class is_ligne_reception(models.Model):
     is_dosmat_conditions_stockage = fields.Char(u'Conditions de stockage')
     user_id              = fields.Many2one('res.users', 'Utilisateur')
     move_id              = fields.Many2one('stock.move', 'Mouvement de stock')
+    location_dest_id     = fields.Many2one('stock.location', 'Destination')
+
+
     picking_state        = fields.Selection([
         ('draft'               , u'Brouillon'),
         ('cancel'              , u'Annulé'),
@@ -118,6 +121,7 @@ class is_ligne_reception(models.Model):
                         sm.product_uom           as product_uom,
                         sm.product_uom_qty       as qt_receptionnee,
                         sm.is_unit_coef          as is_unit_coef,
+                        sm.location_dest_id      as location_dest_id,
 
                         sm.is_unit_coef*coalesce((select sum(quantity) from account_move_line ail where  ail.parent_state='posted' and  ail.is_move_id=sm.id ),0) as qt_facturee,
                         round(sm.product_uom_qty-sm.is_unit_coef*coalesce((select sum(quantity) from account_move_line ail where ail.parent_state='posted' and  ail.is_move_id=sm.id ),0),4) as reste_a_facturer,

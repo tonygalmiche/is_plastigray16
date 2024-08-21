@@ -15,6 +15,7 @@ class is_reception_inter_site(models.Model):
     site_livraison_id        = fields.Many2one('is.database', 'Site de livraison', required=True, tracking=True)
     fournisseur_reception_id = fields.Many2one('res.partner', 'Fournisseur de réception', required=True, tracking=True, domain=[('is_company','=',True),('supplier','=',True)])
     num_bl                   = fields.Char('N°BL fournisseur', tracking=True, copy=False)
+    location_id              = fields.Many2one('stock.location', 'Emplacement final', help="Emplacement après contrôle réception", index=True, domain=[("usage","=","internal")], default=lambda self: self._get_location_id())
     alerte                   = fields.Text('Alerte', readonly=1, copy=False)
     info                     = fields.Text('Info'  , readonly=1, copy=False)
     picking_ids              = fields.One2many('stock.picking', 'is_reception_inter_site_id', "Réceptions", readonly=True)
@@ -25,9 +26,20 @@ class is_reception_inter_site(models.Model):
     state = fields.Selection([
             ('analyse'  , 'Analyse'),
             ('reception', 'Réception'),
+            ('controle' , 'Contrôle physique'),
             ('termine'  , 'Terminé'),
         ], "Etat", default='analyse', tracking=True)
 
+
+    def _get_location_id(self):
+        filtre = [
+            ('name' , '=', '01'),
+            ('usage', '=', 'internal'),
+        ]
+        lines = self.env["stock.location"].search(filtre)
+        location_id = lines and lines[0].id or False
+        return location_id
+       
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -241,7 +253,8 @@ class is_reception_inter_site(models.Model):
                             picking.is_qt_livree_inter_site    = qt_scan # Quantitée scannée en livraison qu'il faudra réceptionner
                         #**********************************************************
 
-                        msg = "%s : %s Liv : %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(is_code.ljust(9), str(qt_liv).rjust(10),str(qt_rcp).rjust(10),num_rcp,str(qt_scan).rjust(10),str(qt_uc).rjust(10))
+                        msg = "%s : %s Liv : %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(is_code.ljust(9), str(qt_liv).rjust(8),str(qt_rcp).rjust(8),num_rcp,str(qt_scan).rjust(8),str(qt_uc).rjust(8))
+                        msg = msg.replace(' ', chr(160)) # Remplacer les espaces par des espaces insecables, sinon ils sont supprimés avec wkhtml2pdf
                         cr.commit()
                         if qt_rcp==qt_liv and qt_liv==qt_scan and qt_liv==qt_uc:
                             info.append(msg)
@@ -272,11 +285,12 @@ class is_reception_inter_site(models.Model):
             if obj.etat_reception=='pret':
                 obj.state='reception'
             else:
-                obj.state='termine'
+                obj.state='controle'
 
 
     def voir_receptions_action(self):
         for obj in self:
+            view_id=self.env.ref('is_plastigray16.is_ligne_reception_tree_view')
             ids=[]
             lines = self.env['stock.picking'].search([('is_reception_inter_site_id','=',obj.id)])
             for line in lines:
@@ -284,11 +298,12 @@ class is_reception_inter_site(models.Model):
                 if picking_id not in ids:
                     ids.append(picking_id)
             res= {
-                'name': obj.name,
+                'name'     : obj.name,
                 'view_mode': 'tree,form',
+                'views'    : [[view_id.id, "list"], [False, "form"]],
                 'res_model': 'is.ligne.reception',
-                'type': 'ir.actions.act_window',
-                'domain': [('picking_id','in',ids)],
+                'type'     : 'ir.actions.act_window',
+                'domain'   : [('picking_id','in',ids)],
             }
             return res
 
@@ -333,6 +348,6 @@ class is_reception_inter_site(models.Model):
                     for line in transfert.line_ids:
                         line.quantity = picking.is_qt_livree_inter_site
                     transfert.valider_action()
-            obj.state='termine'
+            obj.state='controle'
 
 

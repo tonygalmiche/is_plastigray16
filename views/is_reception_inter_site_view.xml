@@ -62,6 +62,7 @@
                                 <field name="name"/>
                                 <field name="create_date"/>
                                 <field name="create_uid"/>
+                                <field name="location_id"/>
                             </group>
                         </group>
                         <group>
@@ -81,6 +82,7 @@
                                 <field name="scheduled_date"/>
                                 <field name="is_date_reception"/>
                                 <field name="is_qt_livree_inter_site"/>
+                                <field name="is_location_dest_prevu_id"/>
                                 <field name="state" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
                             </tree>
                         </field>
@@ -103,9 +105,10 @@
                     <field name="fournisseur_reception_id" optional="show"/>
                     <field name="etat_reception" optional="show"/>
                     <field name="num_bl" optional="show"/>
+                    <field name="location_id" optional="show"/>
                     <field name="create_date" optional="show"/>
                     <field name="create_uid" optional="show"/>
-                    <field name="state" widget="badge" decoration-danger="state == 'analyse'" decoration-warning="state == 'reception'" decoration-success="state == 'termine'" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'analyse'" decoration-warning="state == 'reception'"  decoration-danger="state == 'controle'"  decoration-success="state == 'termine'" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -119,6 +122,7 @@
                     <field name="fournisseur_reception_id"/>
                     <field name="etat_reception"/>
                     <field name="num_bl"/>
+                    <field name="location_id"/>
                     <field name="state"/>
                 </search>
             </field>

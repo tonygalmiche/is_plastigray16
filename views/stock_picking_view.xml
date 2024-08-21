@@ -126,7 +126,14 @@
                         groups="is_plastigray16.is_rsp_production_group,is_plastigray16.is_rsp_achats_group" 
                         attrs="{'invisible': ['|',('purchase_id', '=', False),('state','!=','done')]}" 
                         confirm="Voulez-vous vraiment annuler cette réception ?"
-                        type="object"/>
+                        type="object"
+                    />
+                    <button 
+                        string="Mise à jour du colisage" 
+                        type="object" 
+                        name="mise_a_jour_colisage_action" 
+                        colspan="2"
+                    />
                      <button 
                         name="desadv_action" 
                         string="DESADV" 
@@ -195,6 +202,9 @@
 
                 <xpath expr="//group/group/field[@name='picking_type_id']" position="attributes">
                     <attribute name="attrs"> {'invisible': False, 'readonly': [('state', '!=', 'draft')]}</attribute> 
+                </xpath>
+                <xpath expr="//group/group/field[@name='picking_type_id']" position="after">
+                    <field name="is_location_dest_prevu_id"/>
                 </xpath>
                 <xpath expr="//field[@name='group_id']" position="after">
                     <field name="purchase_id" />
@@ -319,16 +329,7 @@
                                 <field name="is_nb_um" force_save="1"/>
                             </group>
                         </group>
-                        <group>
-                            <button 
-                                string="Mise à jour du colisage" 
-                                type="object" 
-                                name="mise_a_jour_colisage_action" 
-                                colspan="2"
-                                class="btn-primary" 
-                            />
-                        </group>
-                     </page>
+                      </page>
                      <!-- <page string="Livraisons inter-sites" attrs="{'invisible': [('picking_type_id','!=',2)]}">
                         <div style="background:Gainsboro;font-size:11pt" attrs="{'invisible':[('is_info_inter_sites','=',False)]}">
                             <field name="is_info_inter_sites" nolabel="1"/>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+
+    <template id="reception_inter_site_external_layout_standard">
+        <div class="header reception_inter_site_header">
+            <div class="row">
+                <div class="col-3  text-left">
+                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                </div>
+                <div class="col-9 text-right">
+                    <div class="titre">
+                        Réception inter-site n°<span t-field="o.name"/>
+                    </div><br />
+                </div>
+            </div>
+         </div>
+        <div 
+            t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_report_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}" 
+            t-att-data-oe-model="o and o._name" 
+            t-att-data-oe-id="o and o.id" 
+            t-att-data-oe-lang="o and o.env.context.get('lang')"
+        >
+            <t t-out="0"/>
+        </div>
+        <div class="footer reception_inter_site_footer">
+            <div style="border-top: 1px solid black">
+                <table style="width:100%">
+                    <tr>
+                        <td class="text-left" style="width:90%">
+                        </td>
+                        <td class="text-right">
+                            Page <span class="page" style="font-size:12pt;"/> / <span class="topage"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </template>
+    
+    <template id="reception_inter_site_external_layout">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not company">
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+        <t t-call="is_plastigray16.reception_inter_site_external_layout_standard"><t t-out="0"/></t> 
+    </template>
+
+    <template id="reception_inter_site_document">
+        <t t-call="is_plastigray16.reception_inter_site_external_layout">
+            <div class="mt-5">
+                <div class="page reception_inter_site_page">
+                    <table style="width:50%">
+                        <tbody>
+                            <tr><th class="text-right">Site de livraison : </th><td class="text-left"><span  t-field="o.site_livraison_id.name"/></td></tr>
+                            <tr><th class="text-right">Fournisseur de réception : </th><td class="text-left"><span  t-field="o.fournisseur_reception_id.display_name"/></td></tr>
+                            <tr><th class="text-right">N°BL fournisseur : </th><td class="text-left"><span  t-field="o.num_bl"/></td></tr>
+                            <tr><th class="text-right">Créé le : </th><td class="text-left"><span  t-field="o.create_date"/></td></tr>
+                        </tbody>
+                    </table>
+                          
+                
+                    <h1 t-if="o.alerte">Anomalies</h1>
+                    <div t-if="o.alerte" class="row">
+                        <div class="col-12 alerte">
+                            <div t-field="o.alerte"/>
+                        </div>
+                    </div><br />
+                    
+                    <h1 t-if="o.info">Résultat du traitement</h1>
+                    <div t-if="o.info" class="row">
+                        <div class="col-12 info">
+                            <div t-field="o.info"/>
+                        </div>
+                    </div><br />
+                    
+
+
+                    
+                    <!-- Site de livraison?
+                    Plasti-ka
+                    Fournisseur de réception?
+                    PLASTI-KA chez LACROIX ELECTRONICS TUNISIA (7504/2)
+                    Etat réception?
+                    Fait
+                    N°BL fournisseur?
+                    303372
+                    N° réception inter-site?
+                    00004
+                    Created on?
+                    09/08/2024 14:17:23
+                    Created by? -->
+
+
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="reception_inter_site_report_new">
+        <t t-call="web.html_container"> 
+            <t t-foreach="docs" t-as="o">
+                <t t-call="is_plastigray16.reception_inter_site_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="reception_inter_site_paperformat" model="report.paperformat">
+        <field name="name">Liste à servir</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">25</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="reception_inter_site_actions_report" model="ir.actions.report">
+        <field name="name">Réception inter-site</field>
+        <field name="model">is.reception.inter.site</field>
+        <field name="binding_model_id" ref="model_is_reception_inter_site"/>
+        <field name="paperformat_id" ref="reception_inter_site_paperformat"/>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_plastigray16.reception_inter_site_report_new</field>
+        <field name="report_file">is_plastigray16.reception_inter_site_report_new</field>
+    </record>
+</data>
+</odoo>

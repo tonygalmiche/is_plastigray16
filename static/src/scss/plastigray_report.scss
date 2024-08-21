@@ -1524,3 +1524,42 @@ $ma_couleur: yellow;
     color:black;
 }
 
+
+
+
+@font-face {
+    font-family: 'DejaVuSansMono';
+    src: url('/is_plastigray16/static/src/fonts/DejaVuSansMono.ttf') format('truetype');  
+    //font-weight: bold;
+    font-style: normal;
+}
+
+
+
+//reception_inter_site
+.reception_inter_site_header {
+    font-size:12pt;
+}
+.reception_inter_site_footer {
+    font-size:12pt;
+}
+.reception_inter_site_page {
+    font-size:12pt;
+    line-height: normal;
+}
+.reception_inter_site_header .titre {
+    font-size:15pt;
+    font-weight: bold;
+}
+.reception_inter_site_page h1 {
+    font-size:15pt;
+}
+.reception_inter_site_page .info {
+    font-size:11pt;
+    font-family: DejaVuSansMono ;
+}
+.reception_inter_site_page .alerte {
+    font-size:11pt;
+    background:DarkOrange;
+    font-family: DejaVuSansMono;
+}

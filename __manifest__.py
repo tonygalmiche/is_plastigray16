@@ -102,6 +102,9 @@ Module Odoo 16 pour Plastigray
         "views/report_appel_de_livraison.xml", 
         "views/report_bilan_fin_of.xml",
         "views/report_fiche_description_moule.xml",
+
+        "views/report_is_reception_inter_site.xml",
+
         "views/res_partner_view.xml",
         "views/mrp_production_view.xml",
         "report/is_stock_quant.xml",

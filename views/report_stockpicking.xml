@@ -16,7 +16,8 @@
                             N°Identification T.V.A. FR 65 377 846 381 <br />
                             <span t-if="o.partner_id.lang == 'fr_FR'">Fournisseur N°</span>
                             <span t-if="o.partner_id.lang != 'fr_FR'">Supplier N°</span>
-                            <span t-field="o.partner_id.is_cofor"/>
+                            <span t-field="o.partner_id.is_cofor"/><br />
+                            <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 300, 35)"/>
                         </div>
                     </div>
                     <div class="col-1" />

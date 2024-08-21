@@ -115,6 +115,20 @@ class stock_picking(models.Model):
 
     is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', copy=False)
     is_qt_livree_inter_site    = fields.Float("Qt livrée inter-site", digits=(12, 6), copy=False)
+    is_location_dest_prevu_id  = fields.Many2one('stock.location', 'Emplacement', help="Emplacement de destination du premier mouvement", compute='_compute_is_location_mouvement_id', store=False, readonly=True)
+
+
+    @api.depends('move_ids_without_package')
+    def _compute_is_location_mouvement_id(self):
+        for obj in self:
+            location_id = False
+            for line in obj.move_ids_without_package:
+                location_id=line.is_location_dest_prevu_id.id
+                break
+            obj.is_location_dest_prevu_id = location_id
+
+
+
 
 
     # is_site_livraison_id        = fields.Many2one('is.database', 'Site de livraison')

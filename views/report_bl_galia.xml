@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <data>
+
+
+    <!-- <div class="col-3">
+        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 350, 60)"/><br/><br/>
+    </div> -->
+
+
     <template id="bl_galia_external_layout_standard">
         <div class="header bl_galia">
             <div class="row">
@@ -8,7 +15,8 @@
                     <div class="titre">
                         <span t-if="o.partner_id.lang == 'fr_FR'">BORDEREAU DE LIVRAISON N°</span>
                         <span t-if="o.partner_id.lang != 'fr_FR'">DELIVERY NOTE N°</span>
-                        <span t-field="o.name"/>
+                        <span t-field="o.name"/> <br />
+                        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 300, 35)"/>
                     </div>
                 </div>
                 <div class="col-4 text-center">
