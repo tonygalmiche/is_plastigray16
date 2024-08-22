@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, date, timedelta
+import time
 
 class is_reception_inter_site(models.Model):
     _name = 'is.reception.inter.site'
@@ -349,5 +350,59 @@ class is_reception_inter_site(models.Model):
                         line.quantity = picking.is_qt_livree_inter_site
                     transfert.valider_action()
             obj.state='controle'
+
+
+    def get_um_reception_action(self):
+        for obj in self:
+            obj.get_um_reception(bl=obj.num_bl)
+
+
+    def get_um_reception(self,bl=False):
+        err=False
+        domain=[('num_bl','=',bl)]
+        receptions = self.env['is.reception.inter.site'].search(domain)
+        data=[]
+        reception_id = False
+        emplacement  = '01'
+        for reception in receptions:
+            reception_id = reception.id
+            emplacement  = reception.location_id.name
+            lines = self.env['is.galia.base.uc'].search([('reception_inter_site_id','=',reception.id)])
+            ids=[]
+            for line in lines:
+                um_id = line.um_id.id
+                if um_id not in ids:
+                    ids.append(um_id)
+            lines = self.env['is.galia.base.um'].search([('id','in',ids)])
+            for line in lines:
+                vals={
+                    'id'           : line.id,
+                    'name'         : line.name,
+                    'location_id'  : line.location_id.id,
+                    'location'     : line.location_id.name,
+                    'qt_pieces'    : line.qt_pieces,
+                    'date_ctrl_rcp': line.date_ctrl_rcp,
+                }
+                data.append(vals)
+        res={
+            'data'        : data,
+            'reception_id': reception_id,
+            'emplacement' : emplacement,
+            'err'         : err,
+        }
+        print(emplacement)
+        return res
+    
+
+    def move_stock(self):
+        print(self)
+        time.sleep(2)
+
+        res={
+            'data': [],
+            'test': 'TEST',
+            'err' : "",
+        }
+        return res
 
 

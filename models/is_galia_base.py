@@ -57,6 +57,7 @@ class is_galia_base_um(models.Model):
     employee_id      = fields.Many2one("hr.employee", "Employé")
     date_fin         = fields.Datetime("Date fin UM")
     active           = fields.Boolean("Active", default=True, copy=False)
+    date_ctrl_rcp    = fields.Datetime("Date contrôle réception")
 
 
     def _get_location_id(self):

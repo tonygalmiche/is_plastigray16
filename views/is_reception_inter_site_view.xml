@@ -48,6 +48,16 @@
                             name="voir_um_action" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                         />
+
+                        <button 
+                            string="TEST get_um_reception" 
+                            type="object" 
+                            name="get_um_reception_action" 
+                            attrs="{'invisible': [('picking_ids', '==', [])]}"
+                        />
+
+
+
                     <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
