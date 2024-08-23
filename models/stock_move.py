@@ -109,19 +109,29 @@ class stock_move(models.Model):
                 ucs = self.env['is.galia.base.uc'].search([('um_id', '=', um.id)],order="num_eti")
                 ct=0
                 for uc in ucs:
-                    qt_uc+=uc.qt_pieces
-                    lot = uc.production
-                    num = int(uc.num_eti)
-                    if not first:
-                        first = last = suivant = num
-                    if num==suivant:
-                        last=num
-                    else:
-                        lines_uc.append(set_num_uc(first,last,lot))
-                        lines_um.append(set_num_um(uc,um,ct))
-                        ct+=1
-                        first=last=num
-                    suivant = num+1
+                    if uc.product_id==obj.product_id and uc.stock_move_id==obj:
+
+
+
+                        qt_uc+=uc.qt_pieces
+                        lot = uc.production
+                        num = int(uc.num_eti)
+                        if not first:
+                            first = last = suivant = num
+                        if num==suivant:
+                            last=num
+                        else:
+                            lines_uc.append(set_num_uc(first,last,lot))
+                            lines_um.append(set_num_um(uc,um,ct))
+                            ct+=1
+                            first=last=num
+                        suivant = num+1
+
+                        if uc.product_id.is_code=='251070':
+                            print(obj.id,uc.um_id.name,uc.num_eti, uc.qt_pieces,qt_uc)
+
+
+
                 if first:
                     lines_uc.append(set_num_uc(first,last,lot))
                     lines_um.append(set_num_um(uc,um,ct))

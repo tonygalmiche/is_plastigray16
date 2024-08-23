@@ -143,9 +143,12 @@
                         </tree>
                     </field>
                 </group>
-                <group name="linked_group" position="after">
-                    <group string="UC associées" colspan="2">
-                        <field name="is_uc_ids" readonly="1" nolabel="1" >
+
+                <xpath expr="//group[@name='linked_group']/.." position="after">
+
+
+                    <group string="UC associées">
+                        <field name="is_uc_ids" readonly="1" nolabel="1" colspan="2">
                             <tree limit="200">
                                 <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
                                 <field name="um_id"            optional="show" widget="many2one_clickable"/>
@@ -160,6 +163,7 @@
                                 <field name="product_id"       optional="show" widget="many2one_clickable"/>
                                 <field name="employee_id"      optional="show"/>
                                 <field name="liste_servir_id"  optional="show" widget="many2one_clickable"/>
+                                <field name="stock_move_id"    optional="show" widget="many2one_clickable"/>
                                 <field name="ls_line_id"       optional="hide" widget="many2one_clickable"/>
                                 <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
                                 <field name="bt_line_id"       optional="hide" widget="many2one_clickable"/>
@@ -171,7 +175,7 @@
                     <group>
                         <field name="is_uc_galia"/>
                     </group>
-                </group>
+                </xpath>
             </field>
         </record>
 
