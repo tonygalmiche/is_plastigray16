@@ -145,9 +145,7 @@
                 </group>
 
                 <xpath expr="//group[@name='linked_group']/.." position="after">
-
-
-                    <group string="UC associées">
+                    <group string="UC associées livraison" attrs="{'invisible':[('is_uc_ids','=',[])]}">
                         <field name="is_uc_ids" readonly="1" nolabel="1" colspan="2">
                             <tree limit="200">
                                 <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
@@ -172,7 +170,27 @@
                             </tree>
                         </field>
                     </group>
+                    <group string="UC associées réception" attrs="{'invisible':[('is_uc_rcp_ids','=',[])]}">
+                        <field name="is_uc_rcp_ids" readonly="1" nolabel="1" colspan="2">
+                            <tree limit="200">
+                                <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
+                                <field name="um_id"            optional="show" widget="many2one_clickable"/>
+                                <field name="um_mixte"         optional="show"/>
+                                <field name="um_active"        optional="show"/>
+                                <field name="num_eti"          optional="show"/>
+                                <field name="type_eti"         optional="hide"/>
+                                <field name="num_carton"       optional="hide"/>
+                                <field name="qt_pieces"        optional="show" sum="Total" />
+                                <field name="date_creation"    optional="show"/>
+                                <field name="production"       optional="show"/>
+                                <field name="product_id"       optional="show" widget="many2one_clickable"/>
+                                <field name="write_date"       optional="hide"/>
+                                <field name="create_date"      optional="hide"/>
+                            </tree>
+                        </field>
+                    </group>
                     <group>
+                        <field name="is_lots"/>
                         <field name="is_uc_galia"/>
                     </group>
                 </xpath>

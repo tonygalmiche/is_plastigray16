@@ -349,6 +349,7 @@ class is_reception_inter_site(models.Model):
                     for line in transfert.line_ids:
                         line.quantity = picking.is_qt_livree_inter_site
                     transfert.valider_action()
+                    picking.mise_a_jour_colisage_action()
             obj.state='controle'
 
 
@@ -361,9 +362,10 @@ class is_reception_inter_site(models.Model):
         err=False
         domain=[('num_bl','=',bl)]
         receptions = self.env['is.reception.inter.site'].search(domain)
-        data=[]
+        data={}
         reception_id = False
         emplacement  = '01'
+        stock_sorted=False
         for reception in receptions:
             reception_id = reception.id
             emplacement  = reception.location_id.name
@@ -373,31 +375,83 @@ class is_reception_inter_site(models.Model):
                 um_id = line.um_id.id
                 if um_id not in ids:
                     ids.append(um_id)
-            lines = self.env['is.galia.base.um'].search([('id','in',ids)])
-            for line in lines:
+            ums = self.env['is.galia.base.um'].search([('id','in',ids)])
+            for um in ums:
+                #** Recherche des Qt par code PG pour chaque UM (UM xmixte) ***
+                res={}
+                for uc in um.uc_ids:
+                    code = uc.product_id.is_code
+                    if code not in res:
+                        res[code] = 0
+                    res[code]+=uc.qt_pieces
+                codes=[]
+                for code in res:
+                    val="%s : %s"%(code,res[code])
+                    codes.append(val)
+                codes='<br>'.join(codes)
+                #**************************************************************
+
+    
+
                 vals={
-                    'id'           : line.id,
-                    'name'         : line.name,
-                    'location_id'  : line.location_id.id,
-                    'location'     : line.location_id.name,
-                    'qt_pieces'    : line.qt_pieces,
-                    'date_ctrl_rcp': line.date_ctrl_rcp,
+                    'id'           : um.id,
+                    'name'         : um.name,
+                    'location_id'  : um.location_id.id,
+                    'location'     : um.location_id.name,
+                    'qt_pieces'    : um.qt_pieces,
+                    'date_ctrl_rcp': um.date_ctrl_rcp,
+                    'codes'        : codes,
                 }
-                data.append(vals)
+                key=um.name
+                data[key]=vals
+
+
+            #** Recherche de la quantité par article et par emplacement *******
+            res={}
+            for um in ums:
+                for uc in um.uc_ids:
+                    code        = uc.product_id.is_code
+                    location    = uc.um_id.location_id.name
+                    key = "%s-%s"%(location,code)
+                    if key not in res:
+                        res[key] = {}
+                        res[key]['qt_pieces']   = 0
+                        res[key]['code_pg']     = uc.product_id.is_code
+                        res[key]['product_id']  = uc.product_id.id
+                        res[key]['location_id'] = uc.um_id.location_id.id
+                        res[key]['location']    = uc.um_id.location_id.name
+                    res[key]['qt_pieces']+=uc.qt_pieces
+            stock_sorted = dict(sorted(res.items())) 
+            for key in stock_sorted:
+                product_id     = stock_sorted[key]['product_id']
+                location_id = stock_sorted[key]['location_id']
+                ##** Recherche du stock pour l'article et l'emplacement
+                quants=self.env['stock.quant'].search([('product_id','=',product_id),('location_id','=',location_id)])
+                stock=0
+                for quant in quants:
+                    stock+=quant.quantity
+                stock_sorted[key]['stock'] = stock
+
+            stock_sorted = list(stock_sorted.values())
+
+            #******************************************************************
+
+        data_sorted = dict(sorted(data.items())) 
+
+        print(emplacement)
+
         res={
-            'data'        : data,
+            'data'        : list(data_sorted.values()),
+            'stock'       : stock_sorted,
             'reception_id': reception_id,
             'emplacement' : emplacement,
             'err'         : err,
         }
-        print(emplacement)
         return res
     
 
     def move_stock(self):
-        print(self)
         time.sleep(2)
-
         res={
             'data': [],
             'test': 'TEST',

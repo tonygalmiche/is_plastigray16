@@ -33,6 +33,18 @@ class stock_move(models.Model):
                 for row in result:
                     lots.append("Lot "+(row[0] or '')+" : "+str(row[1]))
                 lots = u"\n".join(lots)
+
+            if obj.is_uc_rcp_ids:
+                res={}
+                for uc in obj.is_uc_rcp_ids:
+                    if uc.production not in res:
+                        res[uc.production]=0
+                    res[uc.production]+=uc.qt_pieces
+                if len(res)>0:
+                    lots=[]
+                    for k in res:
+                        lots.append("Lot "+(k or '')+" : "+str(res[k]))
+                    lots = u"\n".join(lots)
             obj.is_lots = lots
 
 
@@ -74,68 +86,66 @@ class stock_move(models.Model):
     is_unit_coef            = fields.Float('US/UA', help="Unité de réception / Unité d'achat", digits=(14,6), compute='_compute_montant_reception', store=True, readonly=True)
     is_montant_reception    = fields.Float('Montant réception'                 , digits=(14,2), compute='_compute_montant_reception', store=True, readonly=True)
     is_uc_ids               = fields.One2many('is.galia.base.uc', 'stock_move_id', "UCs")
-    is_qt_uc                = fields.Float('Qt UC'    , readonly=True, digits=(14,4), help="Total de la quantité des UC scannées")
-    is_uc_galia             = fields.Text('UC (Galia)', readonly=True)
-    is_um_galia             = fields.Text('UM (Galia)', readonly=True)
+    is_uc_rcp_ids           = fields.One2many('is.galia.base.uc', 'stock_move_rcp_id', "UCs Réception")
+    is_qt_uc                = fields.Float('Qt UC'    , readonly=True, copy=False, digits=(14,4), help="Total de la quantité des UC scannées")
+    is_uc_galia             = fields.Text('UC (Galia)', readonly=True, copy=False)
+    is_um_galia             = fields.Text('UM (Galia)', readonly=True, copy=False)
 
 
     def compute_is_uc_galia(self):
         for obj in self:
             um_ids=[]
             qt_uc=0
-            for uc in obj.is_uc_ids:
-                if uc.um_id.id not in um_ids:
-                    um_ids.append(uc.um_id.id)
-            ums = self.env['is.galia.base.um'].search([('id', 'in', um_ids)],order="name")
             lines_uc=[] 
             lines_um=[]
-            for um in ums: 
-                first=False
-                def set_num_uc(first,last,lot):
-                    if first==last:
-                        num = "%s [%s]"%(str(first),lot)
-                    else:
-                        num = "%s à %s [%s]"%(str(first),str(last)[-3:],lot)
-                    return num
-                def set_num_um(uc,um,ct):
-                    if ct==0:
-                        if uc.product_id.is_um_egale_uc:
-                            num=str(uc.num_eti)
+            uc_ids=False
+            if obj.is_uc_ids:
+                uc_ids=obj.is_uc_ids
+            if obj.is_uc_rcp_ids:
+                uc_ids=obj.is_uc_rcp_ids
+            if uc_ids:
+                for uc in uc_ids:
+                    if uc.um_id.id not in um_ids:
+                        um_ids.append(uc.um_id.id)
+                ums = self.env['is.galia.base.um'].search([('id', 'in', um_ids)],order="name")
+                for um in ums: 
+                    first=False
+                    def set_num_uc(first,last,lot):
+                        if first==last:
+                            num = "%s [%s]"%(str(first),lot)
                         else:
-                            num = um.name
-                    else:
-                        num='.'
-                    return num
-                ucs = self.env['is.galia.base.uc'].search([('um_id', '=', um.id)],order="num_eti")
-                ct=0
-                for uc in ucs:
-                    if uc.product_id==obj.product_id and uc.stock_move_id==obj:
-
-
-
-                        qt_uc+=uc.qt_pieces
-                        lot = uc.production
-                        num = int(uc.num_eti)
-                        if not first:
-                            first = last = suivant = num
-                        if num==suivant:
-                            last=num
+                            num = "%s à %s [%s]"%(str(first),str(last)[-3:],lot)
+                        return num
+                    def set_num_um(uc,um,ct):
+                        if ct==0:
+                            if uc.product_id.is_um_egale_uc:
+                                num=str(uc.num_eti)
+                            else:
+                                num = um.name
                         else:
-                            lines_uc.append(set_num_uc(first,last,lot))
-                            lines_um.append(set_num_um(uc,um,ct))
-                            ct+=1
-                            first=last=num
-                        suivant = num+1
-
-                        if uc.product_id.is_code=='251070':
-                            print(obj.id,uc.um_id.name,uc.num_eti, uc.qt_pieces,qt_uc)
-
-
-
-                if first:
-                    lines_uc.append(set_num_uc(first,last,lot))
-                    lines_um.append(set_num_um(uc,um,ct))
-                    ct+=1
+                            num='.'
+                        return num
+                    ucs = self.env['is.galia.base.uc'].search([('um_id', '=', um.id)],order="num_eti")
+                    ct=0
+                    for uc in ucs:
+                        if uc.product_id==obj.product_id and (uc.stock_move_id==obj or uc.stock_move_rcp_id==obj):
+                            qt_uc+=uc.qt_pieces
+                            lot = uc.production
+                            num = int(uc.num_eti)
+                            if not first:
+                                first = last = suivant = num
+                            if num==suivant:
+                                last=num
+                            else:
+                                lines_uc.append(set_num_uc(first,last,lot))
+                                lines_um.append(set_num_um(uc,um,ct))
+                                ct+=1
+                                first=last=num
+                            suivant = num+1
+                    if first:
+                        lines_uc.append(set_num_uc(first,last,lot))
+                        lines_um.append(set_num_um(uc,um,ct))
+                        ct+=1
             obj.is_uc_galia = "\n".join(lines_uc)
             obj.is_um_galia = "\n".join(lines_um)
             obj.is_qt_uc = qt_uc
