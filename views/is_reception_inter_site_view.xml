@@ -48,16 +48,26 @@
                             name="voir_um_action" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                         />
-
+                        <button 
+                            string="Voir les articles" 
+                            type="object" 
+                            name="voir_articles_action" 
+                            attrs="{'invisible': [('picking_ids', '==', [])]}"
+                        />
                         <button 
                             string="TEST get_um_reception" 
                             type="object" 
                             name="get_um_reception_action" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
+                            groups="base.group_no_one"
                         />
-
-
-
+                        <button 
+                            string="TEST move_stock" 
+                            type="object" 
+                            name="move_stock" 
+                            attrs="{'invisible': [('picking_ids', '==', [])]}"
+                            groups="base.group_no_one"
+                        />
                     <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>

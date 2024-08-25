@@ -65,9 +65,9 @@
                 <xpath expr="//header/field[@name='state']" position="before">
                     <button string="Valider" name="is_valider_action" type="object" states="draft" class="oe_highlight" />
                     <button string="Créer Mouvement PG" name="create_pg_stock_move_action" type="object" groups="base.group_no_one" states="done"/>
-                    <!-- <button string="Raz"          name="is_raz_action"          type="object" groups="base.group_no_one" states="futur"/>
+                    <button string="Raz"          name="is_raz_action"          type="object" groups="base.group_no_one"/>
                     <button string="Confirm"      name="is_confirm_action"      type="object" groups="base.group_no_one"/>
-                    <button string="Asign"        name="is_assign_action"       type="object" groups="base.group_no_one"/> -->
+                    <button string="Asign"        name="is_assign_action"       type="object" groups="base.group_no_one"/>
                     <!-- <button string="Fait=Réservé" name="is_fait_reserve_action" type="object" groups="base.group_no_one"/> -->
                     <!-- <button string="Créer Lot"    name="is_creer_lot_action"    type="object" groups="base.group_no_one"/> -->
                     <!-- <button string="Done"         name="is_done_action"         type="object" groups="base.group_no_one"/> -->

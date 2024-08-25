@@ -41,6 +41,9 @@
                 <!-- <form position="attributes">
                     <attribute name="create">0</attribute>
                 </form> -->
+
+
+
                 <xpath expr="//button[@name='action_assign']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -51,7 +54,7 @@
                 <xpath expr="//button[@name='button_validate'][2]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
-                <xpath expr="//header/button[10]" position="attributes"> <!-- Bouton 'Retourner' -->
+                <xpath expr="//header/button[10]" position="attributes"> 
                     <attribute name="invisible">1</attribute> 
                 </xpath>
 
@@ -64,6 +67,29 @@
                 <xpath expr="//button[@data-hotkey='o'][2]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
+
+
+                <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+
+                <xpath expr="//button[@name='action_toggle_is_locked'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='action_open_label_type']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='action_set_quantities_to_reservation']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='action_clear_quantities_to_zero']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+                <xpath expr="//button[@name='action_put_in_pack']" position="attributes">
+                    <attribute name="invisible">1</attribute> 
+                </xpath>
+
+
 
 
                 <xpath expr="//button[@name='button_validate'][1]" position="before">
@@ -86,7 +112,7 @@
                         class="oe_highlight" 
                         attrs="{'invisible': ['|',
                             ('state','in', ['done','cancel']),
-                            ('picking_type_id','!=',2)
+                            ('picking_type_id','not in',[2,3])
                         ]}"
                      />
                     <button 
@@ -142,25 +168,16 @@
                         attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
                     />
                 </xpath>
-                <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
 
-                <xpath expr="//button[@name='action_toggle_is_locked'][2]" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//button[@name='action_open_label_type']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//button[@name='action_set_quantities_to_reservation']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//button[@name='action_clear_quantities_to_zero']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
-                <xpath expr="//button[@name='action_put_in_pack']" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </xpath>
+
+
+
+
+
+
+
+
+
 
                 <xpath expr="//button[@name='action_assign'][1]" position="before">
                     <!-- Bouton pour debugage -->

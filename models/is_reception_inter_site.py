@@ -320,6 +320,8 @@ class is_reception_inter_site(models.Model):
             return res
 
 
+ 
+
     def voir_um_action(self):
         for obj in self:
             ids=[]
@@ -332,6 +334,25 @@ class is_reception_inter_site(models.Model):
                 'name': obj.name,
                 'view_mode': 'tree,form',
                 'res_model': 'is.galia.base.um',
+                'type': 'ir.actions.act_window',
+                'domain': [('id','in',ids)],
+            }
+            return res
+
+
+
+    def voir_articles_action(self):
+        for obj in self:
+            ids=[]
+            lines = self.env['is.galia.base.uc'].search([('reception_inter_site_id','=',obj.id)])
+            for line in lines:
+                product_id = line.product_id.product_tmpl_id.id
+                if product_id not in ids:
+                    ids.append(product_id)
+            res= {
+                'name': obj.name,
+                'view_mode': 'tree,form',
+                'res_model': 'product.template',
                 'type': 'ir.actions.act_window',
                 'domain': [('id','in',ids)],
             }
@@ -358,6 +379,66 @@ class is_reception_inter_site(models.Model):
             obj.get_um_reception(bl=obj.num_bl)
 
 
+    def get_ums(self):
+        for obj in self:
+            lines = self.env['is.galia.base.uc'].search([('reception_inter_site_id','=',obj.id)])
+            ids=[]
+            for line in lines:
+                um_id = line.um_id.id
+                if um_id not in ids:
+                    ids.append(um_id)
+            ums = self.env['is.galia.base.um'].search([('id','in',ids)])
+            return ums 
+
+
+    def get_stock_par_emplacement_et_par_article(self):
+        for obj in self:
+            ums=obj.get_ums()
+            res={}
+            for um in ums:
+                for uc in um.uc_ids:
+                    code        = uc.product_id.is_code
+                    location    = uc.um_id.location_id.name
+                    key = "%s-%s"%(location,code)
+                    if key not in res:
+                        vals={
+                            'qt_pieces'       : 0,
+                            'code_pg'         : uc.product_id.is_code,
+                            'product_id'      : uc.product_id.id,
+                            'location_id'     : uc.um_id.location_id.id,
+                            'location_dest_id': obj.location_id.id,
+                            'location'        : uc.um_id.location_id.name,
+                            'um_ids'          : [],
+                        }
+                        res[key] = vals
+                    res[key]['qt_pieces']+=uc.qt_pieces
+                    if um.id not in res[key]['um_ids']:
+                        res[key]['um_ids'].append(um.id)
+
+
+
+            stock_sorted = dict(sorted(res.items())) 
+            for key in stock_sorted:
+                product_id     = stock_sorted[key]['product_id']
+                location_id = stock_sorted[key]['location_id']
+                ##** Recherche du stock pour l'article et l'emplacement
+                quants=self.env['stock.quant'].search([('product_id','=',product_id),('location_id','=',location_id)])
+                stock=0
+                for quant in quants:
+                    stock+=quant.quantity
+                stock_sorted[key]['stock'] = stock
+                btn="btn-success"
+                if stock_sorted[key]['location_id']==stock_sorted[key]['location_dest_id']:
+                    btn="btn-warning 1"
+                if stock_sorted[key]['qt_pieces']>res[key]['stock']:
+                    btn="btn-warning 2"
+                if stock_sorted[key]['location'][0:1]=='Q':
+                    btn="btn-warning 3"
+                stock_sorted[key]['btn']=btn
+            stock_sorted = list(stock_sorted.values())
+            return stock_sorted
+
+
     def get_um_reception(self,bl=False):
         err=False
         domain=[('num_bl','=',bl)]
@@ -369,15 +450,9 @@ class is_reception_inter_site(models.Model):
         for reception in receptions:
             reception_id = reception.id
             emplacement  = reception.location_id.name
-            lines = self.env['is.galia.base.uc'].search([('reception_inter_site_id','=',reception.id)])
-            ids=[]
-            for line in lines:
-                um_id = line.um_id.id
-                if um_id not in ids:
-                    ids.append(um_id)
-            ums = self.env['is.galia.base.um'].search([('id','in',ids)])
+            ums=reception.get_ums()
+            #** Recherche des Qt par code PG pour chaque UM (UM xmixte) *******
             for um in ums:
-                #** Recherche des Qt par code PG pour chaque UM (UM xmixte) ***
                 res={}
                 for uc in um.uc_ids:
                     code = uc.product_id.is_code
@@ -389,10 +464,6 @@ class is_reception_inter_site(models.Model):
                     val="%s : %s"%(code,res[code])
                     codes.append(val)
                 codes='<br>'.join(codes)
-                #**************************************************************
-
-    
-
                 vals={
                     'id'           : um.id,
                     'name'         : um.name,
@@ -404,42 +475,9 @@ class is_reception_inter_site(models.Model):
                 }
                 key=um.name
                 data[key]=vals
-
-
-            #** Recherche de la quantité par article et par emplacement *******
-            res={}
-            for um in ums:
-                for uc in um.uc_ids:
-                    code        = uc.product_id.is_code
-                    location    = uc.um_id.location_id.name
-                    key = "%s-%s"%(location,code)
-                    if key not in res:
-                        res[key] = {}
-                        res[key]['qt_pieces']   = 0
-                        res[key]['code_pg']     = uc.product_id.is_code
-                        res[key]['product_id']  = uc.product_id.id
-                        res[key]['location_id'] = uc.um_id.location_id.id
-                        res[key]['location']    = uc.um_id.location_id.name
-                    res[key]['qt_pieces']+=uc.qt_pieces
-            stock_sorted = dict(sorted(res.items())) 
-            for key in stock_sorted:
-                product_id     = stock_sorted[key]['product_id']
-                location_id = stock_sorted[key]['location_id']
-                ##** Recherche du stock pour l'article et l'emplacement
-                quants=self.env['stock.quant'].search([('product_id','=',product_id),('location_id','=',location_id)])
-                stock=0
-                for quant in quants:
-                    stock+=quant.quantity
-                stock_sorted[key]['stock'] = stock
-
-            stock_sorted = list(stock_sorted.values())
-
             #******************************************************************
-
+            stock_sorted = reception.get_stock_par_emplacement_et_par_article()
         data_sorted = dict(sorted(data.items())) 
-
-        print(emplacement)
-
         res={
             'data'        : list(data_sorted.values()),
             'stock'       : stock_sorted,
@@ -451,12 +489,74 @@ class is_reception_inter_site(models.Model):
     
 
     def move_stock(self):
-        time.sleep(2)
-        res={
-            'data': [],
-            'test': 'TEST',
-            'err' : "",
-        }
-        return res
+        for obj in self:
+            stock_sorted = obj.get_stock_par_emplacement_et_par_article()
+            for line in stock_sorted:
+                if line['btn']=='btn-success':
+                    product = self.env['product.product'].browse(line['product_id'])
+                    if product:
+                        line_vals={
+                            "location_id"     : line['location_id'],
+                            "location_dest_id": line['location_dest_id'],
+                            #"lot_id"          : line['btn'],
+                            "qty_done"        : line['qt_pieces'],
+                            "product_id"      : line['product_id'],
+                        }
+                        move_vals={
+                            "location_id"     : line['location_id'],
+                            "location_dest_id": line['location_dest_id'],
+                            "product_uom_qty" : line['qt_pieces'],
+                            "product_id"      : line['product_id'],
+                            "name"            : product.name,
+                        }
+                        filtre=[('code', '=', 'internal')]
+                        picking_type_id = self.env['stock.picking.type'].search(filtre)[0]
+                        picking_vals={
+                            "picking_type_id" : picking_type_id.id,
+                            "location_id"     : line['location_id'],
+                            "location_dest_id": line['location_dest_id'],
+                            #'move_line_ids'   : [[0,False,line_vals]],
+                            'move_ids'        : [[0,False,move_vals]],
+                        }
+
+
+
+
+
+                        picking=self.env['stock.picking'].create(picking_vals)
+
+
+                        for move in picking.move_ids_without_package:
+                            move.product_uom_qty = 100
+                            move.quantity_done   = 100
+                            print(product.is_code,picking.name,move,move.product_uom_qty)
+
+
+                        picking.action_confirm()
+                        picking._action_done()
+
+# button_validate
+
+
+                        #** Déplacement des UM ********************************
+
+                        # print('TEST 2', product.is_code,line['um_ids'])
+                        # for um_id in  line['um_ids']:
+                        #     um = self.env['is.galia.base.um'].browse(um_id)
+                        #     print('TEST 3', um_id)
+
+                        #     if um:
+                        #         #um.location_id = line['location_dest_id']
+                        #         print('TEST 4', product.is_code,um.name,um.location_id.name)
+                        # #******************************************************
+                        # print(picking, picking.name)
+            res={
+                'data': [],
+                'test': 'TEST',
+                'err' : "",
+            }
+            return res
+
+
 
 
