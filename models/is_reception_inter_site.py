@@ -441,7 +441,10 @@ class is_reception_inter_site(models.Model):
 
     def get_um_reception(self,bl=False):
         err=False
-        domain=[('num_bl','=',bl)]
+        domain=[
+            ('num_bl','=',bl),
+            ('state','=','controle'),
+        ]
         receptions = self.env['is.reception.inter.site'].search(domain)
         data={}
         reception_id = False
@@ -495,13 +498,13 @@ class is_reception_inter_site(models.Model):
                 if line['btn']=='btn-success':
                     product = self.env['product.product'].browse(line['product_id'])
                     if product:
-                        line_vals={
-                            "location_id"     : line['location_id'],
-                            "location_dest_id": line['location_dest_id'],
-                            #"lot_id"          : line['btn'],
-                            "qty_done"        : line['qt_pieces'],
-                            "product_id"      : line['product_id'],
-                        }
+                        # line_vals={
+                        #     "location_id"     : line['location_id'],
+                        #     "location_dest_id": line['location_dest_id'],
+                        #     #"lot_id"          : line['btn'],
+                        #     "qty_done"        : line['qt_pieces'],
+                        #     "product_id"      : line['product_id'],
+                        # }
                         move_vals={
                             "location_id"     : line['location_id'],
                             "location_dest_id": line['location_dest_id'],
@@ -518,38 +521,20 @@ class is_reception_inter_site(models.Model):
                             #'move_line_ids'   : [[0,False,line_vals]],
                             'move_ids'        : [[0,False,move_vals]],
                         }
-
-
-
-
-
                         picking=self.env['stock.picking'].create(picking_vals)
-
-
                         for move in picking.move_ids_without_package:
-                            move.product_uom_qty = 100
-                            move.quantity_done   = 100
-                            print(product.is_code,picking.name,move,move.product_uom_qty)
-
-
+                            move.product_uom_qty = line['qt_pieces']
+                            move.quantity_done   = line['qt_pieces']
                         picking.action_confirm()
                         picking._action_done()
 
-# button_validate
-
-
                         #** Déplacement des UM ********************************
-
-                        # print('TEST 2', product.is_code,line['um_ids'])
-                        # for um_id in  line['um_ids']:
-                        #     um = self.env['is.galia.base.um'].browse(um_id)
-                        #     print('TEST 3', um_id)
-
-                        #     if um:
-                        #         #um.location_id = line['location_dest_id']
-                        #         print('TEST 4', product.is_code,um.name,um.location_id.name)
+                        for um_id in  line['um_ids']:
+                            um = self.env['is.galia.base.um'].browse(um_id)
+                            if um:
+                                um.location_id = line['location_dest_id']
                         # #******************************************************
-                        # print(picking, picking.name)
+            obj.state='termine'
             res={
                 'data': [],
                 'test': 'TEST',

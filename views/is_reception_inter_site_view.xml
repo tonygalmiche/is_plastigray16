@@ -54,7 +54,7 @@
                             name="voir_articles_action" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                         />
-                        <button 
+                        <!-- <button 
                             string="TEST get_um_reception" 
                             type="object" 
                             name="get_um_reception_action" 
@@ -67,7 +67,7 @@
                             name="move_stock" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                             groups="base.group_no_one"
-                        />
+                        /> -->
                     <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
