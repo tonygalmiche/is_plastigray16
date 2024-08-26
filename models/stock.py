@@ -667,6 +667,9 @@ class stock_picking(models.Model):
                                 if quantite<=0:
                                     break
                                 ct+=1
+        cr.commit()
+
+
 
 
     def mise_a_jour_colisage_action(self):
