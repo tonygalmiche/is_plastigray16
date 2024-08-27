@@ -147,7 +147,12 @@ class is_reception_inter_site(models.Model):
                         move_rcp_id = row['move_id']
                         location_id = row['location_dest_id']
 
-                        #** Recherche des UC/UM ***********************************
+                        #** Recherche location_id dans stock.move *************
+                        move = self.env['stock.move'].browse(move_rcp_id)
+                        if move.is_location_dest_prevu_id.id:
+                            location_id = move.is_location_dest_prevu_id.id
+
+                        #** Recherche des UC/UM *******************************
                         SQL="""
                             SELECT uc.num_eti,uc.qt_pieces,um.name, uc.num_carton, uc.qt_pieces, uc.product_id, uc.type_eti, uc.date_creation,uc.production,pt.is_code
                             FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
@@ -188,6 +193,11 @@ class is_reception_inter_site(models.Model):
                             if not um_id:
                                 alerte.append("Impossible de trouver ou créer l'UM %s"%name)
                             else:
+                                #** Mise à jour location_id de l'UM ***********
+                                um = self.env['is.galia.base.um'].browse(um_id)
+                                if um.id:
+                                    um.location_id = location_id
+
                                 #** Recherche si UC existe déjà ***************
                                 uc_id=False
                                 SQL="SELECT id, qt_pieces from is_galia_base_uc where num_eti='%s' and um_id=%s"%(num_eti,um_id)
