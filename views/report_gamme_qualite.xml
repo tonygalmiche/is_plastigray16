@@ -24,7 +24,7 @@
                             </tr>
                             <tr>
                                 <td t-att-class="o.get_couleur()" rowspan="2">
-                                    <div class="gamme_qualite_tdcolor">Gamme mur qualité</div>
+                                    <div class="gamme_qualite_tdcolor">Gamme mur qualité n°<span t-field="o.name" /></div>
                                 </td>
                                 <td rowspan="1">
                                     <!-- <div>Le <span t-esc="time.strftime('%d/%m/%Y',time.strptime(o.date_creation,'%Y-%m-%d'))"/></div> -->
