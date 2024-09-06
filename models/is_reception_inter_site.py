@@ -154,7 +154,10 @@ class is_reception_inter_site(models.Model):
 
                         #** Recherche des UC/UM *******************************
                         SQL="""
-                            SELECT uc.num_eti,uc.qt_pieces,um.name, uc.num_carton, uc.qt_pieces, uc.product_id, uc.type_eti, uc.date_creation,uc.production,pt.is_code
+                            SELECT 
+                                uc.num_eti,uc.qt_pieces,um.name, uc.num_carton, uc.qt_pieces, 
+                                uc.product_id, uc.type_eti, uc.date_creation,uc.production,pt.is_code,
+                                um.mixte,um.active
                             FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
                                                     join product_product  pp on uc.product_id=pp.id 
                                                     join product_template pt on pp.product_tmpl_id=pt.id 
@@ -182,10 +185,17 @@ class is_reception_inter_site(models.Model):
                                 #** Création UM *******************************
                                 SQL="""
                                     INSERT INTO is_galia_base_um(name,create_uid,write_uid,location_id,create_date,write_date,mixte,active)
-                                    VALUES (%s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 'non', 't')
+                                    VALUES (%s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', %s, %s)
                                     RETURNING id
                                 """
-                                cr.execute(SQL,[name,uid,uid,location_id])
+                                cr.execute(SQL,[
+                                    name,
+                                    uid,
+                                    uid,
+                                    location_id,
+                                    line['mixte'],
+                                    line['active'],
+                                ])
                                 rows2 = cr.dictfetchall()
                                 for row2 in rows2:
                                     um_id=row2['id']
