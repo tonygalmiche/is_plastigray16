@@ -251,8 +251,8 @@ class stock_picking(models.Model):
                         if  move.picking_id.sale_id.is_liste_servir_id:
                             if move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
                                 for um in move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
-                                    if um.product_id == move.product_id:
-                                        for uc in um.uc_ids:
+                                    for uc in um.uc_ids:
+                                        if uc.product_id == move.product_id:
                                             if uc.production not in lots:
                                                 lots[uc.production] = {}
                                                 lots[uc.production]["qt"]=0
@@ -273,8 +273,8 @@ class stock_picking(models.Model):
                             if  move.picking_id.sale_id.is_liste_servir_id:
                                 if move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
                                     for um in move.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
-                                        if um.product_id == move.product_id:
-                                            for uc in um.uc_ids:
+                                        for uc in um.uc_ids:
+                                            if uc.product_id == move.product_id:
                                                 if uc.production==lot:
                                                     if uc.ls_line_id and uc.ls_line_id.client_order_ref==move.sale_line_id.is_client_order_ref:
                                                         qt_liv+=uc.qt_pieces
