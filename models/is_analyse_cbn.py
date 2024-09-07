@@ -265,10 +265,11 @@ class product_product(models.Model):
         d = now - timedelta(days=now.weekday())
         TabSemaines={}
         for o in range(0,int(semaines)):
+            #week = d.isocalendar().week
             key = d.strftime('%Y%m%d')
             TabSemaines[key] = {
                 "key": key,
-                "semaine": d.strftime("S%W"),
+                "semaine": d.strftime("S%V"),
                 "date": d.strftime("%d.%m"),
             }
             d = d + timedelta(days=7)
