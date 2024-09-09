@@ -257,7 +257,6 @@ class stock_picking(models.Model):
                                                 lots[uc.production] = {}
                                                 lots[uc.production]["qt"]=0
                                             lots[uc.production]["qt"]+=uc.qt_pieces
-                                            #date_fabrication = uc.date_creation[:10]
                                             date_fabrication = uc.date_creation
                                             lots[uc.production]["date_fabrication"]=date_fabrication   
                     if lots=={}:
@@ -265,7 +264,6 @@ class stock_picking(models.Model):
                         lots[' ']["date_fabrication"]=False
                         lots[' ']["qt"]=False
                     x=0
-
                     for lot in lots:
                         #** Recherche qt livrée par lot et par commande client **********
                         qt_liv=0
@@ -276,7 +274,8 @@ class stock_picking(models.Model):
                                         for uc in um.uc_ids:
                                             if uc.product_id == move.product_id:
                                                 if uc.production==lot:
-                                                    if uc.ls_line_id and uc.ls_line_id.client_order_ref==move.sale_line_id.is_client_order_ref:
+                                                    #if uc.ls_line_id and uc.ls_line_id.client_order_ref==move.sale_line_id.is_client_order_ref:
+                                                    if uc.stock_move_id and uc.stock_move_id==move:
                                                         qt_liv+=uc.qt_pieces
                         certificat.qt_liv  = qt_liv
                         #certificat.qt_liv = lots[lot]["qt"]
