@@ -74,7 +74,7 @@
                                         <td class="text-right"><span t-field="o.total_moules"/></td>
                                     </tr>
                                     <tr>
-                                        <td class="text-right"><b>Total frais de perturbations à taxer : </b></td>
+                                        <td class="text-right"><b>Total frais de préparation à taxer : </b></td>
                                         <td class="text-right"><span t-field="o.frais_perturbation"/></td>
                                     </tr>
                                     <tr>
