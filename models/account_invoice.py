@@ -89,6 +89,7 @@ class account_invoice(models.Model):
     ], "Mode d'envoi de la facture")
     is_date_envoi_mail = fields.Datetime("Mail envoyé le", readonly=False, copy=False)
     is_masse_nette     = fields.Float("Masse nette (Kg)")
+    is_facture_pdf_ids       = fields.One2many('is.account.move.pdf', 'move_id', 'Facture PDF')
     state = fields.Selection([
         ('draft' , 'Brouillon'),
         ('posted', 'Validée'),
@@ -247,6 +248,7 @@ class account_invoice(models.Model):
             ct+=1
             #result = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_invoice')
             result = self.env['ir.actions.report']._render_qweb_pdf('account.account_invoices',[obj.id])[0]
+            obj.sauvegarde_pdf(result)
             r = range(1, 2)
             if obj.is_mode_envoi_facture=='courrier2':
                 r = range(1, 3)
@@ -291,6 +293,7 @@ class account_invoice(models.Model):
         else:
             attachment = attachment_obj.create(vals)
             attachment_id=attachment.id
+
         #***********************************************************************
 
         #** Envoi du PDF mergé dans le navigateur ******************************
@@ -303,6 +306,22 @@ class account_invoice(models.Model):
             }
         #***********************************************************************
 
+    def sauvegarde_pdf(self, result):
+        for obj in self:
+            vals = {
+                    'move_id': obj.id,
+            }
+            line = self.env['is.account.move.pdf'].create(vals)
+            attachment_obj = self.env['ir.attachment']
+            vals = {
+                'name':        obj.name + '.pdf',
+                'type':        'binary',
+                'res_model':   'is.account.move.pdf',
+                'res_id':      line.id,
+                'datas':       base64.b64encode(result),
+            }
+            attachment = attachment_obj.create(vals)
+            line.facture_pdf_ids = [attachment.id]
 
     def envoi_par_mail(self):
         """Envoi du mail directement sans passer par le wizard"""
@@ -756,3 +775,9 @@ class account_invoice_line(models.Model):
     #     return res
 
 
+class is_account_move_pdf(models.Model):
+    _name = 'is.account.move.pdf'
+    _description = u'Facture'
+    
+    move_id                = fields.Many2one('account.move', 'Facture', required=True, ondelete="cascade")
+    facture_pdf_ids        = fields.Many2many('ir.attachment', 'is_account_move_pdf_rel', 'pdf_id', 'attachment_id', u'Pièces jointes')
