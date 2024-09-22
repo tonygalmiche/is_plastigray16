@@ -246,9 +246,10 @@ class account_invoice(models.Model):
             msg = '%s/%s - Imprimer en simple ou double exemplaire : %s'%(ct,nb,obj.name)
             _logger.info(msg)
             ct+=1
-            #result = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_invoice')
             result = self.env['ir.actions.report']._render_qweb_pdf('account.account_invoices',[obj.id])[0]
-            obj.sauvegarde_pdf(result)
+
+            #obj.sauvegarde_pdf(result) #TODO : Modif de Silique à activer
+
             r = range(1, 2)
             if obj.is_mode_envoi_facture=='courrier2':
                 r = range(1, 3)
@@ -264,11 +265,8 @@ class account_invoice(models.Model):
 
         # ** Merge des PDF *****************************************************
         path_merged=self._merge_pdf(paths)
-        #pdfs = open(path_merged,'rb').read().encode('base64')
         pdfs = open(path_merged,'rb').read()
         # **********************************************************************
-
-                # 'datas':       base64.b64encode(pdf),#
 
 
         # ** Recherche si une pièce jointe est déja associèe *******************
@@ -281,9 +279,7 @@ class account_invoice(models.Model):
         # ** Creation ou modification de la pièce jointe ***********************
         vals = {
             'name':        name,
-            #'datas_fname': name,
             'type':        'binary',
-            #'datas':       pdfs,
             'datas':       base64.b64encode(pdfs),
         }
         if attachments:
@@ -301,8 +297,6 @@ class account_invoice(models.Model):
             return {
                 'type' : 'ir.actions.act_url',
                 'url': '/web/content/%s?download=true'%(attachment_id),
-                #'url': '/web/binary/saveas?model=ir.attachment&field=datas&id='+str(attachment_id)+'&filename_field=name',
-                #'target': 'new',
             }
         #***********************************************************************
 

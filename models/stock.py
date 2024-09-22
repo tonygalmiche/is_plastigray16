@@ -657,15 +657,17 @@ class stock_picking(models.Model):
                     if obj.state!='done':
                             raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
                     ums=self.env['is.galia.base.um'].search(filtre)
+                    test=True
                     for  um in ums:
                         ct=1
                         for uc in um.uc_ids:
-                            if uc.product_id==move.product_id and not uc.stock_move_id:
+                             if uc.product_id==move.product_id and not uc.stock_move_id and test:
                                 qt_pieces = uc.qt_pieces
                                 uc.stock_move_id = move.id
                                 quantite=quantite-qt_pieces
                                 if quantite<=0:
-                                    break
+                                    test=False
+                                    #break
                                 ct+=1
         cr.commit()
 
