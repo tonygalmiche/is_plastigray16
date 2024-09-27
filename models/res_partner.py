@@ -485,20 +485,7 @@ class res_partner(models.Model):
     
     pricelist_purchase_id = fields.Many2one('product.pricelist',"Liste de prix d'achat")
 
-    # _sql_constraints = [
-    #     ('code_adr_uniq', 'unique(is_code, is_adr_code, company_id)', u'Le code et le code adresse doivent être uniques par société!'),
-    # ]
-    
-
-    # # Le champ display_name est un champ standard d'Odoo correspondant au titre de la fiche
-    # # Cette fonction appelle la fonction name_get => Elle permet de définir les dépendances de champs
-    # @api.one
-    # @api.depends('name', 'parent_id.name','is_code', 'is_adr_code')
-    # def _compute_display_name(self):
-    #     r=self.name_get()
-    #     self.display_name = r[0][1]
-
-
+ 
     def _message_auto_subscribe_notify(self, partner_ids, template):
         #Désactiver le message "Vous avez été assigné à"
         return
@@ -910,22 +897,6 @@ class res_partner(models.Model):
             return res
 
 
-
-
-    # #TODO : Suite à l'installation du module 'project', j'ai du remettre l'ancienne api sinon plantage
-    # def copy(self, cr, uid, partner_id, default=None, context=None):
-    #     if default is None:
-    #         default = {}
-    #     for partner in self.browse(cr, uid, [partner_id], context=context):
-    #         default['is_code']                        = partner.is_code + u' (copie)'
-    #         default['is_adr_code']                    = partner.is_adr_code + u' (copie)'
-    #         default['property_account_position']      = partner.property_account_position
-    #         default['property_payment_term']          = partner.property_payment_term
-    #         default['property_supplier_payment_term'] = partner.property_supplier_payment_term
-    #     res=super(res_partner, self).copy(cr, uid, partner_id, default=default, context=context)
-    #     return res
-
-
     def onchange_segment_id(self, cr, uid, ids, segment_id, context=None):
         domain = []
         val = {'is_famille_achat': False }
@@ -1132,34 +1103,4 @@ class res_partner(models.Model):
         for row in self.env['is.cde.ouverte.fournisseur.message'].search(where):
             messages.append(row.message)
         return messages
-
-
-    # def bon_sortie_matiere(self, filename):
-    #     '''
-    #     Test génération 'Bon de sortie matière' pour être utilisée en PHP
-    #     '''
-    #     for obj in self:
-    #         orders=self.env['is.cde.ouverte.fournisseur'].search([('partner_id','=',obj.id)])
-    #         ids=[]
-    #         for order in orders:
-    #             ids.append(order.id)
-
-    #         # ** Récupération du fichier PDF du rapport indiqué ****************
-    #         #pdf = self.pool.get('report').get_pdf(self._cr, self._uid, ids, 'is_plastigray16.report_cde_ouverte_fournisseur', context=self._context)
-    #         pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.report_cde_ouverte_fournisseur',[obj.id])[0]
-    #         # ******************************************************************
-
-    #         # Enregistrement du PDF sur le serveur *****************************
-    #         path=u"/tmp/"+filename+u".pdf"
-    #         err=""
-    #         # try:
-    #         #     fichier = open(path, "w")
-    #         # except IOError, e:
-    #         #     err="Problème d'accès au fichier '"+path+"' => "+ str(e)
-    #         if err=="":
-    #             fichier.write(pdf)
-    #             fichier.close()
-    #         # ******************************************************************
-    #         return {'pdf': base64.b64encode(pdf)}
-
 

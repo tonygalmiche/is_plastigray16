@@ -43,6 +43,15 @@ class is_edi_cde_cli_line(models.Model):
     anomalie              = fields.Text('Anomalie')
     file_id               = fields.Many2one('ir.attachment', 'Fichier')
 
+    date_heure_livraison_au_plus_tot = fields.Datetime('Livraison au plus tôt', help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
+
+
+    # • DateHeurelivraisonAuPlusTot => 
+    # • NumeroDocuement = N°CALDEL
+    # • CodeRoutage
+    # • Point de destination
+
+
 
     def action_acceder_commande(self):
         view_id = self.env.ref('sale.view_order_form').id
@@ -84,21 +93,11 @@ class is_edi_cde_cli(models.Model):
             obj.nb_fichiers = len(obj.file_ids)
 
 
-    # @api.depends('partner_id')
-    # def _import_function(self):
-    #     for obj in self:
-    #         v=False
-    #         if obj.partner_id:
-    #             v=obj.partner_id.is_import_function
-    #         obj.import_function=v
-
-
     name            = fields.Date('Date de création', readonly='1', default=fields.Datetime.now)
     partner_id      = fields.Many2one('res.partner', 'Client', required=False)
     date_maxi       = fields.Date(u"Date de livraison limite d'intégration", help=u"Au delà de cette date, les nouvelles commandes ne seront pas importés et les commandes existantes ne seront pas supprimées")
     jour_semaine    = fields.Selection(_JOURS_SEMAINE, "Jour semaine"      , help=u"Jour de la semaine d'intégration du prévisionnel")
     date_debut_prev = fields.Date(u"Date de début du prévisionnel"         , help=u"A partir de cette date, toutes les commandes seront forcées en prévisionnel")
-    #import_function = fields.Char("Fonction d'importation", compute='_import_function', readonly=True)
     import_function = fields.Selection(related="partner_id.is_import_function")
     file_ids        = fields.Many2many('ir.attachment', 'is_doc_attachment_rel', 'doc_id', 'file_id', 'Fichiers')
     create_id       = fields.Many2one('res.users', 'Importe par', readonly=True)
@@ -1120,78 +1119,13 @@ class is_edi_cde_cli(models.Model):
             except csv.Error:
                 raise ValidationError('Fichier vide ou non compatible (le fichier doit être au format CSV)')
         return res
-#
-#
-#    def get_data_lacroix(self, attachment):
-#        nb_cols = 21
-#        col_ref = 1
-#        #col_qn = 13
-#        col_qn = 15
-#        col_type = None
-#        #col_date = 16
-#        col_date = 18
-#        data_previsionnel = 'P'
-#        res = []
-#        for obj in self:
-#            csvfile = base64.decodebytes(attachment.datas).decode('iso-8859-1')
-#            csvfile = csvfile.split("\r\n")
-#            csvfile = csv.reader(csvfile, delimiter='\t')
-#            tab=[]
-#            try:
-#                for ct, lig in enumerate(csvfile):
-#                    # Header CSV
-#                    if ct == 0:
-#                        continue
-#                    if len(lig) == nb_cols:
-#                        ref_article_client = lig[col_ref].strip()
-#                        order = self.env['sale.order'].search([
-#                            ('partner_id.is_code'   , '=', obj.partner_id.is_code),
-#                            ('is_ref_client', '=', ref_article_client)]
-#                        )
-#                        num_commande_client = "??"
-#                        if len(order):
-#                            num_commande_client = order[0].client_order_ref
-#                        val = {
-#                            'num_commande_client' : num_commande_client,
-#                            'ref_article_client'  : ref_article_client,
-#                        }
-#                        # '1\xc2\xa0456,000' => 1456.00
-#                        quantite = lig[col_qn].encode().decode('utf8').strip()
-#                        quantite = quantite.replace(u'\xa0', '')
-#                        quantite = quantite.replace(u' ', '')
-#                        quantite = quantite.replace(',', '.')
-#                        try:
-#                            qt = float(quantite)
-#                        except ValueError:
-#                            continue
-#                        if col_type is None:
-#                            type_commande="previsionnel"
-#                        else:
-#                            type_commande = lig[col_type].strip()
-#                            if type_commande == data_previsionnel:
-#                                type_commande = "previsionnel"
-#                            else:
-#                                type_commande = "ferme"
-#                        date_livraison = lig[col_date].strip()
-#                        d = datetime.strptime(date_livraison, '%d/%m/%Y')
-#                        date_livraison = d.strftime('%Y-%m-%d')
-#                        ligne = {
-#                            'quantite'      : qt,
-#                            'type_commande' : type_commande,
-#                            'date_livraison': date_livraison,
-#                        }
-#                        val.update({'lignes': [ligne]})
-#                        res.append(val)
-#            except csv.Error:
-#                raise ValidationError('Fichier vide ou non compatible (le fichier doit être au format CSV)')
-#        return res
+
 
 
     def get_data_902810(self, attachment):
         res = []
         for obj in self:
             csvfile=base64.decodebytes(attachment.datas)
-            #csvfile = csvfile.decode("utf-16")
             csvfile = csvfile.decode("Windows-1252")
             csvfile=csvfile.split("\n")
             tab=[]
@@ -1290,7 +1224,6 @@ class is_edi_cde_cli(models.Model):
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
-            #temp.write((base64.decodestring(attachment.datas))) 
             temp.write((base64.decodebytes(attachment.datas))) 
             temp.close()
             tree = etree.parse(filename)
@@ -1326,8 +1259,6 @@ class is_edi_cde_cli(models.Model):
                             date_livraison=DateHeureLivraisonAuPlusTot.text[:8]
                         if date_livraison!="":
                             date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
-                            #d=datetime.strptime(date_livraison, '%Y%m%d')
-                            #date_livraison=d.strftime('%Y-%m-%d')
                         quantite=""
                         for QuantiteALivrer in detail_programme.xpath("QuantiteALivrer"):
                             quantite=QuantiteALivrer.text
@@ -1399,7 +1330,6 @@ class is_edi_cde_cli(models.Model):
                         val["product"]=product
                     res1 = []
                     for detail_programme in partie_citee.xpath("ARTICLE_PROGRAMME/DETAIL_PROGRAMME_ARTICLE"):
-                        #date_livraison=detail_programme.xpath("DateHeureLivraisonAuPlusTot")[0].text[:8]
                         date_livraison=detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text[:8]
                         quantite=detail_programme.xpath("QteALivrer")[0].text
                         try:
@@ -1407,8 +1337,6 @@ class is_edi_cde_cli(models.Model):
                         except ValueError:
                             quantite=0
                         date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
-                        #d=datetime.strptime(date_livraison, '%Y%m%d')
-                        #date_livraison=d.strftime('%Y-%m-%d')
                         ligne = {
                             'quantite': quantite,
                             'type_commande': 'ferme',
@@ -1422,17 +1350,6 @@ class is_edi_cde_cli(models.Model):
                     continue
 
         return res
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1588,18 +1505,6 @@ class is_edi_cde_cli(models.Model):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     def get_data_GXS(self, attachment):
         res = []
         for obj in self:
@@ -1648,7 +1553,6 @@ class is_edi_cde_cli(models.Model):
         res = []
         for obj in self:
             attachment=base64.decodebytes(attachment.datas)
-            #conversion d'ISO-8859-1/latin1 en UTF-8
             attachment=attachment.decode('iso-8859-1').encode('utf8').decode()
             csvfile=attachment.split("\n")
             tab=[]
@@ -1738,9 +1642,6 @@ class is_edi_cde_cli(models.Model):
                                                 if col==17:
                                                     date_livraison=n5.text[:10]
                                                     date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d')
-                                                    #d=datetime.strptime(date_livraison, '%Y-%m-%d')
-                                                    #date_livraison=d.strftime('%Y-%m-%d')
-                                                    #date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d')
 
                                     val={
                                         'num_commande_client' : num_commande_client,
@@ -1762,7 +1663,6 @@ class is_edi_cde_cli(models.Model):
     def get_data_Odoo(self, attachment):
         res = []
         for obj in self:
-            #csvfile=base64.decodebytes(attachment.datas)
             csvfile=base64.b64decode(attachment.datas).decode("utf-8") 
             csvfile=csvfile.split("\n")
             tab=[]

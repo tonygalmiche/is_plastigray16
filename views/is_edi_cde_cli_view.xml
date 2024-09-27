@@ -14,6 +14,7 @@
                                 <field name="ref_article_client"  readonly="1"/>
                                 <field name="num_commande_client" readonly="1"/>
                                 <field name="product_id"/>
+                                <field name="date_heure_livraison_au_plus_tot"/>
                                 <field name="quantite"/>
                                 <field name="date_livraison"/>
                                 <field name="type_commande"/>
@@ -36,6 +37,7 @@
                     <field name="ref_article_client"  readonly="1"/>
                     <field name="num_commande_client" readonly="1"/>
                     <field name="product_id"          readonly="0" widget="many2one_clickable"/>
+                    <field name="date_heure_livraison_au_plus_tot" attrs="{'column_invisible': [('parent.state', '=', 'analyse')]}"/>
                     <field name="date_livraison"/>
                     <field name="quantite"            sum="Total"/>
                     <field name="point_dechargement"    optional="show" />
@@ -135,7 +137,9 @@
             <field name="model">is.edi.cde.cli</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="partner_id"  />
+                    <field name="partner_id"/>
+                    <field name="import_function"/>
+                    <field name="state"/>
                     <filter string="Client" name="group_by_partner_id"  context="{'group_by': 'partner_id'}"/>
                 </search>
             </field>
