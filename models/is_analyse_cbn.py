@@ -350,8 +350,8 @@ class product_product(models.Model):
                     "multiple"   : row["multiple"],
                     "StockSecu"  : row["is_stock_secu"],
                     "Delai"      : Delai,
-                    "StockA"     : int(StocksA.get(product_id,0)),
-                    "StockQ"     : int(StocksQ.get(product_id,0)),
+                    "StockA"     : int(StocksA.get(product_id,0) or 0),
+                    "StockQ"     : int(StocksQ.get(product_id,0) or 0),
                     "typeod"     : {},
                 }
 
@@ -480,6 +480,7 @@ class product_product(models.Model):
         debut2=datetime.now()
         totaux={}
         for p in res:
+            test=False
             totaux[p]={}
             for t in res[p]["typeod"]:
                 if t not in["90-Stock","92-Stock Valorisé"]:
@@ -487,10 +488,17 @@ class product_product(models.Model):
                     for c in TabSemaines:
                         qt=res[p]["typeod"][t]["cols"][c]["qt"]
                         qt_signe = qt * self._get_sens(typeod)
+                        if qt!=0:
+                            test=True
                         if c not in totaux[p]:
                             totaux[p][c]=0
                         totaux[p][c]+=qt_signe
-        #print(json.dumps(totaux, indent = 4))
+
+                if valorisation=="Oui":
+                    if t=="90-Stock":
+                        if res[p]['StockA'] or res[p]['StockQ']:
+                            test=True
+            res[p]['test']=test #Permet de détecter si l'article a du stok ou des besoins
         _logger.info("Calcul du total des besoins par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
@@ -506,7 +514,6 @@ class product_product(models.Model):
                     else:
                         cumul = res[p]["StockA"]-res[p]["StockSecu"]
                 cumul+=totaux[p][c]
-
                 val = cumul*res[p]["cout"]
                 if val<0:
                     val=0
@@ -519,23 +526,23 @@ class product_product(models.Model):
                 res[p]["typeod"]["90-Stock"]["cols"][c]["qt_txt"] = round(res[p]["typeod"]["90-Stock"]["cols"][c]["qt_signe"])
                 if valorisation=="Oui":
                     res[p]["typeod"]["92-Stock Valorisé"]["cols"][c]["qt_txt"] = round(val)
-
                 ct+=1
-            #res[p]["typeod"]["90-Stock"]["colslist"] = list(res[p]["typeod"]["90-Stock"]["cols"].values())
-            #if valorisation=="Oui":
-            #    res[p]["typeod"]["92-Stock Valorisé"]["colslist"] = list(res[p]["typeod"]["92-Stock Valorisé"]["cols"].values())
         _logger.info("Calcul du stock cumulé par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
 
-
-
-
+        #** Supprime les articles sans stock et sans besoins ******************
+        res_epure = {}
+        for p in res:
+            if res[p]['test']:
+                res_epure[p] = res[p]
+        #res_epure = res
+        #**********************************************************************
 
 
         #** Ajout de la couleur des lignes ************************************
         debut2=datetime.now()
-        sorted_dict = dict(sorted(res.items())) 
+        sorted_dict = dict(sorted(res_epure.items())) 
         trcolor=""
         for k in sorted_dict:
             if trcolor=="#ffffff":
@@ -551,8 +558,6 @@ class product_product(models.Model):
         #**********************************************************************
 
 
-
-
         #** Création fichier Excel ********************************************
         excel_attachment_id = False
         if valorisation=="Oui":
@@ -566,7 +571,13 @@ class product_product(models.Model):
             #******************************************************************
 
             #** Ligne d'entête ************************************************
-            clr_background = PatternFill(start_color='FFFACD', end_color='FFFACD', fill_type="solid")
+            clr_background  = PatternFill(start_color='FFFACD', end_color='FFFACD', fill_type="solid")
+            clr_background1 = PatternFill(start_color='98FB98', end_color='98FB98', fill_type="solid")
+            clr_background2 = PatternFill(start_color='a0c8f0', end_color='a0c8f0', fill_type="solid")
+
+
+
+
             cell = ws.cell(row=1, column=1, value="Code PG")
             cell.fill = clr_background
             cell.font = Font(name='Calibri', bold=True)
@@ -577,13 +588,21 @@ class product_product(models.Model):
                 line = sorted_dict[key]["typeod"]["92-Stock Valorisé"]["cols"]
                 column = 3
                 for col in line:
-                    date = line[col]["key"]
-                    date = datetime.strptime(date, '%Y%m%d')
-                    cell = ws.cell(row=1, column=column, value=date)
-                    cell.number_format = 'DD/MM/YYYY'
-                    cell.alignment = Alignment(horizontal='center')
-                    cell.fill = clr_background
-                    cell.font = Font(name='Calibri', bold=True)
+                    def set_cell(ws,column,val,background):
+                        cell = ws.cell(row=1, column=column, value=val)
+                        #cell.number_format = 'DD/MM/YYYY'
+                        cell.alignment = Alignment(horizontal='center')
+                        cell.fill = background
+                        cell.font = Font(name='Calibri', bold=True)
+ 
+                    date = sorted_dict[key]["typeod"]["90-Stock"]["cols"][col]["key"]
+                    val =  "Stock\n%s"%(datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'))
+                    set_cell(ws,column,val,clr_background1)
+                    column+=1
+
+                    date = sorted_dict[key]["typeod"]["92-Stock Valorisé"]["cols"][col]["key"]
+                    val =  "Val\n%s"%(datetime.strptime(date, '%Y%m%d').strftime('%d/%m/%Y'))
+                    set_cell(ws,column,val,clr_background2)
                     column+=1
                 break
             #******************************************************************
@@ -598,8 +617,12 @@ class product_product(models.Model):
                 line = sorted_dict[key]["typeod"]["92-Stock Valorisé"]["cols"]
                 column = 3
                 for col in line:
-                    date = line[col]["key"]
-                    qt   = line[col]["qt_txt"]
+                    qt = sorted_dict[key]["typeod"]["90-Stock"]["cols"][col]["qt_txt"]
+                    cell = ws.cell(row=row, column=column, value=qt)
+                    cell.number_format = '# ##0'  # Number formatting
+                    column+=1
+
+                    qt = sorted_dict[key]["typeod"]["92-Stock Valorisé"]["cols"][col]["qt_txt"]
                     cell = ws.cell(row=row, column=column, value=qt)
                     cell.number_format = '# ##0'  # Number formatting
                     column+=1
