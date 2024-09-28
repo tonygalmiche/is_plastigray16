@@ -191,23 +191,44 @@
                         </group>
                     </page>
                     <page name="is_qualite" string="Qualité" attrs="{'invisible': ['|',('is_company', '=', False),('supplier','=', False)]}">
-                        <field name="is_certifications" >
-                            <form string="Certification qualité">
-                                <group>
+                        <group>
+                            <field name="is_certifications"  colspan="2">
+                                <form string="Certification qualité">
+                                    <group>
+                                        <field name="is_norme" />
+                                        <field name="is_date_validation" />
+                                        <field name="is_certificat_ids"  widget="many2many_binary"/>
+                                        <field name="partner_id" invisible="1"/>
+                                    </group>
+                                </form>
+                                <tree string="Certification qualité">
                                     <field name="is_norme" />
                                     <field name="is_date_validation" />
-                              <field name="is_certificat_ids"  widget="many2many_binary"/>
-                                    <field name="partner_id" invisible="1"/>
-                                </group>
-                            </form>
-                            <tree string="Certification qualité">
-                                <field name="is_norme" />
-                                <field name="is_date_validation" />
-                                <field name="partner_id" invisible="1"/>                                 
-                            </tree>
-                        </field>
+                                    <field name="is_certificat_ids"  widget="many2many_binary"/>
+                                    <field name="partner_id" invisible="1"/>                                 
+                                </tree>
+                            </field>
+    
+                        </group>
                     </page>
 
+
+
+                    <!-- <group string="Réponse à la demande" name="PLASFIL_FR_ANNEX">
+                        <field name="array_ids" nolabel="1" colspan="2">
+                            <tree editable="bottom">
+                                <field name="lig" optional="hide"/>
+                                <field name="annex_pdf" optional="hide" widget="many2many_binary"/>
+                                <field name="annex" widget="many2many_binary" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['PJ', 'PJ_TEXTE', 'PJ_DATE'])]}"/>
+                                <field name="demandmodif" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['TEXTE'])]}"/>
+                                <field name="maj_amdec" optional="hide"/>
+                                <field name="comment" optional="hide" widget="text"/>
+                                <field name="rsp_date" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['DATE', 'PJ_DATE'])]}"/>
+                                <field name="rsp_texte" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['TEXTE'])]}"/>
+                            </tree>
+                        </field>
+                    </group>
+ -->
 
 
 

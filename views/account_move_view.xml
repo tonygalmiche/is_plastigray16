@@ -122,14 +122,16 @@
                 <xpath expr="//div[hasclass('o_attachment_preview')]" position="replace"/>
                 <xpath expr="//page[@name='other_info']" position="after">
                     <page string="Factures PDF">
-                        <field name="is_facture_pdf_ids" readonly="1">
-                            <tree>
-                                <field name="create_date"/>
-                                <field name="create_uid"/>
-                                <field name="facture_pdf_ids" widget="many2many_binary" width="50%"/>
-                            </tree>
-                        </field>
-                    </page>
+                        <group>
+                            <field name="is_facture_pdf_ids" colspan="2" nolabel="1">
+                                <tree editable="bottom" delete="0" create="0">
+                                    <field name="create_date" string="PDF enregistré le"/>
+                                    <field name="create_uid"  string="Par"/>
+                                    <field name="facture_pdf_ids" widget="many2many_binary" readonly="1"/>
+                                </tree>
+                            </field>    
+                        </group>
+                     </page>
                 </xpath>
             </field>
         </record>

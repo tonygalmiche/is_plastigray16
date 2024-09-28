@@ -193,30 +193,8 @@ class account_invoice(models.Model):
     def invoice_print(self):
         assert len(self) == 1, 'This option should only be used for a single id at a time.'
         self.sent = True
-        #res = self.env['report'].get_action(self, 'is_plastigray16.is_report_invoice')
         res = self.env.ref('is_plastigray16.is_report_invoice').report_action(self)
         return res
-
-
-    # def _merge_pdf(self, documents):
-    #     """Merge PDF files into one.
-    #     :param documents: list of path of pdf files
-    #     :returns: path of the merged pdf
-    #     """
-    #     writer = PdfFileWriter()
-    #     streams = []  # We have to close the streams *after* PdfFilWriter's call to write()
-    #     for document in documents:
-    #         pdfreport = file(document, 'rb')
-    #         streams.append(pdfreport)
-    #         reader = PdfFileReader(pdfreport)
-    #         for page in range(0, reader.getNumPages()):
-    #             writer.addPage(reader.getPage(page))
-    #     merged_file_fd, merged_file_path = tempfile.mkstemp(suffix='.pdf', prefix='report.merged.tmp.')
-    #     with closing(os.fdopen(merged_file_fd, 'w')) as merged_file:
-    #         writer.write(merged_file)
-    #     for stream in streams:
-    #         stream.close()
-    #     return merged_file_path
 
 
     def _merge_pdf(self, documents):
@@ -246,9 +224,12 @@ class account_invoice(models.Model):
             msg = '%s/%s - Imprimer en simple ou double exemplaire : %s'%(ct,nb,obj.name)
             _logger.info(msg)
             ct+=1
-            result = self.env['ir.actions.report']._render_qweb_pdf('account.account_invoices',[obj.id])[0]
 
-            #obj.sauvegarde_pdf(result) #TODO : Modif de Silique à activer
+            #TODO : Modif du 28/09/24 => Suppression piece jointe avant création et ajout dans le tableau
+            obj.attachment_ids.unlink()
+            result = self.env['ir.actions.report']._render_qweb_pdf('account.account_invoices',[obj.id])[0]
+            obj.sauvegarde_pdf(result)
+            #******************************************************************
 
             r = range(1, 2)
             if obj.is_mode_envoi_facture=='courrier2':
@@ -300,8 +281,30 @@ class account_invoice(models.Model):
             }
         #***********************************************************************
 
-    def sauvegarde_pdf(self, result):
+    def sauvegarde_pdf(self, datas):
         for obj in self:
+            # #TODO : La comparaison des md5 ne fonctionne pas, car à chaque PDF généré, le md5 est différent
+            # def get_md5(path,datas):
+            #     f = open(path,'wb')
+            #     f.write(base64.b64decode(datas))
+            #     f.close()
+            #     f = open(path,'r')
+            #     cde="sha1sum %s"%path
+            #     f = os.popen(cde)
+            #     md5 = f.read().split(' ')[0]
+            #     f.close()
+            #     return md5
+
+            # uid=self._uid
+            # db = self._cr.dbname
+            # path="/tmp/facture-pdf-%s-%s-%s.pdf"%(obj.name,db,uid)
+            # md5 = get_md5(path,datas)
+            # lines = self.env['is.account.move.pdf'].search([('move_id','=',obj.id)],order='id desc', limit=1)
+            # last_path="%s.last"%path
+            # last_md5=False
+            # for line in lines:
+            #     for pdf in line.facture_pdf_ids:
+            #         last_md5 = get_md5(last_path,pdf.datas)
             vals = {
                     'move_id': obj.id,
             }
@@ -312,10 +315,11 @@ class account_invoice(models.Model):
                 'type':        'binary',
                 'res_model':   'is.account.move.pdf',
                 'res_id':      line.id,
-                'datas':       base64.b64encode(result),
+                'datas':       base64.b64encode(datas),
             }
             attachment = attachment_obj.create(vals)
             line.facture_pdf_ids = [attachment.id]
+
 
     def envoi_par_mail(self):
         """Envoi du mail directement sans passer par le wizard"""
@@ -774,4 +778,4 @@ class is_account_move_pdf(models.Model):
     _description = u'Facture'
     
     move_id                = fields.Many2one('account.move', 'Facture', required=True, ondelete="cascade")
-    facture_pdf_ids        = fields.Many2many('ir.attachment', 'is_account_move_pdf_rel', 'pdf_id', 'attachment_id', u'Pièces jointes')
+    facture_pdf_ids        = fields.Many2many('ir.attachment', 'is_account_move_pdf_rel', 'pdf_id', 'attachment_id', 'Facture PDF')
