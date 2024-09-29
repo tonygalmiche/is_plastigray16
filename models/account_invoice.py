@@ -551,15 +551,37 @@ class account_invoice(models.Model):
         self.escompte()
 
 
-    def action_cancel(self):
+    def button_cancel(self):
+        super(account_invoice, self).button_cancel()
         for obj in self:
-            if obj.type=='in_invoice':
-                for line in obj.invoice_line:
+            if obj.move_type=='in_invoice':
+                for line in obj.invoice_line_ids:
                     if line.is_move_id:
-                        line.is_move_id.invoice_state='none'
+                        line.is_move_id.invoice_state='2binvoiced'
                         line.is_move_id.picking_id._compute_invoice_state()
-                    line.is_move_id=False
-        super(account_invoice, self).action_cancel()
+
+
+    def action_post(self):
+        res=super(account_invoice, self).action_post()
+        for obj in self:
+            if obj.move_type=='in_invoice':
+                for line in obj.invoice_line_ids:
+                    if line.is_move_id:
+                        line.is_move_id.invoice_state='invoiced'
+                        line.is_move_id.picking_id._compute_invoice_state()
+        return res
+
+
+
+    # def action_cancel(self):
+    #     for obj in self:
+    #         if obj.type=='in_invoice':
+    #             for line in obj.invoice_line:
+    #                 if line.is_move_id:
+    #                     line.is_move_id.invoice_state='none'
+    #                     line.is_move_id.picking_id._compute_invoice_state()
+    #                 line.is_move_id=False
+    #     super(account_invoice, self).action_cancel()
 
 
     def button_reset_taxes(self):
