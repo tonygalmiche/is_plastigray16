@@ -33,9 +33,7 @@ class is_edi_cde_cli_line(models.Model):
     product_id            = fields.Many2one('product.product', 'Article')
     quantite              = fields.Integer('Quantité')
     date_livraison        = fields.Date('Date liv')
-    point_dechargement    = fields.Char('Point de déchargement')
     numero_document       = fields.Char('N° Document')          # NumeroDocument
-    date_heure_livraison  = fields.Char('Date Heure Livraison') # DateHeurelivraisonAuPlusTard
     numero_identification = fields.Char('N° Identification')    # NumeroIdentificationAcheteur
     type_commande         = fields.Selection([('ferme', 'Ferme'),('previsionnel', 'Prév.')], "Type")
     prix                  = fields.Float('Prix', digits=(14,4),)
@@ -43,16 +41,14 @@ class is_edi_cde_cli_line(models.Model):
     anomalie              = fields.Text('Anomalie')
     file_id               = fields.Many2one('ir.attachment', 'Fichier')
 
-    date_heure_livraison_au_plus_tot = fields.Datetime('Livraison au plus tôt', help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
+    date_heure_livraison_au_plus_tot = fields.Char('Livraison au plus tôt' , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
+    date_heure_livraison             = fields.Char('Livraison au plus tard', help="Champ 'DateHeurelivraisonAuPlusTard' pour EDI Weidplast")
+    numero_document                  = fields.Char('N°Document (CALDEL)'   , help="Champ 'NumeroDocument' pour EDI Weidplast")
+    code_routage                     = fields.Char('Code routage'          , help="Champ 'CodeRoutage' pour EDI Weidplast")
+    point_destination                = fields.Char('Point destination'     , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplast")
+    point_dechargement               = fields.Char('Point de déchargement' , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplast")
 
-
-    # • DateHeurelivraisonAuPlusTot => 
-    # • NumeroDocuement = N°CALDEL
-    # • CodeRoutage
-    # • Point de destination
-
-
-
+   
     def action_acceder_commande(self):
         view_id = self.env.ref('sale.view_order_form').id
         for obj in self:
@@ -122,10 +118,6 @@ class is_edi_cde_cli(models.Model):
                     point_dechargement = False
                     if "point_dechargement" in row:
                         point_dechargement=row["point_dechargement"]
-
-
-
-
                     order_id = False
                     date_livraison=False
                     type_commande=False
@@ -247,30 +239,48 @@ class is_edi_cde_cli(models.Model):
                         if obj.import_function=="STELLANTIS":
                             point_dechargement = ligne.get('point_dechargement')
 
-
                         vals={
                             'edi_cde_cli_id'       : obj.id,
                             'num_commande_client'  : num_commande_client,
                             'ref_article_client'   : ref_article_client,
                             'product_id'           : product_id,
-                            'quantite'             : ligne["quantite"],
                             'date_livraison'       : date_livraison,
                             'point_dechargement'   : point_dechargement,
-                            'numero_document'      : ligne.get('numero_document'),
-                            'date_heure_livraison' : ligne.get('date_heure_livraison'),
-                            'numero_identification': ligne.get('numero_identification'),
                             'type_commande'        : type_commande,
                             'prix'                 : prix,
                             'order_id'             : order_id,
                             'anomalie'             : anomalie,
                             'file_id'              : attachment.id,
+                            'quantite'                         : ligne["quantite"],
+                            'numero_document'                  : ligne.get('numero_document'),
+                            'numero_identification'            : ligne.get('numero_identification'),
+                            'date_heure_livraison'             : ligne.get('date_heure_livraison'),
+                            'date_heure_livraison_au_plus_tot' : ligne.get('date_heure_livraison_au_plus_tot'),
+                            'code_routage'                     : ligne.get('code_routage'),
+                            'point_destination'                : ligne.get('point_destination'),
                         }
                         line_obj.create(vals)
 
 
+    def action_detail_lignes(self):
+        for obj in self:
+            if obj.import_function=="STELLANTIS":
+                view_id=self.env.ref('is_plastigray16.is_edi_cde_cli_line_tree_view_weidplast')
+            else:
+                view_id=self.env.ref('is_plastigray16.is_edi_cde_cli_line_tree_view')
+            return {
+                'name'     : 'Lignes %s'%obj.name,
+                'view_mode': 'tree',
+                'view_id'  : view_id.id,
+                'res_model': 'is.edi.cde.cli.line',
+                'context'  : {"search_default_anomalies":1},
+                'type'     : 'ir.actions.act_window',
+                'domain'   : [
+                    ('edi_cde_cli_id','=',obj.id),
+                ],
+            }
 
 
- 
     def action_importer_commandes(self):
         for obj in self:
             line_obj       = self.env['sale.order.line']
@@ -376,6 +386,10 @@ class is_edi_cde_cli(models.Model):
                                 'product_uom_qty'     : line.quantite, 
                                 'is_client_order_ref' : line.order_id.client_order_ref, 
                                 'price_unit'          : line.prix,
+                                'is_date_heure_livraison_au_plus_tot': line.date_heure_livraison_au_plus_tot,
+                                'is_numero_document'                 : line.numero_document,
+                                'is_code_routage'                    : line.code_routage,
+                                'is_point_destination'               : line.point_destination,
                             }
                             line_obj.create(vals)
             #pr.disable()
@@ -1410,15 +1424,9 @@ class is_edi_cde_cli(models.Model):
                     val.update({'lignes':res1})
                     res.append(val)
 
-
-
-
             for caldel in tree.xpath("/CALDEL"):
                 numero_document = str(int(caldel.xpath("NumeroDocument")[0].text))
                 for partie_citee in caldel.xpath("SEQUENCE_PRODUCTION"):
-
-
-
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
                         products=self.env['product.product'].search([
@@ -1440,27 +1448,18 @@ class is_edi_cde_cli(models.Model):
                         if len(products)>1:
                             anomalie=u"Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
                         num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
-                        order_id=False
                         product=False
+                        order_id=False
                         if not anomalie:
                             product=products[0]
                             orders=self.env['sale.order'].search([
-                                ('is_type_commande'  , '=', 'standard'),
+                                ('partner_id.is_code', '=', obj.partner_id.is_code),
+                                ('is_ref_client'     , '=', ref_article_client),
+                                ('is_type_commande'  , '=', 'ouverte'),
                                 ('state'             , '=', 'draft'),
-                                ('partner_id'        , '=', obj.partner_id.id),
-                                ('client_order_ref'  , '=', num_commande_client),
                             ])
-                            if len(orders)==0:
-                                vals={
-                                    "partner_id": obj.partner_id.id,
-                                    "client_order_ref": num_commande_client,
-                                    "is_type_commande": "standard",
-                                }
-                                order=self.env['sale.order'].create(vals)
-                                order.pg_onchange_partner_id()
-                            else:
-                                order=orders[0]
-                            order_id=order.id
+                            for order in orders:
+                                order_id = order.id
                         val = {
                             'order_id'           : order_id,
                             'ref_article_client' : ref_article_client,
@@ -1469,21 +1468,27 @@ class is_edi_cde_cli(models.Model):
                         }
                         if product:
                             val["product"]=product
-
                         point_dechargement = False
+                        code_routage       = False
+                        point_destination  = False
                         for POINT_DE_DECHARGEMENT in partie_citee.xpath("ARTICLE_PROGRAMME/POINT_DE_DECHARGEMENT"):
                                 for CodeIdentificationPointDechargement in POINT_DE_DECHARGEMENT.xpath("CodeIdentificationPointDechargement"):
                                     point_dechargement = CodeIdentificationPointDechargement.text
+                                for CodeRoutage in POINT_DE_DECHARGEMENT.xpath("CodeRoutage"):
+                                    code_routage = CodeRoutage.text
+                                for CodeIdentificationPointDestination in POINT_DE_DECHARGEMENT.xpath("CodeIdentificationPointDestination"):
+                                    point_destination = CodeIdentificationPointDestination.text
                         res1 = []
                         for detail_programme in partie_citee.xpath("ARTICLE_PROGRAMME/DETAIL_PROGRAMME_ARTICLE"):
-                            date_livraison=detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text[:8]
-                            quantite=detail_programme.xpath("QteALivrer")[0].text
-                            date_heure_livraison  = detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text
-                            numero_identification = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
+                            quantite                          = detail_programme.xpath("QteALivrer")[0].text
+                            date_heure_livraison              = detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text
+                            date_heure_livraison_au_plus_tot  = detail_programme.xpath("DateHeurelivraisonAuPlusTot")[0].text
+                            numero_identification             = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
                             try:
                                 quantite=float(quantite)
                             except ValueError:
                                 quantite=0
+                            date_livraison=date_heure_livraison_au_plus_tot[0:8]
                             date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
                             ligne = {
                                 'quantite'             : quantite,
@@ -1492,8 +1497,11 @@ class is_edi_cde_cli(models.Model):
                                 'anomalie'             : anomalie,
                                 'point_dechargement'   : point_dechargement,
                                 'numero_document'      : numero_document,
-                                'date_heure_livraison' : date_heure_livraison,
                                 'numero_identification': numero_identification,
+                                'date_heure_livraison'             : date_heure_livraison,
+                                'date_heure_livraison_au_plus_tot' : date_heure_livraison_au_plus_tot,
+                                'code_routage'                     : code_routage,
+                                'point_destination'                : point_destination,
                             }
                             res1.append(ligne)
                         val.update({'lignes':res1})

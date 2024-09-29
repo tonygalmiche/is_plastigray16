@@ -37,7 +37,6 @@
                     <field name="ref_article_client"  readonly="1"/>
                     <field name="num_commande_client" readonly="1"/>
                     <field name="product_id"          readonly="0" widget="many2one_clickable"/>
-                    <field name="date_heure_livraison_au_plus_tot" attrs="{'column_invisible': [('parent.state', '=', 'analyse')]}"/>
                     <field name="date_livraison"/>
                     <field name="quantite"            sum="Total"/>
                     <field name="point_dechargement"    optional="show" />
@@ -53,6 +52,38 @@
                 </tree>
             </field>
         </record>
+
+
+        <record id="is_edi_cde_cli_line_tree_view_weidplast" model="ir.ui.view">
+            <field name="name">is_edi_cde_cli_line_tree_view_weidplast</field>
+            <field name="model">is.edi.cde.cli.line</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="ref_article_client"  readonly="1"/>
+                    <field name="num_commande_client" readonly="1"/>
+                    <field name="product_id"          readonly="0" widget="many2one_clickable"/>
+                    <field name="date_heure_livraison_au_plus_tot" optional="show" />
+                    <field name="date_heure_livraison"             optional="show" />
+                    <field name="numero_document"                  optional="show" />
+                    <field name="code_routage"                     optional="show" />
+                    <field name="point_destination"                optional="show" />
+                    <field name="point_dechargement"               optional="show" />
+                    <field name="date_livraison"/>
+                    <field name="quantite" sum="Total"/>
+                    <field name="numero_identification"            optional="hide" />
+                    <field name="type_commande"/>
+                    <field name="prix"/>
+                    <field name="order_id"            readonly="0" widget="many2one_clickable"/>
+                    <field name="anomalie"/>
+                    <field name="file_id"             optional="hide" readonly="1"/>
+                    <field name="write_date"          optional="hide" readonly="1" string="Date de modification"/>
+                </tree>
+            </field>
+        </record>
+
+
+
+
         <record id="is_edi_cde_cli_line_search_view" model="ir.ui.view">
             <field name="name">is_edi_cde_cli_line_search_view</field>
             <field name="model">is.edi.cde.cli.line</field>
@@ -75,7 +106,7 @@
                 </search>
             </field>
         </record>
-        <record id="is_edi_cde_cli_line_action" model="ir.actions.act_window" >
+        <!-- <record id="is_edi_cde_cli_line_action" model="ir.actions.act_window" >
             <field name="name">Lignes d'EDI</field>
             <field name="res_model">is.edi.cde.cli.line</field>
             <field name="view_mode">tree,form</field>
@@ -83,7 +114,7 @@
             <field name="context">{"search_default_anomalies":1}</field>
             <field name="limit">100</field>
         </record>
-
+ -->
 
         <!-- is.edi.cde.cli -->
         <record id="is_edi_cde_cli_form_view" model="ir.ui.view">
@@ -92,8 +123,8 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button string='Analyser les fichiers'  name="action_analyser_fichiers"  type="object" states="analyse" class="oe_highlight"  />
-                        <button name="%(is_edi_cde_cli_line_action)d" type="action" string="Détail des lignes" />
+                        <button string='Analyser les fichiers' name="action_analyser_fichiers"  type="object" states="analyse" class="oe_highlight"/>
+                        <button string='Détail des lignes'     name="action_detail_lignes"      type="object"/>
                         <button 
                             string='Importer les commandes' 
                             name="action_importer_commandes" type="object" states="analyse" 
