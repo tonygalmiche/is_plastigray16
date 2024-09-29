@@ -264,7 +264,13 @@ class is_liste_servir(models.Model):
                     sol.is_date_expedition, 
                     sol.product_uom_qty, 
                     sol.price_unit, 
-                    sol.is_justification
+                    sol.is_justification,
+
+                    sol.is_date_heure_livraison_au_plus_tot,
+                    sol.is_numero_document,
+                    sol.is_code_routage,
+                    sol.is_point_destination
+
             from sale_order so inner join sale_order_line sol on so.id=sol.order_id 
             where so.partner_id="""+str(obj.partner_id.id)+""" 
                   and so.state='draft' 
@@ -297,7 +303,6 @@ class is_liste_servir(models.Model):
                     cursor = cnx.cursor()
                 except:
                     msg="Impossible de se connecter à Dynacase"
-                    #raise ValidationError(msg)
                     _logger.info(msg)
                     cursor=False
             #*******************************************************************
@@ -306,14 +311,14 @@ class is_liste_servir(models.Model):
                 row.unlink()
             SQL=self._get_sql(obj)
             cr.execute(SQL)
-            result = cr.fetchall()
+            #result = cr.fetchall()
+            result = cr.dictfetchall()
             line_obj = self.env['is.liste.servir.line']
             sequence=0
             for row in result:
                 sequence=sequence+1
-                product_id=row[1]
+                product_id=row['product_id']
                 product=self.env['product.product'].browse(product_id)
-
 
                 #** Recherche du certificat matière ****************************
                 certificat_matiere=False
@@ -335,7 +340,12 @@ class is_liste_servir(models.Model):
                 stock01 = product.get_stock('f', '01')
                 stocka  = product.get_stock('f')
                 stockq  = product.get_stock('t')
-                qt=row[5]
+                qt=row['product_uom_qty']
+
+
+
+
+
 
                 livrable=False
                 if qt<=stocka:
@@ -345,7 +355,6 @@ class is_liste_servir(models.Model):
                 test=True
                 if obj.livrable==True and livrable==False:
                     test=False
-
 
                 point_dechargement = False
                 if obj.partner_id.is_traitement_edi:
@@ -359,18 +368,17 @@ class is_liste_servir(models.Model):
                     for order in orders:
                         point_dechargement = order.is_point_dechargement
 
-
                 if test:
                     vals={
                         'liste_servir_id'   : obj.id,
                         'sequence'          : sequence,
-                        'order_id'          : row[0],
-                        'product_id'        : row[1],
-                        'client_order_ref'  : row[2],
-                        'date_livraison'    : row[3],
-                        'date_expedition'   : row[4],
-                        'prix'              : row[6],
-                        'justification'     : row[7],
+                        'order_id'          : row['order_id'],
+                        'product_id'        : row['product_id'],
+                        'client_order_ref'  : row['is_client_order_ref'],
+                        'date_livraison'    : row['is_date_livraison'],
+                        'date_expedition'   : row['is_date_expedition'],
+                        'prix'              : row['price_unit'],
+                        'justification'     : row['is_justification'],
                         'quantite'          : qt,
                         'livrable'          : livrable,
                         'stock01'           : stock01,
@@ -378,6 +386,11 @@ class is_liste_servir(models.Model):
                         'stockq'            : stockq,
                         'certificat_matiere': certificat_matiere,
                         'point_dechargement': point_dechargement,
+
+                        'is_date_heure_livraison_au_plus_tot': row['is_date_heure_livraison_au_plus_tot'],
+                        'is_numero_document'                 : row['is_numero_document'],
+                        'is_code_routage'                    : row['is_code_routage'],
+                        'is_point_destination'               : row['is_point_destination'],
                     }
                     line_obj.create(vals)
             obj.onchange_line_ids()
@@ -400,8 +413,6 @@ class is_liste_servir(models.Model):
                     key2=str(order[0])+"-"+str(order[1])
                     if key1==key2:
                         anomalie=""
-                        #if line.quantite>order[5]:
-                        #    anomalie="Qt en commande = "+ str(order[5])
                 line.anomalie=anomalie
                 if anomalie!="":
                     Test=False
@@ -416,7 +427,6 @@ class is_liste_servir(models.Model):
                     'domain': "[('id','in',[" + ','.join(map(str, list(ids))) + "])]",
                     'name': 'Commandes',
                     'view_mode': 'tree,form',
-                    #'context': {'tree_view_ref': 'sale.view_order_tree'},
                     'res_model': 'sale.order',
                     'type': 'ir.actions.act_window',
                 }
@@ -451,7 +461,6 @@ class is_liste_servir(models.Model):
                     vals={}
                     lines = []
                 mem=key
-
             quotation_line={
                 "product_id"         : line.product_id.id,
                 "sequence"           : 1,
@@ -463,6 +472,11 @@ class is_liste_servir(models.Model):
                 "is_date_livraison"  : line.date_livraison,
                 "is_date_expedition" : line.date_expedition,
                 "is_type_commande"   : 'ferme',
+
+                "is_date_heure_livraison_au_plus_tot": line.is_date_heure_livraison_au_plus_tot,
+                "is_numero_document"                 : line.is_numero_document,
+                "is_code_routage"                    : line.is_code_routage,
+                "is_point_destination"               : line.is_point_destination,
             }
             lines.append([0,False,quotation_line]) 
             values = {
@@ -517,8 +531,6 @@ class is_liste_servir(models.Model):
                         #*******************************************************
                     else:
                         reste=qty-quantite
-                        #self.env.context = self.with_context(no_compute_price_unit=True).env.context
-                        #order_line.with_context(no_compute_price_unit=True).write({'product_uom_qty':reste})
                         order_line.product_uom_qty = reste
                     quantite=quantite-qty
         #***********************************************************************
@@ -760,10 +772,15 @@ class is_liste_servir_line(models.Model):
     mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre", default=False)
     order_id           = fields.Many2one('sale.order', 'Commande', required=False, readonly=True)
     client_order_ref   = fields.Char('Cde Client', readonly=True)
-    point_dechargement = fields.Char(u'Point de déchargement', readonly=True)
+    point_dechargement = fields.Char('Point de déchargement', readonly=True)
     certificat_matiere = fields.Char('Certificat matiere', readonly=True)
     anomalie           = fields.Char('Commentaire')
     is_certificat_conformite_vsb = fields.Integer('Certificat de conformité', compute='_compute_is_certificat_conformite_vsb', store=False, readonly=True)
+
+    is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
+    is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplast")
+    is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplast")
+    is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplast")
 
 
     def pas_de_certifcat_action(self):
@@ -796,29 +813,6 @@ class is_liste_servir_line(models.Model):
                 'url': "https://dynacase-rp/?sole=Y&app=FDL&action=FDL_CARD&id="+docid,
                 'type': 'ir.actions.act_url',
             }
-
-
-    # def action_acceder_commande(self):
-    #     view_id = self.env.ref('sale.view_order_tree').id
-    #     for obj in self:
-    #         ids=[]
-    #         for id in obj.order_ids:
-    #             ids.append(id)
-
-
-    #         view_id = self.env.ref('sale.view_order_form').id
-    #         return {
-    #             'name': "Commande",
-    #             'view_mode': 'form',
-    #             'view_id': view_id,
-    #             'res_model': 'sale.order',
-    #             'type': 'ir.actions.act_window',
-    #             'res_id': id,
-    #             'domain': '[]',
-    #         }
-
-
-
 
 
     def action_acceder_article(self):

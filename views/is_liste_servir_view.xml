@@ -156,6 +156,12 @@
                                 <field name="mixer" widget="boolean_toggle"/>
                                 <field name="client_order_ref"  optional="show" readonly="1" />
                                 <field name="point_dechargement"  optional="show" />
+
+                                <field name="is_date_heure_livraison_au_plus_tot" optional="hide"/>
+                                <field name="is_numero_document"                  optional="hide"/>
+                                <field name="is_code_routage"                     optional="hide"/>
+                                <field name="is_point_destination"                optional="hide"/>
+
                                 <field name="certificat_matiere" invisible="1"/>
                                 <button 
                                     title="Voir le certificat matière" 
