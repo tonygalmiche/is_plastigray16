@@ -77,14 +77,18 @@ class is_reception_inter_site(models.Model):
                     pt.is_code,
                     sm.quantity_done,
                     sp.date_done,
-                    sm.id move_id
+                    sm.id move_id,
+                    sol.is_date_livraison
                 FROM stock_picking sp join stock_move       sm on sm.picking_id=sp.id
                                       join product_product  pp on sm.product_id=pp.id 
                                       join product_template pt on pp.product_tmpl_id=pt.id
+                                      join sale_order_line sol on sm.sale_line_id=sol.id 
                 WHERE 
                     sp.name='%s' and 
                     sp.state='done' and sm.state='done' and sp.picking_type_id=2
-                ORDER BY sm.sequence,sm.id
+
+
+                ORDER BY sol.is_date_livraison,pt.is_code
             """%(obj.num_bl)
             cr_liv.execute(SQL)
             rows_liv = cr_liv.fetchall()
@@ -106,7 +110,8 @@ class is_reception_inter_site(models.Model):
                         pt.is_code,
                         sm.product_uom_qty,
                         sm.id move_id,
-                        sm.location_dest_id
+                        sm.location_dest_id,
+                        sp.scheduled_date
                     FROM stock_picking sp join stock_move       sm on sm.picking_id=sp.id
                                         join product_product  pp on sm.product_id=pp.id 
                                         join product_template pt on pp.product_tmpl_id=pt.id
@@ -120,6 +125,7 @@ class is_reception_inter_site(models.Model):
                             sp.is_num_bl='%s' and
                             sp.is_reception_inter_site_id is Null 
                             -- and sm.product_uom_qty=%s
+                        ORDER BY sp.scheduled_date
                         limit 1
                     """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
                 else:
@@ -274,7 +280,18 @@ class is_reception_inter_site(models.Model):
                             picking.is_qt_livree_inter_site    = qt_scan # Quantitée scannée en livraison qu'il faudra réceptionner
                         #**********************************************************
 
-                        msg = "%s : %s Liv : %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(is_code.ljust(9), str(qt_liv).rjust(8),str(qt_rcp).rjust(8),num_rcp,str(qt_scan).rjust(8),str(qt_uc).rjust(8))
+
+
+                        msg = "%s : %s au %s Liv : %s au %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(
+                            is_code.ljust(9), 
+                            str(qt_liv).rjust(8), 
+                            row_liv['is_date_livraison'],
+                            str(qt_rcp).rjust(8),
+                            str(row['scheduled_date'])[0:10],  
+                            num_rcp,
+                            str(qt_scan).rjust(8),
+                            str(qt_uc).rjust(8)
+                        )
                         msg = msg.replace(' ', chr(160)) # Remplacer les espaces par des espaces insecables, sinon ils sont supprimés avec wkhtml2pdf
                         cr.commit()
                         if qt_rcp==qt_liv and qt_liv==qt_scan and qt_liv==qt_uc:
