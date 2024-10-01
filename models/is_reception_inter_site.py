@@ -111,10 +111,12 @@ class is_reception_inter_site(models.Model):
                         sm.product_uom_qty,
                         sm.id move_id,
                         sm.location_dest_id,
-                        sp.scheduled_date
-                    FROM stock_picking sp join stock_move       sm on sm.picking_id=sp.id
-                                        join product_product  pp on sm.product_id=pp.id 
-                                        join product_template pt on pp.product_tmpl_id=pt.id
+                        sp.scheduled_date,
+                        pol.date_planned
+                    FROM stock_picking sp join stock_move         sm on sm.picking_id=sp.id
+                                        join product_product      pp on sm.product_id=pp.id 
+                                        join product_template     pt on pp.product_tmpl_id=pt.id
+                                        join purchase_order_line pol on sm.purchase_line_id=pol.id
                 """
                 if obj.etat_reception=='fait':
                     SQL="""%s
@@ -125,7 +127,7 @@ class is_reception_inter_site(models.Model):
                             sp.is_num_bl='%s' and
                             sp.is_reception_inter_site_id is Null 
                             -- and sm.product_uom_qty=%s
-                        ORDER BY sp.scheduled_date
+                        ORDER BY pol.date_planned
                         limit 1
                     """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
                 else:
@@ -136,7 +138,7 @@ class is_reception_inter_site(models.Model):
                             sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
                             sp.is_reception_inter_site_id is Null 
                             -- and sm.product_uom_qty=%s
-                        ORDER BY sp.scheduled_date
+                        ORDER BY pol.date_planned
                         limit 1
                     """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
                 cr.execute(SQL)
@@ -287,7 +289,7 @@ class is_reception_inter_site(models.Model):
                             str(qt_liv).rjust(8), 
                             row_liv['is_date_livraison'],
                             str(qt_rcp).rjust(8),
-                            str(row['scheduled_date'])[0:10],  
+                            str(row['date_planned'])[0:10],  
                             num_rcp,
                             str(qt_scan).rjust(8),
                             str(qt_uc).rjust(8)
