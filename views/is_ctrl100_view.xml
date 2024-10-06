@@ -707,7 +707,7 @@
                     <field name="defautid"/>
                     <field name="defaut_id"/>
                     <field name="defaut_text"/>
-                    <field name="nb_pieces_controlees" sum="Total"/>
+                    <field name="nb_pieces_controlees"/>
                     <field name="nb_rebuts" sum="Total"/>
                     <field name="nb_repris" sum="Total"/>
                 </tree>
