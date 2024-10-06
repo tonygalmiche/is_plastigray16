@@ -103,7 +103,12 @@
                                 <field name="prix_origine" optional="show"/>
                                 <field name="prix" optional="show"/>
                                 <field name="total" optional="show" sum="Total"/>
-                                <field name="taxe_ids" widget="many2many_tags" optional="show"/>
+                                <field 
+                                    name="taxe_ids" 
+                                    widget="many2many_tags" 
+                                    optional="show" 
+                                    context="{'default_type_tax_use':'purchase', 'search_default_purchase': 1}"
+                                />
                                 <field name="taxe_taux" invisible="1"/>
                                 <field name="selection" optional="show" widget="boolean_toggle"/>
                                 <field name="move_id" invisible="1"/>
@@ -199,7 +204,11 @@
                             <field name="prix_origine"/>
                             <field name="prix"/>
                             <field name="total"/>
-                            <field name="taxe_ids" widget="many2many_tags"/>
+                            <field 
+                                name="taxe_ids" 
+                                widget="many2many_tags" 
+                                context="{'default_type_tax_use':'purchase', 'search_default_purchase': 1}"
+                            />
                             <field name="taxe_taux" invisible="1"/>
                             <field name="selection" widget="boolean_toggle"/>
                             <field name="move_id" invisible="1"/>
@@ -227,7 +236,12 @@
                     <field name="prix_origine" optional="show"/>
                     <field name="prix" optional="show"/>
                     <field name="total" sum="Total" optional="show"/>
-                    <field name="taxe_ids" widget="many2many_tags" optional="show"/>
+                    <field 
+                        name="taxe_ids" 
+                        widget="many2many_tags" 
+                        optional="show" 
+                        context="{'default_type_tax_use':'purchase', 'search_default_purchase': 1}"
+                    />
                     <field name="taxe_taux" invisible="1"/>
                     <field name="selection" widget="boolean_toggle" optional="show"/>
                     <field name="move_id" invisible="1"/>

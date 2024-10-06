@@ -474,7 +474,7 @@ class is_facturation_fournisseur_line(models.Model):
     prix                = fields.Float('Prix'          , digits=(14,4))
     prix_origine        = fields.Float("Prix d'origine", digits=(14,4), compute='_compute_prix_origine', readonly=True, store=True)
     total               = fields.Float("Total" , digits=(14,4), compute='_compute', readonly=True, store=False)
-    taxe_ids            = fields.Many2many('account.tax', 'is_facturation_fournisseur_line_taxe_ids', 'facturation_id', 'taxe_id', 'Taxes')
+    taxe_ids            = fields.Many2many('account.tax', 'is_facturation_fournisseur_line_taxe_ids', 'facturation_id', 'taxe_id', 'Taxes', domain=[('type_tax_use', '=', 'purchase')])
     taxe_taux           = fields.Float('Taux', compute='_compute', readonly=True, store=False)
     selection           = fields.Boolean('Sélection', default=True)
     move_id             = fields.Many2one('stock.move', 'Mouvement de stock')
