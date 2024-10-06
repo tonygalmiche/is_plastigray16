@@ -695,21 +695,21 @@
             <field name="model">is.ctrl100.ligne.saisie</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="gamme_id"/>
-                    <field name="tracabilite"/>
-                    <field name="product_id"/>
-                    <field name="production_id"/>
-                    <field name="picking_id"/>
-                    <field name="moule_dossierf"/>
-                    <field name="createur_id"/>
-                    <field name="date_saisie"/>
-                    <field name="employe_id"/>
-                    <field name="defautid"/>
-                    <field name="defaut_id"/>
-                    <field name="defaut_text"/>
-                    <field name="nb_pieces_controlees"/>
-                    <field name="nb_rebuts" sum="Total"/>
-                    <field name="nb_repris" sum="Total"/>
+                    <field name="gamme_id"             optional="show"/>
+                    <field name="tracabilite"          optional="show"/>
+                    <field name="product_id"           optional="show"/>
+                    <field name="production_id"        optional="show"/>
+                    <field name="picking_id"           optional="show"/>
+                    <field name="moule_dossierf"       optional="show"/>
+                    <field name="createur_id"          optional="show"/>
+                    <field name="date_saisie"          optional="show"/>
+                    <field name="employe_id"           optional="show"/>
+                    <field name="defautid"             optional="show"/>
+                    <field name="defaut_id"            optional="show"/>
+                    <field name="defaut_text"          optional="show"/>
+                    <field name="nb_pieces_controlees" optional="show"/>
+                    <field name="nb_rebuts"            optional="show" sum="Total"/>
+                    <field name="nb_repris"            optional="show" sum="Total"/>
                 </tree>
             </field>
         </record>
