@@ -159,6 +159,7 @@
 
                                 <field name="is_date_heure_livraison_au_plus_tot" optional="hide"/>
                                 <field name="is_numero_document"                  optional="hide"/>
+                                <field name="is_tg_number"                        optional="hide"/>
                                 <field name="is_code_routage"                     optional="hide"/>
                                 <field name="is_point_destination"                optional="hide"/>
 

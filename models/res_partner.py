@@ -365,6 +365,34 @@ class is_escompte(models.Model):
         return False
 
 
+class is_mode_transport(models.Model):
+    _name='is.mode.transport'
+    _description="Mode de transport"
+    _order='name'
+
+    name = fields.Char("Mode de transport", required=True)
+    is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
+    
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
+
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'is_database_origine_id': self.id
+        }
+        return vals
+
+
 class res_partner_category(models.Model):
     _inherit = 'res.partner.category'
 
@@ -407,6 +435,8 @@ class res_partner(models.Model):
 
     display_name            = fields.Char(string='Nom affiché', compute='_compute_display_name')
     is_transporteur_id      = fields.Many2one('res.partner', 'Transporteur')
+    is_mode_transport_id    = fields.Many2one('is.mode.transport', 'Mode de transport')
+    is_distance             = fields.Integer(string='Distance (km)')
     is_delai_transport      = fields.Integer('Delai de transport (jour)', default=0)
     is_livre_a_id           = fields.Many2one('res.partner', 'Livrer à', help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
     is_certificat_matiere   = fields.Boolean(u'Certificat matière demandé')

@@ -32,11 +32,18 @@
                     <field name="customer"/>
                     <field name="supplier"/>
                     <field name="is_incoterm" />
-                    <!-- <field name="is_achat_ville" groups="is_bon_achat_ville_grp"/> -->
                     <field name="is_lieu" />
                     <field 
                         name   = "is_transporteur_id" 
                         domain = "[('is_company', '=', True),('supplier','=', True)]" 
+                        attrs  = "{'invisible': [('is_company', '=', False)]}"
+                    />
+                    <field 
+                        name   = "is_mode_transport_id" 
+                        attrs  = "{'invisible': [('is_company', '=', False)]}"
+                    />
+                    <field 
+                        name   = "is_distance" 
                         attrs  = "{'invisible': [('is_company', '=', False)]}"
                     />
                     <field name="is_delai_transport" />
@@ -164,7 +171,6 @@
                                 <field name="mobile"/>
                                 <field name="email"/>
                                 <field name="is_database_line_ids" widget="many2many_tags"/>
-                                <!-- <field name="use_parent_address" invisible="1" /> -->
                             </tree>
                         </field>
                     </page>
@@ -440,6 +446,7 @@
                     <field name="is_type_contact"        optional="hide"/>
                 </field>
                 <field name="active" position="after">
+                    <field name="is_mode_transport_id"       optional="hide"/>
                     <field name="property_product_pricelist" optional="hide"/>
                     <field name="pricelist_purchase_id"      optional="hide"/>
                     <field name="is_database_origine_id"     optional="hide"/>
@@ -554,6 +561,8 @@
         </record>
 
 
+
+
         <!-- Taux d'escompte -->
         <record model="ir.ui.view" id="is_escompte_tree_view">
             <field name="name">is_escompte_tree_view</field>
@@ -571,6 +580,25 @@
         <record model="ir.actions.act_window" id="is_escompte_action">
             <field name="name">Escompte</field>
             <field name="res_model">is.escompte</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+        <!-- is.mode.transport -->
+        <record model="ir.ui.view" id="is_mode_transport_tree_view">
+            <field name="name">is_mode_transport_tree_view</field>
+            <field name="model">is.mode.transport</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="tree" editable="top">
+                    <field name="name"/>
+                    <field name="is_database_origine_id" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mode_transport_action">
+            <field name="name">Mode de transport</field>
+            <field name="res_model">is.mode.transport</field>
             <field name="view_mode">tree</field>
         </record>
 

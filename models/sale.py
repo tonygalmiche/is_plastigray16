@@ -474,10 +474,11 @@ class sale_order_line(models.Model):
     is_ref_plan           = fields.Char("Réf. plan", related='product_id.is_ref_plan', readonly=True)
     is_ind_plan           = fields.Char("Indice plan", related='product_id.is_ind_plan', readonly=True)
 
-    is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
-    is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplast")
-    is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplast")
-    is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplast")
+    is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
+    is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
+    is_tg_number                        = fields.Char('TG Number'        , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
 
 
     # Le 22/06/2020 à 12:02, Caroline CHEVALLIER a écrit :

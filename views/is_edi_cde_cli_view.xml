@@ -41,6 +41,7 @@
                     <field name="quantite"            sum="Total"/>
                     <field name="point_dechargement"    optional="show" />
                     <field name="numero_document"       optional="hide" />
+                    <field name="tg_number"             optional="hide" />
                     <field name="date_heure_livraison"  optional="hide" />
                     <field name="numero_identification" optional="hide" />
                     <field name="type_commande"/>
@@ -52,8 +53,6 @@
                 </tree>
             </field>
         </record>
-
-
         <record id="is_edi_cde_cli_line_tree_view_weidplast" model="ir.ui.view">
             <field name="name">is_edi_cde_cli_line_tree_view_weidplast</field>
             <field name="model">is.edi.cde.cli.line</field>
@@ -65,6 +64,7 @@
                     <field name="date_heure_livraison_au_plus_tot" optional="show" />
                     <field name="date_heure_livraison"             optional="show" />
                     <field name="numero_document"                  optional="show" />
+                    <field name="tg_number"                        optional="show" />
                     <field name="code_routage"                     optional="show" />
                     <field name="point_destination"                optional="show" />
                     <field name="point_dechargement"               optional="show" />
@@ -73,17 +73,13 @@
                     <field name="numero_identification"            optional="hide" />
                     <field name="type_commande"/>
                     <field name="prix"/>
-                    <field name="order_id"            readonly="0" widget="many2one_clickable"/>
-                    <field name="anomalie"/>
+                    <field name="order_id"            readonly="1" widget="many2one_clickable"/>
+                    <field name="anomalie"            readonly="0"/> 
                     <field name="file_id"             optional="hide" readonly="1"/>
                     <field name="write_date"          optional="hide" readonly="1" string="Date de modification"/>
                 </tree>
             </field>
         </record>
-
-
-
-
         <record id="is_edi_cde_cli_line_search_view" model="ir.ui.view">
             <field name="name">is_edi_cde_cli_line_search_view</field>
             <field name="model">is.edi.cde.cli.line</field>

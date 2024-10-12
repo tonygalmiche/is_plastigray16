@@ -267,18 +267,16 @@
                         domain="[('supplier','=',True),('is_company','=',True)]" 
                         attrs="{'invisible': [('sale_id', '=', False)]}"
                     /> 
-                    <!-- <field name="is_purchase_order_id"  attrs="{'invisible': [('purchase_id', '=', False)]}" readonly="1"/>  -->
-                    <field name="is_num_bl"             attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
-                    <field name="is_date_reception"     attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
+                    <field name="is_plaque_immatriculation" attrs="{'invisible': [('sale_id', '=', False)]}"  /> 
+                    <field name="is_identifiant_transport"  attrs="{'invisible': [('sale_id', '=', False)]}"  /> 
+                    <field name="is_num_bl"                 attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
+                    <field name="is_date_reception"         attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
                 </field>
                 <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
                     <attribute name="readonly">1</attribute>
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='company_id']" position="after">
                     <button title="Mouvement de stock" name="access_stock_move_action" type="object" icon="fa-search-plus"/>
-
-
-
                     <field name="is_certificat_conformite_vsb" invisible="1"/>
                     <button 
                         title="Certificat" 

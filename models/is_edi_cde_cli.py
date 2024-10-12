@@ -41,14 +41,15 @@ class is_edi_cde_cli_line(models.Model):
     anomalie              = fields.Text('Anomalie')
     file_id               = fields.Many2one('ir.attachment', 'Fichier')
 
-    date_heure_livraison_au_plus_tot = fields.Char('Livraison au plus tôt' , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
-    date_heure_livraison             = fields.Char('Livraison au plus tard', help="Champ 'DateHeurelivraisonAuPlusTard' pour EDI Weidplast")
-    numero_document                  = fields.Char('N°Document (CALDEL)'   , help="Champ 'NumeroDocument' pour EDI Weidplast")
-    code_routage                     = fields.Char('Code routage'          , help="Champ 'CodeRoutage' pour EDI Weidplast")
-    point_destination                = fields.Char('Point destination'     , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplast")
-    point_dechargement               = fields.Char('Point de déchargement' , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplast")
+    date_heure_livraison_au_plus_tot = fields.Char('Livraison au plus tôt' , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
+    date_heure_livraison             = fields.Char('Livraison au plus tard', help="Champ 'DateHeurelivraisonAuPlusTard' pour EDI Weidplas")
+    code_routage                     = fields.Char('Code routage'          , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    point_destination                = fields.Char('Point destination'     , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    point_dechargement               = fields.Char('Point de déchargement' , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
+    numero_document                  = fields.Char('N°Document (CALDEL)'   , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
+    tg_number                        = fields.Char('TG Number'             , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
 
-   
+
     def action_acceder_commande(self):
         view_id = self.env.ref('sale.view_order_form').id
         for obj in self:
@@ -253,6 +254,7 @@ class is_edi_cde_cli(models.Model):
                             'file_id'              : attachment.id,
                             'quantite'                         : ligne["quantite"],
                             'numero_document'                  : ligne.get('numero_document'),
+                            'tg_number'                        : ligne.get('tg_number'),
                             'numero_identification'            : ligne.get('numero_identification'),
                             'date_heure_livraison'             : ligne.get('date_heure_livraison'),
                             'date_heure_livraison_au_plus_tot' : ligne.get('date_heure_livraison_au_plus_tot'),
@@ -388,6 +390,7 @@ class is_edi_cde_cli(models.Model):
                                 'price_unit'          : line.prix,
                                 'is_date_heure_livraison_au_plus_tot': line.date_heure_livraison_au_plus_tot,
                                 'is_numero_document'                 : line.numero_document,
+                                'is_tg_number'                       : line.tg_number,
                                 'is_code_routage'                    : line.code_routage,
                                 'is_point_destination'               : line.point_destination,
                             }
@@ -1369,6 +1372,21 @@ class is_edi_cde_cli(models.Model):
 
     def get_data_STELLANTIS(self, attachment):
         res = []
+        def get_products(is_client_id=False,is_ref_client=False):
+            products=self.env['product.product'].search([
+                ('is_client_id' , '=', is_client_id),
+                ('is_ref_client', '=', is_ref_client),
+                ('is_gestionnaire_id', '!=', '04'), 
+                ('is_gestionnaire_id', '!=', '07'), 
+                ('is_gestionnaire_id', '!=', '12'), 
+                ('is_gestionnaire_id', '!=', '14'), 
+                ('is_gestionnaire_id', '!=', '23'), 
+                ('segment_id', 'not ilike', 'fictif'), 
+                ('segment_id', 'not ilike', 'fantome'), 
+                ('segment_id', 'not ilike', 'consommable'), 
+                ('segment_id', 'not ilike', 'comptable'),
+            ])
+            return products
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
@@ -1383,11 +1401,34 @@ class is_edi_cde_cli(models.Model):
                     num_commande_client=""
                     for NumeroArticleClient in article_programme.xpath("NumeroCommande"):
                         num_commande_client=NumeroArticleClient.text
+
+                    products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
+                    anomalie=[]
+                    if len(products)==0:
+                        anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+                    if len(products)>1:
+                        anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+
+                    product=False
+                    order_id=False
+                    if not len(anomalie):
+                        product=products[0]
+                        orders=self.env['sale.order'].search([
+                            ('partner_id.is_code', '=', obj.partner_id.is_code),
+                            ('is_ref_client'     , '=', ref_article_client),
+                            ('is_type_commande'  , '=', 'ouverte'),
+                            ('state'             , '=', 'draft'),
+                        ])
+                        for order in orders:
+                            order_id = order.id
+                            if order.client_order_ref!=num_commande_client:
+                                anomalie.append("Commande EDI client '%s' différente de la commande Odoo '%s'"%(num_commande_client,order.client_order_ref))
                     point_dechargement=False
                     for POINT_DE_DECHARGEMENT in article_programme.xpath("POINT_DE_DECHARGEMENT"):
                         for CodeIdentificationPointDechargement in POINT_DE_DECHARGEMENT.xpath("CodeIdentificationPointDechargement"):
                             point_dechargement = CodeIdentificationPointDechargement.text
                     val = {
+                        'order_id'           : order_id,
                         'ref_article_client' : ref_article_client,
                         'num_commande_client': num_commande_client,
                         'point_dechargement' : point_dechargement,
@@ -1416,9 +1457,11 @@ class is_edi_cde_cli(models.Model):
                                 quantite=0
 
                         ligne = {
-                            'quantite'      : quantite,
-                            'type_commande' : type_commande,
-                            'date_livraison': date_livraison,
+                            'quantite'          : quantite,
+                            'type_commande'     : type_commande,
+                            'date_livraison'    : date_livraison,
+                            'point_dechargement': point_dechargement,
+                            'anomalie'          : '\n'.join(anomalie),
                         }
                         res1.append(ligne)
                     val.update({'lignes':res1})
@@ -1429,28 +1472,17 @@ class is_edi_cde_cli(models.Model):
                 for partie_citee in caldel.xpath("SEQUENCE_PRODUCTION"):
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
-                        products=self.env['product.product'].search([
-                            ('is_client_id' , '=', obj.partner_id.id),
-                            ('is_ref_client', '=', ref_article_client),
-                            ('is_gestionnaire_id', '!=', '04'), 
-                            ('is_gestionnaire_id', '!=', '07'), 
-                            ('is_gestionnaire_id', '!=', '12'), 
-                            ('is_gestionnaire_id', '!=', '14'), 
-                            ('is_gestionnaire_id', '!=', '23'), 
-                            ('segment_id', 'not ilike', 'fictif'), 
-                            ('segment_id', 'not ilike', 'fantome'), 
-                            ('segment_id', 'not ilike', 'consommable'), 
-                            ('segment_id', 'not ilike', 'comptable'),
-                        ])
-                        anomalie=False
+                        tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
+                        products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
+                        anomalie=[]
                         if len(products)==0:
-                            anomalie=u"Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
+                            anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
                         if len(products)>1:
-                            anomalie=u"Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code)
+                            anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
                         num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
                         product=False
                         order_id=False
-                        if not anomalie:
+                        if not len(anomalie):
                             product=products[0]
                             orders=self.env['sale.order'].search([
                                 ('partner_id.is_code', '=', obj.partner_id.is_code),
@@ -1460,6 +1492,8 @@ class is_edi_cde_cli(models.Model):
                             ])
                             for order in orders:
                                 order_id = order.id
+                                if order.client_order_ref!=num_commande_client:
+                                    anomalie.append("Commande EDI client '%s' différente de la commande Odoo '%s'"%(num_commande_client,order.client_order_ref))
                         val = {
                             'order_id'           : order_id,
                             'ref_article_client' : ref_article_client,
@@ -1494,9 +1528,10 @@ class is_edi_cde_cli(models.Model):
                                 'quantite'             : quantite,
                                 'type_commande'        : 'ferme',
                                 'date_livraison'       : date_livraison,
-                                'anomalie'             : anomalie,
+                                'anomalie'             : '\n'.join(anomalie),
                                 'point_dechargement'   : point_dechargement,
-                                'numero_document'      : numero_document,
+                                'numero_document'      : numero_document,  # N°UM de PSA 
+                                'tg_number'            : tg_number,        # N°UM de Weidplas
                                 'numero_identification': numero_identification,
                                 'date_heure_livraison'             : date_heure_livraison,
                                 'date_heure_livraison_au_plus_tot' : date_heure_livraison_au_plus_tot,

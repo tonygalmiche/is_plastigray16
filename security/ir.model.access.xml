@@ -233,6 +233,14 @@
         <field name="perm_unlink" eval="True"/>
         <field name="perm_create" eval="True"/>
     </record>
+
+
+
+
+
+
+
+
     <record id="is_emb_emplacement_access"  model="ir.model.access" >
         <field name="name">is_emb_emplacement_access</field>
         <field name="model_id"    eval="ref('model_is_emb_emplacement')"/>

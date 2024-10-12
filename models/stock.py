@@ -117,6 +117,9 @@ class stock_picking(models.Model):
     is_qt_livree_inter_site    = fields.Float("Qt livrée inter-site", digits=(12, 6), copy=False)
     is_location_dest_prevu_id  = fields.Many2one('stock.location', 'Emplacement', help="Emplacement de destination du premier mouvement", compute='_compute_is_location_mouvement_id', store=False, readonly=True)
 
+    is_plaque_immatriculation = fields.Char("Plaque d’immatriculation", copy=False)
+    is_identifiant_transport  = fields.Char("N° identifiant transport", copy=False)
+
 
     @api.depends('move_ids_without_package')
     def _compute_is_location_mouvement_id(self):

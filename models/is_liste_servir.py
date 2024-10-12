@@ -265,12 +265,11 @@ class is_liste_servir(models.Model):
                     sol.product_uom_qty, 
                     sol.price_unit, 
                     sol.is_justification,
-
                     sol.is_date_heure_livraison_au_plus_tot,
                     sol.is_numero_document,
+                    sol.is_tg_number,
                     sol.is_code_routage,
                     sol.is_point_destination
-
             from sale_order so inner join sale_order_line sol on so.id=sol.order_id 
             where so.partner_id="""+str(obj.partner_id.id)+""" 
                   and so.state='draft' 
@@ -389,6 +388,7 @@ class is_liste_servir(models.Model):
 
                         'is_date_heure_livraison_au_plus_tot': row['is_date_heure_livraison_au_plus_tot'],
                         'is_numero_document'                 : row['is_numero_document'],
+                        'is_tg_number'                       : row['is_tg_number'],
                         'is_code_routage'                    : row['is_code_routage'],
                         'is_point_destination'               : row['is_point_destination'],
                     }
@@ -472,9 +472,9 @@ class is_liste_servir(models.Model):
                 "is_date_livraison"  : line.date_livraison,
                 "is_date_expedition" : line.date_expedition,
                 "is_type_commande"   : 'ferme',
-
                 "is_date_heure_livraison_au_plus_tot": line.is_date_heure_livraison_au_plus_tot,
                 "is_numero_document"                 : line.is_numero_document,
+                "is_tg_number"                       : line.is_tg_number,
                 "is_code_routage"                    : line.is_code_routage,
                 "is_point_destination"               : line.is_point_destination,
             }
@@ -777,10 +777,11 @@ class is_liste_servir_line(models.Model):
     anomalie           = fields.Char('Commentaire')
     is_certificat_conformite_vsb = fields.Integer('Certificat de conformité', compute='_compute_is_certificat_conformite_vsb', store=False, readonly=True)
 
-    is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplast")
-    is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplast")
-    is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplast")
-    is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplast")
+    is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
+    is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
+    is_tg_number                        = fields.Char('TG Number'        , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
 
 
     def pas_de_certifcat_action(self):
