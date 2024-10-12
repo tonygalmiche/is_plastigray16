@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from odoo import models,fields,api
+from odoo import models,fields,api           # type: ignore
 import datetime
 import pytz
-import psycopg2
-import psycopg2.extras
-from odoo.exceptions import ValidationError
+import psycopg2                              # type: ignore
+import psycopg2.extras                       # type: ignore
+from odoo.exceptions import ValidationError  # type: ignore
 import logging
 _logger = logging.getLogger(__name__)
 

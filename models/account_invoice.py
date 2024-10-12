@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models,fields,api
-from odoo.exceptions import AccessError, ValidationError, UserError
+from odoo import models,fields,api  # type: ignore
+from odoo.exceptions import AccessError, ValidationError, UserError  # type: ignore
 import time
 from datetime import date, datetime
 import base64
 import os
 #from pyPdf import PdfFileWriter, PdfFileReader
-from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
+from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger  # type: ignore
 import tempfile
 
 

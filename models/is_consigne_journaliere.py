@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #from turtle import title
-from odoo import models,fields,api
+from odoo import models,fields,api # type: ignore
 import datetime
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg2 # type: ignore
+from psycopg2.extras import RealDictCursor  # type: ignore
 import logging
 _logger = logging.getLogger(__name__)
 
