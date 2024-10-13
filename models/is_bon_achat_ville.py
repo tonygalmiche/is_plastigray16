@@ -52,8 +52,8 @@ class is_bon_achat_ville(models.Model):
 
 
     name                 = fields.Char("N° de bon d'achat en ville", readonly=True)
-    createur_id          = fields.Many2one('res.users', 'Demandeur', required=True, default=lambda self: self.env.uid)
-    date_demande         = fields.Date("Date de la demande", required=True        , default=lambda *a: fields.datetime.now())
+    createur_id          = fields.Many2one('res.users', 'Demandeur', required=True, default=lambda self: self.env.uid, copy=False)
+    date_demande         = fields.Date("Date de la demande", required=True        , default=lambda *a: fields.datetime.now(), copy=False)
     responsable_id       = fields.Many2one('res.users', 'Responsable', required=True, domain=lambda self: [( "groups_id", "=", self.env.ref("is_plastigray16.is_bon_achat_ville_grp").id)])
     fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', domain=[('is_achat_ville','=',True)], required=True)
     #pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.property_product_pricelist_purchase', readonly=True)
