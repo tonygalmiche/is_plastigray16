@@ -283,13 +283,13 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="designation"/>
-                    <field name="project" widget="many2one_clickable"/>
-                    <field name="client_id" widget="many2one_clickable"/> 
-                    <field name="chef_projet_id"/>
-                    <field name="dossierf_id" widget="many2one_clickable"/>
-                    <field name="dossierf_ids" widget="many2many_tags"/>
-                    <field name="nb_empreintes"/>
+                    <field name="designation"      optional="show"/>
+                    <field name="project"          optional="show" widget="many2one_clickable"/>
+                    <field name="client_id"        optional="show" widget="many2one_clickable"/> 
+                    <field name="chef_projet_id"   optional="show" />
+                    <field name="dossierf_id"      optional="show" widget="many2one_clickable"/>
+                    <field name="dossierf_ids"     optional="show" widget="many2many_tags"/>
+                    <field name="nb_empreintes"    optional="show"/>
                     <field name="moule_a_version"  optional="show"/>
                     <field name="lieu_changement"  optional="show"/>
                     <field name="temps_changement" optional="show"/>
@@ -298,11 +298,12 @@
                     <field name="mouliste_id"      optional="show"  /> 
                     <field name="carcasse"         optional="show"/>
                     <field name="emplacement"      optional="show"/>
+                    <field name="fiche_description_commentaire" optional="show"/>
                     <field name="is_database_id"   optional="show"/>
-                    <field name="create_date" optional="hide"/>
-                    <field name="create_uid"  optional="hide"/>
-                    <field name="write_date"  optional="hide"/>
-                    <field name="write_uid"   optional="hide"/>
+                    <field name="create_date"      optional="hide"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_date"       optional="hide"/>
+                    <field name="write_uid"        optional="hide"/>
                     <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
