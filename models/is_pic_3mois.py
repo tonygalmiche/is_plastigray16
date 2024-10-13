@@ -70,6 +70,11 @@ class sale_order(models.Model):
         periodicite = periodicite or 7
         nb_lig      = nb_lig or 100
 
+        # #** Valeur par défaut des listes de choix *****************************
+        type_cde         = type_cde or 'Toutes'
+        type_client      = type_client or '90xx'
+        prod_st          = prod_st or ''
+        affiche_col_vide = affiche_col_vide or 'Oui'
 
         #Liste de choix *******************************************************
         options = ["Ferme", "Prev", "Toutes"]
