@@ -301,16 +301,8 @@ class is_mold(models.Model):
     createur_fiche_id             = fields.Many2one("res.users", string=u'Créateur Fiche')
     date_creation_fiche           = fields.Date(string=u'Date Création Fiche')
     date_modification_fiche       = fields.Date(string='Date Modfication Fiche')
-
-
-    # def write(self, vals):
-    #     if 'periodicite_maintenance_moule' in vals:
-    #         nb = self.nb_cycles_dernier_preventif+vals['periodicite_maintenance_moule']-self.nb_cycles_actuel
-    #         vals['nb_cycles_avant_preventif'] = nb
-    #     res = super(is_mold, self).write(vals)
-    #     return res
-
-
+    active      = fields.Boolean("Active", default=True, copy=False)
+    dynacase_id = fields.Integer(string="Id Dynacase",index=True,copy=False)
 
 
     def write(self, vals):
@@ -353,6 +345,7 @@ class is_mold(models.Model):
             'extension_garantie': self.extension_garantie,
             'is_database_id'        : self._get_is_database_id(DB, USERID, USERPASS, sock),
             'is_database_origine_id': self.id,
+            'active'                : self.active,
         }
         return vals
 

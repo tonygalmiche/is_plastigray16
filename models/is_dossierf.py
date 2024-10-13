@@ -15,6 +15,9 @@ class is_dossierf(models.Model):
     mold_ids        = fields.One2many('is.mold', 'dossierf_id', u"Moules")
     is_database_id         = fields.Many2one('is.database', "Site")
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
+    active      = fields.Boolean("Active", default=True, copy=False)
+    dynacase_id = fields.Integer(string="Id Dynacase",index=True,copy=False)
+
 
     def write(self, vals):
         res=super().write(vals)
@@ -36,6 +39,7 @@ class is_dossierf(models.Model):
             'mold_ids'              : self._get_mold_ids(DB, USERID, USERPASS, sock),
             'is_database_id'        : self._get_is_database_id(DB, USERID, USERPASS, sock),
             'is_database_origine_id': self.id,
+            'active'                : self.active,
         }
         return vals
     
