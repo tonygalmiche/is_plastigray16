@@ -345,7 +345,7 @@ class product_product(models.Model):
                     "product_tmpl_id": product_tmpl.id,
                     "code_pg"    : row["code_pg"],
                     "designation": row["designation"],
-                    "cout"       : cout,
+                    "cout"       : cout or 0,
                     "lot_mini"   : row["lot_mini"],
                     "multiple"   : row["multiple"],
                     "StockSecu"  : row["is_stock_secu"],
