@@ -40,9 +40,12 @@ class is_jour_ferie(models.Model):
     jour_fixe = fields.Boolean('jour férié fixe',  help="Cocher pour préciser que ce jour férié est valable tous les ans")
 
 
-    def get_jours_feries(self):
+    def get_jours_feries(self, ladate=False):
         dates=[]
-        year = datetime.today().year
+        if ladate:
+            year = ladate.year
+        else:
+            year = datetime.today().year
         lines = self.env['is.jour.ferie'].search([])
         for line in lines:
             ladate = line.date

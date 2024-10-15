@@ -300,19 +300,11 @@ class is_demande_conges(models.Model):
         if emp_id:
             res['valideur_n1'] = emp_id.is_valideur_n1.id
             res['valideur_n2'] = emp_id.is_valideur_n2.id
-
-        print("## default_get : res=",res)
-
         return res
 
 
     @api.onchange('employe_id')
     def _onchange_employe_id(self):
-
-        print("## _onchange_employe_id",self.employe_id.is_valideur_n1.name,self.employe_id.is_valideur_n2.name)
-
-
-
         if self.employe_id and self.employe_id.user_id:
             self.demandeur_id = self.employe_id.user_id.id
             self.valideur_n1  = self.employe_id.is_valideur_n1.id
@@ -747,9 +739,13 @@ class is_demande_conges(models.Model):
     def get_jours_ouvres(self,date_debut,date_fin):
         "Compte les jours ouvrés entre 2 dates en enlevant les wwek-end et jours fériés"
         for obj in self:
-            jours_feries = self.env['is.jour.ferie'].get_jours_feries()
             nb_jours=0
             nb = (date_fin-date_debut).days+1
+            jours_feries = []
+            ladate = date_debut
+            for d in range(0,nb):
+                jours_feries += self.env['is.jour.ferie'].get_jours_feries(ladate)
+                ladate += timedelta(days=1)
             ladate = date_debut
             for d in range(0,nb):
                 if ladate.isoweekday() not in (6,7):
