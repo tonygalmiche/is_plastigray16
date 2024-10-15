@@ -31,7 +31,7 @@ class is_liste_servir_client(models.Model):
         for obj in self:
             liste_servir_obj = self.env['is.liste.servir']
             liste_servir_ids = liste_servir_obj.search([('partner_id','=',obj.name.id),('state','!=','traite')])
-            obj.listes_servir = '<br/>'.join([liste.name for liste in liste_servir_ids])
+            obj.listes_servir = '\n'.join([liste.name for liste in liste_servir_ids])
 
     def _compute_nb_liste_servir(self):
         for obj in self:
@@ -56,10 +56,22 @@ class is_liste_servir_client(models.Model):
                 'date_fin'             : obj.date_fin,
                 'livrable'             : obj.livrable,
             }
+            listes_servir = []
             if obj.name.is_caracteristique_liste_a_servir == 'status_aqp':
                 for aqp in [True, False]:
                     liste_servir = liste_servir_obj.create(vals)
                     liste_servir.action_importer_commandes(aqp)
+                    if not liste_servir.line_ids:
+                        liste_servir.unlink()
+                    else:
+                        listes_servir.append(liste_servir)
+            else:
+                liste_servir = liste_servir_obj.create(vals)
+                liste_servir.action_importer_commandes()
+                #obj.liste_servir_id=liste_servir.id
+                listes_servir.append(liste_servir)
+
+            if len(listes_servir) == 2:
                 return {
                     'name': 'ls',
                     'view_mode': 'tree,form',
@@ -72,19 +84,13 @@ class is_liste_servir_client(models.Model):
                     'type': 'ir.actions.act_window',
                     'limit': 1000,
                 }
-            else:
-                liste_servir = liste_servir_obj.create(vals)
-                liste_servir.action_importer_commandes()
-
-                obj.liste_servir_id=liste_servir.id
-
-                return {
-                    'name': "Liste à servir",
-                    'view_mode': 'form',
-                    'res_model': 'is.liste.servir',
-                    'type': 'ir.actions.act_window',
-                    'res_id': liste_servir.id,
-                }
+            return {
+                'name': "Liste à servir",
+                'view_mode': 'form',
+                'res_model': 'is.liste.servir',
+                'type': 'ir.actions.act_window',
+                'res_id': listes_servir[0].id,
+            }
 
     def liste_servir_action(self):
         for obj in self:
@@ -98,19 +104,18 @@ class is_liste_servir_client(models.Model):
                     'res_id': liste_servir_ids[0].id,
                     'type': 'ir.actions.act_window',
                 }
-            else:
-                return {
-                    'name': 'ls',
-                    'view_mode': 'tree,form',
-                    'view_type': 'form',
-                    'res_model': 'is.liste.servir',
-                    'domain': [
-                        ('partner_id' ,'=',obj.name.id),
-                        ('state','!=','traite'),
-                    ],
-                    'type': 'ir.actions.act_window',
-                    'limit': 1000,
-                }
+            return {
+                'name': 'ls',
+                'view_mode': 'tree,form',
+                'view_type': 'form',
+                'res_model': 'is.liste.servir',
+                'domain': [
+                    ('partner_id' ,'=',obj.name.id),
+                    ('state','!=','traite'),
+                ],
+                'type': 'ir.actions.act_window',
+                'limit': 1000,
+            }
 
 
 
