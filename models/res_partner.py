@@ -453,38 +453,42 @@ class res_partner(models.Model):
     is_code_destinataire                  = fields.Char(string='Code Destinataire (CN)')
     is_code_destinataire_agence           = fields.Char(string='Code Destinataire Agence (CN)')
 
-    is_raison_sociale2      = fields.Char('Raison sociale 2')
-    is_code                 = fields.Char('Code'        , index=True)
-    is_adr_code             = fields.Char('Code adresse', index=True, default=0)
-    is_rue3                 = fields.Char('Rue 3 ou Boite Postale')
-    is_secteur_activite     = fields.Many2one('is.secteur.activite', "Secteur d'activité")
-    is_type_contact         = fields.Many2one('is.type.contact', "Type de contact")
-    is_adr_facturation      = fields.Many2one('res.partner', 'Adresse de facturation')
-    is_adr_groupe           = fields.Char('Code auxiliaire comptable', help="Code auxiliaire comptable de l'adresse groupe pour la comptabilité")
-    is_cofor                = fields.Char('N° fournisseur (COFOR)', help="Notre code fourniseur chez le client")
-    is_incoterm             = fields.Many2one('account.incoterms', "Incoterm  / Conditions de livraison")
-    is_lieu                 = fields.Char("Lieu")
-    is_escompte             = fields.Many2one('is.escompte', "Escompte")
-    is_type_reglement       = fields.Many2one('account.journal', u'Type règlement', domain=[('type', 'in', ['bank','cash'])])
-    is_num_siret            = fields.Char(u'N° de SIRET')
-    is_code_client          = fields.Char('Code client', help=u'Notre code client chez le fourniseur')
-    is_segment_achat        = fields.Many2one('is.segment.achat', "Segment d'achat")
-    is_famille_achat_ids    = fields.Many2many('is.famille.achat', "is_famille_achat_res_partner_rel", 'partner_id', 'famille_id', string="Famille d'achat")
-    is_fournisseur_imp      = fields.Boolean(u'Fournisseur imposé')
-    is_fournisseur_da_fg    = fields.Boolean(u'Fournisseur pour DA-FG', default=False)
-    is_site_livre_ids       = fields.Many2many('is.site', "is_site_res_partner_rel", 'partner_id', 'site_id', string='sites livrés')
-    is_groupage             = fields.Boolean('Groupage')
-    is_tolerance_delai      = fields.Boolean('Tolérance sur délai')
-    is_nb_jours_tolerance   = fields.Integer('Nb jours tolérance sur délai')
-    is_tolerance_quantite   = fields.Boolean('Tolérance sur quantité')
-    is_transmission_cde     = fields.Many2one('is.transmission.cde', 'Mode de transmission des commandes')
-    is_certifications       = fields.One2many('is.certifications.qualite', 'partner_id', u'Certification qualité')
-    is_type_contact         = fields.Many2one('is.type.contact', "Type de contact")
-    is_source_location_id   = fields.Many2one('stock.location', 'Source Location', default=_get_default_location) 
-    is_rib_id               = fields.Many2one('res.partner.bank', 'RIB') 
-    is_adr_liv_sur_facture  = fields.Boolean(u"Afficher l'adresse de livraison sur la facture", default=True)
-    is_num_autorisation_tva = fields.Char("N° d'autorisation", help="N° d'autorisation de franchise de taxe")
-    is_caracteristique_bl   = fields.Selection([
+    is_raison_sociale2                    = fields.Char('Raison sociale 2')
+    is_code                               = fields.Char('Code'        , index=True)
+    is_adr_code                           = fields.Char('Code adresse', index=True, default=0)
+    is_rue3                               = fields.Char('Rue 3 ou Boite Postale')
+    is_secteur_activite                   = fields.Many2one('is.secteur.activite', "Secteur d'activité")
+    is_type_contact                       = fields.Many2one('is.type.contact', "Type de contact")
+    is_adr_facturation                    = fields.Many2one('res.partner', 'Adresse de facturation')
+    is_adr_groupe                         = fields.Char('Code auxiliaire comptable', help="Code auxiliaire comptable de l'adresse groupe pour la comptabilité")
+    is_cofor                              = fields.Char('N° fournisseur (COFOR)', help="Notre code fourniseur chez le client")
+    is_incoterm                           = fields.Many2one('account.incoterms', "Incoterm  / Conditions de livraison")
+    is_lieu                               = fields.Char("Lieu")
+    is_escompte                           = fields.Many2one('is.escompte', "Escompte")
+    is_type_reglement                     = fields.Many2one('account.journal', u'Type règlement', domain=[('type', 'in', ['bank','cash'])])
+    is_num_siret                          = fields.Char(u'N° de SIRET')
+    is_code_client                        = fields.Char('Code client', help=u'Notre code client chez le fourniseur')
+    is_segment_achat                      = fields.Many2one('is.segment.achat', "Segment d'achat")
+    is_famille_achat_ids                  = fields.Many2many('is.famille.achat', "is_famille_achat_res_partner_rel", 'partner_id', 'famille_id', string="Famille d'achat")
+    is_fournisseur_imp                    = fields.Boolean(u'Fournisseur imposé')
+    is_fournisseur_da_fg                  = fields.Boolean(u'Fournisseur pour DA-FG', default=False)
+    is_site_livre_ids                     = fields.Many2many('is.site', "is_site_res_partner_rel", 'partner_id', 'site_id', string='sites livrés')
+    is_groupage                           = fields.Boolean('Groupage')
+    is_tolerance_delai                    = fields.Boolean('Tolérance sur délai')
+    is_nb_jours_tolerance                 = fields.Integer('Nb jours tolérance sur délai')
+    is_tolerance_quantite                 = fields.Boolean('Tolérance sur quantité')
+    is_transmission_cde                   = fields.Many2one('is.transmission.cde', 'Mode de transmission des commandes')
+    is_certifications                     = fields.One2many('is.certifications.qualite', 'partner_id', u'Certification qualité')
+    is_type_contact                       = fields.Many2one('is.type.contact', "Type de contact")
+    is_source_location_id                 = fields.Many2one('stock.location', 'Source Location', default=_get_default_location) 
+    is_rib_id                             = fields.Many2one('res.partner.bank', 'RIB') 
+    is_adr_liv_sur_facture                = fields.Boolean(u"Afficher l'adresse de livraison sur la facture", default=True)
+    is_num_autorisation_tva               = fields.Char("N° d'autorisation", help="N° d'autorisation de franchise de taxe")
+    is_caracteristique_liste_a_servir     = fields.Selection([
+        ('point_de_chargement' , 'par point de chargement'),
+        ('status_aqp'          , 'par status AQP'),
+    ], 'Caractéristique liste à servir')
+    is_caracteristique_bl                 = fields.Selection([
         ('cde_odoo'   , '1 commande Odoo = 1 BL'),
         ('cde_client' , '1 commande client = 1 BL'),
         ('ref_article', '1 référence client = 1 BL'),
@@ -657,6 +661,7 @@ class res_partner(models.Model):
             'is_certifications'     :  self._get_is_certifications(DB, USERID, USERPASS, sock),
             'is_adr_liv_sur_facture' : self.is_adr_liv_sur_facture,
             'is_num_autorisation_tva': self.is_num_autorisation_tva,
+            'is_caracteristique_liste_a_servir'  : self.is_caracteristique_liste_a_servir,
             'is_caracteristique_bl'  : self.is_caracteristique_bl,
             'is_mode_envoi_facture'  : self.is_mode_envoi_facture,
             'is_database_line_ids'   : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),

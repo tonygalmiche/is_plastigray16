@@ -18,6 +18,8 @@ class is_liste_servir_client(models.Model):
 
     name            = fields.Many2one('res.partner', 'Client')
     liste_servir_id = fields.Many2one('is.liste.servir', 'Liste à servir')
+    listes_servir   = fields.Text("Listes à servir", compute='_compute_aff_listes_servir', readonly=True, store=False)
+    nb_liste_servir = fields.Integer("Nombre de listes à servir", compute='_compute_nb_liste_servir', readonly=True, store=False)
     zip             = fields.Char('Code postal')
     city            = fields.Char('Ville')
     delai_transport = fields.Integer('Délai de transport')
@@ -25,7 +27,19 @@ class is_liste_servir_client(models.Model):
     date_fin        = fields.Date("Date de fin d'expédition")
     livrable        = fields.Boolean("Livrable")
 
-    def action_creer_liste_servir(self):
+    def _compute_aff_listes_servir(self):
+        for obj in self:
+            liste_servir_obj = self.env['is.liste.servir']
+            liste_servir_ids = liste_servir_obj.search([('partner_id','=',obj.name.id),('state','!=','traite')])
+            obj.listes_servir = '<br/>'.join([liste.name for liste in liste_servir_ids])
+
+    def _compute_nb_liste_servir(self):
+        for obj in self:
+            liste_servir_obj = self.env['is.liste.servir']
+            liste_servir_ids = liste_servir_obj.search([('partner_id','=',obj.name.id),('state','!=','traite')])
+            obj.nb_liste_servir = len(liste_servir_ids)
+
+    def creer_liste_servir_action(self):
         for obj in self:
             liste_servir_obj = self.env['is.liste.servir']
 
@@ -42,29 +56,62 @@ class is_liste_servir_client(models.Model):
                 'date_fin'             : obj.date_fin,
                 'livrable'             : obj.livrable,
             }
-            liste_servir=liste_servir_obj.create(vals)
-            liste_servir.action_importer_commandes()
+            if obj.name.is_caracteristique_liste_a_servir == 'status_aqp':
+                for aqp in [True, False]:
+                    liste_servir = liste_servir_obj.create(vals)
+                    liste_servir.action_importer_commandes(aqp)
+                return {
+                    'name': 'ls',
+                    'view_mode': 'tree,form',
+                    'view_type': 'form',
+                    'res_model': 'is.liste.servir',
+                    'domain': [
+                        ('partner_id' ,'=',obj.name.id),
+                        ('state','!=','traite'),
+                    ],
+                    'type': 'ir.actions.act_window',
+                    'limit': 1000,
+                }
+            else:
+                liste_servir = liste_servir_obj.create(vals)
+                liste_servir.action_importer_commandes()
 
-            obj.liste_servir_id=liste_servir.id
+                obj.liste_servir_id=liste_servir.id
 
-            return {
-                'name': "Liste à servir",
-                'view_mode': 'form',
-                'res_model': 'is.liste.servir',
-                'type': 'ir.actions.act_window',
-                'res_id': liste_servir.id,
-            }
+                return {
+                    'name': "Liste à servir",
+                    'view_mode': 'form',
+                    'res_model': 'is.liste.servir',
+                    'type': 'ir.actions.act_window',
+                    'res_id': liste_servir.id,
+                }
 
-
-    def action_voir_liste_servir(self):
+    def liste_servir_action(self):
         for obj in self:
-            return {
-                'name': "Liste à servir",
-                'view_mode': 'form',
-                'res_model': 'is.liste.servir',
-                'type': 'ir.actions.act_window',
-                'res_id': obj.liste_servir_id.id,
-            }
+            if obj.nb_liste_servir == 1:
+                liste_servir_obj = self.env['is.liste.servir']
+                liste_servir_ids = liste_servir_obj.search([('partner_id','=',obj.name.id),('state','!=','traite')])
+                return {
+                    'name': 'ls',
+                    'view_mode': 'form',
+                    'res_model': 'is.liste.servir',
+                    'res_id': liste_servir_ids[0].id,
+                    'type': 'ir.actions.act_window',
+                }
+            else:
+                return {
+                    'name': 'ls',
+                    'view_mode': 'tree,form',
+                    'view_type': 'form',
+                    'res_model': 'is.liste.servir',
+                    'domain': [
+                        ('partner_id' ,'=',obj.name.id),
+                        ('state','!=','traite'),
+                    ],
+                    'type': 'ir.actions.act_window',
+                    'limit': 1000,
+                }
+
 
 
 class is_liste_servir(models.Model):
@@ -255,29 +302,35 @@ class is_liste_servir(models.Model):
         self.um_ids=um_ids
 
 
-    def _get_sql(self,obj):
+    def _get_sql(self,obj, aqp=None):
         SQL="""
-            select  sol.order_id, 
-                    sol.product_id, 
+            SELECT  sol.order_id,
+                    sol.product_id,
                     sol.is_client_order_ref,
-                    sol.is_date_livraison, 
-                    sol.is_date_expedition, 
-                    sol.product_uom_qty, 
-                    sol.price_unit, 
+                    sol.is_date_livraison,
+                    sol.is_date_expedition,
+                    sol.product_uom_qty,
+                    sol.price_unit,
                     sol.is_justification,
                     sol.is_date_heure_livraison_au_plus_tot,
                     sol.is_numero_document,
                     sol.is_tg_number,
                     sol.is_code_routage,
                     sol.is_point_destination
-            from sale_order so inner join sale_order_line sol on so.id=sol.order_id 
-            where so.partner_id="""+str(obj.partner_id.id)+""" 
-                  and so.state='draft' 
-                  and sol.is_date_expedition<='"""+str(obj.date_fin)+"""' 
-                  and sol.product_id>0
-                  and sol.is_type_commande='ferme' 
-                  and so.is_type_commande!='ls' 
+            FROM sale_order so INNER JOIN sale_order_line sol ON so.id=sol.order_id
+            """
+        if aqp is not None:
+            SQL+="INNER JOIN product_product pp ON pp.id=sol.product_id INNER JOIN product_template pt ON pp.product_tmpl_id=pt.id "
+        SQL+="""
+            WHERE so.partner_id="""+str(obj.partner_id.id)+"""
+                  AND so.state='draft'
+                  AND sol.is_date_expedition<='"""+str(obj.date_fin)+"""'
+                  AND sol.product_id>0
+                  AND sol.is_type_commande='ferme'
+                  AND so.is_type_commande!='ls'
         """
+        if aqp is not None:
+            SQL+="and pt.is_livree_aqp=" + str(aqp).upper() + " "
         if obj.date_debut:
             SQL=SQL+" and sol.is_date_expedition>='"+str(obj.date_debut)+"' "
         if obj.partner_id.is_caracteristique_bl=='cde_client':
@@ -288,7 +341,7 @@ class is_liste_servir(models.Model):
         return SQL
 
 
-    def action_importer_commandes(self):
+    def action_importer_commandes(self, aqp=None):
         cr = self._cr
         for obj in self:
             #** Connexion à Dynacase *******************************************
@@ -308,7 +361,7 @@ class is_liste_servir(models.Model):
 
             for row in obj.line_ids:
                 row.unlink()
-            SQL=self._get_sql(obj)
+            SQL=self._get_sql(obj, aqp)
             cr.execute(SQL)
             #result = cr.fetchall()
             result = cr.dictfetchall()

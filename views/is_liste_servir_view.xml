@@ -11,10 +11,11 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="tree" create="false" >
-                    <button title="Créer Liste à servir" name="action_creer_liste_servir" type="object" icon="fa-plus"    attrs="{'invisible':[('liste_servir_id','!=',False)]}" />
+                    <button title="Créer Liste à servir" name="creer_liste_servir_action" type="object" icon="fa-plus"    attrs="{'invisible':[('nb_liste_servir','!=',0)]}" />
                     <field name="name" domain="[('customer','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
-                    <!-- <button title="Voir la liste à servir" name="action_voir_liste_servir" type="object" icon="fa-search-plus" attrs="{'invisible':[('liste_servir_id','=',False)]}" /> -->
-                    <field name="liste_servir_id" widget="many2one_clickable"/>
+                    <button title="Voir les listes à servir" name="liste_servir_action" type="object" icon="fa-list" attrs="{'invisible':[('nb_liste_servir','=',0)]}" />
+                    <field name="listes_servir" optional="show"/>
+                    <field name="nb_liste_servir" invisible="1" />
                     <field name="zip"/>
                     <field name="city"/>
                     <field name="delai_transport"/>

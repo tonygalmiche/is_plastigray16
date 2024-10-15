@@ -308,10 +308,11 @@
                             <field string="Conditions de paiement client" name="property_payment_term_id" options="{'no_open': True, 'no_create': True}" groups="account.group_account_invoice,account.group_account_readonly"/>
                             <field name="is_cofor" attrs="{'invisible': [('customer', '!=', True)] }"/>
                             <field name="is_escompte" />
-                            <field name="is_caracteristique_bl"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                            <field name="is_mode_envoi_facture"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                            <field name="is_rib_id"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                            <field name="is_adr_liv_sur_facture" attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_caracteristique_liste_a_servir"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_caracteristique_bl"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_mode_envoi_facture"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_rib_id"                          attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_adr_liv_sur_facture"             attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                         </group>
                     </group>
 
