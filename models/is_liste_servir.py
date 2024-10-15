@@ -395,6 +395,7 @@ class is_liste_servir(models.Model):
                 #***************************************************************
 
                 stock01 = product.get_stock('f', '01')
+                lots01 = product.get_stock_lot('01')
                 stocka  = product.get_stock('f')
                 stockq  = product.get_stock('t')
                 qt=row['product_uom_qty']
@@ -439,6 +440,7 @@ class is_liste_servir(models.Model):
                         'quantite'          : qt,
                         'livrable'          : livrable,
                         'stock01'           : stock01,
+                        'lots01'            : lots01,
                         'stocka'            : stocka,
                         'stockq'            : stockq,
                         'certificat_matiere': certificat_matiere,
@@ -787,8 +789,6 @@ class is_liste_servir_line(models.Model):
                         obj.stocka_uc  = stocka_uc
                         obj.stockq_uc  = stockq_uc
 
-
-
     def _compute_is_certificat_conformite_vsb(self):
         for obj in self:
             vsb = False
@@ -810,6 +810,7 @@ class is_liste_servir_line(models.Model):
     mold_dossierf      = fields.Char('Moule / Dossier F', compute='_compute', readonly=True, store=True)
 
     stock01            = fields.Float('Stock 01 US' , help="Stock 01 en US")
+    lots01             = fields.Text('Lots 01 US')
     stocka             = fields.Float('Stock A US'  , help="Stock A en US")
     stockq             = fields.Float('Stock Q US'  , help="Stock Q en US")
 
@@ -832,7 +833,7 @@ class is_liste_servir_line(models.Model):
     client_order_ref   = fields.Char('Cde Client', readonly=True)
     point_dechargement = fields.Char('Point de déchargement', readonly=True)
     certificat_matiere = fields.Char('Certificat matiere', readonly=True)
-    anomalie           = fields.Char('Commentaire')
+    anomalie           = fields.Char('Commentaire', invisible=1)
     is_certificat_conformite_vsb = fields.Integer('Certificat de conformité', compute='_compute_is_certificat_conformite_vsb', store=False, readonly=True)
 
     is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")

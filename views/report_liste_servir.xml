@@ -132,6 +132,7 @@
                                                 <th class="text-center" style="vertical-align:top">Date<br />Exp/Liv</th>
         
                                                 <th class="text-right"  style="vertical-align:top">Stock 01 US</th>
+                                                <th class="text-left"  style="vertical-align:top">Lots 01 US</th>
                                                 <th class="text-right"  style="vertical-align:top">Stock A US</th>
                                                 <th class="text-right"  style="vertical-align:top">Stock Q US</th>
                                                 <th class="text-right"  style="vertical-align:top">Qt CDE<br />US</th>
@@ -148,7 +149,7 @@
         
                                                 <th class="text-right"  style="vertical-align:top">Poids<br />net<br />brut</th>
                                                 <th class="text-center" style="vertical-align:top">Mixer</th>
-                                                <th class="text-left"   style="vertical-align:top">Commentaire</th>
+                                                <!--th class="text-left"   style="vertical-align:top">Commentaire</th-->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -174,8 +175,11 @@
                                                             <span t-field="l.date_livraison"/>
                                                         </td>
         
-                                                        <td class="text-right nowrap">   
+                                                        <td class="text-right nowrap">
                                                             <t t-esc='"{:,.1f}".format(l.stock01).replace(","," ").replace(".",",")'/> 
+                                                        </td>
+                                                        <td class="text-right nowrap">
+                                                            <span t-field="l.lots01"/>
                                                         </td>
                                                         <td class="text-right nowrap">   
                                                             <t t-esc='"{:,.1f}".format(l.stocka).replace(","," ").replace(".",",")'/> 
@@ -218,7 +222,7 @@
         
                                                         <td class="text-center"><t t-if="l.mixer">x</t></td>
         
-                                                        <td class="text-left">    <span t-field="l.anomalie"/> </td>
+                                                        <!--td class="text-left">    <span t-field="l.anomalie"/> </td-->
                                                     </tr>
                                                 </t>
                                             </t>

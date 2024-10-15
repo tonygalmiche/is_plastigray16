@@ -139,6 +139,7 @@
                                 <field name="date_expedition" optional="show"/>
 
                                 <field name="stock01" optional="show"/>
+                                <field name="lots01" optional="hide"/>
                                 <field name="stocka" optional="show"/>
                                 <field name="stockq" optional="show"/>
                                 <field name="quantite" optional="show"/>

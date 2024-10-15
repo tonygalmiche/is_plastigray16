@@ -840,10 +840,6 @@ class product_product(models.Model):
 
         return ids
 
-
-
-
-
     #def get_stock(self, product_id, control_quality=False, location=False):
     def get_stock(self, control_quality=False, location=False):
         cr=self._cr
@@ -863,6 +859,23 @@ class product_product(models.Model):
             stock=row[0] or 0
         return stock
 
+    def get_stock_lot(self, location=False):
+        cr=self._cr
+        SQL = """
+            select lot.name, sum(sq.quantity)
+            from stock_quant sq inner join stock_location sl on sq.location_id=sl.id INNER JOIN stock_lot lot ON sq.lot_id=lot.id
+            where sq.product_id="""+str(self.id)+""" 
+                  and sl.usage='internal' and sl.active='t'
+            """
+        if location:
+            SQL += " and sl.name='"+str(location)+"' "
+        SQL += "group by lot.name order by lot.name;"
+        cr.execute(SQL)
+        result = cr.fetchall()
+        lots = []
+        for row in result:
+            lots.append(f'{row[0]} : {row[1]}')
+        return '\n'.join(lots)
 
     def init(self):
         start = time.time()
