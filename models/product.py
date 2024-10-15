@@ -874,7 +874,7 @@ class product_product(models.Model):
         result = cr.fetchall()
         lots = []
         for row in result:
-            lots.append(f'{row[0]} : {row[1]}')
+            lots.append(f'{row[0]}:{int(row[1])}')
         return '\n'.join(lots)
 
     def init(self):

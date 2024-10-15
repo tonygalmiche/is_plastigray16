@@ -172,7 +172,7 @@
                                     context="{'certificat_matiere': certificat_matiere}"
                                     icon="fa-search-plus" attrs="{'invisible':[('certificat_matiere','=',False)]}" 
                                 />
-                                <field name="anomalie"  optional="show"/>
+                                <field name="anomalie" invisible="1"/>
                             </tree>
                         </field>
                         <field name="uc_ids" nolabel="1">

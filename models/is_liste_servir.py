@@ -833,7 +833,7 @@ class is_liste_servir_line(models.Model):
     client_order_ref   = fields.Char('Cde Client', readonly=True)
     point_dechargement = fields.Char('Point de déchargement', readonly=True)
     certificat_matiere = fields.Char('Certificat matiere', readonly=True)
-    anomalie           = fields.Char('Commentaire', invisible=1)
+    anomalie           = fields.Char('Commentaire')
     is_certificat_conformite_vsb = fields.Integer('Certificat de conformité', compute='_compute_is_certificat_conformite_vsb', store=False, readonly=True)
 
     is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
