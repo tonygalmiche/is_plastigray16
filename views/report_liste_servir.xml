@@ -178,7 +178,7 @@
                                                         <td class="text-right nowrap">
                                                             <t t-esc='"{:,.1f}".format(l.stock01).replace(","," ").replace(".",",")'/> 
                                                         </td>
-                                                        <td class="text-right nowrap">
+                                                        <td class="text-left nowrap">
                                                             <span t-field="l.lots01"/>
                                                         </td>
                                                         <td class="text-right nowrap">   
