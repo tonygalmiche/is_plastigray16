@@ -663,7 +663,8 @@ class is_cout_calcul(models.Model):
 
         cout=self.creation_cout(cout_calcul_obj, product, type_article)
 
-
+        cout_mat = cout_mat or 0
+        cout_st  = cout_st or 0
 
         self.detail_nomenclature.append({
             'product_id'  : product.id,
