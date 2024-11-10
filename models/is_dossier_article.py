@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
+from odoo.exceptions import ValidationError
 import datetime
 import pytz
-
-#import os
 from subprocess import PIPE, Popen
-
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from odoo.exceptions import ValidationError
 import logging
 _logger = logging.getLogger(__name__)
 
 
 class is_dossier_article(models.Model):
     _name = 'is.dossier.article'
-    _description = u"Dossier article"
+    _inherit=['mail.thread']
+    _description = "Dossier article"
     _rec_name = 'code_pg'
     _order = 'code_pg'
 
-    code_pg       = fields.Char(u'Code PG', index=True, required=True)
+
+    type_dossier = fields.Selection([
+        ("matiere",   "Matière"),
+        ("colorant",  "Colorant"),
+        ("composant", "Composant"),
+    ], string="Type dossier", required=True, default='matiere', tracking=True)
+    code_pg           = fields.Char(u'Code PG', index=True, required=True)
     designation       = fields.Char(u"Désignation")
     moule             = fields.Char(u"Moule")
     famille           = fields.Char(u"Famille", index=True)
@@ -73,6 +77,7 @@ class is_dossier_article(models.Model):
     code_recyclage_id   = fields.Many2one('is.dossier.article.code.recyclage', u"Code recyclage") #: menu déroulant : A,B…
     controle_qualite    = fields.Char(u"Contrôle qualité") #: champ libre : attention : champ présent dans onglet information à transférer dans ce nouvel onglet : attention lien avec les réceptions.
     conditions_stockage = fields.Char(u"Conditions de stockage")
+    active              = fields.Boolean('Actif', default=True, tracking=True)
 
 
     @api.depends('code_pg')
