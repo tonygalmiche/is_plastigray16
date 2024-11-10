@@ -1780,7 +1780,7 @@
             ref('is_base_principale_grp'),
         ])]"/>
     </record>
-    <record id="is_dossier_article_menu" model="ir.ui.menu" >
+    <!-- <record id="is_dossier_article_menu" model="ir.ui.menu" >
         <field name="name">Dossiers articles</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('is_dossier_article_main_menu')"/>
@@ -1798,20 +1798,21 @@
             ref('is_base_principale_grp'),
         ])]"/>
     </record>
-    <record id="is_dossier_article_actualiser_menu" model="ir.ui.menu" >
-        <field name="name">Actualiser Dossier article</field>
-        <field name="sequence">20</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
-        <field name="action"    ref="is_dossier_article_actions_server"/>
+    </record> -->
+
+
+    <record id="is_dossier_article_table_menu" model="ir.ui.menu" >
+        <field name="name">Tables</field>
+        <field name="sequence">90</field>
+        <field name="parent_id" eval="ref('is_dossier_article_main_menu')"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_gestionnaire_dossier_article_grp'),
+            ref('is_gestionnaire_tables_group'),
         ])]"/>
     </record>
-
     <record id="is_dossier_article_code_recyclage_menu" model="ir.ui.menu" >
         <field name="name">Code recyclage</field>
         <field name="sequence">30</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_code_recyclage_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1820,7 +1821,7 @@
     <record id="is_dossier_article_combustion_menu" model="ir.ui.menu" >
         <field name="name">Combustion</field>
         <field name="sequence">31</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_combustion_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1829,7 +1830,7 @@
     <record id="is_dossier_article_durete_menu" model="ir.ui.menu" >
         <field name="name">Dureté</field>
         <field name="sequence">32</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_durete_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1838,7 +1839,7 @@
     <record id="is_dossier_article_gamme_commerciale_menu" model="ir.ui.menu" >
         <field name="name">Gamme commerciale</field>
         <field name="sequence">33</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_gamme_commerciale_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1847,7 +1848,7 @@
     <record id="is_dossier_article_producteur_menu" model="ir.ui.menu" >
         <field name="name">Producteur</field>
         <field name="sequence">34</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_producteur_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1856,7 +1857,7 @@
     <record id="is_dossier_article_traitement_menu" model="ir.ui.menu" >
         <field name="name">Traitement</field>
         <field name="sequence">35</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_traitement_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1865,7 +1866,7 @@
     <record id="is_dossier_article_type_article_menu" model="ir.ui.menu" >
         <field name="name">Type charge</field>
         <field name="sequence">36</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_type_article_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
@@ -1874,7 +1875,7 @@
     <record id="is_dossier_article_utilisation_menu" model="ir.ui.menu" >
         <field name="name">Utilisation</field>
         <field name="sequence">37</field>
-        <field name="parent_id" eval="ref('is_dossier_article_menu')"/>
+        <field name="parent_id" eval="ref('is_dossier_article_table_menu')"/>
         <field name="action"    ref="is_dossier_article_utilisation_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_gestionnaire_tables_group'),
