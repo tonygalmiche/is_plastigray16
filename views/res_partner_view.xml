@@ -32,6 +32,7 @@
                     <field name="customer"/>
                     <field name="supplier"/>
                     <field name="is_incoterm" />
+                    <field name="is_achat_ville" groups="is_plastigray16.is_bon_achat_ville_grp"/>
                     <field name="is_lieu" />
                     <field 
                         name   = "is_transporteur_id" 

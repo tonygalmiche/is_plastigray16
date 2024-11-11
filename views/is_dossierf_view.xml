@@ -12,25 +12,30 @@
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <group>
-                            <field name="name"/>
-                            <field name="designation"/>
-                            <field name="project"/>
-                            <field name="client_id" domain="[('customer','=',True),('is_company','=',True)]"/>
-                            <field name="chef_projet_id"/>
-                            <field name="is_database_id"/>
-                        </group>
-                        <field name="mold_ids" nolabel="1" readonly="1">
-                            <tree>
-                                <button string="Moule"   name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
+                            <group name="identification">
                                 <field name="name"/>
                                 <field name="designation"/>
-                            </tree>
-                        </field>
+                                <field name="project"/>
+                                <field name="client_id" domain="[('customer','=',True),('is_company','=',True)]"/>
+                                <field name="chef_projet_id"/>
+                                <field name="is_database_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Moules">
+                                <field name="mold_ids" nolabel="1" readonly="1" colspan="2">
+                                    <tree>
+                                        <button title="Moule" name="action_acceder_moule"  type="object" icon="fa-search-plus"/>
+                                        <field name="name"/>
+                                        <field name="designation"/>
+                                    </tree>    
+                                </field>
+                            </group>
+                        </group>
                     </sheet>
                 </form>
             </field>
         </record>
-
         <record model="ir.ui.view" id="is_dossierf_tree_view">
             <field name="name">is_dossierf_tree_view</field>
             <field name="model">is.dossierf</field>
