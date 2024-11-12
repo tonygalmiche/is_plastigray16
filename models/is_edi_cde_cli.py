@@ -1372,21 +1372,23 @@ class is_edi_cde_cli(models.Model):
 
     def get_data_STELLANTIS(self, attachment):
         res = []
-        def get_products(is_client_id=False,is_ref_client=False):
-            products=self.env['product.product'].search([
-                ('is_client_id' , '=', is_client_id),
-                ('is_ref_client', '=', is_ref_client),
-                ('is_gestionnaire_id', '!=', '04'), 
-                ('is_gestionnaire_id', '!=', '07'), 
-                ('is_gestionnaire_id', '!=', '12'), 
-                ('is_gestionnaire_id', '!=', '14'), 
-                ('is_gestionnaire_id', '!=', '23'), 
-                ('segment_id', 'not ilike', 'fictif'), 
-                ('segment_id', 'not ilike', 'fantome'), 
-                ('segment_id', 'not ilike', 'consommable'), 
-                ('segment_id', 'not ilike', 'comptable'),
-            ])
-            return products
+        # def get_products(is_client_id=False,is_ref_client=False):
+        #     products=self.env['product.product'].search([
+        #         ('is_client_id' , '=', is_client_id),
+        #         ('is_ref_client', '=', is_ref_client),
+        #         ('is_gestionnaire_id', '!=', '04'), 
+        #         ('is_gestionnaire_id', '!=', '07'), 
+        #         ('is_gestionnaire_id', '!=', '12'), 
+        #         ('is_gestionnaire_id', '!=', '14'), 
+        #         ('is_gestionnaire_id', '!=', '23'), 
+        #         ('segment_id', 'not ilike', 'fictif'), 
+        #         ('segment_id', 'not ilike', 'fantome'), 
+        #         ('segment_id', 'not ilike', 'consommable'), 
+        #         ('segment_id', 'not ilike', 'comptable'),
+        #     ])
+        #     return products
+        
+
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
@@ -1402,23 +1404,30 @@ class is_edi_cde_cli(models.Model):
                     for NumeroArticleClient in article_programme.xpath("NumeroCommande"):
                         num_commande_client=NumeroArticleClient.text
 
-                    products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                     anomalie=[]
-                    if len(products)==0:
-                        anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                    if len(products)>1:
-                        anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
 
-                    product=False
+                    # products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
+                    # if len(products)==0:
+                    #     anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+                    # if len(products)>1:
+                    #     anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+
+
+
+
+                    #product=False
                     order_id=False
                     if not len(anomalie):
-                        product=products[0]
+                        #product=products[0]
                         orders=self.env['sale.order'].search([
-                            ('partner_id.is_code', '=', obj.partner_id.is_code),
-                            ('is_ref_client'     , '=', ref_article_client),
-                            ('is_type_commande'  , '=', 'ouverte'),
-                            ('state'             , '=', 'draft'),
+                            ('partner_id.is_code', '=' , obj.partner_id.is_code),
+                            ('is_ref_client'     , '=' , ref_article_client),
+                            ('is_type_commande'  , '=' , 'ouverte'),
+                            ('state'             , '=' , 'draft'),
+                            ('client_order_ref'  , '!=', 'PREVISIONS'),
                         ])
+
+
                         for order in orders:
                             order_id = order.id
                             if order.client_order_ref!=num_commande_client:
@@ -1443,11 +1452,17 @@ class is_edi_cde_cli(models.Model):
                             type_commande="previsionnel"
                         else:
                             type_commande="ferme"
+
                         date_livraison=""
-                        for DateHeureLivraisonAuPlusTot in detail_programme.xpath("DateHeureLivraison"):
+                        for DateHeureLivraisonAuPlusTot in detail_programme.xpath("DateHeurelivraisonAuPlusTot"):
                             date_livraison=DateHeureLivraisonAuPlusTot.text[:8]
+
+                        if date_livraison=='':
+                            for DateHeureLivraisonAuPlusTot in detail_programme.xpath("DateHeureLivraisonAuPlusTot"):
+                                date_livraison=DateHeureLivraisonAuPlusTot.text[:8]
                         if date_livraison!="":
                             date_livraison=datetime.strptime(date_livraison, '%Y%m%d')
+
                         quantite=""
                         for QuantiteALivrer in detail_programme.xpath("QuantiteALivrer"):
                             quantite=QuantiteALivrer.text
@@ -1473,22 +1488,23 @@ class is_edi_cde_cli(models.Model):
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
                         tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
-                        products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
+                        #products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                         anomalie=[]
-                        if len(products)==0:
-                            anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                        if len(products)>1:
-                            anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+                        # if len(products)==0:
+                        #     anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+                        # if len(products)>1:
+                        #     anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
                         num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
-                        product=False
+                        #product=False
                         order_id=False
                         if not len(anomalie):
-                            product=products[0]
+                            #product=products[0]
                             orders=self.env['sale.order'].search([
                                 ('partner_id.is_code', '=', obj.partner_id.is_code),
                                 ('is_ref_client'     , '=', ref_article_client),
                                 ('is_type_commande'  , '=', 'ouverte'),
                                 ('state'             , '=', 'draft'),
+                                #('client_order_ref'  , '!=', 'PREVISIONS'),
                             ])
                             for order in orders:
                                 order_id = order.id
@@ -1500,8 +1516,8 @@ class is_edi_cde_cli(models.Model):
                             'num_commande_client': num_commande_client,
                             'lignes'             : []
                         }
-                        if product:
-                            val["product"]=product
+                        #if product:
+                        #    val["product"]=product
                         point_dechargement = False
                         code_routage       = False
                         point_destination  = False
