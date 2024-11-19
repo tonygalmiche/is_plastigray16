@@ -88,6 +88,8 @@
                                 <field name="commentaire" attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="mixer"         widget="boolean_toggle"/>
                                 <field name="saut_page_aqp" widget="boolean_toggle"/>
+                                <field name="is_point_dechargement" attrs="{'readonly':[('state','!=','creation')]}"/>
+                                <field name="is_livree_aqp" attrs="{'readonly':[('state','!=','creation')]}"/>
                             </group>
                             <group>
                                 <field name="is_source_location_id"/> 
