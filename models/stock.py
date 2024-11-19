@@ -118,6 +118,7 @@ class stock_picking(models.Model):
     is_location_dest_prevu_id  = fields.Many2one('stock.location', 'Emplacement', help="Emplacement de destination du premier mouvement", compute='_compute_is_location_mouvement_id', store=False, readonly=True)
 
     is_plaque_immatriculation = fields.Char("Plaque d’immatriculation", copy=False)
+    is_dossier_transport      = fields.Char("N° de dossier de transport ", copy=False)
     is_identifiant_transport  = fields.Char("N° identifiant transport", copy=False)
 
 

@@ -126,7 +126,7 @@
                                 <div>
                                     <span>Arrivée le : </span>
                                     <span t-field="o.is_date_livraison" t-options='{"format": "dd/MM/yyyy"}'/>
-                                    <span>à : ?? </span>
+                                    <span>à :</span>
                                 </div>
                             </td>
                         </tr>
@@ -253,7 +253,7 @@
                             <td style="width:42mm" class="adresse">
                                 <div>
                                     N° de véhicule moteur : <b><span t-field="o.is_plaque_immatriculation" /></b><br />
-                                    N° de dossier de transport : <b>??</b> <br />
+                                    N° de dossier de transport : <b><span t-field="o.is_dossier_transport" /></b> <br />
                                     Mode de transport : <b><span t-field="o.partner_id.is_mode_transport_id.name" /></b> <br />
                                     Port : <b><span t-field="o.partner_id.is_incoterm.name"/></b><br />
                                     Identification transport : <b><span t-field="o.is_identifiant_transport" /></b>
@@ -274,7 +274,7 @@
                             <td style="width:42mm" class="adresse">
                                 <div class="titre-adresse">LIEU DE TRANSIT</div>
                                 <div>
-                                    <b>??</b>
+                                    <b></b>
                                 </div>
                             </td>
 
