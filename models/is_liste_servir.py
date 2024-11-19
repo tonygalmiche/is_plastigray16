@@ -407,7 +407,7 @@ class is_liste_servir(models.Model):
         return SQL
 
 
-    def action_importer_commandes(self, aqp, point_dechargement):
+    def action_importer_commandes(self, aqp=None, point_dechargement=None):
         cr = self._cr
         for obj in self:
             #** Connexion à Dynacase *******************************************
