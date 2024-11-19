@@ -487,6 +487,7 @@ class res_partner(models.Model):
     is_caracteristique_liste_a_servir     = fields.Selection([
         ('point_de_chargement' , 'par point de chargement'),
         ('status_aqp'          , 'par status AQP'),
+        ('point_de_chargement_et_status_aqp'          , 'par point de chargement et status AQP'),
     ], 'Caractéristique liste à servir')
     is_caracteristique_bl                 = fields.Selection([
         ('cde_odoo'   , '1 commande Odoo = 1 BL'),

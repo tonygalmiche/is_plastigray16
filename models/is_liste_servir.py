@@ -39,6 +39,53 @@ class is_liste_servir_client(models.Model):
             liste_servir_ids = liste_servir_obj.search([('partner_id','=',obj.name.id),('state','!=','traite')])
             obj.nb_liste_servir = len(liste_servir_ids)
 
+    def _get_sql(self, obj, aqp):
+        SQL="""
+            SELECT  sol.product_id,
+            """
+        if aqp:
+            SQL += """
+                    pt.is_livree_aqp,
+               """
+        SQL += """                    so.is_point_dechargement
+            FROM sale_order so INNER JOIN sale_order_line sol ON so.id=sol.order_id
+            """
+        if aqp:
+            SQL += """
+            INNER JOIN product_product pp ON pp.id=sol.product_id INNER JOIN product_template pt ON pp.product_tmpl_id=pt.id
+            """
+        SQL += """
+            WHERE so.partner_id=""" + str(obj.name.id) + """
+                  AND so.state='draft'
+                  AND sol.is_date_expedition<='"""+str(obj.date_fin)+"""'
+                  AND sol.product_id>0
+                  AND sol.is_type_commande='ferme'
+                  AND so.is_type_commande!='ls'
+        """
+        if obj.date_debut:
+            SQL=SQL+" and sol.is_date_expedition>='"+str(obj.date_debut)+"' "
+        return SQL
+
+    def points_dechargement_and_aqp(self, obj, aqp=False):
+        points_dechargement = []
+        SQL = self._get_sql(obj, aqp)
+        self._cr.execute(SQL)
+        result = self._cr.dictfetchall()
+        if aqp:
+            lst_aqp = []
+        for row in result:
+            point_dechargement = row['is_point_dechargement']
+            if point_dechargement not in points_dechargement:
+                points_dechargement.append(point_dechargement)
+            if aqp and row['is_livree_aqp'] not in lst_aqp:
+                lst_aqp.append(row['is_livree_aqp'])
+
+        if not points_dechargement:
+            points_dechargement.append(None)
+        if aqp:
+            return points_dechargement, lst_aqp
+        return points_dechargement
+
     def creer_liste_servir_action(self):
         for obj in self:
             liste_servir_obj = self.env['is.liste.servir']
@@ -57,21 +104,31 @@ class is_liste_servir_client(models.Model):
                 'livrable'             : obj.livrable,
             }
             listes_servir = []
-            if obj.name.is_caracteristique_liste_a_servir == 'status_aqp':
-                for aqp in [True, False]:
+            if not obj.name.is_caracteristique_liste_a_servir:
+                points_dechargement = [None]
+                lst_aqp = [None]
+            elif obj.name.is_caracteristique_liste_a_servir == 'status_aqp':
+                points_dechargement = [None]
+                lst_aqp = [True, False]
+            elif obj.name.is_caracteristique_liste_a_servir == 'point_de_chargement':
+                points_dechargement = self.points_dechargement_and_aqp(obj, False)
+                lst_aqp = [None]
+            elif obj.name.is_caracteristique_liste_a_servir == 'point_de_chargement_et_status_aqp':
+                points_dechargement, lst_aqp = self.points_dechargement_and_aqp(obj, True)
+            for aqp in lst_aqp:
+                for point_dechargement in points_dechargement:
                     liste_servir = liste_servir_obj.create(vals)
-                    liste_servir.action_importer_commandes(aqp)
+                    liste_servir.action_importer_commandes(aqp, point_dechargement)
                     if not liste_servir.line_ids:
                         liste_servir.unlink()
                     else:
+                        if point_dechargement:
+                            liste_servir.is_point_dechargement = point_dechargement
+                        if aqp is not None:
+                            liste_servir.is_livree_aqp = aqp
                         listes_servir.append(liste_servir)
-            else:
-                liste_servir = liste_servir_obj.create(vals)
-                liste_servir.action_importer_commandes()
-                #obj.liste_servir_id=liste_servir.id
-                listes_servir.append(liste_servir)
 
-            if len(listes_servir) == 2:
+            if len(listes_servir) > 1:
                 return {
                     'name': 'ls',
                     'view_mode': 'tree,form',
@@ -177,8 +234,10 @@ class is_liste_servir(models.Model):
     galia_um_ids           = fields.One2many('is.galia.base.um', 'liste_servir_id', u"UMs scannées", readonly=True)
     uc_non_affectes        = fields.Integer(u"UCs non affectés")
     is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
-    mixer              = fields.Boolean('Mixer', default=False)
-    saut_page_aqp      = fields.Boolean('Saut de page AQP', default=False)
+    mixer                  = fields.Boolean('Mixer', default=False)
+    saut_page_aqp          = fields.Boolean('Saut de page AQP', default=False)
+    is_point_dechargement  = fields.Char('Point de déchargement')
+    is_livree_aqp          = fields.Boolean('Pièce livrée en AQP')
 
 
     @api.onchange('mixer')
@@ -307,7 +366,7 @@ class is_liste_servir(models.Model):
         self.um_ids=um_ids
 
 
-    def _get_sql(self,obj, aqp=None):
+    def _get_sql(self,obj, aqp=None, point_dechargement=None):
         SQL="""
             SELECT  sol.order_id,
                     sol.product_id,
@@ -336,6 +395,8 @@ class is_liste_servir(models.Model):
         """
         if aqp is not None:
             SQL+="and pt.is_livree_aqp=" + str(aqp).upper() + " "
+        if point_dechargement is not None:
+            SQL+="and so.is_point_dechargement='" + point_dechargement + "' "
         if obj.date_debut:
             SQL=SQL+" and sol.is_date_expedition>='"+str(obj.date_debut)+"' "
         if obj.partner_id.is_caracteristique_bl=='cde_client':
@@ -346,7 +407,7 @@ class is_liste_servir(models.Model):
         return SQL
 
 
-    def action_importer_commandes(self, aqp=None):
+    def action_importer_commandes(self, aqp, point_dechargement):
         cr = self._cr
         for obj in self:
             #** Connexion à Dynacase *******************************************
@@ -366,7 +427,7 @@ class is_liste_servir(models.Model):
 
             for row in obj.line_ids:
                 row.unlink()
-            SQL=self._get_sql(obj, aqp)
+            SQL=self._get_sql(obj, aqp, point_dechargement)
             cr.execute(SQL)
             #result = cr.fetchall()
             result = cr.dictfetchall()
@@ -413,19 +474,18 @@ class is_liste_servir(models.Model):
                 test=True
                 if obj.livrable==True and livrable==False:
                     test=False
-
-                point_dechargement = False
-                if obj.partner_id.is_traitement_edi:
-                    filtre = [
-                        ('partner_id'            , '=', obj.partner_id.id),
-                        ('is_article_commande_id', '=', product_id),
-                        ('is_type_commande'      , '=', 'ouverte'),
-                        ('state'                 , '=', 'draft'),
-                    ]
-                    orders = self.env['sale.order'].search(filtre)
-                    for order in orders:
-                        point_dechargement = order.is_point_dechargement
-
+#
+#                point_dechargement = False
+#                if obj.partner_id.is_traitement_edi:
+#                    filtre = [
+#                        ('partner_id'            , '=', obj.partner_id.id),
+#                        ('is_article_commande_id', '=', product_id),
+#                        ('is_type_commande'      , '=', 'ouverte'),
+#                        ('state'                 , '=', 'draft'),
+#                    ]
+#                    orders = self.env['sale.order'].search(filtre)
+#                    for order in orders:
+#                        point_dechargement = order.is_point_dechargement
                 if test:
                     vals={
                         'liste_servir_id'   : obj.id,
@@ -503,6 +563,7 @@ class is_liste_servir(models.Model):
         vals={}
         lines = []
         mem=''
+        point_dechargement = False
         for line in obj.line_ids:
             key=''
             if obj.partner_id.is_caracteristique_bl=='cde_odoo':
@@ -538,6 +599,7 @@ class is_liste_servir(models.Model):
                 "is_code_routage"                    : line.is_code_routage,
                 "is_point_destination"               : line.is_point_destination,
             }
+            point_dechargement = line.is_point_destination
             lines.append([0,False,quotation_line]) 
             values = {
                 'partner_id': obj.partner_id.id,
@@ -556,6 +618,8 @@ class is_liste_servir(models.Model):
             new_id = order_obj.create(vals)
             new_id.pg_onchange_partner_id()
             new_id.is_transporteur_id=obj.transporteur_id.id
+            if point_dechargement:
+                new_id.is_point_dechargement = line.point_dechargement
 
 
 

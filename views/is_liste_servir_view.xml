@@ -11,7 +11,7 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="tree" create="false" >
-                    <button title="Créer Liste à servir" name="creer_liste_servir_action" type="object" icon="fa-plus"    attrs="{'invisible':[('nb_liste_servir','!=',0)]}" />
+                    <button title="Créer Liste à servir" name="creer_liste_servir_action" type="object" icon="fa-plus" />
                     <field name="name" domain="[('customer','=',True),('is_company','=',True)]" widget="many2one_clickable"/>
                     <button title="Voir les listes à servir" name="liste_servir_action" type="object" icon="fa-list" attrs="{'invisible':[('nb_liste_servir','=',0)]}" />
                     <field name="listes_servir" optional="show"/>
@@ -226,6 +226,8 @@
                     <field name="date_fin"/> 
                     <field name="livrable"/> 
                     <field name="state"/> 
+                    <field name="is_point_dechargement" optional="hide"/> 
+                    <field name="is_livree_aqp" optional="hide"/> 
                 </tree>
             </field>
         </record>
