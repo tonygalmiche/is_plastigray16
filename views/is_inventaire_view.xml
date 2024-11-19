@@ -143,8 +143,7 @@
                                 <field name="location_id" domain="[('usage','=','internal')]"/> 
                                         <!-- on_change="onchange_location_id(product_id,location_id,qt_us,qt_uc,lieu)" -->
                                 <field name="qt_us" width="100px"/>
-                                <field name="qt_uc" width="100px"/>
-                                <field name="qt_us_calc"/>
+                                <field name="qt_us_calc" optional="hide"/>
                                 <field name="lieu"/>
                                 <field name="lot_id" domain="[('product_id', '=', product_id)]" invisible="1" />
                             </tree>
@@ -211,8 +210,8 @@
                     <field name="uc"          readonly="1"/> 
                     <field name="uc_us"       readonly="1"/> 
                     <field name="location_id" readonly="1"/> 
-                    <field name="qt_us"/> 
-                    <field name="qt_uc"/> 
+                    <field name="qt_us" optional="hide"/>
+                    <field name="qt_uc" optional="hide"/>
                     <field name="qt_us_calc"  sum="Total"/> 
                     <field name="lieu"/> 
                     <field name="lot_id" domain="[('product_id', '=', product_id)]" />
