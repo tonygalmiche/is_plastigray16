@@ -56,7 +56,7 @@ class is_galia_base_um(models.Model):
     qt_pieces        = fields.Integer("Qt Pièces"                 , readonly=True, compute='_compute', store=False)
     employee_id      = fields.Many2one("hr.employee", "Employé")
     date_fin         = fields.Datetime("Date fin UM")
-    active           = fields.Boolean("Active", default=True, copy=False)
+    active           = fields.Boolean("Active", default=True, copy=False, index=True)
     date_ctrl_rcp    = fields.Datetime("Date contrôle réception")
 
 
@@ -165,7 +165,7 @@ class is_galia_base_uc(models.Model):
     date_creation = fields.Datetime("Date de création", required=True)
     production_id = fields.Many2one('mrp.production', 'Ordre de fabrication')
     production    = fields.Char('Fabrication')
-    product_id    = fields.Many2one('product.product', 'Article', required=True)
+    product_id    = fields.Many2one('product.product', 'Article', required=True , index=True)
     employee_id   = fields.Many2one("hr.employee", "Employé")
     liste_servir_id   = fields.Many2one('is.liste.servir' , 'Liste à servir'  , related='um_id.liste_servir_id')
     bon_transfert_id  = fields.Many2one('is.bon.transfert', 'Bon de transfert', related='um_id.bon_transfert_id')
