@@ -1487,14 +1487,27 @@ class is_edi_cde_cli(models.Model):
                 for partie_citee in caldel.xpath("SEQUENCE_PRODUCTION"):
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
-                        tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
+
+                        try:
+                            tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
+                        except IndexError:
+                            tg_number=""
+
                         #products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                         anomalie=[]
                         # if len(products)==0:
                         #     anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
                         # if len(products)>1:
                         #     anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                        num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
+
+
+                        try:
+                            num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
+                        except IndexError:
+                            num_commande_client=""
+
+
+
                         #product=False
                         order_id=False
                         if not len(anomalie):
@@ -1533,7 +1546,15 @@ class is_edi_cde_cli(models.Model):
                             quantite                          = detail_programme.xpath("QteALivrer")[0].text
                             date_heure_livraison              = detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text
                             date_heure_livraison_au_plus_tot  = detail_programme.xpath("DateHeurelivraisonAuPlusTot")[0].text
-                            numero_identification             = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
+
+
+
+                            try:
+                                numero_identification = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
+                            except IndexError:
+                                numero_identification=""
+
+
                             try:
                                 quantite=float(quantite)
                             except ValueError:
