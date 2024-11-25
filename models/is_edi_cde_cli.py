@@ -48,6 +48,7 @@ class is_edi_cde_cli_line(models.Model):
     point_dechargement               = fields.Char('Point de déchargement' , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
     numero_document                  = fields.Char('N°Document (CALDEL)'   , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
     tg_number                        = fields.Char('TG Number'             , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    num_ran                          = fields.Char('NumRAN'                , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
 
 
     def action_acceder_commande(self):
@@ -255,6 +256,7 @@ class is_edi_cde_cli(models.Model):
                             'quantite'                         : ligne["quantite"],
                             'numero_document'                  : ligne.get('numero_document'),
                             'tg_number'                        : ligne.get('tg_number'),
+                            'num_ran'                          : ligne.get('num_ran'),
                             'numero_identification'            : ligne.get('numero_identification'),
                             'date_heure_livraison'             : ligne.get('date_heure_livraison'),
                             'date_heure_livraison_au_plus_tot' : ligne.get('date_heure_livraison_au_plus_tot'),
@@ -391,6 +393,7 @@ class is_edi_cde_cli(models.Model):
                                 'is_date_heure_livraison_au_plus_tot': line.date_heure_livraison_au_plus_tot,
                                 'is_numero_document'                 : line.numero_document,
                                 'is_tg_number'                       : line.tg_number,
+                                'is_num_ran'                         : line.num_ran,
                                 'is_code_routage'                    : line.code_routage,
                                 'is_point_destination'               : line.point_destination,
                             }
@@ -1481,17 +1484,24 @@ class is_edi_cde_cli(models.Model):
                         res1.append(ligne)
                     val.update({'lignes':res1})
                     res.append(val)
-
             for caldel in tree.xpath("/CALDEL"):
                 numero_document = str(int(caldel.xpath("NumeroDocument")[0].text))
                 for partie_citee in caldel.xpath("SEQUENCE_PRODUCTION"):
+                    num_ran=False
+                    if  partie_citee.xpath("INSTRUCTIONS_EMBALLAGE"):
+                        try:
+                            num_ran=partie_citee.xpath("INSTRUCTIONS_EMBALLAGE/NumRAN")[0].text
+                        except IndexError:
+                            num_ran=False
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
-
                         try:
                             tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
                         except IndexError:
                             tg_number=""
+
+
+
 
                         #products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                         anomalie=[]
@@ -1499,15 +1509,10 @@ class is_edi_cde_cli(models.Model):
                         #     anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
                         # if len(products)>1:
                         #     anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-
-
                         try:
                             num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
                         except IndexError:
                             num_commande_client=""
-
-
-
                         #product=False
                         order_id=False
                         if not len(anomalie):
@@ -1546,15 +1551,10 @@ class is_edi_cde_cli(models.Model):
                             quantite                          = detail_programme.xpath("QteALivrer")[0].text
                             date_heure_livraison              = detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text
                             date_heure_livraison_au_plus_tot  = detail_programme.xpath("DateHeurelivraisonAuPlusTot")[0].text
-
-
-
                             try:
                                 numero_identification = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
                             except IndexError:
                                 numero_identification=""
-
-
                             try:
                                 quantite=float(quantite)
                             except ValueError:
@@ -1569,6 +1569,7 @@ class is_edi_cde_cli(models.Model):
                                 'point_dechargement'   : point_dechargement,
                                 'numero_document'      : numero_document,  # N°UM de PSA 
                                 'tg_number'            : tg_number,        # N°UM de Weidplas
+                                'num_ran'              : num_ran,          # N°UM de PO
                                 'numero_identification': numero_identification,
                                 'date_heure_livraison'             : date_heure_livraison,
                                 'date_heure_livraison_au_plus_tot' : date_heure_livraison_au_plus_tot,

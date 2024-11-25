@@ -479,6 +479,14 @@ class sale_order_line(models.Model):
     is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
     is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
     is_tg_number                        = fields.Char('TG Number'        , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    is_num_ran                          = fields.Char('NumRAN'           , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+
+
+# NumRAN
+    #Je pense avoir trouver l’information du numéro de RAN dans le DELJIT reçu de PO, sauf que pour le moment cette donnée n’est pas 
+    # récupérée dans votre format. Il va falloir que vous rajoutiez une balise NumRAN sous la balise INSTRUCTIONS_EMBALLAGE 
+    # je dirais là ou se trouve déjà les balises suivantes :
+
 
 
     # Le 22/06/2020 à 12:02, Caroline CHEVALLIER a écrit :
