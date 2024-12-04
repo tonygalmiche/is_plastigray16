@@ -42,13 +42,13 @@
                                 </div>
                                 <div>
                                     <span t-if="o.partner_id.lang == 'fr_FR'">Échéance :</span>
-                                    <span t-if="o.partner_id.lang != 'fr_FR'">Due Date :</span>
+                                    <span t-if="o.partner_id.lang != 'fr_FR'">Due date :</span>
                                     <span t-field="o.invoice_date_due"  t-options='{"format": "dd/MM/yyyy"}' />
                                 </div>
                                 <div style="height:30mm"> </div> 
                                 <b>
                                     <div t-if="o.partner_id.lang == 'fr_FR'">Nom du client et adresse de facturation : </div>
-                                    <div t-if="o.partner_id.lang != 'fr_FR'">Name of client and invoicing adress : </div>
+                                    <div t-if="o.partner_id.lang != 'fr_FR'">Customer name and invoicing address : </div>
                                 </b>
                                 <div class="destinataire">
                                     <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)
@@ -68,10 +68,26 @@
                         <t t-set="picking" t-value="l.is_move_id.picking_id"/>
                     </div>
                     <div t-if="picking">
-                        <b>Livraison N° </b><span t-field="picking.name" /> du <span t-field="picking.date" t-options='{"format": "dd/MM/yyyy"}' /><br />
+                        
+                        <span t-if="o.partner_id.lang == 'fr_FR'"><b>Livraison N° </b></span>
+                        <span t-if="o.partner_id.lang != 'fr_FR'"><b>Delivery N° </b></span>
+
+                        <span t-field="picking.name" /> du <span t-field="picking.date" t-options='{"format": "dd/MM/yyyy"}' /><br />
+
+
+
                         <t t-if="o.partner_id.is_adr_liv_sur_facture">
                             <i>
-                                <b>Adresse de livraison : </b>
+
+                                <span t-if="o.partner_id.lang == 'fr_FR'"><b>Adresse de livraison : </b></span>
+                                <span t-if="o.partner_id.lang != 'fr_FR'"><b>Delivery address : </b></span>
+
+
+                                <!-- Livraison  N° - Delivery N° -->
+
+
+
+
                                 <span t-field="picking.partner_id.name" />
                                 <span t-field="picking.partner_id.street" />
                                 <span t-field="picking.partner_id.street2" /> - 
@@ -84,8 +100,12 @@
                     </div>
                     <br />
                     <table class="table table-condensed">
+
+<!-- Commande N° - PO N° ou Purchase Order  (dépend de la place) -->
+
+
                         <thead>
-                            <tr>
+                            <tr t-if="o.partner_id.lang == 'fr_FR'">
                                 <th>Commande N°</th>
                                 <th>Désignation article</th>
                                 <th>Référence</th>
@@ -94,7 +114,17 @@
                                 <th>Taux TVA</th>
                                 <th>Total HT</th>
                             </tr>
+                            <tr t-if="o.partner_id.lang != 'fr_FR'">
+                                <th>Purchase Order N°</th>
+                                <th>Article description</th>
+                                <th>Reference</th>
+                                <th>Per unit price</th>
+                                <th>Quantity</th>
+                                <th>VAT rate</th>
+                                <th>Total excl. VAT</th>
+                            </tr>
                         </thead>
+
                         <tbody class="invoice_tbody">
                             <t t-set="pds_brut_total" t-value="0"/>
                             <t t-set="pds_net_total" t-value="0"/>
@@ -139,17 +169,31 @@
                             </tr>
                         </tbody>
                     </table>
+
+
+<!-- 
+
+TVA 20% - VAT 20%
+Total TTC – Total incl. VAT -->
+
+<!-- Poids brut total – Total gross weight
+Poids net total – Total net weight
+ -->
+
+
                     <div class="row">
                         <div class="col-4">
                             <table class="table table-condensed">
                                 <tr>
-                                    <td><strong>Poids brut total : </strong></td>
+                                    <td t-if="o.partner_id.lang == 'fr_FR'"><strong>Poids brut total : </strong></td>
+                                    <td t-if="o.partner_id.lang != 'fr_FR'"><strong>Total gross weight : </strong></td>
                                     <td class="text-right">
                                         <span t-esc="pds_brut_total"/> KG
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Poids net total : </strong></td>
+                                    <td t-if="o.partner_id.lang == 'fr_FR'"><strong>Poids net total : </strong></td>
+                                    <td t-if="o.partner_id.lang != 'fr_FR'"><strong>Total net weight : </strong></td>
                                     <td class="text-right">
                                         <span t-esc="pds_net_total"/> KG
                                     </td>
@@ -161,7 +205,15 @@
                         <div class="col-4">
                             <table class="table table-condensed" style="width:100%">
                                 <tr class="border-black">
-                                    <td><strong>Total H.T.</strong></td>
+
+
+
+                                    <td t-if="o.partner_id.lang == 'fr_FR'"><strong>Total H.T.</strong></td>
+                                    <td t-if="o.partner_id.lang != 'fr_FR'"><strong>Total excl. VAT</strong></td>
+
+
+
+
                                     <td class="text-right">
                                         <span t-field="o.amount_untaxed"/>
                                     </td>
@@ -172,27 +224,35 @@
                                         <span t-field="o.is_escompte"/>
                                     </td>
                                 </tr>
-                                <!-- <tr>
-                                    <td>T.V.A. 20%</td>
-                                    <td class="text-right">
-                                        <span t-field="o.is_tva"/>
-                                    </td>
-                                </tr> -->
-                                <!-- Tax totals -->
+                              
                                 <t t-set="tax_totals" t-value="o.tax_totals"/>
                                 <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
                                     <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
                                     <t t-foreach="tax_totals['groups_by_subtotal'][subtotal_to_show]" t-as="amount_by_group">
                                         <tr>
-                                            <td><span>T.V.A. 20%</span></td>
+                                            <td t-if="o.partner_id.lang == 'fr_FR'"><span>T.V.A. 20%</span></td>
+                                            <td t-if="o.partner_id.lang != 'fr_FR'"><span>VAT 20%</span></td>
+
+
+
+
                                             <td class="text-end o_price_total">
                                                 <span class="text-nowrap" t-esc="amount_by_group['formatted_tax_group_amount']"/>
                                             </td>
                                         </tr>
                                     </t>
                                 </t>
+
+
+<!-- Total H.T. – Total excl. VAT
+TVA 20% - VAT 20%
+Total TTC – Total incl. VAT
+ -->
+
+
                                 <tr class="border-black">
-                                    <td><strong>Total T.T.C.</strong></td>
+                                    <td t-if="o.partner_id.lang == 'fr_FR'"><strong>Total T.T.C.</strong></td>
+                                    <td t-if="o.partner_id.lang != 'fr_FR'"><strong>Total incl. VAT</strong></td>
                                     <td class="text-right">
                                          <span t-field="o.amount_total"/>
                                     </td>
@@ -204,16 +264,30 @@
                         <strong>Commentaires:</strong>
                         <span t-field="o.narration"/>
                     </p>
+
+
+
                     <p t-if="o.invoice_payment_term_id.note">
-                        <strong>Conditions de règlement : </strong>
+                        <t t-if="o.partner_id.lang == 'fr_FR'"><strong>Conditions de règlement : </strong></t>
+                        <t t-if="o.partner_id.lang != 'fr_FR'"><strong>Payment terms : </strong></t>
                         <span t-field="o.invoice_payment_term_id.note"/><br />
-                        <span>
-                            <i>
-                            Pénalités en cas de retard de paiement : 
-                            3 fois le taux d'intéret légal + 40€ de forfait de recouvrement. 
-                            Escompte pour réglement anticipé : Néant.
-                            </i>
-                        </span>
+                        <t t-if="o.partner_id.lang == 'fr_FR'">
+                            <span>
+                                <i>
+                                Pénalités en cas de retard de paiement : 
+                                3 fois le taux d'intéret légal + 40€ de forfait de recouvrement. 
+                                Escompte pour réglement anticipé : Néant.
+                                </i>
+                            </span>
+                        </t>
+                        <t t-if="o.partner_id.lang != 'fr_FR'">
+                            <span>
+                                <i>
+                                Penalties for late payment: 
+                                3 times the legal interest rate + €40 collection fee. Discount for early payment: None.
+                                </i>
+                            </span>
+                        </t>
                     </p>
                     <p t-if="o.fiscal_position_id.note">
                         <strong>Fiscal Position Remark:</strong>
@@ -224,7 +298,8 @@
                         <span t-field="o.partner_id.is_num_autorisation_tva"/>
                     </p>
                     <p t-if="o.partner_id.is_type_reglement">
-                        <strong>Type de règlement : </strong>
+                        <t t-if="o.partner_id.lang == 'fr_FR'"><strong>Type de règlement : </strong></t>
+                        <t t-if="o.partner_id.lang != 'fr_FR'"><strong>Payment method : </strong></t>
                         <span t-field="o.partner_id.is_type_reglement.name"/>
                     </p>
                     <table class="table table-condensed" style="width:75%" t-if="o.partner_id.is_rib_id">
@@ -246,7 +321,8 @@
                         </tbody>
                     </table>
                     <t t-if="picking.sale_id.is_info_client">
-                        <b>Information client complèmentaire : </b><br />
+                        <t t-if="o.partner_id.lang == 'fr_FR'"><b>Information client complèmentaire : </b><br /></t>
+                        <t t-if="o.partner_id.lang != 'fr_FR'"><b>Additional customer information : </b><br /></t>
                         <span t-field="picking.sale_id.is_info_client" />
                     </t>
                 </div>
