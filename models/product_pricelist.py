@@ -129,6 +129,7 @@ class product_pricelist_version(models.Model):
                     'applied_on': '0_product_variant', #item.applied_on,
                     'compute_price': item.compute_price,
                 }
+                print(vals)
                 id = self.env['product.pricelist.item'].create(vals)
 
 

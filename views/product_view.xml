@@ -129,17 +129,6 @@
             </field>
         </record>
 
-
-
-
-
-                            <!-- <group name="packaging" string="Packaging" colspan="4" attrs="{'invisible':['|', ('type', 'not in', ['product', 'consu']), ('product_variant_count', '&gt;', 1), ('is_product_variant', '=', False)]}" groups="product.group_stock_packaging">
-                                <field colspan="2" name="packaging_ids" nolabel="1" context="{'tree_view_ref':'product.product_packaging_tree_view2', 'default_company_id': company_id}"/>
-                            </group>
- -->
-
-
-
         <!-- Segment -->
         <record id="is_product_segment_view_tree" model="ir.ui.view">
             <field name="name">is.product.segment.view.tree</field>
@@ -549,47 +538,6 @@
                 <field name="uom_po_id" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
-
-
-
-            <!-- <field name="product_tooltip" position="after">
-                <label for="product_tooltip" string=""
-                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"/>
-                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"
-                    class="fst-italic text-muted">
-                    You can invoice them before they are delivered.
-                </div>
-                <label for="product_tooltip" string=""
-                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"/>
-                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"
-                    class="fst-italic text-muted">
-                    Invoice after delivery, based on quantities delivered, not ordered.
-                </div>
-            </field>
-
- -->
-
-                    <!-- <div class="oe_title">
-                        <label for="name" string="Product Name"/>
-                        <h1>
-                            <div class="d-flex">
-                                <field name="priority" widget="priority" class="me-3"/>
-                                <field class="text-break" name="name" placeholder="e.g. Cheese Burger"/>
-                            </div>
-                        </h1>
-                    </div> -->
-
-
-
-                <!-- <xpath expr="//field[@name='image_medium']" position="before">
-                    <img src='/is_plastigray16/static/src/img/logo_rs.png' attrs="{'invisible': [('is_soumise_regl', '!=', 'SR')]}" style="height:64px" />
-                </xpath>
-                <xpath expr="//field[@name='image_medium']" position="before">
-                    <img src='/is_plastigray16/static/src/img/logo_r.png'  attrs="{'invisible': [('is_soumise_regl', '!=', 'R')]}"  style="height:64px" />
-                </xpath> -->
-
-                <!-- <field name="categ_id" position="replace"/> -->
-
                 <group name="group_standard_price" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </group>   
@@ -611,12 +559,9 @@
                         <field name="is_code_cas_vsb" invisible="1"/>
                     </group>
                 </group>
-
                 <group name="group_general" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </group>   
-
-
                 <group name="group_general"  position="after">
                     <group>
                         <field name="detailed_type"/>
@@ -634,21 +579,9 @@
                         <field name="is_dosmat_ctrl_qual"/>
                     </group>
                 </group> 
-
-                <!-- <xpath expr="//field[@name='uom_id']" position="after"> -->
-
-                <!-- <xpath expr="//div[@class='oe_title']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>              -->
-
                 <xpath expr="//page[@name='sales']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>   
-
-
-
-
-
                <xpath expr="//page[@name='sales']" position="after">
                     <page string="Fabrication">
                         <group colspan="4">
@@ -739,8 +672,6 @@
                 <notebook position="before">
                     <group colspan="4">
                         <group>
-
-
                             <field name="is_code"/>
                             <field name="name" string="Désignation"/>
                             <field name="company_id" invisible="1"/>
@@ -761,43 +692,13 @@
                 <xpath expr="//div[@name='options']" position="attributes" >
                     <attribute name="invisible">1</attribute>
                 </xpath>
-
-
-
                 <div name="weight" position="after">
                     <label for="weight_net"/>
                     <div class="o_row" name="weight_net">
                         <field name="weight_net" class="oe_inline"/>
                     </div>
                 </div>
-
-                <field name="weight_uom_name" position="replace"/>
-
-
-
-                <!-- <xpath expr="//field[@name='standard_price']" position="replace" >
-                    <div invisible="1">
-                        <field name="standard_price"/>
-                    </div>
-                </xpath>
-                <xpath expr="//field[@name='volume']" position="replace" >
-                </xpath>
-                <xpath expr="//field[@name='weight']" position="replace" >
-                </xpath> -->
-                <!-- <xpath expr="//field[@name='weight_net']" position="replace" >
-                </xpath> -->
-                <!-- <xpath expr="//field[@name='list_price']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-
-                </xpath> -->
-
-                <!-- <group name="inventory" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </group> -->
-
-
-
-                
+                <field name="weight_uom_name" position="replace"/>                
                 <page name="inventory" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </page>
@@ -845,8 +746,6 @@
                 </group>
             </field>
         </record>
-
-
 
 
         <record id="account_product_template_form_view" model="ir.ui.view">
@@ -907,88 +806,6 @@
 
             </field>
         </record>
-
-
-             <!-- 
-                <group name="bill" position="attributes">
-                    <attribute name="groups">purchase.group_purchase_manager</attribute>
-                </group>
-                <group name="bill" position="inside">
-                    <field name="purchase_method" widget="radio"/>
-                </group>
-                <group name="purchase" position="inside">
-                    <group col="1">
-                        <group string="Purchase Description">
-                           <field name="description_purchase" nolabel="1" colspan="2" placeholder="This note is added to purchase orders."/>
-                        </group>
-                        <group string="Warning when Purchasing this Product" groups="purchase.group_warning_purchase">
-                            <field name="purchase_line_warn" nolabel="1" colspan="2"/>
-                            <field name="purchase_line_warn_msg" colspan="2" nolabel="1" placeholder="Type a message..." attrs="{'required':[('purchase_line_warn','!=','no-message')],'readonly':[('purchase_line_warn','=','no-message')], 'invisible':[('purchase_line_warn','=','no-message')]}"/>
-                        </group>
-                    </group>
-                </group> -->
-
-        <!-- <record id="view_product_supplier_inherit" model="ir.ui.view">
-            <field name="name">product.template.supplier.form.inherit</field>
-            <field name="model">product.template</field>
-            <field name="inherit_id" ref="product.product_template_form_view"/>
-            <field name="arch" type="xml">
-                <xpath expr="//page[@name='purchase']" position="attributes">
-                    <attribute name="invisible">0</attribute>
-                </xpath>
-                <group name="bill" position="attributes">
-                    <attribute name="groups">purchase.group_purchase_manager</attribute>
-                </group>
-                <group name="bill" position="inside">
-                    <field name="purchase_method" widget="radio"/>
-                </group>
-                <group name="purchase" position="inside">
-                    <group col="1">
-                        <group string="Purchase Description">
-                           <field name="description_purchase" nolabel="1" colspan="2"
-                                placeholder="This note is added to purchase orders."/>
-                        </group>
-                        <group string="Warning when Purchasing this Product" groups="purchase.group_warning_purchase">
-                            <field name="purchase_line_warn" nolabel="1" colspan="2"/>
-                            <field name="purchase_line_warn_msg" colspan="2" nolabel="1" placeholder="Type a message..."
-                                attrs="{'required':[('purchase_line_warn','!=','no-message')],'readonly':[('purchase_line_warn','=','no-message')], 'invisible':[('purchase_line_warn','=','no-message')]}"/>
-                        </group>
-                    </group>
-                </group>
-            </field>
-        </record>
- -->
-
-
-               <!-- <xpath expr="//label[@for='name']/.." position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
- -->
-                <!-- <field name="product_tooltip" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </field> -->
-
-
-
-            <!-- <field name="product_tooltip" position="after">
-                <label for="product_tooltip" string=""
-                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"/>
-                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'order')]}"
-                    class="fst-italic text-muted">
-                    You can invoice them before they are delivered.
-                </div>
-                <label for="product_tooltip" string=""
-                    attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"/>
-                <div attrs="{'invisible': ['|', ('type', 'not in', ('product', 'consu')), ('invoice_policy', '!=', 'delivery')]}"
-                    class="fst-italic text-muted">
-                    Invoice after delivery, based on quantities delivered, not ordered.
-                </div>
-            </field>
-
- -->
-
-
-
         <record id="is_product_template_only_form_view" model="ir.ui.view">
             <field name="name">is_product_template_only_form_view</field>
             <field name="model">product.template</field>
@@ -997,38 +814,10 @@
                 <xpath expr="//page[@name='variants']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <!-- <xpath expr="//field[@name='ean13']"        position="replace" /> -->
                 <xpath expr="//field[@name='default_code']" position="replace" />
 
             </field>
         </record> 
-
-
-
-        <!-- <record id="is_view_template_property_form" model="ir.ui.view">
-            <field name="name">is_view_template_property_form</field>
-            <field name="model">product.template</field>
-            <field name="inherit_id" ref="stock.view_template_property_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//group[@name='stock_property']/field[@name='property_stock_production']" position="before">
-                    <field name="is_emplacement_declaration_prod_id"/>
-                </xpath>
-                <xpath expr="//group[@name='lot']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>             
-                <xpath expr="//group[@string='Storage Location']" position="replace">
-                    <group name="store" string="Storage Location" attrs="{'invisible': [('is_location_vsb', '=', True)]}">
-                        <field name="is_location_vsb" invisible="1"/>
-                        <field name="is_location" attrs="{'invisible': [('is_location_vsb', '=', True)]}"/>
-                    </group>
-                </xpath>
-            </field>
-        </record> 
- -->
-
-
-
-
         <record id="is_product_template_form_view_procurement_button" model="ir.ui.view">
             <field name="name">is_product_template_form_view_procurement_button</field>
             <field name="model">product.template</field>
@@ -1042,46 +831,6 @@
                 </xpath>             
             </field>
         </record> 
-
-
-
-<!-- 
-        <button type="object"
-        name="action_view_orderpoints"
-        attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '!=', 1)]}"
-        class="oe_stat_button" icon="fa-refresh">
-        <div class="o_field_widget o_stat_info mr4">
-            <span class="o_stat_text">Min:</span>
-            <span class="o_stat_text">Max:</span>
-        </div>
-        <div class="o_field_widget o_stat_info">
-            <span class="o_stat_value"><field name="reordering_min_qty"/></span>
-            <span class="o_stat_value"><field name="reordering_max_qty"/></span>
-        </div>
-    </button>
-    <button type="object"
-        name="action_view_orderpoints"
-        attrs="{'invisible':['|',('type', '!=', 'product'),('nbr_reordering_rules', '==', 1)]}"
-        class="oe_stat_button"
-        icon="fa-refresh">
-        <field name="nbr_reordering_rules" widget="statinfo"/>
-    </button>
-    <button string="Lot/Serial Numbers" type="object"
-        name="action_open_product_lot"
-        attrs="{'invisible': [('tracking', '=', 'none')]}"
-        class="oe_stat_button" icon="fa-bars" groups="stock.group_production_lot"/>
-    <button string="Putaway Rules" type="object"
-        name="action_view_related_putaway_rules"
-        class="oe_stat_button" icon="fa-random" groups="stock.group_stock_multi_locations"
-        attrs="{'invisible': [('type', '=', 'service')]}"
-        context="{
-            'invisible_handle': True,
-            'single_product': product_variant_count == 1,
-        }"/>
-
- -->
-
-
         <record model="ir.ui.view" id="is_product_tree_view">
             <field name="name">is_product_tree_view</field>
             <field name="model">product.template</field>
@@ -1106,6 +855,8 @@
                     <field name="qty_available"      optional="show" string="Stock"/>
                     <field name="temps_realisation"  optional="hide"/>
                     <field name="is_emplacement_declaration_prod_id" optional="hide"/>
+                    <field name="taxes_id"           optional="hide" widget="many2many_tags"/>
+                    <field name="supplier_taxes_id"  optional="hide" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>
@@ -1135,51 +886,7 @@
             <field name="name">Articles</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">tree,form</field>
-            <!-- <field name="view_id" ref="product.product_template_only_form_view"/> -->
-            <!-- <field name="search_view_id" ref="is_product_search_view"/> -->
         </record>
-
-        <!-- 
-        <record model="ir.actions.act_window.view" id="is_product_action_tree">
-            <field name="act_window_id" ref="is_product_action"/>
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="is_product_tree_view"/>
-        </record> -->
-
-
-        <!-- product.product -->
-        <!-- <record id="is_product_product_tree_view" model="ir.ui.view">
-            <field name="name">is_product_product_tree_view</field>
-            <field name="model">product.product</field>
-            <field name="inherit_id" ref="product.product_product_tree_view"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='default_code']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='attribute_value_ids']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='lst_price']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='price']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='uom_id']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='ean13']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-
-                <xpath expr="//field[@name='name']" position="before" >
-                    <field name="is_code"/>
-                </xpath>
-            </field>
-        </record>  -->
-
-
 
 
         <!-- Corriger stock négatif -->
@@ -1190,85 +897,6 @@
             <field name="state">code</field>
             <field name="code">action = records.corriger_stock_negatif_action()</field>
         </record>
-
-
-        <!-- Unités de mesures -->
-        <!-- <record id="product.product_uom_tree_view" model="ir.ui.view">
-            <field name="name">product.uom.tree</field>
-            <field name="model">product.uom</field>
-            <field name="arch" type="xml">
-                <tree colors="red:uom_type == 'reference'">
-                    <field name="category_id"/>
-                    <field name="name"/>
-                    <field name="uom_type"/>
-                    <field name="factor"/>
-                    <field name="factor_inv"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="product.product_uom_form_view" model="ir.ui.view">
-            <field name="name">product.uom.form</field>
-            <field name="model">product.uom</field>
-            <field name="arch" type="xml">
-                <form string="Units of Measure">
-                    <sheet>
-                    <group>
-                        <group>
-                            <field name="name"/>
-                            <field name="category_id"/>
-                            <field name="uom_type" on_change="onchange_type(uom_type)"/>
-                            <field name="factor"
-                                digits="[42,5]"
-                                attrs="{'invisible':[('uom_type','!=','smaller')],
-                                        'readonly':[('uom_type','=','bigger')]}"/>
-                            <field name="factor_inv"
-                                digits="[42,5]"
-                                attrs="{'invisible':[('uom_type','!=','bigger')],
-                                        'readonly':[('uom_type','!=','bigger')]}"/>
-                            <p attrs="{'invisible':[('uom_type','!=','smaller')]}" class="oe_grey" colspan="2">
-                                e.g: 1 * (reference unit) = ratio * (this unit)
-                            </p>
-                            <p attrs="{'invisible':[('uom_type','!=','bigger')]}" class="oe_grey" colspan="2">
-                                e.g: 1 * (this unit) = ratio * (reference unit)
-                            </p>
-                        </group>
-                        <group>
-                            <field name="active"/>
-                            <field name="rounding" digits="[42, 5]"/>
-                        </group>
-                    </group>
-                </sheet>
-                </form>
-            </field>
-        </record> -->
-
-
-        <!-- Liste des manquants -->
-        <!-- <record id="is_liste_des_manquants_tree_view" model="ir.ui.view">
-            <field name="name">is_liste_des_manquants_tree_view</field>
-            <field name="model">product.template</field>
-            <field name="arch" type="xml">
-                <tree colors="red:virtual_available &lt; 0">
-                    <field name="is_code"/>
-                    <field name="name"/>
-                    <field name="is_category_id"/>
-                    <field name="is_gestionnaire_id"/>
-                    <field name="is_mold_id"/>
-                    <field name="qty_available"/>
-                    <field name="virtual_available"/>
-                </tree>
-            </field>
-        </record>
-        <record id="is_liste_des_manquants_action" model="ir.actions.act_window">
-            <field name="name">Liste des manquants (stock réservé / quantité prévue négatif)</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">product.template</field>
-            <field name="domain">[('virtual_available','&lt;', 0)]</field>
-            <field name="limit">200</field>
-            <field name="view_id" ref="is_liste_des_manquants_tree_view"/>
-            <field name="view_mode">tree,form</field>
-        </record> -->
 
 
         <!-- Liste des stocks négatifs -->
@@ -1396,13 +1024,6 @@
             <field name="view_id" ref="is_article_achete_tree_view"/>
             <field name="view_mode">tree,form</field>
         </record>
-
-
-
-
-                        <!-- <attribute name="string">Toto</attribute> -->
-
-
         <record id="is_mrp_product_template_form_view_bom_button" model="ir.ui.view">
             <field name="name">is_mrp_product_template_form_view_bom_button</field>
             <field name="model">product.template</field>
@@ -1413,17 +1034,6 @@
                 </xpath>
             </field>
         </record>
-
-
-
-
-
-
-
-
-
-
-
 
 
         <!-- product.product -->

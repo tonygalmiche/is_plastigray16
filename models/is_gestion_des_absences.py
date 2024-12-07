@@ -218,27 +218,27 @@ class is_demande_conges(models.Model):
                     demande.vers_validation_rh_action()
             obj.date_validation_rh = datetime.today()
             if not obj.demande_collective_id:
-                subject = u'[' + obj.name + u'] Demande de congés - Accepté et transmis au RH'
-                email_to = obj.responsable_rh_id.email
-                user = self.env['res.users'].browse(self._uid)
-                email_from = user.email
-                email_cc = ''
-                if obj.mode_communication in ['courriel','courriel+sms'] and obj.courriel:
-                    email_cc = obj.courriel
-                nom = user.name
-                base_url = obj.env['ir.config_parameter'].sudo().get_param('web.base.url')
-                url = base_url + u'/web#id=' + str(obj.id) + u'&view_type=form&model=is.demande.conges'
-                body_html = u""" 
-                    <p>Bonjour,</p> 
-                    <p>""" + nom + """ vient de passer la Demande de congés <a href='""" + url + """'>""" + obj.name + """</a> à l'état 'Validation RH'.</p> 
-                    <p>Merci d'en prendre connaissance.</p> 
-                """ 
-                obj.envoi_mail(email_from, email_to, email_cc, subject, body_html)
-                subject   = u"vers Validation RH"
-                body_html = u"<p>Mail envoyé de "+str(email_from)+u" à "+str(email_to)+u" (cc="+str(email_cc)+u")</p>"+body_html
-                obj.creer_notification(subject,body_html)
-                if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
-                    message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation RH'."""
+                # subject = u'[' + obj.name + u'] Demande de congés - Accepté et transmis au RH'
+                # email_to = obj.responsable_rh_id.email
+                # user = self.env['res.users'].browse(self._uid)
+                # email_from = user.email
+                # email_cc = ''
+                # if obj.mode_communication in ['courriel','courriel+sms'] and obj.courriel:
+                #     email_cc = obj.courriel
+                # nom = user.name
+                # base_url = obj.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                # url = base_url + u'/web#id=' + str(obj.id) + u'&view_type=form&model=is.demande.conges'
+                # body_html = u""" 
+                #     <p>Bonjour,</p> 
+                #     <p>""" + nom + """ vient de passer la Demande de congés <a href='""" + url + """'>""" + obj.name + """</a> à l'état 'Validation RH'.</p> 
+                #     <p>Merci d'en prendre connaissance.</p> 
+                # """ 
+                # obj.envoi_mail(email_from, email_to, email_cc, subject, body_html)
+                # subject   = u"vers Validation RH"
+                # body_html = u"<p>Mail envoyé de "+str(email_from)+u" à "+str(email_to)+u" (cc="+str(email_cc)+u")</p>"+body_html
+                # obj.creer_notification(subject,body_html)
+                # if obj.mode_communication in ['sms','courriel+sms'] and obj.mobile:
+                #     message = """Bonjour, """ + nom + """ vient de passer la Demande de congés """ + obj.name + """ à l'état 'Validation RH'."""
                 #** Creation du commentaire de pointage ************************
                 if obj.type_demande in ['sans_solde','autre']:
                     employes = self.env['hr.employee'].search([('user_id', '=', obj.demandeur_id.id),('is_pointage','=',True)], limit=1)
@@ -600,8 +600,8 @@ class is_demande_conges(models.Model):
     name                          = fields.Char(u"N° demande")
     createur_id                   = fields.Many2one('res.users', u'Créateur', default=lambda self: self.env.user        , copy=False)
     date_creation                 = fields.Datetime(string=u'Date de création', default=lambda *a: fields.datetime.now(), copy=False)
-    employe_id                    = fields.Many2one('hr.employee', 'Autre demandeur')
-    demandeur_id                  = fields.Many2one('res.users', 'Demandeur', default=lambda self: self.env.user, index=True)
+    employe_id                    = fields.Many2one('hr.employee', 'Autre demandeur', tracking=True)
+    demandeur_id                  = fields.Many2one('res.users', 'Demandeur', default=lambda self: self.env.user, index=True, tracking=True)
     matricule                     = fields.Char(u"Matricule", compute='_compute_matricule', readonly=True, store=True)
     mode_communication = fields.Selection([
                                         ('courriel'    , u'Courriel'),
@@ -611,44 +611,44 @@ class is_demande_conges(models.Model):
     mobile   = fields.Char(u"Mobile"  , help="Téléphone utilisé pour l'envoi des SMS pour les demandes de congés"        , compute='_compute_mode_communication', readonly=True, store=True)
     courriel = fields.Char(u"Courriel", help="Courriel utilisé pour l'envoi des informations pour les demandes de congés", compute='_compute_mode_communication', readonly=True, store=True)
 
-    valideur_n1                   = fields.Many2one('res.users', 'Valideur Niveau 1')
-    date_validation_n1            = fields.Datetime(string='Date création', copy=False)
-    valideur_n2                   = fields.Many2one('res.users', 'Valideur Niveau 2')
-    date_validation_n2            = fields.Datetime(string='Date validation N1', copy=False)
-    responsable_rh_id             = fields.Many2one('res.users', 'Responsable RH', default=lambda self: self.env.user.company_id.is_responsable_rh_id)
-    date_validation_rh            = fields.Datetime(string='Date validation N2', copy=False)
-    type_demande                  = fields.Selection(_TYPE_DEMANDE, string='Type de demande', required=True)
-    autre_id                      = fields.Many2one('is.demande.conges.autre', 'Type autre')
+    valideur_n1                   = fields.Many2one('res.users', 'Valideur Niveau 1', tracking=True)
+    date_validation_n1            = fields.Datetime(string='Date création', copy=False, tracking=True)
+    valideur_n2                   = fields.Many2one('res.users', 'Valideur Niveau 2', tracking=True)
+    date_validation_n2            = fields.Datetime(string='Date validation N1', copy=False, tracking=True)
+    responsable_rh_id             = fields.Many2one('res.users', 'Responsable RH', tracking=True, default=lambda self: self.env.user.company_id.is_responsable_rh_id)
+    date_validation_rh            = fields.Datetime(string='Date validation N2', tracking=True, copy=False)
+    type_demande                  = fields.Selection(_TYPE_DEMANDE, string='Type de demande', tracking=True, required=True)
+    autre_id                      = fields.Many2one('is.demande.conges.autre', 'Type autre', tracking=True)
     justificatif_ids              = fields.Many2many('ir.attachment', 'is_demande_conges_attachment_rel', 'demande_conges_id', 'file_id', u"Justificatif")
-    cp                            = fields.Float(string='CP (jours)' , digits=(14,2), copy=False)
-    rtt                           = fields.Float(string='RTT (jours)', digits=(14,2), copy=False)
-    rc                            = fields.Float(string='RC (heures)', digits=(14,2), copy=False)
-    droit_cp                      = fields.Float(string='Droit CP (jours)' , digits=(14,2), compute='_compute_mode_communication', readonly=True, store=True)
-    droit_rtt                     = fields.Float(string='Droit RTT (jours)', digits=(14,2), compute='_compute_mode_communication', readonly=True, store=True)
-    droit_rc                      = fields.Float(string='Droit RC (heures)', digits=(14,2), compute='_compute_mode_communication', readonly=True, store=True)
+    cp                            = fields.Float(string='CP (jours)' , digits=(14,2), tracking=True, copy=False)
+    rtt                           = fields.Float(string='RTT (jours)', digits=(14,2), tracking=True, copy=False)
+    rc                            = fields.Float(string='RC (heures)', digits=(14,2), tracking=True, copy=False)
+    droit_cp                      = fields.Float(string='Droit CP (jours)' , digits=(14,2), tracking=True, compute='_compute_mode_communication', readonly=True, store=True)
+    droit_rtt                     = fields.Float(string='Droit RTT (jours)', digits=(14,2), tracking=True, compute='_compute_mode_communication', readonly=True, store=True)
+    droit_rc                      = fields.Float(string='Droit RC (heures)', digits=(14,2), tracking=True, compute='_compute_mode_communication', readonly=True, store=True)
     droit_cp_actualise            = fields.Float(string='Droit CP actualisé (jours)' , digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
     droit_rtt_actualise           = fields.Float(string='Droit RTT actualisé (jours)', digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
     droit_rc_actualise            = fields.Float(string='Droit RC actualisé (heures)', digits=(14,2), compute='_compute_droit_actualise', readonly=True, store=False)
-    date_debut                    = fields.Date(string=u'Date début', index=True)
-    date_fin                      = fields.Date(string='Date fin', index=True)
-    le                            = fields.Date(string='Le', index=True)
+    date_debut                    = fields.Date(string='Date début', tracking=True, index=True)
+    date_fin                      = fields.Date(string='Date fin', tracking=True, index=True)
+    le                            = fields.Date(string='Le', tracking=True, index=True)
     matin_ou_apres_midi           = fields.Selection([
                                         ('matin', 'Matin'),
-                                        ('apres_midi', u'Après-midi')
-                                        ], string=u'Matin ou après-midi')
-    nb_jours                      = fields.Float("Nb jours", digits=(14, 2), compute='_compute_nb_jours_nb_heures',store=True,readonly=True)
-    heure_debut                   = fields.Float(u"Heure début", digits=(14, 2))
-    heure_fin                     = fields.Float(u"Heure fin"  , digits=(14, 2))
-    nb_heures                     = fields.Float("Nb heures", digits=(14, 2), compute='_compute_nb_jours_nb_heures',store=True,readonly=True)
-    raison_du_retour              = fields.Text(string='Motif du retour'       , copy=False)
-    raison_annulation             = fields.Text(string='Motif refus/annulation', copy=False)
+                                        ('apres_midi', 'Après-midi')
+                                        ], string='Matin ou après-midi', tracking=True)
+    nb_jours                      = fields.Float("Nb jours"   , digits=(14, 2), compute='_compute_nb_jours_nb_heures',store=True,readonly=True)
+    heure_debut                   = fields.Float("Heure début", digits=(14, 2), tracking=True)
+    heure_fin                     = fields.Float("Heure fin"  , digits=(14, 2), tracking=True)
+    nb_heures                     = fields.Float("Nb heures"  , digits=(14, 2), tracking=True, compute='_compute_nb_jours_nb_heures',store=True,readonly=True)
+    raison_du_retour              = fields.Text(string='Motif du retour'       , tracking=True, copy=False)
+    raison_annulation             = fields.Text(string='Motif refus/annulation', tracking=True, copy=False)
     demande_collective            = fields.Selection([
                                         ('oui', u'Oui'),
                                         ('non', u'Non'),
-                                        ], string=u'Demande collective', required=True, default='non')
-    demandeur_ids                 = fields.Many2many('hr.employee', string=u'Demandeurs')
-    demande_conges_ids            = fields.One2many('is.demande.conges', 'demande_collective_id', u"Demandes de congés")
-    demande_collective_id         = fields.Many2one('is.demande.conges', u"Demandes collective d'origine")
+                                        ], string=u'Demande collective', tracking=True, required=True, default='non')
+    demandeur_ids                 = fields.Many2many('hr.employee', string=u'Demandeurs', tracking=True)
+    demande_conges_ids            = fields.One2many('is.demande.conges', 'demande_collective_id', u"Demandes de congés", tracking=True)
+    demande_collective_id         = fields.Many2one('is.demande.conges', u"Demandes collective d'origine", tracking=True)
     state                         = fields.Selection([
                                         ('creation', u'Brouillon'),
                                         ('validation_n1', 'Validation niveau 1'),
@@ -656,7 +656,7 @@ class is_demande_conges(models.Model):
                                         ('validation_rh', 'Validation RH'),
                                         ('solde' , u'Soldé'),
                                         ('refuse', u'Refusé'),
-                                        ('annule', u'Annulé')], string=u'État', readonly=True, default='creation', index=True)
+                                        ('annule', u'Annulé')], string=u'État', tracking=True, readonly=True, default='creation', index=True)
     vers_creation_btn_vsb      = fields.Boolean(string='vers_creation_btn_vsb'     , compute='_get_btn_vsb', default=False, readonly=True)
     vers_annuler_btn_vsb       = fields.Boolean(string='vers_annuler_btn_vsb'      , compute='_get_btn_vsb', default=False, readonly=True)
     vers_refuse_btn_vsb        = fields.Boolean(string='vers_refuse_btn_vsb'       , compute='_get_btn_vsb', default=False, readonly=True)
@@ -666,11 +666,11 @@ class is_demande_conges(models.Model):
     vers_solde_btn_vsb         = fields.Boolean(string='vers_solde_btn_vsb'        , compute='_get_btn_vsb', default=False, readonly=True)
     fld_vsb                    = fields.Boolean(string='Field Vsb'                 , compute='_get_btn_vsb', default=False, readonly=True)
     droit_actualise_vsb        = fields.Boolean(string='droit_actualise_vsb'       , compute='_get_btn_vsb', default=False, readonly=True)
-    export_paye                = fields.Boolean(string='Exporté en paye', default=False, copy=False, tracking=True)
+    export_paye                = fields.Boolean(string='Exporté en paye', tracking=True, default=False, copy=False)
     demande_en_cours_ids       = fields.Many2many('is.demande.conges', string='Demandes en cours',compute="_compute_demande_en_cours_ids",store=False,readonly=True,copy=False)
     recapitulatif              = fields.Html(string='Récapitulatif', compute='_compute_recapitulatif')
-    active                     = fields.Boolean(string='Active', default=True, copy=False)
-    demande_origine_id         = fields.Many2one('is.demande.conges', "Demande d'origine", readonly=True, copy=False)
+    active                     = fields.Boolean(string='Active', tracking=True, default=True, copy=False)
+    demande_origine_id         = fields.Many2one('is.demande.conges', "Demande d'origine", tracking=True, readonly=True, copy=False)
 
 
     def get_cp_rc(self):

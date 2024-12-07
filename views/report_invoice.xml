@@ -38,7 +38,7 @@
                                         <span t-if="o.partner_id.lang != 'fr_FR'">AVOIR N°</span>
                                     </t>
                                     <span t-field="o.name"/>
-                                     du <span t-field="o.invoice_date"/><br />
+                                     - <span t-field="o.invoice_date"/><br />
                                 </div>
                                 <div>
                                     <span t-if="o.partner_id.lang == 'fr_FR'">Échéance :</span>

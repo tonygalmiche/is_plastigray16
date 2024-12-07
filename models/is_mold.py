@@ -117,33 +117,33 @@ class is_mold(models.Model):
             obj.bridage_specifique_vsb = vsb
 
     name             = fields.Char("N°Moule",size=40,required=True, index=True)
-    designation      = fields.Char("Désignation")
-    project          = fields.Many2one('is.mold.project', 'Projet')
+    designation      = fields.Char("Désignation", tracking=True)
+    project          = fields.Many2one('is.mold.project', 'Projet', tracking=True)
     client_id        = fields.Many2one('res.partner', 'Client'        , store=True, compute='_compute_chef_projet_id')
     chef_projet_id   = fields.Many2one('res.users'  , 'Chef de projet', store=True, compute='_compute_chef_projet_id')
-    dossierf_id      = fields.Many2one('is.dossierf', 'Dossier F')
+    dossierf_id      = fields.Many2one('is.dossierf', 'Dossier F', tracking=True)
     dossierf_ids     = fields.Many2many("is.dossierf", "is_mold_dossierf_rel", "mold_id", "dossierf_id", u"Dossiers F")
-    nb_empreintes    = fields.Char("Nb empreintes", help="Nombre d'empreintes du moule (Exemple : 1+1)")
-    moule_a_version  = fields.Selection([('oui', u'Oui'),('non', u'Non')], "Moule à version")
-    lieu_changement  = fields.Selection([('sur_presse', u'sur presse'),('en_mecanique', u'en mécanique')], "Lieu de changement")
-    temps_changement = fields.Float("Temps de changement de la version (H)")
-    nettoyer         = fields.Boolean('Nettoyage moule avant production')
-    nettoyer_vis     = fields.Boolean('Nettoyage vis avant production')
-    date_creation    = fields.Date("Date de création", default=lambda *a: fields.datetime.now())
-    date_fin         = fields.Date("Date de fin")
-    mouliste_id      = fields.Many2one('res.partner', 'Mouliste')
-    carcasse         = fields.Char("Carcasse")
-    emplacement      = fields.Char("Emplacement")
+    nb_empreintes    = fields.Char("Nb empreintes", tracking=True, help="Nombre d'empreintes du moule (Exemple : 1+1)")
+    moule_a_version  = fields.Selection([('oui', u'Oui'),('non', u'Non')], "Moule à version", tracking=True)
+    lieu_changement  = fields.Selection([('sur_presse', u'sur presse'),('en_mecanique', u'en mécanique')], "Lieu de changement", tracking=True)
+    temps_changement = fields.Float("Temps de changement de la version (H)", tracking=True)
+    nettoyer         = fields.Boolean('Nettoyage moule avant production', tracking=True)
+    nettoyer_vis     = fields.Boolean('Nettoyage vis avant production', tracking=True)
+    date_creation    = fields.Date("Date de création", default=lambda *a: fields.datetime.now(), tracking=True)
+    date_fin         = fields.Date("Date de fin", tracking=True)
+    mouliste_id      = fields.Many2one('res.partner', 'Mouliste', tracking=True)
+    carcasse         = fields.Char("Carcasse", tracking=True)
+    emplacement      = fields.Char("Emplacement", tracking=True)
     type_dateur      = fields.Selection([
             ('dateur_grille'    , u'dateur à grille'),
             ('dateur_laiton'    , u'dateur laiton'),
             ('dateur_fleche'    , u'dateur à fleche'),
             ('dateur_specifique', u'dateur spécifique'),
             ('pas_de_dateur'    , u'pas de dateur'),
-        ], "Type de dateur")
-    dateur_specifique = fields.Char("Commentaire sur dateur spécifique")
-    date_peremption   = fields.Date("Date de péremption")
-    qt_dans_moule     = fields.Integer("Quantité dans le moule")
+        ], "Type de dateur", tracking=True)
+    dateur_specifique = fields.Char("Commentaire sur dateur spécifique", tracking=True)
+    date_peremption   = fields.Date("Date de péremption", tracking=True)
+    qt_dans_moule     = fields.Integer("Quantité dans le moule", tracking=True)
     diametre_laiton   = fields.Selection([
             ('d3' , u'Ø3'),
             ('d4' , u'Ø4'),
@@ -152,7 +152,7 @@ class is_mold(models.Model):
             ('d8' , u'Ø8'),
             ('d10', u'Ø10'),
             ('d12', u'Ø12'),
-        ], "Diamètre dateur laiton")
+        ], "Diamètre dateur laiton", tracking=True)
     diametre_fleche  = fields.Selection([
             ('d4' , u'Ø4'),
             ('d5' , u'Ø5'),
@@ -164,81 +164,81 @@ class is_mold(models.Model):
             ('d16', u'Ø16'),
             ('d18', u'Ø18'),
             ('d20', u'Ø20'),
-        ], "Diamètre dateur fleche")
-    dateur_ids     = fields.One2many('is.mold.dateur', 'mold_id', u"Dateurs")
+        ], "Diamètre dateur fleche", tracking=True)
+    dateur_ids     = fields.One2many('is.mold.dateur', 'mold_id', u"Dateurs", tracking=True)
     dateur_ids_vsb = fields.Boolean('Dateurs vsb', store=False, compute='_compute_dateur_ids_vsb')
-    is_database_id         = fields.Many2one('is.database', "Site")
+    is_database_id         = fields.Many2one('is.database', "Site", tracking=True)
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True, copy=False)
 
-    numero_plaquette_interne = fields.Char(u"N° Plaquette interne client")
+    numero_plaquette_interne = fields.Char(u"N° Plaquette interne client", tracking=True)
 
-    largeur   = fields.Integer(u"Largeur (mm)")
-    hauteur   = fields.Integer(u"Hauteur (mm)")
-    epaisseur = fields.Integer(u"Epaisseur (mm)")
+    largeur   = fields.Integer(u"Largeur (mm)", tracking=True)
+    hauteur   = fields.Integer(u"Hauteur (mm)", tracking=True)
+    epaisseur = fields.Integer(u"Epaisseur (mm)", tracking=True)
 
-    largeur_hors_tout   = fields.Integer(u"Largeur hors tout (mm)")
-    hauteur_hors_tout   = fields.Integer(u"Hauteur hors tout (mm)")
-    epaisseur_hors_tout = fields.Integer(u"Epaisseur hors tout (mm)")
+    largeur_hors_tout   = fields.Integer(u"Largeur hors tout (mm)", tracking=True)
+    hauteur_hors_tout   = fields.Integer(u"Hauteur hors tout (mm)", tracking=True)
+    epaisseur_hors_tout = fields.Integer(u"Epaisseur hors tout (mm)", tracking=True)
 
-    poids = fields.Integer(u"Poids (Kg)")
+    poids = fields.Integer(u"Poids (Kg)", tracking=True)
 
-    nb_zones_utiles = fields.Char(u"Nombre de zones utiles sur le bloc chaud")
+    nb_zones_utiles = fields.Char(u"Nombre de zones utiles sur le bloc chaud", tracking=True)
 
     recu_de_buse = fields.Selection([
             ("standard"  , u"Standard = cône 90°"),
             ("spherique" , u"Standard = sphérique"),
             ("specifique", u"Spécifique"),
-        ], "Reçu de buse")
-    recu_de_buse_specifique = fields.Char(u"Reçu de buse spécifique")
+        ], "Reçu de buse", tracking=True)
+    recu_de_buse_specifique = fields.Char(u"Reçu de buse spécifique", tracking=True)
 
     diametre_entree_cheminee = fields.Selection([
             ("04"        , u"4.5 = Standard Plastigray"),
             ("05"        , u"5.5 = Standard Plastigray"),
             ("06"        , u"6.5 = Standard Plastigray"),
             ("specifique", u"Spécifique"),
-        ], u"Diamètre entrée cheminée")
-    diametre_entree_cheminee_specifique = fields.Char(u"Diamètre entrée cheminée spécifique")
+        ], u"Diamètre entrée cheminée", tracking=True)
+    diametre_entree_cheminee_specifique = fields.Char(u"Diamètre entrée cheminée spécifique", tracking=True)
 
     bridage_ids            = fields.Many2many("is.mold.bridage", "is_mold_bridage_rel", "mold_id", "bridage_id", u"Bridage")
     bridage_specifique_vsb = fields.Text(u"Bridage spécifique vsb", compute='_compute_bridage_specifique_vsb')
-    bridage_specifique     = fields.Char(u"Bridage spécifique")
+    bridage_specifique     = fields.Char(u"Bridage spécifique", tracking=True)
 
     ejection = fields.Selection([
             ("standard"    , u"Standard Plastigray (queue diam 60)"),
             ("autonome"    , u"Autonome (hydraulique)"),
             ("pas_ejection", u"Pas d'éjection"),
             ("specifique"  , u"Spécifique"),
-        ], "Ejection")
-    ejection_specifique = fields.Char(u"Ejection spécifique")
+        ], "Ejection", tracking=True)
+    ejection_specifique = fields.Char(u"Ejection spécifique", tracking=True)
 
-    diametre_passage_matiere = fields.Integer(u"Ø de passage matière")
+    diametre_passage_matiere = fields.Integer(u"Ø de passage matière", tracking=True)
     type_matiere_transformee = fields.Selection([
             ("amorphe"    , u"amorphe"),
             ("cristalline", u"cristalline"),
-        ], u"Type de matière transformée")
+        ], u"Type de matière transformée", tracking=True)
     embout_buse_longueur = fields.Selection([
             ("38mm", u"38mm"),
             ("70mm", u"70mm"),
             ("95mm", u"95mm"),
-        ], u"Longueur ")
+        ], u"Longueur ", tracking=True)
     type_de_portee = fields.Selection([
             ("conique90", u"conique à 90°"),
             ("rayon9"   , u"rayon de 9mm"),
-        ], u"Type de portée")
+        ], u"Type de portée", tracking=True)
 
     rondelle_centrage_fixe = fields.Selection([
             ("standard"     , u"Standard Plastigray : 100"),
             ("specifique"   , u"Spécifique"),
             ("sans_rondelle", u"Sans rondelle"),
-        ], "Rondelle de centrage - Partie fixe")
+        ], "Rondelle de centrage - Partie fixe", tracking=True)
     rondelle_centrage_fixe_specifique = fields.Char(u"Rondelle de centrage - Partie fixe spécifique")
 
     rondelle_centrage_mobile = fields.Selection([
             ("standard"     , u"Standard Plastigray : 100"),
             ("specifique"   , u"Spécifique"),
             ("sans_rondelle", u"Sans rondelle"),
-        ], "Rondelle de centrage - Partie mobile")
-    rondelle_centrage_mobile_specifique = fields.Char(u"Rondelle de centrage - Partie mobile spécifique")
+        ], "Rondelle de centrage - Partie mobile", tracking=True)
+    rondelle_centrage_mobile_specifique = fields.Char(u"Rondelle de centrage - Partie mobile spécifique", tracking=True)
 
     presse_ids = fields.Many2many("is.equipement", "is_mold_presse_rel", "mold_id", "presse_id", u"Presses", domain=[('type_id.code', '=', 'PE')])
 
@@ -247,61 +247,61 @@ class is_mold(models.Model):
             ("1", "1"),
             ("2", "2"),
             ("3", "3"),
-        ], "Nombre de noyaux - Partie fixe")
-    nb_noyaux_fixe_commentaire = fields.Char(u"Nombre de noyaux - Partie fixe - Commentaire")
+        ], "Nombre de noyaux - Partie fixe", tracking=True)
+    nb_noyaux_fixe_commentaire = fields.Char(u"Nombre de noyaux - Partie fixe - Commentaire", tracking=True)
     nb_noyaux_mobile = fields.Selection([
             ("0", "0"),
             ("1", "1"),
             ("2", "2"),
             ("3", "3"),
-        ], "Nombre de noyaux - Partie mobile")
-    nb_noyaux_mobile_commentaire = fields.Char(u"Nombre de noyaux - Partie mobile - Commentaire")
+        ], "Nombre de noyaux - Partie mobile", tracking=True)
+    nb_noyaux_mobile_commentaire = fields.Char(u"Nombre de noyaux - Partie mobile - Commentaire", tracking=True)
 
-    nb_circuit_eau_fixe = fields.Selection(_NB_CIRCUIT_EAU, "Nombre de circuits d'eau - Partie fixe")
-    nb_circuit_eau_fixe_commentaire = fields.Char(u"Nombre de circuits d'eau - Partie fixe - Commentaire")
-    nb_circuit_eau_mobile = fields.Selection(_NB_CIRCUIT_EAU, "Nombre de circuits d'eau - Partie mobile")
-    nb_circuit_eau_mobile_commentaire = fields.Char(u"Nombre de circuits d'eau - Partie mobile - Commentaire")
+    nb_circuit_eau_fixe = fields.Selection(_NB_CIRCUIT_EAU, "Nombre de circuits d'eau - Partie fixe", tracking=True)
+    nb_circuit_eau_fixe_commentaire = fields.Char(u"Nombre de circuits d'eau - Partie fixe - Commentaire", tracking=True)
+    nb_circuit_eau_mobile = fields.Selection(_NB_CIRCUIT_EAU, "Nombre de circuits d'eau - Partie mobile", tracking=True)
+    nb_circuit_eau_mobile_commentaire = fields.Char(u"Nombre de circuits d'eau - Partie mobile - Commentaire", tracking=True)
 
     cinematique = fields.Selection([
             ("standard"  , u"Standard : Cycle sans HM"),
             ("specifique", u"Spécifique"),
-        ], "Cinématique")
+        ], "Cinématique", tracking=True)
     cinematique_description = fields.Text(u"Cinématique - Description", compute='_compute_cinematique', readonly=True, store=True)
-    cinematique_specifique  = fields.Text(u"Cinématique - Spécifique")
+    cinematique_specifique  = fields.Text(u"Cinématique - Spécifique", tracking=True)
 
-    fiche_description_commentaire = fields.Text(u"Commentaire")
+    fiche_description_commentaire = fields.Text(u"Commentaire", tracking=True)
 
-    fiche_description_indice        = fields.Char(u"Indice")
-    fiche_description_createur_id   = fields.Many2one("res.users", "Créateur")
-    fiche_description_date_creation = fields.Date(u"Date de création fiche")
-    fiche_description_date_modif    = fields.Date(u"Date de modification")
+    fiche_description_indice        = fields.Char(u"Indice", tracking=True)
+    fiche_description_createur_id   = fields.Many2one("res.users", "Créateur", tracking=True)
+    fiche_description_date_creation = fields.Date(u"Date de création fiche", tracking=True)
+    fiche_description_date_modif    = fields.Date(u"Date de modification", tracking=True)
 
-    date_dernier_preventif        = fields.Date(u"Date dernier préventif", copy=False)
-    nb_cycles_dernier_preventif   = fields.Integer(u"Nb cycles dernier préventif", copy=False)
-    nb_cycles_actuel              = fields.Integer(u"Nb cycles actuel", copy=False)
-    nb_cycles_avant_preventif     = fields.Integer(u"Nb cycles avant préventif", copy=False)
-    periodicite_maintenance_moule = fields.Integer(u"Périodicité maintenance moule (nb cycles)")
+    date_dernier_preventif        = fields.Date(u"Date dernier préventif", tracking=True, copy=False)
+    nb_cycles_dernier_preventif   = fields.Integer(u"Nb cycles dernier préventif", tracking=True, copy=False)
+    nb_cycles_actuel              = fields.Integer(u"Nb cycles actuel", tracking=True, copy=False)
+    nb_cycles_avant_preventif     = fields.Integer(u"Nb cycles avant préventif", tracking=True, copy=False)
+    periodicite_maintenance_moule = fields.Integer(u"Périodicité maintenance moule (nb cycles)", tracking=True)
     gamme_preventif_ids           = fields.Many2many('ir.attachment', 'is_mold_attachment_rel', 'mold_id', 'file_id', u"Gamme préventif")
-    preventif_inactif             = fields.Boolean(u"Préventif inactif suite FDV", default=False)
+    preventif_inactif             = fields.Boolean(u"Préventif inactif suite FDV", tracking=True, default=False)
     is_base_check                 = fields.Boolean(string="Is Base", compute="_check_base_db")
     is_preventif_moule            = fields.One2many('is.preventif.moule', 'moule', u'Préventif Moule')
     systematique_ids              = fields.One2many('is.mold.systematique.array', 'mold_id',  u'Opérations systématiques')
     specifique_ids                = fields.One2many('is.mold.specifique.array', 'mold_id',  u'Opérations spécifiques')
     specification_ids             = fields.One2many('is.mold.specification.array', 'mold_id',  u'Spécifications particulières')
     piece_specifique_ids          = fields.Many2many('is.mold.piece.specifique', 'is_mold_piece_specifique_rel', 'mold_id', 'piece_spec_id', u"Pièces spécifiques de rechange en stock")
-    surface_aspect_id             = fields.Many2one('is.mold.surface.aspect', u"Surface d'aspect")
-    reference_grain               = fields.Char(string=u'Référence du grain utilisé')
-    graineur_id                   = fields.Many2one('res.partner', string='Graineur', domain="[('supplier','=',True)]")
-    diametre_seuil                = fields.Char(string=u'Diamètre seuil')
-    fournisseur_bloc_chaud_id     = fields.Many2one('res.partner', string='Fournisseur du bloc chaud', domain="[('supplier','=',True)]")
-    num_systeme                   = fields.Char(string=u'N° du système')
-    garantie_outillage            = fields.Char(string=u"Garantie de l'outillage (en nombre de cycles)")
-    extension_garantie            = fields.Char(string=u"Extension de garantie")
-    indice_creation_fiche         = fields.Char(string='Indice Fiche', default='A')
-    createur_fiche_id             = fields.Many2one("res.users", string=u'Créateur Fiche')
-    date_creation_fiche           = fields.Date(string=u'Date Création Fiche')
-    date_modification_fiche       = fields.Date(string='Date Modfication Fiche')
-    active      = fields.Boolean("Active", default=True, copy=False)
+    surface_aspect_id             = fields.Many2one('is.mold.surface.aspect', u"Surface d'aspect", tracking=True)
+    reference_grain               = fields.Char(string=u'Référence du grain utilisé', tracking=True)
+    graineur_id                   = fields.Many2one('res.partner', string='Graineur', domain="[('supplier','=',True)]", tracking=True)
+    diametre_seuil                = fields.Char(string=u'Diamètre seuil', tracking=True)
+    fournisseur_bloc_chaud_id     = fields.Many2one('res.partner', string='Fournisseur du bloc chaud', domain="[('supplier','=',True)]", tracking=True)
+    num_systeme                   = fields.Char(string=u'N° du système', tracking=True)
+    garantie_outillage            = fields.Char(string=u"Garantie de l'outillage (en nombre de cycles)", tracking=True)
+    extension_garantie            = fields.Char(string=u"Extension de garantie", tracking=True)
+    indice_creation_fiche         = fields.Char(string='Indice Fiche', default='A', tracking=True)
+    createur_fiche_id             = fields.Many2one("res.users", string=u'Créateur Fiche', tracking=True)
+    date_creation_fiche           = fields.Date(string=u'Date Création Fiche', tracking=True)
+    date_modification_fiche       = fields.Date(string='Date Modfication Fiche', tracking=True)
+    active      = fields.Boolean("Active", default=True, copy=False, tracking=True)
     dynacase_id = fields.Integer(string="Id Dynacase",index=True,copy=False)
 
 
