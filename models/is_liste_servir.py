@@ -380,6 +380,7 @@ class is_liste_servir(models.Model):
                     sol.is_numero_document,
                     sol.is_tg_number,
                     sol.is_num_ran,
+                    sol.is_identifiant_transport,
                     sol.is_code_routage,
                     sol.is_point_destination
             FROM sale_order so INNER JOIN sale_order_line sol ON so.id=sol.order_id
@@ -510,6 +511,7 @@ class is_liste_servir(models.Model):
                         'is_numero_document'                 : row['is_numero_document'],
                         'is_tg_number'                       : row['is_tg_number'],
                         'is_num_ran'                         : row['is_num_ran'],
+                        'is_identifiant_transport'           : row['is_identifiant_transport'],
                         'is_code_routage'                    : row['is_code_routage'],
                         'is_point_destination'               : row['is_point_destination'],
                     }
@@ -598,6 +600,7 @@ class is_liste_servir(models.Model):
                 "is_numero_document"                 : line.is_numero_document,
                 "is_tg_number"                       : line.is_tg_number,
                 "is_num_ran"                         : line.is_num_ran,
+                "is_identifiant_transport"           : line.is_identifiant_transport,
                 "is_code_routage"                    : line.is_code_routage,
                 "is_point_destination"               : line.is_point_destination,
             }
@@ -908,6 +911,7 @@ class is_liste_servir_line(models.Model):
     is_num_ran                          = fields.Char('NumRAN'           , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
     is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplas")
     is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    is_identifiant_transport            = fields.Char("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
 
 
     def pas_de_certifcat_action(self):

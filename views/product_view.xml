@@ -571,7 +571,8 @@
                         <field name="is_dossierf_id_vsb" invisible="1"/>
                         <field name="is_dossierf_id" attrs="{'invisible': [('is_dossierf_id_vsb', '=', True)]}"/>
                         <field name="is_ref_client_vsb" invisible="1"/>
-                        <field name="is_ref_client" attrs="{'invisible': [('is_ref_client_vsb', '=', True)]}"/>
+                        <field name="is_ref_client"       attrs="{'invisible': [('is_ref_client_vsb', '=', True)]}"/>
+                        <field name="is_code_fabrication" attrs="{'invisible': [('is_ref_client_vsb', '=', True)]}"/>
                         <field name="is_ref_fournisseur_vsb" invisible="1"/>
                         <field name="is_ref_fournisseur" attrs="{'invisible': [('is_ref_fournisseur_vsb', '=', True)]}"/>
                         <field name="is_origine_produit_id_vsb" invisible="1"/>
@@ -838,25 +839,26 @@
             <field name="arch" type="xml">
                 <tree string="tree">
                     <field name="is_code"/>
-                    <field name="name"               optional="show" string="Désignation"/>
-                    <field name="segment_id"         optional="show"/>
-                    <field name="family_id"          optional="show"/>
-                    <field name="is_category_id"     optional="show"/>
-                    <field name="is_gestionnaire_id" optional="show"/>
-                    <field name="is_mold_dossierf"   optional="show"/>
-                    <field name="is_client_id"       optional="show" widget="many2one_clickable"/>
-                    <field name="is_ref_client"      optional="show"/>
-                    <field name="is_fournisseur_id"  optional="show" widget="many2one_clickable"/>
-                    <field name="is_ref_plan"        optional="show"/>
-                    <field name="is_ind_plan"        optional="show"/>
-                    <field name="is_uc"              optional="show"/>
-                    <field name="is_uc_qt"           optional="show"/>
-                    <field name="uom_id"             optional="show"/>
-                    <field name="qty_available"      optional="show" string="Stock"/>
-                    <field name="temps_realisation"  optional="hide"/>
+                    <field name="name"                optional="show" string="Désignation"/>
+                    <field name="segment_id"          optional="show"/>
+                    <field name="family_id"           optional="show"/>
+                    <field name="is_category_id"      optional="show"/>
+                    <field name="is_gestionnaire_id"  optional="show"/>
+                    <field name="is_mold_dossierf"    optional="show"/>
+                    <field name="is_client_id"        optional="show" widget="many2one_clickable"/>
+                    <field name="is_ref_client"       optional="show"/>
+                    <field name="is_code_fabrication" optional="hide"/>
+                    <field name="is_fournisseur_id"   optional="show" widget="many2one_clickable"/>
+                    <field name="is_ref_plan"         optional="show"/>
+                    <field name="is_ind_plan"         optional="show"/>
+                    <field name="is_uc"               optional="show"/>
+                    <field name="is_uc_qt"            optional="show"/>
+                    <field name="uom_id"              optional="show"/>
+                    <field name="qty_available"       optional="show" string="Stock"/>
+                    <field name="temps_realisation"   optional="hide"/>
                     <field name="is_emplacement_declaration_prod_id" optional="hide"/>
-                    <field name="taxes_id"           optional="hide" widget="many2many_tags"/>
-                    <field name="supplier_taxes_id"  optional="hide" widget="many2many_tags"/>
+                    <field name="taxes_id"            optional="hide" widget="many2many_tags"/>
+                    <field name="supplier_taxes_id"   optional="hide" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>

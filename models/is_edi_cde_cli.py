@@ -41,14 +41,16 @@ class is_edi_cde_cli_line(models.Model):
     anomalie              = fields.Text('Anomalie')
     file_id               = fields.Many2one('ir.attachment', 'Fichier')
 
-    date_heure_livraison_au_plus_tot = fields.Char('Livraison au plus tôt' , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
-    date_heure_livraison             = fields.Char('Livraison au plus tard', help="Champ 'DateHeurelivraisonAuPlusTard' pour EDI Weidplas")
-    code_routage                     = fields.Char('Code routage'          , help="Champ 'CodeRoutage' pour EDI Weidplas")
-    point_destination                = fields.Char('Point destination'     , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
-    point_dechargement               = fields.Char('Point de déchargement' , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
-    numero_document                  = fields.Char('N°Document (CALDEL)'   , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
-    tg_number                        = fields.Char('TG Number'             , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
-    num_ran                          = fields.Char('NumRAN'                , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+    date_heure_livraison_au_plus_tot = fields.Char('Livraison au plus tôt'   , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
+    date_heure_livraison             = fields.Char('Livraison au plus tard'  , help="Champ 'DateHeurelivraisonAuPlusTard' pour EDI Weidplas")
+    code_routage                     = fields.Char('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    point_destination                = fields.Char('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    point_dechargement               = fields.Char('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
+    numero_document                  = fields.Char('N°Document (CALDEL)'     , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
+    tg_number                        = fields.Char('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    num_ran                          = fields.Char('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+    identifiant_transport            = fields.Char("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
+    code_fabrication                 = fields.Char('Code fabrication'        , help="Champ 'Codefabrication' pour EDI PO/Weidplas à remettre sur étiquette GALIA et BL")
 
 
     def action_acceder_commande(self):
@@ -166,6 +168,12 @@ class is_edi_cde_cli(models.Model):
                                 product    = order[0].is_article_commande_id
                             product_id = product.id
 
+                            #** Vérification code_fabrication *****************
+                            code_fabrication = ligne.get('code_fabrication')
+                            if code_fabrication and product:
+                                if code_fabrication!=product.is_code_fabrication:
+                                    anomalie2.append("Code fabrication '%s' différent de celui de la fiche article '%s'"%(code_fabrication,product.is_code_fabrication))
+
                             #** Date de livraison sur le jour indiqué **********
                             date_livraison=ligne["date_livraison"]
                             if isinstance(date_livraison, str):
@@ -231,6 +239,8 @@ class is_edi_cde_cli(models.Model):
                                 type_commande = 'previsionnel'
                             #***************************************************
 
+
+
                         if anomalie1:
                             anomalie2.append(anomalie1)
                         anomalie=''
@@ -240,6 +250,9 @@ class is_edi_cde_cli(models.Model):
 
                         if obj.import_function=="STELLANTIS":
                             point_dechargement = ligne.get('point_dechargement')
+
+
+
 
                         vals={
                             'edi_cde_cli_id'       : obj.id,
@@ -257,6 +270,8 @@ class is_edi_cde_cli(models.Model):
                             'numero_document'                  : ligne.get('numero_document'),
                             'tg_number'                        : ligne.get('tg_number'),
                             'num_ran'                          : ligne.get('num_ran'),
+                            'identifiant_transport'            : ligne.get('identifiant_transport'),
+                            'code_fabrication'                 : code_fabrication,
                             'numero_identification'            : ligne.get('numero_identification'),
                             'date_heure_livraison'             : ligne.get('date_heure_livraison'),
                             'date_heure_livraison_au_plus_tot' : ligne.get('date_heure_livraison_au_plus_tot'),
@@ -393,7 +408,7 @@ class is_edi_cde_cli(models.Model):
                                 'is_date_heure_livraison_au_plus_tot': line.date_heure_livraison_au_plus_tot,
                                 'is_numero_document'                 : line.numero_document,
                                 'is_tg_number'                       : line.tg_number,
-                                'is_num_ran'                         : line.num_ran,
+                                'is_identifiant_transport'           : line.identifiant_transport,
                                 'is_code_routage'                    : line.code_routage,
                                 'is_point_destination'               : line.point_destination,
                             }
@@ -1373,6 +1388,17 @@ class is_edi_cde_cli(models.Model):
 
 
 
+    def get_xpath(self,xml,key):
+        val=False
+        identifiant_transport=False
+        if  xml.xpath(key):
+            try:
+                val=xml.xpath(key)[0].text
+            except IndexError:
+                val=False
+        return val
+
+
     def get_data_STELLANTIS(self, attachment):
         res = []
         # def get_products(is_client_id=False,is_ref_client=False):
@@ -1486,6 +1512,7 @@ class is_edi_cde_cli(models.Model):
                     res.append(val)
             for caldel in tree.xpath("/CALDEL"):
                 numero_document = str(int(caldel.xpath("NumeroDocument")[0].text))
+                identifiant_transport = self.get_xpath(caldel,"IdTransport")
                 for partie_citee in caldel.xpath("SEQUENCE_PRODUCTION"):
                     num_ran=False
                     if  partie_citee.xpath("INSTRUCTIONS_EMBALLAGE"):
@@ -1496,12 +1523,13 @@ class is_edi_cde_cli(models.Model):
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
                         try:
+                            code_fabrication=partie_citee.xpath("ARTICLE_PROGRAMME/Codefabrication")[0].text
+                        except IndexError:
+                            code_fabrication=False
+                        try:
                             tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
                         except IndexError:
                             tg_number=""
-
-
-
 
                         #products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                         anomalie=[]
@@ -1570,6 +1598,8 @@ class is_edi_cde_cli(models.Model):
                                 'numero_document'      : numero_document,  # N°UM de PSA 
                                 'tg_number'            : tg_number,        # N°UM de Weidplas
                                 'num_ran'              : num_ran,          # N°UM de PO
+                                'identifiant_transport': identifiant_transport,
+                                'code_fabrication'     : code_fabrication,
                                 'numero_identification': numero_identification,
                                 'date_heure_livraison'             : date_heure_livraison,
                                 'date_heure_livraison_au_plus_tot' : date_heure_livraison_au_plus_tot,

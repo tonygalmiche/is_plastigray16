@@ -479,7 +479,8 @@ class sale_order_line(models.Model):
     is_point_destination                = fields.Char('Point destination', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
     is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
     is_tg_number                        = fields.Char('TG Number'        , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
-    is_num_ran                          = fields.Char('NumRAN'           , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+    is_num_ran                          = fields.Char('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+    is_identifiant_transport            = fields.Char("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
 
 
 # NumRAN

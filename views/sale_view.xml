@@ -167,6 +167,7 @@
                     <field name="is_numero_document"                    readonly="1" optional="hide"/>
                     <field name="is_tg_number"                          readonly="1" optional="hide"/>
                     <field name="is_num_ran"                                         optional="hide"/>
+                    <field name="is_identifiant_transport"                           optional="hide"/>
                     <field name="is_code_routage"                       readonly="1" optional="hide"/>
                     <field name="is_point_destination"                  readonly="1" optional="hide"/>
                 </xpath> 

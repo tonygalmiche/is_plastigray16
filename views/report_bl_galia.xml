@@ -170,6 +170,9 @@
                                 <t t-set="pds_net" t-value="round(qt1*move.product_id.weight_net,1)"/>
                                 <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,1)"/>
                                 <td>
+                                    <t t-if="move.product_id.is_code_fabrication">
+                                        <span t-field="move.product_id.is_code_fabrication"/> - 
+                                    </t>
                                     <span t-field="move.product_id.name"/><br/>
                                     <span t-field="move.product_id.is_origine_produit_id.code"/> <br/>
                                     <span t-field="move.sale_line_id.is_client_order_ref"/>

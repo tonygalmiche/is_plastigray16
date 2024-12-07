@@ -282,12 +282,11 @@ class is_reception_inter_site(models.Model):
                             picking.is_qt_livree_inter_site    = qt_scan # Quantitée scannée en livraison qu'il faudra réceptionner
                         #**********************************************************
 
-
-
-                        msg = "%s : %s au %s Liv : %s au %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(
+                        msg = "%s : %s au %s Liv (%s) : %s au %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(
                             is_code.ljust(9), 
                             str(qt_liv).rjust(8), 
                             row_liv['is_date_livraison'],
+                            row_liv['name'],
                             str(qt_rcp).rjust(8),
                             str(row['date_planned'])[0:10],  
                             num_rcp,

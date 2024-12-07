@@ -39,12 +39,13 @@
                     <field name="product_id"          readonly="0" widget="many2one_clickable"/>
                     <field name="date_livraison"/>
                     <field name="quantite"            sum="Total"/>
-                    <field name="point_dechargement"    optional="show" />
-                    <field name="numero_document"       optional="hide" />
-                    <field name="tg_number"             optional="hide" />
-                    <field name="num_ran"               optional="hide" />
-                    <field name="date_heure_livraison"  optional="hide" />
-                    <field name="numero_identification" optional="hide" />
+                    <field name="point_dechargement"     optional="show" />
+                    <field name="numero_document"        optional="hide" />
+                    <field name="tg_number"              optional="hide" />
+                    <field name="num_ran"                optional="hide" />
+                    <field name="identifiant_transport"  optional="hide" />
+                    <field name="date_heure_livraison"   optional="hide" />
+                    <field name="numero_identification"  optional="hide" />
                     <field name="type_commande"/>
                     <field name="prix"/>
                     <field name="order_id"            readonly="0" widget="many2one_clickable"/>
@@ -67,6 +68,8 @@
                     <field name="numero_document"                  optional="show" />
                     <field name="tg_number"                        optional="show" />
                     <field name="num_ran"                          optional="show" />
+                    <field name="identifiant_transport"            optional="hide" />
+                    <field name="code_fabrication"                 optional="hide" />
                     <field name="code_routage"                     optional="show" />
                     <field name="point_destination"                optional="show" />
                     <field name="point_dechargement"               optional="show" />

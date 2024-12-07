@@ -249,10 +249,19 @@ class stock_picking(models.Model):
             return res
 
 
+    def compute_is_identifiant_transport(self):
+        "Recherche du champ sur les lignes de la commande pour le renseigner en entête de BL"
+        for obj in self:
+            if not obj.is_identifiant_transport:
+                for move in obj.move_ids_without_package:
+                    if move.sale_line_id.is_identifiant_transport:
+                        obj.is_identifiant_transport = move.sale_line_id.is_identifiant_transport
+                        break
 
 
     def compute_is_colisage_ids(self):
         for obj in self:
+            obj.compute_is_identifiant_transport()
             colis={}
             lines=[]
             um_ids=[]
