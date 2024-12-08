@@ -77,14 +77,26 @@
                         <tr>
                             <td style="width:58mm" class="adresse">
                                 <div class="titre-adresse">VENDEUR</div>
-                                <div>
-                                    <b>PLASTIGRAY SAS</b> <br />
-                                    ZAC de Gray Sud <br />
-                                    CS 10133 <br />
-                                    70104 GRAY Cedex<br />
-                                    FRANCE<br />
-                                    VAT : FR 65 377 846 381 <br />
-                                </div>
+                                <t t-if="not o.partner_id.is_vendeur_id">
+                                    <div>
+                                        <b>PLASTIGRAY SAS</b> <br />
+                                        ZAC de Gray Sud <br />
+                                        CS 10133 <br />
+                                        70104 GRAY Cedex<br />
+                                        FRANCE<br />
+                                        VAT : FR 65 377 846 381 <br />
+                                    </div>
+                                </t>
+                                <t t-if="o.partner_id.is_vendeur_id">
+                                    <div>
+                                        <b><span t-field="o.partner_id.is_vendeur_id.name"/></b><br />
+                                        <span t-field="o.partner_id.is_vendeur_id.street"/><br />
+                                        <span t-field="o.partner_id.is_vendeur_id.street2"/><br />
+                                        <span t-field="o.partner_id.is_vendeur_id.zip"/> <span t-field="o.partner_id.is_vendeur_id.city"/><br />
+                                        <span t-field="o.partner_id.is_vendeur_id.country_id.name"/><br />
+                                        VAT : <span t-field="o.partner_id.is_vendeur_id.vat"/><br />
+                                    </div>
+                                </t>
                             </td>
                             <td style="width:8mm;border:none">     
                             </td>

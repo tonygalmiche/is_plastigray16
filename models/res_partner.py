@@ -503,6 +503,8 @@ class res_partner(models.Model):
         ('mail_client_bl'  , 'Envoi par mail avec BL (1 mail par client)'),
         ('mail_regroupe_bl', 'Regroupement des BL sur une même facture et envoi par mail'),
     ], "Mode d'envoi des factures")
+
+    is_vendeur_id           = fields.Many2one('res.partner', 'Vendeur', help="Champ utilisé pour les BL Galia de Weidplas / PO", domain="[('is_company','=',True),('customer','=',True)]" )
     is_type_cde_fournisseur = fields.Selection(type_commande_list, "Type commande fourniseur", readonly=True)
     is_horizon_besoins      = fields.Integer(u'Horizon des besoins (jour)', default=7, help=u"Champ utilisé pour le mail de l'horizon des besoins (7 jours en général ou 21 jours pendant la période de vacances)")
 
@@ -519,6 +521,7 @@ class res_partner(models.Model):
     close_sunday    = fields.Boolean('Dimanche'  , default=True)
     
     pricelist_purchase_id = fields.Many2one('product.pricelist',"Liste de prix d'achat")
+
 
  
     def _message_auto_subscribe_notify(self, partner_ids, template):
@@ -665,6 +668,7 @@ class res_partner(models.Model):
             'is_caracteristique_liste_a_servir'  : self.is_caracteristique_liste_a_servir,
             'is_caracteristique_bl'  : self.is_caracteristique_bl,
             'is_mode_envoi_facture'  : self.is_mode_envoi_facture,
+            'is_vendeur_id'          : self._get_is_vendeur_id(DB, USERID, USERPASS, sock),
             'is_database_line_ids'   : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),
             'vat'                              : self.vat,
             'property_account_position_id'     : self.property_account_position_id.id,
@@ -724,6 +728,7 @@ class res_partner(models.Model):
             id = sock.execute(DB, USERID, USERPASS, 'res.country.state', 'create', vals)
             return id
 
+
     def _get_partner_is_adr_facturation(self, DB, USERID, USERPASS, sock):
         if not self.is_adr_facturation.id:
             return False
@@ -734,6 +739,19 @@ class res_partner(models.Model):
         if ids:
             return ids[0]
         return False
+
+
+    def _get_is_vendeur_id(self, DB, USERID, USERPASS, sock):
+        if not self.is_vendeur_id.id:
+            return False
+        ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_vendeur_id.id),'|',('active','=',True),('active','=',False)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_vendeur_id)
+            ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_vendeur_id.id),'|',('active','=',True),('active','=',False)])
+        if ids:
+            return ids[0]
+        return False
+
 
     def _get_title(self, DB, USERID, USERPASS, sock):
         if not self.title:
