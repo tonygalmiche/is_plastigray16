@@ -144,8 +144,9 @@ class is_edi_cde_cli(models.Model):
                         partner_id   = order[0].partner_id.id
                         pricelist    = order[0].pricelist_id
                     for ligne in row["lignes"]:
-                        product_id = False
-                        prix       = 0
+                        product_id       = False
+                        prix             = 0
+                        code_fabrication = False
                         anomalie2  = []
                         if len(order):
                             if point_dechargement:
