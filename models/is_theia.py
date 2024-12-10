@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api,tools
+from odoo.exceptions import ValidationError
 import time
 import datetime
 from dateutil.relativedelta import relativedelta
 import os
 #import subprocess
-from odoo.exceptions import ValidationError
+
+from subprocess import PIPE, Popen
+
+
+
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -180,9 +185,25 @@ class is_raspberry(models.Model):
             f.write(sorties)
             f.close()
             cmd="scp -o ConnectTimeout=2 -o StrictHostKeyChecking=no "+path+" root@"+IP+":/opt/theia/sorties/sorties.txt"
-            res=subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell = True).strip()
 
-            _logger.info("is_raspberry : rafraichir_sorties : %s : %s : %s"%(obj.name, sorties, res))
+
+            _logger.info("is_raspberry : rafraichir_sorties : cmd=%s"%(cmd))
+
+
+            #res=subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell = True).strip()
+            p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate()
+            _logger.info("cde:%s, stdout:%s, stderr:%s"%(cmd,stdout.decode("utf-8"),stderr.decode("utf-8")))
+
+
+
+            #_logger.info("is_raspberry : rafraichir_sorties : %s : %s : %s"%(obj.name, sorties, res))
+
+
+                        #     stdout, stderr = p.communicate()
+                        #     _logger.info("cde:%s, stdout:%s, stderr:%s"%(cde,stdout.decode("utf-8"),stderr.decode("utf-8")))
+
+
 
 
             #TODO : Le rafraissement ne fonctionne pas toujours (1 fois sur 2)
