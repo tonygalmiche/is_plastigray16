@@ -67,6 +67,11 @@ class is_edi_cde_cli_line(models.Model):
             }
 
 
+    def action_dupliquer(self):
+        for obj in self:
+            obj.copy()
+
+
 class is_edi_cde_cli(models.Model):
     _name = "is.edi.cde.cli"
     _description = "EDI commandes clients"
