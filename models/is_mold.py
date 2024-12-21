@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from odoo import models,fields,api
-from odoo.tools.translate import _
+from odoo import models,fields,api # type: ignore
+from odoo.tools.translate import _ # type: ignore
 import datetime
 
 

@@ -590,7 +590,7 @@
         <field name="group_id"    eval="ref('is_gestionnaire_moules_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="True"/>
     </record>
     <record id="is_mold_access"  model="ir.model.access" >
@@ -599,7 +599,7 @@
         <field name="group_id"    eval="ref('is_gestionnaire_moules_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="True"/>
     </record>
     <record id="is_dossierf_access"  model="ir.model.access" >
@@ -608,7 +608,7 @@
         <field name="group_id"    eval="ref('is_gestionnaire_moules_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="True"/>
     </record>
 

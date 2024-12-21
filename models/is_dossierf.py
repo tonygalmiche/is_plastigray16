@@ -3,19 +3,20 @@ from odoo import models,fields,api
 
 class is_dossierf(models.Model):
     _name='is.dossierf'
+    _inherit=['mail.thread']
     _description = "Dossier F"
     _order='name'
-    _sql_constraints = [('name_uniq','UNIQUE(name)', u'Ce Dossier F existe déjà !')] 
+    _sql_constraints = [('name_uniq','UNIQUE(name)', 'Ce Dossier F existe déjà !')] 
 
-    name            = fields.Char("N°Dossier",size=40,required=True, index=True)
-    designation     = fields.Char("Désignation")
-    project         = fields.Many2one('is.mold.project', 'Projet')
+    name            = fields.Char("N°Dossier",size=40,required=True, index=True, tracking=True)
+    designation     = fields.Char("Désignation", tracking=True)
+    project         = fields.Many2one('is.mold.project', 'Projet', tracking=True)
     client_id       = fields.Many2one('res.partner', 'Client'        , store=True, compute='_compute')
     chef_projet_id  = fields.Many2one('res.users'  , 'Chef de projet', store=True, compute='_compute')
-    mold_ids        = fields.One2many('is.mold', 'dossierf_id', u"Moules")
-    is_database_id         = fields.Many2one('is.database', "Site")
+    mold_ids        = fields.One2many('is.mold', 'dossierf_id', "Moules")
+    is_database_id         = fields.Many2one('is.database', "Site", tracking=True)
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
-    active      = fields.Boolean("Active", default=True, copy=False)
+    active      = fields.Boolean("Active", default=True, copy=False, tracking=True)
     dynacase_id = fields.Integer(string="Id Dynacase",index=True,copy=False)
 
 

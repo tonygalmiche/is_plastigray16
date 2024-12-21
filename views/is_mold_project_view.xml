@@ -2,7 +2,6 @@
 
 <odoo>
     <data>
-
         <record model="ir.ui.view" id="is_mold_project_form_view">
             <field name="name">is_mold_project_form_view</field>
             <field name="model">is.mold.project</field>
@@ -10,6 +9,8 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <group>
                             <field name="name"/>
                             <field name="client_id" domain="[('customer','=',True),('is_company','=',True)]"/> 
@@ -32,6 +33,10 @@
                             </tree>
                         </field>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
