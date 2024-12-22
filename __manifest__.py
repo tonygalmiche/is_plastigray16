@@ -146,7 +146,7 @@ Module Odoo 16 pour Plastigray
         "views/is_gabarit_controle_view.xml",
         "views/is_gestion_des_absences_view.xml",
         "views/is_import_budget_pk_view.xml",
-        "views/is_indicateur_revue_jalon_view.xml",
+        #"views/is_indicateur_revue_jalon_view.xml",
         "views/is_instruction_particuliere_view.xml",
         "views/is_instrument_mesure_view.xml",
         "views/is_inventaire_view.xml",

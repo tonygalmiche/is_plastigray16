@@ -2305,7 +2305,7 @@
     </record>
     
     <!-- Indicateurs -->
-    <record id="is_indicateur_bei_menu" model="ir.ui.menu" >
+    <!-- <record id="is_indicateur_bei_menu" model="ir.ui.menu" >
         <field name="name">BEI</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('is_indicateurs_menu')"/>
@@ -2321,7 +2321,7 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_chef_projet_group'),
         ])]"/>
-    </record>
+    </record> -->
 
 
     <!-- <record id="is_indicateur_commercial_menu" model="ir.ui.menu" >
