@@ -2304,25 +2304,6 @@
         ])]"/>
     </record>
     
-    <!-- Indicateurs -->
-    <!-- <record id="is_indicateur_bei_menu" model="ir.ui.menu" >
-        <field name="name">BEI</field>
-        <field name="sequence">20</field>
-        <field name="parent_id" eval="ref('is_indicateurs_menu')"/>
-        <field name="groups_id" eval="[(6,0,[
-            ref('is_base_principale_grp'),
-        ])]"/>
-    </record>
-    <record id="is_indicateur_revue_jalon_menu" model="ir.ui.menu" >
-        <field name="name">Indicateur Revue Jalon</field>
-        <field name="sequence">10</field>
-        <field name="parent_id" eval="ref('is_indicateur_bei_menu')"/>
-        <field name="action"    ref="is_indicateur_revue_jalon_action"/>
-        <field name="groups_id" eval="[(6,0,[
-            ref('is_chef_projet_group'),
-        ])]"/>
-    </record> -->
-
 
     <!-- <record id="is_indicateur_commercial_menu" model="ir.ui.menu" >
         <field name="name">Commercial</field>

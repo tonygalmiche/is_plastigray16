@@ -27,7 +27,6 @@ from . import is_demande_achat_moule
 from . import is_demande_achat_serie
 from . import is_demande_transport
 from . import is_donnee_machine
-# from . import is_dossier_appel_offre
 from . import is_dossier_article
 from . import is_dossierf
 from . import is_edi_cde_cli          # TODO à finaliser
@@ -48,7 +47,6 @@ from . import is_mold_project
 from . import product
 from . import is_historique_controle
 from . import is_import_budget_pk
-#from . import is_indicateur_revue_jalon
 from . import is_instruction_particuliere
 from . import is_instrument_mesure
 from . import is_invest
