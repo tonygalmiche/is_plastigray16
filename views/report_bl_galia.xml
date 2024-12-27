@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <data>
-
-
-    <!-- <div class="col-3">
-        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 350, 60)"/><br/><br/>
-    </div> -->
-
-
     <template id="bl_galia_external_layout_standard">
         <div class="header bl_galia">
             <div class="row">
@@ -16,11 +9,15 @@
                         <span t-if="o.partner_id.lang == 'fr_FR'">BORDEREAU DE LIVRAISON N°</span>
                         <span t-if="o.partner_id.lang != 'fr_FR'">DELIVERY NOTE N°</span>
                         <span t-field="o.name"/> <br />
-                        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 300, 35)"/>
+                        <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.code_barre">
+                            <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 300, 35)"/>
+                        </t>
                     </div>
                 </div>
                 <div class="col-4 text-center">
-                    <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.logo_pg">
+                        <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
+                    </t>
                 </div>
                 <div class="col-2 text-center">
                     DATE : <span t-field="o.is_date_expedition" t-options='{"format": "dd/MM/yyyy"}'/> 
@@ -114,7 +111,8 @@
                             <td style="width:58mm" class="adresse">
                                 <div class="titre-adresse">DESTINATAIRE</div>
                                 <div>
-                                    <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)
+                                    <b><span t-field="o.partner_id.name"/></b>
+                                     <!-- (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>) -->
                                     <div t-field="o.partner_id"
                                             t-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
                                     <div t-if="o.partner_id.vat">VAT : <span t-field="o.partner_id.vat"/></div>
@@ -147,18 +145,26 @@
                     </div>
                     <table class="table table-condensed">
                         <thead>
-                          <tr>
-                              <th class="text-left thhead">Désignation article<br/>Pays d'origine<br/>N° de commande</th>
-                              <th class="text-left thhead">N° article<br/>Commentaire</th>
-                              <th class="text-left thhead">Quantité expédiée</th>
-                              <th class="text-left thhead">Unité</th>
-                              <th class="text-left thhead">Type de colis</th>
-                              <th class="text-left thhead">Nbre</th>
-                              <th class="text-left thhead">N° d'UC [N° de lot]</th>
-                              <th class="text-left thhead">Qté par UC</th>
-                              <th class="text-left thhead">N° de l'ordre</th>
-                              <th class="text-left thhead">N° UM</th>
-                          </tr>
+                            <tr>
+                                <th class="text-left thhead">Désignation article<br/>Pays d'origine<br/>N° de commande</th>
+                                <th class="text-left thhead">N° article
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.code_pg">
+                                        <br/>Commentaire
+                                    </t>
+                                </th>
+                                <th class="text-left thhead">Quantité expédiée</th>
+                                <th class="text-left thhead">Unité</th>
+                                <th class="text-left thhead">Type de colis</th>
+                                <th class="text-left thhead">Nbre</th>
+                                <th class="text-left thhead">N° d'UC
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.numero_lot">
+                                        [N° de lot]
+                                    </t>
+                                </th>
+                                <th class="text-left thhead">Qté par UC</th>
+                                <th class="text-left thhead">N° de l'ordre</th>
+                                <th class="text-left thhead">N° UM</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <t t-set="pds_brut_total" t-value="0"/>
@@ -191,9 +197,13 @@
                                 </td>
                                 <td>
                                     <span t-field="move.product_id.is_ref_client"/><br/>
-                                    <span t-field="move.product_id.is_code"/><br/>
-                                    <t t-if="move.product_id.is_nomenclature_douaniere">
-                                        <i>Nomenclature douanière : <span t-field="move.product_id.is_nomenclature_douaniere"/></i>
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.code_pg">
+                                        <span t-field="move.product_id.is_code"/><br/>
+                                    </t>
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.nomenclature_douaniere">
+                                        <t t-if="move.product_id.is_nomenclature_douaniere">
+                                            <i>Nomenclature douanière : <span t-field="move.product_id.is_nomenclature_douaniere"/></i>
+                                        </t>
                                     </t>
                                 </td>
                                 <td class="text-right">
@@ -214,7 +224,12 @@
                                     </t>
                                 </td>
                                 <td class="text-left" style="font-size:9pt">
-                                    <span t-field="move.is_uc_galia" style="white-space: nowrap;"/>
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.numero_lot">
+                                        <span t-field="move.is_uc_galia" style="white-space: nowrap;"/>
+                                    </t>
+                                    <t t-if="o.partner_id.is_configuration_bl_id and not o.partner_id.is_configuration_bl_id.numero_lot">
+                                        <span t-field="move.is_uc" style="white-space: nowrap;"/>
+                                    </t>
                                 </td>
                                 <td class="text-right">
                                     <t t-if="nb2">
@@ -230,25 +245,27 @@
                         </tbody>
                     </table>
                     <br />
-                    <table class="table table-condensed" style="width:40%">
-                        <thead>
-                          <tr>
-                              <th class="text-left thhead">Type de colis</th>
-                              <th class="text-left thhead">Nombre</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <tr t-foreach="o.is_colisage_ids" t-as="colis">
-                                <td class="text-left" style="padding: 0.1rem 0.1rem;">
-                                    <span t-field="colis.colis_id.name" style="white-space: nowrap;"/>
-                                </td>
-                                <td class="text-right" style="padding: 0.1rem 0.1rem;">
-                                    <span t-field="colis.nb"/>
-                                </td>
+                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.type_colis">
+                        <table class="table table-condensed" style="width:40%">
+                            <thead>
+                            <tr>
+                                <th class="text-left thhead">Type de colis</th>
+                                <th class="text-left thhead">Nombre</th>
                             </tr>
-                        </tbody>
-                    </table>
-                    <br />
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.is_colisage_ids" t-as="colis">
+                                    <td class="text-left" style="padding: 0.1rem 0.1rem;">
+                                        <span t-field="colis.colis_id.name" style="white-space: nowrap;"/>
+                                    </td>
+                                    <td class="text-right" style="padding: 0.1rem 0.1rem;">
+                                        <span t-field="colis.nb"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                    </t>
                     <table style="width:100%">
                         <tr>
                             <td style="width:42mm" class="adresse">
@@ -269,17 +286,25 @@
                                 <div>
                                     N° de véhicule moteur : <b><span t-field="o.is_plaque_immatriculation" /></b><br />
                                     N° de dossier de transport : <b><span t-field="o.is_dossier_transport" /></b> <br />
-                                    Mode de transport : <b><span t-field="o.partner_id.is_mode_transport_id.name" /></b> <br />
-                                    Port : <b><span t-field="o.partner_id.is_incoterm.name"/></b><br />
-                                    Identification transport : <b><span t-field="o.is_identifiant_transport" /></b>
+
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.mode_transport">
+                                        Mode de transport : <b><span t-field="o.partner_id.is_mode_transport_id.name" /></b> <br />
+                                    </t>
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.port">
+                                        Port : <b><span t-field="o.partner_id.is_incoterm.name"/></b><br />
+                                    </t>
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.identification_transport">
+                                        Identification transport : <b><span t-field="o.is_identifiant_transport" /></b>
+                                    </t>
                                 </div>
                             </td>
                             <td style="width:5mm;border:none">  
                             </td>
                             <td style="width:42mm" class="adresse">
-
                                 <div>
-                                    Poids net total :   <b><span t-esc="round(pds_net_total,1)"/> KG</b><br />
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.poids_net">
+                                        Poids net total :   <b><span t-esc="round(pds_net_total,1)"/> KG</b><br />
+                                    </t>
                                     Poids brut total :  <b><span t-esc="round(pds_brut_total,1)"/> KG</b><br />
                                     Nombre total d'UM : <b><span t-field="o.is_nb_um"/></b>
                                 </div>

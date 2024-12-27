@@ -693,10 +693,9 @@ class stock_picking(models.Model):
             liste_servir_id=obj.sale_id.is_liste_servir_id.id
             if liste_servir_id:
                 obj.compute_is_colisage_ids()
-
-
             for move in obj.move_ids_without_package:
                 move.compute_is_uc_galia()
+                move._compute_lots()
             obj.compute_alerte()
 
 

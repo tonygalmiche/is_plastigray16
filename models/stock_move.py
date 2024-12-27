@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import string
 from odoo import models,fields,api
+import re
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -10,7 +11,7 @@ class stock_move(models.Model):
     _order   = "date desc, id"
 
 
-    @api.depends('product_id','product_uom_qty')
+    @api.depends('product_id','product_uom_qty','picking_id.state')
     def _compute_lots(self):
         cr = self._cr
         for obj in self:
@@ -67,10 +68,11 @@ class stock_move(models.Model):
 
     is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16 et remplacé par sale_line_id)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
     is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
-    is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=False, readonly=True)
-    is_dosmat_ctrl_qual           = fields.Char(u'Contrôle qualité', readonly=True)
-    is_dosmat_conditions_stockage = fields.Char(u'Conditions de stockage', readonly=True)
-    is_point_dechargement         = fields.Char(u'Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
+    #is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=True, readonly=True)
+    is_lots                       = fields.Text('Lots', compute='_compute_lots', store=True, readonly=True, copy=False)
+    is_dosmat_ctrl_qual           = fields.Char('Contrôle qualité', readonly=True)
+    is_dosmat_conditions_stockage = fields.Char('Conditions de stockage', readonly=True)
+    is_point_dechargement         = fields.Char('Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
     is_employee_theia_id          = fields.Many2one('hr.employee', 'Employé Theia')
 
     is_amortissement_moule  = fields.Float('Amt client négocié'        , digits=(14,4))
@@ -90,6 +92,7 @@ class stock_move(models.Model):
     is_qt_uc                = fields.Float('Qt UC'    , readonly=True, copy=False, digits=(14,4), help="Total de la quantité des UC scannées")
     is_uc_galia             = fields.Text('UC (Galia)', readonly=True, copy=False)
     is_um_galia             = fields.Text('UM (Galia)', readonly=True, copy=False)
+    is_uc                   = fields.Text('UC'        , readonly=True, copy=False, help="UC sans indiquer le lot pour Stellantis")
 
 
     def compute_is_uc_galia(self):
@@ -146,6 +149,16 @@ class stock_move(models.Model):
                         lines_uc.append(set_num_uc(first,last,lot))
                         lines_um.append(set_num_um(uc,um,ct))
                         ct+=1
+            lines_uc_sans_lot=[]
+            for line in lines_uc:
+                uc=''
+                x = re.search("(.*) (\[.*\])", line) 
+                if x:
+                    v = x.groups()
+                    if len(v)>0:
+                        uc=v[0]
+                lines_uc_sans_lot.append(uc)
+            obj.is_uc       = "\n".join(lines_uc_sans_lot)
             obj.is_uc_galia = "\n".join(lines_uc)
             obj.is_um_galia = "\n".join(lines_um)
             obj.is_qt_uc = qt_uc
