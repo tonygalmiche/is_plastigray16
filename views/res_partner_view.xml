@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
 
         <!-- base.view_res_partner_filter --> 
@@ -22,7 +22,7 @@
             <field name="inherit_id" ref="base.view_partner_form" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='category_id']" position="after">
-                    <field name="is_database_line_ids" widget="many2many_tags"/> <!-- nolabel="1" placeholder="Sites"/> -->
+                    <field name="is_database_line_ids" widget="many2many_tags"/>
                 </xpath>
                 <xpath expr="//field[@name='street2']" position="after">
                     <field name="is_rue3" placeholder="Rue 3 ou Boite Postale" />
@@ -119,9 +119,6 @@
                 <xpath expr="//field[@name='ref']" position="attributes">
                     <attribute name="attrs">{'invisible':True}</attribute> 
                 </xpath>
-                <!-- <xpath expr="//field[@name='date']" position="attributes">
-                    <attribute name="attrs">{'invisible':True}</attribute> 
-                </xpath> -->
                 <xpath expr="//page[@name='sales_purchases']" position="attributes">
                     <attribute name="attrs">{'invisible':[('is_company', '=', False)]}</attribute> 
                 </xpath>
@@ -218,29 +215,7 @@
     
                         </group>
                     </page>
-
-
-
-                    <!-- <group string="Réponse à la demande" name="PLASFIL_FR_ANNEX">
-                        <field name="array_ids" nolabel="1" colspan="2">
-                            <tree editable="bottom">
-                                <field name="lig" optional="hide"/>
-                                <field name="annex_pdf" optional="hide" widget="many2many_binary"/>
-                                <field name="annex" widget="many2many_binary" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['PJ', 'PJ_TEXTE', 'PJ_DATE'])]}"/>
-                                <field name="demandmodif" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['TEXTE'])]}"/>
-                                <field name="maj_amdec" optional="hide"/>
-                                <field name="comment" optional="hide" widget="text"/>
-                                <field name="rsp_date" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['DATE', 'PJ_DATE'])]}"/>
-                                <field name="rsp_texte" attrs="{'column_invisible': [('parent.ppr_type_demande', 'not in', ['TEXTE'])]}"/>
-                            </tree>
-                        </field>
-                    </group>
- -->
-
-
-
                 </xpath>
-
             </field>
         </record>
         <record id="is_product_view_partner_property_form" model="ir.ui.view">
@@ -248,15 +223,9 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="product.view_partner_property_form" />
             <field name="arch" type="xml">
-
-
-                <!-- <field name="property_product_pricelist" groups="product.group_product_pricelist" attrs="{'invisible': [('is_company','=',False),('parent_id','!=',False)]}"/> -->
-
                 <field name="property_product_pricelist" position="attributes">
                     <attribute name="groups">base.group_user</attribute> 
                 </field>
-
-
                 <field name="property_product_pricelist" position="after">
                     <field name="pricelist_purchase_id"/>
                 </field>
@@ -282,8 +251,6 @@
                 <field name="show_credit_limit" position="after">
                     <group>
                         <field name="property_account_position_id" options="{'no_create': True, 'no_open': True}"/>
-
-
                         <field 
                             name="is_num_autorisation_tva" 
                             attrs="{'invisible': ['|','|',
@@ -292,8 +259,6 @@
                                 ('property_account_position_id', '!=', 5 )
                             ]}" 
                         /> 
-
-
                     </group>
                     <group>
                         <group string="Achats">
@@ -311,16 +276,13 @@
                             <field name="is_escompte" />
                             <field name="is_caracteristique_liste_a_servir"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_caracteristique_bl"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_configuration_bl_id"             attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_vendeur_id"                      attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_mode_envoi_facture"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_rib_id"                          attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_adr_liv_sur_facture"             attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                         </group>
                     </group>
-
-
-
-
                     <group>
                         <field name="active"/>
                     </group>
@@ -337,102 +299,6 @@
                 </field>
             </field>
         </record>
-
-
-        <!-- 
-        <record id="view_partner_property_form" model="ir.ui.view">
-            <field name="name">res.partner.purchase.property.form.inherit</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
-            <field name="priority">36</field>
-            <field name="arch" type="xml">
-                <group name="purchase" position="inside">
-                    <div name="receipt_reminder" colspan="2" class="o_checkbox_optional_field" groups='purchase.group_send_reminder'>
-                        <label for="receipt_reminder_email"/>
-                        <field name="receipt_reminder_email"/>
-                        <div attrs="{'invisible': [('receipt_reminder_email', '=', False)]}">
-                            <field name="reminder_date_before_receipt" class="oe_inline"/>
-                            <span> day(s) before</span>
-                        </div>
-                    </div>
-                    <field name="property_purchase_currency_id" options="{'no_create': True, 'no_open': True}" groups='base.group_multi_currency'/>
-                </group>
-            </field>
-        </record>
-        -->
-
-        <!-- Permet de masquer les boutons RDV et Opportunities -->
-        <!-- <record id="is_view_partners_form_crm1" model="ir.ui.view">
-            <field name="name">view.res.partner.form.crm.inherited1</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="crm.view_partners_form_crm1"/>
-            <field name="arch" type="xml">
-                <button icon="fa-calendar" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </button>
-                <button icon="fa-star" position="attributes">
-                    <attribute name="invisible">1</attribute> 
-                </button>
-            </field>
-        </record> -->
-
-
-        <!-- Permet de modifier l'onglet 'Comptabilité' accessible uniquement au groupe 'account.group_account_invoice' => Sinon plantage -->
-        <!-- <record id="is_view_partner_form2" model="ir.ui.view">
-            <field name="name">is_view_partner_form2</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form" />
-            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='property_account_position']" position="after">
-                    <field 
-                        name="is_num_autorisation_tva" 
-                        attrs="{'invisible': ['|','|',
-                            ('is_company', '=', False),
-                            ('customer','!=', True),
-                            ('property_account_position', '!=', 5 )
-                        ]}" 
-                    /> 
-                </xpath>
-            </field>
-        </record> -->
-
-        <!-- Permet de masquer les champs opt_out et notify_email -->
-       <!-- 
-        <record model="ir.ui.view" id="is_res_partner_opt_out_form">
-            <field name="name">is_res_partner_opt_out_form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="email_template.res_partner_opt_out_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='opt_out']" position="attributes">
-                    <attribute name="attrs">{'invisible':True}</attribute>
-                </xpath>
-            </field>
-        </record>
-       <record id="is_view_emails_partner_info_form" model="ir.ui.view">
-            <field name="name">is_view_emails_partner_info_form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="mail.view_emails_partner_info_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='notify_email']" position="attributes">
-                    <attribute name="attrs">{'invisible':True}</attribute>
-                </xpath>
-            </field>
-        </record> -->
-        <!-- Permet de masquer les emplacements de stock -->
-        <!-- <record id="is_view_partner_property_form" model="ir.ui.view">
-            <field name="name">is_view_partner_property_form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="stock.view_partner_property_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='property_stock_customer']" position="attributes">
-                    <attribute name="attrs">{'invisible':True}</attribute>
-                </xpath>
-                <xpath expr="//field[@name='property_stock_supplier']" position="attributes">
-                    <attribute name="attrs">{'invisible':True}</attribute>
-                </xpath>
-            </field>
-        </record> -->
 
 
         <!-- Liste des clients -->
@@ -834,6 +700,55 @@
         </record>
 
 
-
+        <!-- is.configuration.bl -->
+        <record id="is_configuration_bl_tree" model="ir.ui.view">
+            <field name="name">is_configuration_bl_treee</field>
+            <field name="model">is.configuration.bl</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="logo_pg"                  optional="show" widget="boolean_toggle"/>
+                    <field name="code_barre"               optional="show" widget="boolean_toggle"/>
+                    <field name="code_pg"                  optional="show" widget="boolean_toggle"/>
+                    <field name="nomenclature_douaniere"   optional="show" widget="boolean_toggle"/>
+                    <field name="numero_lot"               optional="show" widget="boolean_toggle"/>
+                    <field name="type_colis"               optional="show" widget="boolean_toggle"/>
+                    <field name="mode_transport"           optional="show" widget="boolean_toggle"/>
+                    <field name="port"                     optional="show" widget="boolean_toggle"/>
+                    <field name="identification_transport" optional="show" widget="boolean_toggle"/>
+                    <field name="poids_net"                optional="show" widget="boolean_toggle"/>
+                    <field name="is_database_origine_id"   optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_configuration_bl_form" model="ir.ui.view">
+            <field name="name">is_configuration_bl_form</field>
+            <field name="model">is.configuration.bl</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="logo_pg" widget="boolean_toggle"/>
+                            <field name="code_barre" widget="boolean_toggle"/>
+                            <field name="code_pg" widget="boolean_toggle"/>
+                            <field name="nomenclature_douaniere" widget="boolean_toggle"/>
+                            <field name="numero_lot" widget="boolean_toggle"/>
+                            <field name="type_colis" widget="boolean_toggle"/>
+                            <field name="mode_transport" widget="boolean_toggle"/>
+                            <field name="port" widget="boolean_toggle"/>
+                            <field name="identification_transport" widget="boolean_toggle"/>
+                            <field name="poids_net" widget="boolean_toggle"/>
+                        </group> 
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_configuration_bl_action" model="ir.actions.act_window">
+            <field name="name">Configuration BL Galia</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.configuration.bl</field>
+            <field name="view_mode">tree,form</field>
+        </record>
     </data>
-</openerp>
+</odoo>

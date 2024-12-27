@@ -52,6 +52,56 @@ traitement_edi=[
 ]
 
 
+class is_configuration_bl(models.Model):
+    _name = 'is.configuration.bl'
+    _description = 'Configuration du BL Galia par client'
+
+    name                     = fields.Char('Code', required=True)
+    logo_pg                  = fields.Boolean('Afficher logo Plastigray', default=True)
+    code_barre               = fields.Boolean('Afficher code barre', default=True)
+    code_pg                  = fields.Boolean('Afficher code Plastigray', default=True)
+    nomenclature_douaniere   = fields.Boolean('Afficher nomenclature douanière', default=True)
+    numero_lot               = fields.Boolean('Afficher numéro de lot', default=True)
+    type_colis               = fields.Boolean('Afficher le tableau des colis', default=True)
+    mode_transport           = fields.Boolean('Afficher mode de transport', default=True)
+    port                     = fields.Boolean('Afficher port', default=True)
+    identification_transport = fields.Boolean('Afficher identication transport', default=True)
+    poids_net                = fields.Boolean('Afficher poids net', default=True)
+    is_database_origine_id   = fields.Integer("Id d'origine", readonly=True)
+
+
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
+         
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
+
+
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                    : self.name,
+            'logo_pg'                 : self.logo_pg,
+            'code_barre'              : self.code_barre,
+            'code_pg'                 : self.code_pg,
+            'nomenclature_douaniere'  : self.nomenclature_douaniere,
+            'numero_lot'              : self.numero_lot,
+            'type_colis'              : self.type_colis,
+            'mode_transport'          : self.mode_transport,
+            'port'                    : self.port,
+            'identification_transport': self.identification_transport,
+            'poids_net'               : self.poids_net,
+            'is_database_origine_id'  : self.id
+        }
+        return vals
+
+
 class is_site(models.Model):
     _name = 'is.site'
     _description = 'Sites'
@@ -521,9 +571,9 @@ class res_partner(models.Model):
     close_sunday    = fields.Boolean('Dimanche'  , default=True)
     
     pricelist_purchase_id = fields.Many2one('product.pricelist',"Liste de prix d'achat")
+    is_configuration_bl_id = fields.Many2one('is.configuration.bl',"Configuration BL Galia")
 
 
- 
     def _message_auto_subscribe_notify(self, partner_ids, template):
         #Désactiver le message "Vous avez été assigné à"
         return
@@ -667,6 +717,7 @@ class res_partner(models.Model):
             'is_num_autorisation_tva': self.is_num_autorisation_tva,
             'is_caracteristique_liste_a_servir'  : self.is_caracteristique_liste_a_servir,
             'is_caracteristique_bl'  : self.is_caracteristique_bl,
+            'is_configuration_bl_id' : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
             'is_mode_envoi_facture'  : self.is_mode_envoi_facture,
             'is_vendeur_id'          : self._get_is_vendeur_id(DB, USERID, USERPASS, sock),
             'is_database_line_ids'   : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),
@@ -748,6 +799,18 @@ class res_partner(models.Model):
         if not ids:
             self.env['is.database'].copy_other_database(self.is_vendeur_id)
             ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_vendeur_id.id),'|',('active','=',True),('active','=',False)])
+        if ids:
+            return ids[0]
+        return False
+
+
+    def _get_is_configuration_bl_id(self, DB, USERID, USERPASS, sock):
+        if not self.is_configuration_bl_id.id:
+            return False
+        ids = sock.execute(DB, USERID, USERPASS, 'is.configuration.bl', 'search', [('is_database_origine_id', '=', self.is_configuration_bl_id.id)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_configuration_bl_id)
+            ids = sock.execute(DB, USERID, USERPASS, 'is.configuration.bl', 'search', [('is_database_origine_id', '=', self.is_configuration_bl_id.id)])
         if ids:
             return ids[0]
         return False
