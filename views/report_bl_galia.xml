@@ -123,7 +123,16 @@
                             <td style="vertical-align: bottom;">
                                 <div>CODE VENDEUR : <span t-field="o.partner_id.is_cofor"/></div>
                             </td>
-                            <td colspan="3"/>
+                            <td />
+                            <td>
+                               <div>
+                                    <span>Votre contact : <span t-field="o.is_votre_contact_id.name"/></span>
+                                </div>
+                               <div>
+                                    <span>Téléphone : <span t-field="o.is_votre_contact_id.phone"/></span>
+                                </div>
+                            </td>
+                            <td />
                             <td>
                                 <div>
                                     <span>Point de déchargement : <span t-field="o.is_point_dechargement"/></span>
@@ -237,6 +246,9 @@
                                     </t>
                                 </td>
                                 <td class="text-left">
+                                    <t t-if="move.sale_line_id.is_numero_document">
+                                        <span t-field="move.sale_line_id.is_numero_document"/>
+                                    </t>
                                 </td>
                                 <td class="text-left" style="font-size:9pt">
                                     <span t-field="move.is_um_galia" style="white-space: nowrap;"/>

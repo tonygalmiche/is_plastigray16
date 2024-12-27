@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-
-import string
 from odoo import models,fields,api,tools,SUPERUSER_ID
 from odoo.exceptions import ValidationError
-#from xmlrpc import client as xmlrpclib
-
-#import psycopg2
-#from psycopg2.extras import RealDictCursor
-
+import string
 import time
 from datetime import datetime, date, timedelta
 from subprocess import PIPE, Popen
@@ -24,7 +18,6 @@ class stock_location(models.Model):
         res = []
         for obj in self:
             name = obj.name
-            #name = "%s (%s)"%(obj.name,(obj.is_matricule or ''))
             res.append((obj.id,name))
         return res
 
@@ -120,6 +113,7 @@ class stock_picking(models.Model):
     is_plaque_immatriculation = fields.Char("Plaque d’immatriculation", copy=False)
     is_dossier_transport      = fields.Char("N° de dossier de transport ", copy=False)
     is_identifiant_transport  = fields.Char("N° identifiant transport", copy=False)
+    is_votre_contact_id       = fields.Many2one('res.partner', 'Votre contact', readonly=True)
 
 
     @api.depends('move_ids_without_package')
@@ -685,10 +679,17 @@ class stock_picking(models.Model):
         cr.commit()
 
 
-
-
     def mise_a_jour_colisage_action(self):
         for obj in self:
+            #** Recherche du contact de Plastigray ****************************
+            company = self.env.user.company_id
+            for contact in company.partner_id.child_ids:
+                if contact.is_type_contact.name=='Logistique':
+                    obj.is_votre_contact_id = contact.id
+                    break
+                    #print(contact, contact.is_type_contact.name)
+            #******************************************************************
+
             obj.affectation_uc_aux_lignes_des_livraisons()
             liste_servir_id=obj.sale_id.is_liste_servir_id.id
             if liste_servir_id:
