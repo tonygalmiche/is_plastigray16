@@ -443,6 +443,9 @@ class product_template(models.Model):
     temps_realisation             = fields.Float('Tps réalisation(s)', digits=(14,4))
     temps_realisation_vsb         = fields.Boolean('Tps réalisation(s) vsb', store=False, compute='_compute')
 
+    is_creation_dossier_article     = fields.Boolean('Création dossier article', default=False)
+    is_creation_dossier_article_vsb = fields.Boolean('Création dossier article vsb', store=False, compute='_compute')
+
     is_origine_produit_id         = fields.Many2one('res.country', 'Origine du produit')
     is_origine_produit_id_vsb     = fields.Boolean('Origine du produit vsb', store=False, compute='_compute')
 

@@ -599,6 +599,8 @@
                                 <field name="temps_realisation" attrs="{'invisible': [('temps_realisation_vsb', '=', True)]}"/>
                                 <field name="is_perte_vsb" invisible="1"/>
                                 <field name="is_perte" attrs="{'invisible': [('is_perte_vsb', '=', True)]}"/>
+                                <field name="is_creation_dossier_article_vsb" invisible="1"/>
+                                <field name="is_creation_dossier_article" attrs="{'invisible': [('is_creation_dossier_article_vsb', '=', True)]}"/>
                               </group>
                               <group>
                                 <field name="is_destockage_vsb" invisible="1"/>

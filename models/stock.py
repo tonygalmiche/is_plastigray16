@@ -104,6 +104,7 @@ class stock_picking(models.Model):
     is_point_dechargement = fields.Char('Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
     is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage", readonly=1)
     is_nb_um              = fields.Integer('Nb UM', readonly=1)
+    is_nb_uc              = fields.Integer('Nb UC', readonly=1)
     is_alerte             = fields.Text('Alerte', readonly=1)
 
     is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', copy=False)
@@ -259,8 +260,10 @@ class stock_picking(models.Model):
             colis={}
             lines=[]
             um_ids=[]
+            nb_uc=0
             for move in obj.move_ids_without_package:
                 for l in move.is_uc_ids:
+                    nb_uc+=1
                     if l.um_id not in um_ids:
                         um_ids.append(l.um_id)
             for move in obj.move_ids_without_package:
@@ -282,6 +285,7 @@ class stock_picking(models.Model):
             obj.is_colisage_ids.unlink()
             obj.is_colisage_ids = lines
             obj.is_nb_um = len(um_ids)
+            obj.is_nb_uc = nb_uc
 
 
     def compute_alerte(self):

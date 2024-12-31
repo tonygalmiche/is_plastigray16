@@ -318,7 +318,8 @@
                                         Poids net total :   <b><span t-esc="round(pds_net_total,1)"/> KG</b><br />
                                     </t>
                                     Poids brut total :  <b><span t-esc="round(pds_brut_total,1)"/> KG</b><br />
-                                    Nombre total d'UM : <b><span t-field="o.is_nb_um"/></b>
+                                    Nombre total d'UM : <b><span t-field="o.is_nb_um"/></b><br />
+                                    Nombre total de colis : <b><span t-field="o.is_nb_uc"/></b>
                                 </div>
                             </td>
                             <td style="width:5mm;border:none">  
