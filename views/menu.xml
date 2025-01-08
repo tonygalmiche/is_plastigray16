@@ -1649,9 +1649,9 @@
         ])]"/>
     </record>
 
-
     <menuitem id="is_database_menu"         action="is_database_action"         name="Sites"              parent="base.menu_users" sequence="90"/>
     <menuitem id="is_commande_externe_menu" action="is_commande_externe_action" name="Commandes externes" parent="base.menu_users" sequence="92"/> 
+    <menuitem id="is_raspberry_zebra_menu2" action="is_raspberry_zebra_action"  name="Imprimantes ZEBRA"  parent="base.menu_users" sequence="93"/> 
 
     <!-- Déplacement des menus standards sous le menu 'Autre' -->
     <menuitem id="menu_is_autre"               sequence="9"  name="Autre" groups="base.group_system" />

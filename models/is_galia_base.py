@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api  # type: ignore
+from odoo import models, fields, api, tools # type: ignore
 from datetime import datetime
 import pytz
 import os
@@ -19,14 +19,14 @@ class is_galia_base(models.Model):
     _order='num_eti desc'
     _rec_name='num_eti'
 
-    num_eti       = fields.Integer(u"N°Étiquette", index=True)
-    soc           = fields.Integer(u"Société"    , index=True)
-    type_eti      = fields.Char(u"Type étiquette", index=True)
-    num_of        = fields.Char(u"N°OF"          , index=True)
-    num_carton    = fields.Integer(u"N°Carton"   , index=True)
-    qt_pieces     = fields.Integer(u"Qt Pièces")
-    date_creation = fields.Datetime(u"Date de création")
-    login         = fields.Char(u"Login")
+    num_eti       = fields.Integer("N°Étiquette", index=True)
+    soc           = fields.Integer("Société"    , index=True)
+    type_eti      = fields.Char("Type étiquette", index=True)
+    num_of        = fields.Char("N°OF"          , index=True)
+    num_carton    = fields.Integer("N°Carton"   , index=True)
+    qt_pieces     = fields.Integer("Qt Pièces")
+    date_creation = fields.Datetime("Date de création", index=True)
+    login         = fields.Char("Login")
 
     def str2int(self,val):
         try:
@@ -39,10 +39,6 @@ class is_galia_base(models.Model):
         cr=self._cr
         if vals==[]:
             vals={}
-
-
-        print(vals)
-
         Action       = vals.get('ACTION')
         Soc          = vals.get('Soc')
         Etiquette    = vals.get('Etiquette')
@@ -55,9 +51,11 @@ class is_galia_base(models.Model):
         zzMDP2       = vals.get('zzMDP2')
         zzValidation = vals.get('zzValidation')
         zzAction     = vals.get('zzAction')
+        user_name    = vals.get('user_name')
         Msg=""
         MsgOK=""
         CodePG=""
+        Etiq=""
         if (zzValidation=="OK"):
             SQL=""
             # ** Requetes en fonction du type d'étiquette demandé *************
@@ -159,9 +157,9 @@ class is_galia_base(models.Model):
                                             inner join is_category                      ic on pt.is_category_id = ic.id
                                             inner join is_gestionnaire                  ig on pt.is_gestionnaire_id = ig.id
                                             left outer join is_type_etiquette          ite on pt.is_type_etiquette_id=ite.id
-                    WHERE po.name='$NumCde' 
-                    ORDER BY pol.id limit 1 offset $offset ";
-                """
+                    WHERE po.name='%s' 
+                    ORDER BY pol.id limit 1 offset %s ";
+                """%(NumCde,offset)
             company = self.env.user.company_id
             dbname='odoo16-%s'%Soc
             if company.is_postgres_host=='localhost':
@@ -184,19 +182,19 @@ class is_galia_base(models.Model):
                         AQP='AQP'
                     else:
                         AQP=''
-                    CodePG       = row['code_pg']
-                    Designation  = row['designation']
-                    RefClient    = row['ref_client']
-                    RefPlan      = row['ref_plan']
-                    IndPlan      = row['ind_plan']
-                    Moule        = row['moule']
+                    CodePG       = row['code_pg'] or ''
+                    Designation  = row['designation'] or ''
+                    RefClient    = row['ref_client'] or ''
+                    RefPlan      = row['ref_plan'] or ''
+                    IndPlan      = row['ind_plan'] or ''
+                    Moule        = row['moule'] or ''
                     Cat          = self.str2int(row['categorie'])
-                    Gest         = row['gestionnaire']
-                    GaucheDroite = row['droite_gauche']
-                    LogoSecu     = row['logo_secu']
-                    NumLot       = row['num_of']
-                    PoidsBrut    = row['poids_brut']
-                    PoidsNet     = row['poids_net']
+                    Gest         = row['gestionnaire'] or ''
+                    GaucheDroite = row['droite_gauche'] or ''
+                    LogoSecu     = row['logo_secu'] or ''
+                    NumLot       = row['num_of'] or ''
+                    PoidsBrut    = row['poids_brut'] or ''
+                    PoidsNet     = row['poids_net'] or ''
 
                     #** Recherche de la quantité par UC ***********************
                     product_id=row['product_id']
@@ -229,9 +227,9 @@ class is_galia_base(models.Model):
                     Fournisseur=''
                     CodeClient=''
                     for row2 in rows2:
-                        Fournisseur = row2['is_cofor']
-                        CodeClient  = row2['code_client']
-                        NomClient   = row2['nom_client']
+                        Fournisseur = row2['is_cofor'] or ''
+                        CodeClient  = row2['code_client'] or ''
+                        NomClient   = row2['nom_client'] or ''
                     #**********************************************************
                     if zzDebut<=0:
                         Msg+="Le numéro de la première étiquette doit-être supèrieur à 0 ! <br />"
@@ -258,17 +256,17 @@ class is_galia_base(models.Model):
                             Msg+="Etiquette %s - %s  déjà imprimée dans odoo0, la saisie du mot de passe est obligatoire !<br />"%(zzCode,Nb)
                             zzAction=""
                 #**************************************************************
+
             if Msg!="":
                 zzAction=""
             else:
                 Action="Imprimer"
                 if zzAction=="":
                     MsgOK="<div class=NomalNL>Cliquez sur OK pour lancer l'impression <div>"
-            if zzAction=="Imprimer" and Msg=="":
-                ZPL=""
-                for Nb in range(zzDebut, zzFin+1):
-                    Etiq=""
 
+            if zzAction=="Imprimer" and Msg=="":
+                Action=""
+                for Nb in range(zzDebut, zzFin+1):
                     #** Intitialisation des variables pour l'étiquette ********
                     FN10="" # REF FRNS (30S)
                     if FormatEti=="PG":
@@ -311,23 +309,25 @@ class is_galia_base(models.Model):
                             FN2="P"+FN1   # Code Barre NProduit (P)
 
                     #** Le 01/02/2022 => Code barre sur toutes les étiquettes
-                    FN4  = "Q$Quantite"    # Code Barre Quantit?(Q)
-                    FN6  = "V$Fournisseur" # Code Barre COFOR (V)
-                    FN11 = "30S$FN10"      # Code Barre Ref Fournisseur (30S)
-                    FN3  = Quantite        # Quantité dans le carton
-                    FN5  = Fournisseur     # Fournisseur (V)
+                    FN4  = "Q%s"%Quantite       # Code Barre Quantité (Q)
+                    FN6  = "V"+Fournisseur      # Code Barre COFOR (V)
+                    FN11 = "30S"+FN10           # Code Barre Ref Fournisseur (30S)
+                    FN3  = Quantite             # Quantité dans le carton
+                    FN5  = Fournisseur          # Fournisseur (V)
 
                     # ** Recherche si étiquette existe dans odoo0 *************
                     SQL = """
-                        SELECT num_eti 
+                        SELECT num_eti, id 
                         FROM is_galia_base 
                         WHERE soc='%s' AND type_eti='%s' AND num_of='%s' AND num_carton='%s' 
                     """%(Soc,Etiquette,zzCode,Nb)
                     cr.execute(SQL)
                     rows2=cr.dictfetchall()
-                    num_eti = False
+                    num_eti      = False
+                    etiquette_id = False
                     for row2 in rows2:
-                        num_eti = row2['num_eti']
+                        num_eti      = row2['num_eti']
+                        etiquette_id = row2['id']
                     #**********************************************************
 
                     #** Recherche dernier N Etiquette dans odoo0 **************
@@ -354,14 +354,13 @@ class is_galia_base(models.Model):
                         FN13="664"+now.strftime('%Y%V') # Semaine
                     if TypeEti=="NEA":
                         FN13="670"+now.strftime('%Y%V') # Semaine
+                    FN14=""
                     if AQP=="AQP":
                         FN14="AQP";                     # AQP
                     if CodePG!=zzCode:
                         FN15="%s / %s / %s / %s"%(CodePG,Moule,zzCode,Nb) # Ligne informations générales pour PG
                     else:
                         FN15 = "%s / %s / %s"%(CodePG,Moule,Nb) 
-                
-
                     FN99 = ""
                     FN16=Adresse                  # Adresse PG, MGI ou VS suivant le cas
                     FN17=IndPlan                  # Indice Ref Plan
@@ -395,210 +394,180 @@ class is_galia_base(models.Model):
                     if CodeClient == "903000":
                         FN97="MADE IN FRANCE"
 
+                    if TypeEti=="LOT" or TypeEti=="DEVIALET":
+                        FN23 = "H"+FN13[2:100] #,2,100);
+                    else:
+                        FN23 = ''
 
+                    #** Point de déchargement (PTDECH) dans odoo site *********
+                    SQL="""
+                        SELECT so.is_point_dechargement
+                        FROM sale_order_line sol inner join sale_order       so on sol.order_id=so.id
+                                                 inner join product_product  pp on sol.product_id=pp.id
+                                                 inner join product_template pt on pp.product_tmpl_id=pt.id
+                        WHERE 
+                            so.is_point_dechargement is not null and
+                            so.is_type_commande in ('ouverte', 'ls') and 
+                            pt.is_code='%s'
+                        order by so.id desc
+                        limit 1
+                    """%CodePG
+                    cur.execute(SQL)
+                    rows2=cur.fetchall()
+                    FNPTDECH = ""
+                    for row2 in rows2:
+                        FNPTDECH = row2['is_point_dechargement']
+                    #**********************************************************
 
-                    # Création de l'étiquette *********************************
-                    Etiq+="\n\r \n\r ##### Etiquette N%s #####\n\r"%Nb
+                    FN40="PLASTIGRAY"
+                    if TypeEti=="TRETY":
+                        FN40=CodeFournisseur
+                    if FormatEti=="DD":
+                        FN40=CodeFournisseur
+                    if FormatEti=="EMS":
+                        FN40=CodeFournisseur
+                    if TypeEti=="EC":
+                        FN40=" "
+                    if TypeEti=="BUBENDORFF":
+                        FN40=" "
+
+                    # Création début étiquette ********************************
+                    Etiq+="\n\r \n\r##### Etiquette N%s #####\n\r"%Nb
                     if LogoSecu=="R" or LogoSecu=="S" or LogoSecu=="RS" or LogoSecu=="SR":
                         Etiq+="^XA^XFR:UC^FS \n\r"
                     if LogoSecu=="" or LogoSecu=="N" or LogoSecu=="UR":
                         Etiq+="^XA^IDR:SECU2.grf^FS \n\r"   # Efface le Logo Sécu de la mémoire
                         Etiq+="^XFR:UC^FS \n\r"
+                    Etiq+="^FN1 ^FD"+FN1+"^FS \n\r"        # N Produit (P)
+                    Etiq+="^FN2 ^FD"+FN2+"^FS \n\r"        # N Produit (Code à Barre)
+                    Etiq+="^FN3 ^FD"+str(FN3)+"^FS \n\r"   # Quantité(Q)
+                    Etiq+="^FN4 ^FD"+FN4+"^FS \n\r"        # Quantité(Code à Barre)
+                    Etiq+="^FN5 ^FD"+FN5+"^FS \n\r"        # Ref Fournisseur (30S)
+                    Etiq+="^FN6 ^FD"+FN6+"^FS \n\r"        # Ref Fournisseur (Code à Barre)
+                    Etiq+="^FN7 ^FD"+str(FN7)+"^FS \n\r"   # N Etiquette (S)
+                    Etiq+="^FN8 ^FD"+FN8+"^FS \n\r"        # N Etiquette (Code à Barre)
+                    Etiq+="^FN9 ^FD"+FN9+"^FS \n\r"        # Produit (Désignation Article)
+                    Etiq+="^FN10^FD"+FN10+"^FS \n\r"       # Fournisseur (V)
+                    Etiq+="^FN11^FD"+FN11+"^FS \n\r"       # Fournisseur (Code à Barre)
+                    Etiq+="^FN12^FD"+FN12+"^FS \n\r"       # Date
+                    Etiq+="^FN13^FD"+FN13+"^FS \n\r"       # N Lot (H)
+                    Etiq+="^FN14^FD"+FN14+"^FS \n\r"  
+                    Etiq+="^FN15^FD"+FN15+"^FS \n\r"          # Entete1 = Code PG + Moule + OF + N Carton + Controle Operateur/Regleur
+                    Etiq+="^FN16^FD"+FN16+"^FS \n\r"          # Adresse Complete Plastigray
+                    Etiq+="^FN17^FD"+FN17+"^FS \n\r"          # Indice modification
+                    Etiq+="^FN18^FD"+FN18+"^FS \n\r"          # Entete2
+                    Etiq+="^FN20^FD"+FN20[0:23]+"^FS \n\r"    # Entete4=Raisons Sociale Client
+                    Etiq+="^FNPTDECH^FD"+FNPTDECH+"^FS \n\r"  # PTDECH : Point de déchargement
+                    Etiq+="^FN97^FD"+FN97+"^FS \n\r"  # Made in France
+                    Etiq+="^FN21^FD"+FN21+"^FS \n\r"  # Poids Brut = Entete5
+                    Etiq+="^FN24^FD"+FN24+"^FS \n\r"  # Poids Net
+                    Etiq+="^FN23^FD"+FN23+"^FS \n\r"  # Code barre n° lot
+                    Etiq+="^FN22^FD 1 ^FS \n\r"       # Nb de carton
+                    Etiq+="^FN30^FD"+FN30+"^FS \n\r"  # Entete5=Poids
+                    Etiq+="^FN40^FD"+FN40+"^FS \n\r"  # Exp
+                    Etiq+="^FN90^FD"+FN90+"^FS \n\r"  # Signe R = Réglement?
+                    Etiq+="^FN91^FD"+FN91+"^FS \n\r"  # Signe S = Sécurité
+                    Etiq+="^FN99^FD"+FN99+"^FS \n\r"  # controle fréquentiel
+                    Etiq+="^FN98^FD"+FN98+"^FS \n\r"  # Code UR
 
-                    print('num_eti=', num_eti, FN7, Etiq)
+                    #** Data Matrix (QR Code) pour Delta Dore *****************
+                    if TypeEti=="DD" or TypeEti=="EMS" or TypeEti=="NEA":
+                        Etiq+="""^FO400,900^BXN,6,200^FD(P)"""+RefClient+"(2P)"+IndPlan+"(Q)"+str(Quantite)+"(9D)"+now.strftime('%Y%m%d')+"(1T)"+NumLot+"(K)(1P)"+RefClient+"-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS"
+                    #**********************************************************
 
+                    #** Data Matrix (QR Code) pour DEVIALET *******************
+                    if TypeEti=="DEVIALET":
+                        CodeDevialet=RefPlan
+                        QRCode=CodeDevialet+NumLot
+                        Etiq+="^FO425,800^BXN,12,200^FD"+QRCode+"^FS"
+                    #**********************************************************
 
+                    if Nb==zzFin:
+                        Etiq+="^MMT \n\r"  # Avance de l'éiquette
+                    else:
+                        Etiq+="^MMR \n\r"  # Ne pas couper les Etiquettes
+                    Etiq+="^XZ \n\r"
 
-        #             if ($TypeEti=="LOT" or $TypeEti=="DEVIALET") {
-        #                 $FN23 = "H".substr($FN13,2,100);
-        #             } else {
-        #                 $FN23 = '';
-        #             }
+                    #** Enregistrement Etiquette dans Odoo ********************
+                    msg=""
+                    Info="%s - %s - %s"%(zzCode,Nb,FN7)
+                    if num_eti==False:
+                        BDateCreation = now.strftime('%Y-%m-%d %H:%M:%S')
+                        vals={
+                            'num_eti'      : FN7,
+                            'soc'          : Soc,
+                            'type_eti'     : Etiquette,
+                            'num_of'       : zzCode,
+                            'num_carton'   : Nb,
+                            'qt_pieces'    : FN3,
+                            'date_creation': now,
+                            'login'        : user_name,
+                        }
+                        eti=self.env['is.galia.base'].create(vals)
+                        _logger.info("Création éiquette Galia %s"%Info)
+                    else:
+                        eti = self.env['is.galia.base'].browse(etiquette_id)
+                        eti.login = user_name
+                        _logger.info("Réimpression étiquette Galia %s"%Info)
+                    MsgOK+="<div class=NormalLB>Impression et enregistrement étiquette %s dans odoo0 éffectué avec succés.</div>"%Info
+                    #**********************************************************
 
-        #             //** Point de déchargement (PTDECH) ********************************
-        #             $SQL="
-        #                 SELECT so.is_point_dechargement
-        #                 FROM sale_order_line sol inner join sale_order       so on sol.order_id=so.id
-        #                                          inner join product_product  pp on sol.product_id=pp.id
-        #                                          inner join product_template pt on pp.product_tmpl_id=pt.id
-        #                 WHERE 
-        #                     -- so.state='draft' and 
-        #                     -- sol.state='draft' and 
-        #                     so.is_point_dechargement is not null and
-        #                     so.is_type_commande in ('ouverte', 'ls') and 
-        #                     pt.is_code='$CodePG'
-        #                 order by so.id desc
-        #                 limit 1
-        #             ";
-        #             $result2 = pg_query($cnx, $SQL) or die ("$SQL \n -> ".pg_last_error($cnx)." \n");
-        #             $FNPTDECH = "";
-        #             while ($row2 = pg_fetch_array($result2)) {
-        #                 $FNPTDECH = $row2['is_point_dechargement'];
-        #             }
-        #             //echo "FNPTDECH = $FNPTDECH $SQL\n";
-        #             //******************************************************************
-
-        #             $Etiq.="^FN1 ^FD$FN1^FS \n\r";   //N Produit (P)
-        #             $Etiq.="^FN2 ^FD$FN2^FS \n\r";   //N Produit (Code à Barre)
-        #             $Etiq.="^FN3 ^FD$FN3^FS \n\r";   //Quantité(Q)
-        #             $Etiq.="^FN4 ^FD$FN4^FS \n\r";   //Quantité(Code à Barre)
-        #             $Etiq.="^FN5 ^FD$FN5^FS \n\r";   //Ref Fournisseur (30S)
-        #             $Etiq.="^FN6 ^FD$FN6^FS \n\r";   //Ref Fournisseur (Code à Barre)
-        #             $Etiq.="^FN7 ^FD$FN7^FS \n\r";   //N Etiquette (S)
-        #             $Etiq.="^FN8 ^FD$FN8^FS \n\r";   //N Etiquette (Code à Barre)
-        #             $Etiq.="^FN9 ^FD$FN9^FS \n\r";   //Produit (Désignation Article)
-        #             $Etiq.="^FN10^FD$FN10^FS \n\r";  //Fournisseur (V)
-        #             $Etiq.="^FN11^FD$FN11^FS \n\r";  //Fournisseur (Code à Barre)
-        #             $Etiq.="^FN12^FD$FN12^FS \n\r";  //Date
-        #             $Etiq.="^FN13^FD$FN13^FS \n\r";  //N Lot (H)
-        #             $Etiq.="^FN14^FD$FN14^FS \n\r";  
-        #             $Etiq.="^FN15^FD$FN15^FS \n\r";  //Entete1 = Code PG + Moule + OF + N Carton + Controle Operateur/Regleur
-        #             $Etiq.="^FN16^FD$FN16^FS \n\r";  //Adresse Complete Plastigray
-        #             $Etiq.="^FN17^FD$FN17^FS \n\r";  //Indice modification
-        #             $Etiq.="^FN18^FD$FN18^FS \n\r";  //Entete2
-        #             $Etiq.="^FN20^FD".substr($FN20,0,23)."^FS \n\r";  //Entete4=Raisons Sociale Client
-                    
-        #             $Etiq.="^FNPTDECH^FD$FNPTDECH^FS \n\r";  //PTDECH : Point de déchargement
-                    
-        #             $Etiq.="^FN97^FD$FN97^FS \n\r";  //Made in France
-        #             $Etiq.="^FN21^FD$FN21^FS \n\r";  //Poids Brut = Entete5
-        #             $Etiq.="^FN24^FD$FN24^FS \n\r";  //Poids Net
-
-        #             $Etiq.="^FN23^FD$FN23^FS \n\r";  //Code barre n° lot
-        #             $Etiq.="^FN22^FD 1 ^FS \n\r";    //Nb de carton
-        #             $Etiq.="^FN30^FD$FN30^FS \n\r";  //Entete5=Poids
-
-        #             $FN40="PLASTIGRAY";
-        #             if ($TypeEti=="TRETY") $FN40=$CodeFournisseur;
-        #             if ($FormatEti=="DD")  $FN40=$CodeFournisseur;
-        #             if ($FormatEti=="EMS") $FN40=$CodeFournisseur;
-        #             if ($TypeEti=="EC")          $FN40=" ";
-        #             if ($TypeEti=="BUBENDORFF")  $FN40=" ";
-
-        #             $Etiq.="^FN40^FD$FN40^FS \n\r"; //Exp
-        #             $Etiq.="^FN90^FD$FN90^FS \n\r"; //Signe R = Réglement?
-        #             $Etiq.="^FN91^FD$FN91^FS \n\r"; //Signe S = Sécurité
-        #             $Etiq.="^FN99^FD$FN99^FS \n\r"; // controle fréquentiel
-        #             $Etiq.="^FN98^FD$FN98^FS \n\r"; // Code UR
-
-        #             //** Data Matrix (QR Code) pour Delta Dore *************************
-        #             if ($TypeEti=="DD" or $TypeEti=="EMS" or $TypeEti=="NEA") {
-        #                 $Etiq.="
-        #                     ^FO400,900
-        #                     ^BXN,6,200
-        #                     ^FD(P)$RefClient(2P)$IndPlan(Q)$Quantite(9D)".date("ymd")."(1T)$NumLot(K)(1P)$RefClient-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS
-        #                 ";
-        #             }
-        #             //******************************************************************
-
-        #             //** Data Matrix (QR Code) pour DEVIALET ***************************
-        #             if ($TypeEti=="DEVIALET") {
-        #                 $CodeDevialet=$RefPlan;
-        #                 $QRCode=$CodeDevialet.$NumLot;
-        #                 $Etiq.="
-        #                     ^FO425,800
-        #                     ^BXN,12,200
-        #                     ^FD$QRCode^FS
-        #                 ";
-        #             }
-        #             //******************************************************************
-
-
-        #             if ($Nb==$zzFin) {
-        #                 $Etiq.="^MMT \n\r";     //Avance de l'éiquette
-        #             }
-        #             else {
-        #                 $Etiq.="^MMR \n\r";         //Ne pas couper les Etiquettes
-        #             }
-        #             $Etiq.="^XZ \n\r";
-
-        #             //** Enregistrement Etiquette dans Odoo ****************************
-        #             $msg="";
-        #             $Info=$zzCode." - ".$Nb." - ".$FN7;
-        #             if ($num_eti==False) {
-        #                 $BDateCreation=date("Y-m-d H:i:s",mktime());
-        #                 $SQL="INSERT INTO is_galia_base (num_eti, soc, type_eti, num_of, num_carton, qt_pieces, date_creation, login)
-        #                        VALUES ('".utf8_decode($FN7)."',
-        #                                '".utf8_decode($Soc)."',
-        #                                '".utf8_decode($Etiquette)."',
-        #                                '".utf8_decode($zzCode)."',
-        #                                '".utf8_decode($Nb)."',
-        #                                '".utf8_decode($FN3)."',
-        #                                '".localdate2utc($BDateCreation)."',
-        #                                '".utf8_decode($name)."') ";
-        #                 $result2 = pg_query($cnx0, $SQL);
-        #                 if ($result2==False) {
-        #                     echo "<div class=MsgErr>Etiquette $Info non enregistrée => Impression abandonnée à partir de cette étiquette !</div>";
-        #                     break;
-        #                 }
-        #             } else {
-        #                 $SQL="UPDATE is_galia_base set write_date=now() at time zone 'UTC', qt_pieces=$FN3 WHERE num_eti=$num_eti";
-        #                 $result2 = pg_query($cnx0, $SQL);
-        #                 if ($result2==False) {
-        #                     echo "<div class=MsgErr>Etiquette $Info non enregistrée => Impression abandonnée à partir de cette étiquette !</div>";
-        #                     break;
-        #                 }
-        #             }
-        #             echo "<div class=NormalLB>Impression et enregistrement étiquette $Info dans odoo0 éffectué avec succés.</div>";
-        #             //******************************************************************
-
-        #             $ZPL.=$Etiq;
-        #         }
-
-
-        #         //** Impression ********************************************************
-        #         if ($Imprimante=="ZPL"){
-        #             $filename="code-zpl-$zzCode.txt";
-        #             $path="/var/www/odoo/odoo-erp/planning/PDF/$filename";
-        #             if ($TypeEti=="C40"){
-        #                 `cat UC-C40.zpl>$path`;
-        #             }else{
-        #                 `cat Uc2.zpl>$path`;
-        #             }
-        #             `cat Secu.grf>>$path`;
-        #             `echo "$ZPL">>$path`;
-        #             echo "<a class=\"NormalLN\" style=\"color:red;font-size:12pt\" href=\"./PDF/$filename\" download>Code ZPL</a><br />\n";
-        #         } else {
-        #             if ($TypeEti=="C40"){
-        #                 `cat UC-C40.zpl   | lpr -P $Imprimante`;
-        #             }else{
-        #                 `cat Uc2.zpl   | lpr -P $Imprimante`;
-        #             }
-        #             `cat Secu.grf  | lpr -P $Imprimante`;
-        #             `echo "$ZPL"  | lpr -P $Imprimante`;
-        #         }
-        #         //**********************************************************************
-
-
-        #         $Action="";
-        #         $Quantite="";
-        #         $zzMDP1="";
-        #         $zzMDP2="";
-        #         unlink($lockpath); 
-        #     }
-        # }
-
+        #** Code ZPL final ****************************************************
+        ZPL=''
+        if Etiq!='':
+            addons_path = tools.config['addons_path'].split(',')[1]
+            path = "%s/is_plastigray16/static/src/galia/"%addons_path
+            Uc2   = open(path+'Uc2.zpl','rb').read().decode("utf-8")
+            Uc40  = open(path+'UC-C40.zpl','rb').read().decode("utf-8")
+            Secu  = open(path+'Secu.grf','rb').read().decode("utf-8")
+            if TypeEti=="C40":
+                ZPL=Uc40
+            else:
+                ZPL=Uc2
+            ZPL+=Secu
+            ZPL+=Etiq
+        #**********************************************************************
 
         res={
             'Msg'   : Msg,
             'MsgOK' : MsgOK,
-            'Action': Action,
+            'Action': Action or '',
+            'ZPL'   : ZPL,
         }
-
-        print('res=',res)
-
         return res
 
 
+    def imprimer_etiquette_uc_action(self):
+        user = self.env['res.users'].browse(self._uid)
+        for obj in self:
+            vals={
+                'ACTION'      : 'OK', 
+                'Soc'         : obj.soc, 
+                'Etiquette'   : obj.type_eti, 
+                'Imprimante'  : 'ZPL', 
+                'zzCode'      : obj.num_of, 
+                'zzDebut'     : obj.num_carton, 
+                'zzFin'       : obj.num_carton, 
+                'zzNbPieces'  : obj.qt_pieces, 
+                'zzMDP2'      : 'reimp2023', 
+                'zzValidation': 'OK', 
+                'zzAction'    : 'Imprimer', 
+                'user_name'   : user.name,
+            }
+            res = obj.sudo().creer_etiquette(vals)
+            ZPL = res.get('ZPL')
 
-
-
-
-
-
-
-
-
+            company = user.company_id
+            imprimante = company.is_zebra_id.name
+            if imprimante:
+                cmd = 'echo "'+ZPL+'" | lpr -P '+imprimante
+                lines=os.popen(cmd).read().splitlines()
+                res=[]
+                for line in lines:
+                    res.append(line.strip())
+                res = ','.join(res)
+                msg='Impression étiquette %s sur imprimante %s (res=%s)' % (obj.num_eti, imprimante, res)
+                _logger.info(msg)
 
 
 class is_galia_base_um(models.Model):
