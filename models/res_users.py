@@ -29,6 +29,7 @@ class res_users(models.Model):
     is_service_id = fields.Many2one('is.service', 'Service')
     is_adresse_ip = fields.Char('Adresse IP', help='Adresse IP de cet utilisateur pour lui donner des accès spcécifiques dans THEIA')
     is_signature  = fields.Binary("Signature", help="Utilisé pour imprimer les certificats matière fournisseur")
+    is_zebra_id   = fields.Many2one('is.raspberry.zebra', "Imprimante Zebra", help="Utilisé pour imprimer les étiquettes des équipements")
 
 
     def update_group(self):

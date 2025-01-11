@@ -564,14 +564,15 @@ class is_galia_base(models.Model):
 
 
     def imprimer_zpl(self,ZPL):
-        company = self.env.company
-        imprimante = company.is_zebra_id.name
+        user=self.env['res.users'].browse(self._uid)
+        imprimante=user.is_zebra_id.name or user.company_id.is_zebra_id.name
         if imprimante and ZPL!='':
             cmd = 'echo "'+ZPL+'" | lpr -P'+imprimante
             p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
             stdout, stderr = p.communicate()
             if stderr:
-                raise ValidationError(stderr.decode("utf-8"))
+                msg="Impossible d'imprimer sur %s !\n%s"%(imprimante,stderr.decode("utf-8"))
+                raise ValidationError(msg)
             msg='Envoi code ZPL sur imprimante %s'%imprimante
             _logger.info(msg)
 

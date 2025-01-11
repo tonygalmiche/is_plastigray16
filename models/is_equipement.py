@@ -492,7 +492,7 @@ class is_equipement(models.Model):
     def imprimer_etiquette_equipement(self):
         for obj in self:
             user=self.env['res.users'].browse(self._uid)
-            imprimante=user.company_id.is_zebra_id.name
+            imprimante=user.is_zebra_id.name or user.company_id.is_zebra_id.name
             if imprimante:
                 Msg          = ""
                 FN1 = obj.numero_equipement or ''

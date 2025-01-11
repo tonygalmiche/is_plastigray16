@@ -34,6 +34,7 @@
                             <field name="is_site_ids" widget="many2many_tags"/>
                             <field name="is_service_id"/>
                             <field name="is_adresse_ip"/>
+                            <field name="is_zebra_id"/>
                             <field 
                                 name="is_signature" 
                                 widget="image" class="oe_center oe_avatar" 
@@ -51,9 +52,11 @@
             <field name="arch" type="xml">
                 <field name="login" position="after">
                     <field name="email"/>
-                    <field name="is_site_id"/>
-                    <field name="is_site_ids"/>
-                    <field name="is_service_id"/>
+                    <field name="is_site_id"    optional="show"/>
+                    <field name="is_site_ids"   optional="show"/>
+                    <field name="is_service_id" optional="show"/>
+                    <field name="is_adresse_ip" optional="show"/>
+                    <field name="is_zebra_id"   optional="show"/>
                 </field>
             </field>
         </record>
