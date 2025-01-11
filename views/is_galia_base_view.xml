@@ -90,6 +90,13 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Form">  
+                    <header>
+                        <button 
+                            name="imprimer_etiquette_uc_action" 
+                            string="Imprimer étiquette UC" 
+                            type="object"
+                        />
+                    </header>
                     <sheet>
                         <group>
                             <group>
@@ -204,6 +211,12 @@
                         <button 
                             name="imprimer_etiquette_um_action" 
                             string="Imprimer étiquette UM" 
+                            type="object"
+                            attrs="{'invisible': [('active', '!=', True)]}"
+                        />
+                        <button 
+                            name="imprimer_etiquette_uc_action" 
+                            string="Imprimer les étiquettes des UC" 
                             type="object"
                             attrs="{'invisible': [('active', '!=', True)]}"
                         />

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, tools # type: ignore
+from odoo.exceptions import AccessError, ValidationError, UserError  # type: ignore
+from subprocess import PIPE, Popen
+from xmlrpc import client as xmlrpclib
 from datetime import datetime
 import pytz
 import os
@@ -168,14 +171,14 @@ class is_galia_base(models.Model):
                 cnx = psycopg2.connect("dbname='"+dbname+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
             except:
                 cnx=False
-                Msg+="La connexion à la base %s a échouée ! <br>\n"%dbname
+                Msg+="La connexion à la base %s a échouée !\n"%dbname
             if Msg=="":
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 cur.execute(SQL)
                 rows = cur.fetchall()
                 NbLig = len(rows)
                 if NbLig==0:
-                    Msg+="%s non trouvée! <br />"%Etiquette
+                    Msg+="%s non trouvée!\n"%Etiquette
                 else:
                     row=rows[0]
                     if (row['aqp']=='t'):
@@ -209,7 +212,7 @@ class is_galia_base(models.Model):
                     #Recherche Informations sur le type de l'étiquette ********
                     TypeEti= row['type_etiquette']
                     if TypeEti=='':
-                        Msg+="Type etiquette non trouvee! <br />"
+                        Msg+="Type etiquette non trouvee!\n"
                     TypeEti         = row['type_etiquette']
                     FormatEti       = row['format_etiquette']
                     Adresse         = row['adresse']
@@ -232,19 +235,19 @@ class is_galia_base(models.Model):
                         NomClient   = row2['nom_client'] or ''
                     #**********************************************************
                     if zzDebut<=0:
-                        Msg+="Le numéro de la première étiquette doit-être supèrieur à 0 ! <br />"
+                        Msg+="Le numéro de la première étiquette doit-être supèrieur à 0 !\n"
                     if zzFin<zzDebut:
-                        Msg+="Le numéro de la dernière étiquette doit-être supèrieur au numéro de la première ! <br />"
+                        Msg+="Le numéro de la dernière étiquette doit-être supèrieur au numéro de la première !\n"
             if Msg=="":
                 #** Test si la quantité modifiée ******************************
                 if (zzNbPieces>0 and zzNbPieces!=Quantite):
-                    if (zzMDP1!="quantite"):
-                        Msg+="La quantité a été changée, la saisie du mot de passe est obligatoire ! <br />"
+                    if zzMDP1!=company.is_mdp_quantite:
+                        Msg+="La quantité a été changée (%s => %s), la saisie du mot de passe est obligatoire !\n"%(Quantite,zzNbPieces)
                     Quantite=zzNbPieces
                 #**************************************************************
 
                 #** Test si les étiquettes existent déja dans odoo0 ***********
-                if zzMDP2!="reimp2023":
+                if zzMDP2!=company.is_mdp_reimprimer:
                     for Nb in range(zzDebut, zzFin+1):
                         SQL = """
                             SELECT * FROM is_galia_base
@@ -253,7 +256,7 @@ class is_galia_base(models.Model):
                         cr.execute(SQL)
                         rows2=cr.dictfetchall()
                         for row2 in rows2:
-                            Msg+="Etiquette %s - %s  déjà imprimée dans odoo0, la saisie du mot de passe est obligatoire !<br />"%(zzCode,Nb)
+                            Msg+="Etiquette %s - %s  déjà imprimée dans odoo0, la saisie du mot de passe est obligatoire !\n"%(zzCode,Nb)
                             zzAction=""
                 #**************************************************************
 
@@ -499,7 +502,7 @@ class is_galia_base(models.Model):
                             'type_eti'     : Etiquette,
                             'num_of'       : zzCode,
                             'num_carton'   : Nb,
-                            'qt_pieces'    : FN3,
+                            'qt_pieces'    : FN3, # Quantite
                             'date_creation': now,
                             'login'        : user_name,
                         }
@@ -508,6 +511,7 @@ class is_galia_base(models.Model):
                     else:
                         eti = self.env['is.galia.base'].browse(etiquette_id)
                         eti.login = user_name
+                        eti.qt_pieces = FN3
                         _logger.info("Réimpression étiquette Galia %s"%Info)
                     MsgOK+="<div class=NormalLB>Impression et enregistrement étiquette %s dans odoo0 éffectué avec succés.</div>"%Info
                     #**********************************************************
@@ -556,18 +560,20 @@ class is_galia_base(models.Model):
             }
             res = obj.sudo().creer_etiquette(vals)
             ZPL = res.get('ZPL')
+            obj.imprimer_zpl(ZPL)
 
-            company = user.company_id
-            imprimante = company.is_zebra_id.name
-            if imprimante:
-                cmd = 'echo "'+ZPL+'" | lpr -P '+imprimante
-                lines=os.popen(cmd).read().splitlines()
-                res=[]
-                for line in lines:
-                    res.append(line.strip())
-                res = ','.join(res)
-                msg='Impression étiquette %s sur imprimante %s (res=%s)' % (obj.num_eti, imprimante, res)
-                _logger.info(msg)
+
+    def imprimer_zpl(self,ZPL):
+        company = self.env.company
+        imprimante = company.is_zebra_id.name
+        if imprimante and ZPL!='':
+            cmd = 'echo "'+ZPL+'" | lpr -P'+imprimante
+            p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate()
+            if stderr:
+                raise ValidationError(stderr.decode("utf-8"))
+            msg='Envoi code ZPL sur imprimante %s'%imprimante
+            _logger.info(msg)
 
 
 class is_galia_base_um(models.Model):
@@ -685,6 +691,68 @@ class is_galia_base_um(models.Model):
                     _logger.info(line.strip())
  
 
+
+
+
+
+    def imprimer_etiquette_uc_action(self):
+        user = self.env['res.users'].browse(self._uid)
+        company = self.env.company
+
+
+        for obj in self:
+            domain = [('um_id','=',obj.id)]
+            ucs = self.env['is.galia.base.uc'].search(domain)
+            for uc in ucs:
+                uc.imprimer_etiquette_uc_action()
+
+
+        # for obj in self:
+        #     vals={
+        #         'ACTION'      : 'OK', 
+        #         'Soc'         : company.is_code_societe, 
+        #         'Etiquette'   : obj.type_eti, 
+        #         'Imprimante'  : 'ZPL', 
+        #         'zzCode'      : obj.production, 
+        #         'zzDebut'     : obj.num_carton, 
+        #         'zzFin'       : obj.num_carton, 
+        #         'zzNbPieces'  : obj.qt_pieces, 
+        #         'zzMDP1'      : company.is_mdp_quantite,
+        #         'zzMDP2'      : company.is_mdp_reimprimer, 
+        #         'zzValidation': 'OK', 
+        #         'zzAction'    : 'Imprimer', 
+        #         'user_name'   : user.name,
+        #     }
+        #     DB        = company.is_nom_base_odoo0
+        #     USERID    = 2
+        #     DBLOGIN   = company.is_login_admin
+        #     USERPASS  = company.is_mdp_admin
+        #     URL       = company.is_url_odoo0 
+        #     try:
+        #         sock = xmlrpclib.ServerProxy('%s/xmlrpc/object'%URL)
+        #         res = sock.execute(DB, USERID, USERPASS, 'is.galia.base', 'creer_etiquette', [0], vals)
+        #     except:
+        #         msg="Problème de connexion sur %s ou sur la base %s"%(URL,DB)
+        #         raise ValidationError(msg)
+        #     if 'Msg' in res:
+        #         if res['Msg']!='':
+        #             raise ValidationError(res['Msg'])
+        #     ZPL = res.get('ZPL')
+        #     self.env['is.galia.base'].imprimer_zpl(ZPL)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class is_galia_base_uc(models.Model):
     _name='is.galia.base.uc'
     _description="Etiquettes Galia UC"
@@ -724,3 +792,39 @@ class is_galia_base_uc(models.Model):
                 'domain': '[]',
             }
 
+
+    def imprimer_etiquette_uc_action(self):
+        user = self.env['res.users'].browse(self._uid)
+        company = self.env.company
+        for obj in self:
+            vals={
+                'ACTION'      : 'OK', 
+                'Soc'         : company.is_code_societe, 
+                'Etiquette'   : obj.type_eti, 
+                'Imprimante'  : 'ZPL', 
+                'zzCode'      : obj.production, 
+                'zzDebut'     : obj.num_carton, 
+                'zzFin'       : obj.num_carton, 
+                'zzNbPieces'  : obj.qt_pieces, 
+                'zzMDP1'      : company.is_mdp_quantite,
+                'zzMDP2'      : company.is_mdp_reimprimer, 
+                'zzValidation': 'OK', 
+                'zzAction'    : 'Imprimer', 
+                'user_name'   : user.name,
+            }
+            DB        = company.is_nom_base_odoo0
+            USERID    = 2
+            DBLOGIN   = company.is_login_admin
+            USERPASS  = company.is_mdp_admin
+            URL       = company.is_url_odoo0 
+            try:
+                sock = xmlrpclib.ServerProxy('%s/xmlrpc/object'%URL)
+                res = sock.execute(DB, USERID, USERPASS, 'is.galia.base', 'creer_etiquette', [0], vals)
+            except:
+                msg="Problème de connexion sur %s ou sur la base %s"%(URL,DB)
+                raise ValidationError(msg)
+            if 'Msg' in res:
+                if res['Msg']!='':
+                    raise ValidationError(res['Msg'])
+            ZPL = res.get('ZPL')
+            self.env['is.galia.base'].imprimer_zpl(ZPL)

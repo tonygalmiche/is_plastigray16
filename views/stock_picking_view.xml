@@ -6,7 +6,6 @@
             <field name="name">Transfert</field>
             <field name="res_model">stock.transfer_details</field>
             <field name="view_mode">form</field>
-            <!-- <field name="view_id" ref="is_calcul_dispo_ressource_wizard_form_view"/> -->
             <field name="target">new</field>
         </record>
 
@@ -38,12 +37,6 @@
                         }
                     </style>
                 </xpath>
-                <!-- <form position="attributes">
-                    <attribute name="create">0</attribute>
-                </form> -->
-
-
-
                 <xpath expr="//button[@name='action_assign']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -67,8 +60,6 @@
                 <xpath expr="//button[@data-hotkey='o'][2]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
-
-
                 <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -88,10 +79,6 @@
                 <xpath expr="//button[@name='action_put_in_pack']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
-
-
-
-
                 <xpath expr="//button[@name='button_validate'][1]" position="before">
                     <button 
                         name="action_assign" 
@@ -138,14 +125,6 @@
                     <attribute name="invisible">1</attribute> 
                 </xpath>
                 <xpath expr="//button[@name='button_scrap']" position="after">
-                    <!-- <button 
-                        name="action_cancel" 
-                        states="assigned,confirmed,partially_available,draft,waiting" 
-                        string="Cancel Transfer" 
-                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group" 
-                        confirm="Voulez-vous vraiment annuler cette réception ?"
-                        type="object"
-                    /> -->
                     <button 
                         name="action_annuler_reception" 
                         string="Annuler cette réception" 
@@ -168,17 +147,6 @@
                         attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
                     />
                 </xpath>
-
-
-
-
-
-
-
-
-
-
-
                 <xpath expr="//button[@name='action_assign'][1]" position="before">
                     <!-- Bouton pour debugage -->
                     <!-- <button name="test_action"                          string="TEST"                          type="object" groups="base.group_system"/> -->
@@ -189,8 +157,6 @@
                     <button name="do_unreserve"                         string="do_unreserve"                  type="object" groups="base.group_system"/>
                     <button name="action_toggle_is_locked"              string="toggle_is_locked"              type="object" groups="base.group_system"/> -->
                 </xpath>
-               
-
                 <xpath expr="//notebook" position="before">
                     <div style="background:orange;font-size:11pt" attrs="{'invisible':[('is_alerte','=',False)]}">
                         <field 
@@ -200,9 +166,6 @@
                         />
                     </div>
                 </xpath>
-    
-
-
                 <xpath expr="//field[@name='product_packaging_id']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -240,7 +203,6 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="origin" position="after">
-                    <!-- <field name="purchase_id"          attrs="{'invisible': [('purchase_id', '=', False)]}"          readonly="1"/> -->
                     <field name="is_purchase_order_id" attrs="{'invisible': [('is_purchase_order_id', '=', False)]}" readonly="1"/>
                     <field name="sale_id"              attrs="{'invisible': [('sale_id', '=', False)]}"              readonly="1"/>
                     <field 
@@ -297,7 +259,6 @@
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="after">
                     <field name="is_location_dest_prevu_id" string="Emplacement" optional="show"/>
-                    <!-- <field name="location_dest_id"          string="Emplacement" optional="show"/> -->
                     <field name="invoice_state"           optional="hide"/> 
                     <field name="is_account_move_line_id" optional="hide"/> 
                 </xpath> 
@@ -311,16 +272,12 @@
                     <field name="is_dosmat_ctrl_qual"           optional="show"/>
                     <field name="is_dosmat_conditions_stockage" optional="show"/>
                 </xpath>
-
-
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="after">
                     <field name="is_qt_uc" optional="hide" sum="Total"/>
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="attributes">
                     <attribute name="sum">Total</attribute> 
                 </xpath>
-
-
                 <xpath expr="//page[@name='extra']/group/group/field[@name='company_id']" position="after">
                     <field name="invoice_state"/>
                     <field name="is_mode_envoi_facture"/> 
@@ -331,7 +288,6 @@
                     <field name="is_qt_livree_inter_site"    attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
                     <field name="is_date_traitement_edi"     attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </xpath>
-
                 <page name="operations" position="after">
                     <page string="Colisage">
                         <group>
@@ -348,47 +304,44 @@
                                 <field name="is_nb_uc" force_save="1"/>
                             </group>
                         </group>
-                      </page>
-                     <!-- <page string="Livraisons inter-sites" attrs="{'invisible': [('picking_type_id','!=',2)]}">
-                        <div style="background:Gainsboro;font-size:11pt" attrs="{'invisible':[('is_info_inter_sites','=',False)]}">
-                            <field name="is_info_inter_sites" nolabel="1"/>
-                        </div>
-                        <div style="background:DarkOrange;font-size:11pt" attrs="{'invisible':[('is_alerte_inter_sites','=',False)]}">
-                            <field name="is_alerte_inter_sites" nolabel="1"/>
-                        </div>
-                        <group>
-                            <group>
-                                <field name="is_site_livraison_id"/>
-                                <field name="is_fournisseur_reception_id"/>
-                            </group>
-                        </group>
-                        <group>
+                        <div>
                             <button 
-                                string="Effectuer la réception inter-sites" 
+                                string="Liste des UM" 
                                 type="object" 
-                                name="reception_inter_sites_action" 
-                                colspan="2"
-                                class="btn-primary" 
+                                name="liste_des_um_action" 
+                                class="oe_inline btn btn-secondary margin-right"
                             />
-                        </group>
-                     </page> -->
+                            <button 
+                                string="Liste des UC" 
+                                type="object" 
+                                name="liste_des_uc_action" 
+                                class="oe_inline btn btn-secondary margin-right"
+                            />
+                            <button 
+                                string="Imprimer les UM" 
+                                type="object" 
+                                name="imprimer_um_action" 
+                                class="oe_inline btn btn-secondary margin-right"
+                            />
+                            <button 
+                                string="Imprimer les UC" 
+                                type="object" 
+                                name="imprimer_uc_action" 
+                                class="oe_inline btn btn-secondary margin-right"
+                            />
+                        </div>
+                      </page>
                 </page>
              </field>
         </record>
-
-
         <record id="is_vpicktree" model="ir.ui.view">
             <field name="name">is_vpicktree</field>
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.vpicktree"/>
             <field name="arch" type="xml">
-
                 <tree position="attributes">
                     <attribute name="create">0</attribute>
                 </tree>
-
-
-
                 <field name="priority" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -414,112 +367,6 @@
                 </field>
             </field>
         </record>
-
-
-
-
-        <!-- <record id="view_picking_location_inherit_form" model="ir.ui.view">
-            <field name="name">stock.picking.form</field>
-            <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.view_picking_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//sheet" position="attributes">
-                    <attribute name="class">oe_form_sheet_width_wider</attribute>
-                </xpath>
-                <button name="force_assign" position="replace" />
-                <button name="do_unreserve" position="attributes" >
-                    <attribute name="invisible">1</attribute>>
-                </button>
-                <button string="Reverse Transfer" position="attributes" >
-                    <attribute name="invisible">1</attribute>>
-                </button>
-
-                <button name="action_cancel" position="replace" >
-                    <button 
-                        name="action_cancel" 
-                        states="assigned,confirmed,partially_available,draft,waiting" 
-                        string="Cancel Transfer" 
-                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group" 
-                        confirm="Voulez-vous vraiment annuler cette réception ?"
-                        type="object"
-                    />
-                    <button 
-                        name="action_annuler_reception" 
-                        string="Annuler cette réception" 
-                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group" 
-                        attrs="{'invisible': ['|',('is_purchase_order_id', '=', False),('state','!=','done')]}" 
-                        confirm="Voulez-vous vraiment annuler cette réception ?"
-                        type="object"/>
-                    <button 
-                        name="desadv_action" 
-                        string="DESADV" 
-                        type="object"
-                        confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
-                        attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
-                    />
-                </button>
-                <button name="do_partial_open_barcode" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </button>
-                <button name="open_barcode_interface" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </button>
-                <button name="do_enter_transfer_details" position="replace">
-                    <button 
-                        name="do_enter_transfer_details" 
-                        states="assigned,partially_available" 
-                        string="Transfer" 
-                        groups="is_plastigray.is_rsp_production_group,is_plastigray.is_rsp_achats_group,is_plastigray.is_magasiniers_group,is_plastigray.is_comptable_group" 
-                        type="object" class="oe_highlight"/>
-                </button>
-                <xpath expr="//notebook/page[@string='Additional Info']/group/group/field[@name='location_id']" position="attributes">
-                    <attribute name="invisible">0</attribute>>
-                </xpath>
-                <field name="min_date" position="attributes">
-                    <attribute name="invisible">1</attribute>>
-                </field>
-
-                
-             </field>
-        </record> -->
-        
-        <!-- <record id="is_view_picking_inherit_form2" model="ir.ui.view">
-            <field name="name">is_view_picking_inherit_form2</field>
-            <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock_account.view_picking_inherit_form2"/>
-            <field name="arch" type="xml">
-                <button string="Create Invoice" position="replace" />
-            </field>
-        </record>
-
-    
-    
-    -->
-
-
-
-        <!-- Réceptions à traiter -->
-        <!-- <record id="is_reception_a_traiter_action" model="ir.actions.act_window">
-            <field name="name">Réceptions à traiter</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.picking</field>
-            <field name="domain">[('picking_type_id','=', 1),('state','not in', ('draft', 'cancel','done'))]</field>
-            <field name="limit">200</field>
-            <field name="view_mode">tree,form</field>
-        </record>
- -->
-        <!-- Toutes les réceptions -->
-        <!-- <record id="is_reception_toutes_action" model="ir.actions.act_window">
-            <field name="name">Toutes les réceptions</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.picking</field>
-            <field name="domain">[('picking_type_id','=', 1)]</field>
-            <field name="limit">200</field>
-            <field name="view_mode">tree,form</field>
-        </record> -->
-
-
-
 
         <!-- Livraisons à traiter -->
         <record id="is_livraisons_a_traiter_action" model="ir.actions.act_window">
@@ -555,8 +402,6 @@
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
-
-
         <record id="is_regroupement_livraisons_a_facturer_action" model="ir.actions.act_window">
             <field name="name">Regroupement livraisons à facturer</field>
             <field name="type">ir.actions.act_window</field>
@@ -567,12 +412,8 @@
                     ('is_mode_envoi_facture','=', 'regroupe_bl')
                 ]
             </field>
-            <!-- ('invoice_state','=', '2binvoiced'), TODO : A Revoir avec la facturation -->
             <field name="limit">200</field>
             <field name="view_mode">tree,form</field>
         </record>
-
-
-
     </data>
 </odoo>

@@ -23,38 +23,46 @@ class res_company(models.Model):
     is_url_intranet_theia = fields.Char('URL Intranet THEIA', default='http://raspberry-cpi')
     is_url_odoo_theia     = fields.Char('URL Odoo THEIA')
 
-    is_directeur_general_id      = fields.Many2one('res.users', u'Directeur Général'                     , help=u"Utilisé en particulier pour les DA Investissements")
-    is_directeur_technique_id    = fields.Many2one('res.users', u'Directeur Technique'                   , help=u"Utilisé en particulier pour les DA Moules")
-    is_acheteur_id               = fields.Many2one('res.users', u'Acheteur'                              , help=u"Utilisé en particulier pour transformer les SA en DAS")
-    is_gest_demande_transport_id = fields.Many2one('res.users', u'Gestionnaire des demandes de transport', help=u"Utilisé pour envoyer un mail lors de la création d'une demande de transport")
+    is_directeur_general_id      = fields.Many2one('res.users', 'Directeur Général'                     , help="Utilisé en particulier pour les DA Investissements")
+    is_directeur_technique_id    = fields.Many2one('res.users', 'Directeur Technique'                   , help="Utilisé en particulier pour les DA Moules")
+    is_acheteur_id               = fields.Many2one('res.users', 'Acheteur'                              , help="Utilisé en particulier pour transformer les SA en DAS")
+    is_gest_demande_transport_id = fields.Many2one('res.users', 'Gestionnaire des demandes de transport', help="Utilisé pour envoyer un mail lors de la création d'une demande de transport")
 
     is_base_principale = fields.Boolean('Base principale (Primaire)', help="Cette case permet de masquer certains champs sur les bases répliquées si elle n'est pas cochée")
 
     is_code_societe      = fields.Char('Code société')
     is_dest_bilan_of_ids = fields.Many2many('res.users', 'is_res_company_users_rel', 'res_company_id','user_id', string="Destinataires du bilan de fin d'OF")
-    is_cout_ctrl_qualite = fields.Float(u"Coût horaire vendu contrôle qualité", digits=(12, 2))
+    is_cout_ctrl_qualite = fields.Float("Coût horaire vendu contrôle qualité", digits=(12, 2))
 
-    is_dossier_interface_cegid = fields.Char(u"Dossier de destination pour le fichier d'interface de CEGID")
+    is_dossier_interface_cegid = fields.Char("Dossier de destination pour le fichier d'interface de CEGID")
 
-    is_sms_account  = fields.Char(u'SMS account')
-    is_sms_login    = fields.Char(u'SMS login')
-    is_sms_password = fields.Char(u'SMS password')
-    is_sms_from     = fields.Char(u'SMS from')
+    is_sms_account  = fields.Char('SMS account')
+    is_sms_login    = fields.Char('SMS login')
+    is_sms_password = fields.Char('SMS password')
+    is_sms_from     = fields.Char('SMS from')
 
-    is_calendrier_expedition_id = fields.Many2one('res.partner', u'Calendrier Expéditions', domain=[('is_company','=',True),('is_adr_code','=','EXP')], help=u"Calendrier utilisé dans le calcul de la date d'expédition des commandes des clients (code adresse=EXP)")
-    is_annee_pic_3ans           = fields.Char(u'Année PIC à 3 ans', help=u'Paramètre utilisé en particulier pour Analyse / Taux de rotation des stocks')
+    is_calendrier_expedition_id = fields.Many2one('res.partner', 'Calendrier Expéditions', domain=[('is_company','=',True),('is_adr_code','=','EXP')], help="Calendrier utilisé dans le calcul de la date d'expédition des commandes des clients (code adresse=EXP)")
+    is_annee_pic_3ans           = fields.Char('Année PIC à 3 ans', help='Paramètre utilisé en particulier pour Analyse / Taux de rotation des stocks')
     is_cachet_plastigray        = fields.Binary("Cachet de Plastigray", help="Utilisé pour imprimer les certificats matière fournisseur")
 
-    is_agenda_url = fields.Char(u'URL Google Agenda')
-    is_agenda_pwd = fields.Char(u'Mot de passe admin Google Agenda')
+    is_agenda_url = fields.Char('URL Google Agenda')
+    is_agenda_pwd = fields.Char('Mot de passe admin Google Agenda')
 
     is_responsable_rh_id = fields.Many2one('res.users', string='Responsable RH')
-    is_zebra_id = fields.Many2one('is.raspberry.zebra', u"Imprimante Zebra par défaut", help=u"Utilisé pour imprimer les étiquettes des équipements")
+    is_zebra_id = fields.Many2one('is.raspberry.zebra', "Imprimante Zebra par défaut", help="Utilisé pour imprimer les étiquettes des équipements")
     is_activer_init = fields.Boolean('Activer les fonctions init des modèles', default=True, help="Désactiver cette option en mode développement pour accélérer la mise à jour du module")
     
     is_temps_effectif_par_jour = fields.Float("Temps effectif par jour (H)", digits=(12, 2), default=7.66, help="Utilisé dans la gestion des congés")
 
+    is_mdp_reimprimer = fields.Char('Mot de passe pour ré-imprimer étiquette Galia')
+    is_mdp_quantite   = fields.Char('Mot de passe pour modifier quantité étiquette Galia')
 
+    is_nom_base_odoo0 = fields.Char('Nom de la base principale (odoo0)')
+    is_url_odoo0      = fields.Char('URL base principale pour XMLRCP (odoo0)')
+    is_login_admin    = fields.Char('Login admin Odoo')
+    is_mdp_admin      = fields.Char('Mot de passe admin Odoo')
+
+            
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')
         principale_grp_id = self.env.ref('is_plastigray16.is_base_principale_grp')

@@ -29,6 +29,14 @@
                                 <field name="is_postgres_user"/>
                                 <field name="is_postgres_pwd" password="True"/>
                             </group>
+                            <group string="Accès Odoo 0">
+                                <field name="is_nom_base_odoo0"/>
+                                <field name="is_url_odoo0"/>
+                                <field name="is_login_admin"/>
+                                <field name="is_mdp_admin"      password="True"/>
+                                <field name="is_mdp_reimprimer" password="True"/>
+                                <field name="is_mdp_quantite"   password="True"/>
+                            </group>
                             <group string="Google Agenda">
                                 <field name="is_agenda_url"/>
                                 <field name="is_agenda_pwd" password="True"/>
