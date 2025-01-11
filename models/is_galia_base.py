@@ -542,6 +542,7 @@ class is_galia_base(models.Model):
 
 
     def imprimer_etiquette_uc_action(self):
+        company = self.env.company
         user = self.env['res.users'].browse(self._uid)
         for obj in self:
             vals={
@@ -553,12 +554,16 @@ class is_galia_base(models.Model):
                 'zzDebut'     : obj.num_carton, 
                 'zzFin'       : obj.num_carton, 
                 'zzNbPieces'  : obj.qt_pieces, 
-                'zzMDP2'      : 'reimp2023', 
+                'zzMDP1'      : company.is_mdp_quantite,
+                'zzMDP2'      : company.is_mdp_reimprimer, 
                 'zzValidation': 'OK', 
                 'zzAction'    : 'Imprimer', 
                 'user_name'   : user.name,
             }
             res = obj.sudo().creer_etiquette(vals)
+            Msg = res.get('Msg')
+            if Msg!='':
+                raise ValidationError(Msg)
             ZPL = res.get('ZPL')
             obj.imprimer_zpl(ZPL)
 
@@ -566,6 +571,8 @@ class is_galia_base(models.Model):
     def imprimer_zpl(self,ZPL):
         user=self.env['res.users'].browse(self._uid)
         imprimante=user.is_zebra_id.name or user.company_id.is_zebra_id.name
+        if not imprimante:
+            raise ValidationError('Imprimante Zebra non définie !')
         if imprimante and ZPL!='':
             cmd = 'echo "'+ZPL+'" | lpr -P'+imprimante
             p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
