@@ -804,10 +804,26 @@ class is_galia_base_uc(models.Model):
     def imprimer_etiquette_uc_action(self):
         user = self.env['res.users'].browse(self._uid)
         company = self.env.company
+        DB        = company.is_nom_base_odoo0
+        USERID    = 2
+        DBLOGIN   = company.is_login_admin
+        USERPASS  = company.is_mdp_admin
+        URL       = company.is_url_odoo0 
+        sock      = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
         for obj in self:
+            #** Retrouver la société de l'étiquette ***************************
+            Soc=False
+            domain=[('num_eti','=',obj.num_eti)]
+            lines=sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', 'search_read', [domain], {'fields': ['num_eti', 'soc'], 'limit': 3, 'order': 'id desc'})
+            for line in lines:
+                Soc=line.get('soc')
+            if not Soc:
+                msg="Etiquette %s non trouvée dans Odoo 0"%obj.num_eti
+                raise ValidationError(msg)
+            #******************************************************************
             vals={
                 'ACTION'      : 'OK', 
-                'Soc'         : company.is_code_societe, 
+                'Soc'         : Soc, 
                 'Etiquette'   : obj.type_eti, 
                 'Imprimante'  : 'ZPL', 
                 'zzCode'      : obj.production, 
@@ -820,14 +836,8 @@ class is_galia_base_uc(models.Model):
                 'zzAction'    : 'Imprimer', 
                 'user_name'   : user.name,
             }
-            DB        = company.is_nom_base_odoo0
-            USERID    = 2
-            DBLOGIN   = company.is_login_admin
-            USERPASS  = company.is_mdp_admin
-            URL       = company.is_url_odoo0 
             try:
-                sock = xmlrpclib.ServerProxy('%s/xmlrpc/object'%URL)
-                res = sock.execute(DB, USERID, USERPASS, 'is.galia.base', 'creer_etiquette', [0], vals)
+                res = sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', 'creer_etiquette', [[0], vals])
             except:
                 msg="Problème de connexion sur %s ou sur la base %s"%(URL,DB)
                 raise ValidationError(msg)
