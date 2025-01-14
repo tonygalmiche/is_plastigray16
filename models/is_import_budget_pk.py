@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-
-from odoo import models,fields,api
-#import psycopg2
-#from psycopg2.extras import RealDictCursor
-from odoo.exceptions import ValidationError
-
+from odoo import models,fields,api          # type: ignore
+from odoo.exceptions import ValidationError # type: ignore
+import psycopg2                             # type: ignore
+from psycopg2.extras import RealDictCursor  # type: ignore
 
 class is_import_budget_pk(models.Model):
     _name = 'is.import.budget.pk'
@@ -46,18 +44,18 @@ class is_import_budget_pk(models.Model):
             if not obj.annee and not obj.mois:
                 raise ValidationError(u"Il est obligatoire de saisir l'année ou le mois")
             company = self.env.user.company_id
-            base1="odoo1"
-            base3="odoo3"
+            base1="odoo16-1"
+            base3="odoo16-3"
             if company.is_postgres_host=='localhost':
-                base1="pg-odoo1"
-                base3="pg-odoo3"
+                base1="pg-odoo16-1"
+                base3="pg-odoo16-3"
             cnx1=False
             cnx3=False
             try:
                 cnx1 = psycopg2.connect("dbname='"+base1+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
                 cnx3 = psycopg2.connect("dbname='"+base3+"' user='"+company.is_postgres_user+"' host='"+company.is_postgres_host+"' password='"+company.is_postgres_pwd+"'")
             except:
-                raise ValidationError("Impossible de se connecter à odoo1 ou odoo3")
+                raise ValidationError("Impossible de se connecter à %s ou %s"%(base1,base3))
             cr1 = cnx1.cursor(cursor_factory=RealDictCursor)
             cr3 = cnx3.cursor(cursor_factory=RealDictCursor)
 
