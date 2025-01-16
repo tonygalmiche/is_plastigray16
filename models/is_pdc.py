@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api
+from odoo import models,fields,api # type: ignore
 import datetime
 import pytz
 
@@ -71,11 +71,9 @@ class is_pdc(models.Model):
         cr      = self._cr
         for obj in self:
             obj.mold_ids.unlink()
-            #for row in obj.mold_ids:
-            #    row.unlink()
 
             #** Importation des FS *********************************************
-            cr.execute("""
+            SQL="""
                 select  mrw.workcenter_id                        as workcenter_id,
                         pt.is_mold_dossierf                      as mold_dossierf,
                         pt.is_couleur                            as matiere,
@@ -83,14 +81,17 @@ class is_pdc(models.Model):
                         sum(mp.quantity*mrw.is_nb_secondes)      as temps_total
                 from mrp_prevision mp inner join product_product  pp on mp.product_id=pp.id
                                       inner join product_template pt on pp.product_tmpl_id=pt.id
-                                      inner join mrp_bom          mb on pt.id=mb.product_tmpl_id and mb.sequence=0
+                                      inner join mrp_bom          mb on pt.id=mb.product_tmpl_id and (mb.sequence=0 or mb.sequence is null)
                                       inner join mrp_routing_workcenter mrw on mb.routing_id=mrw.routing_id
                 where   mp.type='fs' 
                         and mp.start_date>='"""+str(obj.date_debut)+"""'
                         and mp.start_date<='"""+str(obj.date_fin)+"""'
+                        -- and pt.is_mold_dossierf='3090'
+                        -- and pt.is_code='400886'
                 group by mrw.workcenter_id, pt.is_mold_dossierf, pt.is_couleur
                 order by mrw.workcenter_id;
-            """)
+            """
+            cr.execute(SQL)
             result = cr.fetchall()
             res={}
             for row in result:
@@ -140,48 +141,6 @@ class is_pdc(models.Model):
                             res[key]['temps_h']  = res[key]['temps_h']+temps_h
             #*******************************************************************
 
-
-            # #** Importation des FL *********************************************
-            # cr.execute("""
-            #     select  mrw.workcenter_id                        as workcenter_id,
-            #             pt.is_mold_dossierf                      as mold_dossierf,
-            #             pt.is_couleur                            as matiere,
-            #             sum(sm.product_uom_qty)                         as quantite,
-            #             sum(sm.product_uom_qty*mrw.is_nb_secondes) as temps_total
-            #     from stock_move sm    inner join product_product  pp on sm.product_id=pp.id
-            #                           inner join product_template pt on pp.product_tmpl_id=pt.id
-            #                           inner join mrp_bom          mb on pt.id=mb.product_tmpl_id and mb.sequence=0
-            #                           inner join mrp_routing_workcenter mrw on mb.routing_id=mrw.routing_id
-            #     where sm.state in('confirmed','assigned') 
-            #             and sm.date>='"""+str(obj.date_debut)+"""'
-            #             and sm.date<='"""+str(obj.date_fin)+"""'
-            #             and sm.production_id is not null
-            #     group by mrw.workcenter_id, pt.is_mold_dossierf, pt.is_couleur
-            #     order by mrw.workcenter_id;
-            # """)
-            # result = cr.fetchall()
-            # for row in result:
-            #     print(row[1])
-            #     key=str(row[0])+"/"+str(row[1])+"/"+str(row[2])
-            #     temps_u=temps_h=0
-            #     if row[3]!=0:
-            #         temps_u=row[4]/row[3]
-            #         temps_h=row[4]/3600
-            #     vals={
-            #         'workcenter_id': row[0],
-            #         'mold_dossierf': row[1],
-            #         'matiere'      : row[2],
-            #         'quantite'     : row[3],
-            #         'temps_u'      : temps_u,
-            #         'temps_h'      : temps_h,
-            #     }
-            #     if not key in res:
-            #         res[key]=vals
-            #     else:
-            #         res[key]['quantite'] = res[key]['quantite']+row[3]
-            #         res[key]['temps_h']  = res[key]['temps_h']+row[4]
-            # #*******************************************************************
-
             pdc_mold_obj = self.env['is.pdc.mold']
             for key in res:
                 vals={
@@ -200,9 +159,6 @@ class is_pdc(models.Model):
 
     def action_detail_par_moule(self):
         for obj in self:
-
-            print(obj)
-
             return {
                 'name': obj.name,
                 'view_mode': 'tree,form',
@@ -352,7 +308,7 @@ class is_pdc_mold(models.Model):
         return context.get('pdc_id') or False
 
 
-    pdc_id         = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade', default=lambda self: self._get_default_pdc_id())
+    pdc_id         = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade', index=True, default=lambda self: self._get_default_pdc_id())
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de charge')
     resource_type  = fields.Selection([('material', u'Machine'),('user', u'MO')], u"Type", readonly=True, index=True, store=True, compute='_resource_type')
     mold_id        = fields.Many2one('is.mold', 'Moule')
@@ -422,7 +378,7 @@ class is_pdc_workcenter(models.Model):
     _description="is_pdc_workcenter"
     _order='resource_type, workcenter_id'
 
-    pdc_id            = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade')
+    pdc_id            = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade', index=True)
     resource_type     = fields.Selection([('material', u'Machine'),('user', u'MO')], u"Type de ressource", index=True)
     workcenter_id     = fields.Many2one('mrp.workcenter', 'Poste de charge')
     presse_heure      = fields.Float('H Presse')
@@ -456,7 +412,7 @@ class is_pdc_mod(models.Model):
     _description="is_pdc_mod"
     _order='id'
 
-    pdc_id            = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade')
+    pdc_id            = fields.Many2one('is.pdc', 'PDC', required=True, ondelete='cascade', index=True)
     intitule          = fields.Char('Intitulé')
     semaine_35        = fields.Char('35H')
     semaine_37        = fields.Char('37,5H')
