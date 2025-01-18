@@ -80,6 +80,7 @@ from . import res_partner
 from . import res_users
 from . import sale
 from . import stock
+from . import stock_picking
 from . import stock_inventory
 from . import is_inventaire
 from . import stock_move

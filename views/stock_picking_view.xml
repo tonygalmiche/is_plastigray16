@@ -302,6 +302,8 @@
                             <group>
                                 <field name="is_nb_um" force_save="1"/>
                                 <field name="is_nb_uc" force_save="1"/>
+                                <field name="is_poids_net"/>
+                                <field name="is_poids_brut"/>
                             </group>
                         </group>
                         <div>
@@ -354,6 +356,10 @@
                     <field name="is_date_expedition" optional="show"/>
                     <field name="is_date_livraison"  optional="show"/>
                     <field name="is_num_bl"          optional="show"/>
+                    <field name="is_nb_uc"           optional="hide" sum="Total"/>
+                    <field name="is_nb_um"           optional="hide" sum="Total"/>
+                    <field name="is_poids_net"       optional="hide" sum="Total"/>
+                    <field name="is_poids_brut"      optional="hide" sum="Total"/>
                     <button 
                         name="is_alerte_action" type="object" class="oe_stat_button" 
                         icon="fa-exclamation-triangle"
