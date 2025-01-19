@@ -48,6 +48,7 @@ class is_edi_cde_cli_line(models.Model):
     point_dechargement               = fields.Char('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
     numero_document                  = fields.Char('N°Document (CALDEL)'     , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
     tg_number                        = fields.Char('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    caldel_number                    = fields.Char('Caldel Number'           , help="Champ 'CaldelNumber' pour EDI Weidplas")
     num_ran                          = fields.Char('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
     identifiant_transport            = fields.Char("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
     code_fabrication                 = fields.Char('Code fabrication'        , help="Champ 'Codefabrication' pour EDI PO/Weidplas à remettre sur étiquette GALIA et BL")
@@ -275,6 +276,7 @@ class is_edi_cde_cli(models.Model):
                             'quantite'                         : ligne["quantite"],
                             'numero_document'                  : ligne.get('numero_document'),
                             'tg_number'                        : ligne.get('tg_number'),
+                            'caldel_number'                    : ligne.get('caldel_number'),
                             'num_ran'                          : ligne.get('num_ran'),
                             'identifiant_transport'            : ligne.get('identifiant_transport'),
                             'code_fabrication'                 : code_fabrication,
@@ -414,6 +416,7 @@ class is_edi_cde_cli(models.Model):
                                 'is_date_heure_livraison_au_plus_tot': line.date_heure_livraison_au_plus_tot,
                                 'is_numero_document'                 : line.numero_document,
                                 'is_tg_number'                       : line.tg_number,
+                                'is_caldel_number'                   : line.caldel_number,
                                 'is_identifiant_transport'           : line.identifiant_transport,
                                 'is_code_routage'                    : line.code_routage,
                                 'is_point_destination'               : line.point_destination,
@@ -1536,6 +1539,10 @@ class is_edi_cde_cli(models.Model):
                             tg_number=partie_citee.xpath("ARTICLE_PROGRAMME/TGNumber")[0].text
                         except IndexError:
                             tg_number=""
+                        try:
+                            caldel_number=partie_citee.xpath("ARTICLE_PROGRAMME/CaldelNumber")[0].text
+                        except IndexError:
+                            caldel_number=""
 
                         #products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                         anomalie=[]
@@ -1603,6 +1610,7 @@ class is_edi_cde_cli(models.Model):
                                 'point_dechargement'   : point_dechargement,
                                 'numero_document'      : numero_document,  # N°UM de PSA 
                                 'tg_number'            : tg_number,        # N°UM de Weidplas
+                                'caldel_number'        : caldel_number,    # Weidplas
                                 'num_ran'              : num_ran,          # N°UM de PO
                                 'identifiant_transport': identifiant_transport,
                                 'code_fabrication'     : code_fabrication,

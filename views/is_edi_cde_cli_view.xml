@@ -42,6 +42,7 @@
                     <field name="quantite"            sum="Total"/>
                     <field name="point_dechargement"     optional="show" />
                     <field name="numero_document"        optional="hide" />
+                    <field name="caldel_number"          optional="hide" />
                     <field name="tg_number"              optional="hide" />
                     <field name="num_ran"                optional="hide" />
                     <field name="identifiant_transport"  optional="hide" />
@@ -68,6 +69,7 @@
                     <field name="date_heure_livraison_au_plus_tot" optional="show" />
                     <field name="date_heure_livraison"             optional="show" />
                     <field name="numero_document"                  optional="show" />
+                    <field name="caldel_number"                    optional="show" />
                     <field name="tg_number"                        optional="show" />
                     <field name="num_ran"                          optional="show" />
                     <field name="identifiant_transport"            optional="hide" />

@@ -163,6 +163,7 @@
 
                                 <field name="is_date_heure_livraison_au_plus_tot" optional="hide"/>
                                 <field name="is_numero_document"                  optional="hide"/>
+                                <field name="is_caldel_number"                    optional="hide"/>
                                 <field name="is_tg_number"                        optional="hide"/>
                                 <field name="is_num_ran"                          optional="hide"/>
                                 <field name="is_identifiant_transport"            optional="hide"/>

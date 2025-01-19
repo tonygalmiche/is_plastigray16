@@ -378,6 +378,7 @@ class is_liste_servir(models.Model):
                     sol.is_justification,
                     sol.is_date_heure_livraison_au_plus_tot,
                     sol.is_numero_document,
+                    sol.is_caldel_number,
                     sol.is_tg_number,
                     sol.is_num_ran,
                     sol.is_identifiant_transport,
@@ -509,6 +510,7 @@ class is_liste_servir(models.Model):
 
                         'is_date_heure_livraison_au_plus_tot': row['is_date_heure_livraison_au_plus_tot'],
                         'is_numero_document'                 : row['is_numero_document'],
+                        'is_caldel_number'                   : row['is_caldel_number'],
                         'is_tg_number'                       : row['is_tg_number'],
                         'is_num_ran'                         : row['is_num_ran'],
                         'is_identifiant_transport'           : row['is_identifiant_transport'],
@@ -598,6 +600,7 @@ class is_liste_servir(models.Model):
                 "is_type_commande"   : 'ferme',
                 "is_date_heure_livraison_au_plus_tot": line.is_date_heure_livraison_au_plus_tot,
                 "is_numero_document"                 : line.is_numero_document,
+                "is_caldel_number"                   : line.is_caldel_number,
                 "is_tg_number"                       : line.is_tg_number,
                 "is_num_ran"                         : line.is_num_ran,
                 "is_identifiant_transport"           : line.is_identifiant_transport,
@@ -907,6 +910,7 @@ class is_liste_servir_line(models.Model):
 
     is_date_heure_livraison_au_plus_tot = fields.Char('Liv au plus tôt'  , help="Champ 'DateHeurelivraisonAuPlusTot' pour EDI Weidplas")
     is_numero_document                  = fields.Char('N°Document'       , help="Champ 'NumeroDocument' pour EDI Weidplas => N°UM de PSA")
+    is_caldel_number                    = fields.Char('Caldel Number'    , help="Champ 'CaldelNumber' pour EDI Weidplas")
     is_tg_number                        = fields.Char('TG Number'        , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
     is_num_ran                          = fields.Char('NumRAN'           , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
     is_code_routage                     = fields.Char('Code routage'     , help="Champ 'CodeRoutage' pour EDI Weidplas")
