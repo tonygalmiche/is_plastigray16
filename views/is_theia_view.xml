@@ -209,6 +209,14 @@
                 <field name="of_ids"/>
                 <field name="employee_id"/>
                 <filter string="Production série + Essai" name="production_serie_essai" domain="['|',('type_arret_id','=',1),('type_arret_id','=',13)]"/>
+
+
+                <filter name="2023" string="2023" domain="[('date_heure','&gt;=','2023-01-01 00:00:00'),('date_heure','&lt;','2024-01-01 00:00:00')]"/>
+                <filter name="2024" string="2024" domain="[('date_heure','&gt;=','2024-01-01 00:00:00'),('date_heure','&lt;','2025-01-01 00:00:00')]"/>
+                <filter name="2025" string="2025" domain="[('date_heure','&gt;=','2025-01-01 00:00:00'),('date_heure','&lt;','2026-01-01 00:00:00')]"/>
+
+
+
                 <group expand="0" string="Regroupé par...">
                   <filter name="group_presse_id"     string="Presse"       context="{'group_by':'presse_id'}"/>
                   <filter name="group_type_arret_id" string="Type d'arrêt" context="{'group_by':'type_arret_id'}"/>
@@ -218,11 +226,40 @@
             </search>
         </field>
     </record>
+
+
+    <record id="is_presse_arret_pivot_view" model="ir.ui.view">
+        <field name="name">is_presse_arret_pivot_view</field>
+        <field name="model">is.presse.arret</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="date_heure"    type="row"/>
+                <field name="type_arret_id" type="col"/>
+                <field name="tps_arret"     type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="is_presse_arret_graph_view" model="ir.ui.view">
+        <field name="name">is_presse_arret_graph_view</field>
+        <field name="model">is.presse.arret</field>
+        <field name="arch" type="xml">
+            <graph>
+                <field name="date_heure"/>
+                <field name="type_arret_id"/>
+                <field name="tps_arret" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
+
+
+
     <record model="ir.actions.act_window" id="is_presse_arret_action">
         <field name="name">États process</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">is.presse.arret</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
     </record>
     <menuitem action="is_presse_arret_action" 
               id="menu_is_presse_arret" 
@@ -978,26 +1015,6 @@
               sequence="25" groups="group_gestionnaire_cpi_raspberry"/>
 
 
-
-
-
-
-    <!-- Lancement automatisé du calcul du bilan de fin d'OF -->
-    <!-- TODO : Fonction désactivée car pb d'accès concurrent avec les Raspberry -->
-    <!-- <record forcecreate="True" id="is_bilan_fin_of_scheduler_action" model="ir.cron">
-        <field name="name">Bilan de fin d'OF</field>
-        <field eval="False" name="active"/>
-        <field name="user_id" ref="base.user_root"/>
-        <field name="interval_number">10</field>
-        <field name="interval_type">minutes</field>
-        <field name="numbercall">-1</field>
-        <field eval="False" name="doall"/>
-        <field eval="'is.of'" name="model"/>
-        <field eval="'run_bilan_fin_of_scheduler_action'" name="function"/>
-        <field eval="'(True,)'" name="args"/>
-    </record> -->
-
-
     <!-- is.theia.trs -->
     <record model="ir.ui.view" id="is_theia_trs_tree_view">
         <field name="name">is.theia.trs.tree</field>
@@ -1013,6 +1030,7 @@
                 <field name="code_article"/>
                 <field name="categorie"/>
                 <field name="moule"/>
+                <field name="duree_etat" widget="float_time" sum="Total"/>
                 <field name="duree_of"   widget="float_time" sum="Total"/>
             </tree>
         </field>
@@ -1066,14 +1084,41 @@
                   <filter name="group_categorie"    string="Catégorie" context="{'group_by':'categorie'}"/>
                   <filter name="group_moule"        string="Moule"     context="{'group_by':'moule'}"/>
                 </group>
+
+                <filter name="2023" string="2023" domain="[('date_heure','&gt;=','2023-01-01 00:00:00'),('date_heure','&lt;','2024-01-01 00:00:00')]"/>
+                <filter name="2024" string="2024" domain="[('date_heure','&gt;=','2024-01-01 00:00:00'),('date_heure','&lt;','2025-01-01 00:00:00')]"/>
+                <filter name="2025" string="2025" domain="[('date_heure','&gt;=','2025-01-01 00:00:00'),('date_heure','&lt;','2026-01-01 00:00:00')]"/>
+
             </search>
+        </field>
+    </record>
+    <record id="is_theia_trs_pivot_view" model="ir.ui.view">
+        <field name="name">is_theia_trs_pivot_view</field>
+        <field name="model">is.theia.trs</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="date_heure"    type="row"/>
+                <field name="etat_id" type="col"/>
+                <field name="duree_of"     type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="is_theia_trs_graph_view" model="ir.ui.view">
+        <field name="name">is_theia_trs_graph_view</field>
+        <field name="model">is.theia.trs</field>
+        <field name="arch" type="xml">
+            <graph>
+                <field name="date_heure"/>
+                <field name="etat_id"/>
+                <field name="duree_of" type="measure"/>
+            </graph>
         </field>
     </record>
     <record model="ir.actions.act_window" id="is_theia_trs_action">
         <field name="name">Table TRS</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">is.theia.trs</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
     </record>
     <menuitem 
         action="is_theia_trs_action" 
@@ -1081,10 +1126,6 @@
         parent="menu_is_cpi_indicateurs" 
         sequence="90"
     />
-
-
-
-
 
 
     <!--Gestion des autorisations -->
