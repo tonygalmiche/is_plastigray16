@@ -4,6 +4,7 @@ from odoo.exceptions import AccessError, ValidationError, UserError  # type: ign
 from subprocess import PIPE, Popen
 from xmlrpc import client as xmlrpclib
 from datetime import datetime
+import time
 import pytz
 import os
 import psycopg2         # type: ignore
@@ -21,6 +22,7 @@ class is_galia_base(models.Model):
     _description="Etiquettes Galia"
     _order='num_eti desc'
     _rec_name='num_eti'
+    _sql_constraints = [('name_uniq','UNIQUE(num_eti)', 'Cette étiquette existe déjà')] 
 
     num_eti       = fields.Integer("N°Étiquette", index=True)
     soc           = fields.Integer("Société"    , index=True)
@@ -30,6 +32,7 @@ class is_galia_base(models.Model):
     qt_pieces     = fields.Integer("Qt Pièces")
     date_creation = fields.Datetime("Date de création", index=True)
     login         = fields.Char("Login")
+
 
     def str2int(self,val):
         try:
@@ -165,6 +168,10 @@ class is_galia_base(models.Model):
                 """%(NumCde,offset)
             company = self.env.user.company_id
             dbname='odoo16-%s'%Soc
+
+            print(dbname,company.is_postgres_host)
+
+
             if company.is_postgres_host=='localhost':
                 dbname='pg-odoo16-%s'%Soc
             try:
@@ -267,9 +274,26 @@ class is_galia_base(models.Model):
                 if zzAction=="":
                     MsgOK="<div class=NomalNL>Cliquez sur OK pour lancer l'impression <div>"
 
+            #** Test si impression en cours ***********************************
             if zzAction=="Imprimer" and Msg=="":
+                path_lock='/tmp/imprime-etiquette-galia.lock'
+                if os.path.exists(path_lock):
+                    f = open(path_lock, "r")
+                    Msg = f.read() 
+            #******************************************************************
+
+            if zzAction=="Imprimer" and Msg=="":
+                #** Lock pour ne pas avoir 2 étiquettes avec le même numéro ***
+                f = open(path_lock,'w')
+                f.write("Etiquettes %s en cours d'impression par %s (site=%s)"%(zzCode,user_name,Soc))
+                f.close()
+                #**************************************************************
+
                 Action=""
                 for Nb in range(zzDebut, zzFin+1):
+                    #time.sleep(1)
+
+
                     #** Intitialisation des variables pour l'étiquette ********
                     FN10="" # REF FRNS (30S)
                     if FormatEti=="PG":
@@ -515,6 +539,9 @@ class is_galia_base(models.Model):
                         _logger.info("Réimpression étiquette Galia %s"%Info)
                     MsgOK+="<div class=NormalLB>Impression et enregistrement étiquette %s dans odoo0 éffectué avec succés.</div>"%Info
                     #**********************************************************
+
+                os.unlink(path_lock)
+
 
         #** Code ZPL final ****************************************************
         ZPL=''
