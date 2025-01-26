@@ -52,18 +52,19 @@ class stock_move(models.Model):
     @api.depends('product_id','product_uom_qty')
     def _compute_is_point_dechargement(self):
         for obj in self:
-            x = False
-            if obj.picking_id.partner_id.is_traitement_edi:
-                filtre = [
-                    ('partner_id'            , '=', obj.picking_id.partner_id.id),
-                    ('is_article_commande_id', '=', obj.product_id.id),
-                    ('is_type_commande'      , '=', 'ouverte'),
-                    ('state'                 , '=', 'draft'),
-                ]
-                orders = self.env['sale.order'].search(filtre)
-                for order in orders:
-                    x = order.is_point_dechargement
-            obj.is_point_dechargement = x
+            obj.is_point_dechargement = obj.picking_id.sale_id.is_point_dechargement
+            # x = False
+            # if obj.picking_id.partner_id.is_traitement_edi:
+            #     filtre = [
+            #         ('partner_id'            , '=', obj.picking_id.partner_id.id),
+            #         ('is_article_commande_id', '=', obj.product_id.id),
+            #         ('is_type_commande'      , '=', 'ouverte'),
+            #         ('state'                 , '=', 'draft'),
+            #     ]
+            #     orders = self.env['sale.order'].search(filtre)
+            #     for order in orders:
+            #         x = order.is_point_dechargement
+            # obj.is_point_dechargement = x
 
 
     is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16 et remplacé par sale_line_id)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16

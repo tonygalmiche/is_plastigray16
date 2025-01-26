@@ -164,11 +164,12 @@ class stock_picking(models.Model):
     @api.depends('move_ids_without_package')
     def compute_is_point_dechargement(self):
         for obj in self:
-            x = False
-            for line in obj.move_ids_without_package:
-                x=line.is_point_dechargement
-                break
-            obj.is_point_dechargement = x
+            obj.is_point_dechargement = obj.sale_id.is_point_dechargement
+            # x = False
+            # for line in obj.move_ids_without_package:
+            #     x=line.is_point_dechargement
+            #     break
+            # obj.is_point_dechargement = x
 
 
     @api.depends('state', 'move_ids', 'move_ids.invoice_state')
