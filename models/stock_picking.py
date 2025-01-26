@@ -57,7 +57,7 @@ class stock_picking(models.Model):
             ('2binvoiced', "À facturer"),
             ('invoiced'  , "Facturé"),
         ], "Facturation", default="2binvoiced", compute="_compute_invoice_state", store=True)
-    is_point_dechargement = fields.Char('Point de déchargement', compute='_compute_is_point_dechargement', store=False, readonly=True)
+    is_point_dechargement = fields.Char('Point de déchargement', compute='compute_is_point_dechargement', store=True, readonly=True)
     is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage", readonly=1)
     is_nb_um              = fields.Integer('Nb UM', readonly=1)
     is_nb_uc              = fields.Integer('Nb UC', readonly=1)
@@ -162,7 +162,7 @@ class stock_picking(models.Model):
 
 
     @api.depends('move_ids_without_package')
-    def _compute_is_point_dechargement(self):
+    def compute_is_point_dechargement(self):
         for obj in self:
             x = False
             for line in obj.move_ids_without_package:
@@ -566,12 +566,12 @@ class stock_picking(models.Model):
                     'qt1'                      : 0,
                     'qt2'                      : 0,
                     'rowspan'                  : 0,
-                    'is_uc'                    : move.is_uc.replace('\n','<br />'),
-                    'is_uc_galia'              : move.is_uc_galia.replace('\n','<br />'),
+                    'is_uc'                    : (move.is_uc or '').replace('\n','<br />'),
+                    'is_uc_galia'              : (move.is_uc_galia or '').replace('\n','<br />'),
                     'nb2'                      : nb2,
                     'unite2'                   : unite2,
                     'is_numero_document'       : move.sale_line_id.is_numero_document,
-                    'is_um_galia'              : move.is_um_galia.replace('\n','<br />'),  
+                    'is_um_galia'              : (move.is_um_galia or '').replace('\n','<br />'),  
                     'lig'                      : 0,                       
                 }
                 lines.append(vals)
@@ -621,6 +621,7 @@ class stock_picking(models.Model):
                 move.compute_is_uc_galia()
                 move._compute_lots()
             obj.compute_alerte()
+            obj.compute_is_point_dechargement()
 
 
     def desadv_action(self):

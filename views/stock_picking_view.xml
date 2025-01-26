@@ -229,11 +229,12 @@
                         domain="[('supplier','=',True),('is_company','=',True)]" 
                         attrs="{'invisible': [('sale_id', '=', False)]}"
                     /> 
-                    <field name="is_plaque_immatriculation" attrs="{'invisible': [('sale_id', '=', False)]}"  /> 
-                    <field name="is_dossier_transport" attrs="{'invisible': [('sale_id', '=', False)]}"  /> 
-                    <field name="is_identifiant_transport"  attrs="{'invisible': [('sale_id', '=', False)]}"  /> 
-                    <field name="is_num_bl"                 attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
-                    <field name="is_date_reception"         attrs="{'invisible': [('purchase_id', '=', False)]}"  /> 
+                    <field name="is_plaque_immatriculation" attrs="{'invisible': [('sale_id', '=', False)]}"/> 
+                    <field name="is_dossier_transport"      attrs="{'invisible': [('sale_id', '=', False)]}"/> 
+                    <field name="is_identifiant_transport"  attrs="{'invisible': [('sale_id', '=', False)]}"/> 
+                    <field name="is_point_dechargement"     attrs="{'invisible': [('sale_id', '=', False)]}"/>
+                    <field name="is_num_bl"                 attrs="{'invisible': [('purchase_id', '=', False)]}"/> 
+                    <field name="is_date_reception"         attrs="{'invisible': [('purchase_id', '=', False)]}"/> 
                 </field>
                 <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
                     <attribute name="readonly">1</attribute>
