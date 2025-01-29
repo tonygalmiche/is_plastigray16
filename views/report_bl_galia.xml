@@ -217,10 +217,10 @@
                                 </td>
                                 <td style="font-size:9pt">
                                     <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.numero_lot">
-                                        <span t-raw="line['is_uc_galia']" style="white-space: nowrap;"/>
+                                        <span t-out="line['is_uc_galia']" style="white-space: nowrap;"/>
                                     </t>
                                     <t t-if="o.partner_id.is_configuration_bl_id and not o.partner_id.is_configuration_bl_id.numero_lot">
-                                        <span t-raw="line['is_uc']" style="white-space: nowrap;"/>
+                                        <span t-out="line['is_uc']" style="white-space: nowrap;"/>
                                     </t>
                                 </td>
                                 <td class="text-right">
@@ -229,12 +229,18 @@
                                     </t>
                                 </td>
                                <td>
-                                    <t t-if="line['is_numero_document']">
+                                    <!-- <t t-if="line['is_numero_document']">
                                         <span t-esc="line['is_numero_document']"/>
+                                    </t> -->
+                                    <t t-if="o.partner_id.is_configuration_bl_id and o.partner_id.is_configuration_bl_id.caldel_number">
+                                        <div t-esc="line['is_caldel_number']"/> 
+                                    </t>
+                                    <t t-if="o.partner_id.is_configuration_bl_id and o.partner_id.is_configuration_bl_id.num_ran">
+                                        <div t-esc="line['is_num_ran']"/> 
                                     </t>
                                 </td>
                                 <td class="text-left" style="font-size:9pt">
-                                    <span t-raw="line['is_um_galia']" style="white-space: nowrap;"/>
+                                    <span t-out="line['is_um_galia']" style="white-space: nowrap;"/>
                                 </td>
                             </tr>
                         </tbody>

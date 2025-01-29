@@ -499,7 +499,7 @@ class is_galia_base(models.Model):
 
                     #** Data Matrix (QR Code) pour Delta Dore *****************
                     if TypeEti=="DD" or TypeEti=="EMS" or TypeEti=="NEA":
-                        Etiq+="""^FO400,900^BXN,6,200^FD(P)"""+RefClient+"(2P)"+IndPlan+"(Q)"+str(Quantite)+"(9D)"+now.strftime('%Y%m%d')+"(1T)"+NumLot+"(K)(1P)"+RefClient+"-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS"
+                        Etiq+="""^FO400,900^BXN,6,200^FD(P)"""+RefClient+"(2P)"+IndPlan+"(Q)"+str(Quantite)+"(9D)"+now.strftime('%y%m%d')+"(1T)"+NumLot+"(K)(1P)"+RefClient+"-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS"
                     #**********************************************************
 
                     #** Data Matrix (QR Code) pour DEVIALET *******************
@@ -546,6 +546,10 @@ class is_galia_base(models.Model):
         #** Code ZPL final ****************************************************
         ZPL=''
         if Etiq!='':
+
+            print(Etiq)
+
+
             addons_path = tools.config['addons_path'].split(',')[1]
             path = "%s/is_plastigray16/static/src/galia/"%addons_path
             Uc2   = open(path+'Uc2.zpl','rb').read().decode("utf-8")
@@ -559,11 +563,15 @@ class is_galia_base(models.Model):
             ZPL+=Etiq
         #**********************************************************************
 
+
+
+
         res={
-            'Msg'   : Msg,
-            'MsgOK' : MsgOK,
-            'Action': Action or '',
-            'ZPL'   : ZPL,
+            'Msg'     : Msg,
+            'MsgOK'   : MsgOK,
+            'Action'  : Action or '',
+            'ZPL'     : ZPL,
+            #'Quantite': Quantite,
         }
         return res
 

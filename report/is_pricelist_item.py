@@ -42,7 +42,7 @@ class is_pricelist_item(models.Model):
                 CREATE OR REPLACE view is_pricelist_item AS (
                     SELECT 
                         ppi.id                as id,
-                        pl.name->>'en_US'     as pricelist_name,
+                        pl.name->>'fr_FR'     as pricelist_name,
                         pl.type               as pricelist_type,
                         ppi.base              as base,
                         ppi.price_version_id  as price_version_id,

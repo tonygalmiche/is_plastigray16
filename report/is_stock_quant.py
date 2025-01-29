@@ -62,7 +62,7 @@ class is_stock_quant(models.Model):
                             sq.id                  id,
                             pt.id                  product_id, 
                             pt.is_code             code_pg,
-                            pt.name->>'en_US'      designation,
+                            pt.name->>'fr_FR'      designation,
                             pt.is_gestionnaire_id  gestionnaire_id,
                             pt.is_category_id      category_id,
                             pt.is_mold_dossierf    moule,

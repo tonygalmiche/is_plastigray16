@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api,tools,SUPERUSER_ID
 from odoo.exceptions import ValidationError
+from markupsafe import Markup
 import string
 import time
 from datetime import datetime, date, timedelta
@@ -567,12 +568,14 @@ class stock_picking(models.Model):
                     'qt1'                      : 0,
                     'qt2'                      : 0,
                     'rowspan'                  : 0,
-                    'is_uc'                    : (move.is_uc or '').replace('\n','<br />'),
-                    'is_uc_galia'              : (move.is_uc_galia or '').replace('\n','<br />'),
+                    'is_uc'                    : Markup((move.is_uc or '').replace('\n','<br />')),
+                    'is_uc_galia'              : Markup((move.is_uc_galia or '').replace('\n','<br />')),
                     'nb2'                      : nb2,
                     'unite2'                   : unite2,
                     'is_numero_document'       : move.sale_line_id.is_numero_document,
-                    'is_um_galia'              : (move.is_um_galia or '').replace('\n','<br />'),  
+                    'is_caldel_number'         : move.sale_line_id.is_caldel_number,
+                    'is_num_ran'               : move.sale_line_id.is_num_ran,
+                    'is_um_galia'              :Markup((move.is_um_galia or '').replace('\n','<br />')),  
                     'lig'                      : 0,                       
                 }
                 lines.append(vals)

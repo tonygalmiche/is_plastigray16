@@ -717,7 +717,9 @@
                     <field name="port"                     optional="show" widget="boolean_toggle"/>
                     <field name="identification_transport" optional="show" widget="boolean_toggle"/>
                     <field name="poids_net"                optional="show" widget="boolean_toggle"/>
-                    <field name="is_database_origine_id"   optional="show"/>
+                    <field name="caldel_number"            optional="show" widget="boolean_toggle"/>
+                    <field name="poids_net"                optional="show" widget="boolean_toggle"/>
+                    <field name="num_ran"                  optional="show"/>
                 </tree>
             </field>
         </record>
@@ -729,16 +731,18 @@
                     <sheet>
                         <group>
                             <field name="name"/>
-                            <field name="logo_pg" widget="boolean_toggle"/>
-                            <field name="code_barre" widget="boolean_toggle"/>
-                            <field name="code_pg" widget="boolean_toggle"/>
-                            <field name="nomenclature_douaniere" widget="boolean_toggle"/>
-                            <field name="numero_lot" widget="boolean_toggle"/>
-                            <field name="type_colis" widget="boolean_toggle"/>
-                            <field name="mode_transport" widget="boolean_toggle"/>
-                            <field name="port" widget="boolean_toggle"/>
+                            <field name="logo_pg"                  widget="boolean_toggle"/>
+                            <field name="code_barre"               widget="boolean_toggle"/>
+                            <field name="code_pg"                  widget="boolean_toggle"/>
+                            <field name="nomenclature_douaniere"   widget="boolean_toggle"/>
+                            <field name="numero_lot"               widget="boolean_toggle"/>
+                            <field name="type_colis"               widget="boolean_toggle"/>
+                            <field name="mode_transport"           widget="boolean_toggle"/>
+                            <field name="port"                     widget="boolean_toggle"/>
                             <field name="identification_transport" widget="boolean_toggle"/>
-                            <field name="poids_net" widget="boolean_toggle"/>
+                            <field name="poids_net"                widget="boolean_toggle"/>
+                            <field name="caldel_number"            widget="boolean_toggle"/>
+                            <field name="num_ran"                  widget="boolean_toggle"/>
                         </group> 
                     </sheet>
                 </form>

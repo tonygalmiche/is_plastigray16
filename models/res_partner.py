@@ -69,6 +69,9 @@ class is_configuration_bl(models.Model):
     poids_net                = fields.Boolean('Afficher poids net', default=True)
     is_database_origine_id   = fields.Integer("Id d'origine", readonly=True)
 
+    caldel_number = fields.Boolean("Afficher 'Caldel Number' dans 'N° de l'ordre", default=False)
+    num_ran       = fields.Boolean("Afficher 'NumRAN' dans 'N° de l'ordre", default=True)
+
 
     def write(self, vals):
         res=super().write(vals)
