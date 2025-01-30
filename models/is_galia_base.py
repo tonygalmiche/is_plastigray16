@@ -168,10 +168,6 @@ class is_galia_base(models.Model):
                 """%(NumCde,offset)
             company = self.env.user.company_id
             dbname='odoo16-%s'%Soc
-
-            print(dbname,company.is_postgres_host)
-
-
             if company.is_postgres_host=='localhost':
                 dbname='pg-odoo16-%s'%Soc
             try:
@@ -203,8 +199,8 @@ class is_galia_base(models.Model):
                     GaucheDroite = row['droite_gauche'] or ''
                     LogoSecu     = row['logo_secu'] or ''
                     NumLot       = row['num_of'] or ''
-                    PoidsBrut    = row['poids_brut'] or ''
-                    PoidsNet     = row['poids_net'] or ''
+                    PoidsBrut    = row['poids_brut'] or 0
+                    PoidsNet     = row['poids_net'] or 0
 
                     #** Recherche de la quantité par UC ***********************
                     product_id=row['product_id']
@@ -546,10 +542,6 @@ class is_galia_base(models.Model):
         #** Code ZPL final ****************************************************
         ZPL=''
         if Etiq!='':
-
-            print(Etiq)
-
-
             addons_path = tools.config['addons_path'].split(',')[1]
             path = "%s/is_plastigray16/static/src/galia/"%addons_path
             Uc2   = open(path+'Uc2.zpl','rb').read().decode("utf-8")
