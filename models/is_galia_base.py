@@ -69,7 +69,7 @@ class is_galia_base(models.Model):
                 SQL="""SELECT 
                         pt.id                   as product_id,
                         pt.is_code              as code_pg, 
-                        pt.name->>'fr_FR'                 as designation, 
+                        pt.name->>'fr_FR'       as designation, 
                         pt.is_ref_client        as ref_client,
                         pt.is_ref_plan          as ref_plan,
                         pt.is_ind_plan          as ind_plan,
@@ -105,7 +105,7 @@ class is_galia_base(models.Model):
                 SQL="""SELECT 
                         pt.id                   as product_id,
                         pt.is_code              as code_pg, 
-                        pt.name->>'fr_FR'                 as designation, 
+                        pt.name->>'fr_FR'       as designation, 
                         pt.is_ref_client        as ref_client,
                         pt.is_ref_plan          as ref_plan,
                         pt.is_ind_plan          as ind_plan,
@@ -132,7 +132,9 @@ class is_galia_base(models.Model):
             if (Etiquette=="Commande"):
                 r = zzCode.split('/')
                 NumCde = r[0]
-                offset = int(r[1])/1-1
+                offset=0
+                if len(r)>1:
+                    offset = self.str2int(r[1])-1
                 if (offset<0):
                     offset=0
                 SQL="""SELECT 
@@ -164,7 +166,7 @@ class is_galia_base(models.Model):
                                             inner join is_gestionnaire                  ig on pt.is_gestionnaire_id = ig.id
                                             left outer join is_type_etiquette          ite on pt.is_type_etiquette_id=ite.id
                     WHERE po.name='%s' 
-                    ORDER BY pol.id limit 1 offset %s ";
+                    ORDER BY pol.id limit 1 offset %s
                 """%(NumCde,offset)
             company = self.env.user.company_id
             dbname='odoo16-%s'%Soc
@@ -216,10 +218,10 @@ class is_galia_base(models.Model):
                     TypeEti= row['type_etiquette']
                     if TypeEti=='':
                         Msg+="Type etiquette non trouvee!\n"
-                    TypeEti         = row['type_etiquette']
-                    FormatEti       = row['format_etiquette']
-                    Adresse         = row['adresse']
-                    CodeFournisseur = row['code_fournisseur']
+                    TypeEti         = row['type_etiquette'] or ''
+                    FormatEti       = row['format_etiquette'] or ''
+                    Adresse         = row['adresse'] or ''
+                    CodeFournisseur = row['code_fournisseur'] or ''
                     #**********************************************************
 
                     # Recherche Informations sur le client ********************
@@ -232,6 +234,7 @@ class is_galia_base(models.Model):
                     rows2 = cur.fetchall()
                     Fournisseur=''
                     CodeClient=''
+                    NomClient=''
                     for row2 in rows2:
                         Fournisseur = row2['is_cofor'] or ''
                         CodeClient  = row2['code_client'] or ''
@@ -513,7 +516,8 @@ class is_galia_base(models.Model):
 
                     #** Enregistrement Etiquette dans Odoo ********************
                     msg=""
-                    Info="%s - %s - %s"%(zzCode,Nb,FN7)
+                    Info = "%s - %s - %s"%(zzCode,Nb,FN7)
+                    Log  = "%s - %s - %s par %s"%(zzCode,Nb,FN7,user_name)
                     if num_eti==False:
                         BDateCreation = now.strftime('%Y-%m-%d %H:%M:%S')
                         vals={
@@ -527,12 +531,12 @@ class is_galia_base(models.Model):
                             'login'        : user_name,
                         }
                         eti=self.env['is.galia.base'].create(vals)
-                        _logger.info("Création éiquette Galia %s"%Info)
+                        _logger.info("Création éiquette Galia %s"%Log)
                     else:
                         eti = self.env['is.galia.base'].browse(etiquette_id)
                         eti.login = user_name
                         eti.qt_pieces = FN3
-                        _logger.info("Réimpression étiquette Galia %s"%Info)
+                        _logger.info("Réimpression étiquette Galia %s"%Log)
                     MsgOK+="<div class=NormalLB>Impression et enregistrement étiquette %s dans odoo0 éffectué avec succés.</div>"%Info
                     #**********************************************************
 
