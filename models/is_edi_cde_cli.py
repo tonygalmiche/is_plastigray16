@@ -1717,70 +1717,128 @@ class is_edi_cde_cli(models.Model):
         return res
 
 
-
-
-
-
     def get_data_Motus(self, attachment):
         res = []
         lig=0
         for obj in self:
-            filename = '/tmp/%s.xml' % attachment.id
-            temp = open(filename, 'w+b')
-            temp.write((base64.decodebytes(attachment.datas))) 
-            temp.close()
-            tree = ET.parse(filename)
-            root = tree.getroot()
-            for n1 in root:
-                if n1.tag=='{urn:schemas-microsoft-com:office:spreadsheet}Worksheet':
-                    for n2 in n1:
-                        if n2.tag=='{urn:schemas-microsoft-com:office:spreadsheet}Table':
-                            for n3 in n2:
-                                lig=lig+1
-                                if lig>1:
-                                    col=0
-                                    num_commande_client=''
-                                    ref_article_client=''
-                                    date_livraison=''
-                                    type_commande=''
-                                    quantite=''
+            #** Lecture du fichier xlsx ****************************************
+            xlsxfile = base64.decodebytes(attachment.datas)
+            path = '/tmp/MOTUS-'+str(obj.id)+'.xlsx'
+            f = open(path,'wb')
+            f.write(xlsxfile)
+            f.close()
+            #*******************************************************************
 
-                                    for n4 in n3:
-                                        if n4.tag=='{urn:schemas-microsoft-com:office:spreadsheet}Cell':
-                                            col=col+1
-                                            for n5 in n4:
-                                                if col==3:
-                                                    num_commande_client=n5.text.strip()
-                                                if col==5:
-                                                    ref_article_client=n5.text.strip()
-                                                if col==12:
-                                                    type_commande=n5.text
-                                                    if type_commande=='Firmed' or type_commande=='Partial':
-                                                        type_commande='ferme'
-                                                    else:
-                                                        type_commande='previsionnel'
-                                                if col==15:
-                                                    quantite=n5.text
-                                                    try:
-                                                        qt=float(quantite)
-                                                    except ValueError:
-                                                        qt=0
-                                                if col==17:
-                                                    date_livraison=n5.text[:10]
-                                                    date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d')
+            #** Ouverture du fichier *******************************************
+            try:
+                wb = openpyxl.load_workbook(filename = path)
+                ws = wb.active
+                cells = list(ws)
+            except:
+                raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx valide")
+            #*******************************************************************
+            lig=0
+            col_po_no = 1
+            col_part_revision = 4
+            col_release_status = 13
+            col_quantity = 14
+            col_due_date = 19
+            for row in ws.rows:
+                if lig>0:
+                    num_commande_client = cells[lig][col_po_no].value.strip()
+                    ref_article_client = cells[lig][col_part_revision].value.strip()
+                    type_commande = cells[lig][col_release_status].value.strip()
+                    if type_commande == 'Firmed' or type_commande == 'Partial':
+                        type_commande = 'ferme'
+                    else:
+                        type_commande = 'previsionnel'
+                    try:
+                        quantite = float(cells[lig][col_quantity].value)
+                    except ValueError:
+                        quantite = 0
 
-                                    val={
-                                        'num_commande_client' : num_commande_client,
-                                        'ref_article_client'  : ref_article_client,
-                                    }
-                                    ligne = {
-                                        'quantite'      : qt,
-                                        'type_commande' : type_commande,
-                                        'date_livraison': date_livraison,
-                                    }
-                                    val.update({'lignes':[ligne]})
-                                    res.append(val)
+                    try:
+                        date_livraison = cells[lig][col_due_date].value.strftime('%Y-%m-%d')
+                    except ValueError:
+                        date_livraison = False
+
+                    val = {
+                        'num_commande_client' : num_commande_client,
+                        'ref_article_client'  : ref_article_client,
+                    }
+                    ligne = {
+                        'quantite'      : quantite,
+                        'type_commande' : type_commande,
+                        'date_livraison': date_livraison,
+                    }
+                    val.update({'lignes': [ligne]})
+                    res.append(val)
+                lig+=1
         return res
+
+
+
+
+#    def get_data_Motus(self, attachment):
+#        res = []
+#        lig=0
+#        for obj in self:
+#            filename = '/tmp/%s.xml' % attachment.id
+#            temp = open(filename, 'w+b')
+#            temp.write((base64.decodebytes(attachment.datas))) 
+#            temp.close()
+#            tree = ET.parse(filename)
+#            root = tree.getroot()
+#            for n1 in root:
+#                if n1.tag=='{urn:schemas-microsoft-com:office:spreadsheet}Worksheet':
+#                    for n2 in n1:
+#                        if n2.tag=='{urn:schemas-microsoft-com:office:spreadsheet}Table':
+#                            for n3 in n2:
+#                                lig=lig+1
+#                                if lig>1:
+#                                    col=0
+#                                    num_commande_client=''
+#                                    ref_article_client=''
+#                                    date_livraison=''
+#                                    type_commande=''
+#                                    quantite=''
+#
+#                                    for n4 in n3:
+#                                        if n4.tag=='{urn:schemas-microsoft-com:office:spreadsheet}Cell':
+#                                            col=col+1
+#                                            for n5 in n4:
+#                                                if col==3:
+#                                                    num_commande_client=n5.text.strip()
+#                                                if col==5:
+#                                                    ref_article_client=n5.text.strip()
+#                                                if col==12:
+#                                                    type_commande=n5.text
+#                                                    if type_commande=='Firmed' or type_commande=='Partial':
+#                                                        type_commande='ferme'
+#                                                    else:
+#                                                        type_commande='previsionnel'
+#                                                if col==15:
+#                                                    quantite=n5.text
+#                                                    try:
+#                                                        qt=float(quantite)
+#                                                    except ValueError:
+#                                                        qt=0
+#                                                if col==17:
+#                                                    date_livraison=n5.text[:10]
+#                                                    date_livraison=datetime.strptime(date_livraison, '%Y-%m-%d')
+#
+#                                    val={
+#                                        'num_commande_client' : num_commande_client,
+#                                        'ref_article_client'  : ref_article_client,
+#                                    }
+#                                    ligne = {
+#                                        'quantite'      : qt,
+#                                        'type_commande' : type_commande,
+#                                        'date_livraison': date_livraison,
+#                                    }
+#                                    val.update({'lignes':[ligne]})
+#                                    res.append(val)
+#        return res
 
 
 
