@@ -86,7 +86,8 @@ class is_galia_base(models.Model):
                         ite.adresse             as adresse,
                         ite.code_fournisseur    as code_fournisseur,
                         mp.name                 as num_of,
-                        pp.id                   as product_product_id
+                        pp.id                   as product_product_id,
+                        pt.is_code_fabrication  as is_code_fabrication
                     FROM mrp_production mp inner join product_product                  pp on mp.product_id=pp.id
                                             inner join product_template                 pt on pp.product_tmpl_id=pt.id
                                             inner join mrp_workorder                  mpwl on mpwl.production_id=mp.id
@@ -122,7 +123,8 @@ class is_galia_base(models.Model):
                         ite.adresse             as adresse,
                         ite.code_fournisseur    as code_fournisseur,
                         ''                      as num_of,
-                        pp.id                   as product_product_id
+                        pp.id                   as product_product_id,
+                        pt.is_code_fabrication  as is_code_fabrication
                     FROM product_product pp inner join product_template                 pt on pp.product_tmpl_id=pt.id
                                             inner join is_category                      ic on pt.is_category_id = ic.id
                                             inner join is_gestionnaire                  ig on pt.is_gestionnaire_id = ig.id
@@ -157,7 +159,8 @@ class is_galia_base(models.Model):
                         ite.adresse             as adresse,
                         ite.code_fournisseur    as code_fournisseur,
                         po.name                 as num_of,
-                        pp.id                   as product_product_id
+                        pp.id                   as product_product_id,
+                        pt.is_code_fabrication  as is_code_fabrication
                     FROM purchase_order po inner join purchase_order_line             pol on po.id=pol.order_id
                                             inner join product_product                  pp on pol.product_id=pp.id 
                                             inner join product_template                 pt on pp.product_tmpl_id=pt.id
@@ -190,19 +193,23 @@ class is_galia_base(models.Model):
                         AQP='AQP'
                     else:
                         AQP=''
-                    CodePG       = row['code_pg'] or ''
-                    Designation  = row['designation'] or ''
-                    RefClient    = row['ref_client'] or ''
-                    RefPlan      = row['ref_plan'] or ''
-                    IndPlan      = row['ind_plan'] or ''
-                    Moule        = row['moule'] or ''
-                    Cat          = self.str2int(row['categorie'])
-                    Gest         = row['gestionnaire'] or ''
-                    GaucheDroite = row['droite_gauche'] or ''
-                    LogoSecu     = row['logo_secu'] or ''
-                    NumLot       = row['num_of'] or ''
-                    PoidsBrut    = row['poids_brut'] or 0
-                    PoidsNet     = row['poids_net'] or 0
+                    CodePG          = row['code_pg'] or ''
+                    Designation     = row['designation'] or ''
+                    RefClient       = row['ref_client'] or ''
+                    RefPlan         = row['ref_plan'] or ''
+                    IndPlan         = row['ind_plan'] or ''
+                    Moule           = row['moule'] or ''
+                    Cat             = self.str2int(row['categorie'])
+                    Gest            = row['gestionnaire'] or ''
+                    GaucheDroite    = row['droite_gauche'] or ''
+                    LogoSecu        = row['logo_secu'] or ''
+                    NumLot          = row['num_of'] or ''
+                    PoidsBrut       = row['poids_brut'] or 0
+                    PoidsNet        = row['poids_net'] or 0
+                    CodeFabrication = row['is_code_fabrication'] or ''
+
+                    if CodeFabrication!='':
+                        Designation="%s - %s"%(CodeFabrication, Designation)                    
 
                     #** Recherche de la quantité par UC ***********************
                     product_id=row['product_id']
@@ -312,6 +319,14 @@ class is_galia_base(models.Model):
                     if TypeEti=="DEVIALET":
                          FN10=RefPlan   
 
+                    if TypeEti=="DEVIALET":
+                         FN10=RefPlan   
+
+
+
+
+
+
                     FN1="" # NProduit (P)
                     FN2=""
                     if (Cat<10 or Cat==46 or Cat==48):
@@ -343,17 +358,19 @@ class is_galia_base(models.Model):
 
                     # ** Recherche si étiquette existe dans odoo0 *************
                     SQL = """
-                        SELECT num_eti, id 
+                        SELECT num_eti, id, date_creation
                         FROM is_galia_base 
                         WHERE soc='%s' AND type_eti='%s' AND num_of='%s' AND num_carton='%s' 
                     """%(Soc,Etiquette,zzCode,Nb)
                     cr.execute(SQL)
                     rows2=cr.dictfetchall()
-                    num_eti      = False
-                    etiquette_id = False
+                    num_eti       = False
+                    etiquette_id  = False
+                    date_creation = datetime.now()
                     for row2 in rows2:
-                        num_eti      = row2['num_eti']
-                        etiquette_id = row2['id']
+                        num_eti       = row2['num_eti']
+                        etiquette_id  = row2['id']
+                        date_creation = row2['date_creation']
                     #**********************************************************
 
                     #** Recherche dernier N Etiquette dans odoo0 **************
@@ -372,14 +389,13 @@ class is_galia_base(models.Model):
                         FN8="S%s"%FN7   # N° Etiquette (Code Barre)
                     FN8="S%s"%FN7       # Le 01/02/2022 => Code barre sur toutes les étiquettes
                     FN9=Designation     # Produit = Désignation du Produit
-                    now = datetime.now()
                     if Etiquette!="CodePG":
-                        FN12='D'+now.strftime('%Y%m%d') # Date du jour
+                        FN12='D'+date_creation.strftime('%d%m%y') # Date du jour
                     FN13=NumLot
                     if TypeEti=="SLEEPBOX":
-                        FN13="664"+now.strftime('%Y%V') # Semaine
+                        FN13="664"+date_creation.strftime('%Y%V') # Semaine
                     if TypeEti=="NEA":
-                        FN13="670"+now.strftime('%Y%V') # Semaine
+                        FN13="670"+date_creation.strftime('%Y%V') # Semaine
                     FN14=""
                     if AQP=="AQP":
                         FN14="AQP";                     # AQP
@@ -387,7 +403,27 @@ class is_galia_base(models.Model):
                         FN15="%s / %s / %s / %s"%(CodePG,Moule,zzCode,Nb) # Ligne informations générales pour PG
                     else:
                         FN15 = "%s / %s / %s"%(CodePG,Moule,Nb) 
-                    FN99 = ""
+
+
+
+                    #** CodeRoutage et PointDestination sur ligne commande **** 
+                    FN99 = ""                     # PT DEST - POINT DE DESTINATION 
+                    if TypeEti=='STELLANTIS':
+                        SQL="""
+                                select sol.is_code_routage, sol.is_point_destination
+                                from is_galia_base_uc uc join stock_move move on uc.stock_move_id=move.id
+                                                         join sale_order_line sol on move.sale_line_id=sol.id
+                                where uc.num_eti=%s 
+                                order by uc.id desc limit 1
+                        """%FN7
+                        cur.execute(SQL)
+                        rows2 = cur.fetchall()
+                        CodeRoutage=False
+                        for row2 in rows2:
+                            FN15 = row2['is_code_routage'] or ''
+                            FN99 = row2['is_point_destination'] or '' # A la place du "C : " mettre PointDestination => ^A0R,188,116^FO610,2015 ^FD C : ^FS       
+                    #**********************************************************
+
                     FN16=Adresse                  # Adresse PG, MGI ou VS suivant le cas
                     FN17=IndPlan                  # Indice Ref Plan
                     FN18=FN19=""
@@ -493,12 +529,12 @@ class is_galia_base(models.Model):
                     Etiq+="^FN40^FD"+FN40+"^FS \n\r"  # Exp
                     Etiq+="^FN90^FD"+FN90+"^FS \n\r"  # Signe R = Réglement?
                     Etiq+="^FN91^FD"+FN91+"^FS \n\r"  # Signe S = Sécurité
-                    Etiq+="^FN99^FD"+FN99+"^FS \n\r"  # controle fréquentiel
+                    Etiq+="^FN99^FD"+FN99+"^FS \n\r"  # PT DEST - POINT DE DESTINATION 
                     Etiq+="^FN98^FD"+FN98+"^FS \n\r"  # Code UR
 
                     #** Data Matrix (QR Code) pour Delta Dore *****************
                     if TypeEti=="DD" or TypeEti=="EMS" or TypeEti=="NEA":
-                        Etiq+="""^FO400,900^BXN,6,200^FD(P)"""+RefClient+"(2P)"+IndPlan+"(Q)"+str(Quantite)+"(9D)"+now.strftime('%y%m%d')+"(1T)"+NumLot+"(K)(1P)"+RefClient+"-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS"
+                        Etiq+="""^FO400,900^BXN,6,200^FD(P)"""+RefClient+"(2P)"+IndPlan+"(Q)"+str(Quantite)+"(9D)"+date_creation.strftime('%y%m%d')+"(1T)"+NumLot+"(K)(1P)"+RefClient+"-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS"
                     #**********************************************************
 
                     #** Data Matrix (QR Code) pour DEVIALET *******************
@@ -519,7 +555,6 @@ class is_galia_base(models.Model):
                     Info = "%s - %s - %s"%(zzCode,Nb,FN7)
                     Log  = "%s - %s - %s par %s"%(zzCode,Nb,FN7,user_name)
                     if num_eti==False:
-                        BDateCreation = now.strftime('%Y-%m-%d %H:%M:%S')
                         vals={
                             'num_eti'      : FN7,
                             'soc'          : Soc,
@@ -527,7 +562,7 @@ class is_galia_base(models.Model):
                             'num_of'       : zzCode,
                             'num_carton'   : Nb,
                             'qt_pieces'    : FN3, # Quantite
-                            'date_creation': now,
+                            'date_creation': date_creation,
                             'login'        : user_name,
                         }
                         eti=self.env['is.galia.base'].create(vals)

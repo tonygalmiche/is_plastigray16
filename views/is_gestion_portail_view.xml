@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="is_gestion_portail_form_view">
+            <field name="name">is_gestion_portail_form_view</field>
+            <field name="model">is.gestion.portail</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="ordre"/>
+                                <field name="date_debut"/>
+                                <field name="date_fin"/>
+                                <field name="heure_ouverture" widget="float_time"/>
+                                <field name="heure_fermeture" widget="float_time"/>
+                            </group>
+                            <group>
+                                <field name="jour_1"/>
+                                <field name="jour_2"/>
+                                <field name="jour_3"/>
+                                <field name="jour_4"/>
+                                <field name="jour_5"/>
+                                <field name="jour_6"/>
+                                <field name="jour_7"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="date_ids" colspan="2" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                </tree>
+                            </field>    
+                        </group>
+                        <group>
+                            <field name="dates"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_gestion_portail_tree_view">
+            <field name="name">is_gestion_portail_tree_view</field>
+            <field name="model">is.gestion.portail</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="ordre"/>
+                    <field name="name"/>
+                    <field name="date_debut" optional="show"/>
+                    <field name="date_fin"   optional="show"/>
+                    <field name="dates"      optional="show"/>
+                    <field name="heure_ouverture" widget="float_time"/>
+                    <field name="heure_fermeture" widget="float_time"/>
+                    <field name="jour_1" optional="show"/>
+                    <field name="jour_2" optional="show"/>
+                    <field name="jour_3" optional="show"/>
+                    <field name="jour_4" optional="show"/>
+                    <field name="jour_5" optional="show"/>
+                    <field name="jour_6" optional="show"/>
+                    <field name="jour_7" optional="show"/>
+                </tree>
+            </field>
+        </record>  
+        <record model="ir.ui.view" id="is_gestion_portail_search_view" >
+            <field name="name">is_gestion_portail_search_view</field>
+            <field name="model">is.gestion.portail</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_gestion_portail_action" model="ir.actions.act_window" >
+            <field name="name">Gestion du portail</field>
+            <field name="res_model">is.gestion.portail</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+    <!-- is.gestion.portail.calendar -->
+   <record model="ir.ui.view" id="is_gestion_portail_calendar_form_view">
+            <field name="name">is_gestion_portail_calendar_form_view</field>
+            <field name="model">is.gestion.portail.calendar</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="date_debut"/>
+                                <field name="date_fin"/>
+                                <field name="gestion_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_gestion_portail_calendar_tree_view">
+            <field name="name">is_gestion_portail_calendar_tree_view</field>
+            <field name="model">is.gestion.portail.calendar</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                    <field name="gestion_id"/>
+                </tree>
+            </field>
+        </record>  
+        <record model="ir.ui.view" id="is_gestion_portail_calendar_search_view" >
+            <field name="name">is_gestion_portail_calendar_search_view</field>
+            <field name="model">is.gestion.portail.calendar</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                    <field name="gestion_id"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_gestion_portail_calendar_view" >
+            <field name="name">is_gestion_portail_calendar_view</field>
+            <field name="model">is.gestion.portail.calendar</field>
+            <field name="arch" type="xml">
+                <calendar 
+                    date_start="date_debut" 
+                    date_stop="date_fin" 
+                    color="gestion_id" 
+                    hide_time="false" 
+                    event_limit="100"
+                    event_open_popup="false"
+                    quick_add="false"
+                    mode="week"
+                >
+                <field name="gestion_id" filters="1" invisible="1"/>
+                <field name="date_debut"/> 
+                <field name="date_fin"/> 
+                </calendar>
+            </field>
+        </record>
+        <record id="is_gestion_portail_calendar_action" model="ir.actions.act_window" >
+            <field name="name">Agenda des ouvertures</field>
+            <field name="res_model">is.gestion.portail.calendar</field>
+            <field name="view_mode">calendar,tree,form</field>
+        </record>
+    </data>
+</odoo>

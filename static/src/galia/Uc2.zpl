@@ -47,10 +47,8 @@
         ^A0R,24,24^FO856,1569                 ^FD Exp          ^FS
     
         ^A0R,24,24^FO779,58                    ^FD CDE RTGE     ^FS
-        ^A0R,24,24^FO779,1285                 ^FD PT DEST    ^FS
-        ^A0R,188,116^FO610,2015                 ^FD C :          ^FS
+        ^A0R,24,24^FO779,1285                  ^FD PT DEST      ^FS
 
-    
         ^A0R,24,24^FO619,58                    ^FD CDE          ^FS
         ^A0R,24,24^FO587,58                    ^FD PROD (P)     ^FS
     
@@ -89,7 +87,7 @@
     
         ^A0R,148,75^FO620,75                  ^FN15 ^FS        ^FX CDE RTGE ^FS
         ^A0R,188,118^FO610,1180               ^FN18 ^FS        ^FX Gauche / Droite ^FS
-        ^A0R,188,118^FO610,1360               ^FN99^FS         ^FX PT DEST - POINT DE DESTINATION ^FS
+        ^A0R,188,118^FO610,1400               ^FN99^FS         ^FX PT DEST - POINT DE DESTINATION ^FS
         
         ^A0R,188,100^FO457,195                ^FN1^FS          ^FX N PROD ^FS
         ^A0R,96,96^FO384,900                  ^FN14^FS         ^FX AQP ^FS

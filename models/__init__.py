@@ -12,15 +12,15 @@ from . import is_bon_transfert
 from . import is_capteur
 from . import is_commande_externe
 from . import is_cde_ferme_cadencee
-from . import is_cde_ouverte_fournisseur  # TODO à finaliser
+from . import is_cde_ouverte_fournisseur 
 from . import is_certificat_conformite
-from . import is_consigne_journaliere     # TODO : Liens avec odoo0, dynacase et les ordres de travaux => A revoir plus tard
-from . import is_cout                     # TODO à finaliser
+from . import is_consigne_journaliere    
+from . import is_cout                    
 from . import is_ctrl100
 from . import is_ctrl_budget_ana
 from . import is_ctrl_budget_tdb
 from . import is_database
-from . import is_deb                      # TODO A revoir après la facturation client
+from . import is_deb                      
 from . import is_demande_achat_fg
 from . import is_demande_achat_invest
 from . import is_demande_achat_moule
@@ -29,11 +29,11 @@ from . import is_demande_transport
 from . import is_donnee_machine
 from . import is_dossier_article
 from . import is_dossierf
-from . import is_edi_cde_cli          # TODO à finaliser
+from . import is_edi_cde_cli          
 from . import is_equipement
 from . import is_etuve
-from . import is_export_cegid         # TODO à finaliser après la facturation
-from . import is_export_edi           # TODO à finaliser
+from . import is_export_cegid        
+from . import is_export_edi          
 from . import is_facturation_fournisseur
 from . import is_facture_pk
 from . import is_facture_proforma
@@ -64,7 +64,7 @@ from . import is_pointage
 from . import is_preventif
 from . import is_preventif_equipement
 from . import is_proforma_chine
-from . import is_reach                # TODO A revoir après stock_picking
+from . import is_reach        
 from . import is_resource
 from . import is_rgpd
 from . import is_tarif_cial
@@ -90,24 +90,4 @@ from . import mail_activity
 from . import is_head_model
 from . import is_questionnaire_dms
 from . import is_reception_inter_site
-
-
-
-# TODO : is_pg_2019
-# import is_gestion_des_absences_report TODO : A revoir avec l'analyse du CBN (Javascript)
-# from . import is_head_model           TODO : Ne pas migrer pour le moment
-
-# TODO : is_plastigray
-# is_type_equipement                 TODO : N'est plus utilisé => Ne pas migrer
-# import is_demande_achat            TODO : N'est plus utilisé => Ne pas migrer
-# import is_moyen_fabrication        TODO : N'est plus utilisé => Ne pas migrer
-# import is_moyen_fabrication_autre  TODO : N'est plus utilisé => Ne pas migrer
-# import calendar                    TODO : N'est plus utilisé => Ne pas migrer
-# import is_config                   TODO : Permet de configurer les modules après l'installation => Ne pas migrer
-# import is_cout2                    TODO : A été ré-intégré dans is_cout
-# import log                         TODO : A revoir avec l'installation du moule auditlog quant il sera dispo
-# import sale_stock                  TODO : Il n'y rien à migrer dans ce fichier
-# import sale_picking                TODO : à été migré dans stock.py
-# from . import is_prechauffeur      TODO : Ce model est migré dans is_equipement
-# from . import is_presse            TODO : Ce model est migré dans is_equipement
-
+from . import is_gestion_portail
