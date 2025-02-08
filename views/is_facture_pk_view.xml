@@ -31,7 +31,6 @@
                                 <field name="annee_facture"/> 
                                 <field name="semaine_facture"/> 
                                 <field name="num_bl"/> 
-                                <!-- <field name="num_import_matiere"/>  -->
                             </group>
                             <group>
                                 <field name="nb_pieces"/> 
@@ -93,20 +92,21 @@
                 <tree>
                     <field name="num_facture"/> 
                     <field name="date_facture"/> 
-                    <field name="annee_facture"/> 
-                    <field name="semaine_facture"/> 
-                    <field name="num_bl"/>
-                    <!-- <field name="num_import_matiere"/>  -->
-                    <field name="matiere_premiere" sum="Total"/>
-                    <field name="main_oeuvre"      sum="Total"/>
-                    <field name="total_moules"     sum="Total"/>
-                    <field name="total"            sum="Total"/>
-                    <field name="nb_cartons"       sum="Total"/>
-                    <field name="nb_colis"         sum="Total"/>
-                    <field name="nb_pieces"        sum="Total"/>
-                    <field name="poids_net"        sum="Total"/>
-                    <field name="poids_brut"       sum="Total"/>
-                    <field name="volume"           sum="Total"/>
+                    <field name="annee_facture"      optional="show"/> 
+                    <field name="semaine_facture"    optional="show"/> 
+                    <field name="num_bl"             optional="show"/>
+                    <field name="matiere_premiere"   optional="show" sum="Total"/>
+                    <field name="main_oeuvre"        optional="show" sum="Total"/>
+                    <field name="total_moules"       optional="show" sum="Total"/>
+                    <field name="frais_perturbation" optional="show" sum="Total"/> 
+                    <field name="frais_perturbation_commentaire" optional="hide"/> 
+                    <field name="total"              optional="show" sum="Total"/>
+                    <field name="nb_cartons"         optional="show" sum="Total"/>
+                    <field name="nb_colis"           optional="show" sum="Total"/>
+                    <field name="nb_pieces"          optional="show" sum="Total"/>
+                    <field name="poids_net"          optional="show" sum="Total"/>
+                    <field name="poids_brut"         optional="show" sum="Total"/>
+                    <field name="volume"             optional="show" sum="Total"/>
                 </tree>
             </field>
         </record>
