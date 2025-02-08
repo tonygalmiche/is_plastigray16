@@ -23,18 +23,19 @@ class is_dossier_article(models.Model):
         ("colorant",  "Colorant"),
         ("composant", "Composant"),
     ], string="Type dossier", required=True, default='matiere', tracking=True)
-    code_pg           = fields.Char(u'Code PG', index=True, required=True, tracking=True)
-    designation       = fields.Char(u"Désignation", tracking=True)
-    moule             = fields.Char(u"Moule", tracking=True)
-    famille           = fields.Char(u"Famille", index=True, tracking=True)
-    sous_famille      = fields.Char(u"Sous-Famille", index=True, tracking=True)
-    categorie         = fields.Char(u"Catégorie", index=True, tracking=True)
-    gestionnaire      = fields.Char(u"Gestionnaire", index=True, tracking=True)
-    ref_fournisseur   = fields.Char(u"Référence fournisseur", tracking=True)
-    ref_plan          = fields.Char(u"Réf Plan", tracking=True)
-    couleur           = fields.Char(u"Couleur/ Type matière", tracking=True)
-    fournisseur       = fields.Char(u"Fournisseur par défaut", tracking=True)
-    unite             = fields.Char(u"Unité")
+    code_pg           = fields.Char('Code PG', index=True, required=True, tracking=True)
+    designation       = fields.Char("Désignation", tracking=True)
+    moule             = fields.Char("Moule", tracking=True)
+    famille           = fields.Char("Famille", index=True, tracking=True)
+    sous_famille      = fields.Char("Sous-Famille", index=True, tracking=True)
+    categorie         = fields.Char("Catégorie", index=True, tracking=True)
+    gestionnaire      = fields.Char("Gestionnaire", index=True, tracking=True)
+    ref_fournisseur   = fields.Char("Référence fournisseur", tracking=True)
+    ref_plan          = fields.Char("Réf Plan", tracking=True)
+    couleur           = fields.Char("Couleur/ Type matière", tracking=True)
+    fournisseur       = fields.Char("Fournisseur par défaut", tracking=True)
+    unite             = fields.Char("Unité")
+    automobile        = fields.Boolean("Automobile", help="Destiné aux produits automobile", default=False)
 
     # Informations matières :
     gamme_commerciale_id = fields.Many2one('is.dossier.article.gamme.commerciale', u"Gamme commerciale", tracking=True) # : liste de choix ( LEXAN, ELASTOLLAN, DELRIN,…). voir annexe
