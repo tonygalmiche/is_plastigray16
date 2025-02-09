@@ -2073,19 +2073,31 @@
         <field name="name">Portail</field>
         <field name="sequence">39</field>
         <field name="parent_id" eval="ref('is_theia_root_menu')"/>
-     </record>
-     <record id="is_questionnaire_dms_reponse_menu" model="ir.ui.menu" >
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_plastigray16.is_gestionnaire_portail_group'),
+        ])]"/>
+    </record>
+    <record id="is_questionnaire_dms_reponse_menu" model="ir.ui.menu" >
         <field name="name">Gestion du portail</field>
         <field name="sequence">10</field>
         <field name="action"    ref="is_gestion_portail_action"/>
         <field name="parent_id" eval="ref('is_gestion_portail_main_menu')"/>
-     </record>
-     <record id="is_gestion_portail_calendar_menu" model="ir.ui.menu" >
-        <field name="name">Agenda des ouvertures</field>
+    </record>
+    <record id="is_gestion_portail_actualiser_menu" model="ir.ui.menu" >
+        <field name="name">Actualiser l'agenda des ouvertures</field>
         <field name="sequence">20</field>
+        <field name="parent_id" eval="ref('is_gestion_portail_main_menu')"/>
+        <field name="action"    ref="is_gestion_portail_actualiser_actions_server"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_plastigray16.is_gestionnaire_portail_group'),
+        ])]"/>
+    </record>
+    <record id="is_gestion_portail_calendar_menu" model="ir.ui.menu" >
+        <field name="name">Agenda des ouvertures</field>
+        <field name="sequence">30</field>
         <field name="action"    ref="is_gestion_portail_calendar_action"/>
         <field name="parent_id" eval="ref('is_gestion_portail_main_menu')"/>
-     </record>
+    </record>
 
 
 

@@ -1,13 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="is_gestion_portail_actualiser_actions_server" model="ir.actions.server">
+            <field name="name">Actualiser l'agenda des ouvertures</field>
+            <field name="model_id" ref="is_plastigray16.model_is_gestion_portail" />
+            <field name="binding_model_id" ref="is_plastigray16.model_is_gestion_portail"/>
+            <field name="state">code</field>
+            <field name="code">action = model.actualiser_action()</field>
+        </record>
         <record model="ir.ui.view" id="is_gestion_portail_form_view">
             <field name="name">is_gestion_portail_form_view</field>
             <field name="model">is.gestion.portail</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form>  
+                    <header>
+                        <button 
+                            name="actualiser_action" type="object" 
+                            string="Actualiser l'agenda des ouvertures" 
+                            groups="is_plastigray16.is_gestionnaire_portail_group"
+                        />
+                        <button 
+                            name="etat_portail_action" type="object" 
+                            string="État du portail" 
+                            groups="is_plastigray16.is_gestionnaire_portail_group"
+                        />
+                        <button 
+                            name="ouvrir_portail_action" type="object" 
+                            string="Ouvrir le portail" 
+                            confirm="Voulez-vous vraiment ouvir le portail ?"
+                            groups="is_plastigray16.is_gestionnaire_portail_group"
+                        />
+                        <button 
+                            name="fermer_portail_action" type="object" 
+                            string="Fermer le portail" 
+                            confirm="Voulez-vous vraiment fermer le portail ?"
+                            groups="is_plastigray16.is_gestionnaire_portail_group"
+                        />
+                        <field name="state" widget="statusbar"/>
+                    </header>
                     <sheet>
+                        <field name="state" invisible="1"/>
+                        <div style="font-size:1.5rem;color:white;text-align:center;padding:5px">
+                            <div  attrs="{'invisible': [('state', '!=', 'ouvert')]}" style="background-color:red">Le portail est ouvert</div>
+                            <div  attrs="{'invisible': [('state', '!=', 'ferme')]}"  style="background-color:green">Le portail est fermé</div>
+                        </div>
                         <group>
                             <group>
                                 <field name="name"/>
@@ -38,6 +75,10 @@
                             <field name="dates"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -78,8 +119,6 @@
             <field name="res_model">is.gestion.portail</field>
             <field name="view_mode">tree,form</field>
         </record>
-
-
 
     <!-- is.gestion.portail.calendar -->
    <record model="ir.ui.view" id="is_gestion_portail_calendar_form_view">
