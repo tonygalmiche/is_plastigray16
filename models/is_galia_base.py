@@ -142,7 +142,7 @@ class is_galia_base(models.Model):
                 SQL="""SELECT 
                         pt.id                   as product_id,
                         pt.is_code              as code_pg, 
-                        pt.name->>'fr_FR'                 as designation, 
+                        pt.name->>'fr_FR'       as designation, 
                         pt.is_ref_client        as ref_client,
                         pt.is_ref_plan          as ref_plan,
                         pt.is_ind_plan          as ind_plan,
@@ -189,6 +189,9 @@ class is_galia_base(models.Model):
                     Msg+="%s non trouvée!\n"%Etiquette
                 else:
                     row=rows[0]
+
+
+
                     if (row['aqp']=='t'):
                         AQP='AQP'
                     else:
@@ -389,6 +392,7 @@ class is_galia_base(models.Model):
                         FN8="S%s"%FN7   # N° Etiquette (Code Barre)
                     FN8="S%s"%FN7       # Le 01/02/2022 => Code barre sur toutes les étiquettes
                     FN9=Designation     # Produit = Désignation du Produit
+                    FN12=''
                     if Etiquette!="CodePG":
                         FN12='D'+date_creation.strftime('%d%m%y') # Date du jour
                     FN13=NumLot
@@ -404,7 +408,9 @@ class is_galia_base(models.Model):
                     else:
                         FN15 = "%s / %s / %s"%(CodePG,Moule,Nb) 
 
-
+                    FN92='C:'
+                    if TypeEti=='STELLANTIS':
+                        FN92=''
 
                     #** CodeRoutage et PointDestination sur ligne commande **** 
                     FN99 = ""                     # PT DEST - POINT DE DESTINATION 
@@ -421,7 +427,7 @@ class is_galia_base(models.Model):
                         CodeRoutage=False
                         for row2 in rows2:
                             FN15 = row2['is_code_routage'] or ''
-                            FN99 = row2['is_point_destination'] or '' # A la place du "C : " mettre PointDestination => ^A0R,188,116^FO610,2015 ^FD C : ^FS       
+                            FN99 = row2['is_point_destination'] or ''
                     #**********************************************************
 
                     FN16=Adresse                  # Adresse PG, MGI ou VS suivant le cas
@@ -529,6 +535,7 @@ class is_galia_base(models.Model):
                     Etiq+="^FN40^FD"+FN40+"^FS \n\r"  # Exp
                     Etiq+="^FN90^FD"+FN90+"^FS \n\r"  # Signe R = Réglement?
                     Etiq+="^FN91^FD"+FN91+"^FS \n\r"  # Signe S = Sécurité
+                    Etiq+="^FN92^FD"+FN92+"^FS \n\r"  # C: pour contrôle
                     Etiq+="^FN99^FD"+FN99+"^FS \n\r"  # PT DEST - POINT DE DESTINATION 
                     Etiq+="^FN98^FD"+FN98+"^FS \n\r"  # Code UR
 
@@ -594,15 +601,11 @@ class is_galia_base(models.Model):
             ZPL+=Etiq
         #**********************************************************************
 
-
-
-
         res={
             'Msg'     : Msg,
             'MsgOK'   : MsgOK,
             'Action'  : Action or '',
             'ZPL'     : ZPL,
-            #'Quantite': Quantite,
         }
         return res
 

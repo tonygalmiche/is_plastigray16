@@ -1,9 +1,6 @@
 ^FX ********************************************************^FS
 ^FX ** 17.07.03 - Ajout sigle R a coté du logo Sécurité   **^FS
-^FX ** 17.11.03 - Ajout rubrique FN30 -> CONTROLE         **^FS
-^FX ** 14.03.07 - Passage à la norme ETI9                 **^FS
-^FX ** 17.04.08 - Déplacement code barre lot pour CML     **^FS
-^FX ** 21.06.11 - Ajout sigle UR                          **^FS
+^FX ** 15.02.25 - Intégration dans Odoo                   **^FS
 ^FX ********************************************************^FS
 
 ^XA^MCY^PR4,4^XZ  ^FX Vitesse d'impression 5,5 -> 4,4 ^FS
@@ -76,47 +73,30 @@
 
 ^FX ------------ Variable -------------- ^FS
     ^FX ------ Texte variable ------ ^FS
-
         ^A0R,64,64^FO795,110                  ^FN20^FS         ^FX DEST ^FS
-        ^A0R,64,64^FO795,920                  ^FNPTDECH^FS     ^FX FNPTDECH ^FS
-        
+        ^A0R,64,64^FO795,920                  ^FNPTDECH^FS     ^FX FNPTDECH ^FS        
         ^A0R,64,64^FO795,920                  ^FN97^FS         ^FX Made in France ^FS
-        
-        
         ^A0R,64,64^FO795,1590                 ^FN40 ^FS        ^FX EXP ^FS
-    
         ^A0R,148,75^FO620,75                  ^FN15 ^FS        ^FX CDE RTGE ^FS
         ^A0R,188,118^FO610,1180               ^FN18 ^FS        ^FX Gauche / Droite ^FS
         ^A0R,188,118^FO610,1400               ^FN99^FS         ^FX PT DEST - POINT DE DESTINATION ^FS
-        
+        ^A0R,188,118^FO610,2015               ^FN92^FS         ^FX C: ^FS
         ^A0R,188,100^FO457,195                ^FN1^FS          ^FX N PROD ^FS
         ^A0R,96,96^FO384,900                  ^FN14^FS         ^FX AQP ^FS
-
-        ^A0R,188,120^FO400,1100                ^FN98^FS         ^FX UR ^FS
-
+        ^A0R,188,120^FO400,1100               ^FN98^FS         ^FX UR ^FS
         ^A0R,64,64^FO560,1565                 ^FN24^FS         ^FX NET ^FS
         ^A0R,64,64^FO471,1565                 ^FN21^FS         ^FX BRUT ^FS
-
         ^A0R,72,72^FO377,1565                 ^FN12^FS         ^FX Date ^FS
         ^A0R,188,188^FO445,2050               ^FN3^FS          ^FX Quatité ^FS
-    
         ^A0R,188,188^FO190,185                ^FN7^FS          ^FX N Etiq ^FS
-
         ^A0R,32,32^FO37,174                   ^FN16^FS
-
         ^A0R,64,64^FO295,1335                 ^FN22^FS         ^FX NB colis par palette ^FS
         ^A0R,72,58^FO290,1550                 ^FN9^FS          ^FX Désignation ^FS
-
         ^A0R,80,73^FO190,1295                 ^FN10^FS         ^FX Fournisseur ^FS
-
         ^A0R,64,45^FO107,1290                 ^FN13^FS         ^FX N Lot ^FS
-
         ^A0R,64,64^FO120,1960                 ^FN17^FS         ^FX IND MODIF ^FS
-    
         ^A0R,64,64^FO25,1305                  ^FN5^FS          ^FX COFOR ^FS
-
-        ^A0R,24,24^FO37,68                     ^FN80^FS        ^FX 3 derniers chiffres de l'UM^FS
-
+        ^A0R,24,24^FO37,68                    ^FN80^FS         ^FX 3 derniers chiffres de l'UM^FS
     ^FX ---------------------------- ^FS
 
     ^FX --------- Code BAR --------- ^FS
@@ -146,10 +126,7 @@
     ^FX **************************************** ^FS
     ^A0R,100,140^FO370,1440            ^FN91^FS   ^FX S=Sécurité          ^FS
     ^A0R,100,140^FO540,1445            ^FN90^FS   ^FX R=Règlementation    ^FS
-
-
     ^FO380,1190^XGR:SECU2.grf,1,1^FS
-
     ^FX ---------------------------- ^FS
 ^FX ------------------------------------ ^FS
 
