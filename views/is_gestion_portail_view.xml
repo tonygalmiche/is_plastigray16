@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="iis_gestion_portail_scheduler_action" model="ir.cron">
+            <field name="name">Actualiser l'agenda des ouvertures du potail</field>
+            <field name="model_id" ref="model_is_gestion_portail"/>
+            <field name="state">code</field>
+            <field name="code">model.actualiser_action()</field>
+            <field name="interval_type">days</field>
+            <field name="interval_number">1</field>
+            <field name="numbercall">-1</field>
+        </record>
         <record id="is_gestion_portail_actualiser_actions_server" model="ir.actions.server">
             <field name="name">Actualiser l'agenda des ouvertures</field>
             <field name="model_id" ref="is_plastigray16.model_is_gestion_portail" />

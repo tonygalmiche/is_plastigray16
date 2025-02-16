@@ -9,7 +9,6 @@ _logger = logging.getLogger(__name__)
 
 
 #TODO : 
-#- Mise en place action externe avec code retour : 0=Fermée, 1=Ouvert, -1=Indteriné et affciher un message si diffrent ou ereur dans le retour
 #- Action plannifié la nuit
 
 
@@ -39,6 +38,7 @@ class is_gestion_portail(models.Model):
         ('ferme'      , 'Fermé'),
         ('indetermine', 'Indéterminé'),
     ], "État du portail", default="indetermine", tracking=True)
+    calendar_ids = fields.One2many('is.gestion.portail.calendar', 'gestion_id', 'Calendar')
 
 
     @api.depends('date_ids','date_ids.name')
@@ -177,6 +177,9 @@ class is_gestion_portail_calendar(models.Model):
     _order='date_debut'
     _rec_name = 'gestion_id'
 
-    gestion_id = fields.Many2one('is.gestion.portail', 'Gestion portail')
+
+    # move_id                = fields.Many2one('account.move', 'Facture', required=True, ondelete="cascade")
+
+    gestion_id = fields.Many2one('is.gestion.portail', 'Gestion portail', ondelete="cascade")
     date_debut = fields.Datetime("Date de début", required=True)
     date_fin   = fields.Datetime("Date de fin", required=True)
