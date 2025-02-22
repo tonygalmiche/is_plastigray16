@@ -212,7 +212,7 @@ class is_galia_base(models.Model):
                     CodeFabrication = row['is_code_fabrication'] or ''
 
                     if CodeFabrication!='':
-                        Designation="%s - %s"%(CodeFabrication, Designation)                    
+                        Designation="%s-%s"%(CodeFabrication, Designation)                    
 
                     #** Recherche de la quantité par UC ***********************
                     product_id=row['product_id']
@@ -355,7 +355,7 @@ class is_galia_base(models.Model):
                     #** Le 01/02/2022 => Code barre sur toutes les étiquettes
                     FN4  = "Q%s"%Quantite       # Code Barre Quantité (Q)
                     FN6  = "V"+Fournisseur      # Code Barre COFOR (V)
-                    FN11 = "30S"+FN10           # Code Barre Ref Fournisseur (30S)
+                    FN11 = ("30S"+FN10)[0:15]   # Code Barre Ref Fournisseur (30S)
                     FN3  = Quantite             # Quantité dans le carton
                     FN5  = Fournisseur          # Fournisseur (V)
 
@@ -499,45 +499,82 @@ class is_galia_base(models.Model):
                     if TypeEti=="BUBENDORFF":
                         FN40=" "
 
+                    FN22="1"
+
+                    if TypeEti=="MASQUE":
+                        FN20     = 'FN20'     # DEST
+                        FNPTDECH = 'FNPTDECH' # FNPTDECH
+                        FN97     = 'FN97'     # Made in France
+                        FN40     = 'FN40'     # EXP
+                        FN15     = 'FN15'     # CDE RTGE
+                        FN18     = 'FN18'     # Gauche / Droite 
+                        FN99     = 'FN99'     # PT DEST - POINT DE DESTINATION
+                        FN92     = 'FN92'     # C: 
+                        FN1      = 'FN1'      # N PROD
+                        FN14     = 'FN14'     # AQP
+                        FN98     = 'FN98'     # UR
+                        FN24     = 'FN24'     # NET
+                        FN21     = 'FN21'     # BRUT
+                        FN12     = 'FN12'     # Date
+                        FN3      = 'FN3'      # Quantité
+                        FN7      = 'FN7'      # N Etiq
+                        FN16     = 'FN16'     # xx
+                        FN22     = 'FN22'     # NB colis par palette
+                        FN9      = 'FN9'      # Désignation
+                        FN10     = 'FN10'     # Fournisseur
+                        FN13     = 'FN13'     # N Lot
+                        FN17     = 'FN17'     # IND MODIF 
+                        FN5      = 'FN5'      # COFOR
+                        FN80     = 'FN80'     # 3 derniers chiffres de l'UM
+                        FN4      = 'FN4'      # CBar QTE 
+                        FN11     = 'FN11'     # CBar REF FRNS
+                        FN6      = 'FN6'      # CBar COFOR
+                        FN2      = 'FN2'      # CBar Produit
+                        FN8      = 'FN8'      # CBar N° Etiq
+                        FN23     = 'FN23'     # CBar N° lot
+                        FN91     = 'FN91'     # S=Sécurité  
+                        FN90     = 'FN90'     # R=Règlementation 
+
+
                     # Création début étiquette ********************************
-                    Etiq+="\n\r \n\r##### Etiquette N%s #####\n\r"%Nb
+                    Etiq+="\n \n##### Etiquette N%s #####\n"%Nb
                     if LogoSecu=="R" or LogoSecu=="S" or LogoSecu=="RS" or LogoSecu=="SR":
-                        Etiq+="^XA^XFR:UC^FS \n\r"
+                        Etiq+="^XA^XFR:UC^FS \n"
                     if LogoSecu=="" or LogoSecu=="N" or LogoSecu=="UR":
-                        Etiq+="^XA^IDR:SECU2.grf^FS \n\r"   # Efface le Logo Sécu de la mémoire
-                        Etiq+="^XFR:UC^FS \n\r"
-                    Etiq+="^FN1 ^FD"+FN1+"^FS \n\r"        # N Produit (P)
-                    Etiq+="^FN2 ^FD"+FN2+"^FS \n\r"        # N Produit (Code à Barre)
-                    Etiq+="^FN3 ^FD"+str(FN3)+"^FS \n\r"   # Quantité(Q)
-                    Etiq+="^FN4 ^FD"+FN4+"^FS \n\r"        # Quantité(Code à Barre)
-                    Etiq+="^FN5 ^FD"+FN5+"^FS \n\r"        # Ref Fournisseur (30S)
-                    Etiq+="^FN6 ^FD"+FN6+"^FS \n\r"        # Ref Fournisseur (Code à Barre)
-                    Etiq+="^FN7 ^FD"+str(FN7)+"^FS \n\r"   # N Etiquette (S)
-                    Etiq+="^FN8 ^FD"+FN8+"^FS \n\r"        # N Etiquette (Code à Barre)
-                    Etiq+="^FN9 ^FD"+FN9+"^FS \n\r"        # Produit (Désignation Article)
-                    Etiq+="^FN10^FD"+FN10+"^FS \n\r"       # Fournisseur (V)
-                    Etiq+="^FN11^FD"+FN11+"^FS \n\r"       # Fournisseur (Code à Barre)
-                    Etiq+="^FN12^FD"+FN12+"^FS \n\r"       # Date
-                    Etiq+="^FN13^FD"+FN13+"^FS \n\r"       # N Lot (H)
-                    Etiq+="^FN14^FD"+FN14+"^FS \n\r"  
-                    Etiq+="^FN15^FD"+FN15+"^FS \n\r"          # Entete1 = Code PG + Moule + OF + N Carton + Controle Operateur/Regleur
-                    Etiq+="^FN16^FD"+FN16+"^FS \n\r"          # Adresse Complete Plastigray
-                    Etiq+="^FN17^FD"+FN17+"^FS \n\r"          # Indice modification
-                    Etiq+="^FN18^FD"+FN18+"^FS \n\r"          # Entete2
-                    Etiq+="^FN20^FD"+FN20[0:23]+"^FS \n\r"    # Entete4=Raisons Sociale Client
-                    Etiq+="^FNPTDECH^FD"+FNPTDECH+"^FS \n\r"  # PTDECH : Point de déchargement
-                    Etiq+="^FN97^FD"+FN97+"^FS \n\r"  # Made in France
-                    Etiq+="^FN21^FD"+FN21+"^FS \n\r"  # Poids Brut = Entete5
-                    Etiq+="^FN24^FD"+FN24+"^FS \n\r"  # Poids Net
-                    Etiq+="^FN23^FD"+FN23+"^FS \n\r"  # Code barre n° lot
-                    Etiq+="^FN22^FD 1 ^FS \n\r"       # Nb de carton
-                    Etiq+="^FN30^FD"+FN30+"^FS \n\r"  # Entete5=Poids
-                    Etiq+="^FN40^FD"+FN40+"^FS \n\r"  # Exp
-                    Etiq+="^FN90^FD"+FN90+"^FS \n\r"  # Signe R = Réglement?
-                    Etiq+="^FN91^FD"+FN91+"^FS \n\r"  # Signe S = Sécurité
-                    Etiq+="^FN92^FD"+FN92+"^FS \n\r"  # C: pour contrôle
-                    Etiq+="^FN99^FD"+FN99+"^FS \n\r"  # PT DEST - POINT DE DESTINATION 
-                    Etiq+="^FN98^FD"+FN98+"^FS \n\r"  # Code UR
+                        Etiq+="^XA^IDR:SECU2.grf^FS \n"   # Efface le Logo Sécu de la mémoire
+                        Etiq+="^XFR:UC^FS \n"
+                    Etiq+="^FN1 ^FD"+FN1+"^FS \n"        # N Produit (P)
+                    Etiq+="^FN2 ^FD"+FN2+"^FS \n"        # N Produit (Code à Barre)
+                    Etiq+="^FN3 ^FD"+str(FN3)+"^FS \n"   # Quantité(Q)
+                    Etiq+="^FN4 ^FD"+FN4+"^FS \n"        # Quantité(Code à Barre)
+                    Etiq+="^FN5 ^FD"+FN5+"^FS \n"        # Ref Fournisseur (30S)
+                    Etiq+="^FN6 ^FD"+FN6+"^FS \n"        # Ref Fournisseur (Code à Barre)
+                    Etiq+="^FN7 ^FD"+str(FN7)+"^FS \n"   # N Etiquette (S)
+                    Etiq+="^FN8 ^FD"+FN8+"^FS \n"        # N Etiquette (Code à Barre)
+                    Etiq+="^FN9 ^FD"+FN9+"^FS \n"        # Produit (Désignation Article)
+                    Etiq+="^FN10^FD"+FN10+"^FS \n"       # Fournisseur (V)
+                    Etiq+="^FN11^FD"+FN11+"^FS \n"       # Fournisseur (Code à Barre)
+                    Etiq+="^FN12^FD"+FN12+"^FS \n"       # Date
+                    Etiq+="^FN13^FD"+FN13+"^FS \n"       # N Lot (H)
+                    Etiq+="^FN14^FD"+FN14+"^FS \n"  
+                    Etiq+="^FN15^FD"+FN15+"^FS \n"          # Entete1 = Code PG + Moule + OF + N Carton + Controle Operateur/Regleur
+                    Etiq+="^FN16^FD"+FN16+"^FS \n"          # Adresse Complete Plastigray
+                    Etiq+="^FN17^FD"+FN17+"^FS \n"          # Indice modification
+                    Etiq+="^FN18^FD"+FN18+"^FS \n"          # Entete2
+                    Etiq+="^FN20^FD"+FN20[0:23]+"^FS \n"    # Entete4=Raisons Sociale Client
+                    Etiq+="^FNPTDECH^FD"+FNPTDECH+"^FS \n"  # PTDECH : Point de déchargement
+                    Etiq+="^FN97^FD"+FN97+"^FS \n"  # Made in France
+                    Etiq+="^FN21^FD"+FN21+"^FS \n"  # Poids Brut = Entete5
+                    Etiq+="^FN24^FD"+FN24+"^FS \n"  # Poids Net
+                    Etiq+="^FN23^FD"+FN23+"^FS \n"  # Code barre n° lot
+                    Etiq+="^FN22^FD"+FN22+"^FS \n"  # Nb de carton
+                    Etiq+="^FN30^FD"+FN30+"^FS \n"  # Entete5=Poids
+                    Etiq+="^FN40^FD"+FN40+"^FS \n"  # Exp
+                    Etiq+="^FN90^FD"+FN90+"^FS \n"  # Signe R = Réglement?
+                    Etiq+="^FN91^FD"+FN91+"^FS \n"  # Signe S = Sécurité
+                    Etiq+="^FN92^FD"+FN92+"^FS \n"  # C: pour contrôle
+                    Etiq+="^FN99^FD"+FN99+"^FS \n"  # PT DEST - POINT DE DESTINATION 
+                    Etiq+="^FN98^FD"+FN98+"^FS \n"  # Code UR
 
                     #** Data Matrix (QR Code) pour Delta Dore *****************
                     if TypeEti=="DD" or TypeEti=="EMS" or TypeEti=="NEA":
@@ -552,10 +589,10 @@ class is_galia_base(models.Model):
                     #**********************************************************
 
                     if Nb==zzFin:
-                        Etiq+="^MMT \n\r"  # Avance de l'éiquette
+                        Etiq+="^MMT \n"  # Avance de l'éiquette
                     else:
-                        Etiq+="^MMR \n\r"  # Ne pas couper les Etiquettes
-                    Etiq+="^XZ \n\r"
+                        Etiq+="^MMR \n"  # Ne pas couper les Etiquettes
+                    Etiq+="^XZ \n"
 
                     #** Enregistrement Etiquette dans Odoo ********************
                     msg=""
@@ -568,7 +605,7 @@ class is_galia_base(models.Model):
                             'type_eti'     : Etiquette,
                             'num_of'       : zzCode,
                             'num_carton'   : Nb,
-                            'qt_pieces'    : FN3, # Quantite
+                            'qt_pieces'    : self.str2int(FN3), # Quantite
                             'date_creation': date_creation,
                             'login'        : user_name,
                         }
@@ -577,7 +614,7 @@ class is_galia_base(models.Model):
                     else:
                         eti = self.env['is.galia.base'].browse(etiquette_id)
                         eti.login = user_name
-                        eti.qt_pieces = FN3
+                        eti.qt_pieces = self.str2int(FN3)
                         _logger.info("Réimpression étiquette Galia %s"%Log)
                     MsgOK+="<div class=NormalLB>Impression et enregistrement étiquette %s dans odoo0 éffectué avec succés.</div>"%Info
                     #**********************************************************
@@ -768,66 +805,14 @@ class is_galia_base_um(models.Model):
                     _logger.info(line.strip())
  
 
-
-
-
-
     def imprimer_etiquette_uc_action(self):
         user = self.env['res.users'].browse(self._uid)
         company = self.env.company
-
-
         for obj in self:
             domain = [('um_id','=',obj.id)]
             ucs = self.env['is.galia.base.uc'].search(domain)
             for uc in ucs:
                 uc.imprimer_etiquette_uc_action()
-
-
-        # for obj in self:
-        #     vals={
-        #         'ACTION'      : 'OK', 
-        #         'Soc'         : company.is_code_societe, 
-        #         'Etiquette'   : obj.type_eti, 
-        #         'Imprimante'  : 'ZPL', 
-        #         'zzCode'      : obj.production, 
-        #         'zzDebut'     : obj.num_carton, 
-        #         'zzFin'       : obj.num_carton, 
-        #         'zzNbPieces'  : obj.qt_pieces, 
-        #         'zzMDP1'      : company.is_mdp_quantite,
-        #         'zzMDP2'      : company.is_mdp_reimprimer, 
-        #         'zzValidation': 'OK', 
-        #         'zzAction'    : 'Imprimer', 
-        #         'user_name'   : user.name,
-        #     }
-        #     DB        = company.is_nom_base_odoo0
-        #     USERID    = 2
-        #     DBLOGIN   = company.is_login_admin
-        #     USERPASS  = company.is_mdp_admin
-        #     URL       = company.is_url_odoo0 
-        #     try:
-        #         sock = xmlrpclib.ServerProxy('%s/xmlrpc/object'%URL)
-        #         res = sock.execute(DB, USERID, USERPASS, 'is.galia.base', 'creer_etiquette', [0], vals)
-        #     except:
-        #         msg="Problème de connexion sur %s ou sur la base %s"%(URL,DB)
-        #         raise ValidationError(msg)
-        #     if 'Msg' in res:
-        #         if res['Msg']!='':
-        #             raise ValidationError(res['Msg'])
-        #     ZPL = res.get('ZPL')
-        #     self.env['is.galia.base'].imprimer_zpl(ZPL)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class is_galia_base_uc(models.Model):
@@ -878,6 +863,9 @@ class is_galia_base_uc(models.Model):
         DBLOGIN   = company.is_login_admin
         USERPASS  = company.is_mdp_admin
         URL       = company.is_url_odoo0 
+
+
+
         sock      = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
         for obj in self:
             #** Retrouver la société de l'étiquette ***************************

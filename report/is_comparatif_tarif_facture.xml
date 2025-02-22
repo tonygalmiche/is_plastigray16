@@ -28,7 +28,7 @@
         <field name="model">is.comparatif.tarif.facture</field>
         <field name="arch" type="xml">
             <search string="Recherche">
-                <filter string="Anomalies uniquement" name="anomalies" domain="[('price_delta','!=',0)]"/>
+                <filter string="Anomalies uniquement" name="anomalies" domain="['|',('price_delta','!=',0),('invoice_price','=',0)]"/>
                 <field name="invoice_id"/>
                 <field name="order_id"/>
                 <field name="partner_id"/>

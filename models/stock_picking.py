@@ -704,7 +704,7 @@ class stock_picking(models.Model):
 
     def liste_des_um_action(self):
         for obj in self:
-            ids=obj.get_um_ids
+            ids=obj.get_um_ids()
             res= {
                 'name': obj.name,
                 'view_mode': 'tree,form',
@@ -726,7 +726,7 @@ class stock_picking(models.Model):
 
     def liste_des_uc_action(self):
         for obj in self:
-            ids=obj.get_uc_ids
+            ids=obj.get_uc_ids()
             res= {
                 'name': obj.name,
                 'view_mode': 'tree,form',
