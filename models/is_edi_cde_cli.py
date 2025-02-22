@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import csv
-from odoo import models,fields,api
-from odoo.exceptions import ValidationError
+from odoo import models,fields,api           # type: ignore
+from odoo.exceptions import ValidationError  # type: ignore
 from lxml import etree
 import xml.etree.ElementTree as ET
+import csv
 import base64
 import time
 import math
@@ -52,6 +52,7 @@ class is_edi_cde_cli_line(models.Model):
     num_ran                          = fields.Char('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
     identifiant_transport            = fields.Char("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
     code_fabrication                 = fields.Char('Code fabrication'        , help="Champ 'Codefabrication' pour EDI PO/Weidplas à remettre sur étiquette GALIA et BL")
+    type_uc                          = fields.Char('Type UC'                 , help="Champ 'IdentifiantTypeUC' pour EDI PO/Weidplas à comparer à l'UC de l'article")
 
 
     def action_acceder_commande(self):
@@ -153,6 +154,7 @@ class is_edi_cde_cli(models.Model):
                         product_id       = False
                         prix             = 0
                         code_fabrication = False
+                        type_uc = False
                         anomalie2  = []
                         if len(order):
                             if point_dechargement:
@@ -174,6 +176,17 @@ class is_edi_cde_cli(models.Model):
                             else:
                                 product    = order[0].is_article_commande_id
                             product_id = product.id
+
+                            #** Vérification UC fiche article *****************
+                            type_uc = ligne.get('type_uc',False)
+                            if type_uc and product:
+                                product_uc=''
+                                for p in product.product_variant_ids:
+                                    for item in p.packaging_ids:
+                                        product_uc=item.ul.name
+                                if product_uc!=type_uc:
+                                    anomalie2.append("UC de l'EDI (%s) différente de celle de l'article (%s)"%(type_uc,product_uc))
+                            #******************************************************
 
                             #** Vérification code_fabrication *****************
                             code_fabrication = ligne.get('code_fabrication')
@@ -285,6 +298,7 @@ class is_edi_cde_cli(models.Model):
                             'date_heure_livraison_au_plus_tot' : ligne.get('date_heure_livraison_au_plus_tot'),
                             'code_routage'                     : ligne.get('code_routage'),
                             'point_destination'                : ligne.get('point_destination'),
+                            'type_uc'                          : type_uc,
                         }
                         line_obj.create(vals)
 
@@ -1411,23 +1425,6 @@ class is_edi_cde_cli(models.Model):
 
     def get_data_STELLANTIS(self, attachment):
         res = []
-        # def get_products(is_client_id=False,is_ref_client=False):
-        #     products=self.env['product.product'].search([
-        #         ('is_client_id' , '=', is_client_id),
-        #         ('is_ref_client', '=', is_ref_client),
-        #         ('is_gestionnaire_id', '!=', '04'), 
-        #         ('is_gestionnaire_id', '!=', '07'), 
-        #         ('is_gestionnaire_id', '!=', '12'), 
-        #         ('is_gestionnaire_id', '!=', '14'), 
-        #         ('is_gestionnaire_id', '!=', '23'), 
-        #         ('segment_id', 'not ilike', 'fictif'), 
-        #         ('segment_id', 'not ilike', 'fantome'), 
-        #         ('segment_id', 'not ilike', 'consommable'), 
-        #         ('segment_id', 'not ilike', 'comptable'),
-        #     ])
-        #     return products
-        
-
         for obj in self:
             filename = '/tmp/%s.xml' % attachment.id
             temp = open(filename, 'w+b')
@@ -1442,22 +1439,9 @@ class is_edi_cde_cli(models.Model):
                     num_commande_client=""
                     for NumeroArticleClient in article_programme.xpath("NumeroCommande"):
                         num_commande_client=NumeroArticleClient.text
-
                     anomalie=[]
-
-                    # products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
-                    # if len(products)==0:
-                    #     anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                    # if len(products)>1:
-                    #     anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-
-
-
-
-                    #product=False
                     order_id=False
                     if not len(anomalie):
-                        #product=products[0]
                         orders=self.env['sale.order'].search([
                             ('partner_id.is_code', '=' , obj.partner_id.is_code),
                             ('is_ref_client'     , '=' , ref_article_client),
@@ -1465,8 +1449,6 @@ class is_edi_cde_cli(models.Model):
                             ('state'             , '=' , 'draft'),
                             ('client_order_ref'  , '!=', 'PREVISIONS'),
                         ])
-
-
                         for order in orders:
                             order_id = order.id
                             if order.client_order_ref!=num_commande_client:
@@ -1544,27 +1526,25 @@ class is_edi_cde_cli(models.Model):
                             caldel_number=partie_citee.xpath("ARTICLE_PROGRAMME/CaldelNumber")[0].text
                         except IndexError:
                             caldel_number=""
-
-                        #products = get_products(is_client_id=obj.partner_id.id,is_ref_client=ref_article_client)
                         anomalie=[]
-                        # if len(products)==0:
-                        #     anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                        # if len(products)>1:
-                        #     anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
                         try:
                             num_commande_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroCommande")[0].text
                         except IndexError:
                             num_commande_client=""
-                        #product=False
+                        try:
+                            type_uc=partie_citee.xpath("INSTRUCTIONS_EMBALLAGE/TYPE_UM_UC/IdentifiantTypeUC")[0].text
+                        except IndexError:
+                            type_uc=""
+
+
+
                         order_id=False
                         if not len(anomalie):
-                            #product=products[0]
                             orders=self.env['sale.order'].search([
                                 ('partner_id.is_code', '=', obj.partner_id.is_code),
                                 ('is_ref_client'     , '=', ref_article_client),
                                 ('is_type_commande'  , '=', 'ouverte'),
                                 ('state'             , '=', 'draft'),
-                                #('client_order_ref'  , '!=', 'PREVISIONS'),
                             ])
                             for order in orders:
                                 order_id = order.id
@@ -1576,8 +1556,6 @@ class is_edi_cde_cli(models.Model):
                             'num_commande_client': num_commande_client,
                             'lignes'             : []
                         }
-                        #if product:
-                        #    val["product"]=product
                         point_dechargement = False
                         code_routage       = False
                         point_destination  = False
@@ -1620,6 +1598,7 @@ class is_edi_cde_cli(models.Model):
                                 'date_heure_livraison_au_plus_tot' : date_heure_livraison_au_plus_tot,
                                 'code_routage'                     : code_routage,
                                 'point_destination'                : point_destination,
+                                'type_uc'                          : type_uc,
                             }
                             res1.append(ligne)
                         val.update({'lignes':res1})

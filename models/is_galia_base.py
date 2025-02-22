@@ -864,14 +864,16 @@ class is_galia_base_uc(models.Model):
         USERPASS  = company.is_mdp_admin
         URL       = company.is_url_odoo0 
 
-
-
-        sock      = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
+        sock = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
         for obj in self:
             #** Retrouver la société de l'étiquette ***************************
             Soc=False
             domain=[('num_eti','=',obj.num_eti)]
-            lines=sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', 'search_read', [domain], {'fields': ['num_eti', 'soc'], 'limit': 3, 'order': 'id desc'})
+            try:
+                lines=sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', 'search_read', [domain], {'fields': ['num_eti', 'soc'], 'limit': 3, 'order': 'id desc'})
+            except:
+                msg="Problème de connexion sur %s ou sur la base %s"%(URL,DB)
+                raise ValidationError(msg)
             for line in lines:
                 Soc=line.get('soc')
             if not Soc:

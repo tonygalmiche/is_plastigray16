@@ -74,6 +74,7 @@
                     <field name="num_ran"                          optional="show" />
                     <field name="identifiant_transport"            optional="hide" />
                     <field name="code_fabrication"                 optional="hide" />
+                    <field name="type_uc"                          optional="hide" />
                     <field name="code_routage"                     optional="show" />
                     <field name="point_destination"                optional="show" />
                     <field name="point_dechargement"               optional="show" />
