@@ -517,18 +517,12 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
-
-
-
-
         <!-- product.template -->
         <record id="product_template_form_view" model="ir.ui.view">
             <field name="name">product_template_form_view</field>
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-
                 <xpath expr="//label[@for='name']/.." position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -689,6 +683,9 @@
                         <group>
                             <field name="sale_ok"/>
                             <field name="purchase_ok"/>
+                            <img attrs="{'invisible': [('is_soumise_regl', '!=', 'S')]}"  alt="Logo S"  src="/is_plastigray16/static/src/img/logo_s.png"  style="max-width:50px"/>
+                            <img attrs="{'invisible': [('is_soumise_regl', '!=', 'R')]}"  alt="Logo R"  src="/is_plastigray16/static/src/img/logo_r.png"  style="max-width:50px"/>
+                            <img attrs="{'invisible': [('is_soumise_regl', '!=', 'SR')]}" alt="Logo RS" src="/is_plastigray16/static/src/img/logo_rs.png" style="max-width:50px"/>       
                         </group>
                     </group>
                 </notebook>

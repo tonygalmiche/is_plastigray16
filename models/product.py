@@ -532,7 +532,6 @@ class product_template(models.Model):
 
     is_weight_delta = fields.Float("Ecart entre poids brut et poids net", compute='_compute_weight_delta', readonly=True, store=True,digits=(12,4))
     is_emplacement_declaration_prod_id = fields.Many2one('stock.location', "Emplacement déclaration prod", domain="[('usage', '=', 'internal')]")
-
     is_code_fabrication = fields.Char('Code fabrication', help="Champ 'Codefabrication' pour EDI PO/Weidplas à remettre sur étiquette GALIA et BL")
 
 
