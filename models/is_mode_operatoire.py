@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api
-from odoo.exceptions import ValidationError
+from odoo import models,fields,api           # type: ignore
+from odoo.exceptions import ValidationError  # type: ignore
 import datetime
 
 
@@ -36,9 +36,9 @@ class IsModeOperatoireMenu(models.Model):
 
 
     def creer_menu_action(self):
+        parent=self.env.ref('is_plastigray16.is_mode_operatoire_main_menu')
         for obj in self:
             if not obj.menu_id:
-                parent=self.env.ref('is_plastigray16.is_mode_operatoire_main_menu')
                 v={
                     'name'     : obj.name, 
                     'parent_id': parent.id, 
@@ -54,6 +54,47 @@ class IsModeOperatoireMenu(models.Model):
                 }
                 action=self.env['ir.actions.act_window'].sudo().create(v)
                 menu.action="ir.actions.act_window,%s"%(action.id)
+
+
+        # #** Création des menus ************************************************
+        # lines = self.env['is.mode.operatoire.menu'].search([],order='ordre,id', limit=100)
+        # for line in lines:
+        #     if not line.menu_id:
+        #         vals={
+        #             'name'     : line.name, 
+        #             'parent_id': parent.id, 
+        #             'sequence' : line.ordre, 
+        #         }
+        #         menu=self.env['ir.ui.menu'].sudo().create(vals)
+        #         line.menu_id = menu.id
+        # #**********************************************************************
+
+
+        # #** Ajout des actions aux menus
+
+
+        # #** Suppression des anciens menus *************************************
+        # if parent.id:
+        #     domain =[
+        #         ('parent_id','=',parent.id),
+        #         ('name','!=', 'Modes opératoires')
+        #     ]
+        #     menus = self.env['ir.ui.menu'].search(domain,order='sequence,id', limit=100)
+        #     for menu in menus:
+        #         # domain =[
+        #         #     ('menu_id','=',menu.id),
+        #         # ]
+        #         # lines = self.env['is.mode.operatoire.menu'].search(domain, limit=1)
+        #         print(menu.id,menu.sequence,menu.name,menu.action)
+
+
+
+
+
+
+
+
+
 
 
 class IsModeOperatoire(models.Model):
