@@ -2302,11 +2302,11 @@
 
    
 
-    <!-- Modes opératoires -->
-    <menuitem id="is_mode_operatoire_top_menu" sequence="100" name="Modes opératoires"  groups="is_base_principale_grp"/>
-    <menuitem id="is_mode_operatoire_main_menu" sequence="10" name="Modes opératoires"  parent="is_mode_operatoire_top_menu" />
+    <!-- Documents / Modes opératoires -->
+    <menuitem id="is_mode_operatoire_top_menu" sequence="100" name="Documents" groups="is_base_principale_grp"/>
+    <menuitem id="is_mode_operatoire_main_menu" sequence="10" name="Documents" parent="is_mode_operatoire_top_menu" />
     <record id="is_mode_operatoire_menu" model="ir.ui.menu">
-        <field name="name">Modes opératoires</field>
+        <field name="name">Documents</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('is_mode_operatoire_main_menu')"/>
         <field name="action"    ref="is_mode_operatoire_action"/>

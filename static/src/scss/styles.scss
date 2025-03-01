@@ -24,4 +24,8 @@
 //     position: inherit !important;
 // }
 
-
+// Le 01/03/2025, j'ai remis ces lignes, car cepuis l'annalyse du CBN, 
+// la statusbar de la commande fournsseur affichée en boite de dialague n'était pas conforme
+.o_dialog .o_form_sheet_bg .o_form_statusbar {
+    position: unset !important;
+}

@@ -63,8 +63,8 @@ class is_dossier_article(models.Model):
     lab_b                = fields.Float(u" B (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
 
     # Informations production :
-    mfr                 = fields.Integer(u"MFR (g/10min)", tracking=True) #: champ libre
-    mvr                 = fields.Integer(u"MVR (cm3/10min)", tracking=True) #: champ libre
+    mfr                 = fields.Char(u"MFR (g/10min)", tracking=True) #: champ libre
+    mvr                 = fields.Char(u"MVR (cm3/10min)", tracking=True) #: champ libre
     norme               = fields.Char(u"Norme (n° - T°C/masse kg)", tracking=True) #: champ libre
     temp_transformation = fields.Char(u"T°C transformation (°C)", tracking=True) #: champ nombre
     temp_moule          = fields.Char(u"T°C moule (°C)", tracking=True) #: champ nombre

@@ -62,6 +62,8 @@
             <field name="arch" type="xml">
                 <form string="Form">
                     <sheet>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <group>
                             <field name="name"/>
                             <field name="menu_id"/>
@@ -71,8 +73,9 @@
                         </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
-                        <field name="message_ids" widget="mail_thread"/>
+                        <field name="message_follower_ids" />
+                        <field name="activity_ids" />
+                        <field name="message_ids" />
                     </div>
                 </form>
             </field>
@@ -84,9 +87,14 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="menu_id"/>
-                    <field name="createur_id"/>
-                    <field name="date_demande"/>
+                    <field name="menu_id"        optional="show"/>
+                    <field name="createur_id"    optional="show"/>
+                    <field name="date_demande"   optional="show"/>
+                    <field name="attachment_ids" optional="hide" widget="many2many_binary"/>
+                    <field name="create_date"    optional="hide" string="Créé le"/>
+                    <field name="create_uid"     optional="hide" string="Créé par"/>
+                    <field name="write_date"     optional="hide" string="Modifié le"/>
+                    <field name="write_uid"      optional="hide" string="Modifié par"/>
                 </tree>
             </field>
         </record>
@@ -103,7 +111,7 @@
             </field>
         </record>
         <record model="ir.actions.act_window" id="is_mode_operatoire_action">
-            <field name="name">Mode opératoire</field>
+            <field name="name">Documents</field>
             <field name="res_model">is.mode.operatoire</field>
             <field name="view_mode">tree,form</field>
         </record>

@@ -48,6 +48,7 @@
                                 <field name="frais_perturbation"/>
                                 <field name="frais_perturbation_commentaire" attrs="{'invisible': [('frais_perturbation', '=', 0)]}"/>
                                 <field name="total"/>
+                                <field name="total_plastigray"/>
                             </group>
                             <group>
                                 <field name="poids_net"/> 
@@ -101,6 +102,7 @@
                     <field name="frais_perturbation" optional="show" sum="Total"/> 
                     <field name="frais_perturbation_commentaire" optional="hide"/> 
                     <field name="total"              optional="show" sum="Total"/>
+                    <field name="total_plastigray"   optional="show" sum="Total"/>
                     <field name="nb_cartons"         optional="show" sum="Total"/>
                     <field name="nb_colis"           optional="show" sum="Total"/>
                     <field name="nb_pieces"          optional="show" sum="Total"/>

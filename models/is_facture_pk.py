@@ -32,18 +32,25 @@ class is_facture_pk(models.Model):
             obj.semaine_facture = semaine_facture
 
 
+  
+    @api.depends('main_oeuvre','frais_perturbation')
+    def _compute_total_plastigray(self):
+        for obj in self:
+            obj.total_plastigray = obj.main_oeuvre + obj.frais_perturbation
+          
     num_facture        = fields.Char('N° de Facture')
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now())
     annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True)
     semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True)
     num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
     num_import_matiere = fields.Char("N° d'import matière première")
-    matiere_premiere   = fields.Float('Total Matière première (€)'       , digits=(14, 4), readonly=True)
-    main_oeuvre        = fields.Float("Total Main d'oeuvre (€)"          , digits=(14, 4), readonly=True)
-    total_moules       = fields.Float("Total des moules à taxer (€)"     , digits=(14, 4), compute='_compute', store=True)
-    frais_perturbation = fields.Float("Total frais de préparation à taxer (€)", digits=(14, 4))
+    matiere_premiere   = fields.Float('Total Matière première (€)'                     , digits=(14, 4), readonly=True)
+    main_oeuvre        = fields.Float("Total Main d'oeuvre / Prestation de service (€)", digits=(14, 4), readonly=True)
+    total_moules       = fields.Float("Total des moules à taxer (€)"                   , digits=(14, 4), compute='_compute', store=True)
+    frais_perturbation = fields.Float("Total frais de préparation à taxer (€)"         , digits=(14, 4))
     frais_perturbation_commentaire = fields.Char("Commentaire frais de préparation")
-    total              = fields.Float("TOTAL (€)"                        , digits=(14, 4), compute='_compute', store=True)
+    total              = fields.Float("TOTAL (€)"           , digits=(14, 4), compute='_compute', store=True)
+    total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 4), compute='_compute_total_plastigray', store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer")
     nb_cartons         = fields.Integer("Nombre de cartons", readonly=True)
     nb_colis           = fields.Integer("Nombre de colis")
     nb_pieces          = fields.Integer("Nombre de pièces", readonly=True)
