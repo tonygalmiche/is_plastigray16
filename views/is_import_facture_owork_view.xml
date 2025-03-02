@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- is.import.facture.owork -->
+        <record id="is_import_facture_owork_seq" model="ir.sequence">
+            <field name="name">Import facture O'Work</field>
+            <field name="code">is.import.facture.owork</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="is_import_facture_owork_form_view" model="ir.ui.view">
+            <field name="name">is_import_facture_owork_form_view</field>
+            <field name="model">is.import.facture.owork</field>
+            <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button 
+                        name="import_facture_owork"
+                        string="Import factures O'Work"
+                        type="object"
+                    />
+                    <button 
+                        name="voir_les_lignes"
+                        type="object"
+                        string="Voir les lignes"
+                    />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="attachment_ids" widget="many2many_binary" />
+                        </group>
+                        <group>
+                            <field name="create_date" string="Créé le"/>
+                            <field name="create_uid"  string="Créé par"/>
+                        </group>
+                    </group>
+                 </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_import_facture_owork_tree_view" model="ir.ui.view">
+            <field name="name">is_import_facture_owork_tree_view</field>
+            <field name="model">is.import.facture.owork</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+                    <field name="create_date" optional="hide" string="Créé le"/>
+                    <field name="create_uid"  optional="hide" string="Créé par"/>
+                    <field name="write_date"  optional="hide" string="Modifié le"/>
+                    <field name="write_uid"   optional="hide" string="Modifié par"/>
+                </tree>
+            </field>
+        </record>
+       
+        <record id="is_import_facture_owork_search_view" model="ir.ui.view">
+            <field name="name">is_import_facture_owork_search_view</field>
+            <field name="model">is.import.facture.owork</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                </search>
+            </field>
+        </record>
+        <record id="is_import_facture_owork_action" model="ir.actions.act_window" >
+            <field name="name">Import facture O'Work</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.import.facture.owork</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- is.import.facture.owork.line -->
+        <record id="is_import_facture_owork_line_form_view" model="ir.ui.view">
+            <field name="name">is_import_facture_owork_line_form_view</field>
+            <field name="model">is.import.facture.owork.line</field>
+            <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="montantht" />
+                            <field name="daterecpt" />
+                            <field name="numrecept" />
+                            <field name="montanttva" />
+                            <field name="numcde" />
+                            <field name="total" />
+                            <field name="numbl" />
+                            <field name="codefour" />
+                            <field name="prixfact" />
+                            <field name="numfac" />
+                            <field name="numidodoo" />
+                            <field name="montanttc" />
+                        </group>
+                       <group>
+                            <field name="prixorigine" />
+                            <field name="datefact" />
+                            <field name="codefourrcp" />
+                            <field name="codeadrfour" />
+                            <field name="descriparticle" />
+                            <field name="codetvaorigine" />
+                            <field name="codetvafact" />
+                            <field name="codeetab" />
+                            <field name="qterestefac" />
+                            <field name="qtefact" />
+                            <field name="totalfacture" />
+                            <field name="article" />
+                        </group>
+                    </group>
+                 </sheet>
+            </form>
+            </field>
+        </record>
+        <record id="is_import_facture_owork_line_tree_view" model="ir.ui.view">
+            <field name="name">is_import_facture_owork_line_tree_view</field>
+            <field name="model">is.import.facture.owork.line</field>
+            <field name="arch" type="xml">
+                <tree>
+
+                    <field name="numrecept" optional="show"/>
+                    <field name="daterecpt" optional="hide"/>
+                    <field name="numbl" optional="hide"/>
+                    <field name="codefourrcp" optional="hide"/>
+                    <field name="codeadrfour" optional="hide"/>
+                    <field name="article" optional="show"/>
+                    <field name="descriparticle" optional="hide"/>
+                    <field name="prixorigine" optional="hide"/>
+                    <field name="codetvaorigine" optional="hide"/>
+
+                    <field name="numcde" optional="show"/>
+                    <field name="total" optional="show"/>
+
+                    <field name="numfac" optional="show"/>
+                    <field name="datefact" optional="show"/>
+                    <field name="codefour" optional="show"/>
+
+                    <field name="qtefact" optional="show"/>
+                    <field name="qterestefac" optional="show"/>
+                    <field name="prixfact" optional="show"/>
+                    <field name="totalfacture" optional="show"/>
+                    <field name="codetvafact" optional="show"/>
+                    <field name="montantht" optional="show"/>
+                    <field name="montanttva" optional="show"/>
+                    <field name="montanttc" optional="show"/>
+
+                    <field name="codeetab" optional="hide"/>
+                    <field name="numidodoo" optional="hide"/>
+
+
+                </tree>
+            </field>
+        </record>
+       
+        <record id="is_import_facture_owork_line_search_view" model="ir.ui.view">
+            <field name="name">is_import_facture_owork_line_search_view</field>
+            <field name="model">is.import.facture.owork.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="numcde" />
+                    <field name="numbl" />
+                    <field name="codefour" />
+                    <field name="numfac" />
+                    <field name="codefourrcp" />
+                </search>
+            </field>
+        </record>
+        <record id="is_import_facture_owork_line_action" model="ir.actions.act_window" >
+            <field name="name">Lignes import facture O'Work</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.import.facture.owork.line</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+     </data>
+</odoo>

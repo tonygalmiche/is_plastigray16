@@ -47,6 +47,7 @@ from . import is_mold_project
 from . import product
 from . import is_historique_controle
 from . import is_import_budget_pk
+from . import is_import_facture_owork
 from . import is_instruction_particuliere
 from . import is_instrument_mesure
 from . import is_invest

@@ -318,7 +318,7 @@ class is_demande_conges(models.Model):
                 mois_demande = str(obj.date_debut)[:8]
                 ce_mois      = str(date.today())[:8]
                 day          = date.today().day
-                if mois_demande==ce_mois and day>24:
+                if mois_demande==ce_mois and day>24 and obj.responsable_rh_id.id!=uid and uid!=1:
                     raise ValidationError("Il n'est pas autorisé de créer une demande après le 24 sur le mois en cours")
                 if mois_demande<ce_mois and obj.responsable_rh_id.id!=uid and uid!=1:
                     raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
@@ -701,12 +701,13 @@ class is_demande_conges(models.Model):
         company = self.env.user.company_id
         for obj in self:
             droit_cp = obj.droit_cp_actualise + obj.droit_rtt_actualise
-            droit_rc = obj.droit_rc_actualise
+            droit_rc = round(obj.droit_rc_actualise,2)
             demandes_cp = demandes_rc = 0
             for line in obj.demande_en_cours_ids:
                 #cp,rc = line.get_cp_rc()
                 demandes_cp+=line.cp+line.rtt
                 demandes_rc+=line.rc
+            demandes_rc = round(demandes_rc,2)
             solde_cp = round(droit_cp - demandes_cp,2)
             solde_rc = round(droit_rc - demandes_rc,2)
             style_cp=style_rc=""
