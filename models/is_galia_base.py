@@ -355,7 +355,7 @@ class is_galia_base(models.Model):
                     #** Le 01/02/2022 => Code barre sur toutes les étiquettes
                     FN4  = "Q%s"%Quantite       # Code Barre Quantité (Q)
                     FN6  = "V"+Fournisseur      # Code Barre COFOR (V)
-                    FN11 = ("30S"+FN10)[0:15]   # Code Barre Ref Fournisseur (30S)
+                    FN11 = ("30S"+FN10)[0:13]   # Code Barre Ref Fournisseur (30S)
                     FN3  = Quantite             # Quantité dans le carton
                     FN5  = Fournisseur          # Fournisseur (V)
 

@@ -83,7 +83,10 @@
                         <group>
                             <field name="montantht" />
                             <field name="daterecpt" />
+
                             <field name="numrecept" />
+                            <field name="picking_id"/>
+
                             <field name="montanttva" />
                             <field name="numcde" />
                             <field name="total" />
@@ -107,7 +110,11 @@
                             <field name="qtefact" />
                             <field name="totalfacture" />
                             <field name="article" />
+                            <field name="product_id" />
                         </group>
+                    </group>
+                    <group>
+                        <field name="anomalies"/>
                     </group>
                  </sheet>
             </form>
@@ -118,37 +125,36 @@
             <field name="model">is.import.facture.owork.line</field>
             <field name="arch" type="xml">
                 <tree>
-
-                    <field name="numrecept" optional="show"/>
-                    <field name="daterecpt" optional="hide"/>
-                    <field name="numbl" optional="hide"/>
-                    <field name="codefourrcp" optional="hide"/>
-                    <field name="codeadrfour" optional="hide"/>
-                    <field name="article" optional="show"/>
+                    <field name="numrecept"      optional="show"/>
+                    <field name="picking_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="daterecpt"      optional="hide"/>
+                    <field name="numbl"          optional="hide"/>
+                    <field name="codefourrcp"    optional="hide"/>
+                    <field name="codeadrfour"    optional="hide"/>
+                    <field name="article"        optional="show"/>
+                    <field name="product_id"     optional="hide" widget="many2one_clickable"/>
                     <field name="descriparticle" optional="hide"/>
-                    <field name="prixorigine" optional="hide"/>
+                    <field name="prixorigine"    optional="hide"/>
                     <field name="codetvaorigine" optional="hide"/>
-
-                    <field name="numcde" optional="show"/>
-                    <field name="total" optional="show"/>
-
-                    <field name="numfac" optional="show"/>
-                    <field name="datefact" optional="show"/>
-                    <field name="codefour" optional="show"/>
-
-                    <field name="qtefact" optional="show"/>
-                    <field name="qterestefac" optional="show"/>
-                    <field name="prixfact" optional="show"/>
-                    <field name="totalfacture" optional="show"/>
-                    <field name="codetvafact" optional="show"/>
-                    <field name="montantht" optional="show"/>
-                    <field name="montanttva" optional="show"/>
-                    <field name="montanttc" optional="show"/>
-
-                    <field name="codeetab" optional="hide"/>
-                    <field name="numidodoo" optional="hide"/>
-
-
+                    <field name="numcde"         optional="hide"/>
+                    <field name="total"          optional="show"/>
+                    <field name="numfac"         optional="show"/>
+                    <field name="datefact"       optional="show"/>
+                    <field name="codefour"       optional="show"/>
+                    <field name="partner_id"     optional="hide" widget="many2one_clickable"/>
+                    <field name="qtefact"        optional="show"/>
+                    <field name="qterestefac"    optional="show"/>
+                    <field name="prixfact"       optional="show"/>
+                    <field name="totalfacture"   optional="show"/>
+                    <field name="codetvafact"    optional="show"/>
+                    <field name="tax_id"         optional="hide" widget="many2one_clickable"/>
+                    <field name="montantht"      optional="show"/>
+                    <field name="montanttva"     optional="show"/>
+                    <field name="montanttc"      optional="show"/>
+                    <field name="codeetab"       optional="hide"/>
+                    <field name="numidodoo"      optional="hide"/>
+                    <field name="fichier"        optional="hide"/>
+                    <field name="anomalies"      optional="show"/>
                 </tree>
             </field>
         </record>
