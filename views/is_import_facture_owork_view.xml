@@ -16,26 +16,48 @@
             <field name="arch" type="xml">
             <form>
                 <header>
+                    <field name="line_ids" invisible="1" />
+                    <field name="invoice_ids" invisible="1" />
                     <button 
                         name="import_facture_owork"
-                        string="Import factures O'Work"
+                        string="Import fichiers O'Work"
                         type="object"
+                        attrs="{'invisible': [('line_ids', '!=', [])]}"
+                        class="btn btn-primary"
                     />
                     <button 
                         name="voir_les_lignes"
                         type="object"
                         string="Voir les lignes"
+                        attrs="{'invisible': [('line_ids', '=', [])]}"
                     />
+                   <button 
+                        name="creation_factures"
+                        type="object"
+                        string="Création des factures"
+                        attrs="{'invisible': ['|',('line_ids', '=', []),('invoice_ids', '!=', [])]}"
+                        class="btn btn-primary"
+                    />
+                   <button 
+                        name="voir_les_factures"
+                        type="object"
+                        string="Voir les factures"
+                         attrs="{'invisible': [('invoice_ids', '=', [])]}"
+                    />
+                    <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
                     <group>
                         <group>
                             <field name="name" />
-                            <field name="attachment_ids" widget="many2many_binary" />
+                            <field name="attachment_ids" widget="many2many_binary" attrs="{'readonly': [('state', '=', 'traite')]}"/>
                         </group>
                         <group>
                             <field name="create_date" string="Créé le"/>
                             <field name="create_uid"  string="Créé par"/>
+                            <field name="nb_lignes"/>
+                            <field name="nb_factures"/>
+                            <field name="nb_anomalies" style="background-color:orange" attrs="{'invisible': [('nb_anomalies', '=', 0)]}"/>
                         </group>
                     </group>
                  </sheet>
@@ -48,10 +70,14 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name" />
+                    <field name="nb_lignes"/>
+                    <field name="nb_factures"/>
+                    <field name="nb_anomalies"/>
                     <field name="create_date" optional="hide" string="Créé le"/>
                     <field name="create_uid"  optional="hide" string="Créé par"/>
                     <field name="write_date"  optional="hide" string="Modifié le"/>
                     <field name="write_uid"   optional="hide" string="Modifié par"/>
+                    <field name="state"       optional="show" widget="badge" decoration-warning="state=='analyse'" decoration-muted="state=='traite'"/>
                 </tree>
             </field>
         </record>
@@ -86,6 +112,7 @@
 
                             <field name="numrecept" />
                             <field name="picking_id"/>
+                            <field name="stock_move_id"/>
 
                             <field name="montanttva" />
                             <field name="numcde" />
@@ -94,6 +121,7 @@
                             <field name="codefour" />
                             <field name="prixfact" />
                             <field name="numfac" />
+                            <field name="invoice_id" />
                             <field name="numidodoo" />
                             <field name="montanttc" />
                         </group>
@@ -127,6 +155,7 @@
                 <tree>
                     <field name="numrecept"      optional="show"/>
                     <field name="picking_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="stock_move_id"  optional="show" widget="many2one_clickable"/>
                     <field name="daterecpt"      optional="hide"/>
                     <field name="numbl"          optional="hide"/>
                     <field name="codefourrcp"    optional="hide"/>
@@ -137,20 +166,21 @@
                     <field name="prixorigine"    optional="hide"/>
                     <field name="codetvaorigine" optional="hide"/>
                     <field name="numcde"         optional="hide"/>
-                    <field name="total"          optional="show"/>
+                    <field name="total"          optional="show" sum="Total"/>
                     <field name="numfac"         optional="show"/>
+                    <field name="invoice_id"     optional="hide" widget="many2one_clickable"/>
                     <field name="datefact"       optional="show"/>
                     <field name="codefour"       optional="show"/>
                     <field name="partner_id"     optional="hide" widget="many2one_clickable"/>
-                    <field name="qtefact"        optional="show"/>
-                    <field name="qterestefac"    optional="show"/>
+                    <field name="qtefact"        optional="show" sum="Total"/>
+                    <field name="qterestefac"    optional="show" sum="Total"/>
                     <field name="prixfact"       optional="show"/>
-                    <field name="totalfacture"   optional="show"/>
+                    <field name="totalfacture"   optional="show" sum="Total"/>
                     <field name="codetvafact"    optional="show"/>
                     <field name="tax_id"         optional="hide" widget="many2one_clickable"/>
-                    <field name="montantht"      optional="show"/>
-                    <field name="montanttva"     optional="show"/>
-                    <field name="montanttc"      optional="show"/>
+                    <field name="montantht"      optional="show" sum="Total"/>
+                    <field name="montanttva"     optional="show" sum="Total"/>
+                    <field name="montanttc"      optional="show" sum="Total"/>
                     <field name="codeetab"       optional="hide"/>
                     <field name="numidodoo"      optional="hide"/>
                     <field name="fichier"        optional="hide"/>

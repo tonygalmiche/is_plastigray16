@@ -26,7 +26,12 @@ class is_import_facture_owork(models.Model):
 
     name           = fields.Char("N°", readonly=True)
     attachment_ids = fields.Many2many('ir.attachment', 'is_import_facture_owork_attachment_rel', 'import_id', 'attachment_id', 'Fichiers à importer')
+    nb_lignes      = fields.Integer("Nombre de lignes"  , readonly=True)
+    nb_factures    = fields.Integer("Nombre de factures", readonly=True)
+    nb_anomalies   = fields.Integer("Nombre d'anomalies", readonly=True)
     line_ids       = fields.One2many('is.import.facture.owork.line', 'import_id', "Lignes")
+    invoice_ids    = fields.One2many('account.move', 'is_owork_id', "Factures")
+    state          = fields.Selection([('analyse', 'Analyse'),('traite', 'Traité')], "État", index=True, default="analyse")
 
 
     @api.model_create_multi
@@ -94,6 +99,18 @@ class is_import_facture_owork(models.Model):
                                     anomalies.append('Réception %s non trouvée'%val)
                             #**************************************************
 
+                            #** Recherche ligne de réception ******************
+                            if key=='numidodoo' and val:
+                                moves = self.env['stock.move'].search([('id','=',val)])
+                                stock_move_id=False
+                                for move in moves:
+                                    stock_move_id=move.id
+                                if stock_move_id:
+                                    vals['stock_move_id'] = stock_move_id
+                                else:
+                                    anomalies.append('Id ligne de réception %s non trouvée'%val)
+                            #**************************************************
+
                             #** Recherche article ***************************
                             if key=='article':
                                 products = self.env['product.product'].search([('is_code','=',val)])
@@ -156,9 +173,12 @@ class is_import_facture_owork(models.Model):
                     line = self.env['is.import.facture.owork.line'].create(vals)
 
 
-            #** Vérfication que total facture correspond au total des lignes **
+            #** Vérfication que total facturé correspond au total des lignes **
             factures={}
+            nb_anomalies = 0
             for line in obj.line_ids:
+                if line.anomalies:
+                    nb_anomalies+=1
                 numfac = line.numfac
                 if numfac not in factures:
                     factures[numfac] = 0
@@ -174,19 +194,9 @@ class is_import_facture_owork(models.Model):
                         line.anomalies=anomalie
             #******************************************************************
             
-
-
-
-
-
-
-
-
-
-
-
-
-
+            obj.nb_lignes    = len(obj.line_ids)
+            obj.nb_factures  = len(factures)
+            obj.nb_anomalies = nb_anomalies
 
 
     def voir_les_lignes(self):
@@ -199,6 +209,98 @@ class is_import_facture_owork(models.Model):
                 'type'     : 'ir.actions.act_window',
                 'limit'    : 1000,
             }
+
+
+
+    def creation_factures(self):
+        for obj in self:
+
+            #** Liste des factures à créer ************************************
+            factures={}
+            for line in obj.line_ids:
+                numfac = line.numfac
+                if numfac not in factures:
+                    if line.partner_id and line.datefact and line.numfac:
+                        vals = {
+                            'partner_id'      : line.partner_id.id,
+                            'journal_id'      : 2,
+                            'move_type'       : 'in_invoice',
+                            'invoice_date'    : line.datefact,
+                            'date'            : line.datefact,
+                            'invoice_date_due': line.datefact,
+                            'is_bon_a_payer'  : True,
+                            'supplier_invoice_number': line.numfac,
+                            'is_owork_id'     : obj.id,
+                        }
+                        factures[numfac]=vals
+            #******************************************************************
+
+            for facture in factures:
+                lines = []
+                invoice_line_tax_id=[]
+                for line in obj.line_ids:
+                    if line.numfac==facture:
+                        product_id      = line.product_id.id
+                        if product_id and line.stock_move_id.id:
+                            description     = line.descriparticle
+                            quantite        = line.qtefact
+                            invoice_line_tax_id=[]
+                            # for taxe_id in line.taxe_ids:
+                            #     invoice_line_tax_id.append(taxe_id.id)
+                            # if len(invoice_line_tax_id)==0:
+                            #     invoice_line_tax_id=False
+                            #is_document=line.move_id.purchase_line_id.is_num_chantier
+                            #if is_document==False:
+                            #    is_document=line.move_id.purchase_line_id.order_id.is_document
+                            v = {
+                                'product_id'      : product_id,
+                                'name'            : description,
+                                'quantity'        : line.qtefact,
+                                'product_uom_id'  : line.stock_move_id.product_uom.id,
+                                'price_unit'      : line.prixfact,
+                                'tax_ids'         : [(6,0,invoice_line_tax_id)],
+                                #'is_document'     : is_document,
+                                'is_move_id'      : line.stock_move_id.id,
+                                'purchase_line_id': line.stock_move_id.purchase_line_id.id,
+                                'is_section_analytique_id': line.product_id.is_section_analytique_ha_id.id,
+                            }
+                            lines.append([0,False,v]) 
+
+
+                vals=factures[facture]
+                vals.update({
+                    'invoice_line_ids': lines,
+                })
+                invoice=self.env['account.move'].create(vals)
+                for line in obj.line_ids:
+                    if line.numfac==facture:
+                        line.invoice_id = invoice.id
+                for line in invoice.invoice_line_ids:
+                    if line.is_move_id:
+                        line.is_move_id.invoice_state='invoiced'
+                        line.is_move_id.picking_id._compute_invoice_state()
+            obj.state='traite'
+
+
+            
+    def voir_les_factures(self):
+        for obj in self:
+            ids=[]
+            for invoice in obj.invoice_ids:
+                ids.append(invoice.id)
+            print(ids)
+
+            tree_view_id=self.env.ref('is_plastigray16.is_view_invoice_tree')
+            res= {
+                'name': obj.name,
+                'view_mode': 'tree,form',
+                'res_model': 'account.move',
+                'views': [[tree_view_id.id, "list"], [False, "form"]],
+                'type': 'ir.actions.act_window',
+                'context': {'default_move_type':'in_invoice', 'move_type':'in_invoice'},
+                'domain': [('move_type','=','in_invoice'),('id','in',ids)],
+            }
+            return res
 
 
 class is_import_facture_owork_line(models.Model):
@@ -236,9 +338,11 @@ class is_import_facture_owork_line(models.Model):
     totalfacture   = fields.Float("Total Facture")
 
     picking_id     = fields.Many2one('stock.picking', "Réception")
+    stock_move_id  = fields.Many2one('stock.move', "Ligne de réception")
     partner_id     = fields.Many2one('res.partner', "Fournisseur")
     product_id     = fields.Many2one('product.product', "Article")
     tax_id         = fields.Many2one('account.tax', "TVA")
+    invoice_id     = fields.Many2one('account.move', "Facture")
 
     fichier        = fields.Char("Fichier")
     anomalies      = fields.Text("Anomalies")

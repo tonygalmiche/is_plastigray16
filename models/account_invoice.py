@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models,fields,api  # type: ignore
 from odoo.exceptions import AccessError, ValidationError, UserError  # type: ignore
 import time
 from datetime import date, datetime
 import base64
 import os
-#from pyPdf import PdfFileWriter, PdfFileReader
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger  # type: ignore
 import tempfile
-
-
-#from ftplib import FTP
-#from contextlib import closing
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -95,6 +89,7 @@ class account_invoice(models.Model):
         ('posted', 'Validée'),
         ('cancel', 'Annulée'),
     ], "État")
+    is_owork_id = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
 
 
     def _compute_name(self):
