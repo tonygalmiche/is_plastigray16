@@ -16,7 +16,7 @@
                                     <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:60px;" alt="Logo"/>
                                 </td>
                                 <td width="65%" rowspan="1" style="font-size:16px">
-                                    Processus Management de la qualité
+                                    Processus Management QSE
                                 </td>
                                 <td width="20%" rowspan="1">
                                     <div>FO-0-QSE-60</div>

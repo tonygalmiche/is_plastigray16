@@ -44,7 +44,7 @@
                             <field name="order_line_id" readonly="1"/>
                             <field name="is_cfc_id" readonly="1"/>
                             <field name="move_id" readonly="1"/>
-                            <field name="location_dest_id" readonly="1"/>
+                            <!-- <field name="location_dest_id" readonly="1"/> -->
                             <field name="user_id" readonly="1"/>
                             <field name="is_facturable" readonly="1"/>
                             <field name="is_dosmat_ctrl_qual" readonly="1"/>
@@ -74,7 +74,7 @@
                 <field name="ref_fournisseur"               optional="hide" />
                 <field name="qt_receptionnee"               optional="show"  string="Quantité à réceptionner"/>
                 <field name="product_uom"                   optional="hide" />
-                <field name="location_dest_id"              optional="show"/>
+                <!-- <field name="location_dest_id"              optional="show"/> -->
                 <field name="is_demandeur_id"               optional="hide" />
                 <field name="is_date_confirmation"          optional="hide" />
                 <field name="is_ctrl_rcp"                   optional="hide" />
@@ -106,7 +106,7 @@
                 <field name="is_cfc_id"/>
                 <field name="commande_ouverte"/>
                 <field name="lot_fournisseur"/>
-                <field name="location_dest_id"/>
+                <!-- <field name="location_dest_id"/> -->
                 <field name="picking_state"/>
                 <field name="is_demandeur_id"/>
             </search>
@@ -149,7 +149,7 @@
                 <field name="montant_reste"     optional="show" sum="Total"/>
                 <field name="lot_fournisseur"   optional="hide"/>
                 <field name="user_id"           optional="hide"/>
-                <field name="location_dest_id"  optional="show"/>
+                <!-- <field name="location_dest_id"  optional="show"/> -->
                 <field name="picking_state"     optional="hide"/>
                 <field name="invoice_state"     optional="show"/>
                 <field name="is_facturable" invisible="1"/>

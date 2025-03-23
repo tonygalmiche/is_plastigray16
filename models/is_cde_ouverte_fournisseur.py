@@ -567,9 +567,10 @@ class is_cde_ouverte_fournisseur(models.Model):
 
 
 
-    def utc_offset(self):
-        now = datetime.datetime.now()
-        offset = int(pytz.timezone('Europe/Paris').localize(now).utcoffset().total_seconds()/3600)
+    def utc_offset(self,dateref=False):
+        if not dateref:
+            dateref = datetime.datetime.now()
+        offset = int(pytz.timezone('Europe/Paris').localize(dateref).utcoffset().total_seconds()/3600)
         return offset
  
 
@@ -717,10 +718,6 @@ class is_cde_ouverte_fournisseur(models.Model):
                 nb_ferme_imprime=0
                 attente_confirmation=0
                 for row in self.env['purchase.order.line'].search(where):
-
-
-                    print(row)
-
                     #** Test si réceptions en cours sur la ligne de cde ********
                     where=[
                         ('purchase_line_id','=', row.id),
@@ -754,7 +751,7 @@ class is_cde_ouverte_fournisseur(models.Model):
                         #** Ajout offset entre heure UTC et heure local pour convertire un datetime en date
                         date_planned = row.date_planned
                         if date_planned:
-                            offset = self.utc_offset()
+                            offset = self.utc_offset(dateref=date_planned)
                             date_planned+=datetime.timedelta(hours=offset)
                         #******************************************************
 

@@ -60,98 +60,99 @@ class is_import_facture_owork(models.Model):
                     }
                     anomalies=[]
                     for key in lig:
-                        if key.strip()!='':
-                            val = lig[key]
-                            field_obj = owork_obj._fields[key]
-                            if isinstance(field_obj,  fields.Date):
-                                try:
-                                    val=datetime.strptime(lig[key], '%Y-%m-%d')
-                                except ValueError:
-                                    val=False
-                                if not val:
+                        if key:
+                            if key.strip()!='':
+                                val = lig[key]
+                                field_obj = owork_obj._fields[key]
+                                if isinstance(field_obj,  fields.Date):
                                     try:
-                                        val=datetime.strptime(lig[key], '%d/%m/%Y')
+                                        val=datetime.strptime(lig[key], '%Y-%m-%d')
                                     except ValueError:
                                         val=False
-                            if isinstance(field_obj,  fields.Float):
-                                try:
-                                    val=float(val)
-                                except ValueError:
+                                    if not val:
+                                        try:
+                                            val=datetime.strptime(lig[key], '%d/%m/%Y')
+                                        except ValueError:
+                                            val=False
+                                if isinstance(field_obj,  fields.Float):
+                                    try:
+                                        val=float(val)
+                                    except ValueError:
+                                        val=False
+                                if isinstance(field_obj,  fields.Integer):
+                                    try:
+                                        val=int(val)
+                                    except ValueError:
+                                        val=False
+                                if val=='null':
                                     val=False
-                            if isinstance(field_obj,  fields.Integer):
-                                try:
-                                    val=int(val)
-                                except ValueError:
-                                    val=False
-                            if val=='null':
-                                val=False
-                            vals[key] = val
+                                vals[key] = val
 
-                            #** Recherche reception ***************************
-                            if key=='numrecept' and val:
-                                pickings = self.env['stock.picking'].search([('name','=',val)])
-                                picking_id=False
-                                for picking in pickings:
-                                    picking_id=picking.id
-                                if picking_id:
-                                    vals['picking_id'] = picking_id
-                                else:
-                                    anomalies.append('Réception %s non trouvée'%val)
-                            #**************************************************
+                                #** Recherche reception ***************************
+                                if key=='numrecept' and val:
+                                    pickings = self.env['stock.picking'].search([('name','=',val)])
+                                    picking_id=False
+                                    for picking in pickings:
+                                        picking_id=picking.id
+                                    if picking_id:
+                                        vals['picking_id'] = picking_id
+                                    else:
+                                        anomalies.append('Réception %s non trouvée'%val)
+                                #**************************************************
 
-                            #** Recherche ligne de réception ******************
-                            if key=='numidodoo' and val:
-                                moves = self.env['stock.move'].search([('id','=',val)])
-                                stock_move_id=False
-                                for move in moves:
-                                    stock_move_id=move.id
-                                if stock_move_id:
-                                    vals['stock_move_id'] = stock_move_id
-                                else:
-                                    anomalies.append('Id ligne de réception %s non trouvée'%val)
-                            #**************************************************
+                                #** Recherche ligne de réception ******************
+                                if key=='numidodoo' and val:
+                                    moves = self.env['stock.move'].search([('id','=',val)])
+                                    stock_move_id=False
+                                    for move in moves:
+                                        stock_move_id=move.id
+                                    if stock_move_id:
+                                        vals['stock_move_id'] = stock_move_id
+                                    else:
+                                        anomalies.append('Id ligne de réception %s non trouvée'%val)
+                                #**************************************************
 
-                            #** Recherche article ***************************
-                            if key=='article':
-                                products = self.env['product.product'].search([('is_code','=',val)])
-                                product_id=False
-                                for product in products:
-                                    product_id=product.id
-                                if product_id:
-                                    vals['product_id'] = product_id
-                                else:
-                                    anomalies.append("Article '%s' non trouvée"%(val or ''))
-                            #**************************************************
+                                #** Recherche article ***************************
+                                if key=='article':
+                                    products = self.env['product.product'].search([('is_code','=',val)])
+                                    product_id=False
+                                    for product in products:
+                                        product_id=product.id
+                                    if product_id:
+                                        vals['product_id'] = product_id
+                                    else:
+                                        anomalies.append("Article '%s' non trouvée"%(val or ''))
+                                #**************************************************
 
-                           #** Recherche descriparticle ***************************
-                            if key=='descriparticle':
-                                if not val or val=='':
-                                    anomalies.append("Description manquante")
-                            #**************************************************
+                            #** Recherche descriparticle ***************************
+                                if key=='descriparticle':
+                                    if not val or val=='':
+                                        anomalies.append("Description manquante")
+                                #**************************************************
 
-                            #** Recherche fournissur **************************
-                            if key=='codefour':
-                                partners = self.env['res.partner'].search([('is_code','=',val)])
-                                partner_id=False
-                                for partner in partners:
-                                    partner_id=partner.id
-                                if partner_id:
-                                    vals['partner_id'] = partner_id
-                                else:
-                                    anomalies.append("Fournisseur '%s' non trouvée"%(val or ''))
-                            #**************************************************
+                                #** Recherche fournissur **************************
+                                if key=='codefour':
+                                    partners = self.env['res.partner'].search([('is_code','=',val)])
+                                    partner_id=False
+                                    for partner in partners:
+                                        partner_id=partner.id
+                                    if partner_id:
+                                        vals['partner_id'] = partner_id
+                                    else:
+                                        anomalies.append("Fournisseur '%s' non trouvée"%(val or ''))
+                                #**************************************************
 
-                            #** Recherche TVA **************************
-                            if key=='codetvafact' and val:
-                                taxs = self.env['account.tax'].search([('description','=',val)])
-                                tax_id=False
-                                for tax in taxs:
-                                    tax_id=tax.id
-                                if tax_id:
-                                    vals['tax_id'] = tax_id
-                                else:
-                                    anomalies.append("TVA '%s' non trouvée"%(val or ''))
-                            #**************************************************
+                                #** Recherche TVA **************************
+                                if key=='codetvafact' and val:
+                                    taxs = self.env['account.tax'].search([('description','=',val)])
+                                    tax_id=False
+                                    for tax in taxs:
+                                        tax_id=tax.id
+                                    if tax_id:
+                                        vals['tax_id'] = tax_id
+                                    else:
+                                        anomalies.append("TVA '%s' non trouvée"%(val or ''))
+                                #**************************************************
 
                     #** Comparatif prix d'origine et prix facturé *************
                     prixorigine = vals.get('prixorigine') or 0
@@ -288,8 +289,6 @@ class is_import_facture_owork(models.Model):
             ids=[]
             for invoice in obj.invoice_ids:
                 ids.append(invoice.id)
-            print(ids)
-
             tree_view_id=self.env.ref('is_plastigray16.is_view_invoice_tree')
             res= {
                 'name': obj.name,
