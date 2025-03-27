@@ -1972,5 +1972,43 @@
         <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="False"/>
     </record>
+
+
+    <!-- Désactivation des accès à la modification des unités -->
+    <record id="purchase.access_uom_uom_purchase_manager" model="ir.model.access" >
+        <field name="model_id"    eval="ref('stock.model_uom_uom')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="perm_create" eval="False"/>
+    </record>
+    <record id="uom.access_uom_uom_manager" model="ir.model.access" >
+        <field name="model_id"    eval="ref('stock.model_uom_uom')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="perm_create" eval="False"/>
+    </record>
+    <record id="mrp.access_uom_uom_mrp_manager" model="ir.model.access" >
+        <field name="model_id"    eval="ref('stock.model_uom_uom')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="perm_create" eval="False"/>
+    </record>
+    <record id="stock.access_uom_uom_stock_manager" model="ir.model.access" >
+        <field name="model_id"    eval="ref('stock.model_uom_uom')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="perm_create" eval="False"/>
+    </record>
+    <record id="sale.access_uom_uom_sale_manager" model="ir.model.access" >
+        <field name="model_id"    eval="ref('stock.model_uom_uom')"/>
+        <field name="perm_read"   eval="True"/>
+        <field name="perm_write"  eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="perm_create" eval="False"/>
+    </record>
 </data>
 </openerp>

@@ -42,10 +42,7 @@ class is_import_facture_owork(models.Model):
 
 
     def import_facture_owork(self):
-
         owork_obj = self.env['is.import.facture.owork.line']
-
-
         for obj in self:
             obj.line_ids.unlink()
             for attachment in obj.attachment_ids:
@@ -114,21 +111,27 @@ class is_import_facture_owork(models.Model):
 
                                 #** Recherche article ***************************
                                 if key=='article':
-                                    products = self.env['product.product'].search([('is_code','=',val)])
                                     product_id=False
-                                    for product in products:
-                                        product_id=product.id
+                                    if val:
+                                        products = self.env['product.product'].search([('is_code','=',val)])
+                                        for product in products:
+                                            product_id=product.id
+                                    else:
+                                        if lig['numidodoo']:
+                                            moves = self.env['stock.move'].search([('id','=', lig['numidodoo'])])
+                                            for move in moves:
+                                                product_id=move.product_id.id
                                     if product_id:
                                         vals['product_id'] = product_id
                                     else:
                                         anomalies.append("Article '%s' non trouvée"%(val or ''))
                                 #**************************************************
 
-                            #** Recherche descriparticle ***************************
-                                if key=='descriparticle':
-                                    if not val or val=='':
-                                        anomalies.append("Description manquante")
-                                #**************************************************
+                                # #** Recherche descriparticle **********************
+                                # if key=='descriparticle':
+                                #     if not val or val=='':
+                                #         anomalies.append("Description manquante")
+                                # #**************************************************
 
                                 #** Recherche fournissur **************************
                                 if key=='codefour':
@@ -157,8 +160,8 @@ class is_import_facture_owork(models.Model):
                     #** Comparatif prix d'origine et prix facturé *************
                     prixorigine = vals.get('prixorigine') or 0
                     prixfact    = vals.get('prixfact') or 0
-                    if prixorigine>0 and prixfact>0 and prixorigine!=prixfact:
-                        anomalies.append("Le prix d'origine '%s' est différent du prix facturé %s"%(prixorigine,prixfact))
+                    if prixorigine>0 and prixfact>0 and round(prixorigine,2)!=round(prixfact,2):
+                        anomalies.append("Le prix d'origine '%s' est différent du prix facturé %s"%(round(prixorigine,2),round(prixfact,2)))
 
                     #** Vérification total ligne facturé **********************
                     prixfact      = round(vals.get('prixfact')     or 0, 2)
@@ -255,7 +258,7 @@ class is_import_facture_owork(models.Model):
                             #    is_document=line.move_id.purchase_line_id.order_id.is_document
                             v = {
                                 'product_id'      : product_id,
-                                'name'            : description,
+                                'name'            : description or product_id.name,
                                 'quantity'        : line.qtefact,
                                 'product_uom_id'  : line.stock_move_id.product_uom.id,
                                 'price_unit'      : line.prixfact,
@@ -280,10 +283,24 @@ class is_import_facture_owork(models.Model):
                     if line.is_move_id:
                         line.is_move_id.invoice_state='invoiced'
                         line.is_move_id.picking_id._compute_invoice_state()
+
+                for line in obj.line_ids:
+                    invoice = line.invoice_id
+                    anomalies=[]
+                    if invoice.amount_untaxed!=line.montantht:
+                        anomalies.append("Le montant HT de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(line.montantht,invoice.amount_untaxed))
+                    if invoice.amount_tax!=line.montanttva:
+                        anomalies.append("Le montant de la TVA de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(line.montanttva,invoice.amount_tax))
+                    if invoice.amount_total!=line.montanttc:
+                        anomalies.append("Le montant TTC de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(line.montanttc,invoice.amount_total))
+                    if len(anomalies)>0:
+                        anomalies = '\n'.join(anomalies)
+                    else:
+                        anomalies=False
+                    invoice.is_anomalies_owork = anomalies
             obj.state='traite'
 
-
-            
+   
     def voir_les_factures(self):
         for obj in self:
             ids=[]

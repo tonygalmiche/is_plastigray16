@@ -89,7 +89,8 @@ class account_invoice(models.Model):
         ('posted', 'Validée'),
         ('cancel', 'Annulée'),
     ], "État")
-    is_owork_id = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
+    is_owork_id        = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
+    is_anomalies_owork = fields.Text("Anomalies O'Work", readonly=True, copy=False)
 
 
     def _compute_name(self):

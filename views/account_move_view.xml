@@ -134,6 +134,18 @@
                         </group>
                      </page>
                 </xpath>
+
+                <xpath expr="//notebook" position="before">
+                    <div style="background:orange;font-size:11pt" attrs="{'invisible':[('is_anomalies_owork','=',False)]}">
+                        <field 
+                            name="is_anomalies_owork"
+                            readonly="1" nolabel="1" 
+                            attrs="{'invisible': [('is_anomalies_owork','=', False)],'readonly':True}"
+                        />
+                    </div>
+                </xpath>
+
+
             </field>
         </record>
 
