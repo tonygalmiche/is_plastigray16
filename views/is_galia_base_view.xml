@@ -29,6 +29,9 @@
                                 <field name="login"/>
                             </group>
                             <group>
+                                <field name="point_dechargement"/>
+                                <field name="code_routage"/>
+                                <field name="point_destination"/>
                                 <field name="create_date"/>
                                 <field name="create_uid"/>
                                 <field name="write_date"/>
@@ -51,12 +54,15 @@
                     <field name="num_of"/>
                     <field name="num_carton"/>
                     <field name="qt_pieces"/>
-                    <field name="date_creation"/>
-                    <field name="login"/>
-                    <field name="create_date" optional="hide"/>
-                    <field name="create_uid"  optional="hide"/>
-                    <field name="write_date"  optional="hide"/>
-                    <field name="write_uid"   optional="hide"/>
+                    <field name="date_creation"      optional="show"/>
+                    <field name="login"              optional="show"/>
+                    <field name="point_dechargement" optional="hide"/>
+                    <field name="code_routage"       optional="hide"/>
+                    <field name="point_destination"  optional="hide"/>
+                    <field name="create_date"        optional="hide"/>
+                    <field name="create_uid"         optional="hide"/>
+                    <field name="write_date"         optional="hide"/>
+                    <field name="write_uid"          optional="hide"/>
                 </tree>
             </field>
         </record>

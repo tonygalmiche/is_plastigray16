@@ -33,6 +33,10 @@ class is_galia_base(models.Model):
     date_creation = fields.Datetime("Date de création", index=True)
     login         = fields.Char("Login")
 
+    point_dechargement  = fields.Char('Point de déchargement', help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
+    code_routage        = fields.Char('Code routage'         , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    point_destination   = fields.Char('Point destination'    , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+
 
     def str2int(self,val):
         try:
@@ -40,6 +44,61 @@ class is_galia_base(models.Model):
         except:
             val=0
         return val
+
+
+    def get_info_commande(self,cur=False,num_eti=False,code_pg=False):
+        point_dechargement = code_routage = point_destination = test =  False
+        if cur and num_eti:
+            #** Recherche si l'UC du site est associée à une liste à servir ***
+            #** pour retrouver la ligne de commande et ses informations      **
+            SQL="""
+                SELECT so.name,so.is_point_dechargement, sol.is_code_routage, sol.is_point_destination
+                FROM is_galia_base_uc uc join stock_move move     on uc.stock_move_id=move.id
+                                         join sale_order_line sol on move.sale_line_id=sol.id
+                                         join sale_order so       on sol.order_id=so.id
+                WHERE uc.num_eti=%s 
+                order by uc.id desc limit 1
+            """%num_eti
+            cur.execute(SQL)
+            rows = cur.fetchall()
+            for row in rows:
+                test = True
+                point_dechargement = row['is_point_dechargement']
+                code_routage       = row['is_code_routage']
+                point_destination  = row['is_point_destination']
+            #******************************************************************
+
+            #** Recherche la dernière ligne de commande pour cet article ******
+            #** si l'UC n'est pas encore associée à une commande             **
+            if test==False and code_pg:
+                SQL="""
+                    SELECT so.name,so.is_point_dechargement, sol.is_code_routage, sol.is_point_destination
+                    FROM sale_order_line sol inner join sale_order       so on sol.order_id=so.id
+                                                   join product_product  pp on sol.product_id=pp.id
+                                                   join product_template pt on pp.product_tmpl_id=pt.id
+                    WHERE 
+                        so.is_point_dechargement is not null and
+                        so.is_type_commande in ('ouverte', 'ls') and 
+                        pt.is_code='%s'
+                    order by so.id desc
+                    limit 1
+                """%code_pg
+                cur.execute(SQL)
+                rows=cur.fetchall()
+                for row in rows:
+                    point_dechargement = row['is_point_dechargement']
+                    code_routage       = row['is_code_routage']
+                    point_destination  = row['is_point_destination']
+            #******************************************************************
+
+        res={
+            'point_dechargement': point_dechargement,
+            'code_routage'      : code_routage,
+            'point_destination' : point_destination,
+
+        }
+        return res
+        
 
     def creer_etiquette(self, vals={}): #, vals={}):
         cr=self._cr
@@ -189,9 +248,6 @@ class is_galia_base(models.Model):
                     Msg+="%s non trouvée!\n"%Etiquette
                 else:
                     row=rows[0]
-
-
-
                     if (row['aqp']=='t'):
                         AQP='AQP'
                     else:
@@ -412,22 +468,29 @@ class is_galia_base(models.Model):
                     if TypeEti=='STELLANTIS':
                         FN92=''
 
+                    info_commande = self.get_info_commande(cur=cur, num_eti=FN7, code_pg=CodePG)
+                    point_dechargement = info_commande.get('point_dechargement')
+                    code_routage       = info_commande.get('code_routage')
+                    point_destination  = info_commande.get('point_destination')
+     
                     #** CodeRoutage et PointDestination sur ligne commande **** 
-                    FN99 = ""                     # PT DEST - POINT DE DESTINATION 
+                    FN99 = "" # PT DEST - POINT DE DESTINATION 
                     if TypeEti=='STELLANTIS':
-                        SQL="""
-                                select sol.is_code_routage, sol.is_point_destination
-                                from is_galia_base_uc uc join stock_move move on uc.stock_move_id=move.id
-                                                         join sale_order_line sol on move.sale_line_id=sol.id
-                                where uc.num_eti=%s 
-                                order by uc.id desc limit 1
-                        """%FN7
-                        cur.execute(SQL)
-                        rows2 = cur.fetchall()
-                        CodeRoutage=False
-                        for row2 in rows2:
-                            FN15 = row2['is_code_routage'] or ''
-                            FN99 = row2['is_point_destination'] or ''
+                        FN15 = code_routage or ''
+                        FN99 = point_destination or ''
+                        # SQL="""
+                        #         select sol.is_code_routage, sol.is_point_destination
+                        #         from is_galia_base_uc uc join stock_move move on uc.stock_move_id=move.id
+                        #                                  join sale_order_line sol on move.sale_line_id=sol.id
+                        #         where uc.num_eti=%s 
+                        #         order by uc.id desc limit 1
+                        # """%FN7
+                        # cur.execute(SQL)
+                        # rows2 = cur.fetchall()
+                        # CodeRoutage=False
+                        # for row2 in rows2:
+                        #     FN15 = row2['is_code_routage'] or ''
+                        #     FN99 = row2['is_point_destination'] or ''
                     #**********************************************************
 
                     FN16=Adresse                  # Adresse PG, MGI ou VS suivant le cas
@@ -468,23 +531,24 @@ class is_galia_base(models.Model):
                         FN23 = ''
 
                     #** Point de déchargement (PTDECH) dans odoo site *********
-                    SQL="""
-                        SELECT so.is_point_dechargement
-                        FROM sale_order_line sol inner join sale_order       so on sol.order_id=so.id
-                                                 inner join product_product  pp on sol.product_id=pp.id
-                                                 inner join product_template pt on pp.product_tmpl_id=pt.id
-                        WHERE 
-                            so.is_point_dechargement is not null and
-                            so.is_type_commande in ('ouverte', 'ls') and 
-                            pt.is_code='%s'
-                        order by so.id desc
-                        limit 1
-                    """%CodePG
-                    cur.execute(SQL)
-                    rows2=cur.fetchall()
-                    FNPTDECH = ""
-                    for row2 in rows2:
-                        FNPTDECH = row2['is_point_dechargement']
+                    FNPTDECH = point_dechargement or ''
+                    # SQL="""
+                    #     SELECT so.is_point_dechargement
+                    #     FROM sale_order_line sol inner join sale_order       so on sol.order_id=so.id
+                    #                              inner join product_product  pp on sol.product_id=pp.id
+                    #                              inner join product_template pt on pp.product_tmpl_id=pt.id
+                    #     WHERE 
+                    #         so.is_point_dechargement is not null and
+                    #         so.is_type_commande in ('ouverte', 'ls') and 
+                    #         pt.is_code='%s'
+                    #     order by so.id desc
+                    #     limit 1
+                    # """%CodePG
+                    # cur.execute(SQL)
+                    # rows2=cur.fetchall()
+                    # FNPTDECH = ""
+                    # for row2 in rows2:
+                    #     FNPTDECH = row2['is_point_dechargement']
                     #**********************************************************
 
                     FN40="PLASTIGRAY"
@@ -608,13 +672,19 @@ class is_galia_base(models.Model):
                             'qt_pieces'    : self.str2int(FN3), # Quantite
                             'date_creation': date_creation,
                             'login'        : user_name,
+                            'point_dechargement': point_dechargement,
+                            'code_routage'      : code_routage,
+                            'point_destination' : point_destination,
                         }
                         eti=self.env['is.galia.base'].create(vals)
                         _logger.info("Création éiquette Galia %s"%Log)
                     else:
                         eti = self.env['is.galia.base'].browse(etiquette_id)
-                        eti.login = user_name
-                        eti.qt_pieces = self.str2int(FN3)
+                        eti.login              = user_name
+                        eti.qt_pieces          = self.str2int(FN3)
+                        eti.point_dechargement = point_dechargement
+                        eti.code_routage       = code_routage
+                        eti.point_destination  = point_destination
                         _logger.info("Réimpression étiquette Galia %s"%Log)
                     MsgOK+="<div class=NormalLB>Impression et enregistrement étiquette %s dans odoo0 éffectué avec succés.</div>"%Info
                     #**********************************************************
