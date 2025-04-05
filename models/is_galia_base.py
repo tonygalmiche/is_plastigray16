@@ -911,6 +911,7 @@ class is_galia_base_uc(models.Model):
     stock_move_id     = fields.Many2one('stock.move', 'Ligne livraison')
     stock_move_rcp_id = fields.Many2one('stock.move', 'Ligne réception')
     reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site')
+    reimprime               = fields.Boolean("UC à ré-imprimer", default=False, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
 
 
     def acceder_uc_action(self):

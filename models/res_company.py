@@ -62,7 +62,9 @@ class res_company(models.Model):
     is_login_admin    = fields.Char('Login admin Odoo')
     is_mdp_admin      = fields.Char('Mot de passe admin Odoo')
 
-            
+    is_url_facture_owork = fields.Char("URL factures O'Work")
+
+
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')
         principale_grp_id = self.env.ref('is_plastigray16.is_base_principale_grp')

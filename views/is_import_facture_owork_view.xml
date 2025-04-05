@@ -22,8 +22,14 @@
                         name="import_facture_owork"
                         string="Import fichiers O'Work"
                         type="object"
-                        attrs="{'invisible': [('line_ids', '!=', [])]}"
+                        attrs="{'invisible': ['|',('line_ids', '!=', []),('attachment_ids', '=', [])]}"
                         class="btn btn-primary"
+                    />
+                    <button 
+                        name="import_site_owork"
+                        string="Import des factures depuis le site O'Work"
+                        type="object"
+                        attrs="{'invisible': ['|',('line_ids', '!=', []),('attachment_ids', '!=', [])]}"
                     />
                     <button 
                         name="voir_les_lignes"

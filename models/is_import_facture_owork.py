@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api # type: ignore
+from odoo import models, fields, api         # type: ignore
+from odoo.exceptions import ValidationError  # type: ignore
 from datetime import datetime
+from urllib import request
+from urllib.error import HTTPError, URLError
+from socket import timeout
 import csv
 import base64
-
-
-# Problèmes recontrés:
-# - Ajouter l'id de la facture dans O'work car le numero de facture fournissur n'est pas frocement unique
-# - Lien vers la facture dans O'work
-# - Est-il possible de télécharger la facture PDF de O'work dans Odoo
-# - Manque code article, description et code établissement pour les lignes ajoutées
-# - Le code TVA facturé n'est pas bon sur les nouvelles factures
-# - Ne pas mettre dans le même fichier plisusrs établissement et indiquer dans le nom du fichier en préfix le codeetab
-
-#TODO : 
-# - Ajouter le nombre de lignes importé, le nombre d'anomalies et le nombre de factures sur l'entête
-# - Afficher uniquement les lignes avec des anomalies par défaut
-# - Création des factures
+import sys
 
 
 class is_import_facture_owork(models.Model):
@@ -39,6 +30,40 @@ class is_import_facture_owork(models.Model):
         for vals in vals_list:
             vals['name'] = self.env['ir.sequence'].next_by_code('is.import.facture.owork')
         return super().create(vals_list)
+
+
+    def import_site_owork(self):
+        for obj in self:
+            company = self.env.company
+            url = company.is_url_facture_owork
+            if url : 
+                res = request.urlopen(request.Request(url), timeout=5)
+                filename = res.info().get_filename()
+                data = res.read()
+                # try:
+                #     res = request.urlopen(request.Request(url), timeout=3)
+                #     filename = res.info().get_filename()
+                #     data = res.read()
+                # except timeout as error:
+                #     raise(error)
+                # except HTTPError as error:
+                #     raise ValidationError('HTTP Error: Data of %s not retrieved because %s\nURL: %s', url, error, url)
+                # except URLError as error:
+                #     if isinstance(error.reason, timeout):
+                #         raise ValidationError('Timeout Error: Data of %s not retrieved because %s\nURL: %s', url, error, url)
+                #     else:
+                #         raise ValidationError('URL Error: Data of %s not retrieved because %s\nURL: %s', url, error, url)
+                # else:
+                datas = base64.b64encode(data)
+                vals = {
+                    'name':        filename,
+                    'type':        'binary',
+                    'res_id':      obj.id,
+                    'datas':       datas,
+                }
+                attachment = self.env['ir.attachment'].create(vals)
+                obj.attachment_ids = [attachment.id]
+                obj.import_facture_owork()
 
 
     def import_facture_owork(self):

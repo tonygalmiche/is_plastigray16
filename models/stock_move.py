@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import string
 from odoo import models,fields,api
+from odoo.osv import expression
+import string
 import re
 import logging
 _logger = logging.getLogger(__name__)
@@ -216,22 +217,24 @@ class stock_move(models.Model):
         return res
 
 
-    def name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
-        if not args:
-            args = []
+    @api.model
+    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
+        args = args or []
+        domain = []
         if name:
             try:
                 id = int(name)
             except ValueError:
                 id = 0
-            if id>0:
-                filtre=['|','|','|',('product_id.is_code','ilike', name),('picking_id.name','ilike', name),('origin','ilike', name),('id','=', name)]
+            if id>1000000:
+                domain=[('id','=', name)]
             else:
-                filtre=['|','|',('product_id.is_code','ilike', name),('picking_id.name','ilike', name),('origin','ilike', name)]
-            ids = list(self._search(filtre + args, limit=limit))
-        else:
-            ids = list(self._search(filtre + args, limit=limit))
-        return ids
+                if id>0:
+                    domain=['|','|','|',('product_id','ilike', name),('reference','ilike', name),('origin','ilike', name),('id','=', name)]
+                else:
+                    domain=['|','|',('product_id.is_code','ilike', name),('reference','ilike', name),('origin','ilike', name)]
+        res = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        return res
 
 
     @api.model_create_multi
