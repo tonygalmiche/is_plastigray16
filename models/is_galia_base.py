@@ -976,3 +976,4 @@ class is_galia_base_uc(models.Model):
                     raise ValidationError(res['Msg'])
             ZPL = res.get('ZPL')
             self.env['is.galia.base'].imprimer_zpl(ZPL)
+            return True
