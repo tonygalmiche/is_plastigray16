@@ -367,7 +367,7 @@ class is_edi_cde_cli(models.Model):
                     ('is_date_livraison', '>=', date_jour),
                 ]
                 #Ne pas supprimer les commandes fermes
-                if obj.import_function=="eCar":
+                if obj.import_function in ('eCar','STELLANTIS'):
                     filtre.append(('is_type_commande', '!=', 'ferme'))
                 #Ne pas supprimer les commandes au dela de la date limite
                 if obj.date_maxi:

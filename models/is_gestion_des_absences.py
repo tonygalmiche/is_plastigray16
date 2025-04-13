@@ -314,10 +314,10 @@ class is_demande_conges(models.Model):
     def test_dates(self):
         uid=self._uid
         for obj in self:
+            ce_mois = str(date.today())[:8]
+            day     = date.today().day
             if obj.date_debut and obj.date_fin:
                 mois_demande = str(obj.date_debut)[:8]
-                ce_mois      = str(date.today())[:8]
-                day          = date.today().day
                 if mois_demande==ce_mois and day>24 and obj.responsable_rh_id.id!=uid and uid!=1:
                     raise ValidationError("Il n'est pas autorisé de créer une demande après le 24 sur le mois en cours")
                 if mois_demande<ce_mois and obj.responsable_rh_id.id!=uid and uid!=1:
@@ -326,6 +326,10 @@ class is_demande_conges(models.Model):
                 #    raise ValidationError(u"La date de fin doit être dans le même mois que la date de début")
                 if obj.date_debut>obj.date_fin:
                     raise ValidationError(u"La date de fin doit être supérieure à la date de début")
+            if obj.le:
+                mois_demande = str(obj.le)[:8]
+                if mois_demande==ce_mois and day>24 and obj.responsable_rh_id.id!=uid and uid!=1:
+                    raise ValidationError("Il n'est pas autorisé de créer une demande après le 24 sur le mois en cours")
         return True
 
 

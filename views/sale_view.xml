@@ -31,7 +31,6 @@
                 <xpath expr="//header/button[@name='action_cancel']" position="attributes">
                     <attribute name="attrs">{'invisible': True}</attribute>
                 </xpath>
-
                 <xpath expr="//header/button[@name='action_quotation_send'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -44,7 +43,6 @@
                 <xpath expr="//header/button[@name='action_quotation_send'][4]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-
                 <xpath expr="//header/button[@id='create_invoice']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -157,12 +155,14 @@
                         'is_article_commande_id': parent.is_article_commande_id,
                     }</attribute>
                 </xpath>
+                <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree" position="attributes">
+                    <attribute name="limit">200</attribute>
+                </xpath>
                 <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree/field[@name='product_template_id']" position="after">
                     <field name="is_ref_client" readonly="1" optional="show"/>
                     <field name="is_ref_plan"   readonly="1" optional="show"/>
                     <field name="is_ind_plan"   readonly="1" optional="show"/>
                     <field name="is_client_order_ref"   readonly="1" optional="hide"/>
-
                     <field name="is_date_heure_livraison_au_plus_tot"   optional="hide"/>
                     <field name="is_numero_document"                    optional="hide"/>
                     <field name="is_caldel_number"                      optional="hide"/>
