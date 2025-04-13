@@ -940,6 +940,9 @@ class is_demande_conges(models.Model):
                         code='RC'+str(NbHeures)
                         title="%s (%sH)"%(title,NbHeures)
                     key="conge-%s-%s-%s"%(employe.id,i,conge.id)
+                    if conge.state in ('creation','validation_n1','validation_n2'):
+                        code='%s*'%code
+                        title="%s (%s)"%(title,conge.state)
                     absences.append({
                         "key"   : key,
                         "model" : 'is.demande.conges',
