@@ -307,7 +307,9 @@
                     <field name="price_unit"          readonly="1" optional="show"/>
                     <field name="price_subtotal"      readonly="1" optional="show" sum="Total"/>
                     <field name="is_justification"    readonly="1" optional="show"/>
-                    <field name="state"               readonly="1" optional="show"/>
+                    <field name="is_code_routage"      readonly="1" optional="hide"/>
+                    <field name="is_point_destination" readonly="1" optional="hide"/>
+                    <field name="state"                readonly="1" optional="show"/>
                 </tree>
             </field>
         </record>

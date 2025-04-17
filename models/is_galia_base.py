@@ -56,8 +56,8 @@ class is_galia_base(models.Model):
                 FROM is_galia_base_uc uc join stock_move move     on uc.stock_move_id=move.id
                                          join sale_order_line sol on move.sale_line_id=sol.id
                                          join sale_order so       on sol.order_id=so.id
-                WHERE uc.num_eti=%s 
-                order by uc.id desc limit 1
+                WHERE uc.num_eti=%s and sol.is_type_commande='ferme'
+                order by uc.id desc, sol.id desc limit 1
             """%num_eti
             cur.execute(SQL)
             rows = cur.fetchall()
@@ -76,11 +76,11 @@ class is_galia_base(models.Model):
                     FROM sale_order_line sol inner join sale_order       so on sol.order_id=so.id
                                                    join product_product  pp on sol.product_id=pp.id
                                                    join product_template pt on pp.product_tmpl_id=pt.id
-                    WHERE 
-                        so.is_point_dechargement is not null and
-                        so.is_type_commande in ('ouverte', 'ls') and 
-                        pt.is_code='%s'
-                    order by so.id desc
+                    WHERE so.is_point_dechargement is not null 
+                        and so.is_type_commande in ('ouverte', 'ls') 
+                        and pt.is_code='%s'
+                        and sol.is_type_commande='ferme'
+                    order by sol.id desc
                     limit 1
                 """%code_pg
                 cur.execute(SQL)
@@ -934,7 +934,6 @@ class is_galia_base_uc(models.Model):
         DBLOGIN   = company.is_login_admin
         USERPASS  = company.is_mdp_admin
         URL       = company.is_url_odoo0 
-
         sock = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
         for obj in self:
             #** Retrouver la société de l'étiquette ***************************
