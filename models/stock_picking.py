@@ -39,41 +39,41 @@ class stock_picking(models.Model):
     _order   = "date desc, name desc"
     
     is_sale_order_id       = fields.Many2one('sale.order', 'Commande Client (champ obsolète dans Odoo 16 car remplacé par sale_id)')
-    is_purchase_order_id   = fields.Many2one('purchase.order', 'Commande Fournisseur')
-    is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur', compute='_compute_transporteur_dates', store=True, readonly=False)
-    is_date_expedition     = fields.Date("Date d'expédition"            , compute='_compute_transporteur_dates', store=True, readonly=False)
-    is_date_livraison      = fields.Date("Date d'arrivée chez le client", compute='_compute_transporteur_dates', store=True, readonly=False)
+    is_purchase_order_id   = fields.Many2one('purchase.order', 'Commande Fournisseur', tracking=True)
+    is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur', compute='_compute_transporteur_dates', store=True, readonly=False, tracking=True)
+    is_date_expedition     = fields.Date("Date d'expédition"            , compute='_compute_transporteur_dates', store=True, readonly=False, tracking=True)
+    is_date_livraison      = fields.Date("Date d'arrivée chez le client", compute='_compute_transporteur_dates', store=True, readonly=False, tracking=True)
     is_date_livraison_vsb  = fields.Boolean('Avertissement VSB', store=False, compute='_compute_is_date_livraison_vsb', readonly=True)
     is_date_livraison_msg  = fields.Char("Avertissement"       , store=False, compute='_compute_is_date_livraison_vsb', readonly=True)
-    is_num_bl              = fields.Char("N° BL fournisseur", copy=False)
-    is_date_reception      = fields.Date('Date de réception')
-    is_facture_pk_id       = fields.Many2one('is.facture.pk', 'Facture PK')
+    is_num_bl              = fields.Char("N° BL fournisseur", copy=False, tracking=True)
+    is_date_reception      = fields.Date('Date de réception', tracking=True)
+    is_facture_pk_id       = fields.Many2one('is.facture.pk', 'Facture PK', tracking=True)
     is_piece_jointe        = fields.Boolean(u"Pièce jointe", store=False, readonly=True, compute='_compute_is_piece_jointe')
     is_galia_um            = fields.Boolean(u"Test si étiquettes scannées sur Liste à servir", store=False, readonly=True, compute='_compute_is_galia_um')
     is_mode_envoi_facture  = fields.Selection(related="partner_id.is_mode_envoi_facture", string="Mode d'envoi des factures")
     is_traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
-    is_date_traitement_edi = fields.Datetime("Date traitement EDI")
+    is_date_traitement_edi = fields.Datetime("Date traitement EDI", tracking=True)
     invoice_state = fields.Selection([
             ('none'      , 'Non applicable'),
             ('2binvoiced', "À facturer"),
             ('invoiced'  , "Facturé"),
-        ], "Facturation", default="2binvoiced", compute="_compute_invoice_state", store=True)
-    is_point_dechargement = fields.Char('Point de déchargement', compute='compute_is_point_dechargement', store=True, readonly=True)
+        ], "Facturation", default="2binvoiced", compute="_compute_invoice_state", store=True, tracking=True)
+    is_point_dechargement = fields.Char('Point de déchargement', compute='compute_is_point_dechargement', store=True, readonly=True, tracking=True)
     is_colisage_ids       = fields.One2many('is.stock.picking.colisage', 'picking_id', "Colisage", readonly=1)
-    is_nb_um              = fields.Integer('Nb UM', readonly=1)
-    is_nb_uc              = fields.Integer('Nb UC', readonly=1)
-    is_alerte             = fields.Text('Alerte', readonly=1)
+    is_nb_um              = fields.Integer('Nb UM', readonly=1, tracking=True)
+    is_nb_uc              = fields.Integer('Nb UC', readonly=1, tracking=True)
+    is_alerte             = fields.Text('Alerte', readonly=1, tracking=True)
 
-    is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', copy=False)
-    is_qt_livree_inter_site    = fields.Float("Qt livrée inter-site", digits=(12, 6), copy=False)
+    is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', copy=False, tracking=True)
+    is_qt_livree_inter_site    = fields.Float("Qt livrée inter-site", digits=(12, 6), copy=False, tracking=True)
     is_location_dest_prevu_id  = fields.Many2one('stock.location', 'Emplacement', help="Emplacement de destination du premier mouvement", compute='_compute_is_location_mouvement_id', store=False, readonly=True)
 
-    is_plaque_immatriculation = fields.Char("Plaque d’immatriculation", copy=False)
-    is_dossier_transport      = fields.Char("N° de dossier de transport ", copy=False)
-    is_identifiant_transport  = fields.Char("N° identifiant transport", copy=False)
-    is_votre_contact_id       = fields.Many2one('res.partner', 'Votre contact', readonly=True)
-    is_poids_net              = fields.Float("Poids brut", digits=(12, 1), copy=False)
-    is_poids_brut             = fields.Float("Poids net" , digits=(12, 1), copy=False)
+    is_plaque_immatriculation = fields.Char("Plaque d’immatriculation", copy=False, tracking=True)
+    is_dossier_transport      = fields.Char("N° de dossier de transport ", copy=False, tracking=True)
+    is_identifiant_transport  = fields.Char("N° identifiant transport", copy=False, tracking=True)
+    is_votre_contact_id       = fields.Many2one('res.partner', 'Votre contact', readonly=True, tracking=True)
+    is_poids_net              = fields.Float("Poids brut", digits=(12, 1), copy=False, tracking=True)
+    is_poids_brut             = fields.Float("Poids net" , digits=(12, 1), copy=False, tracking=True)
 
 
     @api.depends('move_ids_without_package')
@@ -630,6 +630,8 @@ class stock_picking(models.Model):
 
     def desadv_action(self):
         for obj in self : 
+            now = datetime.now()
+            obj.is_date_traitement_edi = now
             obj.affectation_uc_aux_lignes_des_livraisons()
             name='edi-tenor-desadv-odoo16'
             cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
@@ -647,25 +649,23 @@ class stock_picking(models.Model):
                 x = x.replace("#uid"   , str(uid))
                 _logger.info(x)
 
-                # lines=os.popen(x).readlines()
-                # for line in lines:
-                #     _logger.info(line.strip())
+                #Mise à jour de la base de données avant déffectuer la commande externe
+                cr=self._cr
+                cr.commit()
 
                 p = Popen(x, shell=True, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
                 _logger.info("cde:%s, stdout:%s, stderr:%s"%(x,stdout.decode("utf-8"),stderr.decode("utf-8")))
                 if stderr:
                     raise ValidationError("%s\n%s"%(x,stderr.decode("utf-8")))
-                now = datetime.now()
-                obj.is_date_traitement_edi = now
                 lines = stdout.decode("utf-8").split('\n')
                 body = u"<b>DESADV envoyé</b><br>"+"<br>".join(lines)
                 vals={
-                    'author_id': user.partner_id.id,
+                    'author_id' : user.partner_id.id,
                     'subtype_id': self.env.ref('mail.mt_comment').id,
-                    'body'     : body,
-                    'model'    : model,
-                    'res_id'   : obj.id
+                    'body'      : body,
+                    'model'     : model,
+                    'res_id'    : obj.id
                 }
                 res=self.env['mail.message'].create(vals)
 
