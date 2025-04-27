@@ -277,6 +277,7 @@
                             <field name="is_caracteristique_liste_a_servir"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_caracteristique_bl"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_configuration_bl_id"             attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_configuration_facture"           attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_vendeur_id"                      attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_mode_envoi_facture"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_rib_id"                          attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />

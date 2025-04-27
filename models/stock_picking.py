@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api,tools,SUPERUSER_ID
-from odoo.exceptions import ValidationError
+from odoo import models,fields,api,tools,SUPERUSER_ID  # type: ignore
+from odoo.exceptions import ValidationError            # type: ignore
 from markupsafe import Markup
-import string
-import time
 from datetime import datetime, date, timedelta
 from subprocess import PIPE, Popen
+import string
+import time
+import re
 import logging
 _logger = logging.getLogger(__name__)
-
-
 
 
 class stock_picking_type(models.Model):
@@ -75,6 +74,14 @@ class stock_picking(models.Model):
     is_poids_net              = fields.Float("Poids brut", digits=(12, 1), copy=False, tracking=True)
     is_poids_brut             = fields.Float("Poids net" , digits=(12, 1), copy=False, tracking=True)
 
+
+    def write(self, vals):
+        if 'is_plaque_immatriculation' in  vals:
+            if not bool(re.fullmatch(r'[A-Z0-9]+', vals['is_plaque_immatriculation'])):
+                raise ValidationError("La plaque d'immatriculation ne doit contenir que des chiffres et des majuscules\nEnregistrement impossible")
+        res=super().write(vals)
+        return res
+            
 
     @api.depends('move_ids_without_package')
     def _compute_is_location_mouvement_id(self):

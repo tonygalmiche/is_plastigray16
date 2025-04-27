@@ -52,6 +52,12 @@ traitement_edi=[
 ]
 
 
+configuration_facture=[
+    ('standard'                  , 'Standard'),
+    ('regrouper_article_commande', 'Regrouper les lignes par article et commande client'),
+]
+
+
 class is_configuration_bl(models.Model):
     _name = 'is.configuration.bl'
     _description = 'Configuration du BL Galia par client'
@@ -573,8 +579,9 @@ class res_partner(models.Model):
     close_saturday  = fields.Boolean('Samedi', default=True)
     close_sunday    = fields.Boolean('Dimanche'  , default=True)
     
-    pricelist_purchase_id = fields.Many2one('product.pricelist',"Liste de prix d'achat")
-    is_configuration_bl_id = fields.Many2one('is.configuration.bl',"Configuration BL Galia")
+    pricelist_purchase_id    = fields.Many2one('product.pricelist',"Liste de prix d'achat")
+    is_configuration_bl_id   = fields.Many2one('is.configuration.bl',"Configuration BL Galia")
+    is_configuration_facture = fields.Selection(configuration_facture, "Configuration du PDF des factures", default='standard')
 
 
     def _message_auto_subscribe_notify(self, partner_ids, template):
@@ -719,11 +726,12 @@ class res_partner(models.Model):
             'is_adr_liv_sur_facture' : self.is_adr_liv_sur_facture,
             'is_num_autorisation_tva': self.is_num_autorisation_tva,
             'is_caracteristique_liste_a_servir'  : self.is_caracteristique_liste_a_servir,
-            'is_caracteristique_bl'  : self.is_caracteristique_bl,
-            'is_configuration_bl_id' : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
-            'is_mode_envoi_facture'  : self.is_mode_envoi_facture,
-            'is_vendeur_id'          : self._get_is_vendeur_id(DB, USERID, USERPASS, sock),
-            'is_database_line_ids'   : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),
+            'is_caracteristique_bl'   : self.is_caracteristique_bl,
+            'is_configuration_bl_id'  : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
+            'is_configuration_facture': self.is_configuration_facture,
+            'is_mode_envoi_facture'   : self.is_mode_envoi_facture,
+            'is_vendeur_id'           : self._get_is_vendeur_id(DB, USERID, USERPASS, sock),
+            'is_database_line_ids'    : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),
             'vat'                              : self.vat,
             'property_account_position_id'     : self.property_account_position_id.id,
             'property_payment_term_id'         : self.property_payment_term_id.id,
