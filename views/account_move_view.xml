@@ -14,6 +14,15 @@
                         }
                     </style>
                 </xpath>
+
+                <xpath expr="//button[@name='action_invoice_sent'][1]" position="after">
+                    <button 
+                        name="get_lines_facture"
+                        string="get_lines_facture"
+                        type="object"
+                    />
+                </xpath>
+
                 <xpath expr="//button[@name='action_invoice_sent'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -30,41 +39,6 @@
                 <field name="partner_id" position="attributes">
                     <attribute name="domain">[('is_company','=',True)]</attribute>
                 </field>
-
-
-                <!-- Permet d'afficher la liste des clients ou des fournisseurs en fonction du type de facture -->
-                <!-- <field name="partner_id" position="replace">
-                    <field 
-                        name="partner_id" widget="res_partner_many2one" nolabel="1" 
-                        context="{
-                            'res_partner_search_mode': 
-                                (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or 
-                                (context.get('default_move_type', 'entry') in ('in_invoice' , 'in_refund' , 'in_receipt')  and 'supplier') or 
-                                False,
-                            'show_address': 1, 'default_is_company': True, 'show_vat': True
-                        }" 
-                        domain="[('is_company','=',True),('customer','=',True)]" 
-                        options="{&quot;always_reload&quot;: True, &quot;no_quick_create&quot;: True}" 
-                        attrs="{
-                            'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund'))]
-                        }"
-                    />
-                    <field 
-                        name="partner_id" widget="res_partner_many2one" nolabel="1" 
-                        context="{
-                            'res_partner_search_mode': 
-                                (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer') or 
-                                (context.get('default_move_type', 'entry') in ('in_invoice' , 'in_refund' , 'in_receipt')  and 'supplier') or 
-                                False,
-                            'show_address': 1, 'default_is_company': True, 'show_vat': True
-                        }" 
-                        domain="[('is_company','=',True),('supplier','=',True)]" 
-                        options="{&quot;always_reload&quot;: True, &quot;no_quick_create&quot;: True}" 
-                        attrs="{
-                            'invisible': [('move_type', 'not in', ('in_invoice', 'in_refund'))]
-                        }"
-                    />
-                </field> -->
                 <field name="fiscal_position_id"  position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>

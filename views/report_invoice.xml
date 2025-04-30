@@ -73,23 +73,11 @@
                         
                         <span t-if="o.partner_id.lang == 'fr_FR'"><b>Livraison N° </b></span>
                         <span t-if="o.partner_id.lang != 'fr_FR'"><b>Delivery N° </b></span>
-
                         <span t-field="picking.name" /> du <span t-field="picking.date" t-options='{"format": "dd/MM/yyyy"}' /><br />
-
-
-
                         <t t-if="o.partner_id.is_adr_liv_sur_facture">
                             <i>
-
                                 <span t-if="o.partner_id.lang == 'fr_FR'"><b>Adresse de livraison : </b></span>
                                 <span t-if="o.partner_id.lang != 'fr_FR'"><b>Delivery address : </b></span>
-
-
-                                <!-- Livraison  N° - Delivery N° -->
-
-
-
-
                                 <span t-field="picking.partner_id.name" />
                                 <span t-field="picking.partner_id.street" />
                                 <span t-field="picking.partner_id.street2" /> - 
@@ -102,10 +90,6 @@
                     </div>
                     <br />
                     <table class="table table-condensed">
-
-<!-- Commande N° - PO N° ou Purchase Order  (dépend de la place) -->
-
-
                         <thead>
                             <tr t-if="o.partner_id.lang == 'fr_FR'">
                                 <th>Commande N°</th>
@@ -126,63 +110,94 @@
                                 <th>Total excl. VAT</th>
                             </tr>
                         </thead>
+                        <t t-if="o.partner_id.is_configuration_facture!='regrouper_article_commande'">
+                            <tbody class="invoice_tbody">
+                                <t t-set="pds_brut_total" t-value="0"/>
+                                <t t-set="pds_net_total" t-value="0"/>
 
-                        <tbody class="invoice_tbody">
-                            <t t-set="pds_brut_total" t-value="0"/>
-                            <t t-set="pds_net_total" t-value="0"/>
+                                <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+                                <tr t-foreach="lines" t-as="l">
+                                    <t t-set="qt1" t-value="l.is_move_id.product_uom_qty"/>
+                                    <t t-set="pds_brut" t-value="round(qt1*l.is_move_id.product_id.weight,2)"/>
+                                    <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,2)"/>
+                                    <t t-set="pds_net" t-value="round(qt1*l.is_move_id.product_id.weight_net,2)"/>
+                                    <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,2)"/>
+                                    <td>
+                                        <t t-if="l.is_move_id.sale_line_id.is_client_order_ref">
+                                            <span t-field="l.is_move_id.sale_line_id.is_client_order_ref"/><br />
+                                        </t>
+                                        <t t-if="o.is_num_cde_client">
+                                            <span t-field="o.is_num_cde_client"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <span t-field="l.name"/>
+                                        <t t-if="l.product_id.is_nomenclature_douaniere">
+                                            <br />
+                                            <i>Nomenclature douanière : <span t-field="l.product_id.is_nomenclature_douaniere"/></i>
+                                        </t>
+                                        <t t-if="l.is_document">
+                                            <br />
+                                            <i>N° du chantier  : <span t-field="l.is_document"/></i>
+                                        </t>
+                                        <p>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</p>
+                                    </td>
+                                    <td><span t-field="l.product_id.is_ref_client"/></td>
+                                    <td class="text-right"><span style="white-space: nowrap;" t-field="l.price_unit"/></td>
+                                    <td class="text-right"><span t-esc="int(l.quantity)"/></td>
 
-                            <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
-                            <tr t-foreach="lines" t-as="l">
-                                <t t-set="qt1" t-value="l.is_move_id.product_uom_qty"/>
-                                <t t-set="pds_brut" t-value="round(qt1*l.is_move_id.product_id.weight,2)"/>
-                                <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,2)"/>
-                                <t t-set="pds_net" t-value="round(qt1*l.is_move_id.product_id.weight_net,2)"/>
-                                <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,2)"/>
-                                <td>
-                                    <t t-if="l.is_move_id.sale_line_id.is_client_order_ref">
-                                        <span t-field="l.is_move_id.sale_line_id.is_client_order_ref"/><br />
-                                    </t>
-                                    <t t-if="o.is_num_cde_client">
-                                        <span t-field="o.is_num_cde_client"/>
-                                    </t>
-                                </td>
-                                <td>
-                                    <span t-field="l.name"/>
-                                    <t t-if="l.product_id.is_nomenclature_douaniere">
-                                        <br />
-                                        <i>Nomenclature douanière : <span t-field="l.product_id.is_nomenclature_douaniere"/></i>
-                                    </t>
-                                    <t t-if="l.is_document">
-                                        <br />
-                                        <i>N° du chantier  : <span t-field="l.is_document"/></i>
-                                    </t>
-                                    <p>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</p>
-                                </td>
-                                <td><span t-field="l.product_id.is_ref_client"/></td>
-                                <td class="text-right"><span style="white-space: nowrap;" t-field="l.price_unit"/></td>
-                                <td class="text-right"><span t-esc="int(l.quantity)"/></td>
-
-                                <td class="text-right">
-                                    <span t-esc="', '.join(map(lambda x: x.name, l.tax_ids))" id="line_tax_ids"/>
-                                </td>
-                                <td class="text-right">
-                                    <span t-field="l.price_subtotal"/> 
-                                </td>
-                            </tr>
-                        </tbody>
+                                    <td class="text-right">
+                                        <span t-esc="', '.join(map(lambda x: x.name, l.tax_ids))" id="line_tax_ids"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="l.price_subtotal"/> 
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </t>
+                        <t t-if="o.partner_id.is_configuration_facture=='regrouper_article_commande'">
+                            <tbody class="invoice_tbody">
+                                <t t-set="pds_brut_total" t-value="0"/>
+                                <t t-set="pds_net_total"  t-value="0"/>
+                                <t t-set="lines" t-value="o.get_lines_facture()"/>
+                                <tr t-foreach="lines" t-as="l">
+                                    <t t-set="pds_brut"       t-value="l['pds_brut']"/>
+                                    <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,2)"/>
+                                    <t t-set="pds_net"        t-value="l['pds_net']"/>
+                                    <t t-set="pds_net_total"  t-value="round(pds_net_total + pds_net,2)"/>
+                                    <td>
+                                        <t t-if="l['is_client_order_ref']">
+                                            <span t-esc="l['is_client_order_ref']"/><br />
+                                        </t>
+                                        <t t-if="o.is_num_cde_client">
+                                            <span t-esc="o.is_num_cde_client"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <span t-esc="l['name']"/>
+                                        <t t-if="l['is_nomenclature_douaniere']">
+                                            <br />
+                                            <i>Nomenclature douanière : <span t-esc="l['is_nomenclature_douaniere']"/></i>
+                                        </t>
+                                        <t t-if="l['is_document']">
+                                            <br />
+                                            <i>N° du chantier  : <span t-esc="l['is_document']"/></i>
+                                        </t>
+                                        <p>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</p>
+                                    </td>
+                                    <td><span t-esc="l['is_ref_client']"/></td>
+                                    <td class="text-right"><span style="white-space: nowrap;" t-esc="l['price_unit']"/></td>
+                                    <td class="text-right"><span t-esc="l['quantity']"/></td>
+                                    <td class="text-right">
+                                        <span t-esc="l['line_tax_ids']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="l['price_subtotal']"/> 
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </t>
                     </table>
-
-
-<!-- 
-
-TVA 20% - VAT 20%
-Total TTC – Total incl. VAT -->
-
-<!-- Poids brut total – Total gross weight
-Poids net total – Total net weight
- -->
-
-
                     <div class="row">
                         <div class="col-4">
                             <table class="table table-condensed">
@@ -207,15 +222,8 @@ Poids net total – Total net weight
                         <div class="col-4">
                             <table class="table table-condensed" style="width:100%">
                                 <tr class="border-black">
-
-
-
                                     <td t-if="o.partner_id.lang == 'fr_FR'"><strong>Total H.T.</strong></td>
                                     <td t-if="o.partner_id.lang != 'fr_FR'"><strong>Total excl. VAT</strong></td>
-
-
-
-
                                     <td class="text-right">
                                         <span t-field="o.amount_untaxed"/>
                                     </td>
@@ -226,7 +234,6 @@ Poids net total – Total net weight
                                         <span t-field="o.is_escompte"/>
                                     </td>
                                 </tr>
-                              
                                 <t t-set="tax_totals" t-value="o.tax_totals"/>
                                 <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
                                     <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
@@ -234,24 +241,12 @@ Poids net total – Total net weight
                                         <tr>
                                             <td t-if="o.partner_id.lang == 'fr_FR'"><span>T.V.A. 20%</span></td>
                                             <td t-if="o.partner_id.lang != 'fr_FR'"><span>VAT 20%</span></td>
-
-
-
-
                                             <td class="text-end o_price_total">
                                                 <span class="text-nowrap" t-esc="amount_by_group['formatted_tax_group_amount']"/>
                                             </td>
                                         </tr>
                                     </t>
                                 </t>
-
-
-<!-- Total H.T. – Total excl. VAT
-TVA 20% - VAT 20%
-Total TTC – Total incl. VAT
- -->
-
-
                                 <tr class="border-black">
                                     <td t-if="o.partner_id.lang == 'fr_FR'"><strong>Total T.T.C.</strong></td>
                                     <td t-if="o.partner_id.lang != 'fr_FR'"><strong>Total incl. VAT</strong></td>
@@ -266,9 +261,6 @@ Total TTC – Total incl. VAT
                         <strong>Commentaires:</strong>
                         <span t-field="o.narration"/>
                     </p>
-
-
-
                     <p t-if="o.invoice_payment_term_id.note">
                         <t t-if="o.partner_id.lang == 'fr_FR'"><strong>Conditions de règlement : </strong></t>
                         <t t-if="o.partner_id.lang != 'fr_FR'"><strong>Payment terms : </strong></t>

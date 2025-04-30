@@ -111,41 +111,18 @@ class account_invoice(models.Model):
         self.is_mode_envoi_facture = self.partner_id.is_mode_envoi_facture
 
 
-    # invoice_state = fields.Selection([
-    #     ('2binvoiced', u'à Facturer'),
-    #     ('none'      , u'Annulé'),
-    #     ('invoiced'  , u'Facturé'),
-
-
-
-
-    # @api.depends('state')
-    # def pg_onchange_state(self):
-    #     for obj in self:
-    #         for line in obj.invoice_line_ids:
-
-
-
     def _compute(self):
         for obj in self:
             escompte = tva = 0
-            #for tax in obj.tax_ids:
-                # if tax.account_id.code=='665000':
-                #     escompte=escompte+tax.amount
-                # else:
-                #     tva=tva+tax.amount
             for line in obj.line_ids:
                 if line.account_id.code=='665000':
                     escompte=escompte+line.amount_currency
-            #    else:
-            #        tva=tva+line.amount_currency
             obj.is_escompte = escompte
             obj.is_tva      = tva
 
 
     def voir_facture_client_action(self):
         for obj in self:
-            #view_id=self.env.ref('is_plastigray16.is_invoice_form')
             view_id=self.env.ref('is_plastigray16.is_account_view_move_form')
             res= {
                 'name': 'Facture Client',
@@ -162,7 +139,6 @@ class account_invoice(models.Model):
 
     def voir_facture_fournisseur_action(self):
         for obj in self:
-            #view_id=self.env.ref('is_plastigray16.is_invoice_supplier_form')
             view_id=self.env.ref('is_plastigray16.is_account_view_move_form')
             res= {
                 'name': 'Facture Client',
@@ -266,7 +242,6 @@ class account_invoice(models.Model):
         else:
             attachment = attachment_obj.create(vals)
             attachment_id=attachment.id
-
         #***********************************************************************
 
         #** Envoi du PDF mergé dans le navigateur ******************************
@@ -279,28 +254,6 @@ class account_invoice(models.Model):
 
     def sauvegarde_pdf(self, datas):
         for obj in self:
-            # #TODO : La comparaison des md5 ne fonctionne pas, car à chaque PDF généré, le md5 est différent
-            # def get_md5(path,datas):
-            #     f = open(path,'wb')
-            #     f.write(base64.b64decode(datas))
-            #     f.close()
-            #     f = open(path,'r')
-            #     cde="sha1sum %s"%path
-            #     f = os.popen(cde)
-            #     md5 = f.read().split(' ')[0]
-            #     f.close()
-            #     return md5
-
-            # uid=self._uid
-            # db = self._cr.dbname
-            # path="/tmp/facture-pdf-%s-%s-%s.pdf"%(obj.name,db,uid)
-            # md5 = get_md5(path,datas)
-            # lines = self.env['is.account.move.pdf'].search([('move_id','=',obj.id)],order='id desc', limit=1)
-            # last_path="%s.last"%path
-            # last_md5=False
-            # for line in lines:
-            #     for pdf in line.facture_pdf_ids:
-            #         last_md5 = get_md5(last_path,pdf.datas)
             vals = {
                     'move_id': obj.id,
             }
@@ -417,16 +370,8 @@ class account_invoice(models.Model):
                     paths=[]
                     for x in range(1, 3):
                         file_name = path + '/'+str(invoice.name) + '-' + str(x) + '.pdf'
-                        #fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
-                        #fd = open(file_name,'wb')
                         with open(file_name,'wb') as f:
                             f.write(base64.decodebytes(attachment.datas))
-
-                        # try:
-                        #     #os.write(fd, attachment.datas.decode('base64'))
-                        #     os.write(fd, base64.decodebytes(attachment.datas))
-                        # finally:
-                        #     close(fd)
                         paths.append(file_name)
 
                     # ** Merge des PDF *****************************************
@@ -438,9 +383,7 @@ class account_invoice(models.Model):
                     name = 'facture-' + str(invoice.name) + '-' + str(uid) + '.pdf'
                     vals = {
                         'name':        name,
-                        #'datas_fname': name,
                         'type':        'binary',
-                        #'datas':       pdfs,
                         'datas':        base64.b64encode(pdfs),
                     }
                     new = self.env['ir.attachment'].create(vals)
@@ -468,15 +411,12 @@ class account_invoice(models.Model):
                         # **********************************************************
 
                         # ** Creation ou modification de la pièce jointe *******************
-                        #pdf = self.env['report'].get_pdf(picking, 'stock.report_picking')
                         pdf = self.env['ir.actions.report']._render_qweb_pdf('stock.report_picking',[picking.id])[0]
                         vals = {
                             'name':        name,
-                            #'datas_fname': name,
                             'type':        'binary',
                             'res_model':   model,
                             'res_id':      picking.id,
-                            #'datas':       pdf.encode('base64'),
                             'datas':       base64.b64encode(pdf), #.encode('base64'),
                         }
                         if attachments:
@@ -515,10 +455,8 @@ class account_invoice(models.Model):
 
         email_cc   = user.name+u' <'+user.email+u'>'
         email_to   = u','.join(emails_to)
-        #email_to   = email_cc
         email_from = email_cc
         subject    = u'Facture Plastigray pour '+partner.name
-        #subject    = u'Facture Plastigray pour '+partner.name+u' ('+u','.join(emails_to)+u')'
         email_vals = {}
         body_html=modele_mail.replace('[from]', user.name)
         email_vals.update({
@@ -566,18 +504,6 @@ class account_invoice(models.Model):
                         line.is_move_id.invoice_state='invoiced'
                         line.is_move_id.picking_id._compute_invoice_state()
         return res
-
-
-
-    # def action_cancel(self):
-    #     for obj in self:
-    #         if obj.type=='in_invoice':
-    #             for line in obj.invoice_line:
-    #                 if line.is_move_id:
-    #                     line.is_move_id.invoice_state='none'
-    #                     line.is_move_id.picking_id._compute_invoice_state()
-    #                 line.is_move_id=False
-    #     super(account_invoice, self).action_cancel()
 
 
     def button_reset_taxes(self):
@@ -650,28 +576,54 @@ class account_invoice(models.Model):
             obj.invoice_line_ids._compute_amortissement_moule()
 
 
+    def get_lines_facture(self):
+        lines=[]
+        res={}
+        for obj in self:
+            lines = obj.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)
+            for l in lines:
+                is_client_order_ref = l.is_move_id.sale_line_id.is_client_order_ref
+                key="%s-%s"%(is_client_order_ref,l.name)
+                if key not in res:
+                    res[key]={
+                        'pds_brut': 0,
+                        'pds_net' : 0,
+                        'quantity'  : 0,
+                        'price_subtotal'  : 0,
+                    }
+                qt1        = l.is_move_id.product_uom_qty
+                pds_brut = round(qt1*l.is_move_id.product_id.weight,2)
+                pds_net  = round(qt1*l.is_move_id.product_id.weight_net,2)
+                res[key]['pds_brut']+=pds_brut
+                res[key]['pds_net']+=pds_net
+                res[key]['quantity']+=l.quantity
+                res[key]['price_subtotal']+=l.price_subtotal
+                res[key].update({
+                    'key'                      : key,
+                    'is_client_order_ref'      : is_client_order_ref,
+                    'name'                     : l.name,
+                    'is_nomenclature_douaniere': l.product_id.is_nomenclature_douaniere,
+                    'is_document'              : l.is_document,
+                    'is_ref_client'            : l.product_id.is_ref_client,
+                    'price_unit'               : l.price_unit,
+                    'line_tax_ids'             : ', '.join(map(lambda x: x.name, l.tax_ids)),  
+                })
+        lines2=[]
+        for key in res:
+            res[key]['quantity']         = "{:,.0f}".format(res[key]['quantity']).replace(","," ").replace(".",",")
+            res[key]['price_subtotal']   = "{:,.2f} €".format(res[key]['price_subtotal']).replace(","," ").replace(".",",")
+            print(key, res[key])
+            lines2.append(res[key])
+        return lines2
+
+
 class account_invoice_line(models.Model):
     _inherit = "account.move.line"
 
     is_section_analytique_id   = fields.Many2one('is.section.analytique', 'Section analytique')
     is_move_id                 = fields.Many2one('stock.move', 'Mouvement de stock', index=True)
     is_document                = fields.Char("N° du chantier")
-
-
     is_account_invoice_line_id = fields.Integer('Lien entre account_invoice_line et account_move_line pour la migration', index=True)
-    #is_account_invoice_line_id = fields.Many2one('account.move.line', 'Ligne de facture')
-
-
-    #TODO : Le champ is_account_invoice_line_id existait avant la migration pour recuperr la section analytique avec cette fonction
-    # @api.model
-    # def line_get_convert(self, line, part, date):
-    #     '''
-    #     Permet d'ajouter dans la table account_move_line le lien vers la ligne de facture,
-    #     pour récupérer en particulier la section analytique
-    #     '''
-    #     res=super(account_invoice, self).line_get_convert(line, part, date)
-    #     res['is_account_invoice_line_id']=line.get('invl_id', False)
-    #     return res
 
 
     @api.depends('move_id.state')
@@ -745,50 +697,6 @@ class account_invoice_line(models.Model):
                     date    = self.move_id.invoice_date
                 )
             self.price_unit = price
-
-
-
-    # def product_id_change(self, product_id, uom_id, qty=0, name='', type='out_invoice',
-    #         partner_id=False, fposition_id=False, price_unit=False, currency_id=False,
-    #         company_id=None):
-
-    #     #** Recherche lot pour retrouver le prix *******************************
-    #     partner = self.env['res.partner'].browse(partner_id)
-    #     lot_livraison=0
-    #     is_section_analytique_id=False
-    #     if product_id:
-    #         product = self.env['product.product'].browse(product_id)
-    #         lot_livraison=self.env['product.template'].get_lot_livraison(product.product_tmpl_id,partner)
-    #         is_section_analytique_id=product.is_section_analytique_id.id
-    #         if type=='in_invoice':
-    #             is_section_analytique_id=product.is_section_analytique_ha_id.id
-    #     #***********************************************************************
-
-    #     res=super(account_invoice_line, self).product_id_change(product_id, uom_id, lot_livraison, name, type,
-    #         partner_id, fposition_id, price_unit, currency_id,company_id)
-    #     res['value']['is_section_analytique_id']=is_section_analytique_id
-
-    #     #** Recherche prix dans liste de prix pour la date et qt ***************
-    #     pricelist = partner.property_product_pricelist.id
-    #     if product_id:
-    #         date = time.strftime('%Y-%m-%d',time.gmtime()) # Date du jour
-    #         if pricelist:
-    #             ctx = dict(
-    #                 self._context,
-    #                 uom=uom_id,
-    #                 date=date,
-    #             )
-    #             price_unit = self.env.get('product.pricelist').price_get(self._cr, self._uid, [pricelist],
-    #                     product_id, lot_livraison or 1.0, partner_id, ctx)[pricelist]
-    #         res['value']['price_unit']=price_unit
-    #     #***********************************************************************
-
-    #     #** Ajout du code_pg dans la description *******************************
-    #     if product_id:
-    #         product = self.env['product.product'].browse(product_id)
-    #         res['value']['name']=product.is_code+u' '+product.name
-
-    #     return res
 
 
 class is_account_move_pdf(models.Model):
