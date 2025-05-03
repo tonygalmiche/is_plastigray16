@@ -539,6 +539,9 @@ class is_demande_conges(models.Model):
             if obj.responsable_rh_id.id == uid:
                 droit_actualise_vsb = True
 
+            if obj.state == 'solde' and obj.responsable_rh_id.id == uid:
+                vers_annuler = True
+
             obj.vers_creation_btn_vsb      = vers_creation
             obj.vers_annuler_btn_vsb       = vers_annuler
             obj.vers_refuse_btn_vsb        = vers_refuse
