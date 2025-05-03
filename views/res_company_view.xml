@@ -54,6 +54,7 @@
                             <field name="is_acheteur_id"/>
                             <field name="is_gest_demande_transport_id"/>
                             <field name="is_responsable_rh_id" />
+                            <field name="is_assistante_commerciale_id"/>
                         </group>
                         <group string="THEIA">
                             <field name="is_code_societe"/>

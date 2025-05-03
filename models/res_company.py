@@ -27,6 +27,7 @@ class res_company(models.Model):
     is_directeur_technique_id    = fields.Many2one('res.users', 'Directeur Technique'                   , help="Utilisé en particulier pour les DA Moules")
     is_acheteur_id               = fields.Many2one('res.users', 'Acheteur'                              , help="Utilisé en particulier pour transformer les SA en DAS")
     is_gest_demande_transport_id = fields.Many2one('res.users', 'Gestionnaire des demandes de transport', help="Utilisé pour envoyer un mail lors de la création d'une demande de transport")
+    is_assistante_commerciale_id = fields.Many2one('res.users', 'Assistante commerciale'                , help="Utilisé pour envoyer un mail dans les dossiers commerciaux")
 
     is_base_principale = fields.Boolean('Base principale (Primaire)', help="Cette case permet de masquer certains champs sur les bases répliquées si elle n'est pas cochée")
 
