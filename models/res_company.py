@@ -65,6 +65,9 @@ class res_company(models.Model):
 
     is_url_facture_owork = fields.Char("URL factures O'Work")
 
+    is_taux_devise_dinar = fields.Float("Taux devise dinar" , digits=(12, 4), help="Utilisé pour la facturation PK")
+    is_taux_commission   = fields.Float("Taux de commission", digits=(12, 4), help="Utilisé pour la facturation PK")
+
 
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')

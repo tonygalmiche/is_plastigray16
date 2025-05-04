@@ -1,9 +1,64 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api
-import time
+from odoo import models,fields,api           # type: ignore
+from odoo.exceptions import ValidationError  # type: ignore
 from datetime import datetime
 from math import *
-from odoo.exceptions import ValidationError
+
+
+class is_facture_pk_type(models.Model):
+    _name='is.facture.pk.type'
+    _description="Facture PK Type"
+    _order = 'name'
+    
+    name   = fields.Char('Type facture', required=True)
+    num_bl               = fields.Boolean("N° de BL", default=True)
+    facture_avoir        = fields.Boolean("Type", default=True)
+    annee_facture        = fields.Boolean("Année de la facture", default=True)
+    semaine_facture      = fields.Boolean("Semaine de la facture", default=True)
+
+    matiere_premiere      = fields.Boolean("Total Matière première (€)", default=True)
+    main_oeuvre           = fields.Boolean("Total Main d'oeuvre / Prestation de service (€)", default=True)
+    total_moules          = fields.Boolean("Total des moules à taxer (€)", default=True)
+    frais_perturbation    = fields.Boolean("Total frais de préparation à taxer (€)", default=True)
+    total                 = fields.Boolean("TOTAL (€)", default=True)
+    total_plastigray      = fields.Boolean("Total Plastigray (€)", default=True)
+
+    nb_pieces          = fields.Boolean("Nombre de pièces", default=True)
+    nb_cartons         = fields.Boolean("Nombre de cartons", default=True)
+    nb_colis           = fields.Boolean("Nombre de colis", default=True)
+    volume             = fields.Boolean("Vomule (m3)", default=True)
+    poids_net          = fields.Boolean("Poids net (Kg)", default=True)
+    poids_brut         = fields.Boolean("Poids brut (Kg)", default=True)
+
+    moule_ids            = fields.Boolean("Moules à taxer", default=True)
+    conditions_generales = fields.Boolean("Conditions générales", default=True)
+
+    #Lignes de la facture
+    num_colis      = fields.Boolean('N°Colis', default=True)
+    commande       = fields.Boolean('Commande', default=True)
+    reception      = fields.Boolean('Réception', default=True)  # Nouveau champ du 04/05/2025
+    product_id     = fields.Boolean('Article', default=True)
+    ref_pk         = fields.Boolean('Réf PK', default=True)
+    ref_client     = fields.Boolean('Réf Client') # Nouveau champ du 04/05/2025
+    designation    = fields.Boolean('Désignation', default=True)
+    poids_net      = fields.Boolean('Poids net (Kg)', default=True)
+    poids_brut     = fields.Boolean('Poids brut (Kg)', default=True)
+    qt             = fields.Boolean('Quantité', default=True)
+    uc             = fields.Boolean('UC', default=True)
+    nb_uc          = fields.Boolean('Nb UC', default=True)
+    pump           = fields.Boolean('P.U.M.P €', default=True)
+    pump_tnd       = fields.Boolean('P.U.M.P (TND)') # Nouveau champ du 04/05/2025
+    pump_1000      = fields.Boolean('P.U.M.P x 1000 (€))', default=True)  # Nouveau champ du 04/05/2025
+    ptmp           = fields.Boolean('P.T.M.P €', default=True)
+    ptmp_tnd       = fields.Boolean('P.T.M.P (TND)', default=True)     # Nouveau champ du 04/05/2025
+    pupf           = fields.Boolean('P.U.P.F €', default=True)
+    total_pf       = fields.Boolean('P.T.P.F. €', default=True)
+    pu_ht          = fields.Boolean('P.U. H.T. (€)', default=True) # Nouveau champ du 04/05/2025
+    pu_ht_tnd      = fields.Boolean('P.U. H.T. (TND)', default=True) # Nouveau champ du 04/05/2025
+    pu_ht_1000     = fields.Boolean('P.U. H.T. x 1000 (€)', default=True)  # Nouveau champ du 04/05/2025
+    pu_ht_1000_ass = fields.Boolean('P.U. H.T. x 1000 assistance incluse (€)', default=True)  # Nouveau champ du 04/05/2025
+    montant_total     = fields.Boolean('Montant H.T. (€)', default=True) # Nouveau champ du 04/05/2025
+    montant_total_tnd = fields.Boolean('Montant H.T. (TND)', default=True) # Nouveau champ du 04/05/2025
 
 
 class is_facture_pk(models.Model):
@@ -38,29 +93,107 @@ class is_facture_pk(models.Model):
         for obj in self:
             obj.total_plastigray = obj.main_oeuvre + obj.frais_perturbation
           
-    num_facture        = fields.Char('N° de Facture')
-    date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now())
-    annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True)
-    semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True)
-    num_bl             = fields.Many2one('stock.picking', string='N° de BL', required=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
-    num_import_matiere = fields.Char("N° d'import matière première")
-    matiere_premiere   = fields.Float('Total Matière première (€)'                     , digits=(14, 4), readonly=True)
-    main_oeuvre        = fields.Float("Total Main d'oeuvre / Prestation de service (€)", digits=(14, 4), readonly=True)
-    total_moules       = fields.Float("Total des moules à taxer (€)"                   , digits=(14, 4), compute='_compute', store=True)
-    frais_perturbation = fields.Float("Total frais de préparation à taxer (€)"         , digits=(14, 4))
-    frais_perturbation_commentaire = fields.Char("Commentaire frais de préparation")
-    total              = fields.Float("TOTAL (€)"           , digits=(14, 4), compute='_compute', store=True)
-    total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 4), compute='_compute_total_plastigray', store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer")
-    nb_cartons         = fields.Integer("Nombre de cartons", readonly=True)
-    nb_colis           = fields.Integer("Nombre de colis")
-    nb_pieces          = fields.Integer("Nombre de pièces", readonly=True)
-    poids_net          = fields.Float("Poids net (Kg)" , digits=(14, 2))
-    poids_brut         = fields.Float("Poids brut (Kg)", digits=(14, 2))
-    volume             = fields.Integer("Vomule (m3)", compute='_compute', store=True)
-    line_ids           = fields.One2many('is.facture.pk.line' , 'is_facture_id', string='Lignes de la facture')
-    moule_ids          = fields.One2many('is.facture.pk.moule', 'is_facture_id', string='Moules à taxer')
+    num_facture        = fields.Char('N° de Facture',tracking=True)
+    date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now(),tracking=True)
+    annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True,tracking=True)
+    semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True,tracking=True)
+    num_bl             = fields.Many2one('stock.picking', string='N° de BL',tracking=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
+    num_import_matiere = fields.Char("N° d'import matière première",tracking=True)
 
-      
+    matiere_premiere   = fields.Float('Total Matière première (€)'                     , digits=(14, 4), readonly=True,tracking=True)
+    main_oeuvre        = fields.Float("Total Main d'oeuvre / Prestation de service (€)", digits=(14, 4), readonly=True,tracking=True)
+    total_moules       = fields.Float("Total des moules à taxer (€)"                   , digits=(14, 4), compute='_compute', store=True,tracking=True)
+    frais_perturbation = fields.Float("Total frais de préparation à taxer (€)"         , digits=(14, 4),tracking=True)
+    frais_perturbation_commentaire = fields.Char("Commentaire frais de préparation",tracking=True)
+    total              = fields.Float("TOTAL (€)"           , digits=(14, 4), compute='_compute', store=True,tracking=True)
+    total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 4), compute='_compute_total_plastigray',tracking=True, store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer")
+
+    nb_pieces          = fields.Integer("Nombre de pièces", readonly=True,tracking=True)
+    nb_cartons         = fields.Integer("Nombre de cartons", readonly=True,tracking=True)
+    nb_colis           = fields.Integer("Nombre de colis",tracking=True)
+    volume             = fields.Integer("Vomule (m3)", compute='_compute', store=True,tracking=True)
+    poids_net          = fields.Float("Poids net (Kg)" , digits=(14, 2),tracking=True)
+    poids_brut         = fields.Float("Poids brut (Kg)", digits=(14, 2),tracking=True)
+
+    line_ids           = fields.One2many('is.facture.pk.line' , 'is_facture_id', string='Lignes de la facture',tracking=True)
+    moule_ids          = fields.One2many('is.facture.pk.moule', 'is_facture_id', string='Moules à taxer',tracking=True)
+
+    type_facture_id    = fields.Many2one('is.facture.pk.type', string='Type facture', tracking=True) 
+    facture_avoir      = fields.Selection([
+            ('Facture', 'Facture'),
+            ('Avoir'  , 'Avoir'),
+        ], "Type", default='Facture', tracking=True)
+    facture_origine_id   = fields.Many2one('is.facture.pk', string="Facture d'origine de cet avoir", tracking=True) 
+    conditions_generales = fields.Text('Conditions générales',tracking=True)
+
+    num_bl_vsb               = fields.Boolean("num_bl_vsb"                , compute='_compute_vsb')
+    facture_avoir_vsb        = fields.Boolean("facture_avoir_vsb"         , compute='_compute_vsb')
+    annee_facture_vsb        = fields.Boolean("annee_facture_vsb"         , compute='_compute_vsb')
+    semaine_facture_vsb      = fields.Boolean("semaine_facture_vsb"       , compute='_compute_vsb')
+
+    matiere_premiere_vsb      = fields.Boolean("matiere_premiere_vsb"     , compute='_compute_vsb')
+    main_oeuvre_vsb           = fields.Boolean("main_oeuvre_vsb"          , compute='_compute_vsb')
+    total_moules_vsb          = fields.Boolean("total_moules_vsb"         , compute='_compute_vsb')
+    frais_perturbation_vsb    = fields.Boolean("frais_perturbation_vsb"   , compute='_compute_vsb')
+    total_vsb                 = fields.Boolean("total_vsb"                , compute='_compute_vsb')
+    total_plastigray_vsb      = fields.Boolean("total_plastigray_vsb"     , compute='_compute_vsb')
+
+    nb_pieces_vsb             = fields.Boolean("nb_pieces_vsb"            , compute='_compute_vsb')
+    nb_cartons_vsb            = fields.Boolean("nb_cartons_vsb"           , compute='_compute_vsb')
+    nb_colis_vsb              = fields.Boolean("nb_colis_vsb"             , compute='_compute_vsb')
+    volume_vsb                = fields.Boolean("volume_vsb"               , compute='_compute_vsb')
+    poids_net_vsb             = fields.Boolean("poids_net_vsb"            , compute='_compute_vsb')
+    poids_brut_vsb            = fields.Boolean("poids_brut_vsb"           , compute='_compute_vsb')
+
+    moule_ids_vsb            = fields.Boolean("moule_ids_vsb"             , compute='_compute_vsb')
+    conditions_generales_vsb = fields.Boolean("conditions_generales_vsb"  , compute='_compute_vsb')
+
+    #Lignes de la facture 
+    num_colis_vsb   = fields.Boolean("num_colis_vsb"  , compute='_compute_vsb')
+    commande_vsb    = fields.Boolean("commande_vsb"   , compute='_compute_vsb')
+    reception_vsb   = fields.Boolean("reception_vsb"  , compute='_compute_vsb')
+    product_id_vsb  = fields.Boolean("product_id_vsb" , compute='_compute_vsb')
+    ref_pk_vsb      = fields.Boolean("ref_pk_vsb"     , compute='_compute_vsb')
+    ref_client_vsb  = fields.Boolean("ref_client_vsb" , compute='_compute_vsb')
+    designation_vsb = fields.Boolean("designation_vsb", compute='_compute_vsb')
+    poids_net_vsb   = fields.Boolean("poids_net_vsb"  , compute='_compute_vsb')
+    poids_brut_vsb  = fields.Boolean("poids_brut_vsb" , compute='_compute_vsb')
+    qt_vsb          = fields.Boolean("qt_vsb"         , compute='_compute_vsb')
+    uc_vsb          = fields.Boolean("uc_vsb"         , compute='_compute_vsb')
+    nb_uc_vsb       = fields.Boolean("nb_uc_vsb"      , compute='_compute_vsb')
+    pump_vsb        = fields.Boolean("pump_vsb"       , compute='_compute_vsb')
+    pump_tnd_vsb    = fields.Boolean("pump_tnd_vsb"   , compute='_compute_vsb')
+    pump_1000_vsb   = fields.Boolean("pump_1000_vsb"  , compute='_compute_vsb')
+    ptmp_vsb        = fields.Boolean("ptmp_vsb"       , compute='_compute_vsb')
+    ptmp_tnd_vsb    = fields.Boolean("ptmp_tnd_vsb"   , compute='_compute_vsb')
+    pupf_vsb        = fields.Boolean("pupf_vsb"       , compute='_compute_vsb')
+    total_pf_vsb    = fields.Boolean("total_pf_vsb"   , compute='_compute_vsb')
+    pu_ht_vsb             = fields.Boolean("pu_ht_vsb"            , compute='_compute_vsb')
+    pu_ht_tnd_vsb         = fields.Boolean("pu_ht_tnd_vsb"        , compute='_compute_vsb')
+    pu_ht_1000_vsb        = fields.Boolean("pu_ht_1000_vsb"       , compute='_compute_vsb')
+    pu_ht_1000_ass_vsb    = fields.Boolean("pu_ht_1000_ass_vsb"   , compute='_compute_vsb')
+    montant_total_vsb     = fields.Boolean("montant_total_vsb"    , compute='_compute_vsb')
+    montant_total_tnd_vsb = fields.Boolean("montant_total_tnd_vsb", compute='_compute_vsb')
+
+
+    @api.depends('type_facture_id')
+    def _compute_vsb(self):
+        for obj in self:
+            vsb=False
+            champs=[
+                'facture_avoir','num_bl','annee_facture','semaine_facture','moule_ids','conditions_generales',
+                'matiere_premiere','main_oeuvre','total_moules','frais_perturbation','total','total_plastigray',
+                'nb_pieces', 'nb_cartons','nb_colis', 'volume', 'poids_net', 'poids_brut',
+                'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf',
+                'reception','ref_client','pump_tnd','pump_1000','ptmp_tnd','pu_ht','pu_ht_tnd','pu_ht_1000','pu_ht_1000_ass','montant_total','montant_total_tnd',
+            ]
+            for champ in champs:
+                vsb=False
+                if  obj.type_facture_id:
+                    vsb = getattr(obj.type_facture_id, champ)
+                champ_vsb ="%s_vsb"%champ
+                setattr(obj, champ_vsb, vsb)
+
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -79,11 +212,6 @@ class is_facture_pk(models.Model):
             #***********************************************************************
 
             vals['num_facture'] = self.env['ir.sequence'].next_by_code('is.facture.pk')
-
-            #sequence_ids = data_obj.search([('name','=','seq_is_facture_pk')])
-            #if len(sequence_ids)>0:
-            #    sequence_id = sequence_ids[0].res_id
-            #    vals['num_facture'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
             if vals.get('num_bl', False):
                 picking = stock_picking_obj.search([('id', '=', vals['num_bl'])])
                 line_ids = []
@@ -145,7 +273,6 @@ class is_facture_pk(models.Model):
                 })
         res = super().create(vals)
         res.num_bl.is_facture_pk_id=res.id
-        #self.check_bl(res)
         return res
 
 
@@ -188,18 +315,35 @@ class is_facture_pk_line(models.Model):
     is_facture_id = fields.Many2one('is.facture.pk', string='Lignes')
     num_colis     = fields.Char('N°Colis')
     commande      = fields.Char('Commande')
+    reception     = fields.Char('Réception')  # Nouveau champ du 04/05/2025
     product_id    = fields.Many2one('product.product', string='Article')
     ref_pk        = fields.Char('Réf PK')
+    ref_client    = fields.Char('Réf Client') # Nouveau champ du 04/05/2025
     designation   = fields.Char('Désignation')
     poids_net     = fields.Float('Poids net (Kg)')
     poids_brut    = fields.Float('Poids brut (Kg)')
     qt            = fields.Float('Quantité')
     uc            = fields.Float('UC')
     nb_uc         = fields.Float('Nb UC')
-    pump          = fields.Float('P.U.M.P €'     , digits=(14, 4))
-    ptmp          = fields.Float('P.T.M.P €'     , digits=(14, 4))
-    pupf          = fields.Float('P.U.P.F €'     , digits=(14, 4))
-    total_pf      = fields.Float('P.Total P.F. €', digits=(14, 4))
+    pump          = fields.Float('P.U.M.P (€)'        , digits=(14, 4))
+    pump_tnd      = fields.Float('P.U.M.P (TND)'      , digits=(14, 4))  # Nouveau champ du 04/05/2025
+    pump_1000     = fields.Float('P.U.M.P x 1000 (€))', digits=(14, 4))  # Nouveau champ du 04/05/2025
+
+    ptmp          = fields.Float('P.T.M.P (€)'     , digits=(14, 4))
+    ptmp_tnd      = fields.Float('P.T.M.P (TND)'   , digits=(14, 4))     # Nouveau champ du 04/05/2025
+
+    pupf          = fields.Float('P.U.P.F (€)'     , digits=(14, 4))
+    total_pf      = fields.Float('P.T.P.F. (€)', digits=(14, 4))
+    num_bl        = fields.Many2one(related='is_facture_id.num_bl') 
+
+    pu_ht          = fields.Float('P.U. H.T. (€)'     , digits=(14, 4))     # Nouveau champ du 04/05/2025
+    pu_ht_tnd      = fields.Float('P.U. H.T. (TND)'   , digits=(14, 4))     # Nouveau champ du 04/05/2025
+    pu_ht_1000     = fields.Float('P.U. H.T. x 1000 (€)', digits=(14, 4))   # Nouveau champ du 04/05/2025
+    pu_ht_1000_ass = fields.Float('P.U. H.T. x 1000 assistance incluse (€)', digits=(14, 4))  # Nouveau champ du 04/05/2025
+
+    montant_total     = fields.Float('Montant H.T. (€)'  , digits=(14, 4)) # Nouveau champ du 04/05/2025
+    montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4)) # Nouveau champ du 04/05/2025
+
 
 
 class is_facture_pk_moule(models.Model):

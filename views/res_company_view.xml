@@ -47,33 +47,36 @@
                                 <field name="is_url_odoo_theia"/>
                                 <field name="is_url_facture_owork"/>
                             </group>
-                        </group>
-                        <group string="Gestionnaires">
-                            <field name="is_directeur_general_id"/>
-                            <field name="is_directeur_technique_id"/>
-                            <field name="is_acheteur_id"/>
-                            <field name="is_gest_demande_transport_id"/>
-                            <field name="is_responsable_rh_id" />
-                            <field name="is_assistante_commerciale_id"/>
-                        </group>
-                        <group string="THEIA">
-                            <field name="is_code_societe"/>
-                            <field name="is_zebra_id" />
-                        </group>
-                        <group string="SMS via OVH">
-                            <field name="is_sms_account"/>
-                            <field name="is_sms_login"/>
-                            <field name="is_sms_password" password="True"/>
-                            <field name="is_sms_from"/>
-                        </group>
-                        <group string="Base principale (Primaire)">
-                            <field name="is_base_principale"/>
-                        </group>
-                        <group string="PIC à 3 ans">
-                            <field name="is_annee_pic_3ans"/>
-                            <button string="Actualiser" name="annee_pic_3ans_action" type="object" confirm="Prendre en compte imméditement le changement d'année"/>
-                        </group>
-                        <group>
+
+                            <group string="Gestionnaires">
+                                <field name="is_directeur_general_id"/>
+                                <field name="is_directeur_technique_id"/>
+                                <field name="is_acheteur_id"/>
+                                <field name="is_gest_demande_transport_id"/>
+                                <field name="is_responsable_rh_id" />
+                                <field name="is_assistante_commerciale_id"/>
+                            </group>
+                            <group string="THEIA">
+                                <field name="is_code_societe"/>
+                                <field name="is_zebra_id" />
+                            </group>
+                            <group string="SMS via OVH">
+                                <field name="is_sms_account"/>
+                                <field name="is_sms_login"/>
+                                <field name="is_sms_password" password="True"/>
+                                <field name="is_sms_from"/>
+                            </group>
+                            <group string="Base principale (Primaire)">
+                                <field name="is_base_principale"/>
+                            </group>
+                            <group string="PIC à 3 ans">
+                                <field name="is_annee_pic_3ans"/>
+                                <button string="Actualiser" name="annee_pic_3ans_action" type="object" confirm="Prendre en compte imméditement le changement d'année"/>
+                            </group>
+                            <group string="Facturation PK">
+                                <field name="is_taux_devise_dinar"/>
+                                <field name="is_taux_commission"/>
+                            </group>
                             <group string="Autre">
                                 <field name="is_temps_effectif_par_jour"/>
                                 <field name="is_cout_ctrl_qualite"/>

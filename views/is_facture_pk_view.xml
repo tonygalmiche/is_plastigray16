@@ -25,58 +25,125 @@
                         <h1>
                         <field name="num_facture" class="oe_inline" readonly="1"/>
                         </h1>
+                        <field name="num_bl_vsb"               invisible="1"/> 
+                        <field name="facture_avoir_vsb"        invisible="1"/> 
+                        <field name="annee_facture_vsb"        invisible="1"/> 
+                        <field name="semaine_facture_vsb"      invisible="1"/> 
+
+                        <field name="matiere_premiere_vsb" invisible="1"/> 
+                        <field name="main_oeuvre_vsb" invisible="1"/> 
+                        <field name="total_moules_vsb" invisible="1"/> 
+                        <field name="frais_perturbation_vsb" invisible="1"/> 
+                        <field name="total_vsb" invisible="1"/> 
+                        <field name="total_plastigray_vsb" invisible="1"/> 
+
+                        <field name="nb_pieces_vsb" invisible="1"/> 
+                        <field name="nb_cartons_vsb" invisible="1"/> 
+                        <field name="nb_colis_vsb" invisible="1"/> 
+                        <field name="volume_vsb" invisible="1"/> 
+                        <field name="poids_net_vsb" invisible="1"/> 
+                        <field name="poids_brut_vsb" invisible="1"/> 
+
+                        <!-- Lignes de la factures -->
+                        <field name="num_colis_vsb" invisible="1"/> 
+                        <field name="commande_vsb" invisible="1"/> 
+                        <field name="reception_vsb" invisible="1"/> 
+                        <field name="product_id_vsb" invisible="1"/> 
+                        <field name="ref_pk_vsb" invisible="1"/> 
+                        <field name="ref_client_vsb" invisible="1"/> 
+                        <field name="designation_vsb" invisible="1"/> 
+                        <field name="poids_net_vsb" invisible="1"/> 
+                        <field name="poids_brut_vsb" invisible="1"/> 
+                        <field name="qt_vsb" invisible="1"/> 
+                        <field name="uc_vsb" invisible="1"/> 
+                        <field name="nb_uc_vsb" invisible="1"/> 
+                        <field name="pump_vsb" invisible="1"/> 
+                        <field name="pump_tnd_vsb" invisible="1"/> 
+                        <field name="pump_1000_vsb" invisible="1"/> 
+                        <field name="ptmp_vsb" invisible="1"/> 
+                        <field name="ptmp_tnd_vsb" invisible="1"/> 
+                        <field name="pupf_vsb" invisible="1"/> 
+                        <field name="total_pf_vsb" invisible="1"/> 
+                        <field name="pu_ht_vsb" invisible="1"/> 
+                        <field name="pu_ht_tnd_vsb" invisible="1"/> 
+                        <field name="pu_ht_1000_vsb" invisible="1"/> 
+                        <field name="pu_ht_1000_ass_vsb" invisible="1"/> 
+                        <field name="montant_total_vsb" invisible="1"/> 
+                        <field name="montant_total_tnd_vsb" invisible="1"/> 
+                        <field name="moule_ids_vsb"            invisible="1"/> 
+                        <field name="conditions_generales_vsb" invisible="1"/> 
                         <group>
                             <group>
+                                <field name="type_facture_id"/> 
+                                <field name="facture_avoir"      attrs="{'invisible': [('facture_avoir_vsb', '!=', True)]}"/> 
+                                <field name="facture_origine_id" attrs="{'invisible': [('facture_avoir', '!=', 'Avoir')]}"/> 
                                 <field name="date_facture"/> 
-                                <field name="annee_facture"/> 
-                                <field name="semaine_facture"/> 
-                                <field name="num_bl"/> 
+                                <field name="annee_facture"      attrs="{'invisible': [('annee_facture_vsb', '!=', True)]}"/> 
+                                <field name="semaine_facture"    attrs="{'invisible': [('semaine_facture_vsb', '!=', True)]}"/> 
+                                <field name="num_bl" attrs="{'invisible': [('num_bl_vsb', '!=', True)], 'required': [('num_bl_vsb', '=', True)]}"/> 
                             </group>
                             <group>
-                                <field name="nb_pieces"/> 
-                                <field name="nb_cartons"/> 
-                                <field name="nb_colis"/> 
-                                <field name="volume"/> 
+                                <field name="nb_pieces" attrs="{'invisible': [('nb_pieces_vsb', '!=', True)]}"/> 
+                                <field name="nb_cartons" attrs="{'invisible': [('nb_cartons_vsb', '!=', True)]}"/> 
+                                <field name="nb_colis" attrs="{'invisible': [('nb_colis_vsb', '!=', True)]}"/> 
+                                <field name="volume" attrs="{'invisible': [('volume_vsb', '!=', True)]}"/> 
                             </group>
 
                         </group>
                         <group>
                             <group>
-                                <field name="matiere_premiere"/>
-                                <field name="main_oeuvre"/>
-                                <field name="total_moules"/>
-                                <field name="frais_perturbation"/>
+                                <field name="matiere_premiere" attrs="{'invisible': [('matiere_premiere_vsb', '!=', True)]}"/>
+                                <field name="main_oeuvre" attrs="{'invisible': [('main_oeuvre_vsb', '!=', True)]}"/>
+                                <field name="total_moules" attrs="{'invisible': [('total_moules_vsb', '!=', True)]}"/>
+                                <field name="frais_perturbation" attrs="{'invisible': [('frais_perturbation_vsb', '!=', True)]}"/>
                                 <field name="frais_perturbation_commentaire" attrs="{'invisible': [('frais_perturbation', '=', 0)]}"/>
-                                <field name="total"/>
-                                <field name="total_plastigray"/>
+                                <field name="total" attrs="{'invisible': [('total_vsb', '!=', True)]}"/>
+                                <field name="total_plastigray" attrs="{'invisible': [('total_plastigray_vsb', '!=', True)]}"/>
                             </group>
                             <group>
-                                <field name="poids_net"/> 
-                                <field name="poids_brut"/> 
+                                <field name="poids_net" attrs="{'invisible': [('poids_net_vsb', '!=', True)]}"/> 
+                                <field name="poids_brut" attrs="{'invisible': [('poids_brut_vsb', '!=', True)]}"/> 
                             </group>
                         </group>
                         <field name="line_ids" nolabel="1" >
                             <tree editable="bottom" >
-                                <field name="num_colis"/>
-                                <field name="commande"   readonly="1"/>
-                                <field name="product_id" readonly="1" widget="many2one_clickable"/>
-                                <field name="poids_net"  readonly="1" sum="Total"/>
-                                <field name="poids_brut" readonly="1" sum="Total"/>
-                                <field name="qt"         readonly="1" sum="Total"/>
-                                <field name="uc"         readonly="1"/>
-                                <field name="nb_uc"      readonly="1" sum="Total"/>
-                                <field name="pump"       readonly="1"/>
-                                <field name="ptmp"       readonly="1" sum="Total"/>
-                                <field name="pupf"       readonly="1"/>
-                                <field name="total_pf"   readonly="1" sum="Total"/>
+                                <field name="num_colis"   attrs="{'column_invisible': [('parent.num_colis_vsb'  , '!=', True)]}"/>
+                                <field name="commande"    attrs="{'column_invisible': [('parent.commande_vsb'   , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
+                                <field name="reception"   attrs="{'column_invisible': [('parent.reception_vsb'  , '!=', True)]}"/>
+                                <field name="product_id"  attrs="{'column_invisible': [('parent.product_id_vsb' , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" widget="many2one_clickable"/>
+                                <field name="ref_pk"      attrs="{'column_invisible': [('parent.ref_pk_vsb'     , '!=', True)]}"/>
+                                <field name="ref_client"  attrs="{'column_invisible': [('parent.ref_client_vsb' , '!=', True)]}"/>
+                                <field name="designation" attrs="{'column_invisible': [('parent.designation_vsb', '!=', True)]}"/>
+                                <field name="poids_net"   attrs="{'column_invisible': [('parent.poids_net_vsb'  , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total" />
+                                <field name="poids_brut"  attrs="{'column_invisible': [('parent.poids_brut_vsb' , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
+                                <field name="qt"          attrs="{'column_invisible': [('parent.qt_vsb'         , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
+                                <field name="uc"          attrs="{'column_invisible': [('parent.uc_vsb'         , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
+                                <field name="nb_uc"       attrs="{'column_invisible': [('parent.nb_uc_vsb'      , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
+                                <field name="pu_ht_tnd"   attrs="{'column_invisible': [('parent.pu_ht_tnd_vsb'  , '!=', True)]}"/>
+                                <field name="pu_ht"       attrs="{'column_invisible': [('parent.pu_ht_vsb'      , '!=', True)]}"/>
+                                <field name="pu_ht_1000"  attrs="{'column_invisible': [('parent.pu_ht_1000_vsb' , '!=', True)]}"/>
+                                <field name="pu_ht_1000_ass" attrs="{'column_invisible': [('parent.pu_ht_1000_ass_vsb' , '!=', True)]}"/>
+                                <field name="pump_tnd"    attrs="{'column_invisible': [('parent.pump_tnd_vsb'   , '!=', True)]}"/>
+                                <field name="pump"        attrs="{'column_invisible': [('parent.pump_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
+                                <field name="pump_1000"   attrs="{'column_invisible': [('parent.pump_1000_vsb'  , '!=', True)]}"/>
+                                <field name="ptmp_tnd"    attrs="{'column_invisible': [('parent.ptmp_tnd_vsb'   , '!=', True)]}"/>
+                                <field name="ptmp"        attrs="{'column_invisible': [('parent.ptmp_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
+                                <field name="pupf"        attrs="{'column_invisible': [('parent.pupf_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
+                                <field name="total_pf"    attrs="{'column_invisible': [('parent.total_pf_vsb'   , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
+                                <field name="montant_total_tnd" attrs="{'column_invisible': [('parent.montant_total_tnd_vsb', '!=', True)]}"/>
+                                <field name="montant_total"     attrs="{'column_invisible': [('parent.montant_total_vsb'    , '!=', True)]}"/>
+                                <field name="num_bl" invisible="1"/>
                             </tree>
                         </field>
-                        <field name="moule_ids" nolabel="1">
+                        <field name="moule_ids" nolabel="1" attrs="{'invisible': [('moule_ids_vsb', '!=', True)]}">
                             <tree editable="bottom" >
                                 <field name="mold_id"/>
                                 <field name="montant" sum="Total"/>
                             </tree>
                         </field>
+                        <group>
+                            <field name="conditions_generales"  attrs="{'invisible': [('conditions_generales_vsb', '!=', True)]}"/> 
+                        </group>  
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
@@ -92,7 +159,10 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="num_facture"/> 
-                    <field name="date_facture"/> 
+                    <field name="type_facture_id"    optional="show"/> 
+                    <field name="facture_avoir"      optional="hide"/> 
+                    <field name="facture_origine_id" optional="hide"/> 
+                    <field name="date_facture"       optional="show"/> 
                     <field name="annee_facture"      optional="show"/> 
                     <field name="semaine_facture"    optional="show"/> 
                     <field name="num_bl"             optional="show"/>
@@ -193,6 +263,110 @@
                     <field name="designation"/> 
                 </search>
             </field>
+        </record>
+
+
+
+
+
+
+
+
+
+        <!-- is.facture.pk.type -->
+        <record model="ir.ui.view" id="is_facture_pk_type_form_view">
+            <field name="name">is.facture.pk.type.form.view</field>
+            <field name="model">is.facture.pk.type</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/> 
+                            </group>
+                        </group>
+                        <group string="Entête">
+                            <group>
+                                <field name="facture_avoir"/> 
+                                <field name="annee_facture"/> 
+                                <field name="semaine_facture"/> 
+                                <field name="matiere_premiere"/> 
+                                <field name="main_oeuvre"/> 
+                                <field name="total_moules"/> 
+                                <field name="frais_perturbation"/> 
+                                <field name="total"/> 
+                                <field name="total_plastigray"/> 
+                                <field name="num_bl"/> 
+                            </group>
+                            <group>
+                                <field name="nb_pieces"/> 
+                                <field name="nb_cartons"/> 
+                                <field name="nb_colis"/> 
+                                <field name="volume"/> 
+                                <field name="poids_net"/> 
+                                <field name="poids_brut"/> 
+                                <field name="moule_ids"/> 
+                                <field name="conditions_generales"/> 
+                            </group>
+                        </group>
+
+                        <group string="Lignes de la facture">
+                            <group>
+                                <field name="num_colis"/> 
+                                <field name="commande"/> 
+                                <field name="reception"/> 
+                                <field name="product_id"/> 
+                                <field name="ref_pk"/> 
+                                <field name="ref_client"/> 
+                                <field name="designation"/> 
+                                <field name="poids_net"/> 
+                                <field name="poids_brut"/> 
+                                <field name="qt"/> 
+                                <field name="uc"/> 
+                                <field name="nb_uc"/> 
+                                <field name="pump"/> 
+                                <field name="pump_tnd"/> 
+                                <field name="pump_1000"/> 
+                                <field name="ptmp"/> 
+                                <field name="ptmp_tnd"/> 
+                                <field name="pupf"/> 
+                                <field name="total_pf"/> 
+                                <field name="pu_ht_tnd"/> 
+                                <field name="pu_ht"/> 
+                                <field name="pu_ht_1000"/> 
+                                <field name="pu_ht_1000_ass"/> 
+                                <field name="montant_total_tnd"/> 
+                                <field name="montant_total"/> 
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_facture_pk_type_tree_view">
+            <field name="name">is.facture.pk.type_tree_view</field>
+            <field name="model">is.facture.pk.type</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_facture_pk_type_search_view" >
+            <field name="name">is.facture.pk.type_search_view</field>
+            <field name="model">is.facture.pk.type</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_facture_pk_type_action">
+            <field name="name">Type Facture PK</field>
+            <field name="res_model">is.facture.pk.type</field>
+            <field name="view_mode">tree,form</field>
         </record>
 </data>
 </odoo>

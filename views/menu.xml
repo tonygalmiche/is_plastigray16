@@ -500,8 +500,8 @@
     </record>
 
     <!-- Ventes / Clients -->
-    <menuitem id="menu_is_ventes_clients"     sequence="10" name="Clients"            parent="menu_is_ventes"/>
-    <menuitem id="menu_is_ventes_clients_10"  sequence="10" name="Clients"            parent="menu_is_ventes_clients" action="res_partner_client_action" /> 
+    <menuitem id="menu_is_ventes_clients"     sequence="10" name="Client"    parent="menu_is_ventes"/>
+    <menuitem id="menu_is_ventes_clients_10"  sequence="10" name="Clients"   parent="menu_is_ventes_clients" action="res_partner_client_action" /> 
 
     <!-- Ventes / Tarif commercial -->
     <record id="menu_is_ventes_tarif_cial" model="ir.ui.menu" >
@@ -563,7 +563,7 @@
 
     <!-- Ventes / Commandes -->
      <record id="menu_is_ventes_cde" model="ir.ui.menu" >
-        <field name="name">Commandes</field>
+        <field name="name">Commande</field>
         <field name="sequence">25</field>
         <field name="parent_id" eval="ref('menu_is_ventes')"/>
         <field name="groups_id" eval="[(6,0,[
@@ -620,10 +620,8 @@
     </record>
 
 
-
-
     <record id="is_sale_order_proforma_menu" model="ir.ui.menu" >
-        <field name="name">Factures Proforma</field>
+        <field name="name">Facture Proforma</field>
         <field name="sequence">50</field>
         <field name="parent_id" eval="ref('menu_is_ventes_cde')"/>
         <field name="action"    ref="is_sale_order_proforma_action"/>
@@ -721,7 +719,7 @@
     </record>
 
     <!-- Ventes / Livraisons -->
-    <menuitem id="menu_is_ventes_liv" sequence="40" name="Livraisons" parent="menu_is_ventes" groups="is_employes_hors_production_group"/>
+    <menuitem id="menu_is_ventes_liv" sequence="40" name="Livraison" parent="menu_is_ventes" groups="is_employes_hors_production_group"/>
     <record id="is_toutes_les_livraisons_menu" model="ir.ui.menu" >
         <field name="name">Toutes les livraisons</field>
         <field name="sequence">20</field>
@@ -924,6 +922,19 @@
             ref('is_comptable_group')
         ])]"/>
     </record>
+
+    <record id="is_facture_pk_type_menu" model="ir.ui.menu" >
+        <field name="name">Type Facture PK</field>
+        <field name="sequence">20</field>
+        <field name="parent_id" eval="ref('menu_main_facturation_pk')"/>
+        <field name="action"    ref="is_facture_pk_type_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+
+
 
     <!-- PIC à 3 ans -->
     <record id="is_pic_3ans_main_menu" model="ir.ui.menu" >
@@ -2284,7 +2295,7 @@
     <menuitem
         id="is_proforma_main_menu"
         parent="menu_is_ventes"
-        name="Factures Proforma"
+        name="Proforma"
         sequence="42"
     />
     <menuitem
