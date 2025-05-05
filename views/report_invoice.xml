@@ -161,9 +161,9 @@
                                 <t t-set="pds_net_total"  t-value="0"/>
                                 <t t-set="lines" t-value="o.get_lines_facture()"/>
                                 <tr t-foreach="lines" t-as="l">
-                                    <t t-set="pds_brut"       t-value="l['pds_brut']"/>
+                                    <t t-set="pds_brut"       t-value="round(l['pds_brut'],2)"/>
                                     <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,2)"/>
-                                    <t t-set="pds_net"        t-value="l['pds_net']"/>
+                                    <t t-set="pds_net"        t-value="round(l['pds_net'],2)"/>
                                     <t t-set="pds_net_total"  t-value="round(pds_net_total + pds_net,2)"/>
                                     <td>
                                         <t t-if="l['is_client_order_ref']">
