@@ -525,10 +525,12 @@ class is_galia_base(models.Model):
                     if CodeClient == "903000":
                         FN97="MADE IN FRANCE"
 
+                    FN23 = FN130 = ''
                     if TypeEti=="LOT" or TypeEti=="DEVIALET":
-                        FN23 = "H"+FN13[2:100] #,2,100);
-                    else:
-                        FN23 = ''
+                        FN23  = "H"+FN13[2:100] #,2,100);
+                        FN130 = FN13
+                        FN13  = ''
+
 
                     #** Point de déchargement (PTDECH) dans odoo site *********
                     FNPTDECH = point_dechargement or ''
@@ -587,6 +589,7 @@ class is_galia_base(models.Model):
                         FN9      = 'FN9'      # Désignation
                         FN10     = 'FN10'     # Fournisseur
                         FN13     = 'FN13'     # N Lot
+                        FN13B    = 'FN13B'    # N Lot plus petit
                         FN17     = 'FN17'     # IND MODIF 
                         FN5      = 'FN5'      # COFOR
                         FN80     = 'FN80'     # 3 derniers chiffres de l'UM
@@ -619,7 +622,12 @@ class is_galia_base(models.Model):
                     Etiq+="^FN10^FD"+FN10+"^FS \n"       # Fournisseur (V)
                     Etiq+="^FN11^FD"+FN11+"^FS \n"       # Fournisseur (Code à Barre)
                     Etiq+="^FN12^FD"+FN12+"^FS \n"       # Date
-                    Etiq+="^FN13^FD"+FN13+"^FS \n"       # N Lot (H)
+
+                    if FN13!='':
+                        Etiq+="^FN13^FD"+FN13+"^FS \n"       # N Lot (H)
+                    else:
+                        Etiq+="^FN130^FD"+FN130+"^FS \n"     # N Lot plus petit (H)
+
                     Etiq+="^FN14^FD"+FN14+"^FS \n"  
                     Etiq+="^FN15^FD"+FN15+"^FS \n"          # Entete1 = Code PG + Moule + OF + N Carton + Controle Operateur/Regleur
                     Etiq+="^FN16^FD"+FN16+"^FS \n"          # Adresse Complete Plastigray

@@ -84,7 +84,10 @@
 ^A0R,84,84^FO295,1335           ^FN22^FS         ^FX NB colis par palette ^FS
 ^A0R,90,48^FO290,1610           ^FN9^FS          ^FX Désignation ^FS
 ^A0R,80,50^FO190,1295           ^FN10^FS         ^FX Fournisseur ^FS
+
 ^A0R,84,64^FO110,1340           ^FN13^FS         ^FX N Lot ^FS
+^A0R,64,44^FO110,1300           ^FN130^FS        ^FX N Lot en plus petit pour mettre le code barre ^FS
+
 ^A0R,84,84^FO110,1960           ^FN17^FS         ^FX IND MODIF ^FS
 ^A0R,84,64^FO25,1405            ^FN5^FS          ^FX COFOR ^FS
 ^A0R,24,24^FO37,68              ^FN80^FS         ^FX 3 derniers chiffres de l'UM^FS

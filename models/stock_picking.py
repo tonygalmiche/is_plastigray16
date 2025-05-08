@@ -639,7 +639,8 @@ class stock_picking(models.Model):
         for obj in self : 
             now = datetime.now()
             obj.is_date_traitement_edi = now
-            obj.affectation_uc_aux_lignes_des_livraisons()
+            #obj.affectation_uc_aux_lignes_des_livraisons()
+            obj.mise_a_jour_colisage_action() # Modif du 06/05/2025
             name='edi-tenor-desadv-odoo16'
             cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
             if (len(cdes)==0):
