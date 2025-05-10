@@ -15,13 +15,13 @@
                     </style>
                 </xpath>
 
-                <xpath expr="//button[@name='action_invoice_sent'][1]" position="after">
+                <!-- <xpath expr="//button[@name='action_invoice_sent'][1]" position="after">
                     <button 
                         name="get_lines_facture"
                         string="get_lines_facture"
                         type="object"
                     />
-                </xpath>
+                </xpath> -->
 
                 <xpath expr="//button[@name='action_invoice_sent'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
