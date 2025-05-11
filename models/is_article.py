@@ -27,8 +27,8 @@ class is_article_actualiser(models.TransientModel):
         except Exception:
             raise ValidationError('Postgresql 0 non disponible !')
         cur0 = cnx0.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        SQL="delete from is_article"
-        cur0.execute(SQL)
+        #SQL="delete from is_article"
+        #cur0.execute(SQL)
         bases = self.env['is.database'].search([])
         for base in bases:
             cnx=False
@@ -38,6 +38,11 @@ class is_article_actualiser(models.TransientModel):
                     cnx  = psycopg2.connect(x)
                 except Exception:
                     raise ValidationError('Postgresql non disponible !')
+
+
+            print(base, cnx)
+
+
             if cnx:
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 SQL= """
@@ -67,53 +72,85 @@ class is_article_actualiser(models.TransientModel):
                     WHERE 
                         pt.id>0
                     ORDER BY pt.is_code
+                    -- limit 100
                 """
                 cur.execute(SQL)
                 rows = cur.fetchall()
                 for row in rows:
-                    _logger.info("actualiser_liste_articles : "+str(row['name']))
-                    SQL="""
-                        INSERT INTO is_article (
-                            name,
-                            designation,
-                            moule,
-                            famille,
-                            sous_famille,
-                            categorie,
-                            gestionnaire,
-                            ref_fournisseur,
-                            ref_plan,
-                            couleur,
-                            fournisseur,
-                            unite,
-                            societe,
-                            cout_standard,
-                            cout_actualise,
-                            prevision_annee_n
-                        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                    """
-                    values=(
-                        row['name'],
-                        row['designation'],
-                        row['moule'],
-                        row['famille'],
-                        row['sous_famille'],
-                        row['categorie'],
-                        row['gestionnaire'],
-                        row['ref_fournisseur'],
-                        row['ref_plan'],
-                        row['couleur'],
-                        row['fournisseur'],
-                        row['unite'],
-                        base.database,
-                        str(row['cout_standard']     or 0),
-                        str(row['cout_actualise']    or 0),
-                        str(row['prevision_annee_n'] or 0),
-                    )
-                    cur0.execute(SQL,values)
-                cur.close()
-        cnx0.commit()
-        cur0.close()
+                    vals={
+                        'name'             : row['name'],
+                        'designation'      : row['designation'],
+                        'moule'            : row['moule'],
+                        'famille'          : row['famille'],
+                        'sous_famille'     : row['sous_famille'],
+                        'categorie'        : row['categorie'],
+                        'gestionnaire'     : row['gestionnaire'],
+                        'ref_fournisseur'  : row['ref_fournisseur'],
+                        'ref_plan'         : row['ref_plan'],
+                        'couleur'          : row['couleur'],
+                        'fournisseur'      : row['fournisseur'],
+                        'unite'            : row['unite'],
+                        'societe'          : base.database,
+                        'cout_standard'    : row['cout_standard'],
+                        'cout_actualise'   : row['cout_actualise'],
+                        'prevision_annee_n': row['prevision_annee_n'],
+                    }
+
+                    #** Recherche si l'article existe déja ********************
+                    articles = self.env['is.article'].search([('societe','=',base.database),('name','=',row['name'])])
+                    if len(articles)>0:
+                        articles[0].write(vals)
+                        action='write'
+                    else:
+                        self.env['is.article'].create(vals)
+                        action='create'
+                    _logger.info("actualiser_liste_articles : %s : %s : %s "%(base.database,action,row['name']))
+                    #**********************************************************
+
+
+        #             _logger.info("actualiser_liste_articles : "+str(row['name']))
+        #             SQL="""
+        #                 INSERT INTO is_article (
+        #                     name,
+        #                     designation,
+        #                     moule,
+        #                     famille,
+        #                     sous_famille,
+        #                     categorie,
+        #                     gestionnaire,
+        #                     ref_fournisseur,
+        #                     ref_plan,
+        #                     couleur,
+        #                     fournisseur,
+        #                     unite,
+        #                     societe,
+        #                     cout_standard,
+        #                     cout_actualise,
+        #                     prevision_annee_n
+        #                 ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        #             """
+        #             values=(
+        #                 row['name'],
+        #                 row['designation'],
+        #                 row['moule'],
+        #                 row['famille'],
+        #                 row['sous_famille'],
+        #                 row['categorie'],
+        #                 row['gestionnaire'],
+        #                 row['ref_fournisseur'],
+        #                 row['ref_plan'],
+        #                 row['couleur'],
+        #                 row['fournisseur'],
+        #                 row['unite'],
+        #                 base.database,
+        #                 str(row['cout_standard']     or 0),
+        #                 str(row['cout_actualise']    or 0),
+        #                 str(row['prevision_annee_n'] or 0),
+        #             )
+        #             cur0.execute(SQL,values)
+        #         cur.close()
+        # cnx0.commit()
+        # cur0.close()
         return {
             'name': u'Articles de tous les sites',
             'view_mode': 'tree,form',
@@ -130,20 +167,20 @@ class is_article(models.Model):
     _description="is.article"
     _order='name,societe'
 
-    name              = fields.Char(u"Code PG", index=True)
-    designation       = fields.Char(u"Désignation")
-    moule             = fields.Char(u"Moule")
-    famille           = fields.Char(u"Famille", index=True)
-    sous_famille      = fields.Char(u"Sous-Famille", index=True)
-    categorie         = fields.Char(u"Catégorie", index=True)
-    gestionnaire      = fields.Char(u"Gestionnaire", index=True)
-    ref_fournisseur   = fields.Char(u"Référence fournisseur")
-    ref_plan          = fields.Char(u"Réf Plan")
-    couleur           = fields.Char(u"Couleur/ Type matière")
-    fournisseur       = fields.Char(u"Fournisseur par défaut")
-    unite             = fields.Char(u"Unité")
-    societe           = fields.Char(u"Société", index=True)
-    cout_standard     = fields.Float(u"Coût standard")
-    cout_actualise    = fields.Float(u"Coût actualisé")
-    prevision_annee_n = fields.Float(u"Prévision Année N")
+    societe           = fields.Char("Société", index=True)
+    name              = fields.Char("Code PG", index=True)
+    designation       = fields.Char("Désignation")
+    moule             = fields.Char("Moule")
+    famille           = fields.Char("Famille", index=True)
+    sous_famille      = fields.Char("Sous-Famille", index=True)
+    categorie         = fields.Char("Catégorie", index=True)
+    gestionnaire      = fields.Char("Gestionnaire", index=True)
+    ref_fournisseur   = fields.Char("Référence fournisseur")
+    ref_plan          = fields.Char("Réf Plan")
+    couleur           = fields.Char("Couleur/ Type matière")
+    fournisseur       = fields.Char("Fournisseur par défaut")
+    unite             = fields.Char("Unité")
+    cout_standard     = fields.Float("Coût standard")
+    cout_actualise    = fields.Float("Coût actualisé")
+    prevision_annee_n = fields.Float("Prévision Année N")
 

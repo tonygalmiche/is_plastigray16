@@ -214,6 +214,7 @@ access_is_galia_base,access_is_galia_base,model_is_galia_base,base.group_user,1,
 access_is_galia_base_admin,access_is_galia_base_admin,model_is_galia_base,base.group_system,1,1,1,1
 
 access_is_article,access_is_article,model_is_article,base.group_user,1,0,0,0
+access_is_article_manager,access_is_article_manager,model_is_article,base.group_system,1,1,1,1
 
 access_is_galia_base_um,access_is_galia_base_um,model_is_galia_base_um,base.group_user,1,0,0,0
 access_is_galia_base_uc,access_is_galia_base_uc,model_is_galia_base_uc,base.group_user,1,0,0,0
