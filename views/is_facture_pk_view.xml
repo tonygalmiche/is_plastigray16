@@ -25,6 +25,8 @@
                         <h1>
                         <field name="num_facture" class="oe_inline" readonly="1"/>
                         </h1>
+                        <field name="client_id_vsb"            invisible="1"/> 
+                        <field name="num_cde_vsb"              invisible="1"/> 
                         <field name="num_bl_vsb"               invisible="1"/> 
                         <field name="facture_avoir_vsb"        invisible="1"/> 
                         <field name="annee_facture_vsb"        invisible="1"/> 
@@ -80,13 +82,15 @@
                                 <field name="date_facture"/> 
                                 <field name="annee_facture"      attrs="{'invisible': [('annee_facture_vsb', '!=', True)]}"/> 
                                 <field name="semaine_facture"    attrs="{'invisible': [('semaine_facture_vsb', '!=', True)]}"/> 
-                                <field name="num_bl" attrs="{'invisible': [('num_bl_vsb', '!=', True)], 'required': [('num_bl_vsb', '=', True)]}"/> 
+                                <field name="client_id" attrs="{'invisible': [('client_id_vsb', '!=', True)], 'required': [('client_id_vsb', '=', True)]}"/> 
+                                <field name="num_cde"   attrs="{'invisible': [('num_cde_vsb', '!=', True)]}"/> 
+                                <field name="num_bl"    attrs="{'invisible': [('num_bl_vsb', '!=', True)]   , 'required': [('num_bl_vsb', '=', True)]}"/> 
                             </group>
                             <group>
-                                <field name="nb_pieces" attrs="{'invisible': [('nb_pieces_vsb', '!=', True)]}"/> 
-                                <field name="nb_cartons" attrs="{'invisible': [('nb_cartons_vsb', '!=', True)]}"/> 
-                                <field name="nb_colis" attrs="{'invisible': [('nb_colis_vsb', '!=', True)]}"/> 
-                                <field name="volume" attrs="{'invisible': [('volume_vsb', '!=', True)]}"/> 
+                                <field name="nb_pieces"   attrs="{'invisible': [('nb_pieces'   , '=', 0)]}"/> 
+                                <field name="nb_cartons"  attrs="{'invisible': [('nb_cartons'  , '=', 0)]}"/> 
+                                <field name="nb_colis"    attrs="{'invisible': [('nb_colis_vsb', '!=', True)]}"/> 
+                                <field name="volume"      attrs="{'invisible': [('volume_vsb'  , '!=', True)]}"/> 
                             </group>
 
                         </group>
@@ -111,8 +115,8 @@
                                 <field name="commande"    attrs="{'column_invisible': [('parent.commande_vsb'   , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
                                 <field name="reception"   attrs="{'column_invisible': [('parent.reception_vsb'  , '!=', True)]}"/>
                                 <field name="product_id"  attrs="{'column_invisible': [('parent.product_id_vsb' , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" widget="many2one_clickable"/>
-                                <field name="ref_pk"      attrs="{'column_invisible': [('parent.ref_pk_vsb'     , '!=', True)]}"/>
                                 <field name="ref_client"  attrs="{'column_invisible': [('parent.ref_client_vsb' , '!=', True)]}"/>
+                                <field name="ref_pk"      attrs="{'column_invisible': [('parent.ref_pk_vsb'     , '!=', True)]}"/>
                                 <field name="designation" attrs="{'column_invisible': [('parent.designation_vsb', '!=', True)]}"/>
                                 <field name="poids_net"   attrs="{'column_invisible': [('parent.poids_net_vsb'  , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total" />
                                 <field name="poids_brut"  attrs="{'column_invisible': [('parent.poids_brut_vsb' , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
@@ -126,12 +130,12 @@
                                 <field name="pump_tnd"    attrs="{'column_invisible': [('parent.pump_tnd_vsb'   , '!=', True)]}"/>
                                 <field name="pump"        attrs="{'column_invisible': [('parent.pump_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
                                 <field name="pump_1000"   attrs="{'column_invisible': [('parent.pump_1000_vsb'  , '!=', True)]}"/>
-                                <field name="ptmp_tnd"    attrs="{'column_invisible': [('parent.ptmp_tnd_vsb'   , '!=', True)]}"/>
+                                <field name="ptmp_tnd"    attrs="{'column_invisible': [('parent.ptmp_tnd_vsb'   , '!=', True)]}" sum="Total"/>
                                 <field name="ptmp"        attrs="{'column_invisible': [('parent.ptmp_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
                                 <field name="pupf"        attrs="{'column_invisible': [('parent.pupf_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
                                 <field name="total_pf"    attrs="{'column_invisible': [('parent.total_pf_vsb'   , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
-                                <field name="montant_total_tnd" attrs="{'column_invisible': [('parent.montant_total_tnd_vsb', '!=', True)]}"/>
-                                <field name="montant_total"     attrs="{'column_invisible': [('parent.montant_total_vsb'    , '!=', True)]}"/>
+                                <field name="montant_total_tnd" attrs="{'column_invisible': [('parent.montant_total_tnd_vsb', '!=', True)]}" sum="Total"/>
+                                <field name="montant_total"     attrs="{'column_invisible': [('parent.montant_total_vsb'    , '!=', True)]}" sum="Total"/>
                                 <field name="num_bl" invisible="1"/>
                             </tree>
                         </field>
@@ -291,13 +295,15 @@
                                 <field name="facture_avoir"/> 
                                 <field name="annee_facture"/> 
                                 <field name="semaine_facture"/> 
+                                <field name="client_id"/> 
+                                <field name="num_cde"/> 
+                                <field name="num_bl"/> 
                                 <field name="matiere_premiere"/> 
                                 <field name="main_oeuvre"/> 
                                 <field name="total_moules"/> 
                                 <field name="frais_perturbation"/> 
                                 <field name="total"/> 
                                 <field name="total_plastigray"/> 
-                                <field name="num_bl"/> 
                             </group>
                             <group>
                                 <field name="nb_pieces"/> 

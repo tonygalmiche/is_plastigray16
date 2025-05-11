@@ -28,9 +28,18 @@
                             </div>
                             <div class="col-5  text-left">
                                 <div class="expediteur" name="client">
-                                    <div>Société PLASTIGRAY</div>
-                                    <div>CS 10133-ZAC de Gray Sud</div>
-                                    <div>70104 Gray Cedex France</div>
+                                    <t t-if="not o.client_id">
+                                        <div>Société PLASTIGRAY</div>
+                                        <div>CS 10133-ZAC de Gray Sud</div>
+                                        <div>70104 Gray Cedex France</div>
+                                    </t>
+                                    <t t-if="o.client_id!=False">
+                                        <div t-field="o.client_id.name"/>
+                                        <div t-if="o.client_id.street" t-field="o.client_id.street"/>
+                                        <div t-if="o.client_id.street2" t-field="o.client_id.street2"/>
+                                        <div><span t-field="o.client_id.zip"/> - <span t-field="o.client_id.city"/></div>
+                                        <div t-if="o.client_id.country_id" t-field="o.client_id.country_id"/>
+                                    </t>
                                 </div>
                             </div>
                         </div>
@@ -64,15 +73,17 @@
                                         <td class="text-right"><b>Total de la Matière première N/FACT en EURO : </b></td>
                                         <td class="text-right"><span t-field="o.matiere_premiere"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="not o.client_id">
                                         <td class="text-right"><b>Total des prestations de service en € à payer : </b></td>
                                         <td class="text-right"><span t-field="o.main_oeuvre"/></td>
                                     </tr>
-                                    <tr t-if="type=='douane'">
-                                        <td class="text-right"><b>Total des moules à taxer : </b></td>
-                                        <td class="text-right"><span t-field="o.total_moules"/></td>
-                                    </tr>
-                                    <tr>
+                                    <t t-if="not o.client_id">
+                                        <tr t-if="type=='douane'">
+                                            <td class="text-right"><b>Total des moules à taxer : </b></td>
+                                            <td class="text-right"><span t-field="o.total_moules"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr t-if="not o.client_id">
                                         <td class="text-right"><b>Total frais de préparation à taxer : </b></td>
                                         <td class="text-right"><span t-field="o.frais_perturbation"/></td>
                                     </tr>
@@ -80,7 +91,7 @@
                                         <td class="text-right"><b>TOTAL : </b></td>
                                         <td class="text-right"><span t-field="o.total"/></td>
                                     </tr>
-                                    <tr t-if="type=='plastigray'" style="background-color:Gainsboro">
+                                    <tr t-if="type=='plastigray' and o.total_plastigray" style="background-color:Gainsboro">
                                         <td class="text-right"><b>TOTAL : </b></td>
                                         <td class="text-right"><span t-field="o.total_plastigray"/></td>
                                     </tr>
@@ -105,15 +116,15 @@
                         <div class="row">
                             <div class="col-5">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
-                                    <tr>
+                                    <tr t-if="o.nb_pieces">
                                         <td class="text-right"><b>Nombre de pièces : </b></td>
                                         <td class="text-right"><span t-field="o.nb_pieces"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.nb_cartons">
                                         <td class="text-right"><b>Nombre de cartons : </b></td>
                                         <td class="text-right"><span t-field="o.nb_cartons"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.nb_colis">
                                         <td class="text-right"><b>Nombre de colis : </b></td>
                                         <td class="text-right"><span t-field="o.nb_colis"/></td>
                                     </tr>
@@ -122,15 +133,15 @@
                             <div class="col-1"/>
                             <div class="col-6">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
-                                    <tr>
+                                    <tr t-if="o.poids_net" >
                                         <td class="text-right"><b>Poids NET : </b></td>
                                         <td class="text-right"><span t-field="o.poids_net"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.poids_brut" >
                                         <td class="text-right"><b>Poids BRUT : </b></td>
                                         <td class="text-right"><span t-field="o.poids_brut"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.volume">
                                         <td class="text-right"><b>Volume (M3) : </b></td>
                                         <td class="text-right"><span t-field="o.volume"/></td>
                                     </tr>
@@ -154,51 +165,91 @@
                             </div>
                         </div>
     
-                        <div class="row" style="page-break-after:always;"/>
+                        <div t-if="not o.client_id" class="row" style="page-break-after:always;"/>
     
                         <div class="row">
                             <div class="col-12">
                                 <table class="table table-condensed" width="100%">
                                     <thead>
                                         <tr width="100%">
-                                            <th width="6%"><strong>N°<br/>Colis</strong></th>
-                                            <th width="6%"><strong>Commande</strong></th>
-                                            <th width="12%"><strong>Ref PK</strong></th>
-                                            <th width="24%"><strong>Designation<br/>Origine - Nomenclature</strong></th>
-                                            <th width="6%"><strong>Poids Net</strong></th>
-                                            <th width="6%"><strong>Poids Brut</strong></th>
-                                            <th width="6%"><strong>Quantite</strong></th>
-                                            <th width="6%"><strong>Nb<br/>Colis</strong></th>
-                                            <th width="6%"><strong>P.U.M.P</strong></th>
-                                            <th width="8%"><strong>P.T.M.P</strong></th>
-                                            <th width="6%"><strong>P.U.P.F</strong></th>
-                                            <th><strong>P.Total P.F.</strong></th>
+                                            <th t-if="o.num_colis_vsb"   width="6%"><strong>N°<br/>Colis</strong></th>
+                                            <th t-if="o.commande_vsb"    width="6%"><strong>Commande</strong></th>
+                                            <th t-if="o.reception_vsb"   width="6%"><strong>Réception</strong></th>
+                                            <th t-if="o.product_id_vsb"   width="6%"><strong>Article</strong></th>
+                                            <th t-if="o.ref_client_vsb"  width="12%"><strong>Ref Client</strong></th>
+                                            <th t-if="o.ref_pk_vsb"      width="12%"><strong>Ref PK</strong></th>
+
+                                            <th t-if="o.designation_vsb" width="24%">
+                                                <strong>
+                                                    Designation
+                                                    <t t-if="not o.client_id"><br/>Origine - Nomenclature</t>
+                                                </strong>
+                                            </th>
+                                            <th t-if="o.poids_net_vsb"         width="6%"><strong>Poids Net</strong></th>
+                                            <th t-if="o.poids_brut_vsb"        width="6%"><strong>Poids Brut</strong></th>
+                                            <th t-if="o.qt_vsb"                width="6%"><strong>Quantité</strong></th>
+                                            <th t-if="o.uc_vsb"                width="6%"><strong>UC</strong></th>
+                                            <th t-if="o.nb_uc_vsb"             width="6%"><strong>Nb<br/>Colis</strong></th>
+                                            <th t-if="o.pu_ht_tnd_vsb"         width="6%"><strong>P.U. H.T. (TND)</strong></th>
+                                            <th t-if="o.pu_ht_vsb"             width="6%"><strong>P.U. H.T. (€)</strong></th>
+                                            <th t-if="o.pu_ht_1000_vsb"        width="6%"><strong>P.U. H.T. x 1000 (€)</strong></th>
+                                            <th t-if="o.pu_ht_1000_ass_vsb"    width="6%"><strong>P.U. H.T. x 1000 assistance incluse (€)</strong></th>
+                                            <th t-if="o.pump_tnd_vsb"          width="6%"><strong>P.U.M.P (TND)</strong></th>
+                                            <th t-if="o.pump_vsb"              width="6%"><strong>P.U.M.P</strong></th>
+                                            <th t-if="o.pump_1000_vsb"         width="6%"><strong>P.U.M.P x 1000 (€)</strong></th>
+                                            <th t-if="o.ptmp_tnd_vsb"          width="6%"><strong>P.T.M.P (TND)</strong></th>
+                                            <th t-if="o.ptmp_vsb"              width="8%"><strong>P.T.M.P</strong></th>
+                                            <th t-if="o.pupf_vsb"              width="6%"><strong>P.U.P.F</strong></th>
+                                            <th t-if="o.total_pf_vsb"          width="6%"><strong>P.T.P.F</strong></th>
+                                            <th t-if="o.montant_total_vsb"     width="6%"><strong>Montant H.T. (TND)</strong></th>
+                                            <th t-if="o.montant_total_tnd_vsb" width="6%"><strong>Montant H.T. (€)</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr t-foreach="o.line_ids" t-as="l">
-                                            <td class="text-center"><span t-field="l.num_colis"/> </td>
-                                            <td class="text-left">  <span t-field="l.commande"/> </td>
-                                            <td class="text-left">  <span t-field="l.ref_pk"/> </td>
-                                            <td class="text-left">
-                                                <span t-field="l.designation"/>  <br/>
-                                                <span t-field="l.product_id.is_origine_produit_id"/> - 
-                                                <span t-field="l.product_id.is_nomenclature_douaniere"/>
-                                            </td>
-                                            <td class="text-right" style="white-space: nowrap;">
+                                            <td t-if="o.num_colis_vsb"  class="text-center"><span t-field="l.num_colis"/> </td>
+                                            <td t-if="o.commande_vsb"  class="text-left">  <span t-field="l.commande"/> </td>
+                                            <td t-if="o.reception_vsb"  class="text-center"><span t-field="l.reception"/> </td>
+                                            <td t-if="o.product_id_vsb"  class="text-center"><span t-field="l.product_id.is_code"/> </td>
+                                            <td t-if="o.ref_client_vsb"  class="text-left">  <span t-field="l.ref_client"/> </td>
+                                            <td t-if="o.ref_pk_vsb"  class="text-left">  <span t-field="l.ref_pk"/> </td>
+                                            <t t-if="not o.client_id">
+                                                <td t-if="not o.client_id"  class="text-left">
+                                                    <span t-field="l.designation"/>  <br/>
+                                                    <span t-field="l.product_id.is_origine_produit_id"/> - 
+                                                    <span t-field="l.product_id.is_nomenclature_douaniere"/>
+
+                                                </td>
+                                            </t>
+                                            <t t-if="o.client_id">
+                                                <td t-if="o.designation_vsb"  class="text-left">
+                                                    <span t-field="l.designation"/>
+                                                </td>
+                                            </t>
+                                            <td t-if="o.poids_net_vsb"  class="text-right" style="white-space: nowrap;">
                                                 <t t-esc='"{:,.1f}".format(l.poids_net).replace(","," ").replace(".",",")'/> 
                                             </td>
-                                            <td class="text-right" style="white-space: nowrap;">
+                                            <td t-if="o.poids_brut_vsb"  class="text-right" style="white-space: nowrap;">
                                                 <t t-esc='"{:,.1f}".format(l.poids_brut).replace(","," ").replace(".",",")'/> 
                                             </td>
-                                            <td class="text-right" style="white-space: nowrap;"> <span t-field="l.qt"/> </td>
-                                            <td class="text-right" style="white-space: nowrap;">
+                                            <td t-if="o.qt_vsb"  class="text-right"  style="white-space: nowrap;"> <span t-field="l.qt"/> </td>
+                                            <td t-if="o.uc_vsb"  class="text-center" style="white-space: nowrap;"> <span t-field="l.uc"/> </td>
+                                            <td t-if="o.nb_uc_vsb"  class="text-right" style="white-space: nowrap;">
                                                 <t t-esc='"{:,.0f}".format(l.nb_uc).replace(","," ").replace(".",",")'/> 
                                             </td>
-                                            <td class="text-right" style="white-space: nowrap;"> <span t-field="l.pump"/> </td>
-                                            <td class="text-right" style="white-space: nowrap;"> <span t-field="l.ptmp"/> </td>
-                                            <td class="text-right" style="white-space: nowrap;"> <span t-field="l.pupf"/> </td>
-                                            <td class="text-right" style="white-space: nowrap;"> <span t-field="l.total_pf"/> </td>
+                                            <td t-if="o.pu_ht_tnd_vsb"         class="text-right" style="white-space: nowrap;"> <span t-field="l.pu_ht_tnd"/> </td>
+                                            <td t-if="o.pu_ht_vsb"             class="text-right" style="white-space: nowrap;"> <span t-field="l.pu_ht"/> </td>
+                                            <td t-if="o.pu_ht_1000_vsb"        class="text-right" style="white-space: nowrap;"> <span t-field="l.pu_ht_1000"/> </td>
+                                            <td t-if="o.pu_ht_1000_ass_vsb"    class="text-right" style="white-space: nowrap;"> <span t-field="l.pu_ht_1000_ass"/> </td>
+                                            <td t-if="o.pump_tnd_vsb"          class="text-right" style="white-space: nowrap;"> <span t-field="l.pump_tnd"/> </td>
+                                            <td t-if="o.pump_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.pump"/> </td>
+                                            <td t-if="o.pump_1000_vsb"         class="text-right" style="white-space: nowrap;"> <span t-field="l.pump_1000"/> </td>
+                                            <td t-if="o.ptmp_tnd_vsb"          class="text-right" style="white-space: nowrap;"> <span t-field="l.ptmp"/> </td>
+                                            <td t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.ptmp"/> </td>
+                                            <td t-if="o.pupf_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.pupf"/> </td>
+                                            <td t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"> <span t-field="l.total_pf"/> </td>
+                                            <td t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total_tnd"/> </td>
+                                            <td t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total"/> </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -210,31 +261,31 @@
                             </div>
                             <div class="col-5">
                                 <table class="table table-condensed" width="50%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
-                                    <tr>
+                                    <tr t-if="o.poids_net">
                                         <td class="text-right"><b>Poids net : </b></td>
                                         <td class="text-right"><span t-field="o.poids_net"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.poids_brut">
                                         <td class="text-right"><b>Poids brut : </b></td>
                                         <td class="text-right"><span t-field="o.poids_brut"/></td>
                                     </tr>
     
-                                    <tr>
+                                    <tr t-if="o.nb_pieces">
                                         <td class="text-right"><b>Quantité : </b></td>
                                         <td class="text-right"><span t-field="o.nb_pieces"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.matiere_premiere">
                                         <td class="text-right"><b>Total matière première : </b></td>
                                         <td class="text-right"><span t-field="o.matiere_premiere"/></td>
                                     </tr>
-                                    <tr>
+                                    <tr t-if="o.main_oeuvre">
                                         <td class="text-right"><b>Total main d'oeuvre : </b></td>
                                         <td class="text-right"><span t-field="o.main_oeuvre"/></td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" t-if="o.moule_ids">
                             <div class="col-6">
                                 <table class="table table-condensed" width="100%">
                                     <thead>

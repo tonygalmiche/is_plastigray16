@@ -11,6 +11,8 @@ class is_facture_pk_type(models.Model):
     _order = 'name'
     
     name   = fields.Char('Type facture', required=True)
+    client_id            = fields.Boolean("Client", default=False)
+    num_cde              = fields.Boolean("N° de Cde", default=False)
     num_bl               = fields.Boolean("N° de BL", default=True)
     facture_avoir        = fields.Boolean("Type", default=True)
     annee_facture        = fields.Boolean("Année de la facture", default=True)
@@ -97,6 +99,8 @@ class is_facture_pk(models.Model):
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now(),tracking=True)
     annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True,tracking=True)
     semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True,tracking=True)
+    client_id          = fields.Many2one('res.partner', string='Client',tracking=True, domain=[('is_company', '=', True), ('customer', '=', True)]) 
+    num_cde            = fields.Char("N° de commande",tracking=True)
     num_bl             = fields.Many2one('stock.picking', string='N° de BL',tracking=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
     num_import_matiere = fields.Char("N° d'import matière première",tracking=True)
 
@@ -111,7 +115,7 @@ class is_facture_pk(models.Model):
     nb_pieces          = fields.Integer("Nombre de pièces", readonly=True,tracking=True)
     nb_cartons         = fields.Integer("Nombre de cartons", readonly=True,tracking=True)
     nb_colis           = fields.Integer("Nombre de colis",tracking=True)
-    volume             = fields.Integer("Vomule (m3)", compute='_compute', store=True,tracking=True)
+    volume             = fields.Integer("Vomule (m3)", compute='_compute', store=True,tracking=True, readonly=False)
     poids_net          = fields.Float("Poids net (Kg)" , digits=(14, 2),tracking=True)
     poids_brut         = fields.Float("Poids brut (Kg)", digits=(14, 2),tracking=True)
 
@@ -126,6 +130,8 @@ class is_facture_pk(models.Model):
     facture_origine_id   = fields.Many2one('is.facture.pk', string="Facture d'origine de cet avoir", tracking=True) 
     conditions_generales = fields.Text('Conditions générales',tracking=True)
 
+    client_id_vsb            = fields.Boolean("client_id_vsb"             , compute='_compute_vsb')
+    num_cde_vsb              = fields.Boolean("num_cde_vsb"               , compute='_compute_vsb')
     num_bl_vsb               = fields.Boolean("num_bl_vsb"                , compute='_compute_vsb')
     facture_avoir_vsb        = fields.Boolean("facture_avoir_vsb"         , compute='_compute_vsb')
     annee_facture_vsb        = fields.Boolean("annee_facture_vsb"         , compute='_compute_vsb')
@@ -181,7 +187,7 @@ class is_facture_pk(models.Model):
         for obj in self:
             vsb=False
             champs=[
-                'facture_avoir','num_bl','annee_facture','semaine_facture','moule_ids','conditions_generales',
+                'facture_avoir','client_id','num_cde','num_bl','annee_facture','semaine_facture','moule_ids','conditions_generales',
                 'matiere_premiere','main_oeuvre','total_moules','frais_perturbation','total','total_plastigray',
                 'nb_pieces', 'nb_cartons','nb_colis', 'volume', 'poids_net', 'poids_brut',
                 'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf',
@@ -329,11 +335,11 @@ class is_facture_pk_line(models.Model):
     pump_tnd      = fields.Float('P.U.M.P (TND)'      , digits=(14, 4))  # Nouveau champ du 04/05/2025
     pump_1000     = fields.Float('P.U.M.P x 1000 (€))', digits=(14, 4))  # Nouveau champ du 04/05/2025
 
-    ptmp          = fields.Float('P.T.M.P (€)'     , digits=(14, 4))
-    ptmp_tnd      = fields.Float('P.T.M.P (TND)'   , digits=(14, 4))     # Nouveau champ du 04/05/2025
+    ptmp          = fields.Float('P.T.M.P (€)'     , digits=(14, 4), compute='_compute_montant', store=True, readonly=False)
+    ptmp_tnd      = fields.Float('P.T.M.P (TND)'   , digits=(14, 4), compute='_compute_montant', store=True, readonly=False)     # Nouveau champ du 04/05/2025
 
     pupf          = fields.Float('P.U.P.F (€)'     , digits=(14, 4))
-    total_pf      = fields.Float('P.T.P.F. (€)', digits=(14, 4))
+    total_pf      = fields.Float('P.T.P.F. (€)', digits=(14, 4), compute='_compute_montant', store=True, readonly=False)
     num_bl        = fields.Many2one(related='is_facture_id.num_bl') 
 
     pu_ht          = fields.Float('P.U. H.T. (€)'     , digits=(14, 4))     # Nouveau champ du 04/05/2025
@@ -341,9 +347,18 @@ class is_facture_pk_line(models.Model):
     pu_ht_1000     = fields.Float('P.U. H.T. x 1000 (€)', digits=(14, 4))   # Nouveau champ du 04/05/2025
     pu_ht_1000_ass = fields.Float('P.U. H.T. x 1000 assistance incluse (€)', digits=(14, 4))  # Nouveau champ du 04/05/2025
 
-    montant_total     = fields.Float('Montant H.T. (€)'  , digits=(14, 4)) # Nouveau champ du 04/05/2025
-    montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4)) # Nouveau champ du 04/05/2025
+    montant_total     = fields.Float('Montant H.T. (€)'  , digits=(14, 4), compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
+    montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4), compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
 
+
+    @api.depends('qt','pupf','pump','pump_tnd','pu_ht','pu_ht_tnd')
+    def _compute_montant(self):
+        for obj in self:
+            obj.total_pf          = obj.qt * obj.pupf
+            obj.ptmp              = obj.qt * obj.pump
+            obj.ptmp_tnd          = obj.qt * obj.pump_tnd
+            obj.montant_total     = obj.qt * obj.pu_ht
+            obj.montant_total_tnd = obj.qt * obj.pu_ht_tnd
 
 
 class is_facture_pk_moule(models.Model):
