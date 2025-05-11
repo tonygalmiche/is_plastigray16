@@ -38,11 +38,6 @@ class is_article_actualiser(models.TransientModel):
                     cnx  = psycopg2.connect(x)
                 except Exception:
                     raise ValidationError('Postgresql non disponible !')
-
-
-            print(base, cnx)
-
-
             if cnx:
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 SQL= """
@@ -183,4 +178,13 @@ class is_article(models.Model):
     cout_standard     = fields.Float("Coût standard")
     cout_actualise    = fields.Float("Coût actualisé")
     prevision_annee_n = fields.Float("Prévision Année N")
+
+
+    def name_get(self):
+        result = []
+        for obj in self:          
+            name="%s %s"%(obj.name or '',obj.designation or '')
+            result.append((obj.id, name))
+        return result
+
 
