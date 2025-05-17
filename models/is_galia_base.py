@@ -791,14 +791,139 @@ class is_galia_base_um(models.Model):
     liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True)
     bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True)
     production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True)
-    location_id      = fields.Many2one('stock.location', 'Emplacement'         , index=True, domain=[("usage","=","internal")], default=lambda self: self._get_location_id())
+    location_id      = fields.Many2one('stock.location', 'Emplacement actuel'  , index=True, domain=[("usage","=","internal")], default=lambda self: self._get_location_id())
+    location_dest_id = fields.Many2one('stock.location', 'Emplacement de destination'      , domain=[("usage","=","internal")])
     uc_ids           = fields.One2many('is.galia.base.uc'  , 'um_id', "UCs")
     product_id       = fields.Many2one('product.product', 'Article', readonly=True, compute='_compute', store=False)
-    qt_pieces        = fields.Integer("Qt Pièces"                 , readonly=True, compute='_compute', store=False)
+    qt_pieces        = fields.Integer("Qt Pièces"                  , readonly=True, compute='_compute', store=False)
     employee_id      = fields.Many2one("hr.employee", "Employé")
     date_fin         = fields.Datetime("Date fin UM")
     active           = fields.Boolean("Active", default=True, copy=False, index=True)
     date_ctrl_rcp    = fields.Datetime("Date contrôle réception")
+    information      = fields.Text("Information", readonly=True, compute='_compute_information_anomalie', store=False)
+    anomalie         = fields.Text("Anomalie"   , readonly=True, compute='_compute_information_anomalie', store=False)
+
+
+    def get_qt_par_lot(self):
+        for obj in self:
+            #** Recherche des quantités par article et par lot ****************
+            mydict={}
+            for uc in obj.uc_ids:
+                key="%s-%s"%(uc.product_id.is_code,uc.production)
+                if key not in mydict:
+                    mydict[key]={
+                        'product'   : uc.product_id,
+                        'production': uc.production,
+                        'qt_pieces' : 0
+                    }
+                mydict[key]['qt_pieces']+=uc.qt_pieces
+            sorted_dict = dict(sorted(mydict.items())) 
+            #******************************************************************
+
+            for key in sorted_dict:
+                #** Recherche du lot ******************************************
+                vals=sorted_dict[key]
+                domain=[
+                    ('product_id','=',vals['product'].id),
+                    ('name'      ,'=',vals['production']),
+                ]
+                lots=self.env['stock.lot'].search(domain)
+                lot_id=(len(lots) and lots[0].id) or False
+                vals['lot_id'] = lot_id
+                #**************************************************************
+
+                #** Recherche du stock ****************************************
+                domain=[
+                    ('product_id' ,'=',vals['product'].id),
+                    ('location_id','=',obj.location_id.id),
+                    ('lot_id'     ,'=',lot_id),
+                ]
+                quants=self.env['stock.quant'].search(domain)
+                stock=0
+                for quant in quants:
+                    stock+=quant.quantity
+                vals['stock'] = stock
+                #**************************************************************
+            return sorted_dict
+
+
+    @api.depends('location_id','uc_ids')
+    def _compute_information_anomalie(self):
+        for obj in self:
+            information=[]
+            anomalie = []
+            sorted_dict = obj.get_qt_par_lot()
+            for key in sorted_dict:
+                vals=sorted_dict[key]
+                msg="%s : %s : lot_id=%s : Qt UM=%s : Stock=%s"%(
+                    vals['product'].is_code.ljust(8),
+                    vals['production'].ljust(8),
+                    str(vals['lot_id']).ljust(8),
+                    str(int(vals['qt_pieces'])).ljust(4),
+                    int(vals['stock'])
+                )
+                if vals['qt_pieces']<=vals['stock']:
+                    information.append(msg)
+                else:
+                    anomalie.append(msg)
+            obj.information = (len(information) and '\n'.join(information)) or False
+            obj.anomalie    = (len(anomalie)    and '\n'.join(anomalie)) or False
+
+
+    def deplacer_um_action(self):
+        for obj in self:
+            if obj.anomalie:
+                raise ValidationError("Déplacement impossible car stock non disponible dans emplacement '%s':\n%s"%(obj.location_id.name,obj.anomalie))
+            sorted_dict = obj.get_qt_par_lot()
+            for key in sorted_dict:
+                product = sorted_dict[key]['product']
+                qty     = sorted_dict[key]['qt_pieces']
+                lot_id  = sorted_dict[key]['lot_id']
+                name="UM %s"%obj.name
+                vals={
+                    "product_id": product.id,
+                    "product_uom": product.uom_id.id,
+                    "location_id": obj.location_id.id,
+                    "location_dest_id": obj.location_dest_id.id,
+                    "origin": name,
+                    "name": name,
+                    "reference": name,
+                    "procure_method": "make_to_stock",
+                    "product_uom_qty": qty,
+                    "scrapped": False,
+                    "propagate_cancel": True,
+                    "is_inventory": True,
+                    "additional": False,
+                }
+                move=self.env['stock.move'].create(vals)
+                vals={
+                    "move_id": move.id,
+                    "product_id": product.id,
+                    "product_uom_id": product.uom_id.id,
+                    "location_id": obj.location_id.id,
+                    "location_dest_id": obj.location_dest_id.id,
+                    "lot_id": lot_id,
+                    "qty_done": qty,
+                    "reference": name,
+                }
+                move_line=self.env['stock.move.line'].create(vals)
+                move._action_done()
+            obj.location_id = obj.location_dest_id.id
+            obj.location_dest_id = False
+            return True
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def _get_location_id(self):
@@ -891,6 +1016,16 @@ class is_galia_base_um(models.Model):
             ucs = self.env['is.galia.base.uc'].search(domain)
             for uc in ucs:
                 uc.imprimer_etiquette_uc_action()
+
+
+
+
+
+
+
+
+
+
 
 
 class is_galia_base_uc(models.Model):

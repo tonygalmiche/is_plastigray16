@@ -223,6 +223,13 @@
                             attrs="{'invisible': [('active', '!=', True)]}"
                         />
                         <button 
+                            string="Déplacer cette UM" 
+                            type="object" 
+                            name="deplacer_um_action" 
+                            attrs="{'invisible': ['|',('uc_ids', '==', []),('location_dest_id', '==', False)]}"
+                            class="btn btn-primary"
+                        />
+                        <button 
                             name="imprimer_etiquette_uc_action" 
                             string="Imprimer les étiquettes des UC" 
                             type="object"
@@ -236,6 +243,11 @@
                         />
                     </header>
                     <sheet>
+                        <field name="information" invisible="1"/>
+                        <field name="anomalie"    invisible="1"/>
+
+
+
                         <widget name="web_ribbon" title="Archivée" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <field name="active" invisible="1"/> 
                         <group>
@@ -249,19 +261,27 @@
                             </group>
                             <group>
                                 <field name="location_id"/>
+                                <field name="location_dest_id"/>
                                 <field name="qt_pieces"     attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
                                 <field name="employee_id"/>
                                 <field name="date_ctrl_rcp"/>
                                 <field name="date_fin"/>
                             </group>    
                         </group>
+
+                        <div style="font-size:11pt;font-family:courier, courier new, serif">
+                            <div  attrs="{'invisible': [('anomalie'   , '=', False)]}"  style="background:DarkOrange"> <field name="anomalie" nolabel="1"/></div>
+                            <div  attrs="{'invisible': [('information', '=', False)]}"  style="background:Gainsboro">  <field name="information" nolabel="1"/></div>
+                        </div>
+
+
                         <field name="uc_ids" nolabel="1" >
                             <tree editable="bottom">
                                 <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
                                 <field name="num_eti"/>
                                 <field name="type_eti"/>
                                 <field name="num_carton"/>
-                                <field name="qt_pieces"/>
+                                <field name="qt_pieces" sum="Total"/>
                                 <field name="date_creation"/>
                                 <field name="production"/>
                                 <field name="product_id" widget="many2one_clickable"/>
@@ -283,12 +303,13 @@
                     <field name="production_id"    optional="show" widget="many2one_clickable"/>
                     <field name="product_id"       optional="show" widget="many2one_clickable"/>
                     <field name="location_id"      optional="show"/>
+                    <field name="location_dest_id" optional="hide"/>
                     <field name="qt_pieces"        optional="show"/>
                     <field name="employee_id"      optional="show"/>
-                    <field name="date_ctrl_rcp"    optional="show"/>
+                    <field name="date_ctrl_rcp"    optional="hide"/>
                     <field name="date_fin"         optional="show"/>
-                    <field name="uc_ids"           optional="show"/>
-                    <field name="create_date"      optional="show"/>
+                    <field name="uc_ids"           optional="hide"/>
+                    <field name="create_date"      optional="hide"/>
                     <field name="create_uid"       optional="hide"/>
                     <field name="write_date"       optional="show"/>
                     <field name="write_uid"        optional="hide"/>
