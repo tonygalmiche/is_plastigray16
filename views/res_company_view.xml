@@ -37,6 +37,12 @@
                                 <field name="is_mdp_reimprimer" password="True"/>
                                 <field name="is_mdp_quantite"   password="True"/>
                             </group>
+                            <group string="Accès CEGID">
+                                <field name="is_cegid_ip"/>
+                                <field name="is_cegid_base"/>
+                                <field name="is_cegid_login"/>
+                                <field name="is_cegid_mdp" password="True"/>
+                            </group>
                             <group string="Google Agenda">
                                 <field name="is_agenda_url"/>
                                 <field name="is_agenda_pwd" password="True"/>
@@ -47,7 +53,6 @@
                                 <field name="is_url_odoo_theia"/>
                                 <field name="is_url_facture_owork"/>
                             </group>
-
                             <group string="Gestionnaires">
                                 <field name="is_directeur_general_id"/>
                                 <field name="is_directeur_technique_id"/>

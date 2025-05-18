@@ -68,6 +68,11 @@ class res_company(models.Model):
     is_taux_devise_dinar = fields.Float("Taux devise dinar" , digits=(12, 4), help="Utilisé pour la facturation PK")
     is_taux_commission   = fields.Float("Taux de commission", digits=(12, 4), help="Utilisé pour la facturation PK")
 
+    is_cegid_ip    = fields.Char('IP du serveur CEGID')
+    is_cegid_base  = fields.Char('Nom base CEGID')
+    is_cegid_login = fields.Char('Login base CEGID')
+    is_cegid_mdp   = fields.Char('Mot de passe base CEGID')
+
 
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')
