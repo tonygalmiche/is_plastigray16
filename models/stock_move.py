@@ -19,22 +19,36 @@ class stock_move(models.Model):
             lots = False
             if obj.picking_id.sale_id.is_liste_servir_id.galia_um_ids:
                 liste_servir_id = obj.picking_id.sale_id.is_liste_servir_id.id
-                SQL="""
-                    select uc.production, sum(uc.qt_pieces)
-                    from is_galia_base_uc uc inner join is_galia_base_um um on uc.um_id=um.id
-                                            inner join is_liste_servir ls on um.liste_servir_id=ls.id
-                                            inner join product_product pp on uc.product_id=pp.id 
-                                            inner join product_template pt on pp.product_tmpl_id=pt.id
-                    where ls.id=%s and uc.product_id=%s
-                    group by uc.production
-                    order by uc.production
-                """
-                cr.execute(SQL,[liste_servir_id, obj.product_id.id])
-                result = cr.fetchall()
-                lots=[]
-                for row in result:
-                    lots.append("Lot "+(row[0] or '')+" : "+str(row[1]))
-                lots = u"\n".join(lots)
+                # SQL="""
+                #     select uc.production, sum(uc.qt_pieces)
+                #     from is_galia_base_uc uc inner join is_galia_base_um um on uc.um_id=um.id
+                #                             inner join is_liste_servir ls on um.liste_servir_id=ls.id
+                #                             inner join product_product pp on uc.product_id=pp.id 
+                #                             inner join product_template pt on pp.product_tmpl_id=pt.id
+                #     where ls.id=%s and uc.product_id=%s
+                #     group by uc.production
+                #     order by uc.production
+                # """
+                # cr.execute(SQL,[liste_servir_id, obj.product_id.id])
+                # result = cr.fetchall()
+                # lots=[]
+                # for row in result:
+                #     lots.append("Lot "+(row[0] or '')+" : "+str(row[1]))
+                # lots = u"\n".join(lots)
+
+                #TODO : modification du 20/05/2025
+                mydict={}
+                for uc in obj.is_uc_ids:
+                    lot = uc.production
+                    if lot not in mydict:
+                        mydict[lot]=0
+                    mydict[lot]+=uc.qt_pieces
+                if len(mydict):
+                    lots=[]
+                    sorted_dict = dict(sorted(mydict.items())) 
+                    for lot in sorted_dict:
+                        lots.append("Lot %s : %s"%(lot, sorted_dict[lot]))
+                    lots = u"\n".join(lots)
 
             if obj.is_uc_rcp_ids:
                 res={}
@@ -70,7 +84,6 @@ class stock_move(models.Model):
 
     is_sale_line_id               = fields.Many2one('sale.order.line', 'Ligne de commande (Champ désactivé dans Odoo 16 et remplacé par sale_line_id)', index=True)  #Le champ sale_line_id existe par défaut dans Odoo 16
     is_lot_id                     = fields.Many2one('stock.lot', 'Lot', domain="[('product_id','=',product_id)]", help="Lot forcé pour les mouvements créés manuellement")
-    #is_lots                       = fields.Text(u'Lots', compute='_compute_lots', store=True, readonly=True)
     is_lots                       = fields.Text('Lots', compute='_compute_lots', store=True, readonly=True, copy=False)
     is_dosmat_ctrl_qual           = fields.Char('Contrôle qualité', readonly=True)
     is_dosmat_conditions_stockage = fields.Char('Conditions de stockage', readonly=True)

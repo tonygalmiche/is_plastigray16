@@ -153,16 +153,39 @@ class stock_picking(models.Model):
             obj.is_nb_uc = nb_uc
 
 
+    # def compute_alerte(self):
+    #     for obj in self:
+    #         alerte=False
+    #         is_qt_uc = quantity_done = 0
+    #         for move in obj.move_ids_without_package:
+    #             is_qt_uc+=move.is_qt_uc
+    #             quantity_done+=move.quantity_done
+    #         if is_qt_uc!=quantity_done and is_qt_uc>0:
+    #             alerte="La quantité totale scannée (%s) ne correspond pas à la quantité livrée (%s) !"%(is_qt_uc,quantity_done)
+    #         obj.is_alerte=alerte
+
+
+
     def compute_alerte(self):
         for obj in self:
-            alerte=False
+            alerte=[]
             is_qt_uc = quantity_done = 0
             for move in obj.move_ids_without_package:
-                is_qt_uc+=move.is_qt_uc
-                quantity_done+=move.quantity_done
-            if is_qt_uc!=quantity_done and is_qt_uc>0:
-                alerte="La quantité totale scannée (%s) ne correspond pas à la quantité livrée (%s) !"%(is_qt_uc,quantity_done)
+                if move.quantity_done!=move.is_qt_uc:
+                    alerte.append("%s : La quantité scannée (%s) ne correspond pas à la quantité livrée (%s) !"%(move.product_id.is_code,move.is_qt_uc,move.quantity_done))
+            if len(alerte):
+                alerte='\n'.join(alerte)
+            else:
+                alerte = False
             obj.is_alerte=alerte
+
+
+
+
+
+
+
+
 
 
     def is_alerte_action(self):
@@ -518,25 +541,26 @@ class stock_picking(models.Model):
                 cr.commit()
 
                 #** Affectation des lignes de livraisons aux UC ***************
-                for move in obj.move_ids_without_package:
+                moves = obj.move_ids_without_package.sorted(key=lambda l: (l.quantity_done), reverse=False)
+                for move in moves:
                     quantite = move.product_uom_qty
                     filtre=[
                         ('liste_servir_id','=',liste_servir_id)
                     ]
                     if obj.state!='done':
-                            raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
+                        raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
                     ums=self.env['is.galia.base.um'].search(filtre)
                     test=True
-                    for  um in ums:
+                    for um in ums:
                         ct=1
-                        for uc in um.uc_ids:
-                             if uc.product_id==move.product_id and not uc.stock_move_id and test:
+                        ucs = um.uc_ids.sorted(key=lambda l: (l.qt_pieces), reverse=False)
+                        for uc in ucs:
+                            if uc.product_id==move.product_id and not uc.stock_move_id and test:
                                 qt_pieces = uc.qt_pieces
                                 uc.stock_move_id = move.id
                                 quantite=quantite-qt_pieces
                                 if quantite<=0:
                                     test=False
-                                    #break
                                 ct+=1
         cr.commit()
 
@@ -639,7 +663,6 @@ class stock_picking(models.Model):
         for obj in self : 
             now = datetime.now()
             obj.is_date_traitement_edi = now
-            #obj.affectation_uc_aux_lignes_des_livraisons()
             obj.mise_a_jour_colisage_action() # Modif du 06/05/2025
             name='edi-tenor-desadv-odoo16'
             cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])

@@ -49,6 +49,66 @@ class is_reception_inter_site(models.Model):
         return super().create(vals_list)
 
 
+    def get_reception(self, row_liv,filtre_sur_commande_client=False):
+        cr  = self._cr
+        for obj in self:
+            is_code    = row_liv['is_code']
+            qt_liv     = row_liv['quantity_done']
+            date_debut = row_liv['date_done']
+            date_fin   = date_debut + timedelta(days=7)
+
+            #** Recherche de la réception *********************************
+            SQL="""
+                SELECT 
+                    sp.id picking_id,
+                    sp.name, 
+                    pt.is_code,
+                    sm.product_uom_qty,
+                    sm.id move_id,
+                    sm.location_dest_id,
+                    sp.scheduled_date,
+                    pol.date_planned,
+                    po.is_num_da
+                FROM stock_picking sp join stock_move         sm on sm.picking_id=sp.id
+                                    join product_product      pp on sm.product_id=pp.id 
+                                    join product_template     pt on pp.product_tmpl_id=pt.id
+                                    join purchase_order_line pol on sm.purchase_line_id=pol.id
+                                    join purchase_order       po on pol.order_id=po.id
+            """
+            if obj.etat_reception=='fait':
+                SQL="""%s
+                    WHERE 
+                        pt.is_code='%s' and sp.partner_id=%s and
+                        sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
+                        sp.is_date_reception>='%s' and sp.is_date_reception<='%s'  and
+                        sp.is_num_bl='%s' and
+                        sp.is_reception_inter_site_id is Null 
+                        -- and sm.product_uom_qty=%s
+                    ORDER BY pol.date_planned
+                    limit 1
+                """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
+            else:
+                SQL="""%s
+                    WHERE 
+                        pt.is_code='%s' and sp.partner_id=%s and
+                        sp.state not in ('done','cancel','draft') and 
+                        sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
+                        sp.is_reception_inter_site_id is Null 
+                        -- and sm.product_uom_qty=%s
+                    ORDER BY pol.date_planned
+                    limit 1
+                """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
+            cr.execute(SQL)
+            rows = cr.dictfetchall()
+            return rows
+            # if len(rows)==0:
+            #     msg="Réception non trouvée pour %s (Qt=%s)"%(is_code, qt_liv)
+            #     alerte.append(msg)
+
+
+
+
+
     def analyse_action(self):
         "Analyse et création des UM/UC"
         cr  = self._cr
@@ -78,7 +138,8 @@ class is_reception_inter_site(models.Model):
                     sm.quantity_done,
                     sp.date_done,
                     sm.id move_id,
-                    sol.is_date_livraison
+                    sol.is_date_livraison,
+                    sol.is_client_order_ref
                 FROM stock_picking sp join stock_move       sm on sm.picking_id=sp.id
                                       join product_product  pp on sm.product_id=pp.id 
                                       join product_template pt on pp.product_tmpl_id=pt.id
@@ -102,51 +163,55 @@ class is_reception_inter_site(models.Model):
                 date_debut = row_liv['date_done']
                 date_fin   = date_debut + timedelta(days=7)
 
-                #** Recherche de la réception *********************************
-                SQL="""
-                    SELECT 
-                        sp.id picking_id,
-                        sp.name, 
-                        pt.is_code,
-                        sm.product_uom_qty,
-                        sm.id move_id,
-                        sm.location_dest_id,
-                        sp.scheduled_date,
-                        pol.date_planned
-                    FROM stock_picking sp join stock_move         sm on sm.picking_id=sp.id
-                                        join product_product      pp on sm.product_id=pp.id 
-                                        join product_template     pt on pp.product_tmpl_id=pt.id
-                                        join purchase_order_line pol on sm.purchase_line_id=pol.id
-                """
-                if obj.etat_reception=='fait':
-                    SQL="""%s
-                        WHERE 
-                            pt.is_code='%s' and sp.partner_id=%s and
-                            sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
-                            sp.is_date_reception>='%s' and sp.is_date_reception<='%s'  and
-                            sp.is_num_bl='%s' and
-                            sp.is_reception_inter_site_id is Null 
-                            -- and sm.product_uom_qty=%s
-                        ORDER BY pol.date_planned
-                        limit 1
-                    """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
-                else:
-                    SQL="""%s
-                        WHERE 
-                            pt.is_code='%s' and sp.partner_id=%s and
-                            sp.state not in ('done','cancel','draft') and 
-                            sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
-                            sp.is_reception_inter_site_id is Null 
-                            -- and sm.product_uom_qty=%s
-                        ORDER BY pol.date_planned
-                        limit 1
-                    """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
-                cr.execute(SQL)
-                rows = cr.dictfetchall()
+                # #** Recherche de la réception *********************************
+                # SQL="""
+                #     SELECT 
+                #         sp.id picking_id,
+                #         sp.name, 
+                #         pt.is_code,
+                #         sm.product_uom_qty,
+                #         sm.id move_id,
+                #         sm.location_dest_id,
+                #         sp.scheduled_date,
+                #         pol.date_planned
+                #     FROM stock_picking sp join stock_move         sm on sm.picking_id=sp.id
+                #                         join product_product      pp on sm.product_id=pp.id 
+                #                         join product_template     pt on pp.product_tmpl_id=pt.id
+                #                         join purchase_order_line pol on sm.purchase_line_id=pol.id
+                # """
+                # if obj.etat_reception=='fait':
+                #     SQL="""%s
+                #         WHERE 
+                #             pt.is_code='%s' and sp.partner_id=%s and
+                #             sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
+                #             sp.is_date_reception>='%s' and sp.is_date_reception<='%s'  and
+                #             sp.is_num_bl='%s' and
+                #             sp.is_reception_inter_site_id is Null 
+                #             -- and sm.product_uom_qty=%s
+                #         ORDER BY pol.date_planned
+                #         limit 1
+                #     """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
+                # else:
+                #     SQL="""%s
+                #         WHERE 
+                #             pt.is_code='%s' and sp.partner_id=%s and
+                #             sp.state not in ('done','cancel','draft') and 
+                #             sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
+                #             sp.is_reception_inter_site_id is Null 
+                #             -- and sm.product_uom_qty=%s
+                #         ORDER BY pol.date_planned
+                #         limit 1
+                #     """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
+                # cr.execute(SQL)
+                # rows = cr.dictfetchall()
+
+                rows = obj.get_reception(row_liv,filtre_sur_commande_client=True)
                 if len(rows)==0:
-                    msg="Réception non trouvée pour %s (Qt=%s)"%(is_code, qt_liv)
-                    alerte.append(msg)
-                else:
+                    rows = obj.get_reception(row_liv,filtre_sur_commande_client=False)
+                    if len(rows)==0:
+                        msg="Réception non trouvée pour %s (Qt=%s)"%(is_code, qt_liv)
+                        alerte.append(msg)
+                if len(rows)!=0:
                     for row in rows:
                         nb_rcp+=1
                         num_rcp     = row['name']
@@ -282,16 +347,22 @@ class is_reception_inter_site(models.Model):
                             picking.is_qt_livree_inter_site    = qt_scan # Quantitée scannée en livraison qu'il faudra réceptionner
                         #**********************************************************
 
-                        msg = "%s : %s au %s Liv (%s) : %s au %s Rcp (%s) : %s Scan : %s Qt pièces UC"%(
-                            is_code.ljust(9), 
-                            str(qt_liv).rjust(8), 
+
+                        ok="nOK!"
+                        if int(qt_liv)==int(qt_scan) and int(qt_liv)==int(qt_uc) and int(qt_liv)<=int(qt_rcp):
+                            ok="OK"
+
+                        msg = "%s : Liv %s du %s de %s : Scan de %s : Rcp %s du %s de %s : UC créées de %s : %s"%(
+                            is_code.ljust(7), 
+                            ("%s/%s "%(row_liv['name'],row_liv['is_client_order_ref']))[0:20].ljust(20),
                             row_liv['is_date_livraison'],
-                            row_liv['name'],
-                            str(qt_rcp).rjust(8),
+                            str(int(qt_liv)).ljust(6), 
+                            str(int(qt_scan)).rjust(6),
+                            ("%s/%s"%(num_rcp, row['is_num_da']))[0:22].ljust(22),
                             str(row['date_planned'])[0:10],  
-                            num_rcp,
-                            str(qt_scan).rjust(8),
-                            str(qt_uc).rjust(8)
+                            str(int(qt_rcp)).ljust(6),
+                            str(int(qt_uc)).ljust(6),
+                            ok
                         )
                         msg = msg.replace(' ', chr(160)) # Remplacer les espaces par des espaces insecables, sinon ils sont supprimés avec wkhtml2pdf
                         cr.commit()
