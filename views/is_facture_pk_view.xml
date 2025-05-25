@@ -107,6 +107,8 @@
                             <group>
                                 <field name="poids_net" attrs="{'invisible': [('poids_net_vsb', '!=', True)]}"/> 
                                 <field name="poids_brut" attrs="{'invisible': [('poids_brut_vsb', '!=', True)]}"/> 
+                                <field name="taux_devise_dinar"/> 
+                                <field name="taux_commission"/> 
                             </group>
                         </group>
                         <field name="line_ids" nolabel="1" >

@@ -70,9 +70,18 @@ class is_facture_pk(models.Model):
     _rec_name = 'num_facture'
     _order = 'num_facture desc'
     
-    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids')
+    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids','line_ids')
     def _compute(self):
         for obj in self:
+            #** matiere_premiere et main_oeuvre *******************************
+            matiere_premiere=main_oeuvre=0
+            for row in obj.line_ids:
+                matiere_premiere=matiere_premiere+row.ptmp
+                main_oeuvre=main_oeuvre+row.total_pf
+            obj.matiere_premiere=matiere_premiere
+            obj.main_oeuvre=main_oeuvre
+            #******************************************************************
+
             total_moules=0
             for row in obj.moule_ids:
                 total_moules=total_moules+row.montant
@@ -88,8 +97,23 @@ class is_facture_pk(models.Model):
             obj.annee_facture   = annee_facture
             obj.semaine_facture = semaine_facture
 
+            #** Taux de change et de commission *******************************
+            company = self.env.user.company_id
+            obj.taux_devise_dinar = company.is_taux_devise_dinar
+            obj.taux_commission   = company.is_taux_commission
+            #******************************************************************
 
-  
+            #** poids_net et poids_brut ***************************************
+            poids_net=poids_brut=0
+            for row in obj.line_ids:
+                poids_net=poids_net+row.poids_net
+                poids_brut=poids_brut+row.poids_brut
+            obj.poids_net=poids_net
+            obj.poids_brut=poids_brut
+            #******************************************************************
+
+
+
     @api.depends('main_oeuvre','frais_perturbation')
     def _compute_total_plastigray(self):
         for obj in self:
@@ -104,8 +128,8 @@ class is_facture_pk(models.Model):
     num_bl             = fields.Many2one('stock.picking', string='N° de BL',tracking=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
     num_import_matiere = fields.Char("N° d'import matière première",tracking=True)
 
-    matiere_premiere   = fields.Float('Total Matière première (€)'                     , digits=(14, 4), readonly=True,tracking=True)
-    main_oeuvre        = fields.Float("Total Main d'oeuvre / Prestation de service (€)", digits=(14, 4), readonly=True,tracking=True)
+    matiere_premiere   = fields.Float('Total Matière première (€)'                     , digits=(14, 4), readonly=True, compute='_compute', store=True,tracking=True)
+    main_oeuvre        = fields.Float("Total Main d'oeuvre / Prestation de service (€)", digits=(14, 4), readonly=True, compute='_compute', store=True,tracking=True)
     total_moules       = fields.Float("Total des moules à taxer (€)"                   , digits=(14, 4), compute='_compute', store=True,tracking=True)
     frais_perturbation = fields.Float("Total frais de préparation à taxer (€)"         , digits=(14, 4),tracking=True)
     frais_perturbation_commentaire = fields.Char("Commentaire frais de préparation",tracking=True)
@@ -116,8 +140,8 @@ class is_facture_pk(models.Model):
     nb_cartons         = fields.Integer("Nombre de cartons", readonly=True,tracking=True)
     nb_colis           = fields.Integer("Nombre de colis",tracking=True)
     volume             = fields.Integer("Vomule (m3)", compute='_compute', store=True,tracking=True, readonly=False)
-    poids_net          = fields.Float("Poids net (Kg)" , digits=(14, 2),tracking=True)
-    poids_brut         = fields.Float("Poids brut (Kg)", digits=(14, 2),tracking=True)
+    poids_net          = fields.Float("Poids net (Kg)" , digits=(14, 2), compute='_compute', store=True,tracking=True)
+    poids_brut         = fields.Float("Poids brut (Kg)", digits=(14, 2), compute='_compute', store=True, tracking=True)
 
     line_ids           = fields.One2many('is.facture.pk.line' , 'is_facture_id', string='Lignes de la facture',tracking=True)
     moule_ids          = fields.One2many('is.facture.pk.moule', 'is_facture_id', string='Moules à taxer',tracking=True)
@@ -180,6 +204,9 @@ class is_facture_pk(models.Model):
     pu_ht_1000_ass_vsb    = fields.Boolean("pu_ht_1000_ass_vsb"   , compute='_compute_vsb')
     montant_total_vsb     = fields.Boolean("montant_total_vsb"    , compute='_compute_vsb')
     montant_total_tnd_vsb = fields.Boolean("montant_total_tnd_vsb", compute='_compute_vsb')
+
+    taux_devise_dinar = fields.Float("Taux devise dinar" , digits=(12, 4), readonly=True)
+    taux_commission   = fields.Float("Taux de commission", digits=(12, 4), readonly=True)
 
 
     @api.depends('type_facture_id')
@@ -352,14 +379,34 @@ class is_facture_pk_line(models.Model):
     montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4), compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
 
 
+    @api.onchange('pump_tnd','pu_ht_tnd')
+    def onchange_tnd(self):
+        taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
+        taux_commission   = self.is_facture_id.taux_commission or 1
+        self.pump = self.pump_tnd/taux_devise_dinar
+        self.pump_1000 = 1000 * self.pump_tnd/taux_devise_dinar
+
+        self.pu_ht = self.pu_ht_tnd/taux_devise_dinar
+        self.pu_ht_1000     = 1000 * self.pu_ht_tnd/taux_devise_dinar
+        self.pu_ht_1000_ass = 1000 *  taux_commission * self.pu_ht_tnd/taux_devise_dinar
+
+
+    @api.onchange('montant_total_tnd')
+    def onchange_montant_total_tnd(self):
+        taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
+        self.montant_total = self.montant_total_tnd/taux_devise_dinar
+
+
     @api.depends('qt','pupf','pump','pump_tnd','pu_ht','pu_ht_tnd')
     def _compute_montant(self):
         for obj in self:
-            obj.total_pf          = obj.qt * obj.pupf
-            obj.ptmp              = obj.qt * obj.pump
-            obj.ptmp_tnd          = obj.qt * obj.pump_tnd
-            obj.montant_total     = obj.qt * obj.pu_ht
-            obj.montant_total_tnd = obj.qt * obj.pu_ht_tnd
+            taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
+            qt = obj.qt or 1
+            obj.total_pf          = qt * obj.pupf
+            obj.ptmp              = qt * obj.pump
+            obj.ptmp_tnd          = qt * obj.pump_tnd
+            obj.montant_total     = qt * obj.pu_ht_1000_ass/1000
+            obj.montant_total_tnd = qt * obj.montant_total / taux_devise_dinar
 
 
 class is_facture_pk_moule(models.Model):
