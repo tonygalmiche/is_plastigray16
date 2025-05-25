@@ -70,7 +70,7 @@ class is_facture_pk(models.Model):
     _rec_name = 'num_facture'
     _order = 'num_facture desc'
     
-    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation')
+    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids')
     def _compute(self):
         for obj in self:
             total_moules=0
@@ -279,6 +279,7 @@ class is_facture_pk(models.Model):
                 })
         res = super().create(vals)
         res.num_bl.is_facture_pk_id=res.id
+        res._compute()
         return res
 
 

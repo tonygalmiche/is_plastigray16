@@ -8,10 +8,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-#TODO : 
-#- Action plannifié la nuit
-
-
 class is_gestion_portail(models.Model):
     _name='is.gestion.portail'
     _inherit=['mail.thread']
@@ -80,7 +76,7 @@ class is_gestion_portail(models.Model):
         date=datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
         #Pour chaque jour rechercher la première ligne correspondante
-        for i in range(0,100):
+        for i in range(0,200):
             jour_semaine = date.weekday()+1 # Jour de la semaine entre 1 et 7
             test=False
             heure_ouverture = heure_fermeture = False
