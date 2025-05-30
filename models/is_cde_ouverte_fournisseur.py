@@ -89,12 +89,13 @@ modele_mail=u"""
             <font><font
                ><font> </font></font></font></li>
         </ul>
-        <p><font>Pour <b>les
-            </b><b>matières</b><b> </b><b>premières</b><b>, le
-              certificat de conformité</b><b>/d'analyse</b> doit
-            obligatoirement être fourni au moment de la
-            livraison. </font><font><br>
-          </font> </p>
+        <p>
+            Pour <b>les matières premières, le certificat de conformité/d'analyse</b> 
+            doit obligatoirement être fourni au moment de la livraison.
+        </p>
+        <p>
+            <b>Vous devez assurer la conformité de la matière sur la (ou les) caractéristique(s) spécifique(s) définie(s) sur la commande.</b>
+        </p>
         <br>
       </td>
     </tr>

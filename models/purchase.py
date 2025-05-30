@@ -138,6 +138,20 @@ class purchase_order(models.Model):
     is_type_cde_fournisseur  = fields.Selection(related='partner_id.is_type_cde_fournisseur')
     is_date_creation_picking = fields.Date("Date création picking", compute='_compute_is_date_creation_picking')
 
+    is_dosmat_caracteristique_specifique = fields.Text("Caractéristiques spécifiques", compute='_compute_is_dosmat_caracteristique_specifique')
+
+
+    def _compute_is_dosmat_caracteristique_specifique(self):
+        for obj in self:
+            val=False
+            for line in obj.order_line:
+                if line.product_id.is_dosmat_caracteristique_specifique:
+                    val =  line.product_id.is_dosmat_caracteristique_specifique
+                    break
+            if val:
+                val="Pour les matières premières, le certificat de conformité/d'analyse doit obligatoirement être fourni au moment de la livraison.\nVous devez assurer la conformité de la matière sur la (ou les) caractéristique(s) spécifique(s) suivante(s) :\n%s"%val
+            obj.is_dosmat_caracteristique_specifique = val
+
 
     def _compute_is_date_creation_picking(self):
         for obj in self:

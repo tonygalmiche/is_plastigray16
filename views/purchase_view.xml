@@ -18,40 +18,6 @@
         </record>
 
 
-
-
-        <!-- <record id="is_purchase_order_view_form_inherit" model="ir.ui.view">
-            <field name="name">is_purchase_order_view_form_inherit</field>
-            <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit" />
-            <field name="arch" type="xml">
-                <button name="action_view_picking" position="attributes">
-                    <attribute name="groups">!stock.group_stock_user</attribute>
-                </button>
-            </field>
-        </record> -->
-
-
-
-          <!-- <xpath expr="//header/button[@name='action_rfq_send']" position="after">
-                <button name="action_view_picking" 
-                    string="Receive Products" class="oe_highlight" type="object" 
-                    attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('purchase','done')), ('incoming_picking_count', '=', 0)]}" 
-                    data-hotkey="y" groups="stock.group_stock_user"/>
-            </xpath>
-            <xpath expr="//header/button[@name='confirm_reminder_mail']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', '|', '|', ('state', 'not in', ('purchase', 'done')), ('mail_reminder_confirmed', '=', True), ('date_planned', '=', False), ('effective_date', '!=', False)]}</attribute>
-            </xpath>
-            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                <button type="object"
-                    name="action_view_picking"
-                    class="oe_stat_button"
-                    icon="fa-truck" attrs="{'invisible':[('incoming_picking_count','=', 0)]}" groups="stock.group_stock_user">
-                    <field name="incoming_picking_count" widget="statinfo" string="Receipt" help="Incoming Shipments"/>
-                </button>
-            </xpath>
-            <xpath expr="//field[@name='currency_id']" position="after"> -->
-
         <record id="is_purchase_order_form" model="ir.ui.view">
             <field name="name">is_purchase_order_form</field>
             <field name="model">purchase.order</field>
@@ -105,7 +71,6 @@
                         confirm="Voulez-vous vraiment envoyer ce document par mail ?"
                     />
                 </xpath>
-
                 <xpath expr="//group/label[@for='date_planned']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -118,33 +83,9 @@
                 <xpath expr="//group/div[@name='reminder']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-
-                <!-- <label for="date_planned"/>
-                <div name="date_planned_div" class="o_row">
-                    <field name="date_planned" attrs="{'readonly': [('state', 'not in', ('draft', 'sent', 'to approve', 'purchase'))]}"/>
-                    <field name="mail_reminder_confirmed" invisible="1"/>
-                    <span class="text-muted" attrs="{'invisible': [('mail_reminder_confirmed', '=', False)]}">(confirmed by vendor)</span>
-                </div>
-            
-             <label for="receipt_reminder_email" class="d-none" groups="purchase.group_send_reminder"/>
-                            <div name="reminder" class="o_row" groups="purchase.group_send_reminder" title="Automatically send a confirmation email to the vendor X days before the expected receipt date, asking him to confirm the exact date.">
-                                <field name="receipt_reminder_email"/>
-                                <span>Ask confirmation</span>
-                                <div class="o_row oe_inline" attrs="{'invisible': [('receipt_reminder_email', '=', False)]}">
-                                    <field name="reminder_date_before_receipt"/>
-                                    day(s) before
-                                    <widget name="toaster_button" button_name="send_reminder_preview" title="Preview the reminder email by sending it to yourself." attrs="{'invisible': [('id', '=', False)]}"/>
-                                </div>
-                            </div>
-            
-            -->
-
-
-
                 <field name="partner_id"  position="attributes">
                     <attribute name="domain">[('is_company','=',True),('supplier','=',True)]</attribute>
                 </field>
-
                 <field name="date_order" position="after">
                     <field name="create_date"/>
                     <field name="is_date_creation_picking"/>
@@ -178,6 +119,11 @@
                     <field name="is_date_confirmation" />
                     <field name="is_commentaire" />
                 </field>
+                <xpath expr="//group/group/field[@name='notes']/../.." position="after">
+                    <group attrs="{'invisible': [('is_dosmat_caracteristique_specifique', '=', False)]}">
+                        <field name="is_dosmat_caracteristique_specifique" />
+                    </group>
+                </xpath>
             </field>
         </record> 
 
@@ -208,39 +154,5 @@
             <field name="domain">[('state','in',('draft','sent','to_approve'))]</field>  
         </record>
  
-
-
-
-        <!-- <record id="is_purchase_order_tree" model="ir.ui.view">
-            <field name="name">is_purchase_order_tree</field>
-            <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_tree" />
-            <field name="arch" type="xml">
-                <field name="partner_id" position="after">
-                    <field name="is_num_da" />
-                    <field name="is_demandeur_id" />
-                </field>
-                <field name="minimum_planned_date" position="after">
-                    <field name="is_date_confirmation" />
-                    <field name="is_commentaire" />
-                </field>
-                <field name="origin" position="replace" />
-            </field>
-        </record>
-
-        <record id="is_purchase_order_line_form" model="ir.ui.view">
-            <field name="name">is_purchase_order_line_form</field>
-            <field name="model">purchase.order.line</field>
-            <field name="inherit_id" ref="purchase.purchase_order_line_form"/>
-            <field name="arch" type="xml">
-                <field name="price_unit" position="after">
-                    <field name="is_justification" />
-                    <field name="is_num_chantier" />
-                </field>
-            </field>
-        </record> -->
-
-
-
     </data>
 </odoo>

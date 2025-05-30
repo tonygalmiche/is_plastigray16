@@ -171,7 +171,7 @@
                         </tbody>
                     </table>
                     <div class="row">
-                        <div class="col-4 pull-right">
+                        <div class="col-4 d-flex ms-auto">
                             <table class="table table-condensed">
                                 <tr class="border-black">
                                     <td>
@@ -204,6 +204,9 @@
                         </div>
                     </div>
                     <p t-field="o.notes"/>
+                    <p t-if="o.is_dosmat_caracteristique_specifique">
+                        <b><span t-field="o.is_dosmat_caracteristique_specifique"/></b>
+                    </p> 
                 </div>
                 <div class="footer purchaseorder_footer">
                     <div style="border-top: 1px solid black">

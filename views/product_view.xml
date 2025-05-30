@@ -571,7 +571,8 @@
                         <field name="is_ref_fournisseur" attrs="{'invisible': [('is_ref_fournisseur_vsb', '=', True)]}"/>
                         <field name="is_origine_produit_id_vsb" invisible="1"/>
                         <field name="is_origine_produit_id" attrs="{'invisible': [('is_origine_produit_id_vsb', '=', True)]}"/>
-                        <field name="is_dosmat_ctrl_qual"/>
+                        <field name="is_dosmat_ctrl_qual"                   attrs="{'invisible': [('is_dosmat_ctrl_qual', '=', False)]}"/>
+                        <field name="is_dosmat_caracteristique_specifique"  attrs="{'invisible': [('is_dosmat_caracteristique_specifique', '=', False)]}"/>
                     </group>
                 </group> 
                 <xpath expr="//page[@name='sales']" position="attributes">

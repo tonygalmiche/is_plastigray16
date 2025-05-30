@@ -38,46 +38,47 @@ class is_dossier_article(models.Model):
     automobile        = fields.Boolean("Automobile", help="Destiné aux produits automobile", default=False)
 
     # Informations matières :
-    gamme_commerciale_id = fields.Many2one('is.dossier.article.gamme.commerciale', u"Gamme commerciale", tracking=True) # : liste de choix ( LEXAN, ELASTOLLAN, DELRIN,…). voir annexe
-    producteur_id        = fields.Many2one('is.dossier.article.producteur', u"Producteur", tracking=True) #: menu déroulant (SABIC, BASF, DUPONT, CHIMEI…) voir annexe
-    taux_de_recycle      = fields.Integer(u"Taux de recyclé (%)", tracking=True) #: champ nombre
-    traitement1_id       = fields.Many2one('is.dossier.article.traitement', u"Traitement 1", tracking=True) #: menu déroulant ( anti-UV,etc…)
-    traitement2_id       = fields.Many2one('is.dossier.article.traitement', u"Traitement 2", tracking=True) #: menu déroulant : le même que précédemment
-    utilisation_id       = fields.Many2one('is.dossier.article.utilisation', u"Utilisations", tracking=True) #: liste de choix : possibilité de sélectionner plusieurs choix ( capotage domotique, …)
-    carte_jaune          = fields.Selection([('Oui', u'Oui'),('Non'  , u"Non")], u"Carte jaune", tracking=True) #: oui/non
-    couleur_ral          = fields.Char(u"Couleur/Ral", tracking=True) #: champ libre
-    documents_techniques = fields.Char(u"Documents techniques", compute="_compute_documents_techniques", readonly=True, store=False) #: lien pour accéder directement aux documents de la GED
+    gamme_commerciale_id = fields.Many2one('is.dossier.article.gamme.commerciale', "Gamme commerciale", tracking=True) # : liste de choix ( LEXAN, ELASTOLLAN, DELRIN,…). voir annexe
+    producteur_id        = fields.Many2one('is.dossier.article.producteur', "Producteur", tracking=True) #: menu déroulant (SABIC, BASF, DUPONT, CHIMEI…) voir annexe
+    taux_de_recycle      = fields.Integer("Taux de recyclé (%)", tracking=True) #: champ nombre
+    traitement1_id       = fields.Many2one('is.dossier.article.traitement', "Traitement 1", tracking=True) #: menu déroulant ( anti-UV,etc…)
+    traitement2_id       = fields.Many2one('is.dossier.article.traitement', "Traitement 2", tracking=True) #: menu déroulant : le même que précédemment
+    utilisation_id       = fields.Many2one('is.dossier.article.utilisation', "Utilisations", tracking=True) #: liste de choix : possibilité de sélectionner plusieurs choix ( capotage domotique, …)
+    carte_jaune          = fields.Selection([('Oui', u'Oui'),('Non'  , "Non")], "Carte jaune", tracking=True) #: oui/non
+    couleur_ral          = fields.Char("Couleur/Ral", tracking=True) #: champ libre
+    documents_techniques = fields.Char("Documents techniques", compute="_compute_documents_techniques", readonly=True, store=False) #: lien pour accéder directement aux documents de la GED
 
     # Propriétés Matières :
-    densite              = fields.Float(u"Densité", digits=(14,2), tracking=True) #: nombre avec 2 chiffres après la virgule
-    durete_id            = fields.Many2one('is.dossier.article.durete', u"Dureté", tracking=True) #: menu déroulant : 95 SHORE A … 
-    taux_de_charge1      = fields.Integer(u"Taux de charge 1 (%)", tracking=True) #: champ nombre
-    type_article1_id     = fields.Many2one('is.dossier.article.type.article', u"Type 1", tracking=True) #: menu déroulant (fibres de verre, talc, textile, bois…)
-    taux_de_charge2      = fields.Integer(u"Taux de charge 2 (%) ", tracking=True) # champ nombre
-    type_article2_id     = fields.Many2one('is.dossier.article.type.article', u"Type 2", tracking=True) #: menu déroulant (fibres de verre, talc, textile, bois…) Idem champ précédent
-    combustion_id        = fields.Many2one('is.dossier.article.combustion', u"Combustion", tracking=True) #: menu déroulant ( V0, V2…)
-    epaisseur_combustion = fields.Float(u"Epaisseur combustion (mm)", digits=(14,2), tracking=True) #: nombre avec 2 chiffres après la virgule
-    gwfi                 = fields.Integer(u"GWFI (°C)", tracking=True) #: champ nombre
-    lab_l                = fields.Float(u" L (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
-    lab_a                = fields.Float(u" A (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
-    lab_b                = fields.Float(u" B (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
+    densite              = fields.Float("Densité", digits=(14,2), tracking=True) #: nombre avec 2 chiffres après la virgule
+    durete_id            = fields.Many2one('is.dossier.article.durete', "Dureté", tracking=True) #: menu déroulant : 95 SHORE A … 
+    taux_de_charge1      = fields.Integer("Taux de charge 1 (%)", tracking=True) #: champ nombre
+    type_article1_id     = fields.Many2one('is.dossier.article.type.article', "Type 1", tracking=True) #: menu déroulant (fibres de verre, talc, textile, bois…)
+    taux_de_charge2      = fields.Integer("Taux de charge 2 (%) ", tracking=True) # champ nombre
+    type_article2_id     = fields.Many2one('is.dossier.article.type.article', "Type 2", tracking=True) #: menu déroulant (fibres de verre, talc, textile, bois…) Idem champ précédent
+    combustion_id        = fields.Many2one('is.dossier.article.combustion', "Combustion", tracking=True) #: menu déroulant ( V0, V2…)
+    epaisseur_combustion = fields.Float("Epaisseur combustion (mm)", digits=(14,2), tracking=True) #: nombre avec 2 chiffres après la virgule
+    gwfi                 = fields.Integer("GWFI (°C)", tracking=True) #: champ nombre
+    lab_l                = fields.Float(" L (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
+    lab_a                = fields.Float(" A (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
+    lab_b                = fields.Float(" B (L*A*B)", digits=(14,2), tracking=True) #: 3 cases avec nombre 2 chiffres après la virgule :
 
     # Informations production :
-    mfr                 = fields.Char(u"MFR (g/10min)", tracking=True) #: champ libre
-    mvr                 = fields.Char(u"MVR (cm3/10min)", tracking=True) #: champ libre
-    norme               = fields.Char(u"Norme (n° - T°C/masse kg)", tracking=True) #: champ libre
-    temp_transformation = fields.Char(u"T°C transformation (°C)", tracking=True) #: champ nombre
-    temp_moule          = fields.Char(u"T°C moule (°C)", tracking=True) #: champ nombre
-    retrait             = fields.Char(u"Retrait (// - L )", tracking=True) #: champ libre
-    temps_etuvage       = fields.Integer(u"Temps étuvage minimum (H)", tracking=True) #: champ nombre
-    temperature_etuvage = fields.Integer(u"Température étuvage (°C +/-10°)", tracking=True) #: champ nombre
-    dessiccateur        = fields.Selection([('Oui', u'Oui'),('Non'  , u"Non")], u"Dessiccateur", tracking=True) #:  oui/non
-    temp_rose           = fields.Integer(u"T°C Rosée", tracking=True) #: champ nombre
-    taux_humidite       = fields.Float(u"Taux d'humidité maximum (%)", digits=(14,2), tracking=True) #: champ nombre : 2 chiffres après la virgule
-    commentaire         = fields.Char(u"Commentaires", tracking=True) #: champ libre
-    code_recyclage_id   = fields.Many2one('is.dossier.article.code.recyclage', u"Code recyclage", tracking=True) #: menu déroulant : A,B…
-    controle_qualite    = fields.Char(u"Contrôle qualité", tracking=True) #: champ libre : attention : champ présent dans onglet information à transférer dans ce nouvel onglet : attention lien avec les réceptions.
-    conditions_stockage = fields.Char(u"Conditions de stockage", tracking=True)
+    mfr                 = fields.Char("MFR (g/10min)", tracking=True) #: champ libre
+    mvr                 = fields.Char("MVR (cm3/10min)", tracking=True) #: champ libre
+    norme               = fields.Char("Norme (n° - T°C/masse kg)", tracking=True) #: champ libre
+    temp_transformation = fields.Char("T°C transformation (°C)", tracking=True) #: champ nombre
+    temp_moule          = fields.Char("T°C moule (°C)", tracking=True) #: champ nombre
+    retrait             = fields.Char("Retrait (// - L )", tracking=True) #: champ libre
+    temps_etuvage       = fields.Integer("Temps étuvage minimum (H)", tracking=True) #: champ nombre
+    temperature_etuvage = fields.Integer("Température étuvage (°C +/-10°)", tracking=True) #: champ nombre
+    dessiccateur        = fields.Selection([('Oui', u'Oui'),('Non'  , "Non")], "Dessiccateur", tracking=True) #:  oui/non
+    temp_rose           = fields.Integer("T°C Rosée", tracking=True) #: champ nombre
+    taux_humidite       = fields.Float("Taux d'humidité maximum (%)", digits=(14,2), tracking=True) #: champ nombre : 2 chiffres après la virgule
+    commentaire         = fields.Char("Commentaires", tracking=True) #: champ libre
+    code_recyclage_id   = fields.Many2one('is.dossier.article.code.recyclage', "Code recyclage", tracking=True) #: menu déroulant : A,B…
+    caracteristique_specifique = fields.Text("Caractéristiques spécifiques", tracking=True)
+    controle_qualite    = fields.Char("Contrôle qualité", tracking=True) #: champ libre : attention : champ présent dans onglet information à transférer dans ce nouvel onglet : attention lien avec les réceptions.
+    conditions_stockage = fields.Char("Conditions de stockage", tracking=True)
     active              = fields.Boolean('Actif', default=True, tracking=True)
 
 

@@ -491,7 +491,8 @@ class product_template(models.Model):
     is_client_id                  = fields.Many2one('res.partner', 'Client par défaut'     , store=True, compute='_compute_is_client_id')
     is_fournisseur_id             = fields.Many2one('res.partner', 'Fournisseur par défaut', store=True, compute='_compute_is_fournisseur_id')
 
-    is_dosmat_ctrl_qual           = fields.Char('Contrôle qualité', readonly=True)
+    is_dosmat_ctrl_qual                  = fields.Char('Contrôle qualité'            , readonly=True, help="Donnée provenant du dossier article dans odoo0 et alimenté par un script externe la nuit")
+    is_dosmat_caracteristique_specifique = fields.Text('Caractéristiques spécifiques', readonly=True, help="Donnée provenant du dossier article dans odoo0 et alimenté par un script externe la nuit")
 
 
     #** Champs pour le livret logistique des emballages ************************
