@@ -79,6 +79,7 @@ class is_dossier_article(models.Model):
     caracteristique_specifique = fields.Text("Caractéristiques spécifiques", tracking=True)
     controle_qualite    = fields.Char("Contrôle qualité", tracking=True) #: champ libre : attention : champ présent dans onglet information à transférer dans ce nouvel onglet : attention lien avec les réceptions.
     conditions_stockage = fields.Char("Conditions de stockage", tracking=True)
+    empreinte_carbonne  = fields.Float('Empreinte Carbone (kg CO2 - Eq)', digits=(14,2))
     active              = fields.Boolean('Actif', default=True, tracking=True)
 
 
