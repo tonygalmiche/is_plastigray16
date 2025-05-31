@@ -67,6 +67,15 @@
                         type="object"
                         confirm="Voulez-vous vraiment envoyer ce document par mail ?"
                     />
+
+<!-- 
+                    <button
+                        name="is_compute_qty_invoiced"
+                        string="Test Tony"
+                        type="object"
+                    />
+ -->
+
                 </xpath>
                 <xpath expr="//group[@name='order_details']/field[@name='date_order'][1]" position="attributes">
                     <attribute name="attrs">{'invisible': True}</attribute>

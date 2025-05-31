@@ -503,7 +503,16 @@ class account_invoice(models.Model):
                     if line.is_move_id:
                         line.is_move_id.invoice_state='invoiced'
                         line.is_move_id.picking_id._compute_invoice_state()
-        return res
+
+            #TODO ajouté le 31/05/2025 suite à la mise en place du regroupement des lignes des commandes sur les factures
+            if obj.move_type=='out_invoice':
+                orders=[]
+                for line in obj.invoice_line_ids:
+                    for sale_line in line.sale_line_ids:
+                        if sale_line.order_id not in orders:
+                            orders.append(sale_line.order_id)
+                for order in orders:
+                    order.is_compute_qty_invoiced()
 
 
     def button_reset_taxes(self):

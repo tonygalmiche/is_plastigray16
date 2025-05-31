@@ -83,6 +83,7 @@
                                 <field name="is_taux_commission"/>
                             </group>
                             <group string="Autre">
+                                <field name="is_regrouper_ligne_commande"/>
                                 <field name="is_temps_effectif_par_jour"/>
                                 <field name="is_cout_ctrl_qualite"/>
                                 <field name="is_dossier_interface_cegid"/>

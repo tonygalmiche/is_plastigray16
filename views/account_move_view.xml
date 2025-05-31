@@ -83,6 +83,7 @@
                     <field name="is_document" optional="show"/>
                 </xpath>
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_total']" position="after" >
+                    <field name="move_id"           optional="hide" widget="many2one_clickable"/>
                     <field name="is_move_id"        optional="hide" widget="many2one_clickable"/>
                     <field name="purchase_order_id" optional="hide" widget="many2one_clickable"/>
                     <field name="purchase_line_id"  optional="hide" widget="many2one_clickable"/>

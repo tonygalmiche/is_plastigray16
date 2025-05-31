@@ -73,6 +73,8 @@ class res_company(models.Model):
     is_cegid_login = fields.Char('Login base CEGID')
     is_cegid_mdp   = fields.Char('Mot de passe base CEGID')
 
+    is_regrouper_ligne_commande = fields.Boolean('Regrouper les lignes des commandes de ventes sur les factures', default=False)
+
 
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields,api
-from odoo.exceptions import ValidationError
+from odoo import models,fields,api    # type: ignore
+from odoo.fields import Command       # type: ignore
+from odoo.exceptions import AccessError, ValidationError, UserError  # type: ignore
+from itertools import groupby
 import time
 from  datetime import datetime, timedelta
 from math import *
@@ -48,43 +50,185 @@ class sale_order(models.Model):
     client_order_ref       = fields.Char(string='N° de commande client') # Référence client => N° de commande client
 
 
-    # def _prepare_invoice(self):
-    #     res = super()._prepare_invoice()
-    #     print(self,self.partner_id,self.partner_id.property_account_position_id)
-    #     res['fiscal_position_id'] = self.partner_id.property_account_position_id.id
-    #     print('_prepare_invoice',self,res)
-    #     return res
-        # """
-        # Prepare the dict of values to create the new invoice for a sales order. This method may be
-        # overridden to implement custom invoice generation (making sure to call super() to establish
-        # a clean extension chain).
-        # """
-        # self.ensure_one()
-
-        # return {
-        #     'ref': self.client_order_ref or '',
-        #     'move_type': 'out_invoice',
-        #     'narration': self.note,
-        #     'currency_id': self.currency_id.id,
-        #     'campaign_id': self.campaign_id.id,
-        #     'medium_id': self.medium_id.id,
-        #     'source_id': self.source_id.id,
-        #     'team_id': self.team_id.id,
-        #     'partner_id': self.partner_invoice_id.id,
-        #     'partner_shipping_id': self.partner_shipping_id.id,
-        #     'fiscal_position_id': (self.fiscal_position_id or self.fiscal_position_id._get_fiscal_position(self.partner_invoice_id)).id,
-        #     'invoice_origin': self.name,
-        #     'invoice_payment_term_id': self.payment_term_id.id,
-        #     'invoice_user_id': self.user_id.id,
-        #     'payment_reference': self.reference,
-        #     'transaction_ids': [Command.set(self.transaction_ids.ids)],
-        #     'company_id': self.company_id.id,
-        #     'invoice_line_ids': [],
-        # }
-
-
     def _create_invoices(self, grouped=False, final=False, date=None):
+        company = self.env.user.company_id
+        if company.is_regrouper_ligne_commande:
+            res = self._create_invoices_aves_regroupement(grouped=grouped, final=final, date=date)
+        else:
+            res = self._create_invoices_sans_regroupement(grouped=grouped, final=final, date=date)
+        return res
+
+
+    def _create_invoices_aves_regroupement(self, grouped=False, final=False, date=None):
+        "Fonction remplacée le 31/05/2025 pour faire le lien entre les factures et les mouvements de stocks et regrouper les lignes des commandes"
+        if not self.env['account.move'].check_access_rights('create', False):
+            try:
+                self.check_access_rights('write')
+                self.check_access_rule('write')
+            except AccessError:
+                return self.env['account.move']
+
+        invoice_vals_list = []
+        invoice_item_sequence = 0 # Incremental sequencing to keep the lines order on the invoice.
+        for order in self:
+            order = order.with_company(order.company_id).with_context(lang=order.partner_invoice_id.lang)
+
+            invoice_vals = order._prepare_invoice()
+            invoiceable_lines = order._get_invoiceable_lines(final)
+
+            if not any(not line.display_type for line in invoiceable_lines):
+                continue
+
+            #** Regroupement des lignes des commandes *************************
+            invoiceable_lines_grouped={}
+            pickings=[]
+            for line in invoiceable_lines:
+                key="%s-%s"%(line.is_client_order_ref,line.name)
+                if key not in invoiceable_lines_grouped:
+                    invoiceable_lines_grouped[key]={
+                        'line': line,
+                        'quantity':0,
+                        'line_ids':[]    
+                    }
+                invoiceable_lines_grouped[key]['quantity']+=line.qty_to_invoice
+                invoiceable_lines_grouped[key]['line_ids'].append(line)
+            #******************************************************************
+
+            #** Prépration des lignes des facture *****************************
+            invoice_line_vals = []
+            down_payment_section_added = False
+            for key in invoiceable_lines_grouped:
+                line     = invoiceable_lines_grouped[key]['line']
+                quantity = invoiceable_lines_grouped[key]['quantity']
+                line_ids = invoiceable_lines_grouped[key]['line_ids']
+                # Create a dedicated section for the down payments (put at the end of the invoiceable_lines)
+                if not down_payment_section_added and line.is_downpayment:
+                    invoice_line_vals.append(
+                        Command.create(
+                            order._prepare_down_payment_section_line(sequence=invoice_item_sequence)
+                        ),
+                    )
+                    down_payment_section_added = True
+                    invoice_item_sequence += 1
+                vals=line._prepare_invoice_line(sequence=invoice_item_sequence, quantity=quantity)
+                vals['sale_line_ids']=[]
+                for l in line_ids:
+                    vals['sale_line_ids'].append(Command.link(l.id))
+                invoice_line_vals.append(Command.create(vals))
+                invoice_item_sequence += 1
+            invoice_vals['invoice_line_ids'] += invoice_line_vals
+            invoice_vals_list.append(invoice_vals)
+            #******************************************************************
+
+        if not invoice_vals_list and self._context.get('raise_if_nothing_to_invoice', True):
+            raise UserError(self._nothing_to_invoice_error_message())
+
+        #** Je désactive cette partie, car je pense qu'elle est inutile 
+        # # 2) Manage 'grouped' parameter: group by (partner_id, currency_id).
+        # if not grouped:
+        #     new_invoice_vals_list = []
+        #     invoice_grouping_keys = self._get_invoice_grouping_keys()
+        #     invoice_vals_list = sorted(
+        #         invoice_vals_list,
+        #         key=lambda x: [
+        #             x.get(grouping_key) for grouping_key in invoice_grouping_keys
+        #         ]
+        #     )
+        #     for _grouping_keys, invoices in groupby(invoice_vals_list, key=lambda x: [x.get(grouping_key) for grouping_key in invoice_grouping_keys]):
+        #         origins = set()
+        #         payment_refs = set()
+        #         refs = set()
+        #         ref_invoice_vals = None
+        #         for invoice_vals in invoices:
+        #             if not ref_invoice_vals:
+        #                 ref_invoice_vals = invoice_vals
+        #             else:
+        #                 ref_invoice_vals['invoice_line_ids'] += invoice_vals['invoice_line_ids']
+        #             origins.add(invoice_vals['invoice_origin'])
+        #             payment_refs.add(invoice_vals['payment_reference'])
+        #             refs.add(invoice_vals['ref'])
+        #         ref_invoice_vals.update({
+        #             'ref': ', '.join(refs)[:2000],
+        #             'invoice_origin': ', '.join(origins),
+        #             'payment_reference': len(payment_refs) == 1 and payment_refs.pop() or False,
+        #         })
+        #         new_invoice_vals_list.append(ref_invoice_vals)
+        #     invoice_vals_list = new_invoice_vals_list
+
+        #** Je ne sais pas à quoi sert cette partie ***************************
+        if len(invoice_vals_list) < len(self):
+            SaleOrderLine = self.env['sale.order.line']
+            for invoice in invoice_vals_list:
+                sequence = 1
+                for line in invoice['invoice_line_ids']:
+                    line[2]['sequence'] = SaleOrderLine._get_invoice_line_sequence(new=sequence, old=line[2]['sequence'])
+                    sequence += 1
+        #**********************************************************************
+
+        #** Création des factures *********************************************
+        moves = self.env['account.move'].sudo().with_context(default_move_type='out_invoice').create(invoice_vals_list)
+        #**********************************************************************
+
+        #** Transforme la facture en avoir si montant negatif *****************
+        if final:
+            moves.sudo().filtered(lambda m: m.amount_total < 0).action_switch_invoice_into_refund_credit_note()
+        #**********************************************************************
+
+        #** Ajout du message en bas des factures ******************************
+        for move in moves:
+            move.message_post_with_view(
+                'mail.message_origin_link',
+                values={'self': move, 'origin': move.line_ids.sale_line_ids.order_id},
+                subtype_id=self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note'))
+        #**********************************************************************
+
+        #** Facturation des mouvements de stocks ******************************
+        invoices = moves
+        for invoice in invoices:
+            pickings=[]
+            invoice.is_mode_envoi_facture   = invoice.partner_id.is_mode_envoi_facture
+            invoice.invoice_payment_term_id = invoice.partner_id.property_payment_term_id.id
+            for invoice_line in invoice.invoice_line_ids:
+                invoice_line.is_section_analytique_id = invoice_line.product_id.is_section_analytique_id.id
+                for sale_line in invoice_line.sale_line_ids:
+                    for move in sale_line.move_ids:
+                        if move.state!='cancel':
+                            move.is_account_move_line_id = invoice_line.id
+                            move.invoice_state='invoiced'
+                            move.picking_id._compute_invoice_state()
+                            invoice.invoice_date = move.picking_id.is_date_expedition
+                            invoice_line.is_move_id = move.id
+                            if move.picking_id.name not in pickings:
+                                pickings.append(move.picking_id.name)
+            invoice.invoice_origin=','.join(pickings)
+        #**********************************************************************
+
+        #** Mise à jour qty_invoiced de la ligne de commande ******************
+        for order in self:
+            order.is_compute_qty_invoiced()
+        #**********************************************************************
+        return invoices
+
+
+    def is_compute_qty_invoiced(self):
+        for obj in self:
+            for line in obj.order_line:
+                qty_invoiced = 0
+                for move in line.move_ids:
+                    if move.invoice_state=='invoiced' and move.is_account_move_line_id.move_id.state!='cancel':
+                        qty = move.product_uom._compute_quantity(move.quantity_done, line.product_uom)
+                        qty_invoiced+=qty
+                line.qty_invoiced = qty_invoiced
+
+
+
+
+
+
+
+    def _create_invoices_sans_regroupement(self, grouped=False, final=False, date=None):
         "Fonction surchargée pour faire le lien entre les factures et les mouvements de stocks"
+
         invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
         for invoice in invoices:
             pickings=[]
@@ -104,14 +248,14 @@ class sale_order(models.Model):
                 #     continue
                 # if line.product_id or line.account_id.tax_ids or not line.tax_ids:
                 #tax_ids = line._get_computed_taxes()
-                #print(line,line.account_id.code,tax_ids)
                 #line.tax_ids = False
                 #line._compute_tax_ids()
                 #**************************************************************
 
                 for sale_line in line.sale_line_ids:
                     for move in sale_line.move_ids:
-                        if not move.is_account_move_line_id and move.state=="done":
+                        #if not move.is_account_move_line_id and move.state=="done":
+                        if move.state!="cancel":
                             move.is_account_move_line_id = line.id
                             move.invoice_state='invoiced'
                             move.picking_id._compute_invoice_state()
@@ -120,8 +264,18 @@ class sale_order(models.Model):
                             if move.picking_id.name not in pickings:
                                 pickings.append(move.picking_id.name)
             invoice.invoice_origin=','.join(pickings)
-            #print(invoice, invoice.name, invoice.fiscal_position_id.name, invoice.partner_shipping_id.name, invoice.partner_shipping_id.property_account_position_id.name)
         return invoices
+
+
+
+
+
+
+
+
+
+
+
 
 
     def _message_auto_subscribe_notify(self, partner_ids, template):
