@@ -122,6 +122,8 @@
 
                             <field name="montanttva" />
                             <field name="numcde" />
+                            <field name="num_chantier_rcp" />
+                            <field name="num_chantier_fact" />
                             <field name="total" />
                             <field name="numbl" />
                             <field name="codefour" />
@@ -172,6 +174,12 @@
                     <field name="prixorigine"    optional="hide"/>
                     <field name="codetvaorigine" optional="hide"/>
                     <field name="numcde"         optional="hide"/>
+                    <field name="num_chantier_rcp"  optional="hide"/>
+                    <field name="num_chantier_fact" optional="hide"/>
+                    <field name="sec_ana_origine"   optional="hide"/>
+                    <field name="sec_ana_fact"      optional="hide"/>
+                    <field name="cpte_origine"      optional="hide"/>
+                    <field name="cpte_fact"         optional="hide"/>
                     <field name="total"          optional="show" sum="Total"/>
                     <field name="numfac"         optional="show"/>
                     <field name="invoice_id"     optional="hide" widget="many2one_clickable"/>

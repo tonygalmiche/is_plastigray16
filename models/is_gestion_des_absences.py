@@ -877,7 +877,7 @@ class is_demande_conges(models.Model):
         for i in range(0,int(nb_jours)):
             semaine=False
             if ladate.weekday()==0:
-                semaine=ladate.strftime("Sem %W")
+                semaine=ladate.strftime("Sem %V")
             date_cols.append({
                 "key"    : ladate,
                 "jour"   : ladate.strftime("%d"),

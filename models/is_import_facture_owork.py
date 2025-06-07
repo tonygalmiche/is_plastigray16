@@ -360,15 +360,23 @@ class is_import_facture_owork_line(models.Model):
     daterecpt      = fields.Date("Date rcp")
     numcde         = fields.Char("Num Cde")
 
+    num_chantier_rcp  = fields.Char("N°Chantier Rcp")
+    num_chantier_fact = fields.Char("N°Chantier Fact")
+
+    sec_ana_origine = fields.Char("Section Rcp")
+    sec_ana_fact    = fields.Char("Section Fact")
+    cpte_origine    = fields.Char("Compte Rcp")
+    cpte_fact       = fields.Char("Compte Fact")
+
     article        = fields.Char("Code Article")
     descriparticle = fields.Char("Description article")
-    qterestefac    = fields.Float("Qt reste fac")
-    prixorigine    = fields.Float("Prix Origine")
+    qterestefac    = fields.Float("Qt reste fac", digits=(12, 6))
+    prixorigine    = fields.Float("Prix Origine", digits=(12, 6))
     total          = fields.Float("Total")
     codetvaorigine = fields.Char("Code TVA Origine")
     codetvafact    = fields.Char("Code TVA Fac")
-    prixfact       = fields.Float("Prix Fac")
-    qtefact        = fields.Float("Qt fac")
+    prixfact       = fields.Float("Prix Fac", digits=(12, 6))
+    qtefact        = fields.Float("Qt fac"  , digits=(12, 6))
     datefact       = fields.Date("Date Fac")
     numfac         = fields.Char("Num Fac")
     montantht      = fields.Float("Montant HT")
@@ -388,3 +396,7 @@ class is_import_facture_owork_line(models.Model):
     fichier        = fields.Char("Fichier")
     anomalies      = fields.Text("Anomalies")
     
+
+# 				
+
+	
