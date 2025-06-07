@@ -58,6 +58,24 @@ configuration_facture=[
 ]
 
 
+class is_champ_obligatoire(models.Model):
+    _name = 'is.champ.obligatoire'
+    _description = 'Champs obligatoires dans EDI, commande et livraison'
+
+    name                    = fields.Char('Code', required=True)
+    point_dechargement      = fields.Boolean('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
+    numero_document         = fields.Boolean('N° Document'             , help="Champ 'NumeroDocument'")  
+    caldel_number           = fields.Boolean('Caldel Number'           , help="Champ 'CaldelNumber' pour EDI Weidplas")
+    num_ran                 = fields.Boolean('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+    identifiant_transport   = fields.Boolean("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
+    tg_number               = fields.Boolean('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    code_routage            = fields.Boolean('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    point_destination       = fields.Boolean('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    num_commande_client     = fields.Boolean('N° Cde Client')
+    is_database_origine_id  = fields.Integer("Id d'origine", readonly=True)
+
+
+
 class is_configuration_bl(models.Model):
     _name = 'is.configuration.bl'
     _description = 'Configuration du BL Galia par client'
@@ -580,8 +598,10 @@ class res_partner(models.Model):
     close_sunday    = fields.Boolean('Dimanche'  , default=True)
     
     pricelist_purchase_id    = fields.Many2one('product.pricelist',"Liste de prix d'achat")
+    is_champ_obligatoire_id  = fields.Many2one('is.champ.obligatoire',"Champs obligatoires dans EDI, Cde et Liv")
     is_configuration_bl_id   = fields.Many2one('is.configuration.bl',"Configuration BL Galia")
     is_configuration_facture = fields.Selection(configuration_facture, "Configuration du PDF des factures", default='standard')
+
 
 
     def _message_auto_subscribe_notify(self, partner_ids, template):
@@ -727,6 +747,7 @@ class res_partner(models.Model):
             'is_num_autorisation_tva': self.is_num_autorisation_tva,
             'is_caracteristique_liste_a_servir'  : self.is_caracteristique_liste_a_servir,
             'is_caracteristique_bl'   : self.is_caracteristique_bl,
+            'is_champ_obligatoire_id'   : self._get_is_champ_obligatoire_id(DB, USERID, USERPASS, sock),
             'is_configuration_bl_id'    : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
             'is_configuration_facture'  : self.is_configuration_facture,
             'is_mode_envoi_facture'   : self.is_mode_envoi_facture,
@@ -810,6 +831,18 @@ class res_partner(models.Model):
         if not ids:
             self.env['is.database'].copy_other_database(self.is_vendeur_id)
             ids = sock.execute(DB, USERID, USERPASS, 'res.partner', 'search', [('is_database_origine_id', '=', self.is_vendeur_id.id),'|',('active','=',True),('active','=',False)])
+        if ids:
+            return ids[0]
+        return False
+
+
+    def _get_is_champ_obligatoire_id (self, DB, USERID, USERPASS, sock):
+        if not self.is_champ_obligatoire_id.id:
+            return False
+        ids = sock.execute(DB, USERID, USERPASS, 'is.champ.obligatoire', 'search', [('is_database_origine_id', '=', self.is_champ_obligatoire_id.id)])
+        if not ids:
+            self.env['is.database'].copy_other_database(self.is_configuis_champ_obligatoire_idration_bl_id)
+            ids = sock.execute(DB, USERID, USERPASS, 'is.champ.obligatoire', 'search', [('is_database_origine_id', '=', self.is_champ_obligatoire_id.id)])
         if ids:
             return ids[0]
         return False

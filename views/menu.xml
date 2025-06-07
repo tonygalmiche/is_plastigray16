@@ -1050,6 +1050,7 @@
     <menuitem id="is_res_partner_category_menu" sequence="40" name="Etiquettes des partenaires" parent="menu_is_ventes_table" action="is_res_partner_category_action"/>
     <menuitem id="is_mode_transport_menu"       sequence="50" name="Mode de transport"          parent="menu_is_ventes_table" action="is_mode_transport_action"/>
     <menuitem id="is_configuration_bl_menu"     sequence="60" name="Configuration BL Galia"     parent="menu_is_ventes_table" action="is_configuration_bl_action"/>
+    <menuitem id="is_champ_obligatoire_menu"    sequence="70" name="Champ obligatoire"          parent="menu_is_ventes_table" action="is_champ_obligatoire_action"/>
 
     <!-- Production / Production -->
     <record id="menu_is_production" model="ir.ui.menu" >

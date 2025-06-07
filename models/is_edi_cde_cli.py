@@ -259,21 +259,36 @@ class is_edi_cde_cli(models.Model):
                                 type_commande = 'previsionnel'
                             #***************************************************
 
-
-
                         if anomalie1:
                             anomalie2.append(anomalie1)
+
+                        #** Vérification des champs obligatoires **************
+                        if type_commande=='ferme':
+                            if obj.partner_id.is_champ_obligatoire_id:
+                                champ_obligatoire=obj.partner_id.is_champ_obligatoire_id
+                                if champ_obligatoire.num_commande_client and not num_commande_client:
+                                    anomalie2.append("'N° Cde client' obligatoire"%field_string)
+                                field_list=[
+                                    'point_dechargement',
+                                    'numero_document',
+                                    'caldel_number',
+                                    'num_ran',
+                                    'identifiant_transport',
+                                    'tg_number',
+                                    'code_routage',
+                                    'point_destination',
+                                ]
+                                for field_name in field_list:
+                                    field_string = champ_obligatoire._fields[field_name].string
+                                    if champ_obligatoire[field_name] and not ligne.get(field_name):
+                                        anomalie2.append("'%s' obligatoire"%field_string)
+                        #******************************************************
+
                         anomalie=''
                         if len(anomalie2)>0:
                             anomalie='\n'.join(anomalie2)
-
-
                         if obj.import_function=="STELLANTIS":
                             point_dechargement = ligne.get('point_dechargement')
-
-
-
-
                         vals={
                             'edi_cde_cli_id'       : obj.id,
                             'num_commande_client'  : num_commande_client,
