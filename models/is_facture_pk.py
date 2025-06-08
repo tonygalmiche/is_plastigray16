@@ -363,11 +363,11 @@ class is_facture_pk_line(models.Model):
     pump_tnd      = fields.Float('P.U.M.P (TND)'      , digits=(14, 4))  # Nouveau champ du 04/05/2025
     pump_1000     = fields.Float('P.U.M.P x 1000 (€))', digits=(14, 4))  # Nouveau champ du 04/05/2025
 
-    ptmp          = fields.Float('P.T.M.P (€)'     , digits=(14, 4), compute='_compute_montant', store=True, readonly=False)
-    ptmp_tnd      = fields.Float('P.T.M.P (TND)'   , digits=(14, 4), compute='_compute_montant', store=True, readonly=False)     # Nouveau champ du 04/05/2025
+    ptmp          = fields.Float('P.T.M.P (€)'     , digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False)
+    ptmp_tnd      = fields.Float('P.T.M.P (TND)'   , digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False)     # Nouveau champ du 04/05/2025
 
     pupf          = fields.Float('P.U.P.F (€)'     , digits=(14, 4))
-    total_pf      = fields.Float('P.T.P.F. (€)', digits=(14, 4), compute='_compute_montant', store=True, readonly=False)
+    total_pf      = fields.Float('P.T.P.F. (€)', digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False)
     num_bl        = fields.Many2one(related='is_facture_id.num_bl') 
 
     pu_ht          = fields.Float('P.U. H.T. (€)'     , digits=(14, 4))     # Nouveau champ du 04/05/2025
@@ -375,38 +375,61 @@ class is_facture_pk_line(models.Model):
     pu_ht_1000     = fields.Float('P.U. H.T. x 1000 (€)', digits=(14, 4))   # Nouveau champ du 04/05/2025
     pu_ht_1000_ass = fields.Float('P.U. H.T. x 1000 assistance incluse (€)', digits=(14, 4))  # Nouveau champ du 04/05/2025
 
-    montant_total     = fields.Float('Montant H.T. (€)'  , digits=(14, 4), compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
-    montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4), compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
+    montant_total     = fields.Float('Montant H.T. (€)'  , digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
+    montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
 
 
-    @api.onchange('pump_tnd','pu_ht_tnd')
+    @api.onchange('pump_tnd','pu_ht_tnd','qt','pump','pupf','pu_ht')
     def onchange_tnd(self):
         taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
         taux_commission   = self.is_facture_id.taux_commission or 1
-        self.pump = self.pump_tnd/taux_devise_dinar
-        self.pump_1000 = 1000 * self.pump_tnd/taux_devise_dinar
+        type_facture_id   = self.is_facture_id.type_facture_id
+        qt = self.qt
 
-        self.pu_ht = self.pu_ht_tnd/taux_devise_dinar
-        self.pu_ht_1000     = 1000 * self.pu_ht_tnd/taux_devise_dinar
-        self.pu_ht_1000_ass = 1000 *  taux_commission * self.pu_ht_tnd/taux_devise_dinar
+        if type_facture_id.pump_tnd and type_facture_id.pump:
+            self.pump = self.pump_tnd/taux_devise_dinar
+        if type_facture_id.pump_1000 and type_facture_id.pump_tnd:
+            self.pump_1000 = 1000 * self.pump_tnd/taux_devise_dinar
+        if type_facture_id.pu_ht and type_facture_id.pu_ht_tnd:
+            self.pu_ht = self.pu_ht_tnd/taux_devise_dinar
+        if type_facture_id.montant_total_tnd and type_facture_id.pu_ht_1000_ass:
+            self.montant_total_tnd = qt * self.pu_ht_1000_ass/1000
+        if type_facture_id.montant_total_tnd and type_facture_id.qt and type_facture_id.pu_ht_tnd:
+            self.montant_total_tnd = qt * self.pu_ht_tnd
+        if type_facture_id.ptmp and type_facture_id.qt and type_facture_id.pump:
+            self.ptmp = qt * self.pump
+        if type_facture_id.ptmp_tnd and type_facture_id.qt and type_facture_id.pump_tnd:
+            self.ptmp_tnd = qt * self.pump_tnd
+        if type_facture_id.total_pf and type_facture_id.qt and type_facture_id.pupf:
+            self.total_pf = qt * self.pupf
+        if type_facture_id.montant_total and type_facture_id.qt and type_facture_id.pu_ht:
+            self.montant_total = qt * self.pu_ht
+
+        # Facture 'Refacturation achat
+        if type_facture_id.pu_ht_1000 and type_facture_id.pu_ht_tnd:
+            self.pu_ht_1000 = 1000 * self.pu_ht_tnd/taux_devise_dinar
+        if type_facture_id.pu_ht_1000_ass and type_facture_id.pu_ht_tnd:
+            self.pu_ht_1000_ass = 1000 * taux_commission * self.pu_ht_tnd/taux_devise_dinar
+        if type_facture_id.qt and  type_facture_id.pu_ht and type_facture_id.pu_ht_1000 and type_facture_id.pu_ht_1000_ass:
+            self.montant_total = (qt * self.pu_ht_1000_ass)/1000
 
 
-    @api.onchange('montant_total_tnd')
-    def onchange_montant_total_tnd(self):
-        taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
-        self.montant_total = self.montant_total_tnd/taux_devise_dinar
+    # @api.onchange('montant_total_tnd')
+    # def onchange_montant_total_tnd(self):
+    #     taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
+    #     self.montant_total = self.montant_total_tnd/taux_devise_dinar
 
 
-    @api.depends('qt','pupf','pump','pump_tnd','pu_ht','pu_ht_tnd')
-    def _compute_montant(self):
-        for obj in self:
-            taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
-            qt = obj.qt or 1
-            obj.total_pf          = qt * obj.pupf
-            obj.ptmp              = qt * obj.pump
-            obj.ptmp_tnd          = qt * obj.pump_tnd
-            obj.montant_total     = qt * obj.pu_ht_1000_ass/1000
-            obj.montant_total_tnd = qt * obj.montant_total / taux_devise_dinar
+    # @api.depends('qt','pupf','pump','pump_tnd','pu_ht','pu_ht_tnd')
+    # def _compute_montant(self):
+    #     for obj in self:
+    #         taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
+    #         qt = obj.qt or 1
+    #         obj.total_pf          = qt * obj.pupf
+    #         obj.ptmp              = qt * obj.pump
+    #         obj.ptmp_tnd          = qt * obj.pump_tnd
+    #         obj.montant_total     = qt * obj.pu_ht_1000_ass/1000
+    #         obj.montant_total_tnd = qt * obj.montant_total / taux_devise_dinar
 
 
 class is_facture_pk_moule(models.Model):
