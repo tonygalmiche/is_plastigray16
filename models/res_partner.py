@@ -75,6 +75,37 @@ class is_champ_obligatoire(models.Model):
     is_database_origine_id  = fields.Integer("Id d'origine", readonly=True)
 
 
+    def write(self, vals):
+        res=super().write(vals)
+        for obj in self:
+            self.env['is.database'].copy_other_database(obj)
+        return res
+         
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        res=super().create(vals_list)
+        self.env['is.database'].copy_other_database(res)
+        return res
+
+
+    def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
+        vals ={
+            'name'                  : self.name,
+            'point_dechargement'    : self.point_dechargement,
+            'numero_document'       : self.numero_document,
+            'caldel_number'         : self.caldel_number,
+            'num_ran'               : self.num_ran,
+            'identifiant_transport' : self.identifiant_transport,
+            'tg_number'             : self.tg_number,
+            'code_routage'          : self.code_routage,
+            'point_destination'     : self.point_destination,
+            'num_commande_client'   : self.num_commande_client,
+            'is_database_origine_id': self.id
+        }
+        return vals
+
+
 
 class is_configuration_bl(models.Model):
     _name = 'is.configuration.bl'
