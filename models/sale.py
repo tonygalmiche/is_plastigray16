@@ -578,6 +578,13 @@ class sale_order(models.Model):
                 raise ValidationError(u"L'article "+line.product_id.is_code+u" n'est pas livrable à ce client (cf fiche article) !")
 
 
+    def _verif_champ_obligatoire(self,obj):
+        champ_obligatoire = obj.partner_id.is_champ_obligatoire_id
+        if champ_obligatoire:
+            if champ_obligatoire.point_dechargement and not obj.is_point_dechargement:
+                raise ValidationError("Le champ 'Point de déchargement' est obligatoire pour '%s'"%champ_obligatoire.name)
+
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -587,6 +594,7 @@ class sale_order(models.Model):
 
         self._client_order_ref(res)
         self._verif_article_livrable(res)
+        self._verif_champ_obligatoire(res)
         return res
 
 
@@ -606,6 +614,8 @@ class sale_order(models.Model):
                 self._verif_existe(vals2)
                 self._client_order_ref(obj)
                 self._verif_article_livrable(obj)
+                self._verif_champ_obligatoire(obj)
+                self.order_line._verif_champ_obligatoire()
         return obj
 
 
@@ -638,27 +648,51 @@ class sale_order_line(models.Model):
     is_identifiant_transport            = fields.Char("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
 
 
-# NumRAN
-    #Je pense avoir trouver l’information du numéro de RAN dans le DELJIT reçu de PO, sauf que pour le moment cette donnée n’est pas 
-    # récupérée dans votre format. Il va falloir que vous rajoutiez une balise NumRAN sous la balise INSTRUCTIONS_EMBALLAGE 
-    # je dirais là ou se trouve déjà les balises suivantes :
+    def _verif_champ_obligatoire(self):
+        anomalies=[]
+        for obj in self:
+            if obj.is_type_commande=='ferme':
+                champ_obligatoire = obj.order_id.partner_id.is_champ_obligatoire_id
+                if champ_obligatoire:
+                    field_dict={
+                        'numero_document'      : 'is_numero_document',
+                        'caldel_number'        : 'is_caldel_number',
+                        'num_ran'              : 'is_num_ran',
+                        'identifiant_transport': 'is_identifiant_transport',
+                        'tg_number'            : 'is_tg_number',
+                        'code_routage'         : 'is_code_routage',
+                        'point_destination'    : 'is_point_destination',
+                    }
+                    for key in field_dict:
+                        field_name   = field_dict[key]
+                        field_value  = obj[field_name]
+                        field_string = obj._fields[field_name].string
+                        if champ_obligatoire[key] and not field_value:
+                            msg = "Le champ '%s' est obligatoire pour '%s' (Sequence=%s, Article=%s)"%(
+                                    field_string,
+                                    champ_obligatoire.name,
+                                    obj.sequence,
+                                    obj.product_id.is_code
+                            )
+                            anomalies.append(msg)
+        if len(anomalies)>0:
+            anomalies='\n'.join(anomalies)
+            raise ValidationError(anomalies)
 
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        res._verif_champ_obligatoire()
+        return res
 
-    # Le 22/06/2020 à 12:02, Caroline CHEVALLIER a écrit :
-    # Date de livraison - délai de transport = date d'expédition.
-    # Il faut ensuite comparer la date d'expédition au calendrier usine. 
-    # Si la la date d'expédition se situe un jour où l'entreprise est fermée, il faut ramener la date d'expédition au 1er jour ouvré.
 
-    # J'ai aussi une autre demande qui concerne le calendrier usine : nous avons besoin de 2 calendriers usine : un calendrier pour la production 
-    # et qui sert au calcul de besoin et un calendrier pour les expéditions qui sert au calcul de la date d'expédition. 
-    # La plupart du temps, ces 2 calendriers sont identiques mais en période estivale, ces calendriers sont différents 
-    # car nous avons besoin d'avoir une permanence logistique et nous avons besoin de pouvoir expédier des produits.
+    # Cela n'est pas utile, car le write des lignes est fait avec le write de la commande
+    # def write(self, vals):
+    #     res=super().write(vals)
+    #     self._verif_champ_obligatoire()
+    #     return res
 
-    # Date de livraison = 31/07/2020
-    # Nous avons fermé le calendrier de la société les 29/30/31 juillet : 
-    # le temps de transport est inchangé : 2 jours : le 29/07 étant fermé, 
-    # le système devrait positionné la commande au 28/07 : premier jour ouvert dans le calendrier.
 
     @api.depends('is_date_livraison')
     def _date_expedition(self):

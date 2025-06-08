@@ -62,17 +62,19 @@ class is_champ_obligatoire(models.Model):
     _name = 'is.champ.obligatoire'
     _description = 'Champs obligatoires dans EDI, commande et livraison'
 
-    name                    = fields.Char('Code', required=True)
-    point_dechargement      = fields.Boolean('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
-    numero_document         = fields.Boolean('N° Document'             , help="Champ 'NumeroDocument'")  
-    caldel_number           = fields.Boolean('Caldel Number'           , help="Champ 'CaldelNumber' pour EDI Weidplas")
-    num_ran                 = fields.Boolean('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
-    identifiant_transport   = fields.Boolean("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
-    tg_number               = fields.Boolean('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
-    code_routage            = fields.Boolean('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas")
-    point_destination       = fields.Boolean('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
-    num_commande_client     = fields.Boolean('N° Cde Client')
-    is_database_origine_id  = fields.Integer("Id d'origine", readonly=True)
+    name                      = fields.Char('Code', required=True)
+    point_dechargement        = fields.Boolean('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
+    numero_document           = fields.Boolean('N° Document'             , help="Champ 'NumeroDocument'")  
+    caldel_number             = fields.Boolean('Caldel Number'           , help="Champ 'CaldelNumber' pour EDI Weidplas")
+    num_ran                   = fields.Boolean('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
+    identifiant_transport     = fields.Boolean("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
+    tg_number                 = fields.Boolean('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
+    code_routage              = fields.Boolean('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas")
+    point_destination         = fields.Boolean('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    num_commande_client       = fields.Boolean('N° Cde Client')
+    is_plaque_immatriculation = fields.Boolean("Plaque d’immatriculation")
+    is_dossier_transport      = fields.Boolean("N° de dossier de transport ")
+    is_database_origine_id    = fields.Integer("Id d'origine", readonly=True)
 
 
     def write(self, vals):
@@ -91,20 +93,21 @@ class is_champ_obligatoire(models.Model):
 
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
-            'name'                  : self.name,
-            'point_dechargement'    : self.point_dechargement,
-            'numero_document'       : self.numero_document,
-            'caldel_number'         : self.caldel_number,
-            'num_ran'               : self.num_ran,
-            'identifiant_transport' : self.identifiant_transport,
-            'tg_number'             : self.tg_number,
-            'code_routage'          : self.code_routage,
-            'point_destination'     : self.point_destination,
-            'num_commande_client'   : self.num_commande_client,
-            'is_database_origine_id': self.id
+            'name'                     : self.name,
+            'point_dechargement'       : self.point_dechargement,
+            'numero_document'          : self.numero_document,
+            'caldel_number'            : self.caldel_number,
+            'num_ran'                  : self.num_ran,
+            'identifiant_transport'    : self.identifiant_transport,
+            'tg_number'                : self.tg_number,
+            'code_routage'             : self.code_routage,
+            'point_destination'        : self.point_destination,
+            'num_commande_client'      : self.num_commande_client,
+            'is_plaque_immatriculation': self.is_plaque_immatriculation,
+            'is_dossier_transport'     : self.is_dossier_transport,
+            'is_database_origine_id'   : self.id
         }
         return vals
-
 
 
 class is_configuration_bl(models.Model):

@@ -766,16 +766,18 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="point_dechargement"      optional="show"/>
-                    <field name="numero_document"         optional="show"/>
-                    <field name="caldel_number"           optional="show"/>
-                    <field name="num_ran"                 optional="show"/>
-                    <field name="identifiant_transport"   optional="show"/>
-                    <field name="tg_number"               optional="show"/>
-                    <field name="code_routage"            optional="show"/>
-                    <field name="point_destination"       optional="show"/>
-                    <field name="num_commande_client"     optional="show"/>
-                    <field name="is_database_origine_id"  optional="hide"/>
+                    <field name="point_dechargement"        optional="show"/>
+                    <field name="numero_document"           optional="show"/>
+                    <field name="caldel_number"             optional="show"/>
+                    <field name="num_ran"                   optional="show"/>
+                    <field name="identifiant_transport"     optional="show"/>
+                    <field name="tg_number"                 optional="show"/>
+                    <field name="code_routage"              optional="show"/>
+                    <field name="point_destination"         optional="show"/>
+                    <field name="num_commande_client"       optional="show"/>
+                    <field name="is_plaque_immatriculation" optional="show"/>
+                    <field name="is_dossier_transport"      optional="show"/>
+                    <field name="is_database_origine_id"    optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -787,17 +789,25 @@
                     <sheet>
                         <group>
                             <field name="name"/>
-                            <field name="point_dechargement"      widget="boolean_toggle"/>
-                            <field name="numero_document"         widget="boolean_toggle"/>
-                            <field name="caldel_number"           widget="boolean_toggle"/>
-                            <field name="num_ran"                 widget="boolean_toggle"/>
-                            <field name="identifiant_transport"   widget="boolean_toggle"/>
-                            <field name="tg_number"               widget="boolean_toggle"/>
-                            <field name="code_routage"            widget="boolean_toggle"/>
-                            <field name="point_destination"       widget="boolean_toggle"/>
-                            <field name="num_commande_client"     widget="boolean_toggle"/>
-                        </group> 
-                    </sheet>
+                        </group>
+                        <group>
+                            <group string="EDI / Commandes">
+                                <field name="point_dechargement"      widget="boolean_toggle"/>
+                                <field name="numero_document"         widget="boolean_toggle"/>
+                                <field name="caldel_number"           widget="boolean_toggle"/>
+                                <field name="num_ran"                 widget="boolean_toggle"/>
+                                <field name="identifiant_transport"   widget="boolean_toggle"/>
+                                <field name="tg_number"               widget="boolean_toggle"/>
+                                <field name="code_routage"            widget="boolean_toggle"/>
+                                <field name="point_destination"       widget="boolean_toggle"/>
+                                <field name="num_commande_client"     widget="boolean_toggle"/>
+                            </group> 
+                            <group string="BL">
+                                <field name="is_plaque_immatriculation" widget="boolean_toggle"/>
+                                <field name="is_dossier_transport"      widget="boolean_toggle"/>
+                            </group>
+                        </group>
+                     </sheet>
                 </form>
             </field>
         </record>
