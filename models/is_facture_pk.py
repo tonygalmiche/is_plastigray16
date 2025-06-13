@@ -14,16 +14,20 @@ class is_facture_pk_type(models.Model):
     client_id            = fields.Boolean("Client", default=False)
     num_cde              = fields.Boolean("N° de Cde", default=False)
     num_bl               = fields.Boolean("N° de BL", default=True)
+    num_bl_manuel        = fields.Boolean("N° BL manuel", default=False)
+    num_facture_client   = fields.Boolean("N° de facture client", default=False)
+    date_echeance        = fields.Boolean("Date d'échéance", default=False)
+    ndp                  = fields.Boolean("NDP", default=False)
+    incoterm             = fields.Boolean("Incoterm", default=False)
     facture_avoir        = fields.Boolean("Type", default=True)
     annee_facture        = fields.Boolean("Année de la facture", default=True)
     semaine_facture      = fields.Boolean("Semaine de la facture", default=True)
-
-    matiere_premiere      = fields.Boolean("Total Matière première (€)", default=True)
-    main_oeuvre           = fields.Boolean("Total Main d'oeuvre / Prestation de service (€)", default=True)
-    total_moules          = fields.Boolean("Total des moules à taxer (€)", default=True)
-    frais_perturbation    = fields.Boolean("Total frais de préparation à taxer (€)", default=True)
-    total                 = fields.Boolean("TOTAL (€)", default=True)
-    total_plastigray      = fields.Boolean("Total Plastigray (€)", default=True)
+    matiere_premiere     = fields.Boolean("Total Matière première (€)", default=True)
+    main_oeuvre          = fields.Boolean("Total Main d'oeuvre / Prestation de service (€)", default=True)
+    total_moules         = fields.Boolean("Total des moules à taxer (€)", default=True)
+    frais_perturbation   = fields.Boolean("Total frais de préparation à taxer (€)", default=True)
+    total                = fields.Boolean("TOTAL (€)", default=True)
+    total_plastigray     = fields.Boolean("Total Plastigray (€)", default=True)
 
     nb_pieces          = fields.Boolean("Nombre de pièces", default=True)
     nb_cartons         = fields.Boolean("Nombre de cartons", default=True)
@@ -93,7 +97,7 @@ class is_facture_pk(models.Model):
             if obj.date_facture:
                 date_facture = datetime.strptime(str(obj.date_facture), '%Y-%m-%d')
                 annee_facture   = date_facture.strftime('%Y')
-                semaine_facture = date_facture.strftime('%W')
+                semaine_facture = date_facture.strftime('%V')
             obj.annee_facture   = annee_facture
             obj.semaine_facture = semaine_facture
 
@@ -121,13 +125,17 @@ class is_facture_pk(models.Model):
           
     num_facture        = fields.Char('N° de Facture',tracking=True)
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now(),tracking=True)
+    date_echeance      = fields.Date("Date d'échéance",tracking=True)
     annee_facture      = fields.Char('Année de la facture'  , compute='_compute', store=True,tracking=True)
     semaine_facture    = fields.Char('Semaine de la facture', compute='_compute', store=True,tracking=True)
     client_id          = fields.Many2one('res.partner', string='Client',tracking=True, domain=[('is_company', '=', True), ('customer', '=', True)]) 
     num_cde            = fields.Char("N° de commande",tracking=True)
     num_bl             = fields.Many2one('stock.picking', string='N° de BL',tracking=True, domain=[('sale_id', '!=', False),('is_facture_pk_id', '=', False)]) 
+    num_bl_manuel      = fields.Char('N° BL manuel',tracking=True) 
+    num_facture_client = fields.Char('N° facture client',tracking=True, help="Si ce champ est renseigné, il remplacera le numero de la facture sur le PDF") 
     num_import_matiere = fields.Char("N° d'import matière première",tracking=True)
-
+    ndp                = fields.Char("NDP",tracking=True, default="39 269 097 998")
+    incoterm           = fields.Char("Incoterm",tracking=True, default="EX WORK")
     matiere_premiere   = fields.Float('Total Matière première (€)'                     , digits=(14, 4), readonly=True, compute='_compute', store=True,tracking=True)
     main_oeuvre        = fields.Float("Total Main d'oeuvre / Prestation de service (€)", digits=(14, 4), readonly=True, compute='_compute', store=True,tracking=True)
     total_moules       = fields.Float("Total des moules à taxer (€)"                   , digits=(14, 4), compute='_compute', store=True,tracking=True)
@@ -136,8 +144,8 @@ class is_facture_pk(models.Model):
     total              = fields.Float("TOTAL (€)"           , digits=(14, 4), compute='_compute', store=True,tracking=True)
     total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 4), compute='_compute_total_plastigray',tracking=True, store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer")
 
-    nb_pieces          = fields.Integer("Nombre de pièces", readonly=True,tracking=True)
-    nb_cartons         = fields.Integer("Nombre de cartons", readonly=True,tracking=True)
+    nb_pieces          = fields.Integer("Nombre de pièces", readonly=False,tracking=True)
+    nb_cartons         = fields.Integer("Nombre de cartons", readonly=False,tracking=True)
     nb_colis           = fields.Integer("Nombre de colis",tracking=True)
     volume             = fields.Integer("Vomule (m3)", compute='_compute', store=True,tracking=True, readonly=False)
     poids_net          = fields.Float("Poids net (Kg)" , digits=(14, 2), compute='_compute', store=True,tracking=True)
@@ -154,12 +162,21 @@ class is_facture_pk(models.Model):
     facture_origine_id   = fields.Many2one('is.facture.pk', string="Facture d'origine de cet avoir", tracking=True) 
     conditions_generales = fields.Text('Conditions générales',tracking=True)
 
+
+
+
+
     client_id_vsb            = fields.Boolean("client_id_vsb"             , compute='_compute_vsb')
     num_cde_vsb              = fields.Boolean("num_cde_vsb"               , compute='_compute_vsb')
     num_bl_vsb               = fields.Boolean("num_bl_vsb"                , compute='_compute_vsb')
+    num_bl_manuel_vsb        = fields.Boolean("num_bl_manuel_vsb"         , compute='_compute_vsb')
+    num_facture_client_vsb   = fields.Boolean("num_facture_client_vsb"    , compute='_compute_vsb')
+    ndp_vsb                  = fields.Boolean("ndp_vsb"                   , compute='_compute_vsb')
+    incoterm_vsb             = fields.Boolean("incoterm_vsb"              , compute='_compute_vsb')
     facture_avoir_vsb        = fields.Boolean("facture_avoir_vsb"         , compute='_compute_vsb')
     annee_facture_vsb        = fields.Boolean("annee_facture_vsb"         , compute='_compute_vsb')
     semaine_facture_vsb      = fields.Boolean("semaine_facture_vsb"       , compute='_compute_vsb')
+    date_echeance_vsb        = fields.Boolean("date_echeance_vsb"         , compute='_compute_vsb')
 
     matiere_premiere_vsb      = fields.Boolean("matiere_premiere_vsb"     , compute='_compute_vsb')
     main_oeuvre_vsb           = fields.Boolean("main_oeuvre_vsb"          , compute='_compute_vsb')
@@ -214,11 +231,13 @@ class is_facture_pk(models.Model):
         for obj in self:
             vsb=False
             champs=[
-                'facture_avoir','client_id','num_cde','num_bl','annee_facture','semaine_facture','moule_ids','conditions_generales',
+                'facture_avoir','client_id','num_cde','num_bl','num_bl_manuel','num_facture_client','ndp','incoterm',
+                'annee_facture','semaine_facture', 'date_echeance','moule_ids','conditions_generales',
                 'matiere_premiere','main_oeuvre','total_moules','frais_perturbation','total','total_plastigray',
                 'nb_pieces', 'nb_cartons','nb_colis', 'volume', 'poids_net', 'poids_brut',
                 'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf',
-                'reception','ref_client','pump_tnd','pump_1000','ptmp_tnd','pu_ht','pu_ht_tnd','pu_ht_1000','pu_ht_1000_ass','montant_total','montant_total_tnd',
+                'reception','ref_client','pump_tnd','pump_1000','ptmp_tnd','pu_ht','pu_ht_tnd','pu_ht_1000','pu_ht_1000_ass','montant_total',
+                'montant_total_tnd',
             ]
             for champ in champs:
                 vsb=False

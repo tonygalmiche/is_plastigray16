@@ -28,9 +28,14 @@
                         <field name="client_id_vsb"            invisible="1"/> 
                         <field name="num_cde_vsb"              invisible="1"/> 
                         <field name="num_bl_vsb"               invisible="1"/> 
+                        <field name="num_bl_manuel_vsb"        invisible="1"/> 
+                        <field name="num_facture_client_vsb"   invisible="1"/> 
+                        <field name="ndp_vsb"                  invisible="1"/> 
+                        <field name="incoterm_vsb"             invisible="1"/> 
                         <field name="facture_avoir_vsb"        invisible="1"/> 
                         <field name="annee_facture_vsb"        invisible="1"/> 
                         <field name="semaine_facture_vsb"      invisible="1"/> 
+                        <field name="date_echeance_vsb"        invisible="1"/> 
 
                         <field name="matiere_premiere_vsb" invisible="1"/> 
                         <field name="main_oeuvre_vsb" invisible="1"/> 
@@ -82,17 +87,21 @@
                                 <field name="date_facture"/> 
                                 <field name="annee_facture"      attrs="{'invisible': [('annee_facture_vsb', '!=', True)]}"/> 
                                 <field name="semaine_facture"    attrs="{'invisible': [('semaine_facture_vsb', '!=', True)]}"/> 
-                                <field name="client_id" attrs="{'invisible': [('client_id_vsb', '!=', True)], 'required': [('client_id_vsb', '=', True)]}"/> 
-                                <field name="num_cde"   attrs="{'invisible': [('num_cde_vsb', '!=', True)]}"/> 
-                                <field name="num_bl"    attrs="{'invisible': [('num_bl_vsb', '!=', True)]   , 'required': [('num_bl_vsb', '=', True)]}"/> 
+                                <field name="date_echeance"      attrs="{'invisible': [('date_echeance_vsb', '!=', True)]}"/> 
+                                <field name="client_id"          attrs="{'invisible': [('client_id_vsb', '!=', True)], 'required': [('client_id_vsb', '=', True)]}"/> 
+                                <field name="num_cde"            attrs="{'invisible': [('num_cde_vsb', '!=', True)]}"/> 
+                                <field name="num_bl"             attrs="{'invisible': [('num_bl_vsb', '!=', True)]   , 'required': [('num_bl_vsb', '=', True)]}"/> 
+                                <field name="num_bl_manuel"      attrs="{'invisible': [('num_bl_manuel_vsb', '!=', True)]   , 'required': [('num_bl_manuel_vsb', '=', True)]}"/> 
+                                <field name="num_facture_client" attrs="{'invisible': [('num_facture_client_vsb', '!=', True)]   , 'required': [('num_facture_client_vsb', '=', True)]}"/> 
                             </group>
                             <group>
-                                <field name="nb_pieces"   attrs="{'invisible': [('nb_pieces'   , '=', 0)]}"/> 
-                                <field name="nb_cartons"  attrs="{'invisible': [('nb_cartons'  , '=', 0)]}"/> 
-                                <field name="nb_colis"    attrs="{'invisible': [('nb_colis_vsb', '!=', True)]}"/> 
-                                <field name="volume"      attrs="{'invisible': [('volume_vsb'  , '!=', True)]}"/> 
+                                <field name="nb_pieces"   attrs="{'invisible': [('nb_pieces_vsb' , '!=', True)]}"/> 
+                                <field name="nb_cartons"  attrs="{'invisible': [('nb_cartons_vsb', '!=', True)]}"/> 
+                                <field name="nb_colis"    attrs="{'invisible': [('nb_colis_vsb'  , '!=', True)]}"/> 
+                                <field name="volume"      attrs="{'invisible': [('volume_vsb'    , '!=', True)]}"/> 
+                                <field name="ndp"         attrs="{'invisible': [('ndp_vsb', '!=', True)]   , 'readonly': [('ndp_vsb', '=', True)]}"/> 
+                                <field name="incoterm"    attrs="{'invisible': [('incoterm_vsb', '!=', True)]   , 'required': [('incoterm_vsb', '=', True)]}"/> 
                             </group>
-
                         </group>
                         <group>
                             <group>
@@ -297,9 +306,12 @@
                                 <field name="facture_avoir"/> 
                                 <field name="annee_facture"/> 
                                 <field name="semaine_facture"/> 
+                                <field name="date_echeance"/> 
                                 <field name="client_id"/> 
                                 <field name="num_cde"/> 
                                 <field name="num_bl"/> 
+                                <field name="num_bl_manuel"/> 
+                                <field name="num_facture_client"/> 
                                 <field name="matiere_premiere"/> 
                                 <field name="main_oeuvre"/> 
                                 <field name="total_moules"/> 
@@ -311,6 +323,8 @@
                                 <field name="nb_pieces"/> 
                                 <field name="nb_cartons"/> 
                                 <field name="nb_colis"/> 
+                                <field name="ndp"/> 
+                                <field name="incoterm"/> 
                                 <field name="volume"/> 
                                 <field name="poids_net"/> 
                                 <field name="poids_brut"/> 

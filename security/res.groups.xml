@@ -140,27 +140,6 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
 
-
-    <!--
-    <record model="res.groups" id="is_gestionnaire_presses_group" >
-        <field name="name">Gestionnaire des presses</field>
-        <field name="comment"></field>
-        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
-    </record>
-
-    <record model="res.groups" id="is_gestionnaire_prechauffeurs_group" >
-        <field name="name">Gestionnaire des préchauffeurs</field>
-        <field name="comment"></field>
-        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
-    </record>
-    <record model="res.groups" id="is_gestionnaire_moyens_production_group" >
-        <field name="name">Gestionnaire des moyens de production</field>
-        <field name="comment"></field>
-        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
-    </record>
-    -->
-
-
     <record model="res.groups" id="is_gestionnaire_rgpd_group" >
         <field name="name">Gestionnaire RGPD</field>
         <field name="comment"></field>
@@ -299,6 +278,11 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
 
+    <record model="res.groups" id="is_gestionnaire_facturation_pk" >
+        <field name="name">Gestionnaire facturation PK</field>
+        <field name="comment"></field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
 
 
 
