@@ -86,7 +86,7 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
     <record model="res.groups" id="is_chef_projet_group" >
-        <field name="name">Chef de projets, Méthode et Metro</field>
+        <field name="name">Chef de projets</field>
         <field name="comment"></field>
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
