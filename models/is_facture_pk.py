@@ -420,7 +420,7 @@ class is_facture_pk_line(models.Model):
     montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
 
 
-    @api.onchange('pump_tnd','pu_ht_tnd','qt','pump','pupf','pu_ht')
+    @api.onchange('pump_tnd','pu_ht_tnd','qt','pump','pupf','pu_ht','montant_total_tnd')
     def onchange_tnd(self):
         taux_devise_dinar = self.is_facture_id.taux_devise_dinar or 1
         taux_commission   = self.is_facture_id.taux_commission or 1
@@ -437,6 +437,10 @@ class is_facture_pk_line(models.Model):
             self.montant_total_tnd = qt * self.pu_ht_1000_ass/1000
         if type_facture_id.montant_total_tnd and type_facture_id.qt and type_facture_id.pu_ht_tnd:
             self.montant_total_tnd = qt * self.pu_ht_tnd
+
+        if type_facture_id.montant_total_tnd and type_facture_id.montant_total and not type_facture_id.qt:
+            self.montant_total = self.montant_total_tnd/taux_devise_dinar
+
         if type_facture_id.ptmp and type_facture_id.qt and type_facture_id.pump:
             self.ptmp = qt * self.pump
         if type_facture_id.ptmp_tnd and type_facture_id.qt and type_facture_id.pump_tnd:
