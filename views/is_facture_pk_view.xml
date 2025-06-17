@@ -87,8 +87,8 @@
                                 <field name="date_facture"/> 
                                 <field name="annee_facture"      attrs="{'invisible': [('annee_facture_vsb', '!=', True)]}"/> 
                                 <field name="semaine_facture"    attrs="{'invisible': [('semaine_facture_vsb', '!=', True)]}"/> 
-                                <field name="date_echeance"      attrs="{'invisible': [('date_echeance_vsb', '!=', True)]}"/> 
                                 <field name="client_id"          attrs="{'invisible': [('client_id_vsb', '!=', True)], 'required': [('client_id_vsb', '=', True)]}"/> 
+                                <field name="date_echeance"      attrs="{'invisible': [('date_echeance_vsb', '!=', True)]}"/> 
                                 <field name="num_cde"            attrs="{'invisible': [('num_cde_vsb', '!=', True)]}"/> 
                                 <field name="num_bl"             attrs="{'invisible': [('num_bl_vsb', '!=', True)]   , 'required': [('num_bl_vsb', '=', True)]}"/> 
                                 <field name="num_bl_manuel"      attrs="{'invisible': [('num_bl_manuel_vsb', '!=', True)]   , 'required': [('num_bl_manuel_vsb', '=', True)]}"/> 

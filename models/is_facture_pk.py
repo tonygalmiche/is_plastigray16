@@ -74,7 +74,7 @@ class is_facture_pk(models.Model):
     _rec_name = 'num_facture'
     _order = 'num_facture desc'
     
-    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids','line_ids')
+    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids','line_ids.ptmp','line_ids.total_pf')
     def _compute(self):
         for obj in self:
             #** matiere_premiere et main_oeuvre *******************************
@@ -162,10 +162,6 @@ class is_facture_pk(models.Model):
     facture_origine_id   = fields.Many2one('is.facture.pk', string="Facture d'origine de cet avoir", tracking=True) 
     conditions_generales = fields.Text('Conditions générales',tracking=True)
 
-
-
-
-
     client_id_vsb            = fields.Boolean("client_id_vsb"             , compute='_compute_vsb')
     num_cde_vsb              = fields.Boolean("num_cde_vsb"               , compute='_compute_vsb')
     num_bl_vsb               = fields.Boolean("num_bl_vsb"                , compute='_compute_vsb')
@@ -221,9 +217,35 @@ class is_facture_pk(models.Model):
     pu_ht_1000_ass_vsb    = fields.Boolean("pu_ht_1000_ass_vsb"   , compute='_compute_vsb')
     montant_total_vsb     = fields.Boolean("montant_total_vsb"    , compute='_compute_vsb')
     montant_total_tnd_vsb = fields.Boolean("montant_total_tnd_vsb", compute='_compute_vsb')
+    taux_devise_dinar     = fields.Float("Taux devise dinar" , digits=(12, 4), readonly=True)
+    taux_commission       = fields.Float("Taux de commission", digits=(12, 4), readonly=True)
 
-    taux_devise_dinar = fields.Float("Taux devise dinar" , digits=(12, 4), readonly=True)
-    taux_commission   = fields.Float("Taux de commission", digits=(12, 4), readonly=True)
+
+    @api.onchange('client_id')
+    def onchange_client_id(self):
+        if self.client_id.is_incoterm:
+            self.incoterm = self.client_id.is_incoterm.name
+
+
+    @api.onchange('date_facture','client_id')
+    def onchange_date_facture(self):
+        if self.client_id.property_payment_term_id:
+            company = self.env.user.company_id
+            currency = company.currency_id
+            payment_term = self.client_id.property_payment_term_id
+            invoice_payment_terms = payment_term._compute_terms(
+                date_ref=self.date_facture or fields.Date.today(),
+                currency=currency,
+                tax_amount_currency=0,
+                tax_amount=0,
+                untaxed_amount_currency=0,
+                untaxed_amount=0,
+                company=company,
+                sign=1
+            )
+            if invoice_payment_terms:
+                for line in invoice_payment_terms:
+                    self.date_echeance = line['date']
 
 
     @api.depends('type_facture_id')

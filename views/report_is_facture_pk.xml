@@ -98,7 +98,7 @@
                                         <td class="text-right"><b>Total frais de préparation à taxer : </b></td>
                                         <td class="text-right"><span t-field="o.frais_perturbation"/></td>
                                     </tr>
-                                    <tr t-if="type=='douane'">
+                                    <tr t-if="type=='douane' and o.total">
                                         <td class="text-right"><b>TOTAL : </b></td>
                                         <td class="text-right"><span t-field="o.total"/></td>
                                     </tr>
@@ -208,26 +208,40 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <t t-set="total_poids_net"           t-value="0"/>
+                                        <t t-set="total_poids_brut"          t-value="0"/>
+                                        <t t-set="total_qt"                  t-value="0"/>
+                                        <t t-set="total_nb_uc"               t-value="0"/>
+                                        <t t-set="total_ptmp_tnd"            t-value="0"/>
+                                        <t t-set="total_ptmp"                t-value="0"/>
+                                        <t t-set="total_total_pf"            t-value="0"/>
+                                        <t t-set="total_montant_total_tnd"   t-value="0"/>
+                                        <t t-set="total_montant_total"       t-value="0"/>
                                         <tr t-foreach="o.line_ids" t-as="l">
+                                            <t t-set="total_poids_net"         t-value="total_poids_net+l.poids_net"/>
+                                            <t t-set="total_poids_brut"        t-value="total_poids_brut+l.poids_brut"/>
+                                            <t t-set="total_qt"                t-value="total_qt+l.qt"/>
+                                            <t t-set="total_nb_uc"             t-value="total_nb_uc+l.nb_uc"/>
+                                            <t t-set="total_ptmp_tnd"          t-value="total_ptmp_tnd+l.ptmp_tnd"/>
+                                            <t t-set="total_ptmp"              t-value="total_ptmp+l.ptmp"/>
+                                            <t t-set="total_total_pf"          t-value="total_total_pf+l.total_pf"/>
+                                            <t t-set="total_montant_total_tnd" t-value="total_montant_total_tnd+l.montant_total_tnd"/>
+                                            <t t-set="total_montant_total"     t-value="total_montant_total+l.montant_total"/>
+
                                             <td t-if="o.num_colis_vsb"  class="text-center"><span t-field="l.num_colis"/> </td>
                                             <td t-if="o.commande_vsb"  class="text-left">  <span t-field="l.commande"/> </td>
                                             <td t-if="o.reception_vsb"  class="text-center"><span t-field="l.reception"/> </td>
                                             <td t-if="o.product_id_vsb"  class="text-center"><span t-field="l.product_id.is_code"/> </td>
                                             <td t-if="o.ref_client_vsb"  class="text-left">  <span t-field="l.ref_client"/> </td>
                                             <td t-if="o.ref_pk_vsb"  class="text-left">  <span t-field="l.ref_pk"/> </td>
-                                            <t t-if="not o.client_id">
-                                                <td t-if="not o.client_id"  class="text-left">
-                                                    <span t-field="l.designation"/>  <br/>
+                                            <td t-if="o.designation_vsb"  class="text-left">
+                                                <span t-field="l.designation"/>
+                                                <t t-if="not o.client_id">
+                                                    <br/>
                                                     <span t-field="l.product_id.is_origine_produit_id"/> - 
                                                     <span t-field="l.product_id.is_nomenclature_douaniere"/>
-
-                                                </td>
-                                            </t>
-                                            <t t-if="o.client_id">
-                                                <td t-if="o.designation_vsb"  class="text-left">
-                                                    <span t-field="l.designation"/>
-                                                </td>
-                                            </t>
+                                                </t>
+                                            </td>
                                             <td t-if="o.poids_net_vsb"  class="text-right" style="white-space: nowrap;">
                                                 <t t-esc='"{:,.1f}".format(l.poids_net).replace(","," ").replace(".",",")'/> 
                                             </td>
@@ -254,6 +268,35 @@
                                             <td t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total"/> </td>
                                         </tr>
                                     </tbody>
+                                    <tfoot>
+                                        <tr width="100%">
+                                            <th t-if="o.num_colis_vsb"></th>
+                                            <th t-if="o.commande_vsb"></th>
+                                            <th t-if="o.reception_vsb"></th>
+                                            <th t-if="o.product_id_vsb"></th>
+                                            <th t-if="o.ref_client_vsb"></th>
+                                            <th t-if="o.ref_pk_vsb"></th>
+                                            <th t-if="o.designation_vsb"></th>
+                                            <th t-if="o.poids_net_vsb"  class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_poids_net).replace(".",",")'/></th>
+                                            <th t-if="o.poids_brut_vsb" class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_poids_brut).replace(".",",")'/></th>
+                                            <th t-if="o.qt_vsb"         class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.0f}".format(total_qt).replace(".",",")'/></th>
+                                            <th t-if="o.uc_vsb"></th>
+                                            <th t-if="o.nb_uc_vsb"      class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.0f}".format(total_nb_uc).replace(".",",")'/></th>
+                                            <th t-if="o.pu_ht_tnd_vsb"></th>
+                                            <th t-if="o.pu_ht_vsb"></th>
+                                            <th t-if="o.pu_ht_1000_vsb"></th>
+                                            <th t-if="o.pu_ht_1000_ass_vsb"></th>
+                                            <th t-if="o.pump_tnd_vsb"></th>
+                                            <th t-if="o.pump_vsb"></th>
+                                            <th t-if="o.pump_1000_vsb"></th>
+                                            <th t-if="o.ptmp_tnd_vsb"          class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_ptmp_tnd).replace(".",",")'/></th>
+                                            <th t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_ptmp).replace(".",",")'/></th>
+                                            <th t-if="o.pupf_vsb"></th>
+                                            <th t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_total_pf).replace(".",",")'/></th>
+                                            <th t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total_tnd).replace(".",",")'/></th>
+                                            <th t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total).replace(".",",")'/></th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
