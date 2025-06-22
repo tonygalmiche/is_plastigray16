@@ -300,7 +300,7 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
                 couleur='tdjaune'
             if obj.type_gamme=='reprise':
                 couleur='tdorange'
-            if obj.type_gamme=='securisation':
+            if obj.type_gamme=='securisation' or obj.type_gamme=='permanente':
                 couleur='tdviolet'
             return couleur
 
@@ -348,8 +348,9 @@ class is_ctrl100_gamme_mur_qualite(models.Model):
     name                     = fields.Char(u"N°de gamme", readonly=True)
     type_gamme               = fields.Selection([
                                     ("qualification_process", "Qualification Process"),
-                                    ("securisation", u"Sécurisation"),
-                                    ("reprise", "Reprise"),
+                                    ("securisation"         , "Sécurisation"),
+                                    ("permanente"           , "Gamme permanente"),
+                                    ("reprise"              , "Reprise"),
                                 ], "Type de gamme", required=True)
     description_defaut       = fields.Text(u"Description du défaut")
     commentaire              = fields.Char(u"Commentaire", help=u"Pour pouvoir attribuer un nom à la gamme. Il peut y avoir plusieurs gammes sur un même moule (plusieurs incidents différents par exemple). Ce champ commentaire permet de savoir à quoi correspond chaque gamme")

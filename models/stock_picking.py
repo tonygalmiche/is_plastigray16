@@ -73,6 +73,53 @@ class stock_picking(models.Model):
     is_votre_contact_id       = fields.Many2one('res.partner', 'Votre contact', readonly=True, tracking=True)
     is_poids_net              = fields.Float("Poids brut", digits=(12, 1), copy=False, tracking=True)
     is_poids_brut             = fields.Float("Poids net" , digits=(12, 1), copy=False, tracking=True)
+    is_alerte_obligatoire     = fields.Text("Champs obligatoires", compute='_compute_is_alerte_obligatoire', store=False, readonly=True)
+
+
+    @api.depends('move_ids_without_package','is_point_dechargement','is_plaque_immatriculation','is_dossier_transport')
+    def _compute_is_alerte_obligatoire(self):
+        for obj in self:
+            alerte=[]
+            champ_obligatoire = obj.partner_id.is_champ_obligatoire_id
+            if champ_obligatoire:
+                if champ_obligatoire.point_dechargement and not obj.is_point_dechargement:
+                   alerte.append("Le champ 'Point de déchargement' est obligatoire")
+                if champ_obligatoire.is_plaque_immatriculation and not obj.is_plaque_immatriculation:
+                   alerte.append("Le champ 'Plaque d’immatriculation' est obligatoire")
+                if champ_obligatoire.is_dossier_transport and not obj.is_dossier_transport:
+                   alerte.append("Le champ 'N° de dossier de transport' est obligatoire")
+                field_dict={
+                    'num_commande_client'  : 'is_client_order_ref',
+                    'numero_document'      : 'is_numero_document',
+                    'caldel_number'        : 'is_caldel_number',
+                    'num_ran'              : 'is_num_ran',
+                    'identifiant_transport': 'is_identifiant_transport',
+                    'tg_number'            : 'is_tg_number',
+                    'code_routage'         : 'is_code_routage',
+                    'point_destination'    : 'is_point_destination',
+                }
+                ligne=1
+                for move in obj.move_ids_without_package:
+                    if move.sale_line_id:
+                        line = move.sale_line_id
+                        for key in field_dict:
+                            field_name   = field_dict[key]
+                            field_value  = line[field_name]
+                            field_string = line._fields[field_name].string
+                            if champ_obligatoire[key] and not field_value:
+                                msg = "%s : %s : Le champ '%s' est obligatoire sur la ligne de commande pour '%s'"%(
+                                        str(ligne).ljust(2),
+                                        line.product_id.is_code.ljust(7),
+                                        field_string,
+                                        champ_obligatoire.name,
+                                )
+                                alerte.append(msg)
+                    ligne+=1
+            if len(alerte):
+                alerte='\n'.join(alerte)
+            else:
+                alerte = False
+            obj.is_alerte_obligatoire = alerte
 
 
     def write(self, vals):
@@ -192,7 +239,7 @@ class stock_picking(models.Model):
         print(self)
 
 
-    @api.depends('move_ids_without_package')
+    @api.depends('sale_id.is_point_dechargement')
     def compute_is_point_dechargement(self):
         for obj in self:
             obj.is_point_dechargement = obj.sale_id.is_point_dechargement

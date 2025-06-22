@@ -97,9 +97,11 @@
                         type="object" 
                         name="button_validate" 
                         class="oe_highlight" 
-                        attrs="{'invisible': ['|',
+                        attrs="{'invisible': ['|','|',
                             ('state','in', ['done','cancel']),
-                            ('picking_type_id','not in',[2,3])
+                            ('picking_type_id','not in',[2,3]),
+                            ('is_alerte_obligatoire','!=',False)
+
                         ]}"
                      />
                     <button 
@@ -236,6 +238,14 @@
                     <field name="is_num_bl"                 attrs="{'invisible': [('purchase_id', '=', False)]}"/> 
                     <field name="is_date_reception"         attrs="{'invisible': [('purchase_id', '=', False)]}"/> 
                 </field>
+                <xpath expr="//notebook" position="before">
+                    <div style="background:orange;font-size:11pt;;font-family:courier, courier new, serif" attrs="{'invisible':[('is_alerte_obligatoire','=',False)]}">
+                        <field 
+                            name="is_alerte_obligatoire" nolabel="1" 
+                            attrs="{'invisible': [('is_alerte_obligatoire','=', False)]}"
+                        />
+                    </div>
+                </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
                     <attribute name="readonly">1</attribute>
                 </xpath>

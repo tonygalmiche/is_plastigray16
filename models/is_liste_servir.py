@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 import datetime
@@ -238,6 +237,47 @@ class is_liste_servir(models.Model):
     saut_page_aqp          = fields.Boolean('Saut de page AQP', default=False)
     is_point_dechargement  = fields.Char('Point de déchargement')
     is_livree_aqp          = fields.Boolean('Pièce livrée en AQP')
+    alerte_obligatoire     = fields.Text("Champs obligatoires", compute='_compute_alerte_obligatoire', store=False, readonly=True)
+
+
+
+    @api.depends('line_ids')
+    def _compute_alerte_obligatoire(self):
+        for obj in self:
+            alerte=[]
+            champ_obligatoire = obj.partner_id.is_champ_obligatoire_id
+            if champ_obligatoire:
+                field_dict={
+                    'num_commande_client'  : 'client_order_ref',
+                    'point_dechargement'   : 'point_dechargement',
+                    'numero_document'      : 'is_numero_document',
+                    'caldel_number'        : 'is_caldel_number',
+                    'num_ran'              : 'is_num_ran',
+                    'identifiant_transport': 'is_identifiant_transport',
+                    'tg_number'            : 'is_tg_number',
+                    'code_routage'         : 'is_code_routage',
+                    'point_destination'    : 'is_point_destination',
+                }
+                ligne=1
+                for line in obj.line_ids:
+                    for key in field_dict:
+                        field_name   = field_dict[key]
+                        field_value  = line[field_name]
+                        field_string = line._fields[field_name].string
+                        if champ_obligatoire[key] and not field_value:
+                            msg = "%s : %s : Le champ '%s' est obligatoire pour '%s'"%(
+                                    str(ligne).ljust(2),
+                                    line.product_id.is_code.ljust(7),
+                                    field_string,
+                                    champ_obligatoire.name,
+                            )
+                            alerte.append(msg)
+                    ligne+=1
+            if len(alerte):
+                alerte='\n'.join(alerte)
+            else:
+                alerte = False
+            obj.alerte_obligatoire = alerte
 
 
     @api.onchange('mixer')
@@ -462,32 +502,12 @@ class is_liste_servir(models.Model):
                 stocka  = product.get_stock('f')
                 stockq  = product.get_stock('t')
                 qt=row['product_uom_qty']
-
-
-
-
-
-
                 livrable=False
                 if qt<=stocka:
                     livrable=True
-
-
                 test=True
                 if obj.livrable==True and livrable==False:
                     test=False
-#
-#                point_dechargement = False
-#                if obj.partner_id.is_traitement_edi:
-#                    filtre = [
-#                        ('partner_id'            , '=', obj.partner_id.id),
-#                        ('is_article_commande_id', '=', product_id),
-#                        ('is_type_commande'      , '=', 'ouverte'),
-#                        ('state'                 , '=', 'draft'),
-#                    ]
-#                    orders = self.env['sale.order'].search(filtre)
-#                    for order in orders:
-#                        point_dechargement = order.is_point_dechargement
                 if test:
                     vals={
                         'liste_servir_id'   : obj.id,
@@ -507,7 +527,6 @@ class is_liste_servir(models.Model):
                         'stockq'            : stockq,
                         'certificat_matiere': certificat_matiere,
                         'point_dechargement': point_dechargement,
-
                         'is_date_heure_livraison_au_plus_tot': row['is_date_heure_livraison_au_plus_tot'],
                         'is_numero_document'                 : row['is_numero_document'],
                         'is_caldel_number'                   : row['is_caldel_number'],

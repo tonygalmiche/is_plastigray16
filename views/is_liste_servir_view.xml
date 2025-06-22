@@ -2,8 +2,6 @@
 
 <openerp>
     <data>
-
-
         <!-- Liste des clients -->
         <record model="ir.ui.view" id="is_liste_servir_client_tree_view">
             <field name="name">is_liste_servir_client_tree_view</field>
@@ -61,11 +59,15 @@
                         .o_form_view.o_xxl_form_view .o_form_sheet_bg > .o_form_sheet {
                             max-width: 1800px;
                         }
-
                     </style>
                     <header>
                         <button name="action_importer_commandes" type="object" string="Importer les commandes" class="oe_highlight" states="creation" />
-                        <button name="action_generer_bl"         type="object" string="Générer la commande de livraison" states="analyse" confirm2="Générer le bon de livraison ?"/>
+                        <button 
+                            name="action_generer_bl"         type="object" 
+                            string="Générer la commande de livraison" 
+                            confirm2="Générer le bon de livraison ?"
+                            attrs="{'invisible':['|',('state','!=','analyse'),('alerte_obligatoire','!=',False)]}" 
+                        />
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
@@ -105,12 +107,15 @@
                                 </field>
                             </group>
                         </group>
+                        <div style="background:orange;font-size:11pt;;font-family:courier, courier new, serif" attrs="{'invisible':[('alerte_obligatoire','=',False)]}">
+                            <field 
+                                name="alerte_obligatoire" nolabel="1" 
+                                attrs="{'invisible': [('alerte_obligatoire','=', False)]}"
+                            />
+                        </div>
                         <field name="line_ids" nolabel="1">
                             <tree editable="bottom"  create="true"  decoration-danger="livrable == False" limit="2000">
-                                
                                 <field name="sequence"       invisible="1"/>
-
-
                                 <field name="is_certificat_conformite_vsb" invisible="1"/>
                                 <button 
                                     title="Certificat" 
@@ -124,17 +129,7 @@
                                     type="object" icon="fa-exclamation" 
                                     attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
                                 />
-            
-
                                 <field name="product_id" widget="many2one_clickable"/>
-
-
-
-
-
-
-
-
                                 <field name="mold_dossierf" optional="show"/>
                                 <field name="livrable"       invisible="1"/>
                                 <field name="date_livraison" optional="show"/>

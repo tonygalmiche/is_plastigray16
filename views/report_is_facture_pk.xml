@@ -81,11 +81,11 @@
                             <div class="col-6">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr t-if="type=='douane' and o.matiere_premiere">
-                                        <td class="text-right"><b>Total de la Matière première N/FACT en EURO : </b></td>
+                                        <td class="text-right" style="white-space: nowrap;"><b>Total de la Matière première N/FACT en EURO : </b></td>
                                         <td class="text-right"><span t-field="o.matiere_premiere"/></td>
                                     </tr>
                                     <tr t-if="o.main_oeuvre">
-                                        <td class="text-right"><b>Total des prestations de service en € à payer : </b></td>
+                                        <td class="text-right" style="white-space: nowrap;"><b>Total des prestations de service en € à payer : </b></td>
                                         <td class="text-right"><span t-field="o.main_oeuvre"/></td>
                                     </tr>
                                     <t t-if="o.total_moules">
@@ -203,8 +203,8 @@
                                             <th t-if="o.ptmp_vsb"              width="8%"><strong>P.T.M.P</strong></th>
                                             <th t-if="o.pupf_vsb"              width="6%"><strong>P.U.P.F</strong></th>
                                             <th t-if="o.total_pf_vsb"          width="6%"><strong>P.T.P.F</strong></th>
-                                            <th t-if="o.montant_total_vsb"     width="6%"><strong>Montant H.T. (TND)</strong></th>
-                                            <th t-if="o.montant_total_tnd_vsb" width="6%"><strong>Montant H.T. (€)</strong></th>
+                                            <th t-if="o.montant_total_vsb"     width="6%"><strong>Montant H.T. (€)</strong></th>
+                                            <th t-if="o.montant_total_tnd_vsb" width="6%"><strong>Montant H.T. (TND)</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>

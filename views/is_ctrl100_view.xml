@@ -94,8 +94,8 @@
                         <group>
                             <field name="name"/>
                             <field name="type_gamme"/>
-                            <field name="description_defaut" attrs="{'invisible': [('type_gamme', 'not in', ['securisation','reprise'])]}"/>
-                            <field name="commentaire"        attrs="{'invisible': [('type_gamme', '!=', 'securisation'),('type_gamme', '!=', 'reprise')]}"/>
+                            <field name="description_defaut" attrs="{'invisible': [('type_gamme', 'not in', ['securisation','permanente','reprise'])]}"/>
+                            <field name="commentaire"        attrs="{'invisible': [('type_gamme', '!=', 'securisation'),('type_gamme', '!=', 'permanente'),('type_gamme', '!=', 'reprise')]}"/>
                             <field name="gamme_sur"/>
                             <field name="mold_id"     attrs="{'invisible': [('gamme_sur', '!=', 'moule')], 'required': [('gamme_sur', '=', 'moule')]}"/>
                             <field name="dossierf_id" attrs="{'invisible': [('gamme_sur', '!=', 'dossier_f')], 'required': [('gamme_sur', '=', 'dossier_f')]}"/>
@@ -160,8 +160,8 @@
                         <field 
                             name="product_cout_id"
                             attrs="{
-                                'invisible': [('type_gamme', 'not in', ['securisation','reprise'])],
-                                'required' : [('type_gamme', 'in'    , ['securisation','reprise'])]
+                                'invisible': [('type_gamme', 'not in', ['securisation','permanente','reprise'])],
+                                'required' : [('type_gamme', 'in'    , ['securisation','permanente','reprise'])]
                             }"
                             domain="[('is_mold_dossierf','=',moule_dossierf)]"
                         />
@@ -169,7 +169,7 @@
                         <field
                             name="cout_actualise"
                             attrs="{
-                                'invisible': [('type_gamme', 'not in', ['securisation','reprise'])]
+                                'invisible': [('type_gamme', 'not in', ['securisation','permanente','reprise'])]
                             }"
                         />
                         <field name="cout_ctrl_qualite"/>
@@ -178,8 +178,8 @@
                         <field
                             name="justification"
                             attrs="{
-                                'invisible': ['|',('delta_cout', '&gt;', 0.0),('type_gamme', 'not in', ['securisation','reprise'])],
-                                'required' : [('delta_cout', '&lt;', 0.0),('type_gamme', 'in', ['securisation','reprise'])]
+                                'invisible': ['|',('delta_cout', '&gt;', 0.0),('type_gamme', 'not in', ['securisation','permanente','reprise'])],
+                                'required' : [('delta_cout', '&lt;', 0.0),('type_gamme', 'in', ['securisation','permanente','reprise'])]
                             }"
                         />
                         <field name="cadence_previsionnelle"/>

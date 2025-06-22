@@ -449,6 +449,9 @@ class product_template(models.Model):
     is_origine_produit_id         = fields.Many2one('res.country', 'Origine du produit')
     is_origine_produit_id_vsb     = fields.Boolean('Origine du produit vsb', store=False, compute='_compute')
 
+    is_made_in_id                 = fields.Many2one('res.country', 'Made in')
+    is_made_in_id_vsb             = fields.Boolean('Made in vsb', store=False, compute='_compute')
+
     is_produit_perissable         = fields.Boolean('Produit périssable')
     is_produit_perissable_vsb     = fields.Boolean('Produit périssable vsb', store=False, compute='_compute')
 
