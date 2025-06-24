@@ -215,8 +215,8 @@
                                         <t t-set="total_ptmp_tnd"            t-value="0"/>
                                         <t t-set="total_ptmp"                t-value="0"/>
                                         <t t-set="total_total_pf"            t-value="0"/>
-                                        <t t-set="total_montant_total_tnd"   t-value="0"/>
                                         <t t-set="total_montant_total"       t-value="0"/>
+                                        <t t-set="total_montant_total_tnd"   t-value="0"/>
                                         <tr t-foreach="o.line_ids" t-as="l">
                                             <t t-set="total_poids_net"         t-value="total_poids_net+l.poids_net"/>
                                             <t t-set="total_poids_brut"        t-value="total_poids_brut+l.poids_brut"/>
@@ -264,8 +264,8 @@
                                             <td t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.ptmp"/> </td>
                                             <td t-if="o.pupf_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.pupf"/> </td>
                                             <td t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"> <span t-field="l.total_pf"/> </td>
-                                            <td t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total_tnd"/> </td>
                                             <td t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total"/> </td>
+                                            <td t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total_tnd"/> </td>
                                         </tr>
                                     </tbody>
                                     <tfoot>
@@ -289,12 +289,12 @@
                                             <th t-if="o.pump_tnd_vsb"></th>
                                             <th t-if="o.pump_vsb"></th>
                                             <th t-if="o.pump_1000_vsb"></th>
-                                            <th t-if="o.ptmp_tnd_vsb"          class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_ptmp_tnd).replace(".",",")'/></th>
+                                            <th t-if="o.ptmp_tnd_vsb"          class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_ptmp_tnd).replace(".",",")'/></th>
                                             <th t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_ptmp).replace(".",",")'/></th>
                                             <th t-if="o.pupf_vsb"></th>
                                             <th t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_total_pf).replace(".",",")'/></th>
-                                            <th t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total_tnd).replace(".",",")'/></th>
-                                            <th t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total).replace(".",",")'/></th>
+                                            <th t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total).replace(".",",")'/></th>
+                                            <th t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_montant_total_tnd).replace(".",",")'/></th>
                                         </tr>
                                     </tfoot>
                                 </table>
