@@ -28,6 +28,7 @@ class is_facture_pk_type(models.Model):
     frais_perturbation   = fields.Boolean("Total frais de préparation à taxer (€)", default=True)
     total                = fields.Boolean("TOTAL (€)", default=True)
     total_plastigray     = fields.Boolean("Total Plastigray (€)", default=True)
+    total_ass_tnd        = fields.Boolean("Total Montant H.T. assistance incluse (TND)", default=False)
 
     nb_pieces          = fields.Boolean("Nombre de pièces", default=True)
     nb_cartons         = fields.Boolean("Nombre de cartons", default=True)
@@ -38,6 +39,7 @@ class is_facture_pk_type(models.Model):
 
     moule_ids            = fields.Boolean("Moules à taxer", default=True)
     conditions_generales = fields.Boolean("Conditions générales", default=True)
+
 
     #Lignes de la facture
     num_colis      = fields.Boolean('N°Colis', default=True)
@@ -180,6 +182,7 @@ class is_facture_pk(models.Model):
     frais_perturbation_vsb    = fields.Boolean("frais_perturbation_vsb"   , compute='_compute_vsb')
     total_vsb                 = fields.Boolean("total_vsb"                , compute='_compute_vsb')
     total_plastigray_vsb      = fields.Boolean("total_plastigray_vsb"     , compute='_compute_vsb')
+    total_ass_tnd_vsb         = fields.Boolean("total_ass_tnd_vsb"        , compute='_compute_vsb')
 
     nb_pieces_vsb             = fields.Boolean("nb_pieces_vsb"            , compute='_compute_vsb')
     nb_cartons_vsb            = fields.Boolean("nb_cartons_vsb"           , compute='_compute_vsb')
@@ -255,7 +258,7 @@ class is_facture_pk(models.Model):
             champs=[
                 'facture_avoir','client_id','num_cde','num_bl','num_bl_manuel','num_facture_client','ndp','incoterm',
                 'annee_facture','semaine_facture', 'date_echeance','moule_ids','conditions_generales',
-                'matiere_premiere','main_oeuvre','total_moules','frais_perturbation','total','total_plastigray',
+                'matiere_premiere','main_oeuvre','total_moules','frais_perturbation','total','total_plastigray','total_ass_tnd',
                 'nb_pieces', 'nb_cartons','nb_colis', 'volume', 'poids_net', 'poids_brut',
                 'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf',
                 'reception','ref_client','pump_tnd','pump_1000','ptmp_tnd','pu_ht','pu_ht_tnd','pu_ht_1000','pu_ht_1000_ass','montant_total',

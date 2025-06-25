@@ -203,8 +203,8 @@
                                             <th t-if="o.ptmp_vsb"              width="8%"><strong>P.T.M.P</strong></th>
                                             <th t-if="o.pupf_vsb"              width="6%"><strong>P.U.P.F</strong></th>
                                             <th t-if="o.total_pf_vsb"          width="6%"><strong>P.T.P.F</strong></th>
-                                            <th t-if="o.montant_total_vsb"     width="6%"><strong>Montant H.T. (€)</strong></th>
                                             <th t-if="o.montant_total_tnd_vsb" width="6%"><strong>Montant H.T. (TND)</strong></th>
+                                            <th t-if="o.montant_total_vsb"     width="6%"><strong>Montant H.T. (€)</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -264,8 +264,8 @@
                                             <td t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.ptmp"/> </td>
                                             <td t-if="o.pupf_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.pupf"/> </td>
                                             <td t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"> <span t-field="l.total_pf"/> </td>
-                                            <td t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total"/> </td>
                                             <td t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total_tnd"/> </td>
+                                            <td t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total"/> </td>
                                         </tr>
                                     </tbody>
                                     <tfoot>
@@ -293,8 +293,8 @@
                                             <th t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_ptmp).replace(".",",")'/></th>
                                             <th t-if="o.pupf_vsb"></th>
                                             <th t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_total_pf).replace(".",",")'/></th>
-                                            <th t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total).replace(".",",")'/></th>
                                             <th t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_montant_total_tnd).replace(".",",")'/></th>
+                                            <th t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.2f}".format(total_montant_total).replace(".",",")'/></th>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -320,7 +320,7 @@
                                         <td class="text-right"><b>Quantité : </b></td>
                                         <td class="text-right"><span t-field="o.nb_pieces"/></td>
                                     </tr>
-                                    <tr t-if="o.matiere_premiere">
+                                    <tr t-if="o.matiere_premiere_vsb">
                                         <td class="text-right"><b>Total matière première : </b></td>
                                         <td class="text-right"><span t-field="o.matiere_premiere"/></td>
                                     </tr>
@@ -332,6 +332,26 @@
                                         <td class="text-right"><b>Total facture : </b></td>
                                         <td class="text-right"><span t-field="o.total"/></td>
                                     </tr>
+
+                                    <t t-if="o.total_ass_tnd_vsb">
+
+                                        <t t-set="total_assistance"      t-value="(o.taux_commission - 1) * total_montant_total_tnd"/>
+                                        <t t-set="total_avec_assistance" t-value="o.taux_commission * total_montant_total_tnd"/>
+
+
+                                        <tr>
+                                            <td class="text-right"><b>Total Montant H.T. (TND) : </b></td>
+                                            <td class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_montant_total_tnd).replace(".",",")'/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-right"><b>Total assistance (TND) : </b></td>
+                                            <td class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_assistance).replace(".",",")'/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-right" style="white-space: nowrap;"><b>Total Montant H.T. assistance incluse (TND) : </b></td>
+                                            <td class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_avec_assistance).replace(".",",")'/></td>
+                                        </tr>
+                                    </t>
                                 </table>
                             </div>
                         </div>

@@ -318,6 +318,7 @@
                                 <field name="frais_perturbation"/> 
                                 <field name="total"/> 
                                 <field name="total_plastigray"/> 
+                                <field name="total_ass_tnd"/> 
                             </group>
                             <group>
                                 <field name="nb_pieces"/> 
