@@ -37,14 +37,22 @@ class is_import_facture_owork(models.Model):
             company = self.env.company
             url = company.is_url_facture_owork
             if url : 
-                res = request.urlopen(request.Request(url), timeout=5)
-                filename = res.info().get_filename()
-                data = res.read()
-                # try:
-                #     res = request.urlopen(request.Request(url), timeout=3)
-                #     filename = res.info().get_filename()
-                #     data = res.read()
-                # except timeout as error:
+                # res = request.urlopen(request.Request(url), timeout=5)
+                # filename = res.info().get_filename()
+                # data = res.read()
+
+                # print(filename,data)
+
+
+                try:
+                    res = request.urlopen(request.Request(url), timeout=3)
+                    filename = res.info().get_filename()
+                    data = res.read()
+                except:
+                    raise ValidationError("Pas de fichier à récupérer ou problème de connexion !")
+
+                
+                # timeout as error:
                 #     raise(error)
                 # except HTTPError as error:
                 #     raise ValidationError('HTTP Error: Data of %s not retrieved because %s\nURL: %s', url, error, url)
@@ -53,7 +61,8 @@ class is_import_facture_owork(models.Model):
                 #         raise ValidationError('Timeout Error: Data of %s not retrieved because %s\nURL: %s', url, error, url)
                 #     else:
                 #         raise ValidationError('URL Error: Data of %s not retrieved because %s\nURL: %s', url, error, url)
-                # else:
+
+
                 datas = base64.b64encode(data)
                 vals = {
                     'name':        filename,
