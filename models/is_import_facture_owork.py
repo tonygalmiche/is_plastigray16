@@ -164,6 +164,7 @@ class is_import_facture_owork(models.Model):
 
                                 #** Recherche fournissur **************************
                                 if key=='codefour':
+                                    partner_id=False
                                     if val:
                                         partners = self.env['res.partner'].search([('is_code','=',val)])
                                         partner_id=False
@@ -325,7 +326,7 @@ class is_import_facture_owork(models.Model):
                     anomalies=[]
                     if invoice.amount_untaxed!=line.montantht:
                         anomalies.append("Le montant HT de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(line.montantht,invoice.amount_untaxed))
-                    if invoice.amount_tax!=line.montanttva:
+                    if round(invoice.amount_tax,2)!=line.montanttva:
                         anomalies.append("Le montant de la TVA de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(line.montanttva,invoice.amount_tax))
                     if invoice.amount_total!=line.montanttc:
                         anomalies.append("Le montant TTC de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(line.montanttc,invoice.amount_total))
