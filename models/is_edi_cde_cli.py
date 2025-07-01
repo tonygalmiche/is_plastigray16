@@ -1458,7 +1458,8 @@ class is_edi_cde_cli(models.Model):
                     order_id=False
                     if not len(anomalie):
                         orders=self.env['sale.order'].search([
-                            ('partner_id.is_code', '=' , obj.partner_id.is_code),
+                            #('partner_id.is_code', '=' , obj.partner_id.is_code),
+                            ('partner_id', '=' , obj.partner_id.id),
                             ('is_ref_client'     , '=' , ref_article_client),
                             ('is_type_commande'  , '=' , 'ouverte'),
                             ('state'             , '=' , 'draft'),
