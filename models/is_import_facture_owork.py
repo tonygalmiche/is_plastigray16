@@ -146,10 +146,14 @@ class is_import_facture_owork(models.Model):
                                             moves = self.env['stock.move'].search([('id','=', lig['numidodoo'])])
                                             for move in moves:
                                                 product_id=move.product_id.id
+                                                vals['article'] = move.product_id.is_code
                                     if product_id:
                                         vals['product_id'] = product_id
                                     else:
                                         anomalies.append("Article '%s' non trouvée"%(val or ''))
+                                    
+
+
                                 #**************************************************
 
                                 # #** Recherche descriparticle **********************
@@ -160,10 +164,17 @@ class is_import_facture_owork(models.Model):
 
                                 #** Recherche fournissur **************************
                                 if key=='codefour':
-                                    partners = self.env['res.partner'].search([('is_code','=',val)])
-                                    partner_id=False
-                                    for partner in partners:
-                                        partner_id=partner.id
+                                    if val:
+                                        partners = self.env['res.partner'].search([('is_code','=',val)])
+                                        partner_id=False
+                                        for partner in partners:
+                                            partner_id=partner.id
+                                    else:
+                                        if lig['numidodoo']:
+                                            moves = self.env['stock.move'].search([('id','=', lig['numidodoo'])])
+                                            for move in moves:
+                                                partner_id=move.picking_id.partner_id.id
+                                                vals['codefour'] = move.picking_id.partner_id.is_code
                                     if partner_id:
                                         vals['partner_id'] = partner_id
                                     else:
@@ -189,9 +200,9 @@ class is_import_facture_owork(models.Model):
                         anomalies.append("Le prix d'origine '%s' est différent du prix facturé %s"%(round(prixorigine,2),round(prixfact,2)))
 
                     #** Vérification total ligne facturé **********************
-                    prixfact      = round(vals.get('prixfact')     or 0, 2)
-                    qtefact       = round(vals.get('qtefact')      or 0, 2)
-                    totalfacture  = round(vals.get('totalfacture') or 0, 2)
+                    prixfact      = vals.get('prixfact')     or 0
+                    qtefact       = vals.get('qtefact')      or 0
+                    totalfacture  = vals.get('totalfacture') or 0
                     total_calcule = round(prixfact*qtefact,2)
                     if total_calcule != totalfacture:
                         anomalies.append("Le total facturé %s est différent de %s x %s (%s)"%(totalfacture,prixfact,qtefact,total_calcule))
@@ -274,10 +285,10 @@ class is_import_facture_owork(models.Model):
                             description     = line.descriparticle
                             quantite        = line.qtefact
                             invoice_line_tax_id=[]
-                            # for taxe_id in line.taxe_ids:
-                            #     invoice_line_tax_id.append(taxe_id.id)
-                            # if len(invoice_line_tax_id)==0:
-                            #     invoice_line_tax_id=False
+                            if line.tax_id:
+                                invoice_line_tax_id.append(line.tax_id.id)
+                            if len(invoice_line_tax_id)==0:
+                                invoice_line_tax_id=False
                             #is_document=line.move_id.purchase_line_id.is_num_chantier
                             #if is_document==False:
                             #    is_document=line.move_id.purchase_line_id.order_id.is_document
