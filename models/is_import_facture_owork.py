@@ -180,7 +180,11 @@ class is_import_facture_owork(models.Model):
                                         for partner in partners:
                                             partner_id=partner.id
                                     else:
-                                        if lig['numidodoo']:
+
+
+                                        if lig['numidodoo'] and lig['numidodoo']!='null':
+
+
                                             moves = self.env['stock.move'].search([('id','=', lig['numidodoo'])])
                                             for move in moves:
                                                 partner_id=move.picking_id.partner_id.id
