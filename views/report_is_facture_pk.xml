@@ -94,7 +94,7 @@
                                             <td class="text-right"><span t-field="o.total_moules"/></td>
                                         </tr>
                                     </t>
-                                    <tr t-if="o.frais_perturbation">
+                                    <tr t-if="o.frais_perturbation_vsb">
                                         <td class="text-right"><b>Total frais de préparation à taxer : </b></td>
                                         <td class="text-right"><span t-field="o.frais_perturbation"/></td>
                                     </tr>
