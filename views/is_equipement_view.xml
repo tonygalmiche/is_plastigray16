@@ -780,8 +780,9 @@
             <field name="name">Presse</field>
             <field name="res_model">is.equipement</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_is_equipement_presse_search"/>
-            <field name="context">{'search_default_caracteristigues_filter':1}</field>
+            <!-- <field name="search_view_id" ref="view_is_equipement_presse_search"/> -->
+            <!-- <field name="context">{'search_default_caracteristigues_filter':1}</field> -->
+            <field name="context">{}</field>
             <field name="domain">[('type_id.code', '=', 'PE')]</field>
             <field name="view_id" ref="is_equipement_view_tree_press"/>
         </record>
