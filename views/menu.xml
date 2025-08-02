@@ -2098,7 +2098,7 @@
             ref('is_plastigray16.is_gestionnaire_portail_group'),
         ])]"/>
     </record>
-    <record id="is_questionnaire_dms_reponse_menu" model="ir.ui.menu" >
+    <record id="is_gestion_portail_menu" model="ir.ui.menu" >
         <field name="name">Gestion du portail</field>
         <field name="sequence">10</field>
         <field name="action"    ref="is_gestion_portail_action"/>
