@@ -46,7 +46,7 @@ class is_dossier_article(models.Model):
     utilisation_id       = fields.Many2one('is.dossier.article.utilisation', "Utilisations", tracking=True) #: liste de choix : possibilité de sélectionner plusieurs choix ( capotage domotique, …)
     carte_jaune          = fields.Selection([('Oui', u'Oui'),('Non'  , "Non")], "Carte jaune", tracking=True) #: oui/non
     couleur_ral          = fields.Char("Couleur/Ral", tracking=True) #: champ libre
-    documents_techniques = fields.Char("Documents techniques", compute="_compute_documents_techniques", readonly=True, store=False) #: lien pour accéder directement aux documents de la GED
+    #documents_techniques = fields.Char("Documents techniques", compute="_compute_documents_techniques", readonly=True, store=False) #: lien pour accéder directement aux documents de la GED
 
     # Propriétés Matières :
     densite              = fields.Float("Densité", digits=(14,2), tracking=True) #: nombre avec 2 chiffres après la virgule
@@ -83,41 +83,41 @@ class is_dossier_article(models.Model):
     active              = fields.Boolean('Actif', default=True, tracking=True)
 
 
-    @api.depends('code_pg')
-    def _compute_documents_techniques(self):
-        #for obj in self:
-        #    obj.documents_techniques=False
+    # @api.depends('code_pg')
+    # def _compute_documents_techniques(self):
+    #     #for obj in self:
+    #     #    obj.documents_techniques=False
 
-        #** Connexion à Dynacase **********************************************
-        uid = self._uid
-        cr  = self._cr
-        company = self.env.user.company_id
-        password=company.is_dynacase_pwd
-        cr_dynacase=False
-        if password:
-            try:
-                cnx_dynacase = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='freedomowner' password='"+password+"'")
-                cr_dynacase = cnx_dynacase.cursor(cursor_factory=RealDictCursor)
-                _logger.info("Connexion Dynacase OK")
-            except:
-                cr_dynacase=False
-                _logger.info("Connexion à Dynacase impossible")
-                #raise ValidationError("Connexion à Dynacase impossible")
-        #**********************************************************************
-        for obj in self:
-            url=False
-            if cr_dynacase:
-                if obj.sous_famille=="COLORANTS":
-                    SQL="select id from doc48615 where dosart_codepg=%s"
-                else:
-                    SQL="select id from doc48613 where dosart_codepg=%s"
-                cr_dynacase.execute(SQL, [obj.code_pg])
-                _logger.info("SQL=%s (%s)"%(SQL,obj.code_pg))
-                result = cr_dynacase.fetchall()
-                for row in result:
-                    url="https://dynacase-rp/?sole=Y&app=FDL&action=FDL_CARD&latest=Y&id="+str(row["id"])
-            _logger.info("url=%s"%url)
-            obj.documents_techniques=url
+    #     #** Connexion à Dynacase **********************************************
+    #     uid = self._uid
+    #     cr  = self._cr
+    #     company = self.env.user.company_id
+    #     password=company.is_dynacase_pwd
+    #     cr_dynacase=False
+    #     if password:
+    #         try:
+    #             cnx_dynacase = psycopg2.connect("host='dynacase' port=5432 dbname='freedom' user='freedomowner' password='"+password+"'")
+    #             cr_dynacase = cnx_dynacase.cursor(cursor_factory=RealDictCursor)
+    #             _logger.info("Connexion Dynacase OK")
+    #         except:
+    #             cr_dynacase=False
+    #             _logger.info("Connexion à Dynacase impossible")
+    #             #raise ValidationError("Connexion à Dynacase impossible")
+    #     #**********************************************************************
+    #     for obj in self:
+    #         url=False
+    #         if cr_dynacase:
+    #             if obj.sous_famille=="COLORANTS":
+    #                 SQL="select id from doc48615 where dosart_codepg=%s"
+    #             else:
+    #                 SQL="select id from doc48613 where dosart_codepg=%s"
+    #             cr_dynacase.execute(SQL, [obj.code_pg])
+    #             _logger.info("SQL=%s (%s)"%(SQL,obj.code_pg))
+    #             result = cr_dynacase.fetchall()
+    #             for row in result:
+    #                 url="https://dynacase-rp/?sole=Y&app=FDL&action=FDL_CARD&latest=Y&id="+str(row["id"])
+    #         _logger.info("url=%s"%url)
+    #         obj.documents_techniques=url
 
 
     def is_dossier_article_actualiser_action(self):
