@@ -136,6 +136,7 @@
             <field name="arch" type="xml">
                 <tree string="Segments">
                     <field name="name" />
+                    <field name="creation_dossier_article" />
                 </tree>
             </field>
         </record>
@@ -146,6 +147,7 @@
                 <form string="Segments">
                   <group>
                     <field name="name" />
+                    <field name="creation_dossier_article" />
                     <field name="family_line">
                         <tree string="Familles" editable="bottom">
                             <field name="name" />

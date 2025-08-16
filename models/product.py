@@ -139,6 +139,7 @@ class is_product_segment(models.Model):
     name         = fields.Char('Code', size=256, required=True)
     description  = fields.Text('Commentaire')
     family_line  = fields.One2many('is.product.famille', 'segment_id', 'Familles')
+    creation_dossier_article = fields.Boolean('Création dossier article', default=False)
 
 
 class is_product_famille(models.Model):
