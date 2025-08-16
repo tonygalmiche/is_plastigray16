@@ -90,7 +90,10 @@ access_is_facturation_fournisseur_justification,access_is_facturation_fournisseu
 access_is_bon_transfert,access_is_bon_transfert,model_is_bon_transfert,base.group_user,1,0,0,0
 access_is_bon_transfert_line,access_is_bon_transfert_line,model_is_bon_transfert_line,base.group_user,1,0,0,0
 access_is_ligne_reception,access_is_ligne_reception,model_is_ligne_reception,base.group_user,1,0,0,0
-access_is_service,access_is_service,model_is_service,,1,0,0,0
+
+access_is_service,access_is_service,model_is_service,base.group_user,1,0,0,0
+access_is_service_manager,access_is_service_manager,model_is_service,base.group_system,1,1,1,1
+
 access_is_users_groups,access_is_users_groups,model_is_users_groups,,1,0,0,0
 access_stock_move,access_stock_move,model_stock_move,base.group_user,1,0,0,0
 access_is_mrp_bom,access_is_mrp_bom,mrp.model_mrp_bom,base.group_user,1,0,0,0
