@@ -36,6 +36,17 @@
    </record>
 
 
+
+    <!-- CODIR -->
+    <record model="res.groups" id="is_codir_group" >
+        <field name="name">CODIR</field>
+        <field name="comment">Groupe utilisé pour PAC et revues</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
+
+
+
     <!-- Gestionnaire des absences group -->
     <record model="res.groups" id="is_gestionnaire_des_absences_group" >
         <field name="name">Gestionnaire des absences</field>
