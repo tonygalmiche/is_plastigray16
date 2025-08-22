@@ -777,6 +777,7 @@
                     <field name="num_commande_client"       optional="show"/>
                     <field name="is_plaque_immatriculation" optional="show"/>
                     <field name="is_dossier_transport"      optional="show"/>
+                    <field name="ref_pg_unique"             optional="show"/>
                     <field name="is_database_origine_id"    optional="hide"/>
                 </tree>
             </field>
@@ -801,6 +802,7 @@
                                 <field name="code_routage"            widget="boolean_toggle"/>
                                 <field name="point_destination"       widget="boolean_toggle"/>
                                 <field name="num_commande_client"     widget="boolean_toggle"/>
+                                <field name="ref_pg_unique"           widget="boolean_toggle"/>
                             </group> 
                             <group string="BL">
                                 <field name="is_plaque_immatriculation" widget="boolean_toggle"/>

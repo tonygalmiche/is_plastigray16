@@ -273,11 +273,39 @@ class is_liste_servir(models.Model):
                             )
                             alerte.append(msg)
                     ligne+=1
+
+                # Vérifier si plusieurs is_code pour le même is_ref_client ****
+                alerte_ref_pg_unique = obj.get_alerte_ref_pg_unique()
+                if alerte_ref_pg_unique:
+                    alerte.append(alerte_ref_pg_unique)
+                #**************************************************************
+
             if len(alerte):
                 alerte='\n'.join(alerte)
             else:
                 alerte = False
             obj.alerte_obligatoire = alerte
+
+
+    def get_alerte_ref_pg_unique(self):
+        "Vérifier si plusieurs is_code pour le même is_ref_client"
+        for obj in self:
+            alerte=False
+            champ_obligatoire = obj.partner_id.is_champ_obligatoire_id
+            if champ_obligatoire and champ_obligatoire.ref_pg_unique:
+                ref_client_map = {}
+                for line in obj.line_ids:
+                    ref_client = getattr(line.product_id, 'is_ref_client', False)
+                    is_code = getattr(line.product_id, 'is_code', False)
+                    if ref_client:
+                        if ref_client not in ref_client_map:
+                            ref_client_map[ref_client] = set()
+                        ref_client_map[ref_client].add(is_code)
+                for ref_client, codes in ref_client_map.items():
+                    if len(codes) > 1:
+                        alerte = f"ATTENTION : Plusieurs codes articles ({', '.join(codes)}) pour la même référence client '{ref_client}'"
+            return alerte
+
 
 
     @api.onchange('mixer')
