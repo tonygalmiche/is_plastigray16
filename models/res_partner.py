@@ -106,6 +106,7 @@ class is_champ_obligatoire(models.Model):
             'num_commande_client'      : self.num_commande_client,
             'is_plaque_immatriculation': self.is_plaque_immatriculation,
             'is_dossier_transport'     : self.is_dossier_transport,
+            'ref_pg_unique'            : self.ref_pg_unique,
             'is_database_origine_id'   : self.id
         }
         return vals
