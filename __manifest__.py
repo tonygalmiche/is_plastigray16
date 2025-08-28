@@ -90,6 +90,7 @@ Module Odoo 16 pour Plastigray
         "views/is_etuve_view.xml",
         "views/is_facturation_fournisseur_view.xml",
         "views/is_facture_proforma_view.xml",
+        "views/is_facture_proforma_export_tunisie_view.xml",
         "views/is_facture_proforma_outillage_view.xml",
         "views/is_facture_pk_view.xml",
         "views/is_fiche_tampographie_view.xml",

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<!-- Liste -->
+		<record id="view_is_facture_proforma_export_tunisie_tree" model="ir.ui.view">
+			<field name="name">is.facture.proforma.export.tunisie.tree</field>
+			<field name="model">is.facture.proforma.export.tunisie</field>
+			<field name="arch" type="xml">
+				<tree string="Proforma export Tunisie" create="1" delete="1">
+					<field name="chrono"/>
+					<field name="client_id"/>
+					<field name="date_creation"/>
+					<field name="type_exportation"/>
+					<field name="mode_transport"/>
+				</tree>
+			</field>
+		</record>
+
+		<!-- Recherche -->
+	<record id="view_is_facture_proforma_export_tunisie_search" model="ir.ui.view">
+			<field name="name">is.facture.proforma.export.tunisie.search</field>
+			<field name="model">is.facture.proforma.export.tunisie</field>
+			<field name="arch" type="xml">
+				<search string="Recherche Proforma export Tunisie">
+					<field name="client_id"/>
+					<field name="type_exportation"/>
+					<field name="mode_transport"/>
+		            <filter string="Aujourd'hui" name="today" domain="[('date_creation', '=', context_today())]"/>
+					<group expand="0" string="Grouper par...">
+						<filter name="group_by_client" string="Client" context="{'group_by': 'client_id'}"/>
+						<filter name="group_by_date" string="Date" context="{'group_by': 'date_creation'}"/>
+						<filter name="group_by_type" string="Type d’exportation" context="{'group_by': 'type_exportation'}"/>
+						<filter name="group_by_transport" string="Mode de transport" context="{'group_by': 'mode_transport'}"/>
+					</group>
+				</search>
+			</field>
+		</record>
+
+		<!-- Formulaire -->
+		<record id="view_is_facture_proforma_export_tunisie_form" model="ir.ui.view">
+			<field name="name">is.facture.proforma.export.tunisie.form</field>
+			<field name="model">is.facture.proforma.export.tunisie</field>
+			<field name="arch" type="xml">
+				<form string="Proforma export Tunisie">
+					<sheet>
+						<group>
+							<group>
+								<field name="chrono"/>
+								<field name="client_id"/>
+								<field name="date_creation" readonly="1"/>
+							</group>
+							<group>
+								<field name="type_exportation"/>
+								<field name="mode_transport"/>
+							</group>
+						</group>
+						<group>
+							<field name="adresse" placeholder="Adresse de facturation"/>
+							<field name="commentaire" placeholder="Commentaires"/>
+						</group>
+
+						<notebook>
+							<page string="Colisage">
+								<field name="colisage_ids" context="{'default_proforma_id': active_id}">
+									<tree string="Colisages" editable="bottom">
+										<field name="num_colis"/>
+										<field name="dimensions"/>
+										<field name="poids_net"/>
+										<field name="poids_brut"/>
+									</tree>
+									<form string="Colisage">
+										<group>
+											<field name="num_colis"/>
+											<field name="dimensions"/>
+										</group>
+										<group>
+											<field name="poids_net"/>
+											<field name="poids_brut"/>
+										</group>
+									</form>
+								</field>
+							</page>
+
+							<page string="Lignes de facture">
+								<field name="ligne_ids" context="{'default_proforma_id': active_id}">
+									<tree string="Lignes" editable="bottom">
+										<field name="num"/>
+										<field name="categorie"/>
+										<field name="code_pg"/>
+										<field name="designation"/>
+										<field name="code_douanier"/>
+										<field name="lot"/>
+										<field name="num_colis"/>
+										<field name="quantite"/>
+										<field name="pu"/>
+										<field name="prix_total"/>
+									</tree>
+									<form string="Ligne">
+										<group>
+											<field name="num"/>
+											<field name="categorie"/>
+											<field name="code_pg"/>
+											<field name="designation"/>
+										</group>
+										<group>
+											<field name="code_douanier"/>
+											<field name="lot"/>
+											<field name="num_colis"/>
+										</group>
+										<group>
+											<field name="quantite"/>
+											<field name="pu"/>
+											<field name="prix_total"/>
+										</group>
+									</form>
+								</field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<!-- Action -->
+		<record id="is_facture_proforma_export_tunisie_action" model="ir.actions.act_window">
+			<field name="name">Proforma export Tunisie</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">is.facture.proforma.export.tunisie</field>
+			<field name="view_mode">tree,form</field>
+			<field name="search_view_id" ref="view_is_facture_proforma_export_tunisie_search"/>
+		</record>
+
+	</data>
+</odoo>

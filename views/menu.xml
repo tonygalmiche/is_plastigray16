@@ -934,6 +934,19 @@
     </record>
 
 
+    <record id="is_facture_proforma_export_tunisie_menu" model="ir.ui.menu">
+        <field name="name">Proforma export Tunisie</field>
+        <field name="sequence">90</field>
+        <field name="parent_id" ref="menu_main_facturation_pk"/>
+        <field name="action" ref="is_facture_proforma_export_tunisie_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_gestionnaire_facturation_pk')
+        ])]"/>
+    </record>
+
+
+
+
 
 
     <!-- PIC à 3 ans -->
