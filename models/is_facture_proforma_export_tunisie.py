@@ -2,6 +2,10 @@
 from odoo import models, fields, api
 
 
+#TODO:
+#- Version PDF
+
+
 class IsFactureProformaExportTunisie(models.Model):
 	_name = 'is.facture.proforma.export.tunisie'
 	_description = 'Facture Proforma Export Tunisie'
@@ -70,7 +74,40 @@ class IsFactureProformaExportTunisie(models.Model):
 
 		print(vals_list)
 
-		return super().create(vals_list)
+		records = super().create(vals_list)
+		# Après création, renuméroter les colis 1..x pour chaque proforma
+		for rec in records:
+			rec._renumeroter_colis()
+			rec._renumeroter_lignes()
+		return records
+
+	def write(self, vals):
+		res = super().write(vals)
+		# Renuméroter les colis après toute modification, en particulier si colisage_ids change
+		for rec in self:
+			rec._renumeroter_colis()
+			rec._renumeroter_lignes()
+		return res
+
+	def _renumeroter_colis(self):
+		"""Attribue num_colis = '1'..'x' sur les lignes de colisage dans l'ordre d'insertion (id asc)."""
+		self.ensure_one()
+		i = 1
+		for colis in self.colisage_ids.sorted('id'):
+			# Éviter des writes inutiles si déjà correctement numéroté
+			num_str = str(i)
+			if (colis.num_colis or '') != num_str:
+				colis.write({'num_colis': num_str})
+			i += 1
+
+	def _renumeroter_lignes(self):
+		"""Attribue num = 1..x sur les lignes de facture dans l'ordre d'insertion (id asc)."""
+		self.ensure_one()
+		i = 1
+		for ligne in self.ligne_ids.sorted('id'):
+			if (ligne.num or 0) != i:
+				ligne.write({'num': i})
+			i += 1
 
 
 
@@ -79,12 +116,36 @@ class IsFactureProformaExportTunisieColisage(models.Model):
 	_name = 'is.facture.proforma.export.tunisie.colisage'
 	_description = 'Ligne de colisage (Proforma Export Tunisie)'
 	_order = 'id asc'
+	_rec_name = 'num_colis'
 
 	proforma_id = fields.Many2one('is.facture.proforma.export.tunisie', 'Proforma', required=True, ondelete='cascade')
 	num_colis   = fields.Char('Numéro du colis')
 	dimensions  = fields.Char('Dimensions')
 	poids_net   = fields.Float('Poids net (Kg)', digits=(14, 3))
 	poids_brut  = fields.Float('Poids brut (Kg)', digits=(14, 3))
+
+
+
+	def name_get(self):
+		result = []
+		for rec in self:
+			parts = []
+			if rec.num_colis:
+				parts.append(rec.num_colis)
+			if rec.dimensions:
+				parts.append(rec.dimensions)
+			name = '-'.join(parts) if parts else str(rec.id)
+			result.append((rec.id, name))
+		return result
+
+	@api.model
+	def name_search(self, name='', args=None, operator='ilike', limit=100):
+		args = args or []
+		domain = []
+		if name:
+			domain = ['|', ('num_colis', operator, name), ('dimensions', operator, name)]
+		recs = self.search(domain + args, limit=limit)
+		return recs.name_get()
 
 
 class IsFactureProformaExportTunisieLigne(models.Model):
@@ -101,11 +162,56 @@ class IsFactureProformaExportTunisieLigne(models.Model):
 		('T4', 'Moyen de production'),
 		('T5', 'Moyen de production hors CE'),
 	], 'Catégorie')
+	product_id    = fields.Many2one('product.product', 'Article')
 	code_pg       = fields.Char('Code PG')
 	designation   = fields.Text('Désignation')
 	code_douanier = fields.Char('Code douanier')
 	lot           = fields.Char('Lot')
-	num_colis     = fields.Char('Numéro du colis')
+	num_colis_id  = fields.Many2one('is.facture.proforma.export.tunisie.colisage', 'Colis', domain="[('proforma_id','=',proforma_id)]")
+	num_colis     = fields.Char('N° du colis')
 	quantite      = fields.Float('Quantité', digits=(14, 3))
 	pu            = fields.Float('PU', digits=(14, 2))
-	prix_total    = fields.Float('Prix total', digits=(14, 2))
+	prix_total    = fields.Float('Prix total', digits=(14, 2), compute='_compute_prix_total', store=True, readonly=True)
+
+	@api.depends('quantite', 'pu')
+	def _compute_prix_total(self):
+		for record in self:
+			record.prix_total = (record.quantite or 0) * (record.pu or 0)
+
+
+
+	@api.onchange('product_id')
+	def onchange_product_id(self):
+		cr=self._cr
+		code_pg = designation = code_douanier = pu = False
+		if self.product_id:
+			SQL="""
+				SELECT 
+					pt.is_code, 
+					pt.name->>'fr_FR' designation, 
+					pt.is_nomenclature_douaniere,
+					(select cout_act_total from is_cout where name=pp.id limit 1) cout
+				FROM product_template pt join product_product pp on pp.product_tmpl_id=pt.id
+				WHERE pp.id=%s
+				LIMIT 10
+			"""%self.product_id.id
+			cr.execute(SQL)
+			rows = cr.dictfetchall()
+			for row in rows:
+				code_pg       = row['is_code']
+				designation   = row['designation']
+				code_douanier = row['is_nomenclature_douaniere']
+				pu            = row['cout']
+		self.code_pg       = code_pg
+		self.designation   = designation
+		self.code_douanier = code_douanier
+		self.pu            = pu
+
+
+
+	@api.onchange('num_colis_id')
+	def onchange_num_colis_id(self):
+		num_colis = False
+		if self.num_colis_id:
+			num_colis = self.num_colis_id.num_colis
+		self.num_colis = num_colis

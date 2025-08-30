@@ -84,64 +84,35 @@
 							<!-- <field name="adresse"     required="1"/> -->
 							<field name="commentaire"/>
 						</group>
-
-						<notebook>
-							<page string="Colisage">
-								<field name="colisage_ids" context="{'default_proforma_id': active_id}">
-									<tree string="Colisages" editable="bottom">
-										<field name="num_colis"  required="1"/>
-										<field name="dimensions" required="1"/>
-										<field name="poids_net"  required="1"/>
-										<field name="poids_brut" required="1"/>
-									</tree>
-									<form string="Colisage">
-										<group>
-											<field name="num_colis"/>
-											<field name="dimensions"/>
-										</group>
-										<group>
-											<field name="poids_net"/>
-											<field name="poids_brut"/>
-										</group>
-									</form>
-								</field>
-							</page>
-
-							<page string="Lignes de facture">
-								<field name="ligne_ids" context="{'default_proforma_id': active_id}">
-									<tree string="Lignes" editable="bottom">
-										<field name="num"/>
-										<field name="categorie"/>
-										<field name="code_pg"/>
-										<field name="designation"/>
-										<field name="code_douanier"/>
-										<field name="lot"/>
-										<field name="num_colis"/>
-										<field name="quantite"/>
-										<field name="pu"/>
-										<field name="prix_total"/>
-									</tree>
-									<form string="Ligne">
-										<group>
-											<field name="num"/>
-											<field name="categorie"/>
-											<field name="code_pg"/>
-											<field name="designation"/>
-										</group>
-										<group>
-											<field name="code_douanier"/>
-											<field name="lot"/>
-											<field name="num_colis"/>
-										</group>
-										<group>
-											<field name="quantite"/>
-											<field name="pu"/>
-											<field name="prix_total"/>
-										</group>
-									</form>
-								</field>
-							</page>
-						</notebook>
+						<group string="Colisage">
+							<field name="colisage_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
+								<tree string="Colisages" editable="bottom">
+									<field name="num_colis"  readonly="1"/>
+									<field name="dimensions" required="1"/>
+									<field name="poids_net"  required="1"/>
+									<field name="poids_brut" required="1"/>
+								</tree>
+							</field>
+						</group>
+						<group string="Lignes de facture">
+							<field name="ligne_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
+								<tree string="Lignes" editable="bottom">
+									<field name="num" readonly="1"/>
+									<field name="categorie"/>
+									<field name="product_id"  widget="many2one_clickable"/>
+									<field name="code_pg"     optional="hide"/>
+									<field name="designation" optional="hide"/>
+									<field name="code_douanier"/>
+									<field name="lot"/>
+									<field name="num_colis_id"/>
+									<field name="num_colis" optional="hide"/>
+									<field name="quantite"/>
+									<field name="pu"/>
+									<field name="prix_total" sum="Total"/>
+									<field name="proforma_id" invisible="1"/>
+								</tree>
+							</field>
+						</group>
 					</sheet>
 					<div class="oe_chatter">
 						<field name="message_follower_ids" widget="mail_followers"/>
