@@ -86,7 +86,7 @@
 						</group>
 						<group string="Colisage">
 							<field name="colisage_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
-								<tree string="Colisages" editable="bottom">
+								<tree string="Colisages" editable="bottom" limit="500">
 									<field name="num_colis"  readonly="1"/>
 									<field name="dimensions" required="1"/>
 									<field name="poids_net"  required="1"/>
@@ -96,12 +96,12 @@
 						</group>
 						<group string="Lignes de facture">
 							<field name="ligne_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
-								<tree string="Lignes" editable="bottom">
+								<tree string="Lignes" editable="bottom" limit="500">
 									<field name="num" readonly="1"/>
 									<field name="categorie"/>
 									<field name="product_id"  widget="many2one_clickable"/>
-									<field name="code_pg"     optional="hide"/>
-									<field name="designation" optional="hide"/>
+									<field name="code_pg"     optional="show"/>
+									<field name="designation" optional="show"/>
 									<field name="code_douanier"/>
 									<field name="lot"/>
 									<field name="num_colis_id"/>

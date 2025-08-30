@@ -119,7 +119,7 @@ class IsFactureProformaExportTunisieColisage(models.Model):
 	_rec_name = 'num_colis'
 
 	proforma_id = fields.Many2one('is.facture.proforma.export.tunisie', 'Proforma', required=True, ondelete='cascade')
-	num_colis   = fields.Char('Numéro du colis')
+	num_colis   = fields.Char('Numéro du colis', index=True)
 	dimensions  = fields.Char('Dimensions')
 	poids_net   = fields.Float('Poids net (Kg)', digits=(14, 3))
 	poids_brut  = fields.Float('Poids brut (Kg)', digits=(14, 3))
@@ -193,7 +193,6 @@ class IsFactureProformaExportTunisieLigne(models.Model):
 					(select cout_act_total from is_cout where name=pp.id limit 1) cout
 				FROM product_template pt join product_product pp on pp.product_tmpl_id=pt.id
 				WHERE pp.id=%s
-				LIMIT 10
 			"""%self.product_id.id
 			cr.execute(SQL)
 			rows = cr.dictfetchall()
