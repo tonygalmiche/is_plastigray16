@@ -3,6 +3,7 @@ from odoo import models, fields, api
 
 
 #TODO:
+#- Pieces jointes
 #- Version PDF
 
 
@@ -32,6 +33,8 @@ class IsFactureProformaExportTunisie(models.Model):
 	commentaire        = fields.Text('Commentaire', tracking=True)
 	active             = fields.Boolean('Actif', default=True, tracking=True)
 	dynacase_id        = fields.Integer(string='Id Dynacase', index=True, copy=False, tracking=True)
+	piece_jointe_ids   = fields.Many2many("ir.attachment", "is_facture_proforma_export_tunisie_piece_jointe_rel", "piece_jointe", "att_id", string="Pièce jointe")
+
 
 	# Lignes de colisage
 	colisage_ids       = fields.One2many(

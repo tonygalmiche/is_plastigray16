@@ -113,6 +113,9 @@
 								</tree>
 							</field>
 						</group>
+                        <group string="Pièces jointes">
+                            <field name="piece_jointe_ids"   widget="many2many_binary"/>
+                        </group>
 					</sheet>
 					<div class="oe_chatter">
 						<field name="message_follower_ids" widget="mail_followers"/>
