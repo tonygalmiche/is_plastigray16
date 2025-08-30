@@ -41,6 +41,7 @@ Module Odoo 16 pour Plastigray
         "security/is_demande_conges_security.xml",
 
         "views/auditlog_view.xml",
+        "views/ir_attachment_view.xml",
         "views/is_import_facture_owork_view.xml",
         "views/stock_inventory_view.xml",
         "views/account_move_view.xml",

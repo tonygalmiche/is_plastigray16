@@ -1,31 +1,16 @@
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-# import base64
-# import contextlib
-# import hashlib
-# import io
-# import itertools
-# import logging
-# import mimetypes
-# import os
-# import re
-# import uuid
-
 from collections import defaultdict
 from PIL import Image
 
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import AccessError, ValidationError, UserError
-# from odoo.tools import config, human_size, ImageProcess, str2bool, consteq
-# from odoo.tools.mimetypes import guess_mimetype
-# from odoo.osv import expression
-
-#_logger = logging.getLogger(__name__)
 
 
 class IrAttachment(models.Model):
     _inherit = 'ir.attachment'
   
+    is_dynacase_id = fields.Integer(string="Id Dynacase",index=True, readonly=True,copy=False)
+
+
 
     #TODO : J'ai surchargé cette fonction pour autoriser à voir les pieces jointes d'un autre modèle
     @api.model

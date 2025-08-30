@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <record id="is_view_attachment_tree" model="ir.ui.view">
+            <field name="name">is_view_attachment_tree</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_tree"/>
+            <field name="arch" type="xml">
+                <field name="create_date" position="after">
+                    <!-- <field name="is_doc_moule_id" optional="hide" widget="many2one_clickable"/> -->
+                    <field name="is_dynacase_id" optional="hide"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_view_attachment_form" model="ir.ui.view">
+            <field name="name">is_view_attachment_form</field>
+            <field name="model">ir.attachment</field>
+            <field name="inherit_id" ref="base.view_attachment_form"/>
+            <field name="arch" type="xml">
+                <field name="public" position="after">
+                    <!-- <field name="is_doc_moule_id"/> -->
+                    <field name="is_dynacase_id"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>
