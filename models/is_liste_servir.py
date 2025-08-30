@@ -588,6 +588,7 @@ class is_liste_servir(models.Model):
                 line.anomalie=anomalie
                 if anomalie!="":
                     Test=False
+
             #** Accèder à la liste des commandes générées **********************
             if Test:
                 self.generer_bl(obj)
@@ -653,8 +654,13 @@ class is_liste_servir(models.Model):
                 "is_identifiant_transport"           : line.is_identifiant_transport,
                 "is_code_routage"                    : line.is_code_routage,
                 "is_point_destination"               : line.is_point_destination,
+
+                #"is_point_dechargement"               : line.point_dechargement,
+
+
+
             }
-            point_dechargement = line.is_point_destination
+            point_dechargement = line.point_dechargement
             lines.append([0,False,quotation_line]) 
             values = {
                 'partner_id': obj.partner_id.id,
@@ -667,14 +673,19 @@ class is_liste_servir(models.Model):
                 #'is_transporteur_id'   : obj.transporteur_id.id,
                 'is_type_commande'     : 'ls',
                 'is_info_client'       : obj.info_client,
+                'is_point_dechargement': point_dechargement,
             }
             vals.update(values)
+
         if vals:
             new_id = order_obj.create(vals)
             new_id.pg_onchange_partner_id()
             new_id.is_transporteur_id=obj.transporteur_id.id
-            if point_dechargement:
-                new_id.is_point_dechargement = line.point_dechargement
+            #if point_dechargement:
+            #    new_id.is_point_dechargement = line.point_dechargement
+
+
+
 
 
 
