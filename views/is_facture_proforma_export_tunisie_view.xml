@@ -12,7 +12,7 @@
 					<field name="date_creation"/>
 					<field name="type_exportation"/>
 					<field name="mode_transport"/>
-					<field name="adresse"     optional="hide"/>
+					<!-- <field name="adresse"     optional="hide"/> -->
 					<field name="commentaire" optional="hide"/>
   					<button 
                         title="Dynacase" name="lien_vers_dynacase_action" type="object" icon="fa-file" 
@@ -79,7 +79,7 @@
 							</group>
 						</group>
 						<group>
-							<field name="adresse"     required="1"/>
+							<!-- <field name="adresse"     required="1"/> -->
 							<field name="commentaire"/>
 						</group>
 
@@ -87,10 +87,10 @@
 							<page string="Colisage">
 								<field name="colisage_ids" context="{'default_proforma_id': active_id}">
 									<tree string="Colisages" editable="bottom">
-										<field name="num_colis"/>
-										<field name="dimensions"/>
-										<field name="poids_net"/>
-										<field name="poids_brut"/>
+										<field name="num_colis"  required="1"/>
+										<field name="dimensions" required="1"/>
+										<field name="poids_net"  required="1"/>
+										<field name="poids_brut" required="1"/>
 									</tree>
 									<form string="Colisage">
 										<group>
