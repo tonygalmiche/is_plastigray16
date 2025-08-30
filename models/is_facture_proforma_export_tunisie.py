@@ -6,6 +6,7 @@ class IsFactureProformaExportTunisie(models.Model):
 	_name = 'is.facture.proforma.export.tunisie'
 	_description = 'Facture Proforma Export Tunisie'
 	_order = 'chrono desc'
+	_rec_name = 'chrono'
 	_inherit = ['mail.thread', 'mail.activity.mixin']
 
 	chrono             = fields.Integer('Chrono', index=True, tracking=True, readonly=True, copy=False)

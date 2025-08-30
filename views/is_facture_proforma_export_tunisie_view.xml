@@ -12,6 +12,8 @@
 					<field name="date_creation"/>
 					<field name="type_exportation"/>
 					<field name="mode_transport"/>
+					<field name="adresse"     optional="hide"/>
+					<field name="commentaire" optional="hide"/>
   					<button 
                         title="Dynacase" name="lien_vers_dynacase_action" type="object" icon="fa-file" 
                         attrs="{'invisible': [('dynacase_id', '=', 0)]}"
@@ -69,7 +71,7 @@
 							<group>
 								<field name="chrono"/>
 								<field name="client_id" required="1"/>
-								<field name="date_creation" readonly="1"/>
+								<field name="date_creation" required="1"/>
 							</group>
 							<group>
 								<field name="type_exportation" required="1"/>
