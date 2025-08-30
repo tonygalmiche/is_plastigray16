@@ -12,7 +12,7 @@ class IsFactureProformaExportTunisie(models.Model):
 	chrono             = fields.Integer('Chrono', index=True, tracking=True, readonly=True, copy=False)
 	client_id          = fields.Many2one('res.partner', 'Client', tracking=True, domain=[("is_company","=",True), ("customer","=",True)])
 	adresse            = fields.Text('Adresse de facturation', tracking=True)
-	date_creation      = fields.Date("Date de création", default=lambda self: fields.Datetime.now(), readonly=True, tracking=True)
+	date_creation      = fields.Date("Date de création", default=lambda self: fields.Datetime.now(), tracking=True)
 	type_exportation   = fields.Selection([
 		('10', 'Exportation définitive'),
 		('20', 'Exportation temporaire'),
