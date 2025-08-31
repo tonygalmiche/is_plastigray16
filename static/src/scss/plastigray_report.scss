@@ -1591,3 +1591,9 @@ table.tableau_entete th {
 table.tableau_entete td {
     text-align: right;
 }
+
+/* Mise en forme du tableau_detail */
+table.tableau_detail {
+    font-size:10pt;
+    white-space: nowrap;
+}

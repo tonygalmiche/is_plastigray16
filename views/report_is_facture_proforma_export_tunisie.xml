@@ -59,7 +59,7 @@
                             <t t-set="lines" t-value="[l for l in o.ligne_ids if (l.categorie or '') == cat_code]"/>
                             <t t-if="lines">
                                 <h2 t-esc="cat_label"/>
-                                <table class="table table-condensed">
+                                <table class="table tableau_detail">
                                     <thead>
                                         <tr>
                                             <th class="text-left">N°</th>
@@ -83,8 +83,8 @@
                                             <td class="text-left"><span t-esc="l.code_douanier or ''"/></td>
                                             <td class="text-left"><span t-esc="l.lot or ''"/></td>
                                             <td class="text-left"><span t-esc="l.num_colis or ''"/></td>
-                                            <td class="text-right"><t t-esc='"{:,.3f}".format(l.quantite or 0).replace(","," ").replace(".",",")'/></td>
-                                            <td class="text-right"><t t-esc='"{:,.2f}".format(l.pu or 0).replace(","," ").replace(".",",")'/></td>
+                                            <td class="text-right"><t t-esc='"{:,.2f}".format(l.quantite or 0).replace(","," ").replace(".",",")'/></td>
+                                            <td class="text-right"><t t-esc='"{:,.4f}".format(l.pu or 0).replace(","," ").replace(".",",")'/></td>
                                             <td class="text-right"><t t-esc='"{:,.2f}".format(l.prix_total or 0).replace(","," ").replace(".",",")'/></td>
                                         </tr>
                                     </tbody>
@@ -108,7 +108,7 @@
                         <!-- Liste de colisage détaillée (colis x lignes associées) -->
                         <t t-if="o.colisage_ids">
                             <h2>Liste de colisage</h2>
-                            <table class="table table-condensed">
+                            <table class="table tableau_detail">
                                 <thead>
                                     <tr>
                                         <th class="text-left">N° colis</th>
@@ -128,11 +128,11 @@
                                             <tr>
                                                 <td class="text-left"><span t-esc="c.num_colis or ''"/></td>
                                                 <td class="text-left"><span t-esc="c.dimensions or ''"/></td>
-                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
-                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.2f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.2f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
                                                 <td class="text-left"><span t-esc="l0.code_pg or ''"/></td>
                                                 <td class="text-left"><span t-esc="l0.designation or ''"/></td>
-                                                <td class="text-right"><t t-esc='"{:,.3f}".format(l0.quantite or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.2f}".format(l0.quantite or 0).replace(","," ").replace(".",",")'/></td>
                                             </tr>
                                             <tr t-foreach="lines[1:]" t-as="l">
                                                 <td class="text-left"></td>
@@ -141,15 +141,15 @@
                                                 <td class="text-right"></td>
                                                 <td class="text-left"><span t-esc="l.code_pg or ''"/></td>
                                                 <td class="text-left"><span t-esc="l.designation or ''"/></td>
-                                                <td class="text-right"><t t-esc='"{:,.3f}".format(l.quantite or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.2f}".format(l.quantite or 0).replace(","," ").replace(".",",")'/></td>
                                             </tr>
                                         </t>
                                         <t t-else="">
                                             <tr>
                                                 <td class="text-left"><span t-esc="c.num_colis or ''"/></td>
                                                 <td class="text-left"><span t-esc="c.dimensions or ''"/></td>
-                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
-                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.2f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.2f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
                                                 <td class="text-left"></td>
                                                 <td class="text-left"></td>
                                                 <td class="text-right"></td>
@@ -159,71 +159,6 @@
                                 </tbody>
                             </table>
                         </t>
-
-
-
-<!--                         
-                        <div class="row">
-                            <div class="col-7">
-                                <table class="table table-condensed" style="width:100%">
-                                    <tr>
-                                        <td><strong>Type d'exportation</strong></td>
-                                        <td class="text-right"><span t-field="o.type_exportation"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Mode de transport</strong></td>
-                                        <td class="text-right"><span t-field="o.mode_transport"/></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-1"/>
-                            <div class="col-4">
-                                <table class="table table-condensed" style="width:100%">
-                                    <tr class="border-black">
-                                        <td><strong>Total</strong></td>
-                                        <td class="text-right"><t t-esc='"{:,.2f}".format(total_general).replace(","," ").replace(".",",")'/></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <t t-if="o.colisage_ids">
-                            <br/>
-                            <h4>Colisage</h4>
-                            <table class="table table-condensed" style="page-break-inside: avoid">
-                                <thead>
-                                    <tr>
-                                        <th class="text-left">Colis</th>
-                                        <th class="text-left">Dimensions</th>
-                                        <th class="text-right">Poids net (Kg)</th>
-                                        <th class="text-right">Poids brut (Kg)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-set="poids_net_total" t-value="0"/>
-                                    <t t-set="poids_brut_total" t-value="0"/>
-                                    <tr t-foreach="o.colisage_ids" t-as="c">
-                                        <t t-set="poids_net_total" t-value="poids_net_total + (c.poids_net or 0)"/>
-                                        <t t-set="poids_brut_total" t-value="poids_brut_total + (c.poids_brut or 0)"/>
-                                        <td class="text-left"><span t-esc="c.num_colis or ''"/></td>
-                                        <td class="text-left"><span t-esc="c.dimensions or ''"/></td>
-                                        <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
-                                        <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
-                                    </tr>
-                                    <tr class="border-black">
-                                        <td colspan="2" class="text-right"><strong>Totaux</strong></td>
-                                        <td class="text-right"><t t-esc='"{:,.3f}".format(poids_net_total).replace(","," ").replace(".",",")'/> Kg</td>
-                                        <td class="text-right"><t t-esc='"{:,.3f}".format(poids_brut_total).replace(","," ").replace(".",",")'/> Kg</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </t>
-
-                        <t t-if="o.commentaire">
-                            <br/>
-                            <div><strong>Commentaire</strong></div>
-                            <div t-field="o.commentaire"/>
-                        </t> -->
                     </div>
 
                     <!-- Pied de page -->

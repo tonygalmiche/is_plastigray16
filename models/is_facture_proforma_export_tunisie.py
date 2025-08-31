@@ -188,8 +188,8 @@ class IsFactureProformaExportTunisieLigne(models.Model):
 	lot           = fields.Char('Lot')
 	num_colis_id  = fields.Many2one('is.facture.proforma.export.tunisie.colisage', 'Colis', domain="[('proforma_id','=',proforma_id)]")
 	num_colis     = fields.Char('N° du colis')
-	quantite      = fields.Float('Quantité', digits=(14, 3))
-	pu            = fields.Float('PU', digits=(14, 2))
+	quantite      = fields.Float('Quantité', digits=(14, 2))
+	pu            = fields.Float('PU', digits=(14, 4))
 	prix_total    = fields.Float('Prix total', digits=(14, 2), compute='_compute_prix_total', store=True, readonly=True)
 
 	@api.depends('quantite', 'pu')
