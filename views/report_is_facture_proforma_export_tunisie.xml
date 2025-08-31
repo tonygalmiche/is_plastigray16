@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Rapport PDF: Facture Proforma Export Tunisie -->
+        <template id="is_facture_proforma_export_tunisie_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+              
+                <t t-foreach="docs" t-as="o">
+                    <!-- En-tête -->
+                    <div class="header fp_tn_header">
+                    </div>
+
+                    <!-- Corps -->
+                    <div class="page is_facture_proforma_export_tunisie_page">
+                        <div class="row">
+                            <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:70px; height:auto; width:auto;" alt="Logo"/><br />
+                            Téléphone : 03 84 64 77 00<br />
+                            Télécopie : 03 84 65 51 09<br />
+                            Zac Gray Sud - CS 10133 - 70104 Gray Cedex (France)<br />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-5"/>
+                            <div class="col-7">                                
+                                <div>
+                                    <b><span t-field="o.client_id.name"/></b>
+                                    <div t-field="o.client_id" t-options='{"widget": "contact", "fields": ["address", "phone", "email"], "no_marker": true}'/>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="titre text-center">
+                            Facture Proforma n° <span t-esc="o.chrono"/> du <span t-field="o.date_creation" t-options='{"format": "dd/MM/yyyy"}'/><br />
+                            exportation définitive
+                        </div>
+                        <br />
+                        <div class="text-center">
+                            Condition de livraison : US DOUANE<br />
+                            Mode de transport : <span t-field="o.mode_transport"/> <br />
+                            Incoterm-DDU<br />
+                        </div>
+                        <br />
+
+                        <table class="tableau_entete">
+                            <tr><th>Poids Total Net</th><td><span t-field="o.poids_net_total"/> </td></tr>
+                            <tr><th>Poids Total Brut</th><td><span t-field="o.poids_brut_total"/> </td></tr>
+                            <tr><th>Prix Total</th><td><span t-field="o.montant_total"/> </td></tr>
+                            <tr><th>Nombre de colis</th><td><span t-field="o.nb_colis"/> </td></tr>
+                        </table>
+
+                        <div style="page-break-after:always;" />
+
+                        <!-- Regroupement par catégorie: une section par valeur de 'categorie' -->
+                        <t t-set="categories" t-value="{'T1':'Consommable', 'T2':'Matière première', 'T3':'Matière premier hors CE', 'T4':'Moyen de production', 'T5':'Moyen de production hors CE'}"/>
+                        <t t-foreach="categories.items()" t-as="cat_item">
+                            <t t-set="cat_code" t-value="cat_item[0]"/>
+                            <t t-set="cat_label" t-value="cat_item[1]"/>
+                            <t t-set="lines" t-value="[l for l in o.ligne_ids if (l.categorie or '') == cat_code]"/>
+                            <t t-if="lines">
+                                <h2 t-esc="cat_label"/>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">N°</th>
+                                            <th class="text-left">Code PG</th>
+                                            <th class="text-left">Désignation</th>
+                                            <th class="text-left">Code douanier</th>
+                                            <th class="text-left">Lot</th>
+                                            <th class="text-left">Colis</th>
+                                            <th class="text-right">Quantité</th>
+                                            <th class="text-right">PU €</th>
+                                            <th class="text-right">Total €</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_general" t-value="0"/>
+                                        <tr t-foreach="lines" t-as="l">
+                                            <t t-set="total_general" t-value="total_general + (l.prix_total or 0)"/>
+                                            <td class="text-left"><span t-esc="l.num or ''"/></td>
+                                            <td class="text-left"><span t-esc="l.code_pg or ''"/></td>
+                                            <td class="text-left"><span t-esc="l.designation or ''"/></td>
+                                            <td class="text-left"><span t-esc="l.code_douanier or ''"/></td>
+                                            <td class="text-left"><span t-esc="l.lot or ''"/></td>
+                                            <td class="text-left"><span t-esc="l.num_colis or ''"/></td>
+                                            <td class="text-right"><t t-esc='"{:,.3f}".format(l.quantite or 0).replace(","," ").replace(".",",")'/></td>
+                                            <td class="text-right"><t t-esc='"{:,.2f}".format(l.pu or 0).replace(","," ").replace(".",",")'/></td>
+                                            <td class="text-right"><t t-esc='"{:,.2f}".format(l.prix_total or 0).replace(","," ").replace(".",",")'/></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="border-black">
+                                            <td colspan="8"><strong>Total</strong></td>
+                                            <td class="text-right"><t t-esc='"{:,.2f}".format(total_general).replace(","," ").replace(".",",")'/></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <div style="font-size:10pt;padding-top:2pt">
+                                    <p style="margin-bottom:2pt;">L'exportateur des produits couverts par la présente documentation déclare que, sauf indication claire du contraire, ces produits ont l'origine préférentielle UE.</p>
+                                    <p style="margin-bottom:2pt;">VALEUR : A TITRE GRATUIT</p>
+                                    <p style="margin-bottom:2pt;">PRIX PAYE - VALEUR INDICATIVE</p>
+                                    <p style="margin-bottom:2pt;">POUR LA DOUANE</p>
+                                </div>
+                            </t>
+                            <div style="page-break-after:always;" />
+                        </t>
+
+                        <!-- Liste de colisage détaillée (colis x lignes associées) -->
+                        <t t-if="o.colisage_ids">
+                            <h2>Liste de colisage</h2>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">N° colis</th>
+                                        <th class="text-left">Dimensions du colis</th>
+                                        <th class="text-right">Poids net (Kg)</th>
+                                        <th class="text-right">Poids brut (Kg)</th>
+                                        <th class="text-left">Code PG</th>
+                                        <th class="text-left">Désignation</th>
+                                        <th class="text-right">Quantité</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.colisage_ids" t-as="c">
+                                        <t t-set="lines" t-value="[l for l in o.ligne_ids if l.num_colis_id and l.num_colis_id.id == c.id]"/>
+                                        <t t-if="lines">
+                                            <t t-set="l0" t-value="lines[0]"/>
+                                            <tr>
+                                                <td class="text-left"><span t-esc="c.num_colis or ''"/></td>
+                                                <td class="text-left"><span t-esc="c.dimensions or ''"/></td>
+                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-left"><span t-esc="l0.code_pg or ''"/></td>
+                                                <td class="text-left"><span t-esc="l0.designation or ''"/></td>
+                                                <td class="text-right"><t t-esc='"{:,.3f}".format(l0.quantite or 0).replace(","," ").replace(".",",")'/></td>
+                                            </tr>
+                                            <tr t-foreach="lines[1:]" t-as="l">
+                                                <td class="text-left"></td>
+                                                <td class="text-left"></td>
+                                                <td class="text-right"></td>
+                                                <td class="text-right"></td>
+                                                <td class="text-left"><span t-esc="l.code_pg or ''"/></td>
+                                                <td class="text-left"><span t-esc="l.designation or ''"/></td>
+                                                <td class="text-right"><t t-esc='"{:,.3f}".format(l.quantite or 0).replace(","," ").replace(".",",")'/></td>
+                                            </tr>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td class="text-left"><span t-esc="c.num_colis or ''"/></td>
+                                                <td class="text-left"><span t-esc="c.dimensions or ''"/></td>
+                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
+                                                <td class="text-left"></td>
+                                                <td class="text-left"></td>
+                                                <td class="text-right"></td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+
+
+
+<!--                         
+                        <div class="row">
+                            <div class="col-7">
+                                <table class="table table-condensed" style="width:100%">
+                                    <tr>
+                                        <td><strong>Type d'exportation</strong></td>
+                                        <td class="text-right"><span t-field="o.type_exportation"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Mode de transport</strong></td>
+                                        <td class="text-right"><span t-field="o.mode_transport"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-1"/>
+                            <div class="col-4">
+                                <table class="table table-condensed" style="width:100%">
+                                    <tr class="border-black">
+                                        <td><strong>Total</strong></td>
+                                        <td class="text-right"><t t-esc='"{:,.2f}".format(total_general).replace(","," ").replace(".",",")'/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <t t-if="o.colisage_ids">
+                            <br/>
+                            <h4>Colisage</h4>
+                            <table class="table table-condensed" style="page-break-inside: avoid">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Colis</th>
+                                        <th class="text-left">Dimensions</th>
+                                        <th class="text-right">Poids net (Kg)</th>
+                                        <th class="text-right">Poids brut (Kg)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="poids_net_total" t-value="0"/>
+                                    <t t-set="poids_brut_total" t-value="0"/>
+                                    <tr t-foreach="o.colisage_ids" t-as="c">
+                                        <t t-set="poids_net_total" t-value="poids_net_total + (c.poids_net or 0)"/>
+                                        <t t-set="poids_brut_total" t-value="poids_brut_total + (c.poids_brut or 0)"/>
+                                        <td class="text-left"><span t-esc="c.num_colis or ''"/></td>
+                                        <td class="text-left"><span t-esc="c.dimensions or ''"/></td>
+                                        <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_net or 0).replace(","," ").replace(".",",")'/></td>
+                                        <td class="text-right"><t t-esc='"{:,.3f}".format(c.poids_brut or 0).replace(","," ").replace(".",",")'/></td>
+                                    </tr>
+                                    <tr class="border-black">
+                                        <td colspan="2" class="text-right"><strong>Totaux</strong></td>
+                                        <td class="text-right"><t t-esc='"{:,.3f}".format(poids_net_total).replace(","," ").replace(".",",")'/> Kg</td>
+                                        <td class="text-right"><t t-esc='"{:,.3f}".format(poids_brut_total).replace(","," ").replace(".",",")'/> Kg</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <t t-if="o.commentaire">
+                            <br/>
+                            <div><strong>Commentaire</strong></div>
+                            <div t-field="o.commentaire"/>
+                        </t> -->
+                    </div>
+
+                    <!-- Pied de page -->
+                    <div class="footer">
+                        <div class="text-center" style="border-top: 1px solid black">
+                            <table style="width:100%">
+                                <tr>
+                                    <td class="text-left" style="width:80%">
+                                        Proforma n° <span t-field="o.chrono"/>
+                                    </td>
+                                    <td class="text-right">
+                                        Page <span class="page" style="font-size:11pt;"/> / <span class="topage"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p style="page-break-before:always;"> </p>
+                </t>
+            </t>
+        </template>
+
+        <!-- Format papier -->
+        <record id="is_facture_proforma_export_tunisie_paperformat" model="report.paperformat">
+            <field name="name">Facture Proforma Export Tunisie</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">10</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Action de rapport -->
+        <record id="is_facture_proforma_export_tunisie_report" model="ir.actions.report">
+            <field name="name">Facture Proforma Export Tunisie</field>
+            <field name="model">is.facture.proforma.export.tunisie</field>
+            <field name="binding_model_id" ref="model_is_facture_proforma_export_tunisie"/>
+            <field name="paperformat_id" ref="is_plastigray16.is_facture_proforma_export_tunisie_paperformat"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.is_facture_proforma_export_tunisie_template</field>
+            <field name="report_file">is_plastigray16.is_facture_proforma_export_tunisie_template</field>
+        </record>
+    </data>
+    
+</odoo>

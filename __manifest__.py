@@ -165,6 +165,7 @@ Module Odoo 16 pour Plastigray
         "views/report_ar_commande.xml",
         "views/report_cde_ouverte_fournisseur.xml",
         "views/report_is_facture_proforma.xml",
+    "views/report_is_facture_proforma_export_tunisie.xml",
         "views/report_is_fiche_tampographie.xml",
         "views/report_instrument_mesure.xml",
         "views/report_gabarit_controle.xml",

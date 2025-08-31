@@ -1562,3 +1562,32 @@ $ma_couleur: yellow;
     background:DarkOrange;
     font-family: DejaVuSansMono;
 }
+
+
+// is_facture_proforma_export_tunisie
+.is_facture_proforma_export_tunisie_page {
+    font-size:12pt;
+    //color:red;
+}
+.is_facture_proforma_export_tunisie_page .titre {
+    font-size:18pt;
+    font-weight: bold;
+}
+
+/* Mise en forme du tableau d'entête */
+table.tableau_entete {
+    width: 70%;
+    margin: 0 auto 10px auto; /* centre horizontalement */
+    border-collapse: collapse;
+}
+table.tableau_entete th,
+table.tableau_entete td {
+    border: 1px solid #000;
+    padding: 2mm;
+}
+table.tableau_entete th {
+    text-align: left;
+}
+table.tableau_entete td {
+    text-align: right;
+}

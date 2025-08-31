@@ -2,10 +2,6 @@
 from odoo import models, fields, api
 
 
-#TODO:
-#- Pieces jointes
-#- Version PDF
-
 
 class IsFactureProformaExportTunisie(models.Model):
 	_name = 'is.facture.proforma.export.tunisie'
@@ -35,6 +31,12 @@ class IsFactureProformaExportTunisie(models.Model):
 	dynacase_id        = fields.Integer(string='Id Dynacase', index=True, copy=False, tracking=True)
 	piece_jointe_ids   = fields.Many2many("ir.attachment", "is_facture_proforma_export_tunisie_piece_jointe_rel", "piece_jointe", "att_id", string="Pièce jointe")
 
+	# Totaux calculés
+	nb_colis          = fields.Integer('Nombre de colis'            , compute='_compute_totaux', store=False, readonly=True)
+	poids_net_total   = fields.Integer('Poids net total (Kg)'       , compute='_compute_totaux', store=False, readonly=True)
+	poids_brut_total  = fields.Integer('Poids brut total (Kg)'      , compute='_compute_totaux', store=False, readonly=True)
+	montant_total     = fields.Float('Montant total', digits=(14, 2), compute='_compute_totaux', store=False, readonly=True)
+
 
 	# Lignes de colisage
 	colisage_ids       = fields.One2many(
@@ -49,6 +51,20 @@ class IsFactureProformaExportTunisie(models.Model):
 		'proforma_id',
 		'Lignes de facture'
 	)
+
+	@api.depends(
+		'colisage_ids',
+		'colisage_ids.poids_net',
+		'colisage_ids.poids_brut',
+		'ligne_ids',
+		'ligne_ids.prix_total'
+	)
+	def _compute_totaux(self):
+		for rec in self:
+			rec.nb_colis = len(rec.colisage_ids)
+			rec.poids_net_total = sum((l.poids_net or 0.0) for l in rec.colisage_ids)
+			rec.poids_brut_total = sum((l.poids_brut or 0.0) for l in rec.colisage_ids)
+			rec.montant_total = sum((l.prix_total or 0.0) for l in rec.ligne_ids)
 
 	def lien_vers_dynacase_action(self):
 		"""Ouvre la fiche Dynacase liée si un identifiant est renseigné."""

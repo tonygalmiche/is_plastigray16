@@ -14,6 +14,12 @@
 					<field name="mode_transport"/>
 					<!-- <field name="adresse"     optional="hide"/> -->
 					<field name="commentaire" optional="hide"/>
+
+					<field name="nb_colis" optional="show"/>
+					<field name="poids_net_total" optional="show"/>
+					<field name="poids_brut_total" optional="show"/>
+					<field name="montant_total" optional="show"/>
+
   					<button 
                         title="Dynacase" name="lien_vers_dynacase_action" type="object" icon="fa-file" 
                         attrs="{'invisible': [('dynacase_id', '=', 0)]}"
