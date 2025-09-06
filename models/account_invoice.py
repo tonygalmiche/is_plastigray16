@@ -91,6 +91,7 @@ class account_invoice(models.Model):
     ], "État")
     is_owork_id        = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
     is_anomalies_owork = fields.Text("Anomalies O'Work", readonly=True, copy=False)
+    is_id_owork        = fields.Char("id O'Work", copy=False, help="Champ pour faire le lien entre la facture dans Odoo et la facture dans O'Work")
 
 
     def _compute_name(self):

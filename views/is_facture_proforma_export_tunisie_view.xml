@@ -6,7 +6,7 @@
 			<field name="name">is.facture.proforma.export.tunisie.tree</field>
 			<field name="model">is.facture.proforma.export.tunisie</field>
 			<field name="arch" type="xml">
-				<tree string="Proforma export Tunisie" create="1" delete="1">
+				<tree string="Proforma export Tunisie">
 					<field name="chrono"/>
 					<field name="client_id" widget="many2one_clickable"/>
 					<field name="date_creation"/>

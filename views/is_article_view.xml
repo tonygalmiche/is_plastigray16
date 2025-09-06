@@ -30,25 +30,27 @@
             <field name="model">is.article</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Form">  
+                <form string="Form" create="false">  
                     <sheet>
                         <group>
-                            <field name="name"/>
-                            <field name="designation"/>
-                            <field name="moule"/>
-                            <field name="famille"/>
-                            <field name="sous_famille"/>
-                            <field name="categorie"/>
-                            <field name="gestionnaire"/>
-                            <field name="ref_fournisseur"/>
-                            <field name="ref_plan"/>
-                            <field name="couleur"/>
-                            <field name="fournisseur"/>
-                            <field name="unite"/>
-                            <field name="societe"/>
-                            <field name="cout_standard"/>
-                            <field name="cout_actualise"/>
-                            <field name="prevision_annee_n"/>
+                            <field name="name" readonly="1"/>
+                            <field name="designation" readonly="1"/>
+                            <field name="moule" readonly="1"/>
+                            <field name="famille" readonly="1"/>
+                            <field name="sous_famille" readonly="1"/>
+                            <field name="categorie" readonly="1"/>
+                            <field name="gestionnaire" readonly="1"/>
+                            <field name="ref_fournisseur" readonly="1"/>
+                            <field name="ref_client" readonly="1"/>
+                            <field name="ref_plan" readonly="1"/>
+                            <field name="couleur" readonly="1"/>
+                            <field name="fournisseur" readonly="1"/>
+                            <field name="unite" readonly="1"/>
+                            <field name="database_id" readonly="1"/>
+                            <field name="societe" readonly="1"/>
+                            <field name="cout_standard" readonly="1"/>
+                            <field name="cout_actualise" readonly="1"/>
+                            <field name="prevision_annee_n" readonly="1"/>
                         </group>
                     </sheet>
                 </form>
@@ -59,7 +61,7 @@
             <field name="model">is.article</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree create="false">
                     <field name="name"/>
                     <field name="designation"       optional="show"/>
                     <field name="moule"             optional="show"/>
@@ -68,11 +70,13 @@
                     <field name="categorie"         optional="show"/>
                     <field name="gestionnaire"      optional="show"/>
                     <field name="ref_fournisseur"   optional="show"/>
+                    <field name="ref_client"        optional="show"/>
                     <field name="ref_plan"          optional="show"/>
                     <field name="couleur"           optional="show"/>
                     <field name="fournisseur"       optional="show"/>
                     <field name="unite"             optional="show"/>
-                    <field name="societe"           optional="show"/>
+                    <field name="database_id"       optional="show"/>
+                    <field name="societe"           optional="hide"/>
                     <field name="cout_standard"     optional="show"/>
                     <field name="cout_actualise"    optional="show"/>
                     <field name="prevision_annee_n" optional="show"/>
@@ -92,9 +96,11 @@
                     <field name="categorie"/>
                     <field name="gestionnaire"/>
                     <field name="ref_fournisseur"/>
+                    <field name="ref_client"/>
                     <field name="ref_plan"/>
                     <field name="couleur"/>
                     <field name="fournisseur"/>
+                    <field name="database_id"/>
                     <field name="societe"/>
                 </search>
             </field>

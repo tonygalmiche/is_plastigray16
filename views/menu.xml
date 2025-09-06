@@ -411,8 +411,24 @@
             ref('is_rsp_achats_group'),
         ])]"/>
     </record>
-
-   
+    <record id="is_ligne_reception_a_facturer_menu" model="ir.ui.menu" >
+        <field name="name">Réceptions à facturer</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('menu_is_achats_fac')"/>
+        <field name="action"    ref="is_ligne_reception_a_facturer_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_comptable_group'),
+        ])]"/>
+    </record>
+    <record id="is_exporter_receptions_owork_menu" model="ir.ui.menu" >
+        <field name="name">Exporter réceptions dans O'Work</field>
+        <field name="sequence">15</field>
+        <field name="parent_id" eval="ref('menu_is_achats_fac')"/>
+        <field name="action"    ref="is_exporter_receptions_owork_actions_server"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_comptable_group'),
+        ])]"/>
+    </record>
     <record id="menu_is_creation_facture_achat" model="ir.ui.menu" >
         <field name="name">Création facture</field>
         <field name="sequence">20</field>
@@ -910,7 +926,8 @@
         <field name="sequence">55</field>
         <field name="parent_id" eval="ref('menu_is_ventes')"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_comptable_group')
+            ref('is_comptable_group'),
+            ref('is_administration_vente_group')
         ])]"/>
     </record>
     <record id="menu_factures_pk" model="ir.ui.menu" >
@@ -940,7 +957,8 @@
         <field name="parent_id" ref="menu_main_facturation_pk"/>
         <field name="action" ref="is_facture_proforma_export_tunisie_action"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_gestionnaire_facturation_pk')
+            ref('is_gestionnaire_facturation_pk'),
+            ref('is_administration_vente_group')
         ])]"/>
     </record>
 
@@ -1787,7 +1805,7 @@
 
  
     <record id="is_article_menu" model="ir.ui.menu" >
-        <field name="name">Articles de tous les sites (intégré)</field>
+        <field name="name">Articles de tous les sites</field>
         <field name="sequence">40</field>
         <field name="parent_id" eval="ref('menu_is_articles')"/>
         <field name="action"    ref="is_article_action"/>

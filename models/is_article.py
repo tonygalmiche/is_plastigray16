@@ -27,8 +27,6 @@ class is_article_actualiser(models.TransientModel):
         except Exception:
             raise ValidationError('Postgresql 0 non disponible !')
         cur0 = cnx0.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        #SQL="delete from is_article"
-        #cur0.execute(SQL)
         bases = self.env['is.database'].search([])
         for base in bases:
             cnx=False
@@ -50,6 +48,7 @@ class is_article_actualiser(models.TransientModel):
                         ic.name               as categorie,
                         ig.name               as gestionnaire,
                         pt.is_ref_fournisseur as ref_fournisseur,
+                        pt.is_ref_client      as ref_client,
                         pt.is_ref_plan        as ref_plan,
                         pt.is_couleur         as couleur,
                         rp.name               as fournisseur,
@@ -81,10 +80,12 @@ class is_article_actualiser(models.TransientModel):
                         'categorie'        : row['categorie'],
                         'gestionnaire'     : row['gestionnaire'],
                         'ref_fournisseur'  : row['ref_fournisseur'],
+                        'ref_client'       : row['ref_client'],
                         'ref_plan'         : row['ref_plan'],
                         'couleur'          : row['couleur'],
                         'fournisseur'      : row['fournisseur'],
                         'unite'            : row['unite'],
+                        'database_id'      : base.id,
                         'societe'          : base.database,
                         'cout_standard'    : row['cout_standard'],
                         'cout_actualise'   : row['cout_actualise'],
@@ -103,49 +104,6 @@ class is_article_actualiser(models.TransientModel):
                     #**********************************************************
 
 
-        #             _logger.info("actualiser_liste_articles : "+str(row['name']))
-        #             SQL="""
-        #                 INSERT INTO is_article (
-        #                     name,
-        #                     designation,
-        #                     moule,
-        #                     famille,
-        #                     sous_famille,
-        #                     categorie,
-        #                     gestionnaire,
-        #                     ref_fournisseur,
-        #                     ref_plan,
-        #                     couleur,
-        #                     fournisseur,
-        #                     unite,
-        #                     societe,
-        #                     cout_standard,
-        #                     cout_actualise,
-        #                     prevision_annee_n
-        #                 ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        #             """
-        #             values=(
-        #                 row['name'],
-        #                 row['designation'],
-        #                 row['moule'],
-        #                 row['famille'],
-        #                 row['sous_famille'],
-        #                 row['categorie'],
-        #                 row['gestionnaire'],
-        #                 row['ref_fournisseur'],
-        #                 row['ref_plan'],
-        #                 row['couleur'],
-        #                 row['fournisseur'],
-        #                 row['unite'],
-        #                 base.database,
-        #                 str(row['cout_standard']     or 0),
-        #                 str(row['cout_actualise']    or 0),
-        #                 str(row['prevision_annee_n'] or 0),
-        #             )
-        #             cur0.execute(SQL,values)
-        #         cur.close()
-        # cnx0.commit()
-        # cur0.close()
         return {
             'name': u'Articles de tous les sites',
             'view_mode': 'tree,form',
@@ -162,7 +120,9 @@ class is_article(models.Model):
     _description="is.article"
     _order='name,societe'
 
-    societe           = fields.Char("Société", index=True)
+
+    database_id       = fields.Many2one("is.database", "Site", index=True)
+    societe           = fields.Char("Base", index=True)
     name              = fields.Char("Code PG", index=True)
     designation       = fields.Char("Désignation")
     moule             = fields.Char("Moule")
@@ -171,6 +131,7 @@ class is_article(models.Model):
     categorie         = fields.Char("Catégorie", index=True)
     gestionnaire      = fields.Char("Gestionnaire", index=True)
     ref_fournisseur   = fields.Char("Référence fournisseur")
+    ref_client        = fields.Char("Référence client")
     ref_plan          = fields.Char("Réf Plan")
     couleur           = fields.Char("Couleur/ Type matière")
     fournisseur       = fields.Char("Fournisseur par défaut")

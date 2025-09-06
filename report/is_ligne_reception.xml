@@ -171,18 +171,22 @@
         <field name="view_mode">tree,form</field>
     </record>
     <record id="is_ligne_reception_a_facturer_action" model="ir.actions.act_window">
-        <field name="name">Lignes de réceptions à facturer</field>
+        <field name="name">Réceptions à facturer</field>
         <field name="res_model">is.ligne.reception</field>
         <field name="domain">[
-            ('reste_a_facturer','&gt;', 0),
             ('state','=', 'done'),
             ('picking_state','!=', 'cancel'),
             ('is_facturable','=',True),
             ('invoice_state','=', '2binvoiced'),
+            ('montant_reste','&gt;', 0.05),
         ]</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>
     </record>
+
+            <!-- ('reste_a_facturer','&gt;', 0), -->
+
+
 
 
 

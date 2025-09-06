@@ -1150,11 +1150,15 @@ class is_demande_conges_export_cegid(models.Model):
                     ((idc.date_debut>=%s and idc.date_debut<=%s) or
                     (idc.le>=%s and idc.le<=%s)) and
                     idc.type_demande not in ('autre','sans_solde') and
-                    idc.state in ('solde','validation_rh') and
+                    idc.state in ('solde') and
                     (idc.cp>0 or idc.rtt>0 or idc.rc>0) and
                     idc.active='t'
                 ORDER BY ru.login,idc.name
             """
+
+            #TODO Mdifi du 02/09/2025
+            # idc.state in ('solde','validation_rh') and
+
             cr.execute(SQL,[obj.date_debut,obj.date_fin,obj.date_debut,obj.date_fin])
             rows = cr.dictfetchall()
             f = codecs.open(dest,'wb',encoding='utf-8')

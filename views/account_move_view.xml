@@ -63,6 +63,7 @@
                     <field name="invoice_payment_term_id"/>
                     <field name="invoice_date_due"/>
                     <field name="is_owork_id" attrs="{'invisible': [('is_owork_id', '=', False)]}"/> 
+                    <field name="is_id_owork"/> 
                     <field name="is_export_cegid_id"/> 
                     <field name="is_bon_a_payer"/> 
                     <field name="is_masse_nette"/> 
@@ -174,6 +175,7 @@
                 <field name="state" position="before">
 			<field name="is_date_envoi_mail" optional="show"/>
 			<field name="is_owork_id"        optional="show"/>
+			<field name="is_id_owork"        optional="show"/>
 			<field name="is_export_cegid_id" optional="show"/>
 		</field>
             </field>

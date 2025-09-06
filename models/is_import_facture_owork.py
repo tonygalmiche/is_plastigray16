@@ -5,9 +5,13 @@ from datetime import datetime
 from urllib import request
 from urllib.error import HTTPError, URLError
 from socket import timeout
+from subprocess import PIPE, Popen
+import pytz
 import csv
 import base64
 import sys
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_import_facture_owork(models.Model):
@@ -368,6 +372,29 @@ class is_import_facture_owork(models.Model):
                 'domain': [('move_type','=','in_invoice'),('id','in',ids)],
             }
             return res
+
+
+    def exporter_receptions_owork_action(self):
+        name = "exporter-receptions-owork"
+        cdes = self.env['is.commande.externe'].search([('name','=',name)])
+        if len(cdes)==0:
+            raise ValidationError("Commande externe '%s' non trouvée !"%name)
+        for cde in cdes:
+            p = Popen(cde.commande, shell=True, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate()
+            _logger.info("%s => %s"%(cde.commande,stdout))
+            if stderr:
+                raise ValidationError("Erreur dans commande externe '%s' => %s"%(cde.commande,stderr))
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': "Exportation vers O'Work éffectutée",
+                #'message': "Exportation vers O'Work éffectutée",
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
 
 class is_import_facture_owork_line(models.Model):

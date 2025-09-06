@@ -2,6 +2,16 @@
 <odoo>
     <data>
 
+        <!-- Exporter réceptions dans O'Work -->
+        <record id="is_exporter_receptions_owork_actions_server" model="ir.actions.server">
+            <field name="name">Exporter réceptions dans O'Work</field>
+            <field name="model_id" ref="is_plastigray16.model_is_import_facture_owork" />
+            <field name="binding_model_id" ref="is_plastigray16.model_is_import_facture_owork"/>
+            <field name="state">code</field>
+            <field name="code">action = model.exporter_receptions_owork_action()</field>
+        </record>
+
+
         <!-- is.import.facture.owork -->
         <record id="is_import_facture_owork_seq" model="ir.sequence">
             <field name="name">Import facture O'Work</field>
