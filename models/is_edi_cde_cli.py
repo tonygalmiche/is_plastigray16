@@ -343,6 +343,7 @@ class is_edi_cde_cli(models.Model):
             line_obj       = self.env['sale.order.line']
 
             #** Pour PK et Watts, il faut supprimer toutes les commandes de tous les articles 
+            orders=False
             if obj.import_function=="Plasti-ka":
                 filtre=[
                     ('is_type_commande'  , '=', 'ouverte'),
@@ -350,14 +351,14 @@ class is_edi_cde_cli(models.Model):
                     ('partner_invoice_id', '=', obj.partner_id.id),
                 ]
                 orders=self.env['sale.order'].search(filtre)
-            if obj.import_function in ["Watts","SIMU-SOMFY"]:
+            if obj.import_function in ["Watts","SIMU-SOMFY", "LTPP"]:
                 filtre=[
                     ('is_type_commande', '=', 'ouverte'),
                     ('state'           , '=', 'draft'),
                     ('partner_id'      , '=', obj.partner_id.id),
                 ]
                 orders=self.env['sale.order'].search(filtre)
-            if obj.import_function in ["Plasti-ka", "Watts", "SIMU-SOMFY"]:
+            if orders:
                 for order in orders:
                     filtre=[
                         ('order_id'        , '=', order.id),
@@ -1198,6 +1199,8 @@ class is_edi_cde_cli(models.Model):
         return res
 
 
+
+
     def convertir_semaine_jour(self, semaine_str, jour_semaine):
         try:
             # Parser la semaine
@@ -1212,6 +1215,18 @@ class is_edi_cde_cli(models.Model):
             date_finale = date + timedelta(days=jour_offset)
         except:
             date_finale = False
+        
+        # Si date_finale est False ou inférieure à aujourd'hui, prendre la semaine précédente
+        date_aujourdhui = datetime.now().date()
+        if date_finale is False or date_finale.date() < date_aujourdhui:
+            # Calculer la semaine précédente à partir d'aujourd'hui
+            # Trouver le jour de la semaine demandé dans la semaine précédente
+            jours_depuis_lundi = date_aujourdhui.weekday()  # 0 = Lundi
+            jour_offset = int(jour_semaine) - 1
+            
+            # Calculer combien de jours en arrière pour atteindre le jour demandé de la semaine précédente
+            jours_arriere = jours_depuis_lundi + (7 - jour_offset)
+            date_finale = datetime.combine(date_aujourdhui - timedelta(days=jours_arriere), datetime.min.time())
         return date_finale
 
 
@@ -1222,23 +1237,49 @@ class is_edi_cde_cli(models.Model):
             csvfile = csvfile.replace('\r\n', '\n').replace('\r', '\n')
             csvfile_io = io.StringIO(csvfile)
             csvfile = csv.reader(csvfile_io, delimiter=';', skipinitialspace=True)
+            col2date={}
             for ct, lig in enumerate(csvfile):
                 if ct==0:
                     nbcol=len(lig)
                     for i in range(0,nbcol-1):
                         if i>=15:
-                            semaine_num = annee = jour_semaine_num = date_valide  = False
                             semaine = lig[i] #"W 37.25"
                             jour_semaine = obj.jour_semaine or '1' # exemple: '1' pour Lundi
-                            date_valide = self.convertir_semaine_jour(semaine, jour_semaine)
-                            #print(i,lig[i],semaine_num, annee, jour_semaine_num, date_valide, type(date_valide))
-                        if i>25:
-                            break
+                            date_livraison = self.convertir_semaine_jour(semaine, jour_semaine)
+                            col2date[i] = date_livraison
                 if ct>0:
                     ref_article_client = lig[4].strip()
-                    print(ct,ref_article_client)
-                if ct>5:
-                    break
+                    for i in range(0,nbcol-1):
+                        if i>=15:
+                            try:
+                                quantite=float(lig[i].strip())
+                            except ValueError:
+                                quantite = 0
+                            if quantite>0:
+                                date_livraison = col2date.get(i) or False
+                                orders = self.env['sale.order'].search([
+                                    ('partner_id.is_code'   , '=', obj.partner_id.is_code),
+                                    ('is_ref_client', '=', ref_article_client),
+                                    ('is_type_commande'  , '=', 'ouverte'),
+                                ])
+                                num_commande_client = "??"
+                                order_id=False
+                                if len(orders):
+                                    num_commande_client = orders[0].client_order_ref
+                                    order_id            = orders[0].id
+                                val={
+                                    'num_commande_client' : num_commande_client,
+                                    'ref_article_client'  : ref_article_client,
+                                    'order_id'            : order_id,
+                                }
+                                type_commande="previsionnel"
+                                ligne = {
+                                    'quantite'      : quantite,
+                                    'type_commande' : type_commande,
+                                    'date_livraison': date_livraison,
+                                }
+                                val.update({'lignes':[ligne]})
+                                res.append(val)
         return res
 
 

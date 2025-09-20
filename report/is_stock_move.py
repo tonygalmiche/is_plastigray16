@@ -195,7 +195,7 @@ class pg_stock_move(models.Model):
     purchase_line_id           = fields.Many2one('purchase.order.line', 'Ligne commande achat')
     raw_material_production_id = fields.Many2one('mrp.production'     , 'Composant ordre de fabrication')
     production_id              = fields.Many2one('mrp.production'     , 'Ordre de fabrication')
-    sale_line_id               = fields.Many2one('sale.order.line'    , 'Ligne commande vente')
+    sale_line_id               = fields.Many2one('sale.order.line'    , 'Ligne commande vente', index=True)
 
 
 class is_stock_move(models.Model):
