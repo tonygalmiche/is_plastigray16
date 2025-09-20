@@ -44,13 +44,16 @@
                             <field name="ref_client" readonly="1"/>
                             <field name="ref_plan" readonly="1"/>
                             <field name="couleur" readonly="1"/>
-                            <field name="fournisseur" readonly="1"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="fournisseur_id" readonly="1"/>
                             <field name="unite" readonly="1"/>
                             <field name="database_id" readonly="1"/>
                             <field name="societe" readonly="1"/>
                             <field name="cout_standard" readonly="1"/>
                             <field name="cout_actualise" readonly="1"/>
                             <field name="prevision_annee_n" readonly="1"/>
+                            <field name="id_origine" readonly="1"/>
+                            <field name="url_origine" widget="url"/> 
                         </group>
                     </sheet>
                 </form>
@@ -73,13 +76,16 @@
                     <field name="ref_client"        optional="show"/>
                     <field name="ref_plan"          optional="show"/>
                     <field name="couleur"           optional="show"/>
-                    <field name="fournisseur"       optional="show"/>
+                    <field name="client_id"         optional="show"  widget="many2one_clickable"/>
+                    <field name="fournisseur_id"    optional="show"  widget="many2one_clickable"/>
                     <field name="unite"             optional="show"/>
                     <field name="database_id"       optional="show"/>
                     <field name="societe"           optional="hide"/>
                     <field name="cout_standard"     optional="show"/>
                     <field name="cout_actualise"    optional="show"/>
                     <field name="prevision_annee_n" optional="show"/>
+                    <field name="id_origine"        optional="hide"/>
+                    <field name="url_origine"       optional="hide" widget="url"/> 
                 </tree>
             </field>
         </record>
@@ -99,7 +105,8 @@
                     <field name="ref_client"/>
                     <field name="ref_plan"/>
                     <field name="couleur"/>
-                    <field name="fournisseur"/>
+                    <field name="client_id"/>
+                    <field name="fournisseur_id"/>
                     <field name="database_id"/>
                     <field name="societe"/>
                 </search>

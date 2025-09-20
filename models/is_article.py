@@ -40,6 +40,7 @@ class is_article_actualiser(models.TransientModel):
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 SQL= """
                     SELECT 
+                        pt.id                 as id_origine,
                         pt.is_code            as name,
                         pt.name->>'fr_FR'     as designation,
                         pt.is_mold_dossierf   as moule,
@@ -51,7 +52,9 @@ class is_article_actualiser(models.TransientModel):
                         pt.is_ref_client      as ref_client,
                         pt.is_ref_plan        as ref_plan,
                         pt.is_couleur         as couleur,
-                        rp.name               as fournisseur,
+                        rp1.name              as fournisseur,
+                        rp1.is_database_origine_id as fournisseur_id,
+                        rp2.is_database_origine_id as client_id,
                         uom.name->>'fr_FR'    as unite,
                         (select cout_std_total from is_cout cout where cout.name=pp.id limit 1) as cout_standard,
                         (select cout_act_total from is_cout cout where cout.name=pp.id limit 1) as cout_actualise,
@@ -60,7 +63,8 @@ class is_article_actualiser(models.TransientModel):
                                              left outer join is_product_sous_famille ipsf on pt.sub_family_id=ipsf.id
                                              left outer join is_category               ic on pt.is_category_id=ic.id
                                              left outer join is_gestionnaire           ig on pt.is_gestionnaire_id=ig.id
-                                             left outer join res_partner               rp on pt.is_fournisseur_id=rp.id
+                                             left outer join res_partner               rp1 on pt.is_fournisseur_id=rp1.id
+                                             left outer join res_partner               rp2 on pt.is_client_id=rp2.id
                                              left outer join uom_uom                  uom on pt.uom_id=uom.id
                                              left outer join product_product           pp on pp.product_tmpl_id=pt.id
                     WHERE 
@@ -71,6 +75,15 @@ class is_article_actualiser(models.TransientModel):
                 cur.execute(SQL)
                 rows = cur.fetchall()
                 for row in rows:
+                    client_id = fournisseur_id = False
+                    if row['client_id']:
+                        client = self.env['res.partner'].browse(row['client_id'])
+                        if client.exists():
+                            client_id = client.id
+                    if row['fournisseur_id']:
+                        fournisseur = self.env['res.partner'].browse(row['fournisseur_id'])
+                        if fournisseur.exists():
+                            fournisseur_id = fournisseur.id
                     vals={
                         'name'             : row['name'],
                         'designation'      : row['designation'],
@@ -83,6 +96,8 @@ class is_article_actualiser(models.TransientModel):
                         'ref_client'       : row['ref_client'],
                         'ref_plan'         : row['ref_plan'],
                         'couleur'          : row['couleur'],
+                        'client_id'        : client_id,
+                        'fournisseur_id'   : fournisseur_id,
                         'fournisseur'      : row['fournisseur'],
                         'unite'            : row['unite'],
                         'database_id'      : base.id,
@@ -90,6 +105,7 @@ class is_article_actualiser(models.TransientModel):
                         'cout_standard'    : row['cout_standard'],
                         'cout_actualise'   : row['cout_actualise'],
                         'prevision_annee_n': row['prevision_annee_n'],
+                        'id_origine'       : row['id_origine'],
                     }
 
                     #** Recherche si l'article existe déja ********************
@@ -134,11 +150,26 @@ class is_article(models.Model):
     ref_client        = fields.Char("Référence client")
     ref_plan          = fields.Char("Réf Plan")
     couleur           = fields.Char("Couleur/ Type matière")
-    fournisseur       = fields.Char("Fournisseur par défaut")
+    fournisseur       = fields.Char("Fournisseur")
     unite             = fields.Char("Unité")
     cout_standard     = fields.Float("Coût standard")
     cout_actualise    = fields.Float("Coût actualisé")
     prevision_annee_n = fields.Float("Prévision Année N")
+    client_id         = fields.Many2one('res.partner', 'Client par défaut')
+    fournisseur_id    = fields.Many2one('res.partner', 'Fournisseur par défaut')
+    id_origine        = fields.Integer("Id d'origine")
+    url_origine       = fields.Char("URL Origine", copy=False, compute='_compute_url_origine', help="Lien vers le Odoo du site")
+
+
+    @api.depends('id_origine')
+    def _compute_url_origine(self):
+        for obj in self:
+            url=False
+            database = obj.database_id.database
+            if obj.id_origine and database:
+                database=database.replace('16-','')
+                url = "https://%s/web#id=%s&cids=1&model=product.template&view_type=form"%(database,obj.id_origine)
+            obj.url_origine = url
 
 
     def name_get(self):
