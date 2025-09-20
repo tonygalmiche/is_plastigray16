@@ -24,11 +24,11 @@
             <field name="name">is_import_facture_owork_form_view</field>
             <field name="model">is.import.facture.owork</field>
             <field name="arch" type="xml">
-            <form>
+            <form create="0">
                 <header>
                     <field name="line_ids" invisible="1" />
                     <field name="invoice_ids" invisible="1" />
-                    <button 
+                    <!-- <button 
                         name="import_facture_owork"
                         string="Import fichiers O'Work"
                         type="object"
@@ -40,7 +40,7 @@
                         string="Import des factures depuis le site O'Work"
                         type="object"
                         attrs="{'invisible': ['|',('line_ids', '!=', []),('attachment_ids', '!=', [])]}"
-                    />
+                    /> -->
                     <button 
                         name="voir_les_lignes"
                         type="object"
@@ -66,14 +66,14 @@
                     <group>
                         <group>
                             <field name="name" />
-                            <field name="attachment_ids" widget="many2many_binary" attrs="{'readonly': [('state', '=', 'traite')]}"/>
+                            <field name="nb_lignes"/>
+                            <field name="nb_factures"/>
+                            <field name="nb_anomalies" style="background-color:orange" attrs="{'invisible': [('nb_anomalies', '=', 0)]}"/>
+                            <!-- <field name="attachment_ids" widget="many2many_binary" attrs="{'readonly': [('state', '=', 'traite')]}"/> -->
                         </group>
                         <group>
                             <field name="create_date" string="Créé le"/>
                             <field name="create_uid"  string="Créé par"/>
-                            <field name="nb_lignes"/>
-                            <field name="nb_factures"/>
-                            <field name="nb_anomalies" style="background-color:orange" attrs="{'invisible': [('nb_anomalies', '=', 0)]}"/>
                         </group>
                     </group>
                  </sheet>
@@ -84,7 +84,7 @@
             <field name="name">is_import_facture_owork_tree_view</field>
             <field name="model">is.import.facture.owork</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree create="0">
                     <field name="name" />
                     <field name="nb_lignes"/>
                     <field name="nb_factures"/>
@@ -104,6 +104,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name" />
+                    <field name="state" />
                 </search>
             </field>
         </record>
@@ -141,6 +142,7 @@
                             <field name="numfac" />
                             <field name="invoice_id" />
                             <field name="numidodoo" />
+                            <field name="id_owork" />
                             <field name="montanttc" />
                         </group>
                        <group>
@@ -151,6 +153,7 @@
                             <field name="descriparticle" />
                             <field name="codetvaorigine" />
                             <field name="codetvafact" />
+                            <field name="tax_id" />
                             <field name="codeetab" />
                             <field name="qterestefac" />
                             <field name="qtefact" />
@@ -207,6 +210,7 @@
                     <field name="montanttc"      optional="show" sum="Total"/>
                     <field name="codeetab"       optional="hide"/>
                     <field name="numidodoo"      optional="hide"/>
+                    <field name="id_owork"       optional="hide"/>
                     <field name="fichier"        optional="hide"/>
                     <field name="anomalies"      optional="show"/>
                 </tree>
@@ -223,6 +227,7 @@
                     <field name="codefour" />
                     <field name="numfac" />
                     <field name="codefourrcp" />
+                    <field name="id_owork" />
                 </search>
             </field>
         </record>

@@ -92,6 +92,22 @@ class account_invoice(models.Model):
     is_owork_id        = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
     is_anomalies_owork = fields.Text("Anomalies O'Work", readonly=True, copy=False)
     is_id_owork        = fields.Char("id O'Work", copy=False, help="Champ pour faire le lien entre la facture dans Odoo et la facture dans O'Work")
+    is_url_owork       = fields.Char("URL O'Work", copy=False, compute='_compute_is_url_owork', help="Lien vers la facture dans O'Work")
+
+
+    @api.depends('is_id_owork')
+    def _compute_is_url_owork(self):
+        for obj in self:
+            url=False
+            if obj.is_id_owork:
+
+
+                url = f"https://plastigray.oflux-owork.fr/#!iz-docs$%7B%22space%22%3A4%7D#!iz-doc-form${obj.is_id_owork}"
+
+
+
+
+            obj.is_url_owork = url
 
 
     def _compute_name(self):

@@ -9,6 +9,7 @@ import time
 import math
 from datetime import date,datetime,timedelta
 import openpyxl
+import io
 
 
 _JOURS_SEMAINE=[
@@ -542,6 +543,8 @@ class is_edi_cde_cli(models.Model):
             datas=self.get_data_Motus(attachment)
         if import_function == 'Lacroix':
             datas = self.get_data_lacroix(attachment)
+        if import_function == 'LTPP':
+            datas = self.get_data_LTPP(attachment)
         if import_function=="Odoo":
             datas=self.get_data_Odoo(attachment)
         if import_function=="Plasti-ka":
@@ -1194,6 +1197,49 @@ class is_edi_cde_cli(models.Model):
                 raise ValidationError('Fichier vide ou non compatible (le fichier doit être au format CSV)')
         return res
 
+
+    def convertir_semaine_jour(self, semaine_str, jour_semaine):
+        try:
+            # Parser la semaine
+            semaine_num = int(semaine_str.split()[1].split('.')[0])
+            annee = int("20" + semaine_str.split()[1].split('.')[1])
+            
+            # Créer la date du lundi de cette semaine ISO
+            date = datetime.fromisocalendar(annee, semaine_num, 1)  # 1 = Lundi
+            
+            # Ajouter les jours pour le jour demandé
+            jour_offset = int(jour_semaine) - 1
+            date_finale = date + timedelta(days=jour_offset)
+        except:
+            date_finale = False
+        return date_finale
+
+
+    def get_data_LTPP(self, attachment):
+        res = []
+        for obj in self:
+            csvfile = base64.decodebytes(attachment.datas).decode('utf-8-sig', errors='replace')
+            csvfile = csvfile.replace('\r\n', '\n').replace('\r', '\n')
+            csvfile_io = io.StringIO(csvfile)
+            csvfile = csv.reader(csvfile_io, delimiter=';', skipinitialspace=True)
+            for ct, lig in enumerate(csvfile):
+                if ct==0:
+                    nbcol=len(lig)
+                    for i in range(0,nbcol-1):
+                        if i>=15:
+                            semaine_num = annee = jour_semaine_num = date_valide  = False
+                            semaine = lig[i] #"W 37.25"
+                            jour_semaine = obj.jour_semaine or '1' # exemple: '1' pour Lundi
+                            date_valide = self.convertir_semaine_jour(semaine, jour_semaine)
+                            #print(i,lig[i],semaine_num, annee, jour_semaine_num, date_valide, type(date_valide))
+                        if i>25:
+                            break
+                if ct>0:
+                    ref_article_client = lig[4].strip()
+                    print(ct,ref_article_client)
+                if ct>5:
+                    break
+        return res
 
 
     def get_data_902810(self, attachment):

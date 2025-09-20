@@ -25,6 +25,7 @@ import_function=[
     ('GXS'            , 'GXS'),
     ('John-Deere'     , 'John-Deere'),
     ('Lacroix'        , 'Lacroix'),
+    ('LTPP'           , 'LTPP'), # 908864 ou 908755/2'
     ('Millipore'      , 'Millipore'),
     ('Mini-Delta-Dore', 'Mini-Delta-Dore'),
     ('Motus'          , 'Motus'),
