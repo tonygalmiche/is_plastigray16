@@ -44,6 +44,8 @@
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/> 
                         <group>
                             <group string="Identification">
                                 <field name="name"/>

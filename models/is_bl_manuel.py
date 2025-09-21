@@ -19,9 +19,9 @@ class is_bl_manuel(models.Model):
 
 
     name                 = fields.Char("N° de BL", readonly=True)
-    emetteur_id          = fields.Many2one('res.users', 'Émetteur', required=True, default=lambda self: self.env.uid)
+    emetteur_id          = fields.Many2one('res.users', 'Émetteur', required=True, default=lambda self: self.env.uid, copy=False)
     initiales            = fields.Char("Initiales émetteur", compute='_compute', readonly=True, store=True)
-    date_bl              = fields.Date("Date", required=True, default=lambda *a: fields.datetime.now())
+    date_bl              = fields.Date("Date", required=True, default=lambda *a: fields.datetime.now(), copy=False)
     destinataire_id      = fields.Many2one('res.partner', 'Destinataire', domain=[('is_company','=',True)])
     raison_sociale       = fields.Char("Raison Sociale", required=True)
     adresse1             = fields.Char("Ligne adresse 1")
@@ -33,10 +33,11 @@ class is_bl_manuel(models.Model):
     incoterm_id          = fields.Many2one('account.incoterms', 'Incoterm')
     motif_expedition     = fields.Char("Motif Expédition")
     transporteur_id      = fields.Many2one('res.partner', 'Transporteur', domain=[('is_company','=',True),('supplier','=',True)])
-    demande_transport_id = fields.Many2one('is.demande.transport', 'Demande de transport', readonly=True)
+    demande_transport_id = fields.Many2one('is.demande.transport', 'Demande de transport', readonly=True, copy=False)
     colisage             = fields.Char("Colisage (dimensions)")
     state                = fields.Selection([('brouillon', 'Brouillon'),('termine', 'Terminé')], "Etat", default='brouillon')
     line_ids             = fields.One2many('is.bl.manuel.line'  , 'bl_id', u"Lignes")
+    active               = fields.Boolean('Actif', default=True)
 
 
     def creation_facture_proforma_action(self):
