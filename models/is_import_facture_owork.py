@@ -310,6 +310,7 @@ class is_import_facture_owork(models.Model):
                                 'is_move_id'      : line.stock_move_id.id,
                                 'purchase_line_id': line.stock_move_id.purchase_line_id.id,
                                 'is_section_analytique_id': line.product_id.is_section_analytique_ha_id.id,
+                                'is_document'     : line.num_chantier_fact or line.num_chantier_rcp or False,
                             }
                             lines.append([0,False,v]) 
 
