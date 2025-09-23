@@ -16,7 +16,7 @@
                         <div class="row">
                             <img t-if="company.is_logo" t-att-src="image_data_uri(company.is_logo)" style="max-height:70px; height:auto; width:auto;" alt="Logo"/><br />
                             Téléphone : 03 84 64 77 00<br />
-                            Télécopie : 03 84 65 51 09<br />
+                            <!-- Télécopie : 03 84 65 51 09<br /> -->
                             Zac Gray Sud - CS 10133 - 70104 Gray Cedex (France)<br />
                         </div>
 
@@ -38,21 +38,21 @@
                         <div class="text-center">
                             Condition de livraison : US DOUANE<br />
                             Mode de transport : <span t-field="o.mode_transport"/> <br />
-                            Incoterm-DDU<br />
+                            Incoterm-DAP - KALAA KEBIRA - Tunisie<br />
                         </div>
                         <br />
 
                         <table class="tableau_entete">
                             <tr><th>Poids Total Net</th><td><span t-field="o.poids_net_total"/> </td></tr>
                             <tr><th>Poids Total Brut</th><td><span t-field="o.poids_brut_total"/> </td></tr>
-                            <tr><th>Prix Total</th><td><span t-field="o.montant_total"/> </td></tr>
+                            <tr><th>Prix Total</th><td><span t-field="o.montant_total"/> €</td></tr>
                             <tr><th>Nombre de colis</th><td><span t-field="o.nb_colis"/> </td></tr>
                         </table>
 
                         <div style="page-break-after:always;" />
 
                         <!-- Regroupement par catégorie: une section par valeur de 'categorie' -->
-                        <t t-set="categories" t-value="{'T1':'Consommable', 'T2':'Matière première', 'T3':'Matière premier hors CE', 'T4':'Moyen de production', 'T5':'Moyen de production hors CE'}"/>
+                        <t t-set="categories" t-value="{'T1':'Consommable', 'T2':'Matière première', 'T3':'Matière premier hors UE', 'T4':'Moyen de production', 'T5':'Moyen de production hors UE'}"/>
                         <t t-foreach="categories.items()" t-as="cat_item">
                             <t t-set="cat_code" t-value="cat_item[0]"/>
                             <t t-set="cat_label" t-value="cat_item[1]"/>

@@ -1,68 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<data>
-		<!-- Liste -->
-		<record id="view_is_facture_proforma_export_tunisie_tree" model="ir.ui.view">
-			<field name="name">is.facture.proforma.export.tunisie.tree</field>
-			<field name="model">is.facture.proforma.export.tunisie</field>
-			<field name="arch" type="xml">
-				<tree string="Proforma export Tunisie">
-					<field name="chrono"/>
-					<field name="client_id" widget="many2one_clickable"/>
-					<field name="date_creation"/>
-					<field name="type_exportation"/>
-					<field name="mode_transport"/>
-					<!-- <field name="adresse"     optional="hide"/> -->
-					<field name="commentaire" optional="hide"/>
+    <data>
+        <!-- Liste -->
+        <record id="view_is_facture_proforma_export_tunisie_tree" model="ir.ui.view">
+            <field name="name">is.facture.proforma.export.tunisie.tree</field>
+            <field name="model">is.facture.proforma.export.tunisie</field>
+            <field name="arch" type="xml">
+                <tree string="Proforma export Tunisie">
+                    <field name="chrono"/>
+                    <field name="client_id" widget="many2one_clickable"/>
+                    <field name="date_creation"/>
+                    <field name="type_exportation"/>
+                    <field name="mode_transport"/>
+                    <!-- <field name="adresse"     optional="hide"/> -->
+                    <field name="commentaire" optional="hide"/>
 
-					<field name="nb_colis" optional="show"/>
-					<field name="poids_net_total" optional="show"/>
-					<field name="poids_brut_total" optional="show"/>
-					<field name="montant_total" optional="show"/>
+                    <field name="nb_colis" optional="show"/>
+                    <field name="poids_net_total" optional="show"/>
+                    <field name="poids_brut_total" optional="show"/>
+                    <field name="montant_total" optional="show"/>
 
-  					<button 
+                      <button 
                         title="Dynacase" name="lien_vers_dynacase_action" type="object" icon="fa-file" 
                         attrs="{'invisible': [('dynacase_id', '=', 0)]}"
                         groups="base.group_system"
                     />
                     <field name="dynacase_id" optional="hide" groups="base.group_system"/>
-					<field name="create_date" optional="hide"  string="Créé le"/>
-					<field name="create_uid"  optional="hide"  string="Créé par"/>
-					<field name="write_date"  optional="hide"  string="Modifié le"/>
-					<field name="write_uid"   optional="hide"  string="Modifié par"/>
-				</tree>
-			</field>
-		</record>
+                    <field name="create_date" optional="hide"  string="Créé le"/>
+                    <field name="create_uid"  optional="hide"  string="Créé par"/>
+                    <field name="write_date"  optional="hide"  string="Modifié le"/>
+                    <field name="write_uid"   optional="hide"  string="Modifié par"/>
+                </tree>
+            </field>
+        </record>
 
-		<!-- Recherche -->
-	<record id="view_is_facture_proforma_export_tunisie_search" model="ir.ui.view">
-			<field name="name">is.facture.proforma.export.tunisie.search</field>
-			<field name="model">is.facture.proforma.export.tunisie</field>
-			<field name="arch" type="xml">
-				<search string="Recherche Proforma export Tunisie">
-					<field name="chrono"/>
-					<field name="client_id"/>
-					<field name="type_exportation"/>
-					<field name="mode_transport"/>
-					<field name="commentaire"/>
-		            <filter string="Aujourd'hui" name="today" domain="[('date_creation', '=', context_today())]"/>
-					<group expand="0" string="Grouper par...">
-						<filter name="group_by_client" string="Client" context="{'group_by': 'client_id'}"/>
-						<filter name="group_by_date" string="Date" context="{'group_by': 'date_creation'}"/>
-						<filter name="group_by_type" string="Type d’exportation" context="{'group_by': 'type_exportation'}"/>
-						<filter name="group_by_transport" string="Mode de transport" context="{'group_by': 'mode_transport'}"/>
-					</group>
-				</search>
-			</field>
-		</record>
+        <!-- Recherche -->
+    <record id="view_is_facture_proforma_export_tunisie_search" model="ir.ui.view">
+            <field name="name">is.facture.proforma.export.tunisie.search</field>
+            <field name="model">is.facture.proforma.export.tunisie</field>
+            <field name="arch" type="xml">
+                <search string="Recherche Proforma export Tunisie">
+                    <field name="chrono"/>
+                    <field name="client_id"/>
+                    <field name="type_exportation"/>
+                    <field name="mode_transport"/>
+                    <field name="commentaire"/>
+                    <filter string="Aujourd'hui" name="today" domain="[('date_creation', '=', context_today())]"/>
+                    <group expand="0" string="Grouper par...">
+                        <filter name="group_by_client" string="Client" context="{'group_by': 'client_id'}"/>
+                        <filter name="group_by_date" string="Date" context="{'group_by': 'date_creation'}"/>
+                        <filter name="group_by_type" string="Type d’exportation" context="{'group_by': 'type_exportation'}"/>
+                        <filter name="group_by_transport" string="Mode de transport" context="{'group_by': 'mode_transport'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
 
-		<!-- Formulaire -->
-		<record id="view_is_facture_proforma_export_tunisie_form" model="ir.ui.view">
-			<field name="name">is.facture.proforma.export.tunisie.form</field>
-			<field name="model">is.facture.proforma.export.tunisie</field>
-			<field name="arch" type="xml">
-				<form string="Proforma export Tunisie">
-   					<header>
+        <!-- Formulaire -->
+        <record id="view_is_facture_proforma_export_tunisie_form" model="ir.ui.view">
+            <field name="name">is.facture.proforma.export.tunisie.form</field>
+            <field name="model">is.facture.proforma.export.tunisie</field>
+            <field name="arch" type="xml">
+                <form string="Proforma export Tunisie">
+                       <header>
                         <field name="dynacase_id" invisible="1"/>
                         <button 
                             string="Dynacase" name="lien_vers_dynacase_action"
@@ -70,76 +70,84 @@
                             attrs="{'invisible': [('dynacase_id', '=', 0)]}" 
                             groups="base.group_system"
                         />
-					</header>
+                    </header>
 
-					<sheet>
-						<field name="active" invisible="1"/>
-						<widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-						<group>
-							<group>
-								<field name="chrono"/>
-								<field name="client_id" required="1"/>
-								<field name="date_creation" required="1"/>
-							</group>
-							<group>
-								<field name="type_exportation" required="1"/>
-								<field name="mode_transport" required="1"/>
-							</group>
-						</group>
-						<group>
-							<!-- <field name="adresse"     required="1"/> -->
-							<field name="commentaire"/>
-						</group>
-						<group string="Colisage">
-							<field name="colisage_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
-								<tree string="Colisages" editable="bottom" limit="500">
-									<field name="num_colis"  readonly="1"/>
-									<field name="dimensions" required="1"/>
-									<field name="poids_net"  required="1"/>
-									<field name="poids_brut" required="1"/>
-								</tree>
-							</field>
-						</group>
-						<group string="Lignes de facture">
-							<field name="ligne_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
-								<tree string="Lignes" editable="bottom" limit="500">
-									<field name="num" readonly="1"/>
-									<field name="categorie"/>
-									<field name="product_id"  widget="many2one_clickable"/>
-									<field name="code_pg"     optional="show"/>
-									<field name="designation" optional="show"/>
-									<field name="code_douanier"/>
-									<field name="lot"/>
-									<field name="num_colis_id"/>
-									<field name="num_colis" optional="hide"/>
-									<field name="quantite"/>
-									<field name="pu"/>
-									<field name="prix_total" sum="Total"/>
-									<field name="proforma_id" invisible="1"/>
-								</tree>
-							</field>
-						</group>
+                    <sheet>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <group>
+                            <group>
+                                <field name="chrono"/>
+                                <field name="client_id" required="1"/>
+                                <field name="date_creation" required="1"/>
+                            </group>
+                            <group>
+                                <field name="type_exportation" required="1"/>
+                                <field name="mode_transport" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <!-- <field name="adresse"     required="1"/> -->
+                            <field name="commentaire"/>
+                        </group>
+                        <group string="Colisage">
+                            <field name="colisage_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
+                                <tree string="Colisages" editable="bottom" limit="500">
+                                    <field name="num_colis"  readonly="1"/>
+                                    <field name="dimensions" required="1"/>
+                                    <field name="poids_net"  required="1"/>
+                                    <field name="poids_brut" required="1"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group string="Lignes de facture">
+                            <field name="ligne_ids" context="{'default_proforma_id': active_id}" colspan="2" nolabel="1" >
+                                <tree string="Lignes" editable="bottom" limit="500">
+                                    <button 
+                                        title="Copier la ligne" 
+                                        name="copier_ligne_action" 
+                                        type="object" 
+                                        icon="fa-copy"
+                                        class="btn-link"
+                                    />
+                                    <field name="num" readonly="1"/>
+                                    <field name="categorie"/>
+                                    <field name="product_id"  widget="many2one_clickable"/>
+                                    <field name="code_pg"/>
+                                    <field name="designation"/>
+                                    <field name="code_douanier"/>
+                                    <field name="lot"/>
+                                    <field name="num_colis"/>
+                                    <field name="num_colis_id"/>
+                                    <field name="quantite"/>
+                                    <field name="pu"/>
+                                    <field name="prix_total" sum="Total"/>
+                                    <field name="proforma_id" invisible="1"/>
+                                   
+                                </tree>
+                            </field>
+                        </group>
                         <group string="Pièces jointes">
                             <field name="piece_jointe_ids"   widget="many2many_binary"/>
                         </group>
-					</sheet>
-					<div class="oe_chatter">
-						<field name="message_follower_ids" widget="mail_followers"/>
-						<field name="activity_ids" widget="mail_activity"/>
-						<field name="message_ids" widget="mail_thread"/>
-					</div>
-				</form>
-			</field>
-		</record>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
 
-		<!-- Action -->
-		<record id="is_facture_proforma_export_tunisie_action" model="ir.actions.act_window">
-			<field name="name">Proforma export Tunisie</field>
-			<field name="type">ir.actions.act_window</field>
-			<field name="res_model">is.facture.proforma.export.tunisie</field>
-			<field name="view_mode">tree,form</field>
-			<field name="search_view_id" ref="view_is_facture_proforma_export_tunisie_search"/>
-		</record>
+        <!-- Action -->
+        <record id="is_facture_proforma_export_tunisie_action" model="ir.actions.act_window">
+            <field name="name">Proforma export Tunisie</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.facture.proforma.export.tunisie</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_is_facture_proforma_export_tunisie_search"/>
+        </record>
 
-	</data>
+    </data>
 </odoo>
