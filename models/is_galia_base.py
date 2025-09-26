@@ -77,7 +77,7 @@ class is_galia_base(models.Model):
                                                    join product_product  pp on sol.product_id=pp.id
                                                    join product_template pt on pp.product_tmpl_id=pt.id
                     WHERE so.is_point_dechargement is not null 
-                        and so.is_type_commande in ('ouverte', 'ls') 
+                        and so.is_type_commande in ('ouverte', 'ls', 'standard') 
                         and pt.is_code='%s'
                         and sol.is_type_commande='ferme'
                     order by sol.id desc

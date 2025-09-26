@@ -1249,37 +1249,40 @@ class is_edi_cde_cli(models.Model):
                             col2date[i] = date_livraison
                 if ct>0:
                     ref_article_client = lig[4].strip()
-                    for i in range(0,nbcol-1):
-                        if i>=15:
-                            try:
-                                quantite=float(lig[i].strip())
-                            except ValueError:
-                                quantite = 0
-                            if quantite>0:
-                                date_livraison = col2date.get(i) or False
-                                orders = self.env['sale.order'].search([
-                                    ('partner_id.is_code'   , '=', obj.partner_id.is_code),
-                                    ('is_ref_client', '=', ref_article_client),
-                                    ('is_type_commande'  , '=', 'ouverte'),
-                                ])
-                                num_commande_client = "??"
-                                order_id=False
-                                if len(orders):
-                                    num_commande_client = orders[0].client_order_ref
-                                    order_id            = orders[0].id
-                                val={
-                                    'num_commande_client' : num_commande_client,
-                                    'ref_article_client'  : ref_article_client,
-                                    'order_id'            : order_id,
-                                }
-                                type_commande="previsionnel"
-                                ligne = {
-                                    'quantite'      : quantite,
-                                    'type_commande' : type_commande,
-                                    'date_livraison': date_livraison,
-                                }
-                                val.update({'lignes':[ligne]})
-                                res.append(val)
+                    # Voir pour que le système ne prenne pas en compte les besoins FRM qui correspondent à des commandes fermes déjà saisies 
+                    procurement = (lig[10] or '').strip()
+                    if procurement!='FRM':
+                        for i in range(0,nbcol-1):
+                            if i>=15:
+                                try:
+                                    quantite=float(lig[i].strip())
+                                except ValueError:
+                                    quantite = 0
+                                if quantite>0:
+                                    date_livraison = col2date.get(i) or False
+                                    orders = self.env['sale.order'].search([
+                                        ('partner_id.is_code'   , '=', obj.partner_id.is_code),
+                                        ('is_ref_client', '=', ref_article_client),
+                                        ('is_type_commande'  , '=', 'ouverte'),
+                                    ])
+                                    num_commande_client = "??"
+                                    order_id=False
+                                    if len(orders):
+                                        num_commande_client = orders[0].client_order_ref
+                                        order_id            = orders[0].id
+                                    val={
+                                        'num_commande_client' : num_commande_client,
+                                        'ref_article_client'  : ref_article_client,
+                                        'order_id'            : order_id,
+                                    }
+                                    type_commande="previsionnel"
+                                    ligne = {
+                                        'quantite'      : quantite,
+                                        'type_commande' : type_commande,
+                                        'date_livraison': date_livraison,
+                                    }
+                                    val.update({'lignes':[ligne]})
+                                    res.append(val)
         return res
 
 
