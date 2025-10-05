@@ -173,7 +173,7 @@ class IsFactureProformaExportTunisieLigne(models.Model):
     categorie     = fields.Selection([
         ('T1', 'Consommable'),
         ('T2', 'Matière première'),
-        ('T3', 'Matière premier hors UE'),
+        ('T3', 'Matière première hors UE'),
         ('T4', 'Moyen de production'),
         ('T5', 'Moyen de production hors UE'),
     ], 'Catégorie', default=lambda self: self._get_default_categorie())

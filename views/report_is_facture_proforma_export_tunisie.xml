@@ -52,7 +52,7 @@
                         <div style="page-break-after:always;" />
 
                         <!-- Regroupement par catégorie: une section par valeur de 'categorie' -->
-                        <t t-set="categories" t-value="{'T1':'Consommable', 'T2':'Matière première', 'T3':'Matière premier hors UE', 'T4':'Moyen de production', 'T5':'Moyen de production hors UE'}"/>
+                        <t t-set="categories" t-value="{'T1':'Consommable', 'T2':'Matière première', 'T3':'Matière première hors UE', 'T4':'Moyen de production', 'T5':'Moyen de production hors UE'}"/>
                         <t t-foreach="categories.items()" t-as="cat_item">
                             <t t-set="cat_code" t-value="cat_item[0]"/>
                             <t t-set="cat_label" t-value="cat_item[1]"/>
