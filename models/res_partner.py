@@ -62,21 +62,25 @@ configuration_facture=[
 class is_champ_obligatoire(models.Model):
     _name = 'is.champ.obligatoire'
     _description = 'Champs obligatoires dans EDI, commande et livraison'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name                      = fields.Char('Code', required=True)
-    point_dechargement        = fields.Boolean('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
-    numero_document           = fields.Boolean('N° Document'             , help="Champ 'NumeroDocument'")  
-    caldel_number             = fields.Boolean('Caldel Number'           , help="Champ 'CaldelNumber' pour EDI Weidplas")
-    num_ran                   = fields.Boolean('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO")
-    identifiant_transport     = fields.Boolean("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL")
-    tg_number                 = fields.Boolean('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas")
-    code_routage              = fields.Boolean('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas")
-    point_destination         = fields.Boolean('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
-    num_commande_client       = fields.Boolean('N° Cde Client')
+    name                      = fields.Char('Code', required=True, tracking=True)
+    point_dechargement        = fields.Boolean('Point de déchargement'   , help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas", tracking=True)
+    numero_document           = fields.Boolean('N° Document'             , help="Champ 'NumeroDocument'", tracking=True)  
+    caldel_number             = fields.Boolean('Caldel Number'           , help="Champ 'CaldelNumber' pour EDI Weidplas", tracking=True)
+    num_ran                   = fields.Boolean('NumRAN'                  , help="Champ 'NumRAN' pour EDI PO => N°UM de PO", tracking=True)
+    identifiant_transport     = fields.Boolean("N° identifiant transport", help="Champ 'IdTransport' pour EDI Weidplas/PO à remettre sur le BL", tracking=True)
+    tg_number                 = fields.Boolean('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas", tracking=True)
+    code_routage              = fields.Boolean('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas", tracking=True)
+    point_destination         = fields.Boolean('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas", tracking=True)
+    point_destination_unique  = fields.Boolean('Point destination unique par article', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas - Une ligne par référence, peu importe s’il y a un ou plusieurs points de destination. Je n’ai pas trouvé le segment LOC+159 (point de destination) dans l’ASN", tracking=True)
+    num_commande_client       = fields.Boolean('N° Cde Client', tracking=True)
     is_plaque_immatriculation = fields.Boolean("Plaque d’immatriculation")
     is_dossier_transport      = fields.Boolean("N° de dossier de transport")
     ref_pg_unique             = fields.Boolean("Ref PG unique par ref client", help="Si coché, il ne sera pas possible de générer une commande de liste à servir si une référence client correspond à plusieurs références PG")
     is_database_origine_id    = fields.Integer("Id d'origine", readonly=True)
+    active                    = fields.Boolean("Actif", default=True, tracking=True)
+
 
 
     def write(self, vals):

@@ -274,6 +274,26 @@ class is_liste_servir(models.Model):
                             alerte.append(msg)
                     ligne+=1
 
+
+                #** Point de destination unique par article *******************
+                if champ_obligatoire.point_destination_unique:
+                    mydict={}
+                    for line in obj.line_ids:
+                        code_pg = line.product_id.is_code
+                        if code_pg not in mydict:
+                            mydict[code_pg]={}
+                        
+                        point_destination = line.is_point_destination
+                        if point_destination not in mydict[code_pg]:
+                            mydict[code_pg][point_destination]=0
+                        mydict[code_pg][point_destination]+=1
+                    for code_pg in mydict:
+                        if len(mydict[code_pg])>1:
+                            msg = "Le code %s à %s points de destination différent"%(code_pg,len(mydict[code_pg]))
+                            alerte.append(msg)
+                #**************************************************************
+
+
                 # Vérifier si plusieurs is_code pour le même is_ref_client ****
                 alerte_ref_pg_unique = obj.get_alerte_ref_pg_unique()
                 if alerte_ref_pg_unique:

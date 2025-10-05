@@ -774,6 +774,7 @@
                     <field name="tg_number"                 optional="show"/>
                     <field name="code_routage"              optional="show"/>
                     <field name="point_destination"         optional="show"/>
+                    <field name="point_destination_unique"  optional="show"/>
                     <field name="num_commande_client"       optional="show"/>
                     <field name="is_plaque_immatriculation" optional="show"/>
                     <field name="is_dossier_transport"      optional="show"/>
@@ -788,21 +789,24 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
-                        <group>
+                        <widget name="web_ribbon" title="Archivée" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/> 
+                         <group>
                             <field name="name"/>
                         </group>
                         <group>
                             <group string="EDI / Commandes">
-                                <field name="point_dechargement"      widget="boolean_toggle"/>
-                                <field name="numero_document"         widget="boolean_toggle"/>
-                                <field name="caldel_number"           widget="boolean_toggle"/>
-                                <field name="num_ran"                 widget="boolean_toggle"/>
-                                <field name="identifiant_transport"   widget="boolean_toggle"/>
-                                <field name="tg_number"               widget="boolean_toggle"/>
-                                <field name="code_routage"            widget="boolean_toggle"/>
-                                <field name="point_destination"       widget="boolean_toggle"/>
-                                <field name="num_commande_client"     widget="boolean_toggle"/>
-                                <field name="ref_pg_unique"           widget="boolean_toggle"/>
+                                <field name="point_dechargement"       widget="boolean_toggle"/>
+                                <field name="numero_document"          widget="boolean_toggle"/>
+                                <field name="caldel_number"            widget="boolean_toggle"/>
+                                <field name="num_ran"                  widget="boolean_toggle"/>
+                                <field name="identifiant_transport"    widget="boolean_toggle"/>
+                                <field name="tg_number"                widget="boolean_toggle"/>
+                                <field name="code_routage"             widget="boolean_toggle"/>
+                                <field name="point_destination"        widget="boolean_toggle"/>
+                                <field name="point_destination_unique" widget="boolean_toggle"/>
+                                <field name="num_commande_client"      widget="boolean_toggle"/>
+                                <field name="ref_pg_unique"            widget="boolean_toggle"/>
                             </group> 
                             <group string="BL">
                                 <field name="is_plaque_immatriculation" widget="boolean_toggle"/>
@@ -810,6 +814,11 @@
                             </group>
                         </group>
                      </sheet>
+                     <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>

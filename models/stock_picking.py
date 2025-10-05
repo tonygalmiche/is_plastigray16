@@ -115,6 +115,29 @@ class stock_picking(models.Model):
                                 )
                                 alerte.append(msg)
                     ligne+=1
+
+
+
+                #** Point de destination unique par article *******************
+                if champ_obligatoire.point_destination_unique:
+                    mydict={}
+                    for move in obj.move_ids_without_package:
+                        code_pg = move.product_id.is_code
+                        if code_pg not in mydict:
+                            mydict[code_pg]={}
+                        
+                        point_destination = move.sale_line_id.is_point_destination
+                        if point_destination not in mydict[code_pg]:
+                            mydict[code_pg][point_destination]=0
+                        mydict[code_pg][point_destination]+=1
+                    for code_pg in mydict:
+                        if len(mydict[code_pg])>1:
+                            msg = "Le code %s à %s points de destination différent sur les lignes de la commande"%(code_pg,len(mydict[code_pg]))
+                            alerte.append(msg)
+                #**************************************************************
+
+
+
             if len(alerte):
                 alerte='\n'.join(alerte)
             else:
