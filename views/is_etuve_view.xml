@@ -11,12 +11,14 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/>
                         <group>
                             <group>
-                                <field name="name"/>
-                                <field name="dessication"/>
-                                <field name="type_etuve"/>
-                                <field name="capacite"/>
+                                <field name="name"        required="1"/>
+                                <field name="dessication" required="1"/>
+                                <field name="type_etuve"  required="1"/>
+                                <field name="capacite"    required="1"/>
                             </group>
                             <group>
                                 <field name="matiere_id"/>
@@ -31,6 +33,11 @@
                             </group>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>

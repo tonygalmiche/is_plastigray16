@@ -15,23 +15,34 @@ class is_etuve(models.Model):
     _name='is.etuve'
     _description="Etuve"
     _order='name'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [('name_uniq','UNIQUE(name)', u'Cette étuve existe déjà')]
 
-    name            = fields.Char("N°étuve",size=10, index=True                     , required=True)
-    dessication     = fields.Selection(dessication_list, "Dessication"              , required=True, default="N")
-    type_etuve      = fields.Selection([('0', u'0'),('MAT', u'MAT')], "Type étuve"  , required=True, default="0")
-    capacite        = fields.Integer("Capacité"                                     , required=True, default=0)
+    name            = fields.Char("N°étuve",size=20, index=True                     , required=True, tracking=True)
+    dessication     = fields.Selection(dessication_list, "Dessication"              , required=True, default="N", tracking=True)
+    type_etuve      = fields.Selection([('0', u'0'),('MAT', u'MAT')], "Type étuve"  , required=True, default="0", tracking=True)
+    capacite        = fields.Integer("Capacité"                                     , required=True, default=0, tracking=True)
+    active          = fields.Boolean("Actif", default=True, tracking=True)
 
-    matiere_id        = fields.Many2one('product.product', 'Matière', readonly=True)
-    num_ordre_matiere = fields.Char("N°ordre matière"               , readonly=True)
-    of                = fields.Char("OF"                            , readonly=True)
-    moule             = fields.Char("Moule"                         , readonly=True)
-    taux_utilisation  = fields.Float("Taux d'utilisation étuve (%)" , readonly=True)
+    matiere_id        = fields.Many2one('product.product', 'Matière', readonly=True, tracking=True)
+    num_ordre_matiere = fields.Char("N°ordre matière"               , readonly=True, tracking=True)
+    of                = fields.Char("OF"                            , readonly=True, tracking=True)
+    moule             = fields.Char("Moule"                         , readonly=True, tracking=True)
+    taux_utilisation  = fields.Float("Taux d'utilisation étuve (%)" , readonly=True, tracking=True)
     progressbar       = fields.Float("Taux d'utilisation étuve"     , readonly=False)
     test_taux         = fields.Boolean("Test Taux"                  , readonly=True)
     message           = fields.Char("Message"                       , readonly=True)
-    rsp_etuve_id      = fields.Many2one('is.etuve.rsp', 'Rsp étuve' , readonly=True)
-    commentaire       = fields.Char("Commentaire optionnel"          , readonly=True)
+    rsp_etuve_id      = fields.Many2one('is.etuve.rsp', 'Rsp étuve' , readonly=True, tracking=True)
+    commentaire       = fields.Char("Commentaire optionnel"          , readonly=True, tracking=True)
+
+
+    def copy(self, default=None):
+        """Ajoute (copie) après le nom lors de la duplication"""
+        if default is None:
+            default = {}
+        if 'name' not in default:
+            default['name'] = "%s (copie)" % (self.name)
+        return super(is_etuve, self).copy(default)
 
 
     def action_saisie_etuve(self):

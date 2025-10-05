@@ -22,20 +22,22 @@ class is_galia_base(models.Model):
     _description="Etiquettes Galia"
     _order='num_eti desc'
     _rec_name='num_eti'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [('name_uniq','UNIQUE(num_eti)', 'Cette étiquette existe déjà')] 
 
-    num_eti       = fields.Integer("N°Étiquette", index=True)
-    soc           = fields.Integer("Société"    , index=True)
-    type_eti      = fields.Char("Type étiquette", index=True)
-    num_of        = fields.Char("N°OF"          , index=True)
-    num_carton    = fields.Integer("N°Carton"   , index=True)
-    qt_pieces     = fields.Integer("Qt Pièces")
-    date_creation = fields.Datetime("Date de création", index=True)
-    login         = fields.Char("Login")
+    num_eti       = fields.Integer("N°Étiquette", index=True, tracking=True)
+    soc           = fields.Integer("Société"    , index=True, tracking=True)
+    type_eti      = fields.Char("Type étiquette", index=True, tracking=True)
+    num_of        = fields.Char("N°OF"          , index=True, tracking=True)
+    num_carton    = fields.Integer("N°Carton"   , index=True, tracking=True)
+    qt_pieces     = fields.Integer("Qt Pièces", tracking=True)
+    date_creation = fields.Datetime("Date de création", index=True, tracking=True)
+    login         = fields.Char("Login", tracking=True)
+    active        = fields.Boolean("Actif", default=True, tracking=True)
 
-    point_dechargement  = fields.Char('Point de déchargement', help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
-    code_routage        = fields.Char('Code routage'         , help="Champ 'CodeRoutage' pour EDI Weidplas")
-    point_destination   = fields.Char('Point destination'    , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
+    point_dechargement  = fields.Char('Point de déchargement', tracking=True, help="Champ 'CodeIdentificationPointDechargement' pour EDI Weidplas")
+    code_routage        = fields.Char('Code routage'         , tracking=True, help="Champ 'CodeRoutage' pour EDI Weidplas")
+    point_destination   = fields.Char('Point destination'    , tracking=True, help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas")
 
 
     def str2int(self,val):
@@ -744,6 +746,15 @@ class is_galia_base(models.Model):
                 'zzAction'    : 'Imprimer', 
                 'user_name'   : user.name,
             }
+            
+            # Écrire dans le chatter le contenu de vals
+            message = "Impression étiquette UC avec les paramètres suivants :<br/>"
+            for key, value in vals.items():
+                # Ne pas afficher les mots de passe
+                if 'MDP' not in key:
+                    message += f"<b>{key}</b> : {value}<br/>"
+            obj.message_post(body=message)
+            
             res = obj.sudo().creer_etiquette(vals)
             Msg = res.get('Msg')
             if Msg!='':
@@ -772,6 +783,7 @@ class is_galia_base_um(models.Model):
     _name='is.galia.base.um'
     _description="Etiquettes Galia UM"
     _order='name desc'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [('name_uniq','UNIQUE(name)', u'Cette étiquette UM existe déjà')]
 
     @api.depends('uc_ids')
@@ -786,20 +798,20 @@ class is_galia_base_um(models.Model):
             obj.product_id = product_id
             obj.qt_pieces  = qt_pieces
 
-    name             = fields.Char("N°Étiquette UM", readonly=True             , index=True)
-    mixte            = fields.Selection(_MIXTE, "UM mixte", default='non', required=True)
-    liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True)
-    bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True)
-    production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True)
-    location_id      = fields.Many2one('stock.location', 'Emplacement actuel'  , index=True, domain=[("usage","=","internal")], default=lambda self: self._get_location_id())
-    location_dest_id = fields.Many2one('stock.location', 'Emplacement de destination'      , domain=[("usage","=","internal")])
+    name             = fields.Char("N°Étiquette UM", readonly=True             , index=True, tracking=True)
+    mixte            = fields.Selection(_MIXTE, "UM mixte", default='non', required=True, tracking=True)
+    liste_servir_id  = fields.Many2one('is.liste.servir', 'Liste à servir'     , index=True, tracking=True)
+    bon_transfert_id = fields.Many2one('is.bon.transfert', 'Bon de transfert'  , index=True, tracking=True)
+    production_id    = fields.Many2one('mrp.production', 'Ordre de fabrication', index=True, tracking=True)
+    location_id      = fields.Many2one('stock.location', 'Emplacement actuel'  , index=True, domain=[("usage","=","internal")], default=lambda self: self._get_location_id(), tracking=True)
+    location_dest_id = fields.Many2one('stock.location', 'Emplacement de destination'      , domain=[("usage","=","internal")], tracking=True)
     uc_ids           = fields.One2many('is.galia.base.uc'  , 'um_id', "UCs")
     product_id       = fields.Many2one('product.product', 'Article', readonly=True, compute='_compute', store=False)
     qt_pieces        = fields.Integer("Qt Pièces"                  , readonly=True, compute='_compute', store=False)
-    employee_id      = fields.Many2one("hr.employee", "Employé")
-    date_fin         = fields.Datetime("Date fin UM")
-    active           = fields.Boolean("Active", default=True, copy=False, index=True)
-    date_ctrl_rcp    = fields.Datetime("Date contrôle réception")
+    employee_id      = fields.Many2one("hr.employee", "Employé", tracking=True)
+    date_fin         = fields.Datetime("Date fin UM", tracking=True)
+    active           = fields.Boolean("Active", default=True, copy=False, index=True, tracking=True)
+    date_ctrl_rcp    = fields.Datetime("Date contrôle réception", tracking=True)
     information      = fields.Text("Information", readonly=True, compute='_compute_information_anomalie', store=False)
     anomalie         = fields.Text("Anomalie"   , readonly=True, compute='_compute_information_anomalie', store=False)
 
@@ -1002,6 +1014,16 @@ class is_galia_base_um(models.Model):
                 x = x.replace("#soc"  , soc)
                 x = x.replace("#um_id", str(obj.id))
                 x = x.replace("#uid"  , str(uid))
+                
+                # Écrire dans le chatter le contenu de la commande
+                message = "Impression étiquette UM avec les paramètres suivants :<br/>"
+                message += f"<b>Société</b> : {soc}<br/>"
+                message += f"<b>UM ID</b> : {obj.id}<br/>"
+                message += f"<b>Utilisateur ID</b> : {uid}<br/>"
+                message += f"<b>Utilisateur</b> : {user.name}<br/>"
+                message += f"<b>Commande</b> : {x}<br/>"
+                obj.message_post(body=message)
+                
                 _logger.info(x)
                 lines=os.popen(x).readlines()
                 for line in lines:
@@ -1033,28 +1055,30 @@ class is_galia_base_uc(models.Model):
     _description="Etiquettes Galia UC"
     _order='num_eti desc'
     _rec_name='num_eti'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [('num_eti_uniq','UNIQUE(num_eti,um_id)', u'Cette étiquette existe déjà dans cette UM')]
 
-    um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade')
+    um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade', tracking=True)
     um_mixte      = fields.Selection(related="um_id.mixte")
     um_active     = fields.Boolean(related="um_id.active")
-    num_eti       = fields.Integer("N°Étiquette UC", required=True, index=True)
-    type_eti      = fields.Char("Type étiquette", required=True   , index=True)
-    num_carton    = fields.Integer("N°Carton", required=True      , index=True)
-    qt_pieces     = fields.Integer("Qt Pièces", required=True)
-    date_creation = fields.Datetime("Date de création", required=True)
-    production_id = fields.Many2one('mrp.production', 'Ordre de fabrication')
-    production    = fields.Char('Fabrication')
-    product_id    = fields.Many2one('product.product', 'Article', required=True , index=True)
-    employee_id   = fields.Many2one("hr.employee", "Employé")
+    num_eti       = fields.Integer("N°Étiquette UC", required=True, index=True, tracking=True)
+    type_eti      = fields.Char("Type étiquette", required=True   , index=True, tracking=True)
+    num_carton    = fields.Integer("N°Carton", required=True      , index=True, tracking=True)
+    qt_pieces     = fields.Integer("Qt Pièces", required=True, tracking=True)
+    date_creation = fields.Datetime("Date de création", required=True, tracking=True)
+    production_id = fields.Many2one('mrp.production', 'Ordre de fabrication', tracking=True)
+    production    = fields.Char('Fabrication', tracking=True)
+    product_id    = fields.Many2one('product.product', 'Article', required=True , index=True, tracking=True)
+    employee_id   = fields.Many2one("hr.employee", "Employé", tracking=True)
     liste_servir_id   = fields.Many2one('is.liste.servir' , 'Liste à servir'  , related='um_id.liste_servir_id')
     bon_transfert_id  = fields.Many2one('is.bon.transfert', 'Bon de transfert', related='um_id.bon_transfert_id')
-    ls_line_id        = fields.Many2one('is.liste.servir.line' , 'Ligne liste à servir')
-    bt_line_id        = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert')
-    stock_move_id     = fields.Many2one('stock.move', 'Ligne livraison')
-    stock_move_rcp_id = fields.Many2one('stock.move', 'Ligne réception')
-    reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site')
-    reimprime               = fields.Boolean("UC à ré-imprimer", default=False, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
+    ls_line_id        = fields.Many2one('is.liste.servir.line' , 'Ligne liste à servir', tracking=True)
+    bt_line_id        = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert', tracking=True)
+    stock_move_id     = fields.Many2one('stock.move', 'Ligne livraison', tracking=True)
+    stock_move_rcp_id = fields.Many2one('stock.move', 'Ligne réception', tracking=True)
+    reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', tracking=True)
+    reimprime               = fields.Boolean("UC à ré-imprimer", default=False, tracking=True, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
+    active                  = fields.Boolean("Actif", default=True, tracking=True)
 
 
     def acceder_uc_action(self):
@@ -1108,6 +1132,15 @@ class is_galia_base_uc(models.Model):
                 'zzAction'    : 'Imprimer', 
                 'user_name'   : user.name,
             }
+            
+            # Écrire dans le chatter le contenu de vals
+            message = "Impression étiquette UC avec les paramètres suivants :<br/>"
+            for key, value in vals.items():
+                # Ne pas afficher les mots de passe
+                if 'MDP' not in key:
+                    message += f"<b>{key}</b> : {value}<br/>"
+            obj.message_post(body=message)
+            
             try:
                 res = sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', 'creer_etiquette', [[0], vals])
             except:
