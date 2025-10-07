@@ -309,8 +309,8 @@ class is_reception_inter_site(models.Model):
                                     else:
                                         #** Création UC ***************************
                                         SQL="""
-                                            INSERT INTO is_galia_base_uc(um_id,num_eti,num_carton,qt_pieces,product_id,type_eti,date_creation,create_uid,write_uid,create_date,write_date)
-                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC')
+                                            INSERT INTO is_galia_base_uc(active,um_id,num_eti,num_carton,qt_pieces,product_id,type_eti,date_creation,create_uid,write_uid,create_date,write_date)
+                                            VALUES (true, %s, %s, %s, %s, %s, %s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC')
                                             RETURNING id
                                         """
                                         cr.execute(SQL,[
