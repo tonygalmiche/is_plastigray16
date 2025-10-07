@@ -351,7 +351,7 @@ class is_edi_cde_cli(models.Model):
                     ('partner_invoice_id', '=', obj.partner_id.id),
                 ]
                 orders=self.env['sale.order'].search(filtre)
-            if obj.import_function in ["Watts","SIMU-SOMFY", "LTPP"]:
+            if obj.import_function in ["Watts","SIMU-SOMFY"]:
                 filtre=[
                     ('is_type_commande', '=', 'ouverte'),
                     ('state'           , '=', 'draft'),
@@ -384,7 +384,7 @@ class is_edi_cde_cli(models.Model):
                     ('is_date_livraison', '>=', date_jour),
                 ]
                 #Ne pas supprimer les commandes fermes
-                if obj.import_function in ('eCar','STELLANTIS'):
+                if obj.import_function in ('eCar','STELLANTIS', "LTPP"):
                     filtre.append(('is_type_commande', '!=', 'ferme'))
                 #Ne pas supprimer les commandes au dela de la date limite
                 if obj.date_maxi:
