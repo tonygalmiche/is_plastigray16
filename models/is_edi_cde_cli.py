@@ -127,9 +127,11 @@ class is_edi_cde_cli(models.Model):
                 for row in datas:
                     num_commande_client = row["num_commande_client"]
                     ref_article_client  = row["ref_article_client"]
-                    point_dechargement = False
-                    if "point_dechargement" in row:
-                        point_dechargement=row["point_dechargement"]
+
+                    # point_dechargement = False
+                    # if "point_dechargement" in row:
+                    #     point_dechargement=row["point_dechargement"]
+
                     order_id = False
                     date_livraison=False
                     type_commande=False
@@ -157,10 +159,17 @@ class is_edi_cde_cli(models.Model):
                         code_fabrication = False
                         type_uc = False
                         anomalie2  = []
+
+                        #TODO : Modif du 09/10/2025
+                        point_dechargement = False
+                        if "point_dechargement" in ligne:
+                            point_dechargement=ligne["point_dechargement"]
+
                         if len(order):
                             if point_dechargement:
                                 if point_dechargement!=order[0].is_point_dechargement:
                                     anomalie2.append(u"Point de déchargement modifié (%s<>%s)"%(point_dechargement,order[0].is_point_dechargement))
+                                    
                         if "anomalie" in ligne:
                             if ligne["anomalie"]:
                                 anomalie2.append(ligne["anomalie"])
