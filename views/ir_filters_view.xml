@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Vue Tree personnalisée pour les favoris personnels -->
+        <record id="ir_filters_personal_view_tree" model="ir.ui.view">
+            <field name="name">ir.filters.personal.tree</field>
+            <field name="model">ir.filters</field>
+            <field name="priority">900</field>
+            <field name="arch" type="xml">
+                <tree string="Mes Favoris" create="0">
+                    <field name="name"/>
+                    <field name="model_id"/>
+                    <field name="user_id"    optional="hide"/>
+                    <field name="is_default" optional="show"/>
+                    <field name="action_id"  optional="hide"/>
+                    <field name="domain"     optional="show"/>
+                    <field name="context"    optional="hide"/>
+                    <field name="sort"       optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vue Form personnalisée pour les favoris personnels -->
+        <record id="ir_filters_personal_view_form" model="ir.ui.view">
+            <field name="name">ir.filters.personal.form</field>
+            <field name="model">ir.filters</field>
+            <field name="priority">900</field>
+            <field name="arch" type="xml">
+                <form string="Mon Favori" create="0">
+                    <sheet>
+                        <group col="4">
+                            <field name="name"/>
+                            <field name="user_id" readonly="1" string="Disponible pour l'utilisateur"/>
+                            <field name="model_id" readonly="1"/>
+                            <field name="is_default"/>
+                            <field name="action_id" readonly="1"/>
+                            <!-- <field name="active" widget="boolean_toggle"/> -->
+                        </group>
+                        <group>
+                            <field name="domain" widget="domain" options="{'model': 'model_id'}"/>
+                            <field name="context"/>
+                            <field name="sort"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vue Search personnalisée pour les favoris personnels -->
+        <record id="ir_filters_personal_view_search" model="ir.ui.view">
+            <field name="name">ir.filters.personal.search</field>
+            <field name="model">ir.filters</field>
+            <field name="priority">900</field>
+            <field name="arch" type="xml">
+                <search string="Mes Favoris">
+                    <field name="name" string="Nom du favoris"/>
+                    <!-- <field name="model_id"/>  -->
+                    <separator/>
+                    <group expand="0" string="Grouper par">
+                        <filter string="Modèle" name="model" domain="[]" context="{'group_by':'model_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action pour les favoris des utilisateurs normaux -->
+        <record id="action_ir_filters_personal" model="ir.actions.act_window">
+            <field name="name">Mes Favoris</field>
+            <field name="res_model">ir.filters</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('ir_filters_personal_view_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('ir_filters_personal_view_form')})]"/>
+            <field name="search_view_id" ref="ir_filters_personal_view_search"/>
+            <field name="domain">[('user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Gérez vos favoris personnalisés
+                </p>
+                <p>
+                    Ici vous pouvez voir et modifier vos filtres de recherche personnalisés (favoris) 
+                    que vous avez créés dans les différentes vues d'Odoo.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
