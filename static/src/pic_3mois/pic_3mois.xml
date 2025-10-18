@@ -113,7 +113,10 @@
                         <tr>
                             <th style="text-align:left">
                                 Client / Ref Client / Cde Client<br />
-                                Moule / Code / Gest / Stock A / Stock Q / Lot / StockSecu / Délai
+                                Moule / Code / Gest / 
+                                <span style="color:green;font-weight:bold;">Stock A</span> / 
+                                <span style="color:orange;font-weight:bold;">Stock Q</span> / 
+                                Lot / StockSecu / Délai
                             </th>
                             <t t-foreach="state.date_cols or []" t-as="o"  t-key="o.id">
                                 <th style="text-align:center;min-width:25pt" t-if="o.affiche_col">
@@ -154,8 +157,8 @@
                                         title="Code PG"
                                     /> / 
                                     <span t-esc="line.row.gestionnaire"  title="Gest"/> / 
-                                    <span style="color:#008000;font-weight: bold;" t-esc="line.row.stocka" title="Stock A"/> / 
-                                    <span style="color:#008000;font-weight: bold;" t-esc="line.row.stockq" title="Stock Q"/> / 
+                                    <span style="color:green;font-weight: bold" t-esc="line.row.stocka" title="Stock A"/> / 
+                                    <span style="color:orange;font-weight: bold" t-esc="line.row.stockq" title="Stock Q"/> / 
                                     <span t-esc="line.lot_mini" title="Lot"/> / 
                                     <span t-esc="line.row.is_stock_secu"  title="Stock sécu"/> / 
                                     <span t-esc="line.row.is_delai_transport" title="Délai"/><br />

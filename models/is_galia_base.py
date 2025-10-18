@@ -51,23 +51,49 @@ class is_galia_base(models.Model):
     def get_info_commande(self,cur=False,num_eti=False,code_pg=False):
         point_dechargement = code_routage = point_destination = test =  False
         if cur and num_eti:
+
+            # TODO : Désactivé le 18/10/2025, car la commande n'est pas encore créée au moment de la ré-impression de l'UC
+            # #** Recherche si l'UC du site est associée à une liste à servir ***
+            # #** pour retrouver la ligne de commande et ses informations      **
+            # SQL="""
+            #     SELECT so.name,so.is_point_dechargement, sol.is_code_routage, sol.is_point_destination
+            #     FROM is_galia_base_uc uc join stock_move move     on uc.stock_move_id=move.id
+            #                              join sale_order_line sol on move.sale_line_id=sol.id
+            #                              join sale_order so       on sol.order_id=so.id
+            #     WHERE uc.num_eti=%s and sol.is_type_commande='ferme'
+            #     order by uc.id desc, sol.id desc limit 1
+            # """%num_eti
+            # cur.execute(SQL)
+            # rows = cur.fetchall()
+            # for row in rows:
+            #     test = True
+            #     point_dechargement = row['is_point_dechargement']
+            #     code_routage       = row['is_code_routage']
+            #     point_destination  = row['is_point_destination']
+            # #******************************************************************
+
+
             #** Recherche si l'UC du site est associée à une liste à servir ***
-            #** pour retrouver la ligne de commande et ses informations      **
+            #** pour retrouver la ligne de la liste et ses informations      **
             SQL="""
-                SELECT so.name,so.is_point_dechargement, sol.is_code_routage, sol.is_point_destination
-                FROM is_galia_base_uc uc join stock_move move     on uc.stock_move_id=move.id
-                                         join sale_order_line sol on move.sale_line_id=sol.id
-                                         join sale_order so       on sol.order_id=so.id
-                WHERE uc.num_eti=%s and sol.is_type_commande='ferme'
-                order by uc.id desc, sol.id desc limit 1
+                SELECT ils.name, ils.is_point_dechargement, ilsl.is_code_routage, ilsl.is_point_destination
+                FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
+                                        join is_liste_servir ils on um.liste_servir_id=ils.id
+                                        join is_liste_servir_line ilsl on ilsl.liste_servir_id=ils.id
+                WHERE uc.num_eti=%s 
+                    and uc.active=true and um.active=true
+                    and ilsl.product_id=uc.product_id
+                limit 1
             """%num_eti
             cur.execute(SQL)
             rows = cur.fetchall()
             for row in rows:
                 test = True
+                name_ls            = row['name']
                 point_dechargement = row['is_point_dechargement']
                 code_routage       = row['is_code_routage']
                 point_destination  = row['is_point_destination']
+                _logger.info("get_info_commande : LS=%s :  point_dechargement=%s : code_routage=%s : point_destination=%s"%(name_ls, point_dechargement, code_routage, point_destination))
             #******************************************************************
 
             #** Recherche la dernière ligne de commande pour cet article ******

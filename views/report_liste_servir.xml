@@ -42,6 +42,7 @@
                         Transporteur : <br />
                         <b><span t-field="o.transporteur_id.name"/></b> (<span t-field="o.transporteur_id.is_code"/>)<br />
                         Téléphone : <span t-field="o.transporteur_id.phone" /><br />
+                        Point de déchargement : <b><span t-field="o.is_point_dechargement"/></b><br />
                     </div>
                 </div>
             </div><br />

@@ -561,7 +561,7 @@ class res_partner(models.Model):
 
     is_import_function      = fields.Selection(import_function, "Fonction d'importation EDI", tracking=True)
     is_traitement_edi       = fields.Selection(traitement_edi, "Traitement EDI", tracking=True)
-    is_identification_edi   = fields.Char(string='Identificaton fichier EDI', tracking=True, help="Ce champ permet d'identifier les fichiers réceptionnés par EDI pour créer automatiquement la fiche EDI (ex : XML_DELJIT_VESOUL_ ou XML_DELJIT_RENNES_)")
+    is_identification_edi   = fields.Char(string='Identification fichier EDI', tracking=True, help="Ce champ permet d'identifier les fichiers réceptionnés par EDI pour créer automatiquement la fiche EDI (ex : XML_DELJIT_VESOUL_ ou XML_DELJIT_RENNES_)")
 
     is_numero_bal_recepteur               = fields.Char(string='Numero BAL recepteur', tracking=True)
     is_numero_identification_destinataire = fields.Char(string='Numero Identification Destinataire', tracking=True)
