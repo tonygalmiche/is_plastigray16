@@ -87,8 +87,9 @@
                         name="is_code_destinataire_agence" 
                         attrs="{'invisible': [('is_traitement_edi','!=', 'DESADV')]}"
                     />
-                    <field name="is_import_function"      attrs="{'invisible': [('customer','=', False)]}" />
-                    <field name="is_type_cde_fournisseur" attrs="{'invisible': [('supplier','=', False)]}" />
+                    <field name="is_import_function"      attrs="{'invisible': [('customer','=', False)]}"/>
+                    <field name="is_identification_edi"   attrs="{'invisible': [('customer','=', False)]}"/>
+                    <field name="is_type_cde_fournisseur" attrs="{'invisible': [('supplier','=', False)]}"/>
                     <field name="is_livre_a_id"           attrs="{'invisible': [('supplier','=', False)]}"/>
                     <field name="is_source_location_id" />
                 </xpath>

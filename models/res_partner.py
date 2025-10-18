@@ -558,9 +558,11 @@ class res_partner(models.Model):
     is_delai_transport      = fields.Integer('Delai de transport (jour)', default=0, tracking=True)
     is_livre_a_id           = fields.Many2one('res.partner', 'Livrer à', tracking=True, help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
     is_certificat_matiere   = fields.Boolean(u'Certificat matière demandé', tracking=True)
+
     is_import_function      = fields.Selection(import_function, "Fonction d'importation EDI", tracking=True)
- 
-    is_traitement_edi                     = fields.Selection(traitement_edi, "Traitement EDI", tracking=True)
+    is_traitement_edi       = fields.Selection(traitement_edi, "Traitement EDI", tracking=True)
+    is_identification_edi   = fields.Char(string='Identificaton fichier EDI', tracking=True, help="Ce champ permet d'identifier les fichiers réceptionnés par EDI pour créer automatiquement la fiche EDI (ex : XML_DELJIT_VESOUL_ ou XML_DELJIT_RENNES_)")
+
     is_numero_bal_recepteur               = fields.Char(string='Numero BAL recepteur', tracking=True)
     is_numero_identification_destinataire = fields.Char(string='Numero Identification Destinataire', tracking=True)
     is_numero_bal_emetteur                = fields.Char(string='Numero BAL Emetteur', tracking=True)
