@@ -1165,6 +1165,13 @@ class is_galia_base_uc(models.Model):
                 # Ne pas afficher les mots de passe
                 if 'MDP' not in key:
                     message += f"<b>{key}</b> : {value}<br/>"
+
+
+            #message += "uc_id=%s<br/>"%obj.id
+            message += "UC=%s<br/>"%obj.num_eti
+            message += "UM=%s<br/>"%obj.um_id.name
+            message += "Liste à servir=%s<br/>"%obj.um_id.liste_servir_id.name
+
             obj.message_post(body=message)
             
             try:
