@@ -113,10 +113,13 @@ class is_galia_base(models.Model):
                 """%code_pg
                 cur.execute(SQL)
                 rows=cur.fetchall()
+                name_cde =""
                 for row in rows:
+                    name_cde           = row['name']
                     point_dechargement = row['is_point_dechargement']
                     code_routage       = row['is_code_routage']
                     point_destination  = row['is_point_destination']
+                _logger.info("get_info_commande : Commande=%s :  point_dechargement=%s : code_routage=%s : point_destination=%s"%(name_cde, point_dechargement, code_routage, point_destination))
             #******************************************************************
 
         res={
