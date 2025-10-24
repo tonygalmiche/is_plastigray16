@@ -362,119 +362,126 @@ class product_template(models.Model):
             obj.is_emb_vsb=vsb
             #*******************************************************************
 
-    purchase_ok                   = fields.Boolean('Peut être acheté', index=True) #Ajour d'un index sur ce champ
-    is_code                       = fields.Char('Code PG', index=True, required=True)
-    segment_id                    = fields.Many2one('is.product.segment', 'Segment', required=True)
-    family_id                     = fields.Many2one('is.product.famille', 'Famille')
-    sub_family_id                 = fields.Many2one('is.product.sous.famille', 'Sous famille')
 
-    is_category_id                = fields.Many2one('is.category', 'Catégorie')
+
+    #** Ajout du tracking sur les champs par défaut 
+    name = fields.Char(tracking=True)
+
+
+
+    purchase_ok                   = fields.Boolean('Peut être acheté', index=True, tracking=True)
+    is_code                       = fields.Char('Code PG', index=True, required=True, tracking=True)
+    segment_id                    = fields.Many2one('is.product.segment', 'Segment', required=True, tracking=True)
+    family_id                     = fields.Many2one('is.product.famille', 'Famille', tracking=True)
+    sub_family_id                 = fields.Many2one('is.product.sous.famille', 'Sous famille', tracking=True)
+
+    is_category_id                = fields.Many2one('is.category', 'Catégorie', tracking=True)
     is_category_id_vsb            = fields.Boolean('Catégorie vsb', store=False, compute='_compute')
 
-    is_gestionnaire_id            = fields.Many2one('is.gestionnaire', 'Gestionnaire')
+    is_gestionnaire_id            = fields.Many2one('is.gestionnaire', 'Gestionnaire', tracking=True)
     is_gestionnaire_id_vsb        = fields.Boolean('Gestionnaire vsb', store=False, compute='_compute')
 
-    is_mold_id                    = fields.Many2one('is.mold', 'Moule')
+    is_mold_id                    = fields.Many2one('is.mold', 'Moule', tracking=True)
     is_mold_id_vsb                = fields.Boolean('Moule vsb', store=False, compute='_compute')
 
-    is_dossierf_id                = fields.Many2one('is.dossierf', 'Dossier F')
+    is_dossierf_id                = fields.Many2one('is.dossierf', 'Dossier F', tracking=True)
     is_dossierf_id_vsb            = fields.Boolean('Dossier F vsb', store=False, compute='_compute')
 
-    is_ref_client                 = fields.Char('Référence client')
+    is_ref_client                 = fields.Char('Référence client', tracking=True)
     is_ref_client_vsb             = fields.Boolean('Référence client vsb', store=False, compute='_compute')
 
     is_client_ids                 = fields.One2many('is.product.client', 'product_id', u"Clients")
     is_client_ids_vsb             = fields.Boolean('Clients vsb', store=False, compute='_compute')
 
 
-    is_ref_plan                   = fields.Char('Référence plan')
+    is_ref_plan                   = fields.Char('Référence plan', tracking=True)
     is_ref_plan_vsb               = fields.Boolean('Référence plan vsb', store=False, compute='_compute')
 
-    is_ind_plan                   = fields.Char('Indice plan')
+    is_ind_plan                   = fields.Char('Indice plan', tracking=True)
     is_ind_plan_vsb               = fields.Boolean('Indice plan vsb', store=False, compute='_compute')
 
-    is_nomenclature_douaniere     = fields.Char('Nomenclature douanière')
+    is_nomenclature_douaniere     = fields.Char('Nomenclature douanière', tracking=True)
     is_nomenclature_douaniere_vsb = fields.Boolean('Nomenclature douanière vsb', store=False, compute='_compute')
 
-    is_stock_secu                 = fields.Integer('Stock de sécurité')
+    is_stock_secu                 = fields.Integer('Stock de sécurité', tracking=True)
     is_stock_secu_vsb             = fields.Boolean('Stock de sécurité vsb', store=False, compute='_compute')
 
-    is_soumise_regl               = fields.Selection([('S','S'),('R','R'),('SR','SR'),], "Pièce soumise à réglementation")
+    is_soumise_regl               = fields.Selection([('S','S'),('R','R'),('SR','SR'),], "Pièce soumise à réglementation", tracking=True)
     is_soumise_regl_vsb           = fields.Boolean('Pièce soumise à réglementation vsb', store=False, compute='_compute')
 
-    is_livree_aqp                 = fields.Boolean('Pièce livrée en AQP')
+    is_livree_aqp                 = fields.Boolean('Pièce livrée en AQP', tracking=True)
     is_livree_aqp_vsb             = fields.Boolean('Pièce livrée en AQP vsb', store=False, compute='_compute')
 
-    is_droite_grauche             = fields.Selection([('D','D'),('G','G')], "Pièce droite/gauche")
+    is_droite_grauche             = fields.Selection([('D','D'),('G','G')], "Pièce droite/gauche", tracking=True)
     is_droite_grauche_vsb         = fields.Boolean('Pièce droite/gauche vsb', store=False, compute='_compute')
 
-    is_type_etiquette_id          = fields.Many2one('is.type.etiquette', 'Type étiquette GALIA')
+    is_type_etiquette_id          = fields.Many2one('is.type.etiquette', 'Type étiquette GALIA', tracking=True)
     is_type_etiquette_id_vsb      = fields.Boolean('Type étiquette GALIA vsb', store=False, compute='_compute')
 
-    is_um_egale_uc                = fields.Boolean("UM=UC", help=u"Si l'UM est égale à l'UC, il faut cocher cette case et dans ce cas, l'étiquette UM ne sera pas imprimée")
+    is_um_egale_uc                = fields.Boolean("UM=UC", tracking=True, help=u"Si l'UM est égale à l'UC, il faut cocher cette case et dans ce cas, l'étiquette UM ne sera pas imprimée")
     is_um_egale_uc_vsb            = fields.Boolean('UM=UC vsb', store=False, compute='_compute')
 
-    is_couleur                    = fields.Char('Couleur / Type matière', help="Mettre la couleur pour les matières et la matière pour les produits fabriqués")
+    is_couleur                    = fields.Char('Couleur / Type matière', tracking=True, help="Mettre la couleur pour les matières et la matière pour les produits fabriqués")
     is_couleur_vsb                = fields.Boolean('Couleur / Type matière vsb', store=False, compute='_compute')
 
-    is_livraison_gefbox           = fields.Boolean('Livraison GEFBOX')
+    is_livraison_gefbox           = fields.Boolean('Livraison GEFBOX', tracking=True)
     is_livraison_gefbox_vsb       = fields.Boolean('Livraison GEFBOX vsb', store=False, compute='_compute')
 
-    is_perte                      = fields.Float('% de perte')
+    is_perte                      = fields.Float('% de perte', tracking=True)
     is_perte_vsb                  = fields.Boolean('% de perte vsb', store=False, compute='_compute')
 
-    is_destockage                 = fields.Boolean('Déstockage automatique nomenclature', default=True)
+    is_destockage                 = fields.Boolean('Déstockage automatique nomenclature', tracking=True, default=True)
     is_destockage_vsb             = fields.Boolean('Déstockage automatique nomenclature vsb', store=False, compute='_compute')
 
-    is_emplacement_destockage_id     = fields.Many2one('stock.location', u'Emplacement déstockage matières OF', domain=[('usage','=','internal')])
+    is_emplacement_destockage_id     = fields.Many2one('stock.location', u'Emplacement déstockage matières OF', tracking=True, domain=[('usage','=','internal')])
     is_emplacement_destockage_id_vsb = fields.Boolean(u'Emplacement déstockage matières OF vsb', store=False, compute='_compute')
 
-    is_ref_fournisseur            = fields.Char('Référence fournisseur')
+    is_ref_fournisseur            = fields.Char('Référence fournisseur', tracking=True)
     is_ref_fournisseur_vsb        = fields.Boolean('Référence fournisseur vsb', store=False, compute='_compute')
     
-    lot_mini                      = fields.Float("Lot d'appro.")
+    lot_mini                      = fields.Float("Lot d'appro.", tracking=True)
     lot_mini_vsb                  = fields.Boolean("Lot d'appro. vsb", store=False, compute='_compute')
 
-    multiple                      = fields.Float('Multiple de')
+    multiple                      = fields.Float('Multiple de', tracking=True)
     multiple_vsb                  = fields.Boolean('Multiple de vsb', store=False, compute='_compute')
 
-    delai_cq                      = fields.Float('Délai contrôle qualité', default=2)
+    delai_cq                      = fields.Float('Délai contrôle qualité', default=2, tracking=True)
     delai_cq_vsb                  = fields.Boolean('Délai contrôle qualité vsb', store=False, compute='_compute')
 
-    temps_realisation             = fields.Float('Tps réalisation(s)', digits=(14,4))
+    temps_realisation             = fields.Float('Tps réalisation(s)', digits=(14,4), tracking=True)
     temps_realisation_vsb         = fields.Boolean('Tps réalisation(s) vsb', store=False, compute='_compute')
 
-    is_creation_dossier_article     = fields.Boolean('Création dossier article', default=False)
+    is_creation_dossier_article     = fields.Boolean('Création dossier article', default=False, tracking=True)
     is_creation_dossier_article_vsb = fields.Boolean('Création dossier article vsb', store=False, compute='_compute')
 
-    is_origine_produit_id         = fields.Many2one('res.country', 'Origine du produit')
+    is_origine_produit_id         = fields.Many2one('res.country', 'Origine du produit', tracking=True)
     is_origine_produit_id_vsb     = fields.Boolean('Origine du produit vsb', store=False, compute='_compute')
 
-    is_made_in_id                 = fields.Many2one('res.country', 'Made in')
+    is_made_in_id                 = fields.Many2one('res.country', 'Made in', tracking=True)
     is_made_in_id_vsb             = fields.Boolean('Made in vsb', store=False, compute='_compute')
 
-    is_produit_perissable         = fields.Boolean('Produit périssable')
+    is_produit_perissable         = fields.Boolean('Produit périssable', tracking=True)
     is_produit_perissable_vsb     = fields.Boolean('Produit périssable vsb', store=False, compute='_compute')
 
-    is_section_analytique_id      = fields.Many2one('is.section.analytique', 'Section analytique de revenus')
+    is_section_analytique_id      = fields.Many2one('is.section.analytique', 'Section analytique de revenus', tracking=True)
     is_section_analytique_id_vsb  = fields.Boolean('Section analytique de revenus vsb', store=False, compute='_compute')
 
-    is_section_analytique_ha_id      = fields.Many2one('is.section.analytique', 'Section analytique de dépenses')
+    is_section_analytique_ha_id      = fields.Many2one('is.section.analytique', 'Section analytique de dépenses', tracking=True)
     is_section_analytique_ha_id_vsb  = fields.Boolean('Section analytique de dépenses vsb', store=False, compute='_compute')
 
-    is_facturable                 = fields.Boolean('Article facturable', default=True)
+    is_facturable                 = fields.Boolean('Article facturable', default=True, tracking=True)
     is_facturable_vsb             = fields.Boolean('Article facturable vsb', store=False, compute='_compute')
 
-    is_budget_responsable_id      = fields.Many2one('is.budget.responsable', 'Responsable budget')
+    is_budget_responsable_id      = fields.Many2one('is.budget.responsable', 'Responsable budget', tracking=True)
     is_budget_responsable_id_vsb  = fields.Boolean('Responsable budget vsb', store=False, compute='_compute')
 
-    is_budget_nature_id           = fields.Many2one('is.budget.nature'     , 'Nature budget')
+    is_budget_nature_id           = fields.Many2one('is.budget.nature'     , 'Nature budget', tracking=True)
     is_budget_nature_id_vsb       = fields.Boolean('Nature budget vsb', store=False, compute='_compute')
 
-    is_budget_fv                  = fields.Selection([('F','Fixe'),('V','Variable')], "Budget Fixe ou Variable")
+    is_budget_fv                  = fields.Selection([('F','Fixe'),('V','Variable')], "Budget Fixe ou Variable", tracking=True)
     is_budget_fv_vsb              = fields.Boolean('Budget Fixe ou Variable vsb', store=False, compute='_compute')
 
-    is_ctrl_rcp                   = fields.Selection([('bloque','Produit bloqué'),('aqp','AQP')], "Contrôle réception")
+    is_ctrl_rcp                   = fields.Selection([('bloque','Produit bloqué'),('aqp','AQP')], "Contrôle réception", tracking=True)
     is_ctrl_rcp_vsb               = fields.Boolean('Contrôle réception vsb', store=False, compute='_compute')
 
     volume_vsb                    = fields.Boolean('Volume vsb'    , store=False, compute='_compute')
@@ -482,52 +489,52 @@ class product_template(models.Model):
 
 
 
-    weight_net                    = fields.Float('Poids net', digits='Stock Weight')
+    weight_net                    = fields.Float('Poids net', digits='Stock Weight', tracking=True)
     weight_net_vsb                = fields.Boolean('Poids net vsb' , store=False, compute='_compute')
 
     is_location_vsb              = fields.Boolean('Emplacement de stockage vsb', store=False, compute='_compute')
-    is_location                  = fields.Char('Emplacement de stockage')
+    is_location                  = fields.Char('Emplacement de stockage', tracking=True)
 
     is_uc                         = fields.Char('UC'      , store=False, compute='_compute')
     is_uc_qt                      = fields.Integer('Qt/UC', store=False, compute='_compute')
 
-    is_mold_dossierf              = fields.Char('Moule ou Dossier F'                       , store=True, compute='_compute_is_mold_dossierf')
-    is_client_id                  = fields.Many2one('res.partner', 'Client par défaut'     , store=True, compute='_compute_is_client_id')
-    is_fournisseur_id             = fields.Many2one('res.partner', 'Fournisseur par défaut', store=True, compute='_compute_is_fournisseur_id')
+    is_mold_dossierf              = fields.Char('Moule ou Dossier F'                       , store=True, compute='_compute_is_mold_dossierf', tracking=True)
+    is_client_id                  = fields.Many2one('res.partner', 'Client par défaut'     , store=True, compute='_compute_is_client_id', tracking=True)
+    is_fournisseur_id             = fields.Many2one('res.partner', 'Fournisseur par défaut', store=True, compute='_compute_is_fournisseur_id', tracking=True)
 
-    is_dosmat_ctrl_qual                  = fields.Char('Contrôle qualité'            , readonly=True, help="Donnée provenant du dossier article dans odoo0 et alimenté par un script externe la nuit")
-    is_dosmat_caracteristique_specifique = fields.Text('Caractéristiques spécifiques', readonly=True, help="Donnée provenant du dossier article dans odoo0 et alimenté par un script externe la nuit")
+    is_dosmat_ctrl_qual                  = fields.Char('Contrôle qualité'            , tracking=True, readonly=True, help="Donnée provenant du dossier article dans odoo0 et alimenté par un script externe la nuit")
+    is_dosmat_caracteristique_specifique = fields.Text('Caractéristiques spécifiques', tracking=True, readonly=True, help="Donnée provenant du dossier article dans odoo0 et alimenté par un script externe la nuit")
 
 
     #** Champs pour le livret logistique des emballages ************************
     is_emb_vsb                    = fields.Boolean('Visibilité onglet Emballage vsb', store=False, compute='_compute')
-    is_emb_couvercle_id           = fields.Many2one('product.template', u"Couvercle", domain=[('is_code','=like','700%')], help="Renseigné uniquement si l'emballage n'inclus pas déjà le couvercle")
-    is_emb_palette_id             = fields.Many2one('product.template', u"Palette"  , domain=[('is_code','=like','720%')], help="Renseigné uniquement si l'emballage n'inclus pas déjà la palette")
+    is_emb_couvercle_id           = fields.Many2one('product.template', u"Couvercle", tracking=True, domain=[('is_code','=like','700%')], help="Renseigné uniquement si l'emballage n'inclus pas déjà le couvercle")
+    is_emb_palette_id             = fields.Many2one('product.template', u"Palette"  , tracking=True, domain=[('is_code','=like','720%')], help="Renseigné uniquement si l'emballage n'inclus pas déjà la palette")
     is_emb_cerclage               = fields.Selection([
                                         ('filmage','filmage'),
                                         ('cerclage','cerclage'),
                                         ('filmage+cerclage','filmage+cerclage')
-                                    ], "Cerclage/film")
-    is_emb_nb_uc_par_um           = fields.Integer('Nb UC/UM')
-    is_gerbage_stockage           = fields.Integer('Gerbage au stockage')
+                                    ], "Cerclage/film", tracking=True)
+    is_emb_nb_uc_par_um           = fields.Integer('Nb UC/UM', tracking=True)
+    is_gerbage_stockage           = fields.Integer('Gerbage au stockage', tracking=True)
     is_emb_matiere                = fields.Selection([
                                         ('bois'      , 'bois'),
                                         ('carton'    , 'carton'),
                                         ('grille'    , 'grille'),
                                         ('metallique', 'métallique'),
                                         ('plastique' , 'plastique'),
-                                    ], "Matière")
+                                    ], "Matière", tracking=True)
 
-    is_emb_emplacement_id         = fields.Many2one('is.emb.emplacement', 'Emplacement de stock')
-    is_emb_norme_id               = fields.Many2one('is.emb.norme', 'Nomenclature/Norme')
-    is_emb_long_interne           = fields.Float('Longueur interne (mm)', digits=(14,2))
-    is_emb_larg_interne           = fields.Float('Largeur interne (mm)' , digits=(14,2))
-    is_emb_haut_interne           = fields.Float('Hauteur interne (mm)' , digits=(14,2))
-    is_emb_long_externe           = fields.Float('Longueur externe (mm)', digits=(14,2))
-    is_emb_larg_externe           = fields.Float('Largeur externe (mm)' , digits=(14,2))
-    is_emb_haut_externe           = fields.Float('Hauteur externe (mm)' , digits=(14,2))
-    is_emb_haut_plie              = fields.Float('Hauteur plié (mm)'    , digits=(14,2), help="0 = non pliable")
-    is_emb_masse                  = fields.Float('Masse (en kg)'        , digits=(14,3))
+    is_emb_emplacement_id         = fields.Many2one('is.emb.emplacement', 'Emplacement de stock', tracking=True)
+    is_emb_norme_id               = fields.Many2one('is.emb.norme', 'Nomenclature/Norme', tracking=True)
+    is_emb_long_interne           = fields.Float('Longueur interne (mm)', digits=(14,2), tracking=True)
+    is_emb_larg_interne           = fields.Float('Largeur interne (mm)' , digits=(14,2), tracking=True)
+    is_emb_haut_interne           = fields.Float('Hauteur interne (mm)' , digits=(14,2), tracking=True)
+    is_emb_long_externe           = fields.Float('Longueur externe (mm)', digits=(14,2), tracking=True)
+    is_emb_larg_externe           = fields.Float('Largeur externe (mm)' , digits=(14,2), tracking=True)
+    is_emb_haut_externe           = fields.Float('Hauteur externe (mm)' , digits=(14,2), tracking=True)
+    is_emb_haut_plie              = fields.Float('Hauteur plié (mm)'    , digits=(14,2), tracking=True, help="0 = non pliable")
+    is_emb_masse                  = fields.Float('Masse (en kg)'        , digits=(14,3), tracking=True)
     #***************************************************************************
 
     #** Onglet 'Code CAS' pour REACH pour les matière **************************
@@ -535,9 +542,9 @@ class product_template(models.Model):
     is_code_cas_ids               = fields.One2many('is.product.code.cas', 'product_id', u"Code CAS")
     #***************************************************************************
 
-    is_weight_delta = fields.Float("Ecart entre poids brut et poids net", compute='_compute_weight_delta', readonly=True, store=True,digits=(12,4))
-    is_emplacement_declaration_prod_id = fields.Many2one('stock.location', "Emplacement déclaration prod", domain="[('usage', '=', 'internal')]")
-    is_code_fabrication = fields.Char('Code fabrication', help="Champ 'Codefabrication' pour EDI PO/Weidplas à remettre sur étiquette GALIA et BL")
+    is_weight_delta = fields.Float("Ecart entre poids brut et poids net", tracking=True, compute='_compute_weight_delta', readonly=True, store=True,digits=(12,4))
+    is_emplacement_declaration_prod_id = fields.Many2one('stock.location', "Emplacement déclaration prod", tracking=True, domain="[('usage', '=', 'internal')]")
+    is_code_fabrication = fields.Char('Code fabrication', tracking=True, help="Champ 'Codefabrication' pour EDI PO/Weidplas à remettre sur étiquette GALIA et BL")
 
 
     #TODO à revoir car cela n'est plus executé avec Odoo 16
