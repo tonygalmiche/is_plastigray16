@@ -220,7 +220,7 @@ class stock_move(models.Model):
     def name_get(self):
         res=[]
         for obj in self:
-            name=obj.product_id.is_code+u' / '+ u'qt='+str(obj.product_uom_qty) 
+            name=(obj.product_id.is_code or '')+u' / '+ u'qt='+str(obj.product_uom_qty) 
             if obj.picking_id:
                 name=name + u' / bl='+str(obj.picking_id.name)
             if obj.origin:

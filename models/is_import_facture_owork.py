@@ -19,15 +19,19 @@ class is_import_facture_owork(models.Model):
     _name = "is.import.facture.owork"
     _description = "Importation factures O'Work"
     _order='name desc'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name           = fields.Char("N°", readonly=True)
-    attachment_ids = fields.Many2many('ir.attachment', 'is_import_facture_owork_attachment_rel', 'import_id', 'attachment_id', 'Fichiers à importer')
-    nb_lignes      = fields.Integer("Nombre de lignes"  , readonly=True)
-    nb_factures    = fields.Integer("Nombre de factures", readonly=True)
-    nb_anomalies   = fields.Integer("Nombre d'anomalies", readonly=True)
-    line_ids       = fields.One2many('is.import.facture.owork.line', 'import_id', "Lignes")
-    invoice_ids    = fields.One2many('account.move', 'is_owork_id', "Factures")
-    state          = fields.Selection([('analyse', 'Analyse'),('traite', 'Traité')], "État", index=True, default="analyse")
+    active                = fields.Boolean("Actif", default=True, tracking=True)
+    name                  = fields.Char("N°", readonly=True, tracking=True)
+    attachment_ids        = fields.Many2many('ir.attachment', 'is_import_facture_owork_attachment_rel', 'import_id', 'attachment_id', 'Fichiers à importer')
+    nb_lignes             = fields.Integer("Nombre de lignes"  , readonly=True, tracking=True)
+    nb_factures_a_traiter = fields.Integer("Nombre de factures à traiter", readonly=True, tracking=True)
+    nb_factures           = fields.Integer("Nombre de factures générées", readonly=True, tracking=True, compute='_compute_nb_factures', store=True)
+    nb_anomalies          = fields.Integer("Nombre d'anomalies", readonly=True, tracking=True, compute='_compute_nb_anomalies', store=True)
+    line_ids              = fields.One2many('is.import.facture.owork.line', 'import_id', "Lignes", copy=True)
+    invoice_ids           = fields.One2many('account.move', 'is_owork_id', "Factures Odoo")
+    state                 = fields.Selection([('analyse', 'Analyse'),('traite', 'Traité')], "État", index=True, default="analyse", tracking=True)
+    factures              = fields.Text("Factures", readonly=True, tracking=True)
 
 
     @api.model_create_multi
@@ -35,6 +39,58 @@ class is_import_facture_owork(models.Model):
         for vals in vals_list:
             vals['name'] = self.env['ir.sequence'].next_by_code('is.import.facture.owork')
         return super().create(vals_list)
+
+
+    @api.depends('invoice_ids')
+    def _compute_nb_factures(self):
+        for obj in self:
+            obj.nb_factures = len(obj.invoice_ids)
+
+
+    @api.depends('line_ids','line_ids.anomalies')
+    def _compute_nb_anomalies(self):
+        for obj in self:
+            nb_anomalies = 0
+            for line in obj.line_ids:
+                if line.anomalies:
+                    nb_anomalies+=1
+            obj.nb_anomalies = nb_anomalies
+
+
+    def actualiser_lignes(self):
+        for obj in self:
+            obj.line_ids.actualiser_ligne()
+
+            #** Statistiques **************************************************
+            obj.nb_lignes = len(obj.line_ids)
+            factures=[]
+            for line in obj.line_ids:
+                if line.numfac not in factures:
+                    factures.append(line.numfac)
+            obj.nb_factures_a_traiter = len(factures)
+            if len(factures)>0:
+                factures = '\n'.join(factures)
+            else:
+                factures=False
+            obj.factures = factures
+            #******************************************************************
+        return []
+
+    # def actualiser_lignes(self):
+    #     """Action pour actualiser les lignes depuis l'interface utilisateur"""
+    #     self._actualiser_lignes_compute()
+    #     return []
+    #     # return {
+    #     #     'type': 'ir.actions.client',
+    #     #     'tag': 'display_notification',
+    #     #     'params': {
+    #     #         'title': "Actualisation terminée",
+    #     #         'message': f"Lignes actualisées avec succès. {self.nb_lignes} lignes traitées, {self.nb_anomalies} anomalies détectées.",
+    #     #         'type': 'success',
+    #     #         'sticky': False,
+    #     #     }
+    #     # }
+
 
 
     # def import_site_owork(self):
@@ -390,46 +446,166 @@ class is_import_facture_owork_line(models.Model):
     _name = "is.import.facture.owork.line"
     _description = "Lignes importation factures O'Work"
     _rec_name = 'id'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    import_id      = fields.Many2one('is.import.facture.owork', "Import O'Work", required=True, ondelete='cascade')
-    codeetab       = fields.Char("Code etab")
-    codefour       = fields.Char("Code Four fact")
-    codefourrcp    = fields.Char("Code Four Rcp")
-    codeadrfour    = fields.Char("Code adr four")
-    numbl          = fields.Char("Num BL")
-    numrecept      = fields.Char("Num rcp")
-    daterecpt      = fields.Date("Date rcp")
-    numcde         = fields.Char("Num Cde")
-    num_chantier_rcp  = fields.Char("N°Chantier Rcp")
-    num_chantier_fact = fields.Char("N°Chantier Fact")
-    sec_ana_origine = fields.Char("Section Rcp")
-    sec_ana_fact    = fields.Char("Section Fact")
-    cpte_origine    = fields.Char("Compte Rcp")
-    cpte_fact       = fields.Char("Compte Fact")
-    article        = fields.Char("Code Article")
-    descriparticle = fields.Char("Description article")
-    qterestefac    = fields.Float("Qt reste fac", digits=(12, 6))
-    prixorigine    = fields.Float("Prix Origine", digits=(12, 6))
-    total          = fields.Float("Total")
-    codetvaorigine = fields.Char("Code TVA Origine")
-    codetvafact    = fields.Char("Code TVA Fac")
-    prixfact       = fields.Float("Prix Fac", digits=(12, 6))
-    qtefact        = fields.Float("Qt fac"  , digits=(12, 6))
-    datefact       = fields.Date("Date Fac")
-    numfac         = fields.Char("Num Fac")
-    montantht      = fields.Float("Montant HT")
-    montanttva     = fields.Float("Montant TVA")
-    montanttc      = fields.Float("Montant TTC")
-    numidodoo      = fields.Integer("Id Odoo")
-    id_owork       = fields.Integer("id O'Work")
-    totalfacture   = fields.Float("Total Facture")
-    picking_id     = fields.Many2one('stock.picking', "Réception")
-    stock_move_id  = fields.Many2one('stock.move', "Ligne de réception")
-    partner_id     = fields.Many2one('res.partner', "Fournisseur")
-    product_id     = fields.Many2one('product.product', "Article")
-    tax_id         = fields.Many2one('account.tax', "TVA")
-    invoice_id     = fields.Many2one('account.move', "Facture")
-    fichier        = fields.Char("Fichier")
-    anomalies      = fields.Text("Anomalies")
-    
+    active         = fields.Boolean("Actif", default=True, tracking=True)
+    import_id      = fields.Many2one('is.import.facture.owork', "Import O'Work", required=True, ondelete='cascade', tracking=True)
+    codeetab       = fields.Char("Code etab", tracking=True)
+    codefour       = fields.Char("Code Four fact", tracking=True)
+    codefourrcp    = fields.Char("Code Four Rcp", tracking=True)
+    codeadrfour    = fields.Char("Code adr four", tracking=True)
+    numbl          = fields.Char("Num BL", tracking=True)
+    numrecept      = fields.Char("Num rcp", tracking=True)
+    daterecpt      = fields.Date("Date rcp", tracking=True)
+    numcde         = fields.Char("Num Cde", tracking=True)
+    num_chantier_rcp  = fields.Char("N°Chantier Rcp", tracking=True)
+    num_chantier_fact = fields.Char("N°Chantier Fact", tracking=True)
+    sec_ana_origine = fields.Char("Section Rcp", tracking=True)
+    sec_ana_fact    = fields.Char("Section Fact", tracking=True)
+    cpte_origine    = fields.Char("Compte Rcp", tracking=True)
+    cpte_fact       = fields.Char("Compte Fact", tracking=True)
+    article        = fields.Char("Code Article", tracking=True)
+    descriparticle = fields.Char("Description article", tracking=True)
+    qterestefac    = fields.Float("Qt reste fac", digits=(12, 6), tracking=True)
+    prixorigine    = fields.Float("Prix Origine", digits=(12, 6), tracking=True)
+    total          = fields.Float("Total ligne HT", digits=(12, 4), tracking=True)
+    codetvaorigine = fields.Char("Code TVA Origine", tracking=True)
+    codetvafact    = fields.Char("Code TVA Fac", tracking=True)
+    prixfact       = fields.Float("Prix Fac", digits=(12, 6), tracking=True)
+    qtefact        = fields.Float("Qt fac"  , digits=(12, 6), tracking=True)
+    datefact       = fields.Date("Date Fac", tracking=True)
+    numfac         = fields.Char("Num Fac", tracking=True)
+    montantht      = fields.Float("Montant HT", tracking=True)
+    montanttva     = fields.Float("Montant TVA", tracking=True)
+    montanttc      = fields.Float("Montant TTC", tracking=True)
+    numidodoo      = fields.Char("Id Odoo", tracking=True)
+    id_owork       = fields.Integer("id O'Work", tracking=True)
+    totalfacture   = fields.Float("Total Facture", tracking=True)
+    litige         = fields.Char("Litige", tracking=True)
+    picking_id     = fields.Many2one('stock.picking', "Réception", tracking=True, copy=False)
+    stock_move_id  = fields.Many2one('stock.move', "Ligne de réception", tracking=True, copy=False, ondelete='set null')
+    partner_id     = fields.Many2one('res.partner', "Fournisseur", tracking=True, copy=False)
+    product_id     = fields.Many2one('product.product', "Article", tracking=True, copy=False)
+    tax_id         = fields.Many2one('account.tax', "TVA", tracking=True, copy=False)
+    invoice_id     = fields.Many2one('account.move', "Facture", tracking=True, copy=False)
+    fichier        = fields.Char("Fichier", tracking=True)
+    anomalies      = fields.Text("Anomalies", tracking=True, copy=False, compute='actualiser_ligne', store=True, readonly=True)
+ 
 
+    @api.depends('codefour','codefourrcp','numidodoo','codetvafact','prixorigine','prixfact','qtefact','totalfacture','total','montantht')
+    def actualiser_ligne(self):
+        cr=self._cr
+        for obj in self:
+            anomalies=[]
+
+            #** Recherche fournisseur *****************************************
+            partner_id = False
+            codefour = obj.codefour or obj.codefourrcp
+            if codefour:
+                is_code = codefour.lstrip("0")
+                domain=[
+                    ('is_code'    ,'=', is_code),
+                    ('is_adr_code','=', '0')
+                ]
+                partners = self.env['res.partner'].search(domain)
+                for partner in partners:
+                    partner_id = partner.id
+            obj.partner_id = partner_id
+            if not partner_id:
+                anomalies.append("Fournisseur à facturer non trouvé (codefour=%s)"%(codefour))
+            #******************************************************************
+
+            #** stock_move_id, product_id et picking_id ************************
+            stock_move_id = product_id = picking_id = False
+            t = (obj.numidodoo or '').split('-')
+            stock_move_id = obj.numidodoo
+            if len(t)==3:
+                stock_move_id = t[1]
+            try:
+                stock_move_id = int(stock_move_id)
+            except ValueError:
+                anomalies.append("stock_move_id non valide (numidodoo=%s et stock_move_id=%s)" % (obj.numidodoo, stock_move_id))
+                stock_move_id=0
+            if not stock_move_id:
+                anomalies.append("stock_move_id non trouvé (numidodoo=%s) "%(obj.numidodoo))
+            if stock_move_id:
+                SQL="""
+                    select sm.id, sm.picking_id, sm.product_id, sp.partner_id
+                    from stock_move sm join stock_picking sp on sm.picking_id=sp.id
+                    where sm.id=%s
+                """
+                cr.execute(SQL,[stock_move_id])
+                rows = cr.dictfetchall()
+                stock_move_id = False
+                for row in rows:
+                    stock_move_id = row['id']
+                    picking_id = row['picking_id']
+                    product_id = row['product_id']
+                    if not partner_id:
+                        partner_id = row['partner_id']
+                if not stock_move_id:
+                    anomalies.append("stock_move_id non trouvé (stock_move_id=%s) "%(obj.numidodoo))
+                if not picking_id:
+                    anomalies.append("picking_id non trouvé (stock_move_id=%s) "%(stock_move_id))
+                if not product_id:
+                    anomalies.append("product_id non trouvé (stock_move_id=%s) "%(stock_move_id))
+                if not partner_id:
+                    anomalies.append("partner_id non trouvé (stock_move_id=%s) "%(stock_move_id))
+            obj.stock_move_id = stock_move_id
+            obj.picking_id = picking_id
+            obj.product_id = product_id
+            obj.partner_id = partner_id
+            #*******************************************************************
+
+            #** Recherche TVA **************************************************
+            tax_id = False
+            SQL="""
+                select id
+                from account_tax
+                where description=%s
+            """
+            cr.execute(SQL,[obj.codetvafact])
+            rows = cr.dictfetchall()
+            for row in rows:
+                tax_id = row['id']
+            if not tax_id:
+                anomalies.append("TVA '%s' non trouvée"%(obj.codetvafact))
+            obj.tax_id = tax_id
+            #******************************************************************
+
+            # #** Comparatif prix d'origine et prix facturé *********************
+            # prixorigine = round(obj.prixorigine,6)
+            # prixfact    = round(obj.prixfact,6)
+            # if prixorigine>0 and prixfact>0 and prixorigine!=prixfact:
+            #     anomalies.append("Le prix d'origine '%s' est différent du prix facturé '%s'"%(prixorigine,prixfact))
+            # #******************************************************************
+
+            #** Vérification total ligne facturé ******************************
+            prixfact      = obj.prixfact
+            qtefact       = obj.qtefact
+            totalfacture  = obj.totalfacture
+            total_calcule = round(prixfact*qtefact,2)
+            if total_calcule != totalfacture:
+                anomalies.append("Le total facturé %s est différent de %s x %s (%s)"%(totalfacture,prixfact,qtefact,total_calcule))
+            #******************************************************************
+
+            #** Vérfication que total facturé correspond au total des lignes **
+            total_calcule = 0
+            for line in obj.import_id.line_ids:
+                if line.numfac == obj.numfac:
+                    if obj._origin.id == line.id:
+                        total_calcule+=obj.total
+                    else:
+                        total_calcule+=line.total
+            total_calcule = round(total_calcule,4)
+            if total_calcule!=obj.montantht:
+                anomalies.append("Le total des lignes %s est différent du total de la facture %s"%(total_calcule,obj.montantht))
+            #******************************************************************
+
+            #** Anomalies *****************************************************
+            if len(anomalies)>0:
+                anomalies = '\n'.join(anomalies)
+            else:
+                anomalies=False
+            obj.anomalies = anomalies
+            #******************************************************************
