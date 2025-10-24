@@ -187,28 +187,28 @@
                             <field name="codetvaorigine" />
                             <field name="total" />
                         </group>
-                       <group string="Facture">
+                       <group string="Ligne facture">
+                            <field name="article" />
+                            <field name="descriparticle" />
+                            <field name="product_id" readonly="1"/>
+                            <field name="codetvafact" />
+                            <field name="tax_id" readonly="1"/>
+                            <field name="num_chantier_fact" />
+                            <field name="qtefact" />
+                            <field name="prixfact" />
+                            <field name="totalfacture" />
+                          </group>
+                       <group string="Entête facture">
                             <field name="datefact" />
                             <field name="numfac" />
                             <field name="invoice_id" readonly="1"/>
                             <field name="codefour" />
                             <field name="partner_id" readonly="1"/>
-                            <field name="num_chantier_fact" />
-                            <field name="qtefact" />
-                            <field name="prixfact" />
-                            <field name="codetvafact" />
-                            <field name="tax_id" readonly="1"/>
                             <field name="montantht" />
                             <field name="montanttva" />
                             <field name="montanttc" />
-                            <field name="totalfacture" />
                             <field name="litige"/>
-                        </group>
-                        <group string="Article">
-                            <field name="article" />
-                            <field name="descriparticle" />
-                            <field name="product_id" readonly="1"/>
-                        </group>
+                       </group>
                        <group string="Autre">
                             <field name="codeetab" readonly="1"/>
                             <field name="numidodoo"/>

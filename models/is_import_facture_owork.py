@@ -296,12 +296,16 @@ class is_import_facture_owork(models.Model):
 
     def voir_les_lignes(self):
         for obj in self:
+            ctx={
+                'default_import_id': obj.id,
+            }
             return {
                 'name'     : obj.name,
                 'view_mode': 'tree,form',
                 'res_model': 'is.import.facture.owork.line',
                 'domain'   : [('import_id' ,'=',obj.id)],
                 'type'     : 'ir.actions.act_window',
+                'context'  : ctx,
                 'limit'    : 1000,
             }
 
@@ -315,6 +319,9 @@ class is_import_facture_owork(models.Model):
             for line in obj.line_ids:
                 numfac = line.numfac
                 if numfac not in factures:
+                    bon_a_payer = True
+                    if line.litige=='L':
+                        bon_a_payer = False
                     if line.partner_id and line.datefact and line.numfac:
                         vals = {
                             'partner_id'      : line.partner_id.id,
@@ -323,7 +330,7 @@ class is_import_facture_owork(models.Model):
                             'invoice_date'    : line.datefact,
                             'date'            : line.datefact,
                             'invoice_date_due': line.datefact,
-                            'is_bon_a_payer'  : True,
+                            'is_bon_a_payer'  : bon_a_payer,
                             'supplier_invoice_number': line.numfac,
                             'is_owork_id'     : obj.id,
                             'is_id_owork'     : line.id_owork,
@@ -336,8 +343,9 @@ class is_import_facture_owork(models.Model):
                 invoice_line_tax_id=[]
                 for line in obj.line_ids:
                     if line.numfac==facture:
-                        product_id      = line.product_id.id
-                        if product_id and line.stock_move_id.id:
+                        product_id = line.product_id.id
+                        if product_id:
+                            #and line.stock_move_id.id:
                             description     = line.descriparticle
                             quantite        = line.qtefact
                             invoice_line_tax_id=[]
@@ -354,12 +362,18 @@ class is_import_facture_owork(models.Model):
                             #is_document=line.move_id.purchase_line_id.is_num_chantier
                             #if is_document==False:
                             #    is_document=line.move_id.purchase_line_id.order_id.is_document
+
+
+                            product_uom_id = line.product_id.uom_po_id.id
+                            if line.stock_move_id.id:
+                                product_uom_id = line.stock_move_id.purchase_line_id.product_uom.id
+
                             v = {
                                 'product_id'      : product_id,
                                 'name'            : description or product_id.name,
                                 'quantity'        : line.qtefact,
                                 #'product_uom_id' : line.stock_move_id.product_uom.id,
-                                'product_uom_id'  : line.stock_move_id.purchase_line_id.product_uom.id,
+                                'product_uom_id'  : product_uom_id,
                                 'price_unit'      : line.prixfact,
                                 'tax_ids'         : [(6,0,invoice_line_tax_id)],
                                 #'is_document'    : is_document,
@@ -475,12 +489,12 @@ class is_import_facture_owork_line(models.Model):
     qtefact        = fields.Float("Qt fac"  , digits=(12, 6), tracking=True)
     datefact       = fields.Date("Date Fac", tracking=True)
     numfac         = fields.Char("Num Fac", tracking=True)
-    montantht      = fields.Float("Montant HT", tracking=True)
-    montanttva     = fields.Float("Montant TVA", tracking=True)
-    montanttc      = fields.Float("Montant TTC", tracking=True)
+    montantht      = fields.Float("Montant HT Facture", tracking=True)
+    montanttva     = fields.Float("Montant TVA Facture", tracking=True)
+    montanttc      = fields.Float("Montant TTC Facture", tracking=True)
     numidodoo      = fields.Char("Id Odoo", tracking=True)
     id_owork       = fields.Integer("id O'Work", tracking=True)
-    totalfacture   = fields.Float("Total Facture", tracking=True)
+    totalfacture   = fields.Float("Total ligne facture", tracking=True)
     litige         = fields.Char("Litige", tracking=True)
     picking_id     = fields.Many2one('stock.picking', "Réception", tracking=True, copy=False)
     stock_move_id  = fields.Many2one('stock.move', "Ligne de réception", tracking=True, copy=False, ondelete='set null')
@@ -492,11 +506,24 @@ class is_import_facture_owork_line(models.Model):
     anomalies      = fields.Text("Anomalies", tracking=True, copy=False, compute='actualiser_ligne', store=True, readonly=True)
  
 
-    @api.depends('codefour','codefourrcp','numidodoo','codetvafact','prixorigine','prixfact','qtefact','totalfacture','total','montantht')
+    @api.depends('codefour','codefourrcp','numidodoo','codetvafact','prixorigine','prixfact','qtefact','totalfacture','total','montantht','article')
     def actualiser_ligne(self):
         cr=self._cr
         for obj in self:
             anomalies=[]
+            #** Recherche article *********************************************
+            if obj.article:
+                domain=[
+                    ('is_code'    ,'=', obj.article),
+                ]
+                products = self.env['product.product'].search(domain)
+                product_id = False
+                for product in products:
+                    product_id = product.id
+                obj.product_id = product_id
+                if not product_id:
+                    anomalies.append("Code article '%s' non trouvé dans Odoo"%(obj.article))
+            #******************************************************************
 
             #** Recherche fournisseur *****************************************
             partner_id = False
@@ -515,62 +542,65 @@ class is_import_facture_owork_line(models.Model):
                 anomalies.append("Fournisseur à facturer non trouvé (codefour=%s)"%(codefour))
             #******************************************************************
 
-            #** stock_move_id, product_id et picking_id ************************
-            stock_move_id = product_id = picking_id = False
-            t = (obj.numidodoo or '').split('-')
-            stock_move_id = obj.numidodoo
-            if len(t)==3:
-                stock_move_id = t[1]
-            try:
-                stock_move_id = int(stock_move_id)
-            except ValueError:
-                anomalies.append("stock_move_id non valide (numidodoo=%s et stock_move_id=%s)" % (obj.numidodoo, stock_move_id))
-                stock_move_id=0
-            if not stock_move_id:
-                anomalies.append("stock_move_id non trouvé (numidodoo=%s) "%(obj.numidodoo))
-            if stock_move_id:
-                SQL="""
-                    select sm.id, sm.picking_id, sm.product_id, sp.partner_id
-                    from stock_move sm join stock_picking sp on sm.picking_id=sp.id
-                    where sm.id=%s
-                """
-                cr.execute(SQL,[stock_move_id])
-                rows = cr.dictfetchall()
-                stock_move_id = False
-                for row in rows:
-                    stock_move_id = row['id']
-                    picking_id = row['picking_id']
-                    product_id = row['product_id']
-                    if not partner_id:
-                        partner_id = row['partner_id']
+            numrecept = obj.numrecept or ''
+            if numrecept!='':
+                #** stock_move_id, product_id et picking_id ************************
+                stock_move_id = product_id = picking_id = False
+                t = (obj.numidodoo or '').split('-')
+                stock_move_id = obj.numidodoo
+                if len(t)==3:
+                    stock_move_id = t[1]
+                try:
+                    stock_move_id = int(stock_move_id)
+                except ValueError:
+                    anomalies.append("stock_move_id non valide (numidodoo=%s et stock_move_id=%s)" % (obj.numidodoo, stock_move_id))
+                    stock_move_id=0
                 if not stock_move_id:
-                    anomalies.append("stock_move_id non trouvé (stock_move_id=%s) "%(obj.numidodoo))
-                if not picking_id:
-                    anomalies.append("picking_id non trouvé (stock_move_id=%s) "%(stock_move_id))
-                if not product_id:
-                    anomalies.append("product_id non trouvé (stock_move_id=%s) "%(stock_move_id))
-                if not partner_id:
-                    anomalies.append("partner_id non trouvé (stock_move_id=%s) "%(stock_move_id))
-            obj.stock_move_id = stock_move_id
-            obj.picking_id = picking_id
-            obj.product_id = product_id
-            obj.partner_id = partner_id
-            #*******************************************************************
+                    anomalies.append("stock_move_id non trouvé (numidodoo=%s) "%(obj.numidodoo))
+                if stock_move_id:
+                    SQL="""
+                        select sm.id, sm.picking_id, sm.product_id, sp.partner_id
+                        from stock_move sm join stock_picking sp on sm.picking_id=sp.id
+                        where sm.id=%s
+                    """
+                    cr.execute(SQL,[stock_move_id])
+                    rows = cr.dictfetchall()
+                    stock_move_id = False
+                    for row in rows:
+                        stock_move_id = row['id']
+                        picking_id = row['picking_id']
+                        product_id = row['product_id']
+                        if not partner_id:
+                            partner_id = row['partner_id']
+                    if not stock_move_id:
+                        anomalies.append("stock_move_id non trouvé (stock_move_id=%s) "%(obj.numidodoo))
+                    if not picking_id:
+                        anomalies.append("picking_id non trouvé (stock_move_id=%s) "%(stock_move_id))
+                    if not product_id:
+                        anomalies.append("product_id non trouvé (stock_move_id=%s) "%(stock_move_id))
+                    if not partner_id:
+                        anomalies.append("partner_id non trouvé (stock_move_id=%s) "%(stock_move_id))
+                obj.stock_move_id = stock_move_id
+                obj.picking_id = picking_id
+                obj.product_id = product_id
+                obj.partner_id = partner_id
+                #*******************************************************************
 
             #** Recherche TVA **************************************************
-            tax_id = False
-            SQL="""
-                select id
-                from account_tax
-                where description=%s
-            """
-            cr.execute(SQL,[obj.codetvafact])
-            rows = cr.dictfetchall()
-            for row in rows:
-                tax_id = row['id']
-            if not tax_id:
-                anomalies.append("TVA '%s' non trouvée"%(obj.codetvafact))
-            obj.tax_id = tax_id
+            if obj.codetvafact:
+                tax_id = False
+                SQL="""
+                    select id
+                    from account_tax
+                    where description=%s
+                """
+                cr.execute(SQL,[obj.codetvafact])
+                rows = cr.dictfetchall()
+                for row in rows:
+                    tax_id = row['id']
+                if not tax_id:
+                    anomalies.append("TVA '%s' non trouvée"%(obj.codetvafact))
+                obj.tax_id = tax_id
             #******************************************************************
 
             # #** Comparatif prix d'origine et prix facturé *********************
@@ -594,9 +624,9 @@ class is_import_facture_owork_line(models.Model):
             for line in obj.import_id.line_ids:
                 if line.numfac == obj.numfac:
                     if obj._origin.id == line.id:
-                        total_calcule+=obj.total
+                        total_calcule+=obj.totalfacture
                     else:
-                        total_calcule+=line.total
+                        total_calcule+=line.totalfacture
             total_calcule = round(total_calcule,4)
             if total_calcule!=obj.montantht:
                 anomalies.append("Le total des lignes %s est différent du total de la facture %s"%(total_calcule,obj.montantht))
