@@ -109,6 +109,11 @@
                             string="Imprimer étiquette UC" 
                             type="object"
                         />
+                        <!-- <button 
+                            name="etiquette_remplacee_action" 
+                            string="Etiquette remplacée" 
+                            type="object"
+                        /> -->
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -137,6 +142,7 @@
                                 <field name="stock_move_rcp_id" widget="many2one_clickable"/>
                                 <field name="reception_inter_site_id" widget="many2one_clickable"/>
                                 <field name="reimprime"/>
+                                <field name="etiquette_remplacee_le"/>
                             </group>
                         </group>
                     </sheet>
@@ -172,7 +178,8 @@
                     <field name="stock_move_id"     optional="show" widget="many2one_clickable"/>
                     <field name="stock_move_rcp_id" optional="hide" widget="many2one_clickable"/>
                     <field name="reception_inter_site_id" optional="hide" widget="many2one_clickable"/>
-                    <field name="reimprime"         optional="hide"/>
+                    <field name="reimprime"               optional="show"/>
+                    <field name="etiquette_remplacee_le"  optional="show"/>
                     <field name="create_date"       optional="show"/>
                     <field name="create_uid"        optional="hide"/>
                     <field name="write_date"        optional="show"/>
