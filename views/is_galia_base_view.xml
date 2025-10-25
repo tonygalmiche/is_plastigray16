@@ -109,11 +109,6 @@
                             string="Imprimer étiquette UC" 
                             type="object"
                         />
-                        <!-- <button 
-                            name="etiquette_remplacee_action" 
-                            string="Etiquette remplacée" 
-                            type="object"
-                        /> -->
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -300,12 +295,14 @@
                             <tree editable="bottom">
                                 <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
                                 <field name="num_eti"/>
-                                <field name="type_eti"/>
+                                <field name="type_eti" optional="show"/>
                                 <field name="num_carton"/>
                                 <field name="qt_pieces" sum="Total"/>
-                                <field name="date_creation"/>
-                                <field name="production"/>
-                                <field name="product_id" widget="many2one_clickable"/>
+                                <field name="date_creation" optional="show"/>
+                                <field name="production" optional="show"/>
+                                <field name="product_id" optional="show" widget="many2one_clickable"/>
+                                <field name="reimprime" optional="show"/>
+                                <field name="etiquette_remplacee_le" optional="show"/>
                             </tree>
                         </field>
                     </sheet>

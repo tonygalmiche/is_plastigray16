@@ -116,8 +116,6 @@ class stock_picking(models.Model):
                                 alerte.append(msg)
                     ligne+=1
 
-
-
                 #** Point de destination unique par article *******************
                 if champ_obligatoire.point_destination_unique:
                     mydict={}
@@ -135,6 +133,21 @@ class stock_picking(models.Model):
                             msg = "Le code %s à %s points de destination différent sur les lignes de la commande"%(code_pg,len(mydict[code_pg]))
                             alerte.append(msg)
                 #**************************************************************
+
+
+                #** Recherche si il y a des UC à ré-imprimer ******************
+                if champ_obligatoire.controle_remplacement_etiquette:
+                    if obj.sale_id.is_liste_servir_id:
+                        domain=[
+                            ('liste_servir_id','=',obj.sale_id.is_liste_servir_id.id),
+                            ('reimprime','=',True),
+                            ('etiquette_remplacee_le','=',False),
+                        ]
+                        ucs=self.env['is.galia.base.uc'].search(domain)
+                        if len(ucs)>0:
+                            alerte.append("Il y a %s étiquettes UC à ré-imprimer"%len(ucs))
+                #**************************************************************
+
 
 
 

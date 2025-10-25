@@ -780,6 +780,7 @@
                     <field name="is_plaque_immatriculation" optional="show"/>
                     <field name="is_dossier_transport"      optional="show"/>
                     <field name="ref_pg_unique"             optional="show"/>
+                    <field name="controle_remplacement_etiquette" optional="show"/>
                     <field name="is_database_origine_id"    optional="hide"/>
                 </tree>
             </field>
@@ -810,6 +811,7 @@
                                 <field name="ref_pg_unique"            widget="boolean_toggle"/>
                             </group> 
                             <group string="BL">
+                                <field name="controle_remplacement_etiquette" widget="boolean_toggle"/>
                                 <field name="is_plaque_immatriculation" widget="boolean_toggle"/>
                                 <field name="is_dossier_transport"      widget="boolean_toggle"/>
                             </group>

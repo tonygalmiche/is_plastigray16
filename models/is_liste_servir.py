@@ -274,7 +274,6 @@ class is_liste_servir(models.Model):
                             alerte.append(msg)
                     ligne+=1
 
-
                 #** Point de destination unique par article *******************
                 if champ_obligatoire.point_destination_unique:
                     mydict={}
@@ -293,11 +292,22 @@ class is_liste_servir(models.Model):
                             alerte.append(msg)
                 #**************************************************************
 
-
                 # Vérifier si plusieurs is_code pour le même is_ref_client ****
                 alerte_ref_pg_unique = obj.get_alerte_ref_pg_unique()
                 if alerte_ref_pg_unique:
                     alerte.append(alerte_ref_pg_unique)
+                #**************************************************************
+
+                #** Recherche si il y a des UC à ré-imprimer ******************
+                if champ_obligatoire.controle_remplacement_etiquette:
+                    domain=[
+                        ('liste_servir_id','=',obj.id),
+                        ('reimprime','=',True),
+                        ('etiquette_remplacee_le','=',False),
+                    ]
+                    ucs=self.env['is.galia.base.uc'].search(domain)
+                    if len(ucs)>0:
+                        alerte.append("Il y a %s étiquettes UC à ré-imprimer"%len(ucs))
                 #**************************************************************
 
             if len(alerte):

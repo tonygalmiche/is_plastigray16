@@ -73,14 +73,14 @@ class is_champ_obligatoire(models.Model):
     tg_number                 = fields.Boolean('TG Number'               , help="Champ 'TGNumber' pour EDI Weidplas => N°UM de Weidplas", tracking=True)
     code_routage              = fields.Boolean('Code routage'            , help="Champ 'CodeRoutage' pour EDI Weidplas", tracking=True)
     point_destination         = fields.Boolean('Point destination'       , help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas", tracking=True)
-    point_destination_unique  = fields.Boolean('Point destination unique par article', help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas - Une ligne par référence, peu importe s’il y a un ou plusieurs points de destination. Je n’ai pas trouvé le segment LOC+159 (point de destination) dans l’ASN", tracking=True)
+    point_destination_unique  = fields.Boolean('Point destination unique par article', tracking=True, help="Champ 'CodeIdentificationPointDestination' pour EDI Weidplas - Une ligne par référence, peu importe s’il y a un ou plusieurs points de destination. Je n’ai pas trouvé le segment LOC+159 (point de destination) dans l’ASN")
     num_commande_client       = fields.Boolean('N° Cde Client', tracking=True)
-    is_plaque_immatriculation = fields.Boolean("Plaque d’immatriculation")
-    is_dossier_transport      = fields.Boolean("N° de dossier de transport")
-    ref_pg_unique             = fields.Boolean("Ref PG unique par ref client", help="Si coché, il ne sera pas possible de générer une commande de liste à servir si une référence client correspond à plusieurs références PG")
+    is_plaque_immatriculation = fields.Boolean("Plaque d’immatriculation", tracking=True)
+    is_dossier_transport      = fields.Boolean("N° de dossier de transport", tracking=True)
+    ref_pg_unique             = fields.Boolean("Ref PG unique par ref client", tracking=True, help="Si coché, il ne sera pas possible de générer une commande de liste à servir si une référence client correspond à plusieurs références PG")
+    controle_remplacement_etiquette = fields.Boolean("Contrôle remplacement étiquette", tracking=True, help="Contrôle que les étiquettes à rè-imprimer ont bien été remplacées")
     is_database_origine_id    = fields.Integer("Id d'origine", readonly=True)
     active                    = fields.Boolean("Actif", default=True, tracking=True)
-
 
 
     def write(self, vals):
@@ -112,6 +112,7 @@ class is_champ_obligatoire(models.Model):
             'is_plaque_immatriculation': self.is_plaque_immatriculation,
             'is_dossier_transport'     : self.is_dossier_transport,
             'ref_pg_unique'            : self.ref_pg_unique,
+            'controle_remplacement_etiquette': self.controle_remplacement_etiquette,
             'is_database_origine_id'   : self.id
         }
         return vals
