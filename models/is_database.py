@@ -16,8 +16,10 @@ class is_database(models.Model):
     database               = fields.Char('Base de données', required=False)
     login                  = fields.Char('Login'          , required=False)
     password               = fields.Char('Mot de passe'   , required=False)
+    standard_telephonique  = fields.Char('Standard téléphonique')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     preventif_equipement_user_ids = fields.Many2many('res.users', 'is_database_preventif_equipement_user_ids_rel', 'database_id','user_id', string=u"Destinataires mails préventif équipement")
+
 
 
     def copy_other_database(self, obj, filtre=False):

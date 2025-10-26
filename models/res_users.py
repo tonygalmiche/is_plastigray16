@@ -24,12 +24,22 @@ class is_service(models.Model):
 class res_users(models.Model):
     _inherit = "res.users"
 
-    is_site_id    = fields.Many2one("is.database", "Site de production", help=u"Ce champ est utilisé en particulier pour la gestion des OT dans odoo0")
-    is_site_ids   = fields.Many2many('is.database','res_users_site_rel','user_id','site_id', string=u"Sites autorisés")
-    is_service_id = fields.Many2one('is.service', 'Service')
-    is_adresse_ip = fields.Char('Adresse IP', help='Adresse IP de cet utilisateur pour lui donner des accès spcécifiques dans THEIA')
-    is_signature  = fields.Binary("Signature", help="Utilisé pour imprimer les certificats matière fournisseur")
-    is_zebra_id   = fields.Many2one('is.raspberry.zebra', "Imprimante Zebra", help="Utilisé pour imprimer les étiquettes des équipements")
+    is_site_id       = fields.Many2one("is.database", "Site de production", help=u"Ce champ est utilisé en particulier pour la gestion des OT dans odoo0")
+    is_site_ids      = fields.Many2many('is.database','res_users_site_rel','user_id','site_id', string=u"Sites autorisés")
+    is_service_id    = fields.Many2one('is.service', 'Service')
+    is_adresse_ip    = fields.Char('Adresse IP', help='Adresse IP de cet utilisateur pour lui donner des accès spcécifiques dans THEIA')
+    is_signature     = fields.Binary("Signature", help="Utilisé pour imprimer les certificats matière fournisseur")
+    is_zebra_id      = fields.Many2one('is.raspberry.zebra', "Imprimante Zebra", help="Utilisé pour imprimer les étiquettes des équipements")
+    is_ligne_directe = fields.Boolean('Ligne directe', compute='_compute_is_ligne_directe', store=True, readonly=False, help="Indique si l’utilisateur a une ligne directe pour apparaître dans l'annuaire téléphonique")
+
+
+    @api.depends('partner_id','partner_id.phone','partner_id.mobile')
+    def _compute_is_ligne_directe(self):
+        for obj in self:
+            is_ligne_directe= False
+            if obj.partner_id.phone or obj.partner_id.mobile:
+                is_ligne_directe=True
+            obj.is_ligne_directe = is_ligne_directe
 
 
     def update_group(self):

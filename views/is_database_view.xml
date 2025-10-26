@@ -19,6 +19,7 @@
                             <group>
                                 <field name='login' />
                                 <field name='password' password='True' />
+                                <field name='standard_telephonique'/>
                             </group>
                         </group>
                         <group>
@@ -38,6 +39,7 @@
                     <field name='port_server' />
                     <field name='database' />
                     <field name='login' />
+                    <field name='standard_telephonique'/>
                     <field name='is_database_origine_id' />
                 </tree>
             </field>
