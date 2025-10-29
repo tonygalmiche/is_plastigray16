@@ -91,8 +91,77 @@ class account_invoice(models.Model):
     ], "État")
     is_owork_id        = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
     is_anomalies_owork = fields.Text("Anomalies O'Work", readonly=True, copy=False)
+    is_anomalies_avoir_owork = fields.Text("Anomalies Avoir O'Work", readonly=True, copy=False)
     is_id_owork        = fields.Char("id O'Work", copy=False, help="Champ pour faire le lien entre la facture dans Odoo et la facture dans O'Work")
     is_url_owork       = fields.Char("URL O'Work", copy=False, compute='_compute_is_url_owork', help="Lien vers la facture dans O'Work")
+
+
+    @api.onchange('is_id_owork')
+    def onchange_is_id_owork(self):
+        if self.is_id_owork and self.move_type == 'in_refund':  # Uniquement pour les avoirs fournisseurs
+            msg = ""
+            try:
+                # Tentative de conversion en entier
+                id_owork_int = int(self.is_id_owork)
+            except ValueError:
+                # Le champ contient une valeur non numérique
+                msg = f"Erreur: L'id O'Work '{self.is_id_owork}' n'est pas un nombre valide"
+                self.is_anomalies_avoir_owork = msg
+                return
+            
+            # Recherche des lignes O'Work correspondantes
+            lines = self.env['is.import.facture.owork.line'].search([
+                ('id_owork', '=', id_owork_int)
+            ])
+            
+            if lines:
+                # Récupération des montants depuis la première ligne (tous identiques pour une même facture)
+                line = lines[0]
+                montant_ht_owork = line.montantht or 0
+                montant_tva_owork = line.montanttva or 0
+                montant_ttc_owork = line.montanttc or 0
+                
+                # Comparaison avec les montants de l'avoir (en inversant les signes)
+                montant_ht_avoir = -self.amount_untaxed if self.amount_untaxed else 0
+                montant_tva_avoir = -self.amount_tax if self.amount_tax else 0
+                montant_ttc_avoir = -self.amount_total if self.amount_total else 0
+                
+                msg = f"Comparaison montants O'Work (id: {self.is_id_owork}) vs Avoir:\n\n"
+                
+                # Comparaison et affichage ligne par ligne
+                anomalies = []
+                
+                # HT
+                ht_ok = round(montant_ht_owork, 2) == round(montant_ht_avoir, 2)
+                icone_ht = "✅" if ht_ok else "❌"
+                msg += f"{icone_ht} HT: O'Work {montant_ht_owork:,.2f} € / Avoir {montant_ht_avoir:,.2f} €\n"
+                if not ht_ok:
+                    anomalies.append("HT différent")
+                
+                # TVA
+                tva_ok = round(montant_tva_owork, 2) == round(montant_tva_avoir, 2)
+                icone_tva = "✅" if tva_ok else "❌"
+                msg += f"{icone_tva} TVA: O'Work {montant_tva_owork:,.2f} € / Avoir {montant_tva_avoir:,.2f} €\n"
+                if not tva_ok:
+                    anomalies.append("TVA différente")
+                
+                # TTC
+                ttc_ok = round(montant_ttc_owork, 2) == round(montant_ttc_avoir, 2)
+                icone_ttc = "✅" if ttc_ok else "❌"
+                msg += f"{icone_ttc} TTC: O'Work {montant_ttc_owork:,.2f} € / Avoir {montant_ttc_avoir:,.2f} €\n"
+                if not ttc_ok:
+                    anomalies.append("TTC différent")
+                
+                # Résumé
+                if anomalies:
+                    msg += f"\n⚠️ ANOMALIES: {', '.join(anomalies)}"
+                else:
+                    msg += "\n🎯 Tous les montants sont cohérents !"
+                    
+            else:
+                msg = f"❌ Aucune ligne O'Work trouvée pour l'id: {self.is_id_owork}\nVérifiez que cet ID existe dans les imports O'Work."
+            self.is_anomalies_avoir_owork = msg
+
 
 
     @api.depends('is_id_owork')
@@ -100,13 +169,7 @@ class account_invoice(models.Model):
         for obj in self:
             url=False
             if obj.is_id_owork:
-
-
                 url = f"https://plastigray.oflux-owork.fr/#!iz-docs$%7B%22space%22%3A4%7D#!iz-doc-form${obj.is_id_owork}"
-
-
-
-
             obj.is_url_owork = url
 
 

@@ -32,6 +32,7 @@ class is_import_facture_owork(models.Model):
     invoice_ids           = fields.One2many('account.move', 'is_owork_id', "Factures Odoo")
     state                 = fields.Selection([('analyse', 'Analyse'),('traite', 'Traité')], "État", index=True, default="analyse", tracking=True)
     factures              = fields.Text("Factures", readonly=True, tracking=True)
+    id_owork_list         = fields.Text("Liste des ID O'Work", readonly=True, tracking=True, compute='_compute_id_owork_list', store=True)
 
 
     @api.model_create_multi
@@ -55,6 +56,16 @@ class is_import_facture_owork(models.Model):
                 if line.anomalies:
                     nb_anomalies+=1
             obj.nb_anomalies = nb_anomalies
+
+
+    @api.depends('line_ids','line_ids.id_owork')
+    def _compute_id_owork_list(self):
+        for obj in self:
+            id_owork_list = []
+            for line in obj.line_ids:
+                if line.id_owork and line.id_owork not in id_owork_list:
+                    id_owork_list.append(str(line.id_owork))
+            obj.id_owork_list = ','.join(sorted(id_owork_list)) if id_owork_list else False
 
 
     def actualiser_lignes(self):

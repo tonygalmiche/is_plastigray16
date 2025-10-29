@@ -88,6 +88,7 @@
                             <field name="nb_lignes"/>
                             <field name="nb_factures_a_traiter"/>
                             <field name="factures"/>
+                            <field name="id_owork_list"/>
                             <field name="nb_factures"/>
                             <field name="nb_anomalies" style="background-color:orange" attrs="{'invisible': [('nb_anomalies', '=', 0)]}"/>
                             <!-- <field name="attachment_ids" widget="many2many_binary" attrs="{'readonly': [('state', '=', 'traite')]}"/> -->
@@ -116,6 +117,7 @@
                     <field name="nb_lignes" optional="show"/>
                     <field name="nb_factures_a_traiter" optional="show"/>
                     <field name="factures"     optional="show"/>
+                    <field name="id_owork_list" optional="show"/>
                     <field name="nb_factures"  optional="show"/>
                     <field name="nb_anomalies" optional="show"/>
                     <field name="create_date"  optional="hide" string="Créé le"/>
@@ -133,6 +135,7 @@
                 <search>
                     <field name="name" />
                     <field name="factures"/>
+                    <field name="id_owork_list"/>
                     <field name="state" />
                     <separator/>
                     <filter string="Analyse"  name="analyse"  domain="[('state', '=', 'analyse')]"/>

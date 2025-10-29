@@ -119,6 +119,13 @@
                             attrs="{'invisible': [('is_anomalies_owork','=', False)],'readonly':True}"
                         />
                     </div>
+                    <div style="background:orange;font-size:11pt" attrs="{'invisible':[('is_anomalies_avoir_owork','=',False)]}">
+                        <field 
+                            name="is_anomalies_avoir_owork"
+                            readonly="1" nolabel="1" force_save="1"
+                            attrs="{'invisible': [('is_anomalies_avoir_owork','=', False)],'readonly':True}"
+                        />
+                    </div>
                 </xpath>
 
 
