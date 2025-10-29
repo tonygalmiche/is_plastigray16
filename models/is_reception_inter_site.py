@@ -5,6 +5,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, date, timedelta
 import time
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class is_reception_inter_site(models.Model):
     _name = 'is.reception.inter.site'
@@ -32,6 +35,40 @@ class is_reception_inter_site(models.Model):
         ], "Etat", default='analyse', tracking=True)
 
 
+
+    @api.onchange('state')
+    def onchange_state(self):
+        print(self, self.state)
+
+        if self.state=='analyse':
+
+            if self._origin.id:
+
+
+                domain = [
+                    ('is_reception_inter_site_id' , '=', self._origin.id),
+                ]
+                pickings = self.env["stock.picking"].search(domain)
+                for picking in pickings:
+                    picking.is_reception_inter_site_id=False
+                    print(picking, picking.is_reception_inter_site_id)
+
+
+            # SQL="UPDATE stock_picking set is_reception_inter_site_id=Null WHERE is_reception_inter_site_id=%s"%obj.id
+            # cr.execute(SQL)
+            # cr.commit()
+
+
+
+
+
+        # if self.is_id_owork and self.move_type == 'in_refund':  # Uniquement pour les avoirs fournisseurs
+        #     msg = ""
+        #     try:
+
+
+
+
     def _get_location_id(self):
         filtre = [
             ('name' , '=', '01'),
@@ -49,8 +86,27 @@ class is_reception_inter_site(models.Model):
         return super().create(vals_list)
 
 
-    def get_reception(self, row_liv,filtre_sur_commande_client=False):
+
+                # rows = obj.get_reception(row_liv,filtre="commande=da")
+                # print('TEST 1 (commande=da)', row_liv['is_client_order_ref'], len(rows))
+                # if len(rows)==0:
+                #     #** Recherche les commandes sans is_num_da
+                #     rows = obj.get_reception(row_liv,filtre="da=null")
+                #     print('TEST 2 (da=null)', row_liv['is_client_order_ref'], len(rows))
+                #     if len(rows)==0:
+                #         #** Recherche dans toutes les commandes
+                #         rows = obj.get_reception(row_liv,filtre=False)
+
+
+
+    def get_reception(self, row_liv,filtre=False):
+        """
+            si filtre="commande=da" => Recherche si is_client_order_ref = is_num_da
+            si filtre="da=null"     => Recherche les commandes sans is_num_da
+            si filtre=False         => Recherche dans toutes les commandes
+        """
         cr  = self._cr
+
         for obj in self:
             is_code    = row_liv['is_code']
             qt_liv     = row_liv['quantity_done']
@@ -84,8 +140,6 @@ class is_reception_inter_site(models.Model):
                         sp.is_num_bl='%s' and
                         sp.is_reception_inter_site_id is Null 
                         -- and sm.product_uom_qty=%s
-                    ORDER BY pol.date_planned
-                    limit 1
                 """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
             else:
                 SQL="""%s
@@ -95,9 +149,15 @@ class is_reception_inter_site(models.Model):
                         sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
                         sp.is_reception_inter_site_id is Null 
                         -- and sm.product_uom_qty=%s
-                    ORDER BY pol.date_planned
-                    limit 1
                 """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
+
+            if filtre=="commande=da":
+                SQL="%s AND po.is_num_da='%s'  "%(SQL, row_liv['is_client_order_ref'])
+            if filtre=="da=null":
+                SQL="%s AND po.is_num_da is null"%SQL
+
+            SQL="%s ORDER BY pol.date_planned limit 1"%SQL
+
             cr.execute(SQL)
             rows = cr.dictfetchall()
             return rows
@@ -162,55 +222,23 @@ class is_reception_inter_site(models.Model):
                 move_id = row_liv['move_id']
                 date_debut = row_liv['date_done']
                 date_fin   = date_debut + timedelta(days=7)
-
-                # #** Recherche de la réception *********************************
-                # SQL="""
-                #     SELECT 
-                #         sp.id picking_id,
-                #         sp.name, 
-                #         pt.is_code,
-                #         sm.product_uom_qty,
-                #         sm.id move_id,
-                #         sm.location_dest_id,
-                #         sp.scheduled_date,
-                #         pol.date_planned
-                #     FROM stock_picking sp join stock_move         sm on sm.picking_id=sp.id
-                #                         join product_product      pp on sm.product_id=pp.id 
-                #                         join product_template     pt on pp.product_tmpl_id=pt.id
-                #                         join purchase_order_line pol on sm.purchase_line_id=pol.id
-                # """
-                # if obj.etat_reception=='fait':
-                #     SQL="""%s
-                #         WHERE 
-                #             pt.is_code='%s' and sp.partner_id=%s and
-                #             sp.state='done' and sm.state='done' and sp.picking_type_id=1 and
-                #             sp.is_date_reception>='%s' and sp.is_date_reception<='%s'  and
-                #             sp.is_num_bl='%s' and
-                #             sp.is_reception_inter_site_id is Null 
-                #             -- and sm.product_uom_qty=%s
-                #         ORDER BY pol.date_planned
-                #         limit 1
-                #     """%(SQL,is_code,obj.fournisseur_reception_id.id,date_debut,date_fin,obj.num_bl,qt_liv)
-                # else:
-                #     SQL="""%s
-                #         WHERE 
-                #             pt.is_code='%s' and sp.partner_id=%s and
-                #             sp.state not in ('done','cancel','draft') and 
-                #             sm.state not in ('cancel','done') and sp.picking_type_id=1 and 
-                #             sp.is_reception_inter_site_id is Null 
-                #             -- and sm.product_uom_qty=%s
-                #         ORDER BY pol.date_planned
-                #         limit 1
-                #     """%(SQL, is_code, obj.fournisseur_reception_id.id,qt_liv)
-                # cr.execute(SQL)
-                # rows = cr.dictfetchall()
-
-                rows = obj.get_reception(row_liv,filtre_sur_commande_client=True)
+                #** Recherche si is_client_order_ref = is_num_da
+                rows = obj.get_reception(row_liv,filtre="commande=da")
+                log='TEST 1 (commande=da) : is_client_order_ref=%s : nb=%s'%(row_liv['is_client_order_ref'], len(rows))
+                _logger.info(log)
                 if len(rows)==0:
-                    rows = obj.get_reception(row_liv,filtre_sur_commande_client=False)
+                    #** Recherche les commandes sans is_num_da
+                    rows = obj.get_reception(row_liv,filtre="da=null")
+                    log='TEST 2 (da=null) : is_client_order_ref=%s : nb=%s'%(row_liv['is_client_order_ref'], len(rows))
+                    _logger.info(log)
                     if len(rows)==0:
-                        msg="Réception non trouvée pour %s (Qt=%s)"%(is_code, qt_liv)
-                        alerte.append(msg)
+                        #** Recherche dans toutes les commandes
+                        rows = obj.get_reception(row_liv,filtre=False)
+                        log='TEST 3 (filtre=False) : is_client_order_ref=%s : nb=%s'%(row_liv['is_client_order_ref'], len(rows))
+                        _logger.info(log)
+                        if len(rows)==0:
+                            msg="Réception non trouvée pour %s (Qt=%s)"%(is_code, qt_liv)
+                            alerte.append(msg)
                 if len(rows)!=0:
                     for row in rows:
                         nb_rcp+=1
@@ -354,11 +382,11 @@ class is_reception_inter_site(models.Model):
 
                         msg = "%s : Liv %s du %s de %s : Scan de %s : Rcp %s du %s de %s : UC créées de %s : %s"%(
                             is_code.ljust(7), 
-                            ("%s/%s "%(row_liv['name'],row_liv['is_client_order_ref']))[0:20].ljust(20),
+                            ("%s/%s "%(row_liv['name'],row_liv['is_client_order_ref']))[0:28].ljust(28),
                             row_liv['is_date_livraison'],
                             str(int(qt_liv)).ljust(6), 
                             str(int(qt_scan)).rjust(6),
-                            ("%s/%s"%(num_rcp, row['is_num_da']))[0:22].ljust(22),
+                            ("%s/%s"%(num_rcp, row['is_num_da']))[0:28].ljust(28),
                             str(row['date_planned'])[0:10],  
                             str(int(qt_rcp)).ljust(6),
                             str(int(qt_uc)).ljust(6),
