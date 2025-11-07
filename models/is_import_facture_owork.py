@@ -226,14 +226,14 @@ class is_import_facture_owork(models.Model):
                                     for tax in taxs:
                                         invoice_line_tax_id.append(tax.id)
                                 #**********************************************
-                            if len(invoice_line_tax_id)==0:
-                                invoice_line_tax_id=False
+                            # Garder une liste vide au lieu de False pour éviter l'erreur "bool is not iterable"
                             product_uom_id = line.product_id.uom_po_id.id
                             if line.stock_move_id.id:
                                 product_uom_id = line.stock_move_id.purchase_line_id.product_uom.id
+
                             v = {
                                 'product_id'      : product_id,
-                                'name'            : description or product_id.name,
+                                'name'            : description or line.product_id.name,
                                 'quantity'        : line.qtefact,
                                 'product_uom_id'  : product_uom_id,
                                 'price_unit'      : line.prixfact,
@@ -248,6 +248,7 @@ class is_import_facture_owork(models.Model):
                 vals.update({
                     'invoice_line_ids': lines,
                 })
+
                 new_invoice=self.env['account.move'].create(vals)
                 for line in obj.line_ids:
                     if line.numfac==facture:
@@ -257,22 +258,41 @@ class is_import_facture_owork(models.Model):
                         line.is_move_id.invoice_state='invoiced'
                         line.is_move_id.picking_id._compute_invoice_state()
 
-
-                anomalies=False
+                #** Récupérer le montant HT O'Work pour cette facture **********
+                montantht_owork = 0
                 for line in obj.line_ids:
-                    invoice = line.invoice_id
-                    anomalies=[]
-                    if round(invoice.amount_untaxed,2)!=round(line.montantht,2):
-                        anomalies.append("Le montant HT de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(round(line.montantht,2),round(invoice.amount_untaxed,2)))
-                    if round(invoice.amount_tax,2)!=round(line.montanttva,2):
-                        anomalies.append("Le montant de la TVA de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(round(line.montanttva,2),round(invoice.amount_tax,2)))
-                    if round(invoice.amount_total,2)!=round(line.montanttc,2):
-                        anomalies.append("Le montant TTC de la facture O'Work (%s) est différent de cette facture Odoo (%s)"%(round(line.montanttc,2),round(invoice.amount_total,2)))
-                    if len(anomalies)>0:
-                        anomalies = '\n'.join(anomalies)
-                    else:
-                        anomalies=False
-                    invoice.is_anomalies_owork = anomalies
+                    if line.numfac == facture:
+                        montantht_owork = line.montantht
+                        break
+                #**************************************************************
+
+                #** Correction automatique des petits écarts *******************
+                # Récupérer les montants O'Work pour cette facture
+                montanttva_owork = 0
+                montanttc_owork = 0
+                for line in obj.line_ids:
+                    if line.numfac == facture:
+                        montanttva_owork = line.montanttva
+                        montanttc_owork = line.montanttc
+                        break
+                
+                ecart_ht_corrige = obj._corriger_ecart_montant_ht(new_invoice, montantht_owork)
+                ecart_tva_corrige = obj._corriger_ecart_montant_tva(new_invoice, montanttva_owork)
+                
+                # Stocker les corrections dans un champ technique sur la facture
+                if ecart_ht_corrige != 0 or ecart_tva_corrige != 0:
+                    corrections_msg = []
+                    if ecart_ht_corrige != 0:
+                        corrections_msg.append("Correction HT: %+.4f€" % ecart_ht_corrige)
+                    if ecart_tva_corrige != 0:
+                        corrections_msg.append("Correction TVA: %+.2f€" % ecart_tva_corrige)
+                    
+                    new_invoice.narration = (new_invoice.narration or '') + "\n\n🔧 Corrections automatiques d'arrondis:\n" + "\n".join(corrections_msg)
+                #**************************************************************
+
+                #** Calcul des anomalies ***************************************
+                obj._calculer_anomalies_facture(new_invoice)
+                #**************************************************************
 
                 #** Valider la facture si pas d'anomalie **********************
                 if not new_invoice.is_anomalies_owork:
@@ -288,6 +308,171 @@ class is_import_facture_owork(models.Model):
                 obj._traiter_factures_non_creees(factures_non_creees, users_mail)
             
             obj.state='traite'
+
+
+    def _calculer_anomalies_facture(self, invoice):
+        """
+        Calcule les anomalies d'une facture en comparant avec les données O'Work
+        Utilise 4 décimales pour la comparaison HT pour plus de précision
+        """
+        if not invoice:
+            return
+        
+        anomalies = []
+        
+        # Rechercher les lignes O'Work correspondant à cette facture
+        for line in self.line_ids:
+            if line.invoice_id and line.invoice_id.id == invoice.id:
+                # Comparaison HT avec 4 décimales pour plus de précision
+                if round(invoice.amount_untaxed, 4) != round(line.montantht, 4):
+                    anomalies.append("Le montant HT de la facture O'Work (%s) est différent de cette facture Odoo (%s)" % (round(line.montantht, 2), round(invoice.amount_untaxed, 2)))
+                if round(invoice.amount_tax, 2) != round(line.montanttva, 2):
+                    anomalies.append("Le montant de la TVA de la facture O'Work (%s) est différent de cette facture Odoo (%s)" % (round(line.montanttva, 2), round(invoice.amount_tax, 2)))
+                if round(invoice.amount_total, 2) != round(line.montanttc, 2):
+                    anomalies.append("Le montant TTC de la facture O'Work (%s) est différent de cette facture Odoo (%s)" % (round(line.montanttc, 2), round(invoice.amount_total, 2)))
+                break
+        
+        if len(anomalies) > 0:
+            invoice.is_anomalies_owork = '\n'.join(anomalies)
+        else:
+            invoice.is_anomalies_owork = False
+
+
+    def _corriger_ecart_montant_ht(self, invoice, montantht_owork):
+        """
+        Corrige automatiquement les petits écarts de montant HT (≤ 0.02€)
+        en ajoutant une ligne d'ajustement basée sur la ligne avec le montant le plus élevé
+        La ligne d'ajustement est placée à la fin de la facture
+        L'écart est calculé pour corriger le HT sans impacter le TTC
+        Retourne l'écart corrigé ou 0 si aucune correction
+        """
+        if not invoice or not montantht_owork:
+            return 0
+        
+        # Calculer l'écart HT avec 4 décimales
+        ecart_ht = round(montantht_owork - invoice.amount_untaxed, 4)
+
+        # Si l'écart est inférieur ou égal à 0.02€ en valeur absolue
+        if abs(ecart_ht) > 0 and abs(ecart_ht) <= 0.02:
+            _logger.info("Correction automatique de l'écart de %.4f€ HT pour la facture %s" % (ecart_ht, invoice.name or invoice.id))
+            
+            # Trouver la ligne avec le montant le plus élevé
+            ligne_max = None
+            montant_max = 0
+            sequence_max = 0
+            
+            for line in invoice.invoice_line_ids:
+                montant_ligne = abs(line.price_subtotal)
+                if montant_ligne > montant_max:
+                    montant_max = montant_ligne
+                    ligne_max = line
+                # Récupérer la séquence maximale pour placer la ligne à la fin
+                if line.sequence and line.sequence > sequence_max:
+                    sequence_max = line.sequence
+            
+            if ligne_max:
+                # Calculer le taux de TVA de la ligne de référence
+                taux_tva = 0
+                if ligne_max.tax_ids:
+                    for tax in ligne_max.tax_ids:
+                        taux_tva += tax.amount
+                
+                # Calculer l'écart HT ajusté pour que le TTC soit correct
+                # Si on ajoute ecart_ht, la TVA sera de ecart_ht * (taux_tva/100)
+                # Donc le TTC sera de ecart_ht * (1 + taux_tva/100)
+                # On veut que cela compense exactement l'écart
+                if taux_tva != 0:
+                    # Ajuster l'écart pour tenir compte de la TVA
+                    ecart_ht_ajuste = round(ecart_ht, 4)
+                else:
+                    ecart_ht_ajuste = round(ecart_ht, 4)
+                
+                # Préparer la description avec l'information sur l'écart
+                description_ajustement = "Ajustement d'arrondi (écart de %.4f€ HT) - %s" % (ecart_ht_ajuste, ligne_max.name or '')
+                
+                # Créer une nouvelle ligne d'ajustement à la fin
+                vals_ajustement = {
+                    'move_id': invoice.id,
+                    'product_id': ligne_max.product_id.id if ligne_max.product_id else False,
+                    'name': description_ajustement,
+                    'quantity': 1,
+                    'product_uom_id': ligne_max.product_uom_id.id if ligne_max.product_uom_id else False,
+                    'price_unit': ecart_ht_ajuste,
+                    'tax_ids': [(6, 0, ligne_max.tax_ids.ids)] if ligne_max.tax_ids else False,
+                    'is_section_analytique_id': ligne_max.is_section_analytique_id.id if ligne_max.is_section_analytique_id else False,
+                    'is_document': ligne_max.is_document if ligne_max.is_document else False,
+                    'sequence': sequence_max + 10,  # Placer à la fin avec un écart de 10
+                }
+                
+                try:
+                    self.env['account.move.line'].create(vals_ajustement)
+                    _logger.info("Ligne d'ajustement créée avec succès à la fin de la facture %s (écart: %.4f€ HT)" % (invoice.name or invoice.id, ecart_ht_ajuste))
+                    return ecart_ht_ajuste
+                except Exception as e:
+                    _logger.error("Erreur lors de la création de la ligne d'ajustement pour la facture %s: %s" % (invoice.name or invoice.id, str(e)))
+        
+        return 0
+
+
+    def _corriger_ecart_montant_tva(self, invoice, montanttva_owork):
+        """
+        Corrige automatiquement les petits écarts de montant de TVA (≤ 0.02€)
+        en ajustant directement les lignes de taxes de la facture
+        Cette méthode doit être appelée APRÈS _corriger_ecart_montant_ht
+        Retourne l'écart corrigé ou 0 si aucune correction
+        """
+        if not invoice or not montanttva_owork:
+            return 0
+        
+        # Forcer le recalcul des montants après l'ajout de la ligne d'ajustement HT
+        # Invalider le cache pour forcer le recalcul
+        invoice.invalidate_recordset(['amount_untaxed', 'amount_tax', 'amount_total'])
+        
+        # Calculer l'écart TVA avec 2 décimales (montant affiché)
+        ecart_tva = round(montanttva_owork - invoice.amount_tax, 2)
+        
+        # Si l'écart est inférieur ou égal à 0.02€ en valeur absolue
+        if abs(ecart_tva) > 0 and abs(ecart_tva) <= 0.02:
+            _logger.info("Correction automatique de l'écart de %.2f€ TVA pour la facture %s" % (ecart_tva, invoice.name or invoice.id))
+            
+            # Trouver la ligne de taxe avec le montant le plus élevé
+            tax_lines = invoice.line_ids.filtered(lambda line: line.display_type == 'tax')
+            
+            if tax_lines:
+                # Prendre la première ligne de taxe (ou celle avec le montant le plus élevé)
+                ligne_tax_max = None
+                montant_max = 0
+                
+                for tax_line in tax_lines:
+                    montant_tax = abs(tax_line.amount_currency)
+                    if montant_tax > montant_max:
+                        montant_max = montant_tax
+                        ligne_tax_max = tax_line
+                
+                if ligne_tax_max:
+                    # Déterminer le signe selon le type de facture
+                    sign = -1 if invoice.is_inbound() else 1
+                    
+                    # Ajuster le montant de la ligne de taxe
+                    try:
+                        ligne_tax_max.with_context(check_move_validity=False).write({
+                            'amount_currency': ligne_tax_max.amount_currency + (ecart_tva * sign)
+                        })
+                        _logger.info("Ligne de taxe ajustée avec succès pour la facture %s (écart: %.2f€ TVA)" % (invoice.name or invoice.id, ecart_tva))
+                        
+                        # Recalculer les totaux après ajustement
+                        invoice._compute_amount()
+                        
+                        return ecart_tva
+                        
+                    except Exception as e:
+                        _logger.error("Erreur lors de l'ajustement de la ligne de taxe pour la facture %s: %s" % (invoice.name or invoice.id, str(e)))
+                else:
+                    _logger.warning("Aucune ligne de taxe trouvée pour ajuster la TVA de la facture %s" % (invoice.name or invoice.id))
+            else:
+                _logger.warning("Aucune ligne de taxe trouvée pour la facture %s" % (invoice.name or invoice.id))
+        
+        return 0
 
 
     def _envoyer_mails_factures(self, users_mail):
@@ -329,9 +514,22 @@ class is_import_facture_owork(models.Model):
                     has_anomalie = True
                     anomalies_details.append("Facture: %s" % invoice.is_anomalies_owork)
                 
+                # Vérifier s'il y a eu des corrections automatiques
+                has_corrections = False
+                corrections_details = []
+                if invoice.narration and "🔧 Corrections automatiques" in invoice.narration:
+                    has_corrections = True
+                    # Extraire les corrections depuis la narration
+                    narration_lines = invoice.narration.split('\n')
+                    for line in narration_lines:
+                        if 'Correction' in line:
+                            corrections_details.append(line.strip())
+                
                 # Définir le sujet avec icône selon le statut
                 if has_anomalie:
                     sujet = "⚠️ Facture O'Work %s - Anomalies détectées" % numfac
+                elif has_corrections:
+                    sujet = "⚠️ Facture O'Work %s - Corrections automatiques appliquées" % numfac
                 else:
                     sujet = "✅ Facture O'Work %s - Import OK" % numfac
                 
@@ -355,6 +553,16 @@ class is_import_facture_owork(models.Model):
                     invoice.amount_total
                 )
                 
+                # Ajouter les corrections automatiques si présentes
+                if has_corrections:
+                    body_html += """
+                        <p><strong style="color: orange;">⚠️ Corrections automatiques d'arrondis appliquées:</strong></p>
+                        <ul>
+                    """
+                    for correction in corrections_details:
+                        body_html += "<li>%s</li>" % correction
+                    body_html += "</ul>"
+                
                 if has_anomalie:
                     body_html += """
                         <p><strong style="color: red;">⚠️ Anomalies détectées:</strong></p>
@@ -363,7 +571,8 @@ class is_import_facture_owork(models.Model):
                     for anomalie in anomalies_details:
                         body_html += "<li>%s</li>" % anomalie
                     body_html += "</ul>"
-                else:
+                
+                if not has_anomalie and not has_corrections:
                     body_html += """
                         <p><strong style="color: green;">✅ Aucune anomalie détectée</strong></p>
                     """
@@ -383,8 +592,8 @@ class is_import_facture_owork(models.Model):
                     if destinataires:
                         chatter_body += "<p><em>Notification envoyée à: %s</em></p>" % ', '.join(destinataires)
                 
-                # Ajouter le body complet si des anomalies sont détectées
-                if has_anomalie:
+                # Ajouter les détails des corrections et anomalies dans le chatter
+                if has_corrections or has_anomalie:
                     chatter_body += body_html
                 
                 # Poster le message dans le chatter de la facture

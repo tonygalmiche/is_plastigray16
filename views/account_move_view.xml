@@ -80,6 +80,20 @@
                     <field name="is_mode_envoi_facture" />
                     <field name="is_date_envoi_mail" attrs="{'invisible':[('is_mode_envoi_facture', '!=', 'mail'),('is_mode_envoi_facture', '!=', 'mail_client')]}" />
                 </field>
+
+                <xpath expr="//field[@name='invoice_line_ids']/tree" position="attributes">
+                    <attribute name="limit">200</attribute>
+                </xpath>
+
+
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
+                    <attribute name="optional">show</attribute>
+                </xpath>
+
+
+                
+
+
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="after" >
                     <field name="is_section_analytique_id" optional="show"/>
                     <field name="is_document" optional="show"/>
