@@ -38,18 +38,6 @@ class is_article_actualiser(models.TransientModel):
                     raise ValidationError('Postgresql non disponible !')
             if cnx:
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-
-# Ajouter le prix de vente
-#    --(
-#                 --    select prix_vente
-#                 --    from is_tarif_cial itc
-#                 --    where itc.id>0 and itc.indice_prix=999 and itc.product_id=pt.id
-#                 --    limit 1
-#                 --) as prix_vente
-#                 0 as prix_vente
-
-
                 SQL= """
                     SELECT 
                         pt.id                 as id_origine,
@@ -70,7 +58,12 @@ class is_article_actualiser(models.TransientModel):
                         uom.name->>'fr_FR'    as unite,
                         (select cout_std_total from is_cout cout where cout.name=pp.id limit 1) as cout_standard,
                         (select cout_act_total from is_cout cout where cout.name=pp.id limit 1) as cout_actualise,
-                        (select sum(quantite) from is_pic_3ans pic where pic.product_id=pp.id and annee='"""+str(annee)+"""') as prevision_annee_n
+                        (select sum(quantite) from is_pic_3ans pic where pic.product_id=pp.id and annee='"""+str(annee)+"""') as prevision_annee_n,
+                        (   select prix_vente
+                            from is_tarif_cial itc
+                            where itc.id>0 and itc.indice_prix=999 and itc.product_id=pt.id
+                            limit 1
+                        ) as prix_vente
                     FROM product_template pt left outer join is_product_famille       ipf on pt.family_id=ipf.id
                                              left outer join is_product_sous_famille ipsf on pt.sub_family_id=ipsf.id
                                              left outer join is_category               ic on pt.is_category_id=ic.id
@@ -81,6 +74,7 @@ class is_article_actualiser(models.TransientModel):
                                              left outer join product_product           pp on pp.product_tmpl_id=pt.id
                     WHERE 
                         pt.id>0
+                        -- and ic.name='0'
                     ORDER BY pt.is_code
                     -- limit 100
                 """
@@ -116,6 +110,7 @@ class is_article_actualiser(models.TransientModel):
                         'societe'          : base.database,
                         'cout_standard'    : row['cout_standard'],
                         'cout_actualise'   : row['cout_actualise'],
+                        'prix_vente'       : row['prix_vente'],
                         'prevision_annee_n': row['prevision_annee_n'],
                         'id_origine'       : row['id_origine'],
                     }
@@ -166,6 +161,7 @@ class is_article(models.Model):
     unite             = fields.Char("Unité")
     cout_standard     = fields.Float("Coût standard")
     cout_actualise    = fields.Float("Coût actualisé")
+    prix_vente        = fields.Float("Prix de vente")
     prevision_annee_n = fields.Float("Prévision Année N")
     client_id         = fields.Many2one('res.partner', 'Client par défaut')
     fournisseur_id    = fields.Many2one('res.partner', 'Fournisseur par défaut')

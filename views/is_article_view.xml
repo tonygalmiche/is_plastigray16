@@ -51,6 +51,7 @@
                             <field name="societe" readonly="1"/>
                             <field name="cout_standard" readonly="1"/>
                             <field name="cout_actualise" readonly="1"/>
+                            <field name="prix_vente" readonly="1"/>
                             <field name="prevision_annee_n" readonly="1"/>
                             <field name="id_origine" readonly="1"/>
                             <field name="url_origine" widget="url"/> 
@@ -83,6 +84,7 @@
                     <field name="societe"           optional="hide"/>
                     <field name="cout_standard"     optional="show"/>
                     <field name="cout_actualise"    optional="show"/>
+                    <field name="prix_vente"        optional="show"/>
                     <field name="prevision_annee_n" optional="show"/>
                     <field name="id_origine"        optional="hide"/>
                     <field name="url_origine"       optional="hide" widget="url"/> 
