@@ -87,6 +87,7 @@
                             <field name="name" />
                             <field name="nb_lignes"/>
                             <field name="nb_factures_a_traiter"/>
+                            <field name="nb_avoirs"/>
                             <field name="factures"/>
                             <field name="id_owork_list"/>
                             <field name="nb_factures"/>
@@ -114,17 +115,18 @@
                 <tree>
                     <field name="active" invisible="1"/>
                     <field name="name" />
-                    <field name="nb_lignes" optional="show"/>
+                    <field name="nb_lignes"     optional="show"/>
                     <field name="nb_factures_a_traiter" optional="show"/>
-                    <field name="factures"     optional="show"/>
+                    <field name="nb_avoirs"     optional="show"/>
+                    <field name="factures"      optional="show"/>
                     <field name="id_owork_list" optional="show"/>
-                    <field name="nb_factures"  optional="show"/>
-                    <field name="nb_anomalies" optional="show"/>
-                    <field name="create_date"  optional="hide" string="Créé le"/>
-                    <field name="create_uid"   optional="hide" string="Créé par"/>
-                    <field name="write_date"   optional="hide" string="Modifié le"/>
-                    <field name="write_uid"    optional="hide" string="Modifié par"/>
-                    <field name="state"        optional="show" widget="badge" decoration-warning="state=='analyse'" decoration-muted="state=='traite'"/>
+                    <field name="nb_factures"   optional="show"/>
+                    <field name="nb_anomalies"  optional="show"/>
+                    <field name="create_date"   optional="hide" string="Créé le"/>
+                    <field name="create_uid"    optional="hide" string="Créé par"/>
+                    <field name="write_date"    optional="hide" string="Modifié le"/>
+                    <field name="write_uid"     optional="hide" string="Modifié par"/>
+                    <field name="state"         optional="show" widget="badge" decoration-warning="state=='analyse'" decoration-muted="state=='traite'"/>
                 </tree>
             </field>
         </record>

@@ -38,6 +38,18 @@ class is_article_actualiser(models.TransientModel):
                     raise ValidationError('Postgresql non disponible !')
             if cnx:
                 cur = cnx.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+
+# Ajouter le prix de vente
+#    --(
+#                 --    select prix_vente
+#                 --    from is_tarif_cial itc
+#                 --    where itc.id>0 and itc.indice_prix=999 and itc.product_id=pt.id
+#                 --    limit 1
+#                 --) as prix_vente
+#                 0 as prix_vente
+
+
                 SQL= """
                     SELECT 
                         pt.id                 as id_origine,

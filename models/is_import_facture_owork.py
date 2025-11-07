@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api         # type: ignore
 from odoo.exceptions import ValidationError  # type: ignore
+from xmlrpc import client as xmlrpclib
 from datetime import datetime
 from urllib import request
 from urllib.error import HTTPError, URLError
@@ -26,6 +27,7 @@ class is_import_facture_owork(models.Model):
     attachment_ids        = fields.Many2many('ir.attachment', 'is_import_facture_owork_attachment_rel', 'import_id', 'attachment_id', 'Fichiers à importer')
     nb_lignes             = fields.Integer("Nombre de lignes"  , readonly=True, tracking=True)
     nb_factures_a_traiter = fields.Integer("Nombre de factures à traiter", readonly=True, tracking=True)
+    nb_avoirs             = fields.Integer("Nombre d'avoirs", readonly=True, tracking=True)
     nb_factures           = fields.Integer("Nombre de factures générées", readonly=True, tracking=True, compute='_compute_nb_factures', store=True)
     nb_anomalies          = fields.Integer("Nombre d'anomalies", readonly=True, tracking=True, compute='_compute_nb_anomalies', store=True)
     line_ids              = fields.One2many('is.import.facture.owork.line', 'import_id', "Lignes", copy=True)
@@ -63,7 +65,7 @@ class is_import_facture_owork(models.Model):
         for obj in self:
             id_owork_list = []
             for line in obj.line_ids:
-                if line.id_owork and line.id_owork not in id_owork_list:
+                if line.id_owork and str(line.id_owork) not in id_owork_list:
                     id_owork_list.append(str(line.id_owork))
             obj.id_owork_list = ','.join(sorted(id_owork_list)) if id_owork_list else False
 
@@ -71,238 +73,37 @@ class is_import_facture_owork(models.Model):
     def actualiser_lignes(self):
         for obj in self:
             obj.line_ids.actualiser_ligne()
+            obj._compute_id_owork_list()
 
             #** Statistiques **************************************************
             obj.nb_lignes = len(obj.line_ids)
-            factures=[]
+            factures = []
+            avoirs = []
             for line in obj.line_ids:
-                if line.numfac not in factures:
-                    factures.append(line.numfac)
+                if line.numfac not in factures and line.numfac not in avoirs:
+                    # Si le montant TTC est négatif, c'est un avoir
+                    if line.montanttc < 0:
+                        avoirs.append(line.numfac)
+                    else:
+                        factures.append(line.numfac)
+            
             obj.nb_factures_a_traiter = len(factures)
-            if len(factures)>0:
-                factures = '\n'.join(factures)
+            obj.nb_avoirs = len(avoirs)
+            
+            # Texte pour l'affichage
+            texte_factures = []
+            if len(factures) > 0:
+                texte_factures.extend(factures)
+            if len(avoirs) > 0:
+                texte_factures.extend(['AVOIR: ' + avoir for avoir in avoirs])
+            
+            if len(texte_factures) > 0:
+                obj.factures = '\n'.join(texte_factures)
             else:
-                factures=False
-            obj.factures = factures
+                obj.factures = False
             #******************************************************************
         return []
 
-    # def actualiser_lignes(self):
-    #     """Action pour actualiser les lignes depuis l'interface utilisateur"""
-    #     self._actualiser_lignes_compute()
-    #     return []
-    #     # return {
-    #     #     'type': 'ir.actions.client',
-    #     #     'tag': 'display_notification',
-    #     #     'params': {
-    #     #         'title': "Actualisation terminée",
-    #     #         'message': f"Lignes actualisées avec succès. {self.nb_lignes} lignes traitées, {self.nb_anomalies} anomalies détectées.",
-    #     #         'type': 'success',
-    #     #         'sticky': False,
-    #     #     }
-    #     # }
-
-
-
-    # def import_site_owork(self):
-    #     for obj in self:
-    #         company = self.env.company
-    #         url = company.is_url_facture_owork
-    #         if url : 
-    #             try:
-    #                 res = request.urlopen(request.Request(url), timeout=3)
-    #                 filename = res.info().get_filename()
-    #                 data = res.read()
-    #             except:
-    #                 raise ValidationError("Pas de fichier à récupérer ou problème de connexion !")
-    #             datas = base64.b64encode(data)
-    #             vals = {
-    #                 'name':        filename,
-    #                 'type':        'binary',
-    #                 'res_id':      obj.id,
-    #                 'datas':       datas,
-    #             }
-    #             attachment = self.env['ir.attachment'].create(vals)
-    #             obj.attachment_ids = [attachment.id]
-    #             obj.import_facture_owork()
-
-
-    # def import_facture_owork(self):
-    #     owork_obj = self.env['is.import.facture.owork.line']
-    #     for obj in self:
-    #         obj.line_ids.unlink()
-    #         for attachment in obj.attachment_ids:
-    #             csvfile = base64.decodebytes(attachment.datas).decode('cp1252')
-    #             csvfile = csvfile.replace('\r\n','\n').split("\n")
-    #             csvfile = csv.DictReader(csvfile, delimiter=';')
-    #             for ct, lig in enumerate(csvfile):
-    #                 nb=len(lig)
-    #                 vals={
-    #                     'import_id': obj.id,
-    #                     'fichier'  : attachment.name,
-    #                 }
-    #                 anomalies=[]
-    #                 for key in lig:
-    #                     if key:
-    #                         if key.strip()!='':
-    #                             val = lig[key]
-    #                             field_obj = owork_obj._fields[key]
-    #                             if isinstance(field_obj,  fields.Date):
-    #                                 try:
-    #                                     val=datetime.strptime(lig[key], '%Y-%m-%d')
-    #                                 except ValueError:
-    #                                     val=False
-    #                                 if not val:
-    #                                     try:
-    #                                         val=datetime.strptime(lig[key], '%d/%m/%Y')
-    #                                     except ValueError:
-    #                                         val=False
-    #                             if isinstance(field_obj,  fields.Float):
-    #                                 try:
-    #                                     val=float(val)
-    #                                 except ValueError:
-    #                                     val=False
-    #                             if isinstance(field_obj,  fields.Integer):
-    #                                 try:
-    #                                     val=int(val)
-    #                                 except ValueError:
-    #                                     val=False
-    #                             if val=='null':
-    #                                 val=False
-    #                             vals[key] = val
-
-    #                             #** Recherche reception ***************************
-    #                             if key=='numrecept' and val:
-    #                                 pickings = self.env['stock.picking'].search([('name','=',val)])
-    #                                 picking_id=False
-    #                                 for picking in pickings:
-    #                                     picking_id=picking.id
-    #                                 if picking_id:
-    #                                     vals['picking_id'] = picking_id
-    #                                 else:
-    #                                     anomalies.append('Réception %s non trouvée'%val)
-    #                             #**************************************************
-
-    #                             #** Recherche ligne de réception ******************
-    #                             if key=='numidodoo' and val:
-    #                                 moves = self.env['stock.move'].search([('id','=',val)])
-    #                                 stock_move_id=False
-    #                                 for move in moves:
-    #                                     stock_move_id=move.id
-    #                                 if stock_move_id:
-    #                                     vals['stock_move_id'] = stock_move_id
-    #                                 else:
-    #                                     anomalies.append('Id ligne de réception %s non trouvée'%val)
-    #                             #**************************************************
-
-    #                             #** Recherche article ***************************
-    #                             if key=='article':
-    #                                 product_id=False
-    #                                 if val:
-    #                                     products = self.env['product.product'].search([('is_code','=',val)])
-    #                                     for product in products:
-    #                                         product_id=product.id
-    #                                 else:
-    #                                     if lig['numidodoo']:
-    #                                         moves = self.env['stock.move'].search([('id','=', lig['numidodoo'])])
-    #                                         for move in moves:
-    #                                             product_id=move.product_id.id
-    #                                             vals['article'] = move.product_id.is_code
-    #                                 if product_id:
-    #                                     vals['product_id'] = product_id
-    #                                 else:
-    #                                     anomalies.append("Article '%s' non trouvée"%(val or ''))
-                                    
-
-
-    #                             #**************************************************
-
-    #                             # #** Recherche descriparticle **********************
-    #                             # if key=='descriparticle':
-    #                             #     if not val or val=='':
-    #                             #         anomalies.append("Description manquante")
-    #                             # #**************************************************
-
-    #                             #** Recherche fournissur **************************
-    #                             if key=='codefour':
-    #                                 partner_id=False
-    #                                 if val:
-    #                                     partners = self.env['res.partner'].search([('is_code','=',val)])
-    #                                     partner_id=False
-    #                                     for partner in partners:
-    #                                         partner_id=partner.id
-    #                                 else:
-
-
-    #                                     if lig['numidodoo'] and lig['numidodoo']!='null':
-
-
-    #                                         moves = self.env['stock.move'].search([('id','=', lig['numidodoo'])])
-    #                                         for move in moves:
-    #                                             partner_id=move.picking_id.partner_id.id
-    #                                             vals['codefour'] = move.picking_id.partner_id.is_code
-    #                                 if partner_id:
-    #                                     vals['partner_id'] = partner_id
-    #                                 else:
-    #                                     anomalies.append("Fournisseur '%s' non trouvée"%(val or ''))
-    #                             #**************************************************
-
-    #                             #** Recherche TVA **************************
-    #                             if key=='codetvafact' and val:
-    #                                 taxs = self.env['account.tax'].search([('description','=',val)])
-    #                                 tax_id=False
-    #                                 for tax in taxs:
-    #                                     tax_id=tax.id
-    #                                 if tax_id:
-    #                                     vals['tax_id'] = tax_id
-    #                                 else:
-    #                                     anomalies.append("TVA '%s' non trouvée"%(val or ''))
-    #                             #**************************************************
-
-    #                 #** Comparatif prix d'origine et prix facturé *************
-    #                 prixorigine = vals.get('prixorigine') or 0
-    #                 prixfact    = vals.get('prixfact') or 0
-    #                 if prixorigine>0 and prixfact>0 and round(prixorigine,2)!=round(prixfact,2):
-    #                     anomalies.append("Le prix d'origine '%s' est différent du prix facturé %s"%(round(prixorigine,2),round(prixfact,2)))
-
-    #                 #** Vérification total ligne facturé **********************
-    #                 prixfact      = vals.get('prixfact')     or 0
-    #                 qtefact       = vals.get('qtefact')      or 0
-    #                 totalfacture  = vals.get('totalfacture') or 0
-    #                 total_calcule = round(prixfact*qtefact,2)
-    #                 if total_calcule != totalfacture:
-    #                     anomalies.append("Le total facturé %s est différent de %s x %s (%s)"%(totalfacture,prixfact,qtefact,total_calcule))
-
-    #                 if len(anomalies)>0:
-    #                     vals['anomalies'] = '\n'.join(anomalies)
-                    
-    #                 line = self.env['is.import.facture.owork.line'].create(vals)
-
-
-    #         #** Vérfication que total facturé correspond au total des lignes **
-    #         factures={}
-    #         nb_anomalies = 0
-    #         for line in obj.line_ids:
-    #             if line.anomalies:
-    #                 nb_anomalies+=1
-    #             numfac = line.numfac
-    #             if numfac not in factures:
-    #                 factures[numfac] = 0
-    #             factures[numfac] += line.totalfacture
-    #         for line in obj.line_ids:
-    #             numfac = line.numfac
-    #             total_calcule = round(factures[numfac],2)
-    #             if line.montantht != total_calcule:
-    #                 anomalie = "Le total des lignes %s est différent du total de la facture %s"%(total_calcule,line.montantht)
-    #                 if line.anomalies:
-    #                     line.anomalies="%s\n%s"%(line.anomalies,anomalie)
-    #                 else:
-    #                     line.anomalies=anomalie
-    #         #******************************************************************
-            
-    #         obj.nb_lignes    = len(obj.line_ids)
-    #         obj.nb_factures  = len(factures)
-    #         obj.nb_anomalies = nb_anomalies
 
 
     def voir_les_lignes(self):
@@ -322,13 +123,60 @@ class is_import_facture_owork(models.Model):
 
 
 
+    def get_destinataires(self):
+        "Recherche de la liste de diffusion pour l'envoi des mails"
+        for obj in self:
+            company = self.env.company
+            DB        = company.is_nom_base_odoo0
+            USERID    = 2
+            USERPASS  = company.is_mdp_admin
+            URL       = company.is_url_odoo0 
+            sock = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
+            domain=[('code','=','import-facture-owork')]
+            users=False
+            try:
+                lines=sock.execute_kw(DB, USERID, USERPASS, 'is.liste.diffusion.mail', 'search_read', [domain], {'fields': ['user_ids'], 'limit': 1, 'order': 'id desc'})
+                user_ids=[]
+                for line in lines:
+                    user_ids=line['user_ids']
+                    domain=[('id','in',user_ids)]
+                    users=sock.execute_kw(DB, USERID, USERPASS, 'res.users', 'search_read', [domain], {'fields': ['name','email']})
+            except:
+                msg="Problème de connexion sur %s ou sur la base %s"%(URL,DB)
+                _logger.warning(msg)
+            return(users)
+
+
     def creation_factures(self):
         for obj in self:
-
-            #** Liste des factures à créer ************************************
+            users_mail = obj.get_destinataires()
+            
+            #** Liste de toutes les factures à traiter (hors avoirs) **********
+            factures_a_traiter = []
+            avoirs_list = []
+            for line in obj.line_ids:
+                if line.numfac:
+                    # Si le montant TTC est négatif, c'est un avoir
+                    if line.montanttc < 0:
+                        if line.numfac not in avoirs_list:
+                            avoirs_list.append(line.numfac)
+                    else:
+                        if line.numfac not in factures_a_traiter:
+                            factures_a_traiter.append(line.numfac)
+            #******************************************************************
+            
+            #** Liste des factures à créer (hors avoirs) **********************
             factures={}
+            factures_non_creees = {}  # Dictionnaire pour stocker les raisons de non-création
             for line in obj.line_ids:
                 numfac = line.numfac
+                
+                # Ne pas créer de facture si c'est un avoir (montant négatif)
+                if line.montanttc < 0:
+                    if numfac not in factures_non_creees:
+                        factures_non_creees[numfac] = "Avoir - Traitement non supporté (montant TTC négatif)"
+                    continue
+                
                 if numfac not in factures:
                     bon_a_payer = True
                     if line.litige=='L':
@@ -347,6 +195,17 @@ class is_import_facture_owork(models.Model):
                             'is_id_owork'     : line.id_owork,
                         }
                         factures[numfac]=vals
+                    else:
+                        # Enregistrer la raison de non-création
+                        if numfac not in factures_non_creees:
+                            raisons = []
+                            if not line.partner_id:
+                                raisons.append("Fournisseur manquant")
+                            if not line.datefact:
+                                raisons.append("Date de facture manquante")
+                            if not line.numfac:
+                                raisons.append("Numéro de facture manquant")
+                            factures_non_creees[numfac] = ', '.join(raisons)
             #******************************************************************
 
             for facture in factures:
@@ -356,7 +215,6 @@ class is_import_facture_owork(models.Model):
                     if line.numfac==facture:
                         product_id = line.product_id.id
                         if product_id:
-                            #and line.stock_move_id.id:
                             description     = line.descriparticle
                             quantite        = line.qtefact
                             invoice_line_tax_id=[]
@@ -370,45 +228,37 @@ class is_import_facture_owork(models.Model):
                                 #**********************************************
                             if len(invoice_line_tax_id)==0:
                                 invoice_line_tax_id=False
-                            #is_document=line.move_id.purchase_line_id.is_num_chantier
-                            #if is_document==False:
-                            #    is_document=line.move_id.purchase_line_id.order_id.is_document
-
-
                             product_uom_id = line.product_id.uom_po_id.id
                             if line.stock_move_id.id:
                                 product_uom_id = line.stock_move_id.purchase_line_id.product_uom.id
-
                             v = {
                                 'product_id'      : product_id,
                                 'name'            : description or product_id.name,
                                 'quantity'        : line.qtefact,
-                                #'product_uom_id' : line.stock_move_id.product_uom.id,
                                 'product_uom_id'  : product_uom_id,
                                 'price_unit'      : line.prixfact,
                                 'tax_ids'         : [(6,0,invoice_line_tax_id)],
-                                #'is_document'    : is_document,
                                 'is_move_id'      : line.stock_move_id.id,
                                 'purchase_line_id': line.stock_move_id.purchase_line_id.id,
                                 'is_section_analytique_id': line.product_id.is_section_analytique_ha_id.id,
                                 'is_document'     : line.num_chantier_fact or line.num_chantier_rcp or False,
                             }
                             lines.append([0,False,v]) 
-
-
                 vals=factures[facture]
                 vals.update({
                     'invoice_line_ids': lines,
                 })
-                invoice=self.env['account.move'].create(vals)
+                new_invoice=self.env['account.move'].create(vals)
                 for line in obj.line_ids:
                     if line.numfac==facture:
-                        line.invoice_id = invoice.id
-                for line in invoice.invoice_line_ids:
+                        line.invoice_id = new_invoice.id
+                for line in new_invoice.invoice_line_ids:
                     if line.is_move_id:
                         line.is_move_id.invoice_state='invoiced'
                         line.is_move_id.picking_id._compute_invoice_state()
 
+
+                anomalies=False
                 for line in obj.line_ids:
                     invoice = line.invoice_id
                     anomalies=[]
@@ -423,7 +273,225 @@ class is_import_facture_owork(models.Model):
                     else:
                         anomalies=False
                     invoice.is_anomalies_owork = anomalies
+
+                #** Valider la facture si pas d'anomalie **********************
+                if not new_invoice.is_anomalies_owork:
+                    new_invoice.action_post()
+                #**************************************************************
+
+
+            # Envoi des mails pour chaque facture créée
+            obj._envoyer_mails_factures(users_mail)
+            
+            # Traiter les factures non créées
+            if factures_non_creees:
+                obj._traiter_factures_non_creees(factures_non_creees, users_mail)
+            
             obj.state='traite'
+
+
+    def _envoyer_mails_factures(self, users_mail):
+        """Envoie un mail pour chaque facture créée avec indication des anomalies"""
+        for obj in self:
+            if not users_mail:
+                _logger.warning("Aucun destinataire trouvé pour l'envoi des mails")
+                return
+            
+            # Récupération des emails des destinataires
+            emails = []
+            for user in users_mail:
+                if user.get('email'):
+                    emails.append(user['email'])
+            
+            if not emails:
+                _logger.warning("Aucune adresse email valide trouvée dans la liste de diffusion")
+                return
+            
+            # Envoi d'un mail pour chaque facture
+            factures_traitees = {}
+            for line in obj.line_ids:
+                if line.invoice_id and line.numfac not in factures_traitees:
+                    factures_traitees[line.numfac] = line.invoice_id
+            
+            for numfac, invoice in factures_traitees.items():
+                # Vérifier s'il y a des anomalies
+                has_anomalie = False
+                anomalies_details = []
+                
+                # Vérifier les anomalies sur les lignes
+                for line in obj.line_ids:
+                    if line.numfac == numfac and line.anomalies:
+                        has_anomalie = True
+                        anomalies_details.append("Ligne %s: %s" % (line.id, line.anomalies))
+                
+                # Vérifier les anomalies sur la facture elle-même
+                if invoice.is_anomalies_owork:
+                    has_anomalie = True
+                    anomalies_details.append("Facture: %s" % invoice.is_anomalies_owork)
+                
+                # Définir le sujet avec icône selon le statut
+                if has_anomalie:
+                    sujet = "⚠️ Facture O'Work %s - Anomalies détectées" % numfac
+                else:
+                    sujet = "✅ Facture O'Work %s - Import OK" % numfac
+                
+                # Construire le corps du mail
+                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                invoice_url = "%s/web#id=%s&model=account.move&view_type=form" % (base_url, invoice.id)
+                
+                body_html = """
+                    <p>Bonjour,</p>
+                    <p>La facture <a href="%s">%s</a> a été importée depuis O'Work.</p>
+                    <p><strong>Fournisseur:</strong> %s</p>
+                    <p><strong>Date:</strong> %s</p>
+                    <p><strong>Montant HT:</strong> %.2f €</p>
+                    <p><strong>Montant TTC:</strong> %.2f €</p>
+                """ % (
+                    invoice_url,
+                    numfac,
+                    invoice.partner_id.name,
+                    invoice.invoice_date,
+                    invoice.amount_untaxed,
+                    invoice.amount_total
+                )
+                
+                if has_anomalie:
+                    body_html += """
+                        <p><strong style="color: red;">⚠️ Anomalies détectées:</strong></p>
+                        <ul>
+                    """
+                    for anomalie in anomalies_details:
+                        body_html += "<li>%s</li>" % anomalie
+                    body_html += "</ul>"
+                else:
+                    body_html += """
+                        <p><strong style="color: green;">✅ Aucune anomalie détectée</strong></p>
+                    """
+                # Préparer le message pour le chatter
+                chatter_body = "<p><strong>%s</strong></p>" % sujet
+                
+                # Ajouter les destinataires dans le message
+                if users_mail:
+                    destinataires = []
+                    for user in users_mail:
+                        name = user.get('name', 'Inconnu')
+                        email = user.get('email', '')
+                        if email:
+                            destinataires.append("%s (%s)" % (name, email))
+                        else:
+                            destinataires.append(name)
+                    if destinataires:
+                        chatter_body += "<p><em>Notification envoyée à: %s</em></p>" % ', '.join(destinataires)
+                
+                # Ajouter le body complet si des anomalies sont détectées
+                if has_anomalie:
+                    chatter_body += body_html
+                
+                # Poster le message dans le chatter de la facture
+                try:
+                    invoice.message_post(
+                        body=chatter_body,
+                        subject=sujet,
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    _logger.info("Message posté dans le chatter de la facture %s" % numfac)
+                except Exception as e:
+                    _logger.error("Erreur lors du post du message pour la facture %s: %s" % (numfac, str(e)))
+                
+                # Envoi du mail aux destinataires
+                mail_values = {
+                    'subject': sujet,
+                    'body_html': body_html,
+                    'email_to': ','.join(emails),
+                    'email_from': self.env.user.email or 'noreply@plastigray.com',
+                    'auto_delete': False,
+                }
+                
+                try:
+                    mail = self.env['mail.mail'].create(mail_values)
+                    mail.send()
+                    _logger.info("Mail envoyé pour la facture %s à %s" % (numfac, ','.join(emails)))
+                except Exception as e:
+                    _logger.error("Erreur lors de l'envoi du mail pour la facture %s: %s" % (numfac, str(e)))
+
+
+    def _traiter_factures_non_creees(self, factures_non_creees, users_mail):
+        """Traite les factures qui n'ont pas pu être créées"""
+        for obj in self:
+            if not factures_non_creees:
+                return
+            
+            # Récupération des emails des destinataires
+            emails = []
+            if users_mail:
+                for user in users_mail:
+                    if user.get('email'):
+                        emails.append(user['email'])
+            
+            # Construire le message pour le chatter de l'import
+            chatter_body = "<p><strong>⚠️ Factures O'Work non créées</strong></p>"
+            chatter_body += "<p>Les factures suivantes n'ont pas pu être importées :</p><ul>"
+            
+            for numfac, raison in factures_non_creees.items():
+                chatter_body += "<li><strong>%s</strong> : %s</li>" % (numfac, raison)
+            
+            chatter_body += "</ul>"
+            
+            # Ajouter les destinataires dans le message
+            if users_mail:
+                destinataires = []
+                for user in users_mail:
+                    name = user.get('name', 'Inconnu')
+                    email = user.get('email', '')
+                    if email:
+                        destinataires.append("%s (%s)" % (name, email))
+                    else:
+                        destinataires.append(name)
+                if destinataires:
+                    chatter_body += "<p><em>Notification envoyée à: %s</em></p>" % ', '.join(destinataires)
+            
+            # Poster le message dans le chatter de l'import O'Work
+            try:
+                obj.message_post(
+                    body=chatter_body,
+                    subject="⚠️ Factures O'Work non créées",
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_comment',
+                )
+                _logger.info("Message posté dans le chatter de l'import %s pour les factures non créées" % obj.name)
+            except Exception as e:
+                _logger.error("Erreur lors du post du message pour l'import %s: %s" % (obj.name, str(e)))
+            
+            # Envoyer un mail si des destinataires sont disponibles
+            if emails:
+                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                import_url = "%s/web#id=%s&model=is.import.facture.owork&view_type=form" % (base_url, obj.id)
+                
+                body_html = """
+                    <p>Bonjour,</p>
+                    <p>Lors de l'import O'Work <a href="%s">%s</a>, certaines factures n'ont pas pu être créées :</p>
+                    <ul>
+                """ % (import_url, obj.name)
+                
+                for numfac, raison in factures_non_creees.items():
+                    body_html += "<li><strong>Facture %s</strong> : %s</li>" % (numfac, raison)
+                
+                
+                mail_values = {
+                    'subject': "⚠️ Import O'Work %s - Factures non créées" % obj.name,
+                    'body_html': body_html,
+                    'email_to': ','.join(emails),
+                    'email_from': self.env.user.email or 'noreply@plastigray.com',
+                    'auto_delete': False,
+                }
+                
+                try:
+                    mail = self.env['mail.mail'].create(mail_values)
+                    mail.send()
+                    _logger.info("Mail envoyé pour les factures non créées de l'import %s à %s" % (obj.name, ','.join(emails)))
+                except Exception as e:
+                    _logger.error("Erreur lors de l'envoi du mail pour l'import %s: %s" % (obj.name, str(e)))
 
    
     def voir_les_factures(self):
@@ -517,7 +585,7 @@ class is_import_facture_owork_line(models.Model):
     anomalies      = fields.Text("Anomalies", tracking=True, copy=False, compute='actualiser_ligne', store=True, readonly=True)
  
 
-    @api.depends('codefour','codefourrcp','numidodoo','codetvafact','prixorigine','prixfact','qtefact','totalfacture','total','montantht','article')
+    @api.depends('numrecept','codefour','codefourrcp','numidodoo','codetvafact','prixorigine','prixfact','qtefact','totalfacture','total','montantht','article')
     def actualiser_ligne(self):
         cr=self._cr
         for obj in self:
@@ -549,8 +617,6 @@ class is_import_facture_owork_line(models.Model):
                 for partner in partners:
                     partner_id = partner.id
             obj.partner_id = partner_id
-            if not partner_id:
-                anomalies.append("Fournisseur à facturer non trouvé (codefour=%s)"%(codefour))
             #******************************************************************
 
             numrecept = obj.numrecept or ''
@@ -596,6 +662,11 @@ class is_import_facture_owork_line(models.Model):
                 obj.product_id = product_id
                 obj.partner_id = partner_id
                 #*******************************************************************
+
+            if not partner_id:
+                anomalies.append("Fournisseur à facturer non trouvé (codefour=%s)"%(codefour))
+
+
 
             #** Recherche TVA **************************************************
             if obj.codetvafact:
@@ -650,3 +721,8 @@ class is_import_facture_owork_line(models.Model):
                 anomalies=False
             obj.anomalies = anomalies
             #******************************************************************
+
+
+
+
+
