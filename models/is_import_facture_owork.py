@@ -308,6 +308,7 @@ class is_import_facture_owork(models.Model):
                 obj._traiter_factures_non_creees(factures_non_creees, users_mail)
             
             obj.state='traite'
+        return []
 
 
     def _calculer_anomalies_facture(self, invoice):
