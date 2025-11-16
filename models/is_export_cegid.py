@@ -5,8 +5,6 @@ import datetime
 import codecs
 import unicodedata
 import base64
-# import csv, cStringIO
-# import sys
 import os
 import logging
 _logger = logging.getLogger(__name__)
@@ -31,8 +29,6 @@ def float2txt(val,lg):
 def s(txt,lg):
     if type(txt)==int or type(txt)==float:
         txt=str(txt)
-    #if type(txt)!=unicode:
-    #    txt = unicode(txt,'utf-8')
     txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore').decode('utf8')
     txt=txt+'                                                                                                                           '
     txt=txt[:lg]
@@ -123,43 +119,10 @@ class is_export_cegid(models.Model):
             if len(invoices)==0:
                 raise ValidationError('Aucune facture à traiter')
 
-
-
             for invoice in invoices:
                 #** Mettre le numéro de Folio sur la facture *******************
                 invoice.is_export_cegid_id=obj.id
                 #***************************************************************
-
-
-                # sql="""
-                #     SELECT  ai.name, 
-                #             ai.invoice_date, 
-                #             rp.is_code, 
-                #             rp.name, 
-                #             aa.code, 
-                #             isa.name, 
-                #             ai.move_type, 
-                #             ai.date_due,
-                #             aj.code,
-                #             sum(aml.debit), 
-                #             sum(aml.credit),
-                #             rp.supplier,
-                #             ai.is_bon_a_payer,
-                #             ai.supplier_invoice_number,
-                #             rp.is_adr_groupe,
-                #             ail.is_document,
-                #             ai.id
-                #     FROM account_move_line aml inner join account_invoice ai             on aml.move_id=ai.move_id
-                #                                inner join account_account aa             on aml.account_id=aa.id
-                #                                inner join res_partner rp                 on ai.partner_id=rp.id
-                #                                left outer join account_invoice_line ail  on aml.is_account_invoice_line_id=ail.id
-                #                                left outer join is_section_analytique isa on ail.is_section_analytique_id=isa.id
-                #                                left outer join account_journal aj        on rp.is_type_reglement=aj.id
-                #     WHERE ai.id="""+str(invoice.id)+"""
-                #     GROUP BY ai.is_bon_a_payer, ai.name, ai.invoice_date, rp.is_code, rp.name, aa.code, isa.name, ai.move_type, ai.date_due, aj.code, rp.supplier,ai.supplier_invoice_number,rp.is_adr_groupe,ail.is_document,ai.id
-                #     ORDER BY ai.is_bon_a_payer, ai.name, ai.invoice_date, rp.is_code, rp.name, aa.code, isa.name, ai.move_type, ai.date_due, aj.code, rp.supplier,ai.supplier_invoice_number,rp.is_adr_groupe,ail.is_document,ai.id
-                # """
-
 
                 sql="""
                     SELECT  am.name, 
@@ -178,20 +141,17 @@ class is_export_cegid(models.Model):
                             am.supplier_invoice_number,
                             rp.is_adr_groupe,
                             aml.is_document,
-                            am.id
+                            am.id,
+                            am.is_id_owork
                     FROM account_move_line aml inner join account_move am                on aml.move_id=am.id
                                                inner join account_account aa             on aml.account_id=aa.id
                                                inner join res_partner rp                 on am.partner_id=rp.id
                                                left outer join is_section_analytique isa on aml.is_section_analytique_id=isa.id
                                                left outer join account_journal aj        on rp.is_type_reglement=aj.id
                     WHERE am.id="""+str(invoice.id)+"""
-                    GROUP BY am.is_bon_a_payer, am.name, am.invoice_date, rp.is_code, rp.name, aa.code, isa.name, am.move_type, am.invoice_date_due, aj.code, rp.supplier,am.supplier_invoice_number,rp.is_adr_groupe,aml.is_document,am.id
+                    GROUP BY am.is_bon_a_payer, am.name, am.invoice_date, rp.is_code, rp.name, aa.code, isa.name, am.move_type, am.invoice_date_due, aj.code, rp.supplier,am.supplier_invoice_number,rp.is_adr_groupe,aml.is_document,am.id,am.is_id_owork
                     ORDER BY am.is_bon_a_payer, am.name, am.invoice_date, rp.is_code, rp.name, aa.code, isa.name, am.move_type, am.invoice_date_due, aj.code, rp.supplier,am.supplier_invoice_number,rp.is_adr_groupe,aml.is_document,am.id
                 """
-
-
-
-
 
                 # Recherche des affaires par facture pour les mettre sur le compte 401000
                 cr.execute(sql)
@@ -296,16 +256,15 @@ class is_export_cegid(models.Model):
                     axe             = ''
 
                     #TODO : A revoir avec les axes analytiques
-                    affaire         = ''
+                    #affaire = ''
+                    affaire = row[17] # is_id_owork
 
                     reflibre        = obj.name
-
 
                     #Opération soumise à la TVA : 
                     # - : Non
                     # X : Oui
                     tvaencaissement = '-'
-
 
                     #TODO : A revoir
                     #Régime de TVA du Tiers	
@@ -318,7 +277,6 @@ class is_export_cegid(models.Model):
                     #AUT	Autoliquidation
                     regimetva       = 'FRA'
 
-
                     #TODO : A revoir
                     #Code TVA	
                     #T0	Sans taux
@@ -326,7 +284,6 @@ class is_export_cegid(models.Model):
                     #TN	Taux normal
                     #TR	Taux réduit
                     tva = ''
-
 
                     #** Bon à payer (champ libre position 833) *****************
                     BonAPayer = row[12]
@@ -462,12 +419,10 @@ class is_export_cegid(models.Model):
                 f.write('\r\n')
 
             f.close()
-            #r = open(dest,'rb').read().encode('base64')
             r = open(dest,'rb').read()
             datas =  base64.b64encode(r)
             vals = {
                 'name':        name,
-                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
@@ -476,14 +431,8 @@ class is_export_cegid(models.Model):
             id = self.env['ir.attachment'].create(vals)
 
             #** Enregistrement dans le dossier de destination ******************
-
-
             company  = self.env.user.company_id
             dossier_interface_cegid = company.is_dossier_interface_cegid
-            #dossier_interface_cegid = 'root@freedom:"/Utilisateurs/Interface\\ CEGID/Odoo16/"'
-
-            #print("dossier_interface_cegid=",dossier_interface_cegid)
-
 
             if dossier_interface_cegid:
                 #TODO : Avec rsync, il est possible de faire le chmod en même temps 
