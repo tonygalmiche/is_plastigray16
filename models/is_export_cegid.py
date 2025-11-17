@@ -257,7 +257,7 @@ class is_export_cegid(models.Model):
 
                     #TODO : A revoir avec les axes analytiques
                     #affaire = ''
-                    affaire = row[17] # is_id_owork
+                    affaire = row[17] or '' # is_id_owork
 
                     reflibre        = obj.name
 
@@ -403,7 +403,8 @@ class is_export_cegid(models.Model):
                 f.write(s('',8+8))
 
                 f.write(s(l.societe,3))
-                f.write(s(l.affaire,17))
+
+                f.write(s(l.affaire or '',17))
 
                 f.write(s('',8+3+20+20+3+3))
 
