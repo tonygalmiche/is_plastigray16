@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 class is_reception_inter_site(models.Model):
     _name = 'is.reception.inter.site'
-    _inherit=['mail.thread']
+    _inherit=['mail.thread', 'mail.activity.mixin']
     _description = 'Réception inter-site'
     _order = 'name desc'
 
@@ -33,41 +33,19 @@ class is_reception_inter_site(models.Model):
             ('controle' , 'Contrôle physique'),
             ('termine'  , 'Terminé'),
         ], "Etat", default='analyse', tracking=True)
-
+    active = fields.Boolean('Active', default=True, tracking=True)
 
 
     @api.onchange('state')
     def onchange_state(self):
-        print(self, self.state)
-
         if self.state=='analyse':
-
             if self._origin.id:
-
-
                 domain = [
                     ('is_reception_inter_site_id' , '=', self._origin.id),
                 ]
                 pickings = self.env["stock.picking"].search(domain)
                 for picking in pickings:
                     picking.is_reception_inter_site_id=False
-                    print(picking, picking.is_reception_inter_site_id)
-
-
-            # SQL="UPDATE stock_picking set is_reception_inter_site_id=Null WHERE is_reception_inter_site_id=%s"%obj.id
-            # cr.execute(SQL)
-            # cr.commit()
-
-
-
-
-
-        # if self.is_id_owork and self.move_type == 'in_refund':  # Uniquement pour les avoirs fournisseurs
-        #     msg = ""
-        #     try:
-
-
-
 
     def _get_location_id(self):
         filtre = [
@@ -84,19 +62,6 @@ class is_reception_inter_site(models.Model):
         for vals in vals_list:
             vals['name'] = self.env['ir.sequence'].next_by_code('is.reception.inter.site')
         return super().create(vals_list)
-
-
-
-                # rows = obj.get_reception(row_liv,filtre="commande=da")
-                # print('TEST 1 (commande=da)', row_liv['is_client_order_ref'], len(rows))
-                # if len(rows)==0:
-                #     #** Recherche les commandes sans is_num_da
-                #     rows = obj.get_reception(row_liv,filtre="da=null")
-                #     print('TEST 2 (da=null)', row_liv['is_client_order_ref'], len(rows))
-                #     if len(rows)==0:
-                #         #** Recherche dans toutes les commandes
-                #         rows = obj.get_reception(row_liv,filtre=False)
-
 
 
     def get_reception(self, row_liv,filtre=False):
@@ -161,12 +126,6 @@ class is_reception_inter_site(models.Model):
             cr.execute(SQL)
             rows = cr.dictfetchall()
             return rows
-            # if len(rows)==0:
-            #     msg="Réception non trouvée pour %s (Qt=%s)"%(is_code, qt_liv)
-            #     alerte.append(msg)
-
-
-
 
 
     def analyse_action(self):
