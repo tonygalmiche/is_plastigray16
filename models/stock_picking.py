@@ -744,6 +744,8 @@ class stock_picking(models.Model):
 
     def desadv_action(self):
         for obj in self : 
+            if obj.is_date_traitement_edi:
+                raise ValidationError("Ce DESADV a déjà été envoyé")
             now = datetime.now()
             obj.is_date_traitement_edi = now
             obj.mise_a_jour_colisage_action() # Modif du 06/05/2025
