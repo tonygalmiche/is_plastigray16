@@ -77,6 +77,7 @@ class is_edi_cde_cli_line(models.Model):
 
 class is_edi_cde_cli(models.Model):
     _name = "is.edi.cde.cli"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "EDI commandes clients"
     _order = "name desc,partner_id"
 
@@ -101,16 +102,17 @@ class is_edi_cde_cli(models.Model):
             obj.nb_fichiers = len(obj.file_ids)
 
 
-    name            = fields.Date('Date de création', readonly='1', default=fields.Datetime.now)
-    partner_id      = fields.Many2one('res.partner', 'Client', required=False)
-    date_maxi       = fields.Date(u"Date de livraison limite d'intégration", help=u"Au delà de cette date, les nouvelles commandes ne seront pas importés et les commandes existantes ne seront pas supprimées")
-    jour_semaine    = fields.Selection(_JOURS_SEMAINE, "Jour semaine"      , help=u"Jour de la semaine d'intégration du prévisionnel")
-    date_debut_prev = fields.Date(u"Date de début du prévisionnel"         , help=u"A partir de cette date, toutes les commandes seront forcées en prévisionnel")
+    active          = fields.Boolean('Actif', default=True, tracking=True)
+    name            = fields.Date('Date de création', readonly='1', default=fields.Datetime.now, tracking=True)
+    partner_id      = fields.Many2one('res.partner', 'Client', required=False, tracking=True)
+    date_maxi       = fields.Date(u"Date de livraison limite d'intégration", help=u"Au delà de cette date, les nouvelles commandes ne seront pas importés et les commandes existantes ne seront pas supprimées", tracking=True)
+    jour_semaine    = fields.Selection(_JOURS_SEMAINE, "Jour semaine"      , help=u"Jour de la semaine d'intégration du prévisionnel", tracking=True)
+    date_debut_prev = fields.Date(u"Date de début du prévisionnel"         , help=u"A partir de cette date, toutes les commandes seront forcées en prévisionnel", tracking=True)
     import_function = fields.Selection(related="partner_id.is_import_function")
-    file_ids        = fields.Many2many('ir.attachment', 'is_doc_attachment_rel', 'doc_id', 'file_id', 'Fichiers')
-    create_id       = fields.Many2one('res.users', 'Importe par', readonly=True)
+    file_ids        = fields.Many2many('ir.attachment', 'is_doc_attachment_rel', 'doc_id', 'file_id', 'Fichiers', tracking=True)
+    create_id       = fields.Many2one('res.users', 'Importe par', readonly=True, tracking=True)
     create_date     = fields.Datetime("Date d'importation")
-    state           = fields.Selection([('analyse', u'Analyse'),('traite', u'Traité')], u"État", index=True, default="analyse")
+    state           = fields.Selection([('analyse', u'Analyse'),('traite', u'Traité')], u"État", index=True, default="analyse", tracking=True)
     line_ids        = fields.One2many('is.edi.cde.cli.line', 'edi_cde_cli_id', u"Commandes a importer")
     nb_lignes       = fields.Integer("Nombre de lignes"  , compute='_compute'          , readonly=True, store=False)
     nb_fichiers     = fields.Integer("Nombre de fichier" , compute='_compute_nb_file'  , readonly=True, store=False)
@@ -122,7 +124,11 @@ class is_edi_cde_cli(models.Model):
             for row in obj.line_ids:
                 row.unlink()
             line_obj = self.env['is.edi.cde.cli.line']
+            nb_fichiers_traites = 0
+            nb_lignes_traitees = 0
+            nb_anomalies_trouvees = 0
             for attachment in obj.file_ids:
+                nb_fichiers_traites += 1
                 datas = self.get_data(obj.import_function, attachment)
                 for row in datas:
                     num_commande_client = row["num_commande_client"]
@@ -326,6 +332,18 @@ class is_edi_cde_cli(models.Model):
                             'type_uc'                          : type_uc,
                         }
                         line_obj.create(vals)
+                        nb_lignes_traitees += 1
+                        if anomalie:
+                            nb_anomalies_trouvees += 1
+            
+            # Message dans le chatter
+            msg = "<b>Analyse des fichiers EDI</b><br/>"
+            msg += "<ul>"
+            msg += "<li>Fichiers traités : %s</li>" % nb_fichiers_traites
+            msg += "<li>Lignes traitées : %s</li>" % nb_lignes_traitees
+            msg += "<li>Anomalies détectées : %s</li>" % nb_anomalies_trouvees
+            msg += "</ul>"
+            obj.message_post(body=msg)
 
 
     def action_detail_lignes(self):
@@ -411,6 +429,7 @@ class is_edi_cde_cli(models.Model):
 
             #** Importation des commandes **************************************
             sequence=0
+            nb_lignes_creees = 0
             lines=self.env['is.edi.cde.cli.line'].search([('edi_cde_cli_id','=',obj.id)],order='edi_cde_cli_id,ref_article_client,date_livraison')
             orders=[]
 
@@ -463,6 +482,7 @@ class is_edi_cde_cli(models.Model):
                                 'is_point_destination'               : line.point_destination,
                             }
                             line_obj.create(vals)
+                            nb_lignes_creees += 1
             #pr.disable()
             #pr.dump_stats('/tmp/action_importer_commandes.cProfile')
             #*******************************************************************
@@ -472,6 +492,13 @@ class is_edi_cde_cli(models.Model):
                 order.numeroter_lignes() 
             #*******************************************************************
             obj.state='traite'
+            
+            # Message dans le chatter
+            msg = "<b>Importation des commandes EDI</b><br/>"
+            msg += "<ul>"
+            msg += "<li>Lignes de commandes créées : %s</li>" % nb_lignes_creees
+            msg += "</ul>"
+            obj.message_post(body=msg)
 
 
     def group_by_data(self, datas):

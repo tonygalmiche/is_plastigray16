@@ -980,7 +980,9 @@ class is_galia_base_um(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            vals['name'] = self.env['ir.sequence'].next_by_code('is.galia.base.um')
+            # Utiliser la séquence uniquement si le name n'est pas déjà fourni
+            if not vals.get('name'):
+                vals['name'] = self.env['ir.sequence'].next_by_code('is.galia.base.um')
         return super().create(vals_list)
 
 

@@ -47,6 +47,26 @@ class is_reception_inter_site(models.Model):
                 for picking in pickings:
                     picking.is_reception_inter_site_id=False
 
+
+    def _dissocier_pickings(self):
+        """Dissocie les pickings de cette réception inter-site"""
+        for obj in self:
+            pickings = self.env['stock.picking'].search([('is_reception_inter_site_id', '=', obj.id)])
+            pickings.write({'is_reception_inter_site_id': False})
+
+    def write(self, vals):
+        """Surcharge pour dissocier les pickings lors de l'archivage"""
+        if 'active' in vals and vals['active'] == False:
+            self._dissocier_pickings()
+        return super().write(vals)
+
+    def retour_analyse_action(self):
+        """Retour à l'état analyse depuis l'état réception ou controle"""
+        for obj in self:
+            if obj.state in ('reception', 'controle'):
+                obj._dissocier_pickings()
+                obj.state = 'analyse'
+
     def _get_location_id(self):
         filtre = [
             ('name' , '=', '01'),
@@ -146,9 +166,13 @@ class is_reception_inter_site(models.Model):
             except Exception:
                 raise ValidationError('Impossible de se connecter à la base %s du site %s'%(DBNAME,obj.site_livraison_id.name))
 
-            SQL="UPDATE stock_picking set is_reception_inter_site_id=Null WHERE is_reception_inter_site_id=%s"%obj.id
-            cr.execute(SQL)
-            cr.commit()
+            #** Dissociation des pickings (fait maintenant via _dissocier_pickings dans retour_analyse_action et write)
+            obj._dissocier_pickings()
+            # #** Ancien code avec UPDATE SQL **********************************
+            # SQL="UPDATE stock_picking set is_reception_inter_site_id=Null WHERE is_reception_inter_site_id=%s"%obj.id
+            # cr.execute(SQL)
+            # cr.commit()
+            # #******************************************************************
 
             SQL="""
                 SELECT 
@@ -173,6 +197,8 @@ class is_reception_inter_site(models.Model):
             cr_liv.execute(SQL)
             rows_liv = cr_liv.fetchall()
             nb_liv=nb_rcp=0
+            nb_um_creees=0  # Compteur d'UM créées
+            nb_uc_creees=0  # Compteur d'UC créées
             #UMs=[]
             for row_liv in rows_liv:
                 nb_liv+=1
@@ -227,39 +253,67 @@ class is_reception_inter_site(models.Model):
                         lines = cr_liv.fetchall()
                         qt_scan = 0
                         qt_uc   = 0
+                        um_message_posted = []  # Liste des UM pour lesquelles on a déjà posté un message
                         for line in lines:
                             name    = line['name']
                             num_eti = line['num_eti']
                             code_pg = line['is_code']
                             qt_scan+=line['qt_pieces']
 
-                            #** Recherche si UM existe déjà *******************
+                            #** Recherche si UM existe déjà (active=True) *****
                             um_id=False
-                            SQL="SELECT id from is_galia_base_um where name='%s'"%name
-                            cr.execute(SQL)
-                            rows2 = cr.dictfetchall()
-                            if len(rows2)>0:
-                                for row2 in rows2:
-                                    um_id=row2['id']
+                            um = self.env['is.galia.base.um'].search([('name','=',name)], limit=1)
+                            if um:
+                                um_id = um.id
+                                #** Message dans le chatter de l'UM avec lien vers la réception inter-site (une seule fois par UM)
+                                if um_id not in um_message_posted:
+                                    reception_url = "/web#id=%s&model=is.reception.inter.site&view_type=form" % obj.id
+                                    um.message_post(body="UM ajoutée à la réception inter-site <a href='%s'>%s</a>" % (reception_url, obj.name))
+                                    um_message_posted.append(um_id)
                             else:
-                                #** Création UM *******************************
-                                SQL="""
-                                    INSERT INTO is_galia_base_um(name,create_uid,write_uid,location_id,create_date,write_date,mixte,active)
-                                    VALUES (%s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', %s, %s)
-                                    RETURNING id
-                                """
-                                cr.execute(SQL,[
-                                    name,
-                                    uid,
-                                    uid,
-                                    location_id,
-                                    line['mixte'],
-                                    line['active'],
-                                ])
-                                rows2 = cr.dictfetchall()
-                                for row2 in rows2:
-                                    um_id=row2['id']
-                                    #info.append('Création UM %s'%name)
+                                #** Recherche si UM existe en archivé (active=False)
+                                um = self.env['is.galia.base.um'].with_context(active_test=False).search([('name','=',name),('active','=',False)], limit=1)
+                                if um:
+                                    #** Réactivation de l'UM archivée *********
+                                    um.active = True
+                                    reception_url = "/web#id=%s&model=is.reception.inter.site&view_type=form" % obj.id
+                                    um.message_post(body="UM réactivée par la réception inter-site <a href='%s'>%s</a>" % (reception_url, obj.name))
+                                    um_id = um.id
+                                else:
+                                    #** Création UM avec create Odoo **********
+                                    um_vals = {
+                                        'name'       : name,
+                                        'location_id': location_id,
+                                        'mixte'      : line['mixte'],
+                                        'active'     : line['active'],
+                                    }
+                                    um = self.env['is.galia.base.um'].create(um_vals)
+                                    um_id = um.id
+                                    nb_um_creees += 1  # Incrémenter le compteur d'UM créées
+                                    #** Message dans le chatter de l'UM avec lien vers la réception inter-site
+                                    reception_url = "/web#id=%s&model=is.reception.inter.site&view_type=form" % obj.id
+                                    um.message_post(body="UM créée par la réception inter-site <a href='%s'>%s</a>" % (reception_url, obj.name))
+                                
+                                # #** Ancien code avec INSERT INTO **************
+                                # SQL="""
+                                #     INSERT INTO is_galia_base_um(name,create_uid,write_uid,location_id,create_date,write_date,mixte,active)
+                                #     VALUES (%s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', %s, %s)
+                                #     RETURNING id
+                                # """
+                                # cr.execute(SQL,[
+                                #     name,
+                                #     uid,
+                                #     uid,
+                                #     location_id,
+                                #     line['mixte'],
+                                #     line['active'],
+                                # ])
+                                # rows2 = cr.dictfetchall()
+                                # for row2 in rows2:
+                                #     um_id=row2['id']
+                                #     #info.append('Création UM %s'%name)
+                                # #**********************************************
+                                
                             if not um_id:
                                 alerte.append("Impossible de trouver ou créer l'UM %s"%name)
                             else:
@@ -270,61 +324,94 @@ class is_reception_inter_site(models.Model):
 
                                 #** Recherche si UC existe déjà ***************
                                 uc_id=False
-                                SQL="SELECT id, qt_pieces from is_galia_base_uc where num_eti='%s' and um_id=%s"%(num_eti,um_id)
-                                cr.execute(SQL)
-                                rows2 = cr.dictfetchall()
-                                if len(rows2)>0:
-                                    for row2 in rows2:
-                                        uc_id=row2['id']
-                                        qt_uc+=row2['qt_pieces']
+                                uc = self.env['is.galia.base.uc'].search([('num_eti','=',num_eti),('um_id','=',um_id)], limit=1)
+                                if uc:
+                                    uc_id = uc.id
+                                    qt_uc += uc.qt_pieces
+                                    #** Message dans le chatter de l'UC avec lien vers la réception inter-site
+                                    reception_url = "/web#id=%s&model=is.reception.inter.site&view_type=form" % obj.id
+                                    uc.message_post(body="UC ajoutée à la réception inter-site <a href='%s'>%s</a>" % (reception_url, obj.name))
                                 else:
-
                                     #** Cherche code PG dans base réception ***
-                                    product_id = False
-                                    SQL="""
-                                        SELECT pp.id 
-                                        FROM product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
-                                        WHERE pt.is_code=%s 
-                                        limit 1
-                                    """
-                                    cr.execute(SQL,[code_pg])
-                                    rows3 = cr.dictfetchall()
-                                    for row3 in rows3:
-                                        product_id=row3['id']
-                                    if not product_id:
+                                    product = self.env['product.product'].search([('is_code','=',code_pg)], limit=1)
+                                    if not product:
                                         alerte.append("Code PG '%s' non trouvé dans %s"%(code_pg,DBNAME))
                                     else:
-                                        #** Création UC ***************************
-                                        SQL="""
-                                            INSERT INTO is_galia_base_uc(active,um_id,num_eti,num_carton,qt_pieces,product_id,type_eti,date_creation,create_uid,write_uid,create_date,write_date)
-                                            VALUES (true, %s, %s, %s, %s, %s, %s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC')
-                                            RETURNING id
-                                        """
-                                        cr.execute(SQL,[
-                                            um_id,
-                                            num_eti,
-                                            line['num_carton'],
-                                            line['qt_pieces'],
-                                            product_id,
-                                            line['type_eti'],
-                                            line['date_creation'],
-                                            uid,
-                                            uid,
-                                        ])
-                                        rows2 = cr.dictfetchall()
-                                        for row2 in rows2:
-                                            uc_id=row2['id']
-                                            #info.append('Création UC %s'%num_eti)
-                                            qt_uc+=line['qt_pieces']
+                                        #** Création UC avec create Odoo ******
+                                        uc_vals = {
+                                            'active'       : True,
+                                            'um_id'        : um_id,
+                                            'num_eti'      : num_eti,
+                                            'num_carton'   : line['num_carton'],
+                                            'qt_pieces'    : line['qt_pieces'],
+                                            'product_id'   : product.id,
+                                            'type_eti'     : line['type_eti'],
+                                            'date_creation': line['date_creation'],
+                                        }
+                                        uc = self.env['is.galia.base.uc'].create(uc_vals)
+                                        uc_id = uc.id
+                                        qt_uc += line['qt_pieces']
+                                        nb_uc_creees += 1  # Incrémenter le compteur d'UC créées
+                                        #** Message dans le chatter de l'UC avec lien vers la réception inter-site
+                                        reception_url = "/web#id=%s&model=is.reception.inter.site&view_type=form" % obj.id
+                                        uc.message_post(body="UC créée par la réception inter-site <a href='%s'>%s</a>" % (reception_url, obj.name))
+                                        
+                                        # #** Ancien code avec INSERT INTO ******
+                                        # product_id = False
+                                        # SQL="""
+                                        #     SELECT pp.id 
+                                        #     FROM product_product pp join product_template pt on pp.product_tmpl_id=pt.id 
+                                        #     WHERE pt.is_code=%s 
+                                        #     limit 1
+                                        # """
+                                        # cr.execute(SQL,[code_pg])
+                                        # rows3 = cr.dictfetchall()
+                                        # for row3 in rows3:
+                                        #     product_id=row3['id']
+                                        # if not product_id:
+                                        #     alerte.append("Code PG '%s' non trouvé dans %s"%(code_pg,DBNAME))
+                                        # else:
+                                        #     #** Création UC ***************************
+                                        #     SQL="""
+                                        #         INSERT INTO is_galia_base_uc(active,um_id,num_eti,num_carton,qt_pieces,product_id,type_eti,date_creation,create_uid,write_uid,create_date,write_date)
+                                        #         VALUES (true, %s, %s, %s, %s, %s, %s, %s, %s, %s, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC')
+                                        #         RETURNING id
+                                        #     """
+                                        #     cr.execute(SQL,[
+                                        #         um_id,
+                                        #         num_eti,
+                                        #         line['num_carton'],
+                                        #         line['qt_pieces'],
+                                        #         product_id,
+                                        #         line['type_eti'],
+                                        #         line['date_creation'],
+                                        #         uid,
+                                        #         uid,
+                                        #     ])
+                                        #     rows2 = cr.dictfetchall()
+                                        #     for row2 in rows2:
+                                        #         uc_id=row2['id']
+                                        #         #info.append('Création UC %s'%num_eti)
+                                        #         qt_uc+=line['qt_pieces']
+                                        # #******************************************
 
                                 #** Lien entre UC et stock.move réception *****
                                 if uc_id:
-                                    SQL="""
-                                        UPDATE is_galia_base_uc 
-                                        SET stock_move_rcp_id=%s, reception_inter_site_id=%s, production='%s'
-                                        WHERE id=%s
-                                    """%(move_rcp_id,obj.id,line['production'],uc_id)
-                                    cr.execute(SQL)
+                                    uc = self.env['is.galia.base.uc'].browse(uc_id)
+                                    if uc:
+                                        uc.write({
+                                            'stock_move_rcp_id'      : move_rcp_id,
+                                            'reception_inter_site_id': obj.id,
+                                            'production'             : line['production'],
+                                        })
+                                    # #** Ancien code avec UPDATE SQL **********
+                                    # SQL="""
+                                    #     UPDATE is_galia_base_uc 
+                                    #     SET stock_move_rcp_id=%s, reception_inter_site_id=%s, production='%s'
+                                    #     WHERE id=%s
+                                    # """%(move_rcp_id,obj.id,line['production'],uc_id)
+                                    # cr.execute(SQL)
+                                    # #******************************************
 
 
                         #** Lien entre picking et is_reception_inter_site *********
@@ -378,6 +465,9 @@ class is_reception_inter_site(models.Model):
             else:
                 info='\n'.join(info)
             obj.info = info
+
+            #** Message dans le chatter de la réception inter-site ************
+            obj.message_post(body="Analyse terminée :<ul><li>%s réceptions trouvées</li><li>%s UM créées</li><li>%s UC créées</li></ul>" % (nb_rcp, nb_um_creees, nb_uc_creees))
 
             if obj.etat_reception=='pret':
                 obj.state='reception'

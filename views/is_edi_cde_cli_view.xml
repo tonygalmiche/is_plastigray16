@@ -129,6 +129,8 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <button string='Analyser les fichiers' name="action_analyser_fichiers"  type="object" states="analyse" class="oe_highlight"/>
                         <button string='Détail des lignes'     name="action_detail_lignes"      type="object"/>
                         <button 
@@ -151,6 +153,11 @@
                             <field style="background:orange" name="nb_anomalies" readonly="1" attrs="{'invisible':[('nb_anomalies','=',0)]}"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                </form>
             </field>
         </record>
@@ -177,6 +184,8 @@
                     <field name="partner_id"/>
                     <field name="import_function"/>
                     <field name="state"/>
+                    <filter string="Archivés" name="archived" domain="[('active', '=', False)]"/>
+                    <separator/>
                     <filter string="Client" name="group_by_partner_id"  context="{'group_by': 'partner_id'}"/>
                 </search>
             </field>

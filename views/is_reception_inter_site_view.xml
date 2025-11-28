@@ -24,6 +24,13 @@
                             attrs="{'invisible': [('state', '!=', 'analyse')]}"
                         />
                         <button 
+                            string="Retour à l'analyse" 
+                            type="object" 
+                            name="retour_analyse_action" 
+                            attrs="{'invisible': [('state', 'not in', ['reception', 'controle'])]}"
+                            confirm="Voulez-vous vraiment revenir à l'état Analyse ?"
+                        />
+                        <button 
                             string="Valider les réceptions" 
                             type="object" 
                             name="valider_receptions_action" 
@@ -69,6 +76,7 @@
                             groups="base.group_no_one"
                         /> -->
                     <field name="state" widget="statusbar"/>
+                     <!-- options="{'clickable': '1'}" -->
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
