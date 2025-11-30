@@ -67,6 +67,13 @@ class is_reception_inter_site(models.Model):
                 obj._dissocier_pickings()
                 obj.state = 'analyse'
 
+    def passer_termine_action(self):
+        """Passage manuel à l'état Terminé"""
+        for obj in self:
+            if obj.state in ('reception', 'controle'):
+                obj.state = 'termine'
+                obj.message_post(body="Passage manuel à l'état 'Terminé'")
+
     def _get_location_id(self):
         filtre = [
             ('name' , '=', '01'),

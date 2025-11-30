@@ -38,6 +38,13 @@
                             attrs="{'invisible': [('state', '!=', 'reception')]}"
                         />
                         <button 
+                            string="Passer à Terminé" 
+                            type="object" 
+                            name="passer_termine_action" 
+                            attrs="{'invisible': [('state', 'not in', ['reception', 'controle'])]}"
+                            confirm="Voulez-vous vraiment passer à l'état Terminé ?"
+                        />
+                        <button 
                             string="Voir les réceptions" 
                             type="object" 
                             name="voir_receptions_action" 

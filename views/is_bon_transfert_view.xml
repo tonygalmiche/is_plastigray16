@@ -38,7 +38,7 @@
                             string="DESADV" 
                             type="object"
                             confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
-                            attrs="{'invisible': ['|',('date_traitement_edi', '!=', False),('traitement_edi', '!=', 'DESADV')]}" 
+                            attrs="{'invisible': ['|',('date_traitement_edi', '!=', False),('traitement_edi', '=', False)]}" 
                         />
                         <button 
                             name="creation_facture_proforma_action"

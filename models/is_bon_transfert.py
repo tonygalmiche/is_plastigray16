@@ -252,8 +252,17 @@ class is_bon_transfert(models.Model):
 
     def desadv_action(self):
         for obj in self : 
-            name='edi-tenor-desadv-odoo16'
+            # traitement_edi=[
+            #     ('DESADV'         , 'DESADV (Fusion Gray et ST-Brice)'),
+            #     ('DESADV_GRAY'    , 'DESADV Gray'),
+            #     ('DESADV_ST_BRICE', 'DESADV ST-Brice'),
+            # ]
+
+            # Modif du 28/11/2025 pour unifier à terme les EDI de Gray et ST-Brice
+            #name='edi-tenor-desadv-odoo16'
+            name=obj.traitement_edi
             cdes = self.env['is.commande.externe'].search([('name','=',name)])
+
             if (len(cdes)==0):
                 raise ValidationError("Commande externe '%s' non trouvée"%name)
             for cde in cdes:

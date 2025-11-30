@@ -49,7 +49,9 @@ type_commande_list=[
 
 
 traitement_edi=[
-    ('DESADV', 'DESADV'),
+    ('DESADV'         , 'DESADV (Fusion Gray et ST-Brice)'),
+    ('DESADV_GRAY'    , 'DESADV Gray'),
+    ('DESADV_ST_BRICE', 'DESADV ST-Brice'),
 ]
 
 

@@ -749,10 +749,22 @@ class stock_picking(models.Model):
             now = datetime.now()
             obj.is_date_traitement_edi = now
             obj.mise_a_jour_colisage_action() # Modif du 06/05/2025
-            name='edi-tenor-desadv-odoo16'
-            cdes = self.env['is.commande.externe'].search([('name','=',"edi-tenor-desadv-odoo16")])
+
+            # traitement_edi=[
+            #     ('DESADV'         , 'DESADV (Fusion Gray et ST-Brice)'),
+            #     ('DESADV_GRAY'    , 'DESADV Gray'),
+            #     ('DESADV_ST_BRICE', 'DESADV ST-Brice'),
+            # ]
+
+
+            # Modif du 28/11/2025 pour unifier à terme les EDI de Gray et ST-Brice
+            #name='edi-tenor-desadv-odoo16'
+            name=obj.is_traitement_edi
+            cdes = self.env['is.commande.externe'].search([('name','=',name)])
+            
             if (len(cdes)==0):
                 raise ValidationError("Commande externe '%s' non trouvée"%name)
+            
             for cde in cdes:
                 model=self._name
                 uid=self._uid

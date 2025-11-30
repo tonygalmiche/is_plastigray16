@@ -146,7 +146,7 @@
                         string="DESADV" 
                         type="object"
                         confirm="Voulez-vous vraiment envoyer l'avis d'expédition par EDI ?"
-                        attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '!=', 'DESADV'),('state','!=','done')]}" 
+                        attrs="{'invisible': ['|','|',('is_date_traitement_edi', '!=', False),('is_traitement_edi', '=', False),('state','!=','done')]}" 
                     />
                 </xpath>
                 <xpath expr="//button[@name='action_assign'][1]" position="before">

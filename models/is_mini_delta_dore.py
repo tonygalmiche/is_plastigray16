@@ -22,7 +22,7 @@ class is_mini_delta_dore(models.Model):
     nb_jours        = fields.Integer('Nombre de jours dans le fichier'   , default=5)
     nb_semaines     = fields.Integer('Nombre de semaines dans le fichier', default=4)
     nb_mois         = fields.Integer('Nombre de mois dans le fichier'    , default=8)
-    edi_id          = fields.Many2one('is.edi.cde.cli', 'EDI généré', readonly=True)
+    edi_id          = fields.Many2one('is.edi.cde.cli', 'EDI généré', readonly=True, copy=False)
     line_ids        = fields.One2many('is.mini.delta.dore.line'  , 'mini_delta_dore_id', u"Lignes")
     besoin_ids      = fields.One2many('is.mini.delta.dore.besoin', 'mini_delta_dore_id', u"Besoins")
 
@@ -106,7 +106,16 @@ class is_mini_delta_dore(models.Model):
             nb_semaines = obj.nb_semaines
             nb_mois     = obj.nb_mois
 
-            attachment=base64.decodebytes(attachment.datas).decode('iso-8859-1')
+            # Décodage du fichier avec détection automatique de l'encodage (UTF-8 ou ISO-8859-1)
+            raw_data = base64.decodebytes(attachment.datas)
+            try:
+                attachment = raw_data.decode('utf-8')
+            except UnicodeDecodeError:
+                attachment = raw_data.decode('iso-8859-1')
+
+
+
+
             #attachment=attachment.decode('iso-8859-1').encode('utf8')
             csvfile = attachment.split("\n")
             csvfile = csv.reader(csvfile, delimiter=';')
@@ -158,19 +167,31 @@ class is_mini_delta_dore(models.Model):
                             semaine=cel+'/'+str(annee)
                             d=tsemaines[semaine]
                             tdates.append([cel,d])
+                            # Mémoriser l'année et le mois de la dernière semaine traitée
+                            annee_derniere_semaine=d.year
+                            mois_derniere_semaine=d.month
                             d = d + timedelta(days=7) # Ajoute 7 jours => semaine suivant
                             annee=d.year # Année de la semaine suivante
 
                         #* Dates en mois => 1er lundi du mois ******************
                         if ct>=(10+nb_jours+nb_semaines) and ct<(10+nb_jours+nb_semaines+nb_mois):
                             mois=cel.strip()
-                            num_mois=_MOIS.index(mois)+1
-                            num_mois=str(num_mois).zfill(2)
-                            mois_annee=num_mois+'/'+str(annee)
+                            num_mois_int=_MOIS.index(mois)+1
+                            num_mois=str(num_mois_int).zfill(2)
+                            # Initialisation de l'année des mois à partir de la dernière semaine traitée
+                            if ct==(10+nb_jours+nb_semaines):
+                                annee_mois=annee_derniere_semaine
+                                # Si le premier mois est avant le mois de la dernière semaine, c'est l'année suivante
+                                if num_mois_int < mois_derniere_semaine:
+                                    annee_mois+=1
+                                num_mois_precedent=num_mois_int
+                            # Détection du passage à l'année suivante (ex: Décembre -> Janvier)
+                            elif num_mois_int < num_mois_precedent:
+                                annee_mois+=1
+                            num_mois_precedent=num_mois_int
+                            mois_annee=num_mois+'/'+str(annee_mois)
                             date_mois=tmois[mois_annee]
                             tdates.append([mois,date_mois])
-                            d = date_mois + timedelta(days=32) # Ajoute 32 jours => mois suivant
-                            annee=d.year # Année du mois suivant
                         ct+=1
 
                 if lig>2:
