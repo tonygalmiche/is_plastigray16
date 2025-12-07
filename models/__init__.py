@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from . import mail
+from . import mail_thread
 from . import account_invoice
 from . import hr
 from . import ir_actions_act_url

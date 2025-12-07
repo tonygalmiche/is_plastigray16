@@ -9,6 +9,7 @@ class IrAttachment(models.Model):
     _inherit = 'ir.attachment'
   
     is_dynacase_id = fields.Integer(string="Id Dynacase",index=True, readonly=True,copy=False)
+    original_id = fields.Many2one(index=True)  # Ajout index pour améliorer les performances lors des suppressions
 
 
 
