@@ -109,6 +109,15 @@
                 <!-- <field name="location_dest_id"/> -->
                 <field name="picking_state"/>
                 <field name="is_demandeur_id"/>
+                <filter name="filter_date_reception_12mois" string="Date réception 12 derniers mois" 
+                    domain="[('date_reception','&gt;=', (context_today() - relativedelta(months=12)).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_date_transfert_12mois" string="Date transfert 12 derniers mois" 
+                    domain="[('date_transfert','&gt;=', (context_today() - relativedelta(months=12)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="filter_date_transfert_2025" string="2025" 
+                    domain="[('date_transfert','&gt;=','2025-01-01'),('date_transfert','&lt;=','2025-12-31')]"/>
+                <filter name="filter_date_transfert_2024" string="2024" 
+                    domain="[('date_transfert','&gt;=','2024-01-01'),('date_transfert','&lt;=','2024-12-31')]"/>
             </search>
         </field>
     </record>
@@ -160,6 +169,7 @@
         <field name="name">Réceptions état Terminé</field>
         <field name="res_model">is.ligne.reception</field>
         <field name="domain">[('state','=', 'done')]</field>
+        <field name="context">{'search_default_filter_date_transfert_12mois': 1, 'order': 'date_transfert desc'}</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>
     </record>
@@ -167,6 +177,7 @@
         <field name="name">Toutes les réceptions</field>
         <field name="res_model">is.ligne.reception</field>
         <field name="domain">[]</field>
+        <field name="context">{'search_default_filter_date_reception_12mois': 1, 'order': 'date_reception desc'}</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>
     </record>

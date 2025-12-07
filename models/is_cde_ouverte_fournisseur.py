@@ -144,7 +144,7 @@ class is_cde_ouverte_fournisseur(models.Model):
     _order='partner_id'
 
     name                 = fields.Char("N°", readonly=True)
-    partner_id           = fields.Many2one('res.partner', 'Fournisseur'        , required=True)
+    partner_id           = fields.Many2one('res.partner', 'Fournisseur'        , required=True, index=True)
     is_livre_a_id        = fields.Many2one('res.partner', 'Livrer à', related='partner_id.is_livre_a_id')
     contact_id           = fields.Many2one('res.partner', 'Contact Logistique')
     pricelist_id         = fields.Many2one('product.pricelist', 'Liste de prix', related='partner_id.pricelist_purchase_id', readonly=True)
@@ -166,8 +166,19 @@ class is_cde_ouverte_fournisseur(models.Model):
     # sequence = fields.Integer(default=16)
 
 
-
-
+    def init(self):
+        """Crée les index de performance pour optimiser les requêtes SQL"""
+        cr = self._cr
+        
+        # Index composite optimisé pour account_move_line
+        # Évite les scans séquentiels répétés (3x par ligne) dans is_ligne_reception
+        cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_account_move_line_is_move_posted
+            ON account_move_line(is_move_id, parent_state)
+            WHERE parent_state = 'posted'
+        """)
+        
+        _logger.info('## Index de performance créés pour is_cde_ouverte_fournisseur')
 
 
     @api.model_create_multi
