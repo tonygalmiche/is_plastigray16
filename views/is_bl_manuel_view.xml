@@ -97,6 +97,7 @@
                                 <field name="nb_colis"   sum="Total"/>
                                 <field name="poids_net"  sum="Total"/>
                                 <field name="poids_brut" sum="Total"/>
+                                <field name="pieces_sortir_stocks" required="1"/>
                             </tree>
                         </field>
                         <group>

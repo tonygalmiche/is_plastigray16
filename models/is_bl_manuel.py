@@ -163,6 +163,7 @@ class is_bl_manuel_line(models.Model):
     nb_colis               = fields.Float("Nb Colis")
     poids_net              = fields.Float("Poids net")
     poids_brut             = fields.Float("Poids brut")
+    pieces_sortir_stocks   = fields.Selection([('oui', 'Oui'), ('non', 'Non')], "Sortir du stock", help="Pièces à sortir des stocks")
 
 
     @api.onchange('product_id')
