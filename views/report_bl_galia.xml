@@ -355,7 +355,7 @@
     <record id="bl_galia_actions_report" model="ir.actions.report">
         <field name="name">BL Galia</field>
         <field name="model">stock.picking</field>
-        <field name="binding_model_id" ref="model_stock_picking"/>
+        <field name="binding_model_id"/>
         <field name="paperformat_id" ref="bl_galia_paperformat"/>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">is_plastigray16.bl_galia_report</field>

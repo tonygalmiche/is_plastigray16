@@ -51,6 +51,8 @@ class stock_picking(models.Model):
     is_galia_um            = fields.Boolean(u"Test si étiquettes scannées sur Liste à servir", store=False, readonly=True, compute='_compute_is_galia_um')
     is_mode_envoi_facture  = fields.Selection(related="partner_id.is_mode_envoi_facture", string="Mode d'envoi des factures")
     is_traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
+    is_import_function     = fields.Selection(related='partner_id.is_import_function')
+    is_date_imprime_bl     = fields.Datetime("Date impression BL Galia", tracking=True)
     is_date_traitement_edi = fields.Datetime("Date traitement EDI", tracking=True)
     invoice_state = fields.Selection([
             ('none'      , 'Non applicable'),
@@ -882,4 +884,11 @@ class stock_picking(models.Model):
             for move in obj.move_ids_without_package:
                 for uc in move.is_uc_ids:
                     uc.imprimer_etiquette_uc_action()
+
+
+    def imprimer_bl_galia_action(self):
+        """Met à jour la date d'impression et retourne l'action de rapport BL Galia"""
+        for obj in self:
+            obj.is_date_imprime_bl = datetime.now()
+        return self.env.ref('is_plastigray16.bl_galia_actions_report').report_action(self)
 

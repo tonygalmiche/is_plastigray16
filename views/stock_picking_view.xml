@@ -141,6 +141,13 @@
                         name="mise_a_jour_colisage_action" 
                         colspan="2"
                     />
+                    <field name="is_import_function" invisible="1"/> 
+                    <button 
+                        name="imprimer_bl_galia_action" 
+                        string="Imprimer BL Galia" 
+                        type="object"
+                        attrs="{'invisible': ['|', ('state','!=','done'), ('is_import_function','!=','STELLANTIS')]}"
+                    />
                      <button 
                         name="desadv_action" 
                         string="DESADV" 
@@ -297,6 +304,7 @@
                     <field name="is_votre_contact_id" attrs="{'invisible': [('sale_id', '=', False)]}"/> 
                     <field name="is_reception_inter_site_id" attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
                     <field name="is_qt_livree_inter_site"    attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
+                    <field name="is_date_imprime_bl"         attrs="{'invisible': [('is_date_imprime_bl', '=', False)]}"/> 
                     <field name="is_date_traitement_edi"     attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </xpath>
                 <page name="operations" position="after">
