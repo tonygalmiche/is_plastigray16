@@ -146,7 +146,6 @@
                         name="imprimer_bl_galia_action" 
                         string="Imprimer BL Galia" 
                         type="object"
-                        attrs="{'invisible': ['|', ('state','!=','done'), ('is_import_function','!=','STELLANTIS')]}"
                     />
                      <button 
                         name="desadv_action" 
