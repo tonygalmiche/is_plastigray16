@@ -223,6 +223,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">is_plastigray16.bl_manuel_template</field>
             <field name="report_file">is_plastigray16.bl_manuel_template</field>
+            <field name="print_report_name">'BL manuel - %s - %s' % (object.raison_sociale or '', object.name)</field>
         </record>
     </data>
 </odoo>

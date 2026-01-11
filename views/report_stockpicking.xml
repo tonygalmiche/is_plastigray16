@@ -296,7 +296,7 @@
         </record>
 
 
-        <!-- TODO : En mettant l'id d'origine du rapport cela permet de le remplacer -->
+        <!-- Modification du rapport de livraison standard d'Odoo -->
         <record id="stock.action_report_delivery" model="ir.actions.report">
             <field name="name">Bon de livraison PG</field>
             <field name="model">stock.picking</field>
@@ -305,6 +305,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">is_plastigray16.is_stock_picking_report</field>
             <field name="report_file">is_plastigray16.is_stock_picking_report</field>
+            <field name="print_report_name">'Bon de livraison - %s - %s' % (object.partner_id.name or '', object.name)</field>
         </record>
 
 

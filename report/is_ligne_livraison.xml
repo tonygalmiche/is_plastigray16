@@ -21,6 +21,7 @@
                             <field name="date_livraison" readonly="1"/>
                             <field name="client_order_ref" readonly="1"/>
                             <field name="family_id"  readonly="1"/>
+                            <field name="sub_family_id"  readonly="1"/>
                             <field name="partner_id"  readonly="1"/>
                             <field name="product_id" readonly="1"/>
                             <field name="segment_id" readonly="1"/>
@@ -65,6 +66,7 @@
                 <field name="order_line_id"     optional="hide" widget="many2one_clickable" />
                 <field name="client_order_ref"  optional="hide" />
                 <field name="family_id"         optional="show" />
+                <field name="sub_family_id"     optional="show" />
                 <field name="partner_id"        optional="show" widget="many2one_clickable" />
                 <field name="product_id"        optional="show" widget="many2one_clickable" />
                 <field name="ref_client"        optional="hide" />
@@ -78,19 +80,6 @@
            </tree>
         </field>
     </record>
-
-    <!-- <record id="is_account_invoice_line_graph_view" model="ir.ui.view">
-        <field name="name">is_account_invoice_line_graph_view</field>
-        <field name="model">is.account.invoice.line</field>
-        <field name="arch" type="xml">
-            <graph type="pivot">
-                <field name="partner_id"/>
-                <field name="date_invoice"       type="col"/>
-                <field name="total"              type="measure"/>
-            </graph>
-        </field>
-    </record> -->
-
     <record id="is_ligne_livraison_search_view" model="ir.ui.view">
         <field name="name">is_ligne_livraison_search_view</field>
         <field name="model">is.ligne.livraison</field>
@@ -107,17 +96,7 @@
                 <field name="is_category_id" />
                 <field name="is_gestionnaire_id" />
                 <field name="family_id" />
-                <!-- <group expand="0" string="Regrouper par...">
-                    <filter string="Client"       context="{'group_by':'partner_id'}"/>
-                    <filter string="Moule"        context="{'group_by':'is_mold_dossierf'}"/>
-                    <filter string="Article"      context="{'group_by':'product_id'}"/>
-                    <filter string="Segment"      context="{'group_by':'segment_id'}"/>
-                    <filter string="Catégorie"    context="{'group_by':'is_category_id'}"/>
-                    <filter string="Gestionnaire"      context="{'group_by':'is_gestionnaire_id'}"/>
-                    <filter string="Commande Client"   context="{'group_by':'client_order_ref'}"/>
-                    <filter string="Mois d'expédition" context="{'group_by':'date_expedition:month'}"/>
-                    <filter string="Mois d'arrivé chez le client" context="{'group_by':'date_livraison:month'}"/>
-                </group> -->
+                <field name="sub_family_id" />
             </search>
         </field>
     </record>

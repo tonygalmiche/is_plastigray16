@@ -20,6 +20,8 @@ class is_ligne_livraison(models.Model):
     is_category_id      = fields.Many2one('is.category', 'Catégorie')
     is_gestionnaire_id  = fields.Many2one('is.gestionnaire', 'Gestionnaire')
     family_id           = fields.Char('Famille')
+    sub_family_id       = fields.Char('Sous-famille')
+
     ref_client          = fields.Char('Référence client')
     is_mold_dossierf    = fields.Char('Moule ou Dossier F')
     product_uom_qty     = fields.Float('Quantité livrée', digits=(14,2))
@@ -86,6 +88,7 @@ class is_ligne_livraison(models.Model):
                             sp.partner_id           as partner_id, 
                             pt.id                   as product_id, 
                             ipf.name                as family_id,
+                            ipsf.name               as sub_family_id,
                             pt.segment_id           as segment_id,
                             pt.is_category_id       as is_category_id,
                             pt.is_gestionnaire_id   as is_gestionnaire_id,
@@ -112,13 +115,14 @@ class is_ligne_livraison(models.Model):
                             sm.id                   as move_id,
                             sm.write_uid            as user_id,
                             sm.state                as state
-                    from stock_picking sp inner join stock_move                sm on sm.picking_id=sp.id 
-                                        inner join product_product           pp on sm.product_id=pp.id
-                                        inner join product_template          pt on pp.product_tmpl_id=pt.id
-                                        inner join res_partner               rp on sp.partner_id=rp.id
-                                        left outer join is_product_famille   ipf on pt.family_id=ipf.id
-                                        left outer join sale_order_line      sol on sm.sale_line_id=sol.id
-                                        left outer join sale_order           so on sol.order_id=so.id
+                    from stock_picking sp inner join stock_move                 sm   on sm.picking_id=sp.id 
+                                        inner join product_product              pp   on sm.product_id=pp.id
+                                        inner join product_template             pt   on pp.product_tmpl_id=pt.id
+                                        inner join res_partner                  rp   on sp.partner_id=rp.id
+                                        left outer join is_product_famille      ipf  on pt.family_id=ipf.id
+                                        left outer join is_product_sous_famille ipsf on pt.sub_family_id=ipsf.id
+                                        left outer join sale_order_line         sol  on sm.sale_line_id=sol.id
+                                        left outer join sale_order              so   on sol.order_id=so.id
                     where sp.picking_type_id=2 and sm.state='done' and so.id is not null
                 )
             """)
