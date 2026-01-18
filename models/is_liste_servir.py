@@ -178,6 +178,7 @@ class is_liste_servir_client(models.Model):
 class is_liste_servir(models.Model):
     _name='is.liste.servir'
     _description="Liste à servir"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order='id desc'
 
     def _get_default_location(self):
@@ -209,19 +210,20 @@ class is_liste_servir(models.Model):
         return date_fin.strftime('%Y-%m-%d')        # Formatage
 
 
-    name                   = fields.Char("N°", readonly=True)
-    partner_id             = fields.Many2one('res.partner', 'Client', required=True)
-    date_debut             = fields.Date("Date de début d'expédition")
-    date_fin               = fields.Date("Date de fin d'expédition", required=True, default=lambda self: self._date_fin())
-    livrable               = fields.Boolean("Livrable", default=False)
-    transporteur_id        = fields.Many2one('res.partner', 'Transporteur')
+    active                 = fields.Boolean('Actif', default=True, tracking=True)
+    name                   = fields.Char("N°", readonly=True, tracking=True)
+    partner_id             = fields.Many2one('res.partner', 'Client', required=True, tracking=True)
+    date_debut             = fields.Date("Date de début d'expédition", tracking=True)
+    date_fin               = fields.Date("Date de fin d'expédition", required=True, default=lambda self: self._date_fin(), tracking=True)
+    livrable               = fields.Boolean("Livrable", default=False, tracking=True)
+    transporteur_id        = fields.Many2one('res.partner', 'Transporteur', tracking=True)
     message                = fields.Text("Message")
-    commentaire            = fields.Text("Commentaire")
+    commentaire            = fields.Text("Commentaire", tracking=True)
     state                  = fields.Selection([
             ('creation', u'Création'),
             ('analyse', u'Analyse'),
             ('traite', u'Traité')
-        ], u"État", readonly=True, index=True, default="creation")
+        ], u"État", readonly=True, index=True, default="creation", tracking=True)
     order_ids              = fields.One2many('sale.order', 'is_liste_servir_id', 'Commandes générées', readonly=False)
     line_ids               = fields.One2many('is.liste.servir.line', 'liste_servir_id', u"Lignes")
     uc_ids                 = fields.One2many('is.liste.servir.uc', 'liste_servir_id', u"UCs")
@@ -235,8 +237,8 @@ class is_liste_servir(models.Model):
     is_certificat_conformite_msg = fields.Text('Certificat de conformité', compute='_compute_is_certificat_conformite_msg', store=False, readonly=True)
     mixer                  = fields.Boolean('Mixer', default=False)
     saut_page_aqp          = fields.Boolean('Saut de page AQP', default=False)
-    is_point_dechargement  = fields.Char('Point de déchargement')
-    is_livree_aqp          = fields.Boolean('Pièce livrée en AQP')
+    is_point_dechargement  = fields.Char('Point de déchargement', tracking=True)
+    is_livree_aqp          = fields.Boolean('Pièce livrée en AQP', tracking=True)
     alerte_obligatoire     = fields.Text("Champs obligatoires", compute='_compute_alerte_obligatoire', store=False, readonly=True)
 
 
@@ -335,7 +337,6 @@ class is_liste_servir(models.Model):
                     if len(codes) > 1:
                         alerte = f"ATTENTION : Plusieurs codes articles ({', '.join(codes)}) pour la même référence client '{ref_client}'"
             return alerte
-
 
 
     @api.onchange('mixer')

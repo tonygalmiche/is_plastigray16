@@ -71,6 +71,8 @@
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <group>
                             <group>
                                 <field name="name"/> 
@@ -210,6 +212,11 @@
                             <a href="https://dynacase-rp/?sole=Y&amp;app=FDL&amp;action=FDL_CARD&amp;id=69112" target="_blank">Liste des certificats matière</a>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -240,6 +247,8 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <filter string="En cours" name="en_cours" domain="[('state','!=','traite')]"/>
+                    <separator/>
+                    <filter string="Archivé" name="inactive" domain="[('active','=',False)]"/>
                 </search>
             </field>
         </record>

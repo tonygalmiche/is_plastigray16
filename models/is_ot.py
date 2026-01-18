@@ -235,7 +235,7 @@ class is_ot(models.Model):
             ('annule', u'Annulé'),
             ('termine', u'Terminé'),
             ], "Etat", readonly=True, default="creation")
-    site_id             = fields.Many2one("is.database", "Site", required=True)
+    site_id             = fields.Many2one("is.database", "Site", required=True, domain="[('name', 'not in', ['Siège', 'Autre'])]")
     emplacement         = fields.Char("Emplacement", store=True, readonly=True, compute='_compute_emplacement')
     date_creation       = fields.Date(u"Date de création", copy=False, default=fields.Date.context_today, readonly=True)
     demandeur_id        = fields.Many2one("res.users", "Demandeur", default=lambda self: self.env.uid, readonly=True)

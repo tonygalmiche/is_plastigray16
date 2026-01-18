@@ -49,9 +49,6 @@
                                     <span t-if="o.partner_id.lang == 'fr_FR'">Commande ferme N°</span>
                                     <span t-if="o.partner_id.lang != 'fr_FR'">Order N°</span>
                                     <span style="font-size:12pt;" t-field="o.name"/> 
-                                    <!-- <span style="font-size:12pt;" t-esc="datetime.datetime.strptime(o.date_order, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y')"/> -->
-                                    <!-- <span style="font-size:12pt;" t-esc="o.date_order" t-options="{'widget': 'date', 'format': 'dd/mm/yyyy'}"/> -->
-                                    <!-- <span style="font-size:12pt;" t-field="o.date_order"/> -->
                                     <span style="font-size:12pt;" t-esc="o.date_order.strftime('%d/%m/%Y')"/>
                                 </div>
                                 <div style="height:45mm;border:0px solid black">
@@ -83,7 +80,7 @@
                                 </div>
             
                                 <div class="purchaseorder_fournisseur">
-                                    <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>)
+                                    <b><span t-field="o.partner_id.name"/></b> (<span t-field="o.partner_id.is_code"/>/<span t-field="o.partner_id.is_adr_code"/>)
                                     <div t-field="o.partner_id"
                                          t-options='{"widget": "contact", "fields": ["address", "phone", "fax"], "no_marker": true}'/>
                                 </div>
@@ -92,6 +89,23 @@
                     </table>
                 </div>
                 <div class="page purchaseorder_page">
+                    <table style="width:100%;border:0pt" t-if="o.partner_id.is_adr_facturation" >
+                        <tr>
+                            <td style="width:50%;border:0pt"/>
+                            <td style="width:50%;border:0pt">
+
+                                <div class="purchaseorder_fournisseur">
+                                    <div><b><span t-field="o.partner_id.is_adr_facturation.name"/></b> (<span t-field="o.partner_id.is_adr_facturation.is_code"/>/<span t-field="o.partner_id.is_adr_facturation.is_adr_code"/>)</div>
+                                    <div t-if="o.partner_id.is_adr_facturation.street" t-field="o.partner_id.is_adr_facturation.street"/>
+                                    <div t-if="o.partner_id.is_adr_facturation.street2" t-field="o.partner_id.is_adr_facturation.street2"/>
+                                    <div t-if="o.partner_id.is_adr_facturation.is_rue3" t-field="o.partner_id.is_adr_facturation.is_rue3"/>
+                                    <div><span t-field="o.partner_id.is_adr_facturation.zip"/> - <span t-field="o.partner_id.is_adr_facturation.city"/></div>
+                                    <div t-if="o.partner_id.country_id" t-field="o.partner_id.country_id"/>
+                                    <div t-if="o.partner_id.is_adr_facturation.phone" t-field="o.partner_id.is_adr_facturation.phone"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                     <table class="table table-condensed">
                         <thead>
                             <tr >

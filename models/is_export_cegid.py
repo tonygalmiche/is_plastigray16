@@ -256,8 +256,9 @@ class is_export_cegid(models.Model):
                     axe             = ''
 
                     #TODO : A revoir avec les axes analytiques
-                    #affaire = ''
-                    affaire = row[17] or '' # is_id_owork
+                    affaire = ''
+                    if row[17]:
+                        affaire = "$%s"%row[17] # is_id_owork
 
                     reflibre        = obj.name
 

@@ -21,7 +21,7 @@
         <field name="group_id"    eval="ref('is_rsp_production_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="True"/>
     </record>
     <record id="is_liste_servir_message_rsp_production_access"  model="ir.model.access" >
@@ -50,7 +50,7 @@
         <field name="group_id"    eval="ref('is_magasiniers_group')"/>
         <field name="perm_read"   eval="True"/>
         <field name="perm_write"  eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
         <field name="perm_create" eval="True"/>
     </record>
     <record id="is_liste_servir_message_magasiniers_access"  model="ir.model.access" >
