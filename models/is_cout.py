@@ -1211,7 +1211,7 @@ class is_cout(models.Model):
         if not os.path.exists(path):
             os.makedirs(path)
 
-        recs=self.search([], order="name") #,limit=2)
+        recs=self.search([], order="name",limit=5)
         nb=len(recs)
         _logger.info("#### Début sauvegarde Coûts (nb=%s) ####"%nb)
         ct=0
