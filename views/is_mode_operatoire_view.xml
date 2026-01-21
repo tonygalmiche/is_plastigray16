@@ -15,14 +15,21 @@
             <field name="model">is.mode.operatoire.menu</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Form">
+                <form>
                     <sheet>
+                        <field name="active" invisible="1"/>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <group>
                             <field name="name"/>
                             <field name="ordre"/>
                             <field name="menu_id" readonly="1"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -60,7 +67,7 @@
             <field name="model">is.mode.operatoire</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Form">
+                <form>
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>

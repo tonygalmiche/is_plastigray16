@@ -7,11 +7,13 @@ import datetime
 class IsModeOperatoireMenu(models.Model):
     _name='is.mode.operatoire.menu'
     _description="IsModeOperatoireMenu"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order='ordre'
 
-    name    = fields.Char("Menu des documents", required=True)
-    ordre   = fields.Integer("Ordre")
-    menu_id = fields.Many2one('ir.ui.menu', 'Menu', copy=False)
+    name    = fields.Char("Menu des documents", required=True, tracking=True)
+    ordre   = fields.Integer("Ordre", tracking=True)
+    menu_id = fields.Many2one('ir.ui.menu', 'Menu', copy=False, tracking=True)
+    active  = fields.Boolean('Actif', default=True, tracking=True)
 
 
     @api.model_create_multi
