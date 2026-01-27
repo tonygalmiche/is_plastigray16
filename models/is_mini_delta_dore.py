@@ -140,7 +140,7 @@ class is_mini_delta_dore(models.Model):
 
                             #** Recherche du premier jour de chaque mois *******
                             d=datetime.strptime(cel, '%d/%m/%y')
-                            for i in range(0,12):
+                            for i in range(0,24):  # 24 mois pour couvrir une période plus large
                                 d = d.replace(day=1)      # Fixe le jour à 1
                                 d = self.premier_lundi(d) # Recherche le premier lundi suivant
                                 mois=d.strftime('%m/%Y')
@@ -181,12 +181,9 @@ class is_mini_delta_dore(models.Model):
                             # Initialisation de l'année des mois à partir de la dernière semaine traitée
                             if ct==(10+nb_jours+nb_semaines):
                                 annee_mois=annee_derniere_semaine
-                                # Si le premier mois est avant le mois de la dernière semaine, c'est l'année suivante
-                                if num_mois_int < mois_derniere_semaine:
-                                    annee_mois+=1
                                 num_mois_precedent=num_mois_int
                             # Détection du passage à l'année suivante (ex: Décembre -> Janvier)
-                            elif num_mois_int < num_mois_precedent:
+                            elif num_mois_int < num_mois_precedent and num_mois_precedent == 12:
                                 annee_mois+=1
                             num_mois_precedent=num_mois_int
                             mois_annee=num_mois+'/'+str(annee_mois)
