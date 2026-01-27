@@ -180,6 +180,7 @@
                     <field name="date_facture"       optional="show"/> 
                     <field name="annee_facture"      optional="show"/> 
                     <field name="semaine_facture"    optional="show"/> 
+                    <field name="client_id"          optional="show"/>
                     <field name="num_bl"             optional="show"/>
                     <field name="matiere_premiere"   optional="show" sum="Total"/>
                     <field name="main_oeuvre"        optional="show" sum="Total"/>
