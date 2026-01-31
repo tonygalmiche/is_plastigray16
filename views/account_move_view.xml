@@ -140,6 +140,13 @@
                             attrs="{'invisible': [('is_anomalies_avoir_owork','=', False)],'readonly':True}"
                         />
                     </div>
+                    <div style="background:orange;font-size:11pt" attrs="{'invisible':[('is_doublon_facture','=',False)]}">
+                        <field 
+                            name="is_doublon_facture"
+                            readonly="1" nolabel="1" 
+                            attrs="{'invisible': [('is_doublon_facture','=', False)],'readonly':True}"
+                        />
+                    </div>
                 </xpath>
 
 

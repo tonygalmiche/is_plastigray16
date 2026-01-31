@@ -294,8 +294,8 @@ class is_import_facture_owork(models.Model):
                 obj._calculer_anomalies_facture(new_invoice)
                 #**************************************************************
 
-                #** Valider la facture si pas d'anomalie **********************
-                if not new_invoice.is_anomalies_owork:
+                #** Valider la facture si pas d'anomalie et pas de doublon ***
+                if not new_invoice.is_anomalies_owork and not new_invoice.is_doublon_facture:
                     new_invoice.action_post()
                 #**************************************************************
 
@@ -515,6 +515,11 @@ class is_import_facture_owork(models.Model):
                     has_anomalie = True
                     anomalies_details.append("Facture: %s" % invoice.is_anomalies_owork)
                 
+                # Vérifier s'il y a un doublon
+                if invoice.is_doublon_facture:
+                    has_anomalie = True
+                    anomalies_details.append("Doublon: %s" % invoice.is_doublon_facture)
+                
                 # Vérifier s'il y a eu des corrections automatiques
                 has_corrections = False
                 corrections_details = []
@@ -527,10 +532,12 @@ class is_import_facture_owork(models.Model):
                             corrections_details.append(line.strip())
                 
                 # Définir le sujet avec icône selon le statut
-                if has_anomalie:
-                    sujet = "⚠️ Facture O'Work %s - Anomalies détectées" % numfac
+                if invoice.is_doublon_facture:
+                    sujet = "🔴 Facture O'Work %s - DOUBLON DÉTECTÉ" % numfac
+                elif has_anomalie:
+                    sujet = "🟠 Facture O'Work %s - Anomalies détectées" % numfac
                 elif has_corrections:
-                    sujet = "⚠️ Facture O'Work %s - Corrections automatiques appliquées" % numfac
+                    sujet = "🟠 Facture O'Work %s - Corrections automatiques appliquées" % numfac
                 else:
                     sujet = "✅ Facture O'Work %s - Import OK" % numfac
                 
@@ -557,7 +564,7 @@ class is_import_facture_owork(models.Model):
                 # Ajouter les corrections automatiques si présentes
                 if has_corrections:
                     body_html += """
-                        <p><strong style="color: orange;">⚠️ Corrections automatiques d'arrondis appliquées:</strong></p>
+                        <p><strong style="color: orange;">🟠 Corrections automatiques d'arrondis appliquées:</strong></p>
                         <ul>
                     """
                     for correction in corrections_details:
@@ -566,7 +573,7 @@ class is_import_facture_owork(models.Model):
                 
                 if has_anomalie:
                     body_html += """
-                        <p><strong style="color: red;">⚠️ Anomalies détectées:</strong></p>
+                        <p><strong style="color: red;">🟠 Anomalies détectées:</strong></p>
                         <ul>
                     """
                     for anomalie in anomalies_details:
@@ -640,7 +647,7 @@ class is_import_facture_owork(models.Model):
                         emails.append(user['email'])
             
             # Construire le message pour le chatter de l'import
-            chatter_body = "<p><strong>⚠️ Factures O'Work non créées</strong></p>"
+            chatter_body = "<p><strong>🟠 Factures O'Work non créées</strong></p>"
             chatter_body += "<p>Les factures suivantes n'ont pas pu être importées :</p><ul>"
             
             for numfac, raison in factures_non_creees.items():
@@ -665,7 +672,7 @@ class is_import_facture_owork(models.Model):
             try:
                 obj.message_post(
                     body=chatter_body,
-                    subject="⚠️ Factures O'Work non créées",
+                    subject="🟠 Factures O'Work non créées",
                     message_type='comment',
                     subtype_xmlid='mail.mt_comment',
                 )
@@ -689,7 +696,7 @@ class is_import_facture_owork(models.Model):
                 
                 
                 mail_values = {
-                    'subject': "⚠️ Import O'Work %s - Factures non créées" % obj.name,
+                    'subject': "🟠 Import O'Work %s - Factures non créées" % obj.name,
                     'body_html': body_html,
                     'email_to': ','.join(emails),
                     'email_from': self.env.user.email or 'noreply@plastigray.com',

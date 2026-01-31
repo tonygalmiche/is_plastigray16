@@ -92,9 +92,33 @@ class account_invoice(models.Model):
     is_owork_id        = fields.Many2one('is.import.facture.owork', "O'Work", copy=False, readonly=True)
     is_anomalies_owork = fields.Text("Anomalies O'Work", readonly=True, copy=False)
     is_anomalies_avoir_owork = fields.Text("Anomalies Avoir O'Work", readonly=True, copy=False)
+    is_doublon_facture = fields.Text("Doublon facture", compute='_compute_is_doublon_facture', store=True, help="Indique si une facture avec le même fournisseur et le même N° facture fournisseur existe déjà")
     is_id_owork        = fields.Char("id O'Work", copy=False, help="Champ pour faire le lien entre la facture dans Odoo et la facture dans O'Work")
     is_url_owork       = fields.Char("URL O'Work", copy=False, compute='_compute_is_url_owork', help="Lien vers la facture dans O'Work")
 
+
+    @api.depends('partner_id', 'supplier_invoice_number', 'move_type', 'state')
+    def _compute_is_doublon_facture(self):
+        for obj in self:
+            doublon = False
+            # Uniquement pour les factures fournisseur avec un N° facture fournisseur renseigné
+            if obj.move_type == 'in_invoice' and obj.supplier_invoice_number and obj.partner_id:
+                # Construction du domaine de recherche
+                domain = [
+                    ('partner_id', '=', obj.partner_id.id),
+                    ('supplier_invoice_number', '=', obj.supplier_invoice_number),
+                    ('move_type', '=', 'in_invoice'),
+                    ('state', '!=', 'cancel'),
+                ]
+                # Exclure la facture courante uniquement si elle est déjà enregistrée (id est un entier)
+                if obj.id and isinstance(obj.id, int):
+                    domain.append(('id', '!=', obj.id))
+                # Recherche des autres factures avec le même fournisseur et le même N° facture fournisseur (hors annulées)
+                doublons = self.env['account.move'].search(domain)
+                if doublons:
+                    liste_factures = ', '.join([f.name or 'Brouillon' for f in doublons])
+                    doublon = f"⚠️ DOUBLON DÉTECTÉ : {len(doublons)} autre(s) facture(s) avec le même N° facture fournisseur '{obj.supplier_invoice_number}'\n📋 Facture(s) concernée(s) : {liste_factures}"
+            obj.is_doublon_facture = doublon
 
     @api.onchange('is_id_owork')
     def onchange_is_id_owork(self):
