@@ -50,35 +50,35 @@ class is_demande_achat_serie(models.Model):
             obj.vers_annule_vsb=vsb
 
 
-    name                 = fields.Char("N° demande achat série", readonly=True)
-    createur_id          = fields.Many2one('res.users', 'Demandeur', required=True, default=lambda self: self.env.uid)
-    date_creation        = fields.Date("Date de création", required=True, default=lambda *a: fields.datetime.now())
-    acheteur_id          = fields.Many2one('res.users', 'Acheteur', required=True)
-    fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', domain=[('is_company','=',True)], required=True)
+    name                 = fields.Char("N° demande achat série", tracking=True, readonly=True)
+    createur_id          = fields.Many2one('res.users', 'Demandeur', copy=False, tracking=True, required=True, default=lambda self: self.env.uid)
+    date_creation        = fields.Date("Date de création", copy=False, tracking=True, required=True, default=lambda *a: fields.datetime.now())
+    acheteur_id          = fields.Many2one('res.users', 'Acheteur', tracking=True, required=True)
+    fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', tracking=True, domain=[('is_company','=',True)], required=True)
     pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.pricelist_purchase_id', readonly=True)
     is_type_cde_fournisseur = fields.Selection(string="Type commande fourniseur", related='fournisseur_id.is_type_cde_fournisseur', readonly=True)
-    delai_livraison      = fields.Date("Délai de livraison", required=True)
-    lieu_livraison_id    = fields.Many2one('res.partner', 'Lieu de livraison', domain=[('is_company','=',True)], required=True, default=lambda self: self._lieu_livraison_id())
+    delai_livraison      = fields.Date("Délai de livraison", tracking=True, required=True)
+    lieu_livraison_id    = fields.Many2one('res.partner', 'Lieu de livraison', tracking=True, domain=[('is_company','=',True)], required=True, default=lambda self: self._lieu_livraison_id())
     is_incoterm          = fields.Many2one(string="Incoterm  / Conditions de livraison", related='fournisseur_id.is_incoterm', readonly=True)
-    is_lieu              = fields.Char("Lieu", related='fournisseur_id.is_lieu', readonly=True)
+    is_lieu              = fields.Char("Lieu", related='fournisseur_id.is_lieu', tracking=True, readonly=True)
     motif                = fields.Selection([
         ('pas_tarif'    , "Pas de tarif de créé"),
         ('fin_vie'      , "Produit en fin de vie (Lot trop important)"),
         ('inf_lot_appro', "Besoin inférieur au lot d'appro"),
         ('gest_18'      , "Gest 18 = Achat réalisé par le service achat"),
-    ], "Motif")
-    commentaire          = fields.Text("Commentaire")
+    ], "Motif", tracking=True)
+    commentaire          = fields.Text("Commentaire", tracking=True)
     state                = fields.Selection([
         ('brouillon'     , 'Brouillon'),
         ('transmis_achat', 'Transmis achat'),
         ('solde'         , 'Soldé'),
         ('annule'        , 'Annulé'),
-    ], "Etat", default="brouillon")
-    order_id                = fields.Many2one('purchase.order', 'Commande générée', readonly=True, copy=False)
+    ], "Etat", default="brouillon", tracking=True)
+    order_id                = fields.Many2one('purchase.order', 'Commande générée', tracking=True, readonly=True, copy=False)
     line_ids                = fields.One2many('is.demande.achat.serie.line'  , 'da_id', u"Lignes", copy=True)
-    montant_total           = fields.Float("Montant Total"                            , compute='_compute', readonly=True, store=True)
-    nb_lignes               = fields.Integer("Nombre de lignes"                       , compute='_compute', readonly=True, store=True)
-    product_id              = fields.Many2one('product.product', 'Article'            , compute='_compute', readonly=True, store=True)
+    montant_total           = fields.Float("Montant Total"                            , compute='_compute', tracking=True, readonly=True, store=True)
+    nb_lignes               = fields.Integer("Nombre de lignes"                       , compute='_compute', tracking=True, readonly=True, store=True)
+    product_id              = fields.Many2one('product.product', 'Article'            , compute='_compute', tracking=True, readonly=True, store=True)
 
     vers_brouillon_vsb      = fields.Boolean('Champ technique vers_brouillon_vsb'     , compute='_compute_vsb', readonly=True, store=False)
     vers_transmis_achat_vsb = fields.Boolean('Champ technique vers_transmis_achat_vsb', compute='_compute_vsb', readonly=True, store=False)

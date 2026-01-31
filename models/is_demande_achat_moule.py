@@ -75,23 +75,23 @@ class is_demande_achat_moule(models.Model):
                 obj.num_chantier=line.num_chantier
 
 
-    name                 = fields.Char("N°DA-M", readonly=True)
-    createur_id          = fields.Many2one('res.users', 'Demandeur', required=True, default=lambda self: self.env.uid,copy=False)
-    chef_service_id      = fields.Many2one('res.users', 'Chef de projet', required=True)
-    direction_id         = fields.Many2one('res.users', 'Directeur technique', readonly=True, default=lambda self: self._dirigeant_id())
-    date_creation        = fields.Date("Date de création", required=True, default=lambda *a: fields.datetime.now())
-    acheteur_id          = fields.Many2one('res.users', 'Acheteur', required=True)
-    fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', domain=[('is_company','=',True),('is_segment_achat.name','=',u'Fournisseurs de Moules')])
-    pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", related='fournisseur_id.pricelist_purchase_id', readonly=True)
-    fournisseur_autre    = fields.Char("Fournisseur autre")
-    delai_livraison      = fields.Date("Délai de livraison", required=True)
-    lieu_livraison_id    = fields.Many2one('res.partner', 'Lieu de livraison', domain=[('is_company','=',True)], required=True, default=lambda self: self._lieu_livraison_id())
-    lieu_autre           = fields.Char("Lieu autre")
+    name                 = fields.Char("N°DA-M", tracking=True, readonly=True)
+    createur_id          = fields.Many2one('res.users', 'Demandeur', tracking=True, required=True, default=lambda self: self.env.uid,copy=False)
+    chef_service_id      = fields.Many2one('res.users', 'Chef de projet', tracking=True, required=True)
+    direction_id         = fields.Many2one('res.users', 'Directeur technique', tracking=True, readonly=True, default=lambda self: self._dirigeant_id())
+    date_creation        = fields.Date("Date de création", copy=False, tracking=True, required=True, default=lambda *a: fields.datetime.now())
+    acheteur_id          = fields.Many2one('res.users', 'Acheteur', tracking=True, required=True)
+    fournisseur_id       = fields.Many2one('res.partner', 'Fournisseur', tracking=True, domain=[('is_company','=',True),('is_segment_achat.name','=',u'Fournisseurs de Moules')])
+    pricelist_id         = fields.Many2one('product.pricelist', "Liste de prix", tracking=True, related='fournisseur_id.pricelist_purchase_id', readonly=True)
+    fournisseur_autre    = fields.Char("Fournisseur autre", tracking=True)
+    delai_livraison      = fields.Date("Délai de livraison", tracking=True, required=True)
+    lieu_livraison_id    = fields.Many2one('res.partner', 'Lieu de livraison', tracking=True, domain=[('is_company','=',True)], required=True, default=lambda self: self._lieu_livraison_id())
+    lieu_autre           = fields.Char("Lieu autre", tracking=True)
     is_incoterm          = fields.Many2one(string="Incoterm  / Conditions de livraison", related='fournisseur_id.is_incoterm', readonly=True)
-    is_lieu              = fields.Char("Lieu", related='fournisseur_id.is_lieu', readonly=True)
-    num_devis            = fields.Char("N° du devis")
-    date_devis           = fields.Date("Date du devis")
-    commentaire          = fields.Text("Commentaire")
+    is_lieu              = fields.Char("Lieu", related='fournisseur_id.is_lieu', tracking=True, readonly=True)
+    num_devis            = fields.Char("N° du devis", tracking=True)
+    date_devis           = fields.Date("Date du devis", tracking=True)
+    commentaire          = fields.Text("Commentaire", tracking=True)
     state                = fields.Selection([
         ('brouillon'           , 'Brouillon'),
         ('validation_rsp'      , 'Validation chef de projet'),
@@ -99,11 +99,11 @@ class is_demande_achat_moule(models.Model):
         ('transmis_achat'      , 'Transmis achat'),
         ('solde'               , 'Soldé'),
         ('annule'              , 'Annulé'),
-    ], "Etat", default="brouillon")
+    ], "Etat", default="brouillon", tracking=True)
     line_ids                      = fields.One2many('is.demande.achat.moule.line'  , 'da_id', u"Lignes", copy=True)
-    montant_total                 = fields.Float("Montant Total", compute='_compute', readonly=True, store=True)
-    order_id                      = fields.Many2one('purchase.order', 'Commande générée', readonly=True, copy=False)
-    num_chantier                  = fields.Char("N° du chantier", compute='_compute_num_chantier', readonly=True, store=True)
+    montant_total                 = fields.Float("Montant Total", compute='_compute', readonly=True, store=True, tracking=True)
+    order_id                      = fields.Many2one('purchase.order', 'Commande générée', readonly=True, copy=False, tracking=True)
+    num_chantier                  = fields.Char("N° du chantier", compute='_compute_num_chantier', tracking=True, readonly=True, store=True)
     vers_brouillon_vsb            = fields.Boolean('Champ technique vers_brouillon_vsb', compute='_compute_vsb', readonly=True, store=False)
     vers_validation_rsp_vsb       = fields.Boolean('Champ technique vers_validation_rsp_vsb', compute='_compute_vsb', readonly=True, store=False)
     vers_validation_direction_vsb = fields.Boolean('Champ technique vers_validation_direction_vsb', compute='_compute_vsb', readonly=True, store=False)
