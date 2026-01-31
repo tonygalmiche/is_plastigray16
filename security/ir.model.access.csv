@@ -35,6 +35,7 @@ access_is_pdc_mod,access_is_pdc_mod,model_is_pdc_mod,base.group_user,1,0,0,0
 access_is_secteur_activite,access_is_secteur_activite,model_is_secteur_activite,base.group_user,1,0,0,0
 access_is_type_contact,access_is_type_contact,model_is_type_contact,base.group_user,1,0,0,0
 access_is_liste_servir,access_is_liste_servir,model_is_liste_servir,base.group_user,1,0,0,0
+access_is_liste_servir_admin,access_is_liste_servir_admin,model_is_liste_servir,base.group_system,1,1,1,1
 access_is_liste_servir_line,access_is_liste_servir_line,model_is_liste_servir_line,base.group_user,1,0,0,0
 access_is_liste_servir_uc,access_is_liste_servir_uc,model_is_liste_servir_uc,base.group_user,1,0,0,0
 access_is_liste_servir_um,access_is_liste_servir_um,model_is_liste_servir_um,base.group_user,1,0,0,0

@@ -119,7 +119,7 @@ class is_liste_servir_client(models.Model):
                     liste_servir = liste_servir_obj.create(vals)
                     liste_servir.action_importer_commandes(aqp, point_dechargement)
                     if not liste_servir.line_ids:
-                        liste_servir.unlink()
+                        liste_servir.sudo().unlink()
                     else:
                         if point_dechargement:
                             liste_servir.is_point_dechargement = point_dechargement
@@ -147,6 +147,94 @@ class is_liste_servir_client(models.Model):
                 'type': 'ir.actions.act_window',
                 'res_id': listes_servir[0].id,
             }
+
+
+
+
+
+
+
+
+    # def creer_liste_servir_action(self):
+    #     for obj in self:
+    #         liste_servir_obj = self.env['is.liste.servir']
+
+    #         if obj.name.is_source_location_id:
+    #             is_source_location_id=obj.name.is_source_location_id.id
+    #         else:
+    #             is_source_location=liste_servir_obj._get_default_location()
+    #             is_source_location_id=is_source_location.id
+    #         vals={
+    #             'partner_id'           : obj.name.id,
+    #             'transporteur_id'      : obj.name.is_transporteur_id.id,
+    #             'is_source_location_id': is_source_location_id,
+    #             'date_debut'           : obj.date_debut,
+    #             'date_fin'             : obj.date_fin,
+    #             'livrable'             : obj.livrable,
+    #         }
+    #         listes_servir = []
+    #         if not obj.name.is_caracteristique_liste_a_servir:
+    #             points_dechargement = [None]
+    #             lst_aqp = [None]
+    #         elif obj.name.is_caracteristique_liste_a_servir == 'status_aqp':
+    #             points_dechargement = [None]
+    #             lst_aqp = [True, False]
+    #         elif obj.name.is_caracteristique_liste_a_servir == 'point_de_chargement':
+    #             points_dechargement = self.points_dechargement_and_aqp(obj, False)
+    #             lst_aqp = [None]
+    #         elif obj.name.is_caracteristique_liste_a_servir == 'point_de_chargement_et_status_aqp':
+    #             points_dechargement, lst_aqp = self.points_dechargement_and_aqp(obj, True)
+    #         for aqp in lst_aqp:
+    #             for point_dechargement in points_dechargement:
+    #                 liste_servir = liste_servir_obj.create(vals)
+    #                 liste_servir.action_importer_commandes(aqp, point_dechargement)
+    #                 if not liste_servir.line_ids:
+    #                     liste_servir.unlink()
+    #                 else:
+    #                     if point_dechargement:
+    #                         liste_servir.is_point_dechargement = point_dechargement
+    #                     if aqp is not None:
+    #                         liste_servir.is_livree_aqp = aqp
+    #                     listes_servir.append(liste_servir)
+
+    #         if len(listes_servir) > 1:
+    #             return {
+    #                 'name': 'ls',
+    #                 'view_mode': 'tree,form',
+    #                 'view_type': 'form',
+    #                 'res_model': 'is.liste.servir',
+    #                 'domain': [
+    #                     ('partner_id' ,'=',obj.name.id),
+    #                     ('state','!=','traite'),
+    #                 ],
+    #                 'type': 'ir.actions.act_window',
+    #                 'limit': 1000,
+    #             }
+    #         return {
+    #             'name': "Liste à servir",
+    #             'view_mode': 'form',
+    #             'res_model': 'is.liste.servir',
+    #             'type': 'ir.actions.act_window',
+    #             'res_id': listes_servir[0].id,
+    #         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def liste_servir_action(self):
         for obj in self:
