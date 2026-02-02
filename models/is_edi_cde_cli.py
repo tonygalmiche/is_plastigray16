@@ -1266,7 +1266,80 @@ class is_edi_cde_cli(models.Model):
         return date_finale
 
 
+
+
     def get_data_LTPP(self, attachment):
+        res=[]
+
+        # Détection du type de fichier à partir de l'extension
+        filename = attachment.name.lower() if attachment.name else ''
+        if filename.endswith('.csv'):
+            res = self.get_data_LTPP_csv(attachment)
+        elif filename.endswith('.xlsx'):
+            res = self.get_data_LTPP_xlsx(attachment)
+
+        return res
+
+
+    def get_data_LTPP_xlsx(self, attachment):
+        res = []
+        #** Lecture du fichier xlsx ****************************************
+        xlsxfile = base64.decodebytes(attachment.datas)
+        path = '/tmp/LTPP_xlsx-'+str(self.id)+'.xlsx'
+        f = open(path,'wb')
+        f.write(xlsxfile)
+        f.close()
+        #*******************************************************************
+
+        #** Ouverture du fichier *******************************************
+        try:
+            wb = openpyxl.load_workbook(filename = path)
+            ws = wb.active
+            cells = list(ws)
+        except:
+            raise ValidationError(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx valide")
+        #*******************************************************************
+        lig=0
+        for row in ws.rows:
+            if lig>0:
+                ref_article_client = cells[lig][4].value.strip()
+                try:
+                    date_livraison = cells[lig][13].value.strftime('%Y-%m-%d')
+                except ValueError:
+                    date_livraison = False
+                try:
+                    quantite = cells[lig][11].value
+                except ValueError:
+                    quantite = 0
+                if quantite>0:
+                    orders = self.env['sale.order'].search([
+                        ('partner_id.is_code'   , '=', self.partner_id.is_code),
+                        ('is_ref_client', '=', ref_article_client),
+                        ('is_type_commande'  , '=', 'ouverte'),
+                    ])
+                    num_commande_client = "??"
+                    order_id=False
+                    if len(orders):
+                        num_commande_client = orders[0].client_order_ref
+                        order_id            = orders[0].id
+                    val={
+                        'num_commande_client' : num_commande_client,
+                        'ref_article_client'  : ref_article_client,
+                        'order_id'            : order_id,
+                    }
+                    type_commande="previsionnel"
+                    ligne = {
+                        'quantite'      : quantite,
+                        'type_commande' : type_commande,
+                        'date_livraison': date_livraison,
+                    }
+                    val.update({'lignes':[ligne]})
+                    res.append(val)
+            lig+=1
+        return res
+
+
+    def get_data_LTPP_csv(self, attachment):
         res = []
         for obj in self:
             csvfile = base64.decodebytes(attachment.datas).decode('utf-8-sig', errors='replace')
