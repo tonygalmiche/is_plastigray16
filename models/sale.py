@@ -33,21 +33,21 @@ class sale_order(models.Model):
         ('ls'      , 'Liste à servir'),
         ('proforma', 'PROFORMA'),
     ], string="Type de commande", default="standard")
-    is_article_commande_id = fields.Many2one('product.product', 'Article de la commande', help="Article pour les commandes ouvertes")
-    is_ref_client          = fields.Char("Référence client", store=True, compute='_ref_client')
-    is_source_location_id  = fields.Many2one('stock.location', 'Source Location', default=_get_default_location) 
-    is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur')
-    is_liste_servir_id     = fields.Many2one('is.liste.servir', 'Liste à servir')
-    is_info_client         = fields.Text("Information client complèmentaire")
-    is_nb_lignes           = fields.Integer("Nb lignes", store=True, compute='_compute')
-    is_date_envoi_mail     = fields.Datetime("Mail envoyé le", readonly=False)
+    is_article_commande_id = fields.Many2one('product.product', 'Article de la commande', tracking=True, help="Article pour les commandes ouvertes")
+    is_ref_client          = fields.Char("Référence client", tracking=True, store=True, compute='_ref_client')
+    is_source_location_id  = fields.Many2one('stock.location', 'Source Location', tracking=True, default=_get_default_location) 
+    is_transporteur_id     = fields.Many2one('res.partner', 'Transporteur', tracking=True)
+    is_liste_servir_id     = fields.Many2one('is.liste.servir', 'Liste à servir', tracking=True)
+    is_info_client         = fields.Text("Information client complèmentaire", tracking=True)
+    is_nb_lignes           = fields.Integer("Nb lignes", tracking=True, store=True, compute='_compute')
+    is_date_envoi_mail     = fields.Datetime("Mail envoyé le", readonly=False, tracking=True)
     is_incoterm            = fields.Many2one('account.incoterms', 'Incoterm / Conditions de livraison', related='partner_id.is_incoterm', readonly=True)
     is_lieu                = fields.Char('Lieu', related='partner_id.is_lieu', readonly=True)
-    is_ar_commentaire      = fields.Text("Commentaire AR de commande")
+    is_ar_commentaire      = fields.Text("Commentaire AR de commande", tracking=True)
     is_message             = fields.Text("Message", compute='_compute_message')
     is_ar_contact_id       = fields.Many2many('res.partner', 'is_sale_ar_contact_id_rel', 'partner_id', 'contact_id', 'Destinataire AR de commande')
-    is_point_dechargement  = fields.Char(u'Point de déchargement')
-    client_order_ref       = fields.Char(string='N° de commande client') # Référence client => N° de commande client
+    is_point_dechargement  = fields.Char('Point de déchargement', tracking=True)
+    client_order_ref       = fields.Char(string='N° de commande client', tracking=True) # Référence client => N° de commande client
 
 
     def _create_invoices(self, grouped=False, final=False, date=None):
