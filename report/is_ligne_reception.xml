@@ -173,13 +173,37 @@
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
         <field name="view_mode">tree,form</field>
     </record>
+    <!-- Graph view -->
+    <record id="is_ligne_reception_graph_view" model="ir.ui.view">
+        <field name="name">is_ligne_reception_graph_view</field>
+        <field name="model">is.ligne.reception</field>
+        <field name="arch" type="xml">
+            <graph string="Réceptions" type="bar">
+                <field name="partner_id" type="row"/>
+                <field name="montant_reception" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot view -->
+    <record id="is_ligne_reception_pivot_view" model="ir.ui.view">
+        <field name="name">is_ligne_reception_pivot_view</field>
+        <field name="model">is.ligne.reception</field>
+        <field name="arch" type="xml">
+            <pivot string="Réceptions">
+                <field name="partner_id" type="row"/>
+                <field name="montant_reception" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
     <record id="is_ligne_reception_action" model="ir.actions.act_window">
         <field name="name">Toutes les réceptions</field>
         <field name="res_model">is.ligne.reception</field>
         <field name="domain">[]</field>
         <field name="context">{'search_default_filter_date_reception_12mois': 1, 'order': 'date_reception desc'}</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
     <record id="is_ligne_reception_a_facturer_action" model="ir.actions.act_window">
         <field name="name">Réceptions à facturer</field>

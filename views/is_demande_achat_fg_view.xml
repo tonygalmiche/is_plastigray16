@@ -150,10 +150,35 @@
                 </search>
             </field>
         </record>
+        <!-- Graph view -->
+        <record id="is_demande_achat_fg_graph_view" model="ir.ui.view">
+            <field name="name">is_demande_achat_fg_graph_view</field>
+            <field name="model">is.demande.achat.fg</field>
+            <field name="arch" type="xml">
+                <graph string="Demandes d'achat FG" type="bar">
+                    <field name="fournisseur_id" type="row"/>
+                    <field name="montant_total" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot view -->
+        <record id="is_demande_achat_fg_pivot_view" model="ir.ui.view">
+            <field name="name">is_demande_achat_fg_pivot_view</field>
+            <field name="model">is.demande.achat.fg</field>
+            <field name="arch" type="xml">
+                <pivot string="Demandes d'achat FG">
+                    <field name="fournisseur_id" type="row"/>
+                    <field name="state" type="col"/>
+                    <field name="montant_total" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
         <record model="ir.actions.act_window" id="is_demande_achat_fg_action">
             <field name="name">Demande d'achat FG</field>
             <field name="res_model">is.demande.achat.fg</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
             <field name="context">{}
             </field>
         </record>

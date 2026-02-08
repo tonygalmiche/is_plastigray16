@@ -568,12 +568,38 @@
               parent="menu_is_of_root" 
               sequence="14"/>
 
+    <!-- Graph view OF -->
+    <record id="is_of_graph_view" model="ir.ui.view">
+        <field name="name">is_of_graph_view</field>
+        <field name="model">is.of</field>
+        <field name="arch" type="xml">
+            <graph string="OF" type="bar">
+                <field name="presse_id" type="row"/>
+                <field name="qt_declaree" type="measure"/>
+                <field name="qt_rebut" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot view OF -->
+    <record id="is_of_pivot_view" model="ir.ui.view">
+        <field name="name">is_of_pivot_view</field>
+        <field name="model">is.of</field>
+        <field name="arch" type="xml">
+            <pivot string="OF">
+                <field name="presse_id" type="row"/>
+                <field name="qt_declaree" type="measure"/>
+                <field name="qt_rebut" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
     <record model="ir.actions.act_window" id="is_of_tous_action">
         <field name="name">Tous les OF</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">is.of</field>
         <field name="domain">[]</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
     <menuitem action="is_of_tous_action" 
               id="menu_is_of_tous" 

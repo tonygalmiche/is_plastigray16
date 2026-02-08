@@ -402,13 +402,36 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+        <!-- Graph view livraisons -->
+        <record id="is_toutes_les_livraisons_graph_view" model="ir.ui.view">
+            <field name="name">is_toutes_les_livraisons_graph_view</field>
+            <field name="model">stock.picking</field>
+            <field name="arch" type="xml">
+                <graph string="Livraisons" type="bar">
+                    <field name="partner_id" type="row"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot view livraisons -->
+        <record id="is_toutes_les_livraisons_pivot_view" model="ir.ui.view">
+            <field name="name">is_toutes_les_livraisons_pivot_view</field>
+            <field name="model">stock.picking</field>
+            <field name="arch" type="xml">
+                <pivot string="Livraisons">
+                    <field name="partner_id" type="row"/>
+                    <field name="state" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
         <!-- Toutes les livraisons -->
         <record id="is_toutes_les_livraisons_action" model="ir.actions.act_window">
             <field name="name">Toutes les livraisons</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">stock.picking</field>
             <field name="domain">[('picking_type_id','=', 2)]</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
         </record>
 
         <!-- Livraisons à facturer -->
