@@ -185,12 +185,14 @@ class is_product_client(models.Model):
 
 class is_type_etiquette(models.Model):
     _name='is.type.etiquette'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description="Type étiquette"
     _order='name'
 
-    name             = fields.Char("Type d'étiquette"     , required=True)
-    code_fournisseur = fields.Char('Code Fournisseur'     , required=True)
-    adresse          = fields.Char('Adresse'              , required=True)
+    active           = fields.Boolean('Actif', default=True, tracking=True)
+    name             = fields.Char("Type d'étiquette"     , required=True, tracking=True)
+    code_fournisseur = fields.Char('Code Fournisseur'     , required=True, tracking=True)
+    adresse          = fields.Char('Adresse'              , required=True, tracking=True)
     format_etiquette = fields.Selection([ 
         ('DD','DD'),
         ('EC','EC'),
@@ -198,7 +200,8 @@ class is_type_etiquette(models.Model):
         ('PG','PG'),
         ('RE','RE'),
         ('VS','VS'),
-    ], "Format de l'étiquette", required=True)
+    ], "Format de l'étiquette", required=True, tracking=True)
+    is_cde_rtge_fond_noir = fields.Boolean("Zone 'CDE RTGE' sur fond noir", default=False, tracking=True)
 
 
 class is_code_cas(models.Model):

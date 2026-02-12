@@ -171,13 +171,14 @@ class is_galia_base(models.Model):
                         pt.is_livree_aqp        as aqp,
                         pt.is_droite_grauche    as droite_gauche,
                         pt.is_soumise_regl      as logo_secu,
-                        ite.name                as type_etiquette,
-                        ite.format_etiquette    as format_etiquette,
-                        ite.adresse             as adresse,
-                        ite.code_fournisseur    as code_fournisseur,
-                        mp.name                 as num_of,
-                        pp.id                   as product_product_id,
-                        pt.is_code_fabrication  as is_code_fabrication
+                        ite.name                  as type_etiquette,
+                        ite.format_etiquette      as format_etiquette,
+                        ite.adresse               as adresse,
+                        ite.code_fournisseur      as code_fournisseur,
+                        ite.is_cde_rtge_fond_noir as is_cde_rtge_fond_noir,
+                        mp.name                   as num_of,
+                        pp.id                     as product_product_id,
+                        pt.is_code_fabrication    as is_code_fabrication
                     FROM mrp_production mp inner join product_product                  pp on mp.product_id=pp.id
                                             inner join product_template                 pt on pp.product_tmpl_id=pt.id
                                             inner join mrp_workorder                  mpwl on mpwl.production_id=mp.id
@@ -208,10 +209,11 @@ class is_galia_base(models.Model):
                         pt.is_livree_aqp        as aqp,
                         pt.is_droite_grauche    as droite_gauche,
                         pt.is_soumise_regl      as logo_secu,
-                        ite.name                as type_etiquette,
-                        ite.format_etiquette    as format_etiquette,
-                        ite.adresse             as adresse,
-                        ite.code_fournisseur    as code_fournisseur,
+                        ite.name                  as type_etiquette,
+                        ite.format_etiquette      as format_etiquette,
+                        ite.adresse               as adresse,
+                        ite.code_fournisseur      as code_fournisseur,
+                        ite.is_cde_rtge_fond_noir as is_cde_rtge_fond_noir,
                         ''                      as num_of,
                         pp.id                   as product_product_id,
                         pt.is_code_fabrication  as is_code_fabrication
@@ -230,27 +232,28 @@ class is_galia_base(models.Model):
                 if (offset<0):
                     offset=0
                 SQL="""SELECT 
-                        pt.id                   as product_id,
-                        pt.is_code              as code_pg, 
-                        pt.name->>'fr_FR'       as designation, 
-                        pt.is_ref_client        as ref_client,
-                        pt.is_ref_plan          as ref_plan,
-                        pt.is_ind_plan          as ind_plan,
-                        pt.weight               as poids_brut,
-                        pt.weight_net           as poids_net,
-                        im.name                 as moule, 
-                        ic.name                 as categorie,
-                        ig.name                 as gestionnaire,
-                        pt.is_livree_aqp        as aqp,
-                        pt.is_droite_grauche    as droite_gauche,
-                        pt.is_soumise_regl      as logo_secu,
-                        ite.name                as type_etiquette,
-                        ite.format_etiquette    as format_etiquette,
-                        ite.adresse             as adresse,
-                        ite.code_fournisseur    as code_fournisseur,
-                        po.name                 as num_of,
-                        pp.id                   as product_product_id,
-                        pt.is_code_fabrication  as is_code_fabrication
+                        pt.id                     as product_id,
+                        pt.is_code                as code_pg, 
+                        pt.name->>'fr_FR'         as designation, 
+                        pt.is_ref_client          as ref_client,
+                        pt.is_ref_plan            as ref_plan,
+                        pt.is_ind_plan            as ind_plan,
+                        pt.weight                 as poids_brut,
+                        pt.weight_net             as poids_net,
+                        im.name                   as moule, 
+                        ic.name                   as categorie,
+                        ig.name                   as gestionnaire,
+                        pt.is_livree_aqp          as aqp,
+                        pt.is_droite_grauche      as droite_gauche,
+                        pt.is_soumise_regl        as logo_secu,
+                        ite.name                  as type_etiquette,
+                        ite.format_etiquette      as format_etiquette,
+                        ite.adresse               as adresse,
+                        ite.code_fournisseur      as code_fournisseur,
+                        ite.is_cde_rtge_fond_noir as is_cde_rtge_fond_noir,
+                        po.name                   as num_of,
+                        pp.id                     as product_product_id,
+                        pt.is_code_fabrication    as is_code_fabrication
                     FROM purchase_order po inner join purchase_order_line             pol on po.id=pol.order_id
                                             inner join product_product                  pp on pol.product_id=pp.id 
                                             inner join product_template                 pt on pp.product_tmpl_id=pt.id
@@ -279,6 +282,13 @@ class is_galia_base(models.Model):
                     Msg+="%s non trouvée!\n"%Etiquette
                 else:
                     row=rows[0]
+
+
+
+                
+
+
+
                     if (row['aqp']=='t'):
                         AQP='AQP'
                     else:
@@ -315,10 +325,11 @@ class is_galia_base(models.Model):
                     TypeEti= row['type_etiquette']
                     if TypeEti=='':
                         Msg+="Type etiquette non trouvee!\n"
-                    TypeEti         = row['type_etiquette'] or ''
-                    FormatEti       = row['format_etiquette'] or ''
-                    Adresse         = row['adresse'] or ''
-                    CodeFournisseur = row['code_fournisseur'] or ''
+                    TypeEti               = row['type_etiquette'] or ''
+                    FormatEti             = row['format_etiquette'] or ''
+                    Adresse               = row['adresse'] or ''
+                    CodeFournisseur       = row['code_fournisseur'] or ''
+                    is_cde_rtge_fond_noir = row['is_cde_rtge_fond_noir'] or False
                     #**********************************************************
 
                     # Recherche Informations sur le client ********************
@@ -641,6 +652,22 @@ class is_galia_base(models.Model):
                     if LogoSecu=="" or LogoSecu=="N" or LogoSecu=="UR":
                         Etiq+="^XA^IDR:SECU2.grf^FS \n"   # Efface le Logo Sécu de la mémoire
                         Etiq+="^XFR:UC^FS \n"
+
+                    if is_cde_rtge_fond_noir:
+                        Etiq+="""
+                            ^FX ** Mettre le CDE RTGE en blanc sur fond noir ****************************** ^FS
+
+                            ^FO645,140^GB160,1145,160,B,0^FS ^FX Bloc noir : X,Y | Larg,Haut,Epaiss,Coul,Arrondi ^FS
+
+                            ^A0R,185,75^FO610,140^FR^FN15^FS ^FX CDE RTGE ^FS
+                            ^FX ^A0R,185,75 : Police standard (0), Rotation 90° (R), Taille (185x75) ^FS
+                            ^FX ^FO610,140  : Position sur l'étiquette (X=610, Y=140) ^FS
+                            ^FX ^FR         : FIELD REVERSE -> Inverse la couleur (écrit en blanc sur fond noir) ^FS
+                            ^FX ^FN15       : Appel de la variable numéro 15 ^FS
+                            ^FX ^FS         : Fin de champ ^FS
+                            ^FX *************************************************************************** ^FS
+                        \n"""
+
                     Etiq+="^FN1 ^FD"+FN1+"^FS \n"        # N Produit (P)
                     Etiq+="^FN2 ^FD"+FN2+"^FS \n"        # N Produit (Code à Barre)
                     Etiq+="^FN3 ^FD"+str(FN3)+"^FS \n"   # Quantité(Q)
@@ -690,6 +717,11 @@ class is_galia_base(models.Model):
                         QRCode=CodeDevialet+NumLot
                         Etiq+="^FO425,800^BXN,12,200^FD"+QRCode+"^FS"
                     #**********************************************************
+
+
+
+
+
 
                     if Nb==zzFin:
                         Etiq+="^MMT \n"  # Avance de l'éiquette
