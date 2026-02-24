@@ -1786,7 +1786,14 @@ class is_edi_cde_cli(models.Model):
                         for detail_programme in partie_citee.xpath("ARTICLE_PROGRAMME/DETAIL_PROGRAMME_ARTICLE"):
                             quantite                          = detail_programme.xpath("QteALivrer")[0].text
                             date_heure_livraison              = detail_programme.xpath("DateHeurelivraisonAuPlusTard")[0].text
-                            date_heure_livraison_au_plus_tot  = detail_programme.xpath("DateHeurelivraisonAuPlusTot")[0].text
+
+
+                            #date_heure_livraison_au_plus_tot  = detail_programme.xpath("DateHeurelivraisonAuPlusTot")[0].text
+                            try:
+                                date_heure_livraison_au_plus_tot  = detail_programme.xpath("DateHeurelivraisonAuPlusTot")[0].text
+                            except IndexError:
+                                date_heure_livraison_au_plus_tot = date_heure_livraison
+
                             try:
                                 numero_identification = detail_programme.xpath("NumeroIdentificationAcheteur")[0].text
                             except IndexError:
