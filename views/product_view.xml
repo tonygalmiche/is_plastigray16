@@ -253,6 +253,7 @@
                             <field name="fantome"/> 
                             <field name="calcul_cout"/>
                             <field name="a_inventorier"/> 
+                            <field name="limiter_designation_35"/> 
                         </group>
                     </sheet>
                 </form>
@@ -269,6 +270,7 @@
                     <field name="fantome"/> 
                     <field name="calcul_cout"/>
                     <field name="a_inventorier"/> 
+                    <field name="limiter_designation_35"/> 
                 </tree>
             </field>
         </record>

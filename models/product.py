@@ -94,6 +94,8 @@ class is_category(models.Model):
         help="Si cette case est cochée, le coût sera calculé pour les articles de cette catégorie")
     a_inventorier = fields.Boolean(u'Articles à inventorier', \
         help="Si cette case est cochée, les articles de cette catégorie seront inventoriés",default=True)
+    limiter_designation_35 = fields.Boolean('Limiter la désignation à 35 caractères', default=True, \
+        help="Si cette case est cochée, la désignation des articles de cette catégorie sera limitée à 35 caractères")
 
 
     def _calcul_cout(self):
@@ -366,6 +368,17 @@ class product_template(models.Model):
             #*******************************************************************
 
 
+
+    @api.constrains('name', 'is_category_id')
+    def _check_designation_length(self):
+        for obj in self:
+            if obj.is_category_id and obj.is_category_id.limiter_designation_35 and obj.name and len(obj.name) > 35:
+                raise ValidationError(
+                    "La désignation '%s' dépasse 35 caractères (%s caractères). "
+                    "La catégorie '%s' limite la désignation à 35 caractères." % (
+                        obj.name, len(obj.name), obj.is_category_id.name
+                    )
+                )
 
     #** Ajout du tracking sur les champs par défaut 
     name = fields.Char(tracking=True)
