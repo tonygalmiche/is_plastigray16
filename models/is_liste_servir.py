@@ -994,7 +994,7 @@ class is_liste_servir_line(models.Model):
     mixer              = fields.Boolean('Mixer', help="L'UM de cet article peut-être mixée avec un autre", default=False)
     order_id           = fields.Many2one('sale.order', 'Commande', required=False, readonly=True)
     client_order_ref   = fields.Char('Cde Client', readonly=True)
-    point_dechargement = fields.Char('Point de déchargement', readonly=True)
+    point_dechargement = fields.Char('Point de déchargement')
     certificat_matiere = fields.Char('Certificat matiere', readonly=True)
     anomalie           = fields.Char('Commentaire')
     is_certificat_conformite_vsb = fields.Integer('Certificat de conformité', compute='_compute_is_certificat_conformite_vsb', store=False, readonly=True)
