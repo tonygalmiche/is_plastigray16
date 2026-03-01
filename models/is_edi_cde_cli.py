@@ -1755,8 +1755,32 @@ class is_edi_cde_cli(models.Model):
 
                         order_id=False
                         if not len(anomalie):
+
+
+                            # #** Pour JTEKT en particulier, recherche si il existe une commande ferme ********
+                            # #** Demande de CB du 01/03/2026
+                            # orders=self.env['sale.order'].search([
+                            #     ('is_type_commande'  , '=', 'standard'),
+                            #     ('state'             , '=', 'draft'),
+                            #     ('partner_id'        , '=', obj.partner_id.id),
+                            #     ('client_order_ref'  , '=', num_commande_client),
+                            # ])
+                            # if len(orders)==0:
+                            #     vals={
+                            #         "partner_id": obj.partner_id.id,
+                            #         "client_order_ref": num_commande_client,
+                            #         "is_type_commande": "standard",
+                            #     }
+                            #     order=self.env['sale.order'].create(vals)
+                            #     order.pg_onchange_partner_id()
+                            # else:
+                            #     order=orders[0]
+                            # order_id=order.id
+                            # #********************************************************************************
+
+
+
                             orders=self.env['sale.order'].search([
-                                #('partner_id.is_code', '=', obj.partner_id.is_code),
                                 ('partner_id'        , '=', obj.partner_id.id),
                                 ('is_ref_client'     , '=', ref_article_client),
                                 ('is_type_commande'  , '=', 'ouverte'),

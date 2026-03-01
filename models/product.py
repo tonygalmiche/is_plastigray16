@@ -630,6 +630,7 @@ class product_template(models.Model):
             default = {}
         default.update({
             'is_code'                 : self.is_code + ' (copie)',
+            'name'                    : self.name,  # Conserver la désignation sans "(copie)"
             'company_id'              : self.company_id.id,
             'property_account_income_id' : self.property_account_income_id,
             'property_account_expense_id': self.property_account_expense_id,
@@ -672,6 +673,11 @@ class product_template(models.Model):
                 'multiple_livraison' : item.multiple_livraison,
             }
             id = model.create(vals)
+
+
+
+
+
         return res
 
 
