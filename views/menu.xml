@@ -246,6 +246,17 @@
     </record>
     <menuitem id="menu_is_achats_prix_20" sequence="20" name="Lignes liste de prix"  parent="menu_is_achats_prix" action="is_pricelist_item_purchase_action" />
 
+    <!-- Achats / Demandes de consultation -->
+    <record id="is_demande_consultation_menu" model="ir.ui.menu">
+        <field name="name">Demandes de consultation</field>
+        <field name="sequence">24</field>
+        <field name="parent_id" eval="ref('menu_is_achats')"/>
+        <field name="action"    ref="is_demande_consultation_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_employes_hors_production_group'),
+        ])]"/>
+    </record>
+
     <!-- Achats / Demandes d'achats -->
     <menuitem id="is_demande_achat_main_menu" sequence="25" name="Demandes d'achats"  parent="menu_is_achats" />
     <record id="is_demande_achat_serie_menu" model="ir.ui.menu">

@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Séquences pour chaque type de consultation -->
+        <record id="is_demande_consultation_dc_mat_seq" model="ir.sequence">
+            <field name="name">Demande de consultation - Matières et colorants</field>
+            <field name="code">is.demande.consultation.dc_mat</field>
+            <field name="prefix">DC-MAT-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="is_demande_consultation_dc_comp_seq" model="ir.sequence">
+            <field name="name">Demande de consultation - Composant</field>
+            <field name="code">is.demande.consultation.dc_comp</field>
+            <field name="prefix">DC-COMP-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="is_demande_consultation_dc_emb_seq" model="ir.sequence">
+            <field name="name">Demande de consultation - Emballages</field>
+            <field name="code">is.demande.consultation.dc_emb</field>
+            <field name="prefix">DC-EMB-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="is_demande_consultation_dc_port_seq" model="ir.sequence">
+            <field name="name">Demande de consultation - Transport</field>
+            <field name="code">is.demande.consultation.dc_port</field>
+            <field name="prefix">DC-PORT-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="is_demande_consultation_dc_chine_seq" model="ir.sequence">
+            <field name="name">Demande de consultation - Import Chine</field>
+            <field name="code">is.demande.consultation.dc_chine</field>
+            <field name="prefix">DC-CHINE-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Vue formulaire -->
+        <record model="ir.ui.view" id="is_demande_consultation_form_view">
+            <field name="name">is_demande_consultation_form_view</field>
+            <field name="model">is.demande.consultation</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Demande de consultation">
+                    <header>
+                        <field name="vers_brouillon_vsb" invisible="1"/>
+                        <button 
+                            name="vers_brouillon_action"
+                            string="Vers brouillon"
+                            attrs="{'invisible': [('vers_brouillon_vsb', '!=', True)]}"
+                            type="object"
+                            confirm="Voulez-vous vraiment revenir à l'état brouillon ?"
+                        />
+                        <field name="vers_validation_technique_vsb" invisible="1"/>
+                        <button 
+                            name="vers_validation_technique_action"
+                            string="Vers validation technique"
+                            attrs="{'invisible': [('vers_validation_technique_vsb', '!=', True)]}"
+                            class="oe_highlight" type="object"
+                        />
+                        <field name="vers_transmis_achat_vsb" invisible="1"/>
+                        <button 
+                            name="vers_transmis_achat_action"
+                            string="Vers transmis achat"
+                            attrs="{'invisible': [('vers_transmis_achat_vsb', '!=', True)]}"
+                            class="oe_highlight" type="object"
+                        />
+                        <field name="envoi_consultation_vsb" invisible="1"/>
+                        <button 
+                            name="envoi_consultation_fournisseurs_action"
+                            string="Envoyer les consultations"
+                            attrs="{'invisible': [('envoi_consultation_vsb', '!=', True)]}"
+                            type="object" icon="fa-envelope"
+                            confirm="Voulez-vous envoyer les consultations par mail à tous les fournisseurs ?"
+                        />
+                        <field name="vers_solde_vsb" invisible="1"/>
+                        <button 
+                            name="vers_solde_action"
+                            string="Solder"
+                            attrs="{'invisible': [('vers_solde_vsb', '!=', True)]}"
+                            class="oe_highlight" type="object"
+                            confirm="Voulez-vous vraiment solder cette demande de consultation ?"
+                        />
+                        <field name="vers_annule_vsb" invisible="1"/>
+                        <button 
+                            name="vers_annule_action"
+                            string="Annuler"
+                            attrs="{'invisible': [('vers_annule_vsb', '!=', True)]}"
+                            type="object"
+                            confirm="Voulez-vous vraiment annuler cette demande de consultation ?"
+                        />
+                        <field name="type_consultation" invisible="1"/>
+                        <!-- Statusbar pour DC-EMB, DC-COMP, DC-PORT et DC-CHINE (sans validation technique) -->
+                        <field name="state" widget="statusbar" statusbar_visible="brouillon,transmis_achat,consultation_en_cours,solde" attrs="{'invisible': [('type_consultation', 'not in', ['dc_emb', 'dc_comp', 'dc_port', 'dc_chine'])]}"/>
+                        <!-- Statusbar pour les autres types -->
+                        <field name="state" widget="statusbar" attrs="{'invisible': [('type_consultation', 'in', ['dc_emb', 'dc_comp', 'dc_port', 'dc_chine'])]}"/>>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/>
+                        <group>
+                            <group string="Identification">
+                                <field name="name" readonly="1"/>
+                                <field name="type_consultation" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="demandeur_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="date_creation" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="validateur_technique_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])], 'invisible': [('type_consultation', 'in', ['dc_emb', 'dc_comp', 'dc_port', 'dc_chine'])]}"/>
+                                <field name="acheteur_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                            <group string="Références" attrs="{'invisible': [('type_consultation', '=', 'dc_chine')]}">
+                                <field name="num_ao" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="mold_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="dossierf_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Client / Prospect" attrs="{'invisible': [('type_consultation', '=', 'dc_chine')]}">
+                                <field name="client_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="prospect" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="confidentialite" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="secteur_application" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                            <group string="Dates" attrs="{'invisible': [('type_consultation', '=', 'dc_chine')]}">
+                                <field name="date_retour_consultation" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="date_reponse_souhaitee" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="date_sop" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="duree_vie" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                        </group>
+                        <!-- Groupe Transport pour DC-PORT -->
+                        <group attrs="{'invisible': [('type_consultation', '!=', 'dc_port')]}">
+                            <group string="Adresses">
+                                <field name="adresse_enlevement_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="adresse_livraison_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                            <group string="Conditions transport">
+                                <field name="date_dms" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="incoterm_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="lieu" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                        </group>
+                        <!-- Groupe Import Chine pour DC-CHINE -->
+                        <group attrs="{'invisible': [('type_consultation', '!=', 'dc_chine')]}">
+                            <group string="Adresses">
+                                <field name="adresse_enlevement_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="adresse_livraison_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                            <group string="Conditions import">
+                                <field name="incoterm_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                <field name="lieu" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Lignes" name="lignes">
+                                <field name="type_consultation" invisible="1"/>
+                                <field name="line_ids" nolabel="1" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}">
+                                    <tree>
+                                        <field name="state" invisible="1"/>
+                                        <field name="type_consultation" invisible="1"/>
+                                        <button name="copy_line_action" type="object" icon="fa-copy" title="Copier cette ligne" attrs="{'invisible': [('state', 'in', ['solde', 'annule'])]}"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <!-- Champs communs (sauf DC-EMB, DC-COMP, DC-PORT et DC-CHINE) -->
+                                        <field name="designation" attrs="{'column_invisible': [('parent.type_consultation', 'in', ['dc_emb', 'dc_comp', 'dc_port', 'dc_chine'])]}"/>
+                                        <field name="coloris" attrs="{'column_invisible': [('parent.type_consultation', 'in', ['dc_emb', 'dc_comp', 'dc_port', 'dc_chine'])]}"/>>
+                                        <!-- Champs spécifiques DC-EMB -->
+                                        <field name="type_produit" string="Type produit" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <field name="matiere" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <field name="dimensions_int" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <field name="dimensions_ext" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <field name="type_cannelure" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <field name="poids_emballage" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <field name="standard" string="Standard" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_emb')]}"/>
+                                        <!-- Champs spécifiques DC-COMP -->
+                                        <field name="type_produit" string="Type produit" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_comp')]}"/>
+                                        <field name="matiere" string="Matière" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_comp')]}"/>
+                                        <field name="dimension" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_comp')]}"/>
+                                        <field name="environnement" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_comp')]}"/>
+                                        <field name="standard" string="Standard" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_comp')]}"/>
+                                        <!-- Champs spécifiques DC-PORT -->
+                                        <field name="colisage" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_port')]}"/>
+                                        <field name="frequence" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_port')]}"/>
+                                        <!-- Champs spécifiques DC-CHINE -->
+                                        <field name="mold_id" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_chine')]}"/>
+                                        <field name="poids" string="Poids" attrs="{'column_invisible': [('parent.type_consultation', 'not in', ['dc_port', 'dc_chine'])]}"/>
+                                        <field name="dimensions_moule" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_chine')]}"/>
+                                        <field name="date_disponibilite_outillage" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_chine')]}"/>
+                                        <field name="date_livraison_souhaitee" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_chine')]}"/>
+                                        <field name="mode_transport" attrs="{'column_invisible': [('parent.type_consultation', '!=', 'dc_chine')]}"/>
+                                        <!-- Champs communs -->
+                                        <field name="quantite_annuelle" attrs="{'column_invisible': [('parent.type_consultation', '=', 'dc_chine')]}"/>
+                                        <field name="lot" attrs="{'column_invisible': [('parent.type_consultation', '=', 'dc_chine')]}"/>
+                                        <field name="fournisseur_retenu_name" attrs="{'column_invisible': [('parent.state', '=', 'brouillon')]}"/>
+                                        <field name="fournisseur_retenu_id" widget="many2one_clickable" invisible="1"/>
+                                        <field name="prix_retenu" attrs="{'column_invisible': [('parent.state', '=', 'brouillon')]}"/>
+                                    </tree>
+                                    <form string="Ligne de consultation">
+                                        <group>
+                                            <!-- Groupe Produit pour types autres que DC-EMB, DC-COMP, DC-PORT et DC-CHINE -->
+                                            <group string="Produit" attrs="{'invisible': [('type_consultation', 'in', ['dc_emb', 'dc_comp', 'dc_port', 'dc_chine'])]}">
+                                                <field name="type_consultation" invisible="1"/>
+                                                <field name="designation" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="coloris" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="quantite_annuelle" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="lot" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                            </group>
+                                            <!-- Groupe Emballage pour DC-EMB -->
+                                            <group string="Emballage" attrs="{'invisible': [('type_consultation', '!=', 'dc_emb')]}">
+                                                <field name="type_produit" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="matiere" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="dimensions_int" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="dimensions_ext" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="type_cannelure" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="poids_emballage" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="standard" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="quantite_annuelle" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="lot" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                            </group>
+                                            <!-- Groupe Composant pour DC-COMP -->
+                                            <group string="Composant" attrs="{'invisible': [('type_consultation', '!=', 'dc_comp')]}">
+                                                <field name="type_produit" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="matiere" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="dimension" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="environnement" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="quantite_annuelle" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="standard" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="lot" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                            </group>
+                                            <!-- Groupe Transport pour DC-PORT -->
+                                            <group string="Transport" attrs="{'invisible': [('type_consultation', '!=', 'dc_port')]}">
+                                                <field name="colisage" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="poids" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="frequence" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                            </group>
+                                            <!-- Groupe Import Chine pour DC-CHINE -->
+                                            <group string="Import Chine" attrs="{'invisible': [('type_consultation', '!=', 'dc_chine')]}">
+                                                <field name="mold_id" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="poids" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="dimensions_moule" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="date_disponibilite_outillage" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="date_livraison_souhaitee" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                                <field name="mode_transport" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                                            </group>
+                                            <group string="Résultat" attrs="{'invisible': [('state', '=', 'brouillon')]}">>
+                                                <field name="state" invisible="1"/>
+                                                <field name="fournisseur_retenu_name"/>
+                                                <field name="fournisseur_retenu_id" invisible="1"/>
+                                                <field name="prix_retenu"/>
+                                            </group>
+                                        </group>
+                                        <separator string="Fournisseurs consultés"/>
+                                        <field name="fournisseur_ids" nolabel="1" attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}">
+                                            <tree editable="bottom">
+                                                <field name="state" invisible="1"/>
+                                                <field name="sequence" widget="handle"/>
+                                                <!-- <field name="lot" optional="show"/> -->
+                                                <field name="fournisseur_id" widget="many2one_clickable"/>
+                                                <field name="fournisseur_hors_panel"/>
+                                                <field name="email_commercial"/>
+                                                <field name="reponse_prix" attrs="{'column_invisible': [('parent.state', '=', 'brouillon')]}"/>
+                                                <field name="delai" attrs="{'column_invisible': [('parent.state', '=', 'brouillon')]}"/>
+                                                <field name="fournisseur_retenu" attrs="{'column_invisible': [('parent.state', '=', 'brouillon')]}"/>
+                                                <field name="date_envoi_mail" widget="datetime" attrs="{'column_invisible': [('parent.state', '=', 'brouillon')]}"/>
+                                            </tree>
+                                        </field>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="Commentaire" name="commentaire">
+                                <field name="commentaire" nolabel="1" placeholder="Commentaires..." attrs="{'readonly': [('state', 'in', ['solde', 'annule'])]}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vue liste -->
+        <record model="ir.ui.view" id="is_demande_consultation_tree_view">
+            <field name="name">is_demande_consultation_tree_view</field>
+            <field name="model">is.demande.consultation</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="state in ['solde','annule']" decoration-danger="state=='transmis_achat'" decoration-warning="state=='consultation_en_cours'" decoration-info="state=='validation_technique'">
+                    <field name="name"/>
+                    <field name="type_consultation"/>
+                    <field name="demandeur_id"/>
+                    <field name="date_creation"/>
+                    <field name="validateur_technique_id"/>
+                    <field name="acheteur_id"/>
+                    <field name="num_ao"/>
+                    <field name="mold_id" widget="many2one_clickable"/>
+                    <field name="dossierf_id" widget="many2one_clickable"/>
+                    <field name="client_id" widget="many2one_clickable"/>
+                    <field name="prospect"/>
+                    <field name="confidentialite"/>
+                    <field name="date_retour_consultation"/>
+                    <field name="date_reponse_souhaitee"/>
+                    <field name="date_sop"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vue recherche -->
+        <record model="ir.ui.view" id="is_demande_consultation_search_view">
+            <field name="name">is_demande_consultation_search_view</field>
+            <field name="model">is.demande.consultation</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="type_consultation"/>
+                    <field name="demandeur_id"/>
+                    <field name="validateur_technique_id"/>
+                    <field name="acheteur_id"/>
+                    <field name="num_ao"/>
+                    <field name="mold_id"/>
+                    <field name="dossierf_id"/>
+                    <field name="client_id"/>
+                    <field name="prospect"/>
+                    <field name="state"/>
+                    <separator/>
+                    <filter string="Brouillon" name="brouillon" domain="[('state', '=', 'brouillon')]"/>
+                    <filter string="Validation technique" name="validation_technique" domain="[('state', '=', 'validation_technique')]"/>
+                    <filter string="Transmis achat" name="transmis_achat" domain="[('state', '=', 'transmis_achat')]"/>
+                    <filter string="Consultation en cours" name="consultation_en_cours" domain="[('state', '=', 'consultation_en_cours')]"/>
+                    <filter string="Soldé" name="solde" domain="[('state', '=', 'solde')]"/>
+                    <filter string="Annulé" name="annule" domain="[('state', '=', 'annule')]"/>
+                    <separator/>
+                    <filter string="Non soldé / Non annulé" name="en_cours" domain="[('state', 'not in', ['solde', 'annule'])]"/>
+                    <separator/>
+                    <filter string="Archivés" name="archived" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <group expand="0" string="Grouper par">
+                        <filter string="Type de consultation" name="group_by_type" context="{'group_by': 'type_consultation'}"/>
+                        <filter string="Demandeur" name="group_by_demandeur" context="{'group_by': 'demandeur_id'}"/>
+                        <filter string="Acheteur" name="group_by_acheteur" context="{'group_by': 'acheteur_id'}"/>
+                        <filter string="Client" name="group_by_client" context="{'group_by': 'client_id'}"/>
+                        <filter string="Moule" name="group_by_moule" context="{'group_by': 'mold_id'}"/>
+                        <filter string="Dossier F" name="group_by_dossierf" context="{'group_by': 'dossierf_id'}"/>
+                        <filter string="État" name="group_by_state" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record model="ir.actions.act_window" id="is_demande_consultation_action">
+            <field name="name">Demandes de consultation</field>
+            <field name="res_model">is.demande.consultation</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_en_cours': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Créer une nouvelle demande de consultation
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
