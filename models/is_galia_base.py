@@ -289,7 +289,7 @@ class is_galia_base(models.Model):
 
 
 
-                    if (row['aqp']=='t'):
+                    if (row['aqp']==True):
                         AQP='AQP'
                     else:
                         AQP=''
