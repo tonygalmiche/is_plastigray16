@@ -26,7 +26,8 @@ Module Odoo 16 pour Plastigray
         "web_chatter_position",
         "web_company_color",
         "mail_group",
-        "auditlog"
+        "auditlog",
+        "is_top_menu"
     ],
     "data" : [
         "security/res.groups.xml",

@@ -4,6 +4,16 @@
     <data>
     <menuitem id="menu_is_donnees_techniques"  sequence="1"  name="Données techniques"/>
 
+
+    <record id="is_donnees_techniques_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_is_donnees_techniques"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
     <record id="menu_is_moules" model="ir.ui.menu" >
         <field name="name">Projets et Moules</field>
         <field name="sequence">10</field>
@@ -204,6 +214,12 @@
         <field name="groups_id" eval="[(6,0,[
             ref('is_employes_hors_production_group'),
         ])]"/>
+    </record>
+    <record id="is_achats_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_is_achats"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
     </record>
 
     <!-- Achats / Fournisseurs -->
@@ -534,6 +550,12 @@
     <record id="menu_is_ventes" model="ir.ui.menu" >
         <field name="name">Ventes</field>
         <field name="sequence">3</field>
+    </record>
+    <record id="is_ventes_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_is_ventes"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
     </record>
 
     <!-- Ventes / Clients -->
@@ -1112,6 +1134,14 @@
         <field name="parent_id" eval=""/>
         <field name="groups_id" eval="[(6,0,[])]"/>
     </record>
+    <record id="is_production_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_is_production"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
 
     <!-- Production / Production -->
     <menuitem id="menu_is_production_production" sequence="10" name="Production"                 parent="menu_is_production"/>
@@ -1434,6 +1464,21 @@
             ref('is_chef_projet_group'),
         ])]"/>
     </record>
+
+    <record id="is_indicateurs_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="is_indicateurs_menu"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
+
+
+
+
+
     <menuitem id="is_indicateur_ca_menu" sequence="10" name="Chiffre d'affaire" parent="is_indicateurs_menu"/>
     <record id="is_sale_order_line_menu" model="ir.ui.menu" >
         <field name="name">CA commandes client</field>
@@ -1475,6 +1520,17 @@
             ref('is_rsp_production_group'),
         ])]"/>
     </record>
+
+    <record id="is_analyse_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_is_analyse"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
+
 
     <menuitem id="is_analyse_article_menu"    sequence="10" name="Analyses Articles"           parent="menu_is_analyse"/>
     <record id="is_article_sans_nomenclature_menu" model="ir.ui.menu" >
@@ -1730,6 +1786,12 @@
 
     <!-- Déplacement des menus standards sous le menu 'Autre' -->
     <menuitem id="menu_is_autre"               sequence="9"  name="Autre" groups="base.group_system" />
+    <record id="is_autre_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_is_autre"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
 
     <menuitem id="purchase.menu_purchase_root"  sequence="20" name="Achats"            parent="menu_is_autre"/>
     <menuitem id="sale.sale_menu_root"          sequence="30" name="Ventes"            parent="menu_is_autre"/>
@@ -1758,6 +1820,17 @@
         <field name="groups_id" eval="[(6,0,[
         ])]"/>
     </record>
+    <record id="is_outillages_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_main_outillages"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
+
+
     <menuitem id="menu_sub_main_outillages"       sequence="20" parent="menu_main_outillages" name="Outillages"/>
     <menuitem id="menu_is_historique_controle_plastigray" 
             name="Historique des contrôles" 
@@ -1819,6 +1892,14 @@
             parent="menu_sub_main_outillages" 
             action="is_piece_montabilite_action" 
     />
+
+    <record id="is_employes_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="hr.menu_hr_root"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
     <menuitem id="menu_is_pointage"             sequence="20" name="Pointage"     parent="hr.menu_hr_root"  />
     <menuitem id="menu_is_pointage_badge"       sequence="10" name="Badges"       parent="menu_is_pointage" action="is_badge_action" />
     <menuitem id="menu_is_pointage_pointage"    sequence="20" name="Pointages"    parent="menu_is_pointage" action="is_pointage_action" />
@@ -2122,6 +2203,9 @@
 
 
 
+
+
+
     <!-- THIEA / Questionnaire DMS -->
     <record id="is_questionnaire_dms_main_menu" model="ir.ui.menu" >
         <field name="name">Questionnaire DMS</field>
@@ -2225,6 +2309,17 @@
         sequence="30"
     />
 
+
+    <!-- Facturation -->
+    <record id="is_menu_finance_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="account.menu_finance"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
     <!-- Contrôle budgétaire Analytique -->
     <record id="is_ctrl_budget_ana_main_menu" model="ir.ui.menu" >
         <field name="name">Ctrl budgétaire Analytique</field>
@@ -2247,6 +2342,17 @@
             ref('is_base_secondaire_grp'),
         ])]"/>
     </record>
+    <record id="is_absences_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_absences_root"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
+
+
     <menuitem
         name="Gestion des absences"
         id="menu_hr_gestion_des_absences"
@@ -2379,6 +2485,19 @@
 
     <!-- Documents / Modes opératoires -->
     <menuitem id="is_mode_operatoire_top_menu" sequence="100" name="Documents" groups="is_base_principale_grp"/>
+
+
+    <record id="is_mode_operatoire_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="is_mode_operatoire_top_menu"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
+
+
     <menuitem id="is_mode_operatoire_main_menu" sequence="10" name="Documents" parent="is_mode_operatoire_top_menu" />
     <record id="is_mode_operatoire_menu" model="ir.ui.menu">
         <field name="name">Documents</field>

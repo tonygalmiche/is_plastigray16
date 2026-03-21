@@ -10,6 +10,16 @@
         ])]"/>
     </record>
 
+    <record id="is_theia_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="is_theia_root_menu"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+
+
+
+
     <menuitem name="Process" id="is_theia_presse_main_menu"
               parent="is_theia_root_menu" sequence="10"/>
 

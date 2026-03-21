@@ -49,7 +49,7 @@
                             <div class="col-5">
                                 <table class="table table-condensed" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
                                     <tr>
-                                        <td name="num_facture" class="text-right"><b>Facture N°</b></td>
+                                        <td name="num_facture" class="text-right"><b><span t-field="o.facture_avoir"/>  N°</b></td>
                                         <td class="text-left">
                                             <span t-if="not o.num_facture_client_vsb" t-field="o.num_facture"/>
                                             <span t-if="o.num_facture_client_vsb"     t-field="o.num_facture_client"/>
