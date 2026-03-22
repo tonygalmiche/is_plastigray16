@@ -296,6 +296,10 @@ class purchase_order(models.Model):
         if self.partner_id:
             partner = self.partner_id
             self.pricelist_id  = partner.pricelist_purchase_id.id
+
+            #Ligne ajoutée le 22/03/2026 car il semblerait que la devise ne se met plus toute seule depuis quelques semaines, ce qui est très curieux
+            self.currency_id   = partner.pricelist_purchase_id.currency_id.id
+
             self.is_livre_a_id = partner.is_livre_a_id.id
             self.incoterm_id   = partner.is_incoterm.id
             self.is_lieu       = partner.is_lieu
