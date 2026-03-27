@@ -696,7 +696,8 @@ class account_invoice(models.Model):
             lines = obj.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)
             for l in lines:
                 is_client_order_ref = l.is_move_id.sale_line_id.is_client_order_ref
-                key="%s-%s"%(is_client_order_ref,l.name)
+                #key="%s-%s"%(is_client_order_ref,l.name)
+                key="%s-%s-%s"%(is_client_order_ref, l.is_move_id.picking_id.date or '', l.name)
                 if key not in res:
                     res[key]={
                         'pds_brut': 0,
@@ -720,13 +721,17 @@ class account_invoice(models.Model):
                     'is_ref_client'            : l.product_id.is_ref_client,
                     'price_unit'               : l.price_unit,
                     'line_tax_ids'             : ', '.join(map(lambda x: x.name, l.tax_ids)),  
+                    'picking_name'             : l.is_move_id.picking_id.name,
+                    'picking_date'             : l.is_move_id.picking_id.date.strftime('%d/%m/%Y') if l.is_move_id.picking_id.date else '',
+                    'picking_date_sort'        : l.is_move_id.picking_id.date or '',
+
                 })
         lines2=[]
         for key in res:
             res[key]['quantity']         = "{:,.0f}".format(res[key]['quantity']).replace(","," ").replace(".",",")
             res[key]['price_subtotal']   = "{:,.2f} €".format(res[key]['price_subtotal']).replace(","," ").replace(".",",")
-            print(key, res[key])
             lines2.append(res[key])
+        lines2.sort(key=lambda l: (l.get('picking_date_sort', ''), l.get('name', '')))
         return lines2
 
 

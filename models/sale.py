@@ -123,37 +123,29 @@ class sale_order(models.Model):
         if not invoice_vals_list and self._context.get('raise_if_nothing_to_invoice', True):
             raise UserError(self._nothing_to_invoice_error_message())
 
-        #** Je désactive cette partie, car je pense qu'elle est inutile 
-        # # 2) Manage 'grouped' parameter: group by (partner_id, currency_id).
-        # if not grouped:
-        #     new_invoice_vals_list = []
-        #     invoice_grouping_keys = self._get_invoice_grouping_keys()
-        #     invoice_vals_list = sorted(
-        #         invoice_vals_list,
-        #         key=lambda x: [
-        #             x.get(grouping_key) for grouping_key in invoice_grouping_keys
-        #         ]
-        #     )
-        #     for _grouping_keys, invoices in groupby(invoice_vals_list, key=lambda x: [x.get(grouping_key) for grouping_key in invoice_grouping_keys]):
-        #         origins = set()
-        #         payment_refs = set()
-        #         refs = set()
-        #         ref_invoice_vals = None
-        #         for invoice_vals in invoices:
-        #             if not ref_invoice_vals:
-        #                 ref_invoice_vals = invoice_vals
-        #             else:
-        #                 ref_invoice_vals['invoice_line_ids'] += invoice_vals['invoice_line_ids']
-        #             origins.add(invoice_vals['invoice_origin'])
-        #             payment_refs.add(invoice_vals['payment_reference'])
-        #             refs.add(invoice_vals['ref'])
-        #         ref_invoice_vals.update({
-        #             'ref': ', '.join(refs)[:2000],
-        #             'invoice_origin': ', '.join(origins),
-        #             'payment_reference': len(payment_refs) == 1 and payment_refs.pop() or False,
-        #         })
-        #         new_invoice_vals_list.append(ref_invoice_vals)
-        #     invoice_vals_list = new_invoice_vals_list
+        #** Regroupement des commandes d'un même client sur une même facture ***
+        #** Uniquement si is_mode_envoi_facture == 'mail_regroupe_bl' ***********
+        new_invoice_vals_list = []
+        regroup_dict = {}  # key: (company_id, partner_id, currency_id) -> invoice_vals
+        for invoice_vals in invoice_vals_list:
+            partner = self.env['res.partner'].browse(invoice_vals['partner_id'])
+            if partner.is_mode_envoi_facture == 'mail_regroupe_bl':
+                key = (invoice_vals.get('company_id'), invoice_vals.get('partner_id'), invoice_vals.get('currency_id'))
+                if key not in regroup_dict:
+                    regroup_dict[key] = invoice_vals
+                else:
+                    regroup_dict[key]['invoice_line_ids'] += invoice_vals['invoice_line_ids']
+                    origins = set(regroup_dict[key].get('invoice_origin', '').split(', '))
+                    origins.add(invoice_vals.get('invoice_origin', ''))
+                    regroup_dict[key]['invoice_origin'] = ', '.join(filter(None, origins))
+                    refs = set(regroup_dict[key].get('ref', '').split(', '))
+                    refs.add(invoice_vals.get('ref', ''))
+                    regroup_dict[key]['ref'] = ', '.join(filter(None, refs))[:2000]
+            else:
+                new_invoice_vals_list.append(invoice_vals)
+        new_invoice_vals_list.extend(regroup_dict.values())
+        invoice_vals_list = new_invoice_vals_list
+        #**********************************************************************
 
         #** Je ne sais pas à quoi sert cette partie ***************************
         if len(invoice_vals_list) < len(self):
@@ -196,7 +188,8 @@ class sale_order(models.Model):
                             move.is_account_move_line_id = invoice_line.id
                             move.invoice_state='invoiced'
                             move.picking_id._compute_invoice_state()
-                            invoice.invoice_date = move.picking_id.is_date_expedition
+                            if not invoice.invoice_date or (move.picking_id.is_date_expedition and move.picking_id.is_date_expedition > invoice.invoice_date):
+                                invoice.invoice_date = move.picking_id.is_date_expedition
                             invoice_line.is_move_id = move.id
                             if move.picking_id.name not in pickings:
                                 pickings.append(move.picking_id.name)

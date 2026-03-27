@@ -326,8 +326,12 @@ class stock_picking(models.Model):
 
 
     def creer_factures_action(self):
+        sale_orders = self.env['sale.order']
         for obj in self:
-           self.env['sale.order'].search([('id','in',[obj.sale_id.id])])._create_invoices() #  def _create_invoices(self, grouped=False, final=False, date=None)
+            if obj.sale_id:
+                sale_orders |= obj.sale_id
+        if sale_orders:
+            sale_orders._create_invoices()
 
 
     def transfert_action(self):

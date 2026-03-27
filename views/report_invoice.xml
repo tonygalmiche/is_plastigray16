@@ -70,10 +70,12 @@
                         <t t-set="picking" t-value="l.is_move_id.picking_id"/>
                     </div>
                     <div t-if="picking">
-                        
-                        <span t-if="o.partner_id.lang == 'fr_FR'"><b>Livraison N° </b></span>
-                        <span t-if="o.partner_id.lang != 'fr_FR'"><b>Delivery N° </b></span>
-                        <span t-field="picking.name" /> du <span t-field="picking.date" t-options='{"format": "dd/MM/yyyy"}' /><br />
+                        <t t-if="o.partner_id.is_mode_envoi_facture!='mail_regroupe_bl'">
+                            <span t-if="o.partner_id.lang == 'fr_FR'"><b>Livraison N° </b></span>
+                            <span t-if="o.partner_id.lang != 'fr_FR'"><b>Delivery N° </b></span>
+                            <span t-field="picking.name" /> du <span t-field="picking.date" t-options='{"format": "dd/MM/yyyy"}' />
+                        </t>
+                        <br />
                         <t t-if="o.partner_id.is_adr_liv_sur_facture">
                             <i>
                                 <span t-if="o.partner_id.lang == 'fr_FR'"><b>Adresse de livraison : </b></span>
@@ -140,7 +142,7 @@
                                             <br />
                                             <i>N° du chantier  : <span t-field="l.is_document"/></i>
                                         </t>
-                                        <p>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</p>
+                                        <div>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</div>
                                     </td>
                                     <td><span t-field="l.product_id.is_ref_client"/></td>
                                     <td class="text-right"><span style="white-space: nowrap;" t-field="l.price_unit"/></td>
@@ -172,6 +174,11 @@
                                         <t t-if="o.is_num_cde_client">
                                             <span t-esc="o.is_num_cde_client"/>
                                         </t>
+                                        <t t-if="o.partner_id.is_mode_envoi_facture=='mail_regroupe_bl'">
+                                            <div>
+                                                Liv <span t-esc="l['picking_name']" /> du <span t-esc="l['picking_date']" />
+                                            </div>
+                                        </t>
                                     </td>
                                     <td>
                                         <span t-esc="l['name']"/>
@@ -183,7 +190,7 @@
                                             <br />
                                             <i>N° du chantier  : <span t-esc="l['is_document']"/></i>
                                         </t>
-                                        <p>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</p>
+                                        <div>Poids : <span t-esc="pds_brut"/> KG (brut) - <span t-esc="pds_net"/> KG (net)</div>
                                     </td>
                                     <td><span t-esc="l['is_ref_client']"/></td>
                                     <td class="text-right"><span style="white-space: nowrap;" t-esc="l['price_unit']"/></td>
