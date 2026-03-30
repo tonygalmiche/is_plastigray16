@@ -51,10 +51,23 @@ class sale_order(models.Model):
 
 
     def _create_invoices(self, grouped=False, final=False, date=None):
+        """
+        Création des factures :
+        - company.is_regrouper_ligne_commande : contrôle le regroupement des lignes de commande
+        - is_mode_envoi_facture : contrôle le regroupement des BL (uniquement si lignes regroupées)
+        """
+        # Si des pickings spécifiques sont à facturer, toujours utiliser la méthode avec regroupement
+        # car elle gère le filtrage des lignes par picking
+        if self._context.get('picking_ids_to_invoice'):
+            return self._create_invoices_aves_regroupement(grouped=grouped, final=final, date=date)
+        
         company = self.env.user.company_id
         if company.is_regrouper_ligne_commande:
+            # Regroupement des lignes activé → utiliser la méthode qui regroupe les lignes
+            # Le regroupement des BL sera géré dans cette méthode selon is_mode_envoi_facture
             res = self._create_invoices_aves_regroupement(grouped=grouped, final=final, date=date)
         else:
+            # Pas de regroupement des lignes → 1 BL = 1 facture
             res = self._create_invoices_sans_regroupement(grouped=grouped, final=final, date=date)
         return res
 
@@ -75,6 +88,17 @@ class sale_order(models.Model):
 
             invoice_vals = order._prepare_invoice()
             invoiceable_lines = order._get_invoiceable_lines(final)
+            
+            #** Filtrer les lignes selon les pickings à facturer (si spécifié dans le contexte) ***
+            picking_ids_to_invoice = self._context.get('picking_ids_to_invoice', [])
+            if picking_ids_to_invoice:
+                # Ne garder que les lignes liées aux mouvements des pickings sélectionnés
+                filtered_lines = self.env['sale.order.line']
+                for line in invoiceable_lines:
+                    if any(move.picking_id.id in picking_ids_to_invoice for move in line.move_ids):
+                        filtered_lines |= line
+                invoiceable_lines = filtered_lines
+            #***********************************************************************************
 
             if not any(not line.display_type for line in invoiceable_lines):
                 continue
@@ -117,6 +141,7 @@ class sale_order(models.Model):
                 invoice_line_vals.append(Command.create(vals))
                 invoice_item_sequence += 1
             invoice_vals['invoice_line_ids'] += invoice_line_vals
+            invoice_vals['_order_id'] = order.id  # Référence temporaire pour récupérer l'order plus tard
             invoice_vals_list.append(invoice_vals)
             #******************************************************************
 
@@ -125,26 +150,38 @@ class sale_order(models.Model):
 
         #** Regroupement des commandes d'un même client sur une même facture ***
         #** Uniquement si is_mode_envoi_facture == 'mail_regroupe_bl' ***********
-        new_invoice_vals_list = []
-        regroup_dict = {}  # key: (company_id, partner_id, currency_id) -> invoice_vals
-        for invoice_vals in invoice_vals_list:
-            partner = self.env['res.partner'].browse(invoice_vals['partner_id'])
-            if partner.is_mode_envoi_facture == 'mail_regroupe_bl':
-                key = (invoice_vals.get('company_id'), invoice_vals.get('partner_id'), invoice_vals.get('currency_id'))
-                if key not in regroup_dict:
-                    regroup_dict[key] = invoice_vals
+        #** ET si on ne facture pas des BL spécifiques (picking_ids_to_invoice) **
+        picking_ids_to_invoice = self._context.get('picking_ids_to_invoice', [])
+        if not picking_ids_to_invoice:
+            # Regroupement des BL possible (selon is_mode_envoi_facture de l'adresse de facturation)
+            new_invoice_vals_list = []
+            regroup_dict = {}  # key: (company_id, partner_id, currency_id) -> invoice_vals
+            for invoice_vals in invoice_vals_list:
+                # Récupérer l'adresse de facturation depuis la commande
+                order = self.env['sale.order'].browse(invoice_vals.pop('_order_id'))
+                if order.partner_invoice_id.is_mode_envoi_facture == 'mail_regroupe_bl':
+                    # Regrouper les BL pour ce client
+                    key = (invoice_vals.get('company_id'), invoice_vals.get('partner_id'), invoice_vals.get('currency_id'))
+                    if key not in regroup_dict:
+                        regroup_dict[key] = invoice_vals
+                    else:
+                        regroup_dict[key]['invoice_line_ids'] += invoice_vals['invoice_line_ids']
+                        origins = set(regroup_dict[key].get('invoice_origin', '').split(', '))
+                        origins.add(invoice_vals.get('invoice_origin', ''))
+                        regroup_dict[key]['invoice_origin'] = ', '.join(filter(None, origins))
+                        refs = set(regroup_dict[key].get('ref', '').split(', '))
+                        refs.add(invoice_vals.get('ref', ''))
+                        regroup_dict[key]['ref'] = ', '.join(filter(None, refs))[:2000]
                 else:
-                    regroup_dict[key]['invoice_line_ids'] += invoice_vals['invoice_line_ids']
-                    origins = set(regroup_dict[key].get('invoice_origin', '').split(', '))
-                    origins.add(invoice_vals.get('invoice_origin', ''))
-                    regroup_dict[key]['invoice_origin'] = ', '.join(filter(None, origins))
-                    refs = set(regroup_dict[key].get('ref', '').split(', '))
-                    refs.add(invoice_vals.get('ref', ''))
-                    regroup_dict[key]['ref'] = ', '.join(filter(None, refs))[:2000]
-            else:
-                new_invoice_vals_list.append(invoice_vals)
-        new_invoice_vals_list.extend(regroup_dict.values())
-        invoice_vals_list = new_invoice_vals_list
+                    # Ne pas regrouper les BL pour ce client (1 BL = 1 facture)
+                    new_invoice_vals_list.append(invoice_vals)
+            new_invoice_vals_list.extend(regroup_dict.values())
+            invoice_vals_list = new_invoice_vals_list
+        else:
+            # Sinon : on facture des BL spécifiques, pas de regroupement supplémentaire
+            # Nettoyer le champ temporaire '_order_id'
+            for invoice_vals in invoice_vals_list:
+                invoice_vals.pop('_order_id', None)
         #**********************************************************************
 
         #** Je ne sais pas à quoi sert cette partie ***************************

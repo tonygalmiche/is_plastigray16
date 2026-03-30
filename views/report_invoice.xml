@@ -131,6 +131,15 @@
                                         <t t-if="o.is_num_cde_client">
                                             <span t-field="o.is_num_cde_client"/>
                                         </t>
+
+                                        <t t-if="o.partner_id.is_mode_envoi_facture=='mail_regroupe_bl'">
+                                            <div>
+                                                Liv <span t-field="l.is_move_id.picking_id.name" /> du  <span t-field="l.is_move_id.picking_id.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                            </div>
+                                        </t>
+
+
+
                                     </td>
                                     <td>
                                         <span t-field="l.name"/>

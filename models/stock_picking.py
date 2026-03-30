@@ -326,12 +326,36 @@ class stock_picking(models.Model):
 
 
     def creer_factures_action(self):
-        sale_orders = self.env['sale.order']
+        """
+        Création des factures depuis les BL :
+        - Si is_mode_envoi_facture = 'mail_regroupe_bl' : regroupe les BL d'un même client
+        - Sinon : 1 BL = 1 facture (facturer les BL un par un)
+        """
+        # Séparer les BL selon le mode d'envoi du client (adresse de facturation)
+        pickings_regroupe = self.env['stock.picking']
+        pickings_separe = self.env['stock.picking']
+        
         for obj in self:
             if obj.sale_id:
-                sale_orders |= obj.sale_id
-        if sale_orders:
-            sale_orders._create_invoices()
+                if obj.sale_id.partner_invoice_id.is_mode_envoi_facture == 'mail_regroupe_bl':
+                    pickings_regroupe |= obj
+                else:
+                    pickings_separe |= obj
+        
+        # Regrouper les BL pour les clients avec mail_regroupe_bl
+        if pickings_regroupe:
+            sale_orders = self.env['sale.order']
+            for picking in pickings_regroupe:
+                sale_orders |= picking.sale_id
+            if sale_orders:
+                sale_orders._create_invoices()
+        
+        # Facturer un par un pour les autres clients (1 BL = 1 facture)
+        if pickings_separe:
+            for picking in pickings_separe:
+                if picking.sale_id:
+                    # Passer le picking en contexte pour ne facturer que ses lignes
+                    picking.sale_id.with_context(picking_ids_to_invoice=[picking.id])._create_invoices()
 
 
     def transfert_action(self):
