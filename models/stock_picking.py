@@ -330,6 +330,8 @@ class stock_picking(models.Model):
         Création des factures depuis les BL :
         - Si is_mode_envoi_facture = 'mail_regroupe_bl' : regroupe les BL d'un même client
         - Sinon : 1 BL = 1 facture (facturer les BL un par un)
+        La date de la facture est fixée à la date d'expédition (is_date_expedition).
+        Si plusieurs BL sont regroupés sur une même facture, on prend la date de la dernière expédition.
         """
         # Séparer les BL selon le mode d'envoi du client (adresse de facturation)
         pickings_regroupe = self.env['stock.picking']
@@ -348,14 +350,23 @@ class stock_picking(models.Model):
             for picking in pickings_regroupe:
                 sale_orders |= picking.sale_id
             if sale_orders:
-                sale_orders._create_invoices()
+                invoices = sale_orders._create_invoices()
+                # Fixer la date de chaque facture à la date de la dernière livraison rattachée
+                for invoice in invoices:
+                    invoice_sale_orders = invoice.invoice_line_ids.sale_line_ids.order_id
+                    related_pickings = pickings_regroupe.filtered(lambda p: p.sale_id in invoice_sale_orders)
+                    dates = [p.is_date_expedition for p in related_pickings if p.is_date_expedition]
+                    if dates:
+                        invoice.invoice_date = max(dates)
         
         # Facturer un par un pour les autres clients (1 BL = 1 facture)
         if pickings_separe:
             for picking in pickings_separe:
                 if picking.sale_id:
                     # Passer le picking en contexte pour ne facturer que ses lignes
-                    picking.sale_id.with_context(picking_ids_to_invoice=[picking.id])._create_invoices()
+                    invoices = picking.sale_id.with_context(picking_ids_to_invoice=[picking.id])._create_invoices()
+                    if invoices and picking.is_date_expedition:
+                        invoices.invoice_date = picking.is_date_expedition
 
 
     def transfert_action(self):
