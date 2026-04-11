@@ -1161,14 +1161,15 @@ class res_partner(models.Model):
         return jours_feries
 
 
-    def utc_offset(self):
-        now = datetime.datetime.now()
-        offset = int(pytz.timezone('Europe/Paris').localize(now).utcoffset().total_seconds()/3600)
+    def utc_offset(self,date):
+        #now = datetime.datetime.now()
+        #offset = int(pytz.timezone('Europe/Paris').localize(now).utcoffset().total_seconds()/3600)
+        offset = int(pytz.timezone('Europe/Paris').localize(date).utcoffset().total_seconds()/3600)
         return offset
 
 
     def utc2local(self,date_utc):
-        offset = self.utc_offset()
+        offset = self.utc_offset(date_utc)
         date_local = date_utc + datetime.timedelta(hours=offset)
         return date_local
 

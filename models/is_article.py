@@ -16,6 +16,7 @@ class is_article_actualiser(models.TransientModel):
 
     def run_actualiser_liste_articles(self):
         self.actualiser_liste_articles()
+        self.actualiser_articles_prodstar()
 
 
     def actualiser_liste_articles(self):
@@ -116,12 +117,12 @@ class is_article_actualiser(models.TransientModel):
                     }
 
                     #** Recherche si l'article existe déja ********************
-                    articles = self.env['is.article'].search([('societe','=',base.database),('name','=',row['name'])])
+                    articles = self.env['is.article'].sudo().search([('societe','=',base.database),('name','=',row['name'])])
                     if len(articles)>0:
-                        articles[0].write(vals)
+                        articles[0].sudo().write(vals)
                         action='write'
                     else:
-                        self.env['is.article'].create(vals)
+                        self.env['is.article'].sudo().create(vals)
                         action='create'
                     _logger.info("actualiser_liste_articles : %s : %s : %s "%(base.database,action,row['name']))
                     #**********************************************************
@@ -136,6 +137,32 @@ class is_article_actualiser(models.TransientModel):
         }
 
 
+    def actualiser_articles_prodstar(self):
+        """Ajouter/mettre à jour les articles depuis IsProdstarFp2art."""
+        prodstar_articles = self.env['is.prodstar.fp2art'].search([])
+        for art in prodstar_articles:
+            if not art.soc or not art.code_pg:
+                continue
+            societe = "prodstar-%s" % art.soc
+            vals = {
+                'name'        : art.code_pg,
+                'designation' : art.designation,
+                'moule'       : art.moule,
+                'famille'     : art.fam,
+                'categorie'   : art.cat,
+                'gestionnaire': art.gest,
+                'ref_plan'    : art.ref_plan,
+                'unite'       : art.us,
+                'societe'     : societe,
+            }
+            articles = self.env['is.article'].sudo().search([('societe', '=', societe), ('name', '=', art.code_pg)])
+            if articles:
+                articles[0].sudo().write(vals)
+                action = 'write'
+            else:
+                self.env['is.article'].sudo().create(vals)
+                action = 'create'
+            _logger.info("actualiser_articles_prodstar : %s : %s : %s", societe, action, art.code_pg)
 
 
 class is_article(models.Model):

@@ -96,7 +96,7 @@
             <field name="model">is.article</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="name"/>
+                    <field name="name" string="Code PG (commence par)" filter_domain="[('name','=like',self + '%')]"/>
                     <field name="designation"/>
                     <field name="moule"/>
                     <field name="famille"/>

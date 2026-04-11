@@ -1924,7 +1924,7 @@
         <field name="parent_id" eval="ref('menu_is_articles')"/>
         <field name="action"    ref="is_article_actualiser_action"/>
         <field name="groups_id" eval="[(6,0,[
-            ref('is_base_principale_grp'),
+            ref('is_gestionnaire_donnees_techniques_group'),
         ])]"/>
     </record>
 

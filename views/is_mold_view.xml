@@ -114,6 +114,7 @@
                                         <field name="nb_cycles_dernier_preventif" readonly="1"/>
                                         <field name="nb_cycles_actuel"            readonly="1"/>
                                         <field name="nb_cycles_avant_preventif"   readonly="1"/>
+                                        <field name="garantie_outillage"          readonly="1"/>
                                     </group>
                                     <group>
                                         <field name="periodicite_maintenance_moule"/>
