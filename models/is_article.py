@@ -16,7 +16,7 @@ class is_article_actualiser(models.TransientModel):
 
     def run_actualiser_liste_articles(self):
         self.actualiser_liste_articles()
-        self.actualiser_articles_prodstar()
+        #self.actualiser_articles_prodstar()
 
 
     def actualiser_liste_articles(self):
