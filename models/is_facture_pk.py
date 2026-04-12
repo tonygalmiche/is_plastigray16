@@ -61,6 +61,8 @@ class is_facture_pk_type(models.Model):
     ptmp_tnd       = fields.Boolean('P.T.M.P (TND)', default=True)     # Nouveau champ du 04/05/2025
     pupf           = fields.Boolean('P.U.P.F €', default=True)
     total_pf       = fields.Boolean('P.T.P.F. €', default=True)
+    pu_amt         = fields.Boolean('PU.AMT €', default=False)
+    pt_amt         = fields.Boolean('PT.AMT €', default=False)
     pu_ht          = fields.Boolean('P.U. H.T. (€)', default=True) # Nouveau champ du 04/05/2025
     pu_ht_tnd      = fields.Boolean('P.U. H.T. (TND)', default=True) # Nouveau champ du 04/05/2025
     pu_ht_1000     = fields.Boolean('P.U. H.T. x 1000 (€)', default=True)  # Nouveau champ du 04/05/2025
@@ -76,23 +78,25 @@ class is_facture_pk(models.Model):
     _rec_name = 'num_facture'
     _order = 'num_facture desc'
     
-    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids','line_ids.ptmp','line_ids.total_pf')
+    @api.depends('date_facture','nb_colis','moule_ids','frais_perturbation','num_bl','line_ids','line_ids.ptmp','line_ids.total_pf','line_ids.pt_amt')
     def _compute(self):
         for obj in self:
             #** matiere_premiere et main_oeuvre *******************************
-            matiere_premiere=main_oeuvre=0
+            matiere_premiere=main_oeuvre=total_pt_amt=0
             for row in obj.line_ids:
                 matiere_premiere=matiere_premiere+row.ptmp
                 main_oeuvre=main_oeuvre+row.total_pf
+                total_pt_amt=total_pt_amt+row.pt_amt
             obj.matiere_premiere=matiere_premiere
             obj.main_oeuvre=main_oeuvre
+            obj.total_pt_amt=total_pt_amt
             #******************************************************************
 
             total_moules=0
             for row in obj.moule_ids:
                 total_moules=total_moules+row.montant
             obj.total_moules=total_moules
-            obj.total=obj.matiere_premiere+obj.main_oeuvre+obj.total_moules+obj.frais_perturbation
+            obj.total=obj.matiere_premiere+obj.main_oeuvre+obj.total_moules+obj.frais_perturbation+obj.total_pt_amt
             obj.volume=ceil(obj.nb_colis*3.5)
             annee_facture = ''
             semaine_facture = ''
@@ -120,10 +124,10 @@ class is_facture_pk(models.Model):
 
 
 
-    @api.depends('main_oeuvre','frais_perturbation')
+    @api.depends('main_oeuvre','frais_perturbation','total_pt_amt')
     def _compute_total_plastigray(self):
         for obj in self:
-            obj.total_plastigray = obj.main_oeuvre + obj.frais_perturbation
+            obj.total_plastigray = obj.main_oeuvre + obj.frais_perturbation + obj.total_pt_amt
           
     num_facture        = fields.Char('N° de Facture',tracking=True)
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now(),tracking=True)
@@ -143,8 +147,9 @@ class is_facture_pk(models.Model):
     total_moules       = fields.Float("Total des moules à taxer (€)"                   , digits=(14, 2), compute='_compute', store=True,tracking=True)
     frais_perturbation = fields.Float("Total frais de préparation à taxer (€)"         , digits=(14, 2),tracking=True)
     frais_perturbation_commentaire = fields.Char("Commentaire frais de préparation",tracking=True)
+    total_pt_amt       = fields.Float("Total amortissement outillage (€)", digits=(14, 2), compute='_compute', store=True, tracking=True)
     total              = fields.Float("TOTAL (€)"           , digits=(14, 2), compute='_compute', store=True,tracking=True)
-    total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 2), compute='_compute_total_plastigray',tracking=True, store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer")
+    total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 2), compute='_compute_total_plastigray',tracking=True, store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer + Total amortissement outillage")
 
     nb_pieces          = fields.Integer("Nombre de pièces", readonly=False,tracking=True)
     nb_cartons         = fields.Integer("Nombre de cartons", readonly=False,tracking=True)
@@ -214,6 +219,8 @@ class is_facture_pk(models.Model):
     ptmp_tnd_vsb    = fields.Boolean("ptmp_tnd_vsb"   , compute='_compute_vsb')
     pupf_vsb        = fields.Boolean("pupf_vsb"       , compute='_compute_vsb')
     total_pf_vsb    = fields.Boolean("total_pf_vsb"   , compute='_compute_vsb')
+    pu_amt_vsb      = fields.Boolean("pu_amt_vsb"     , compute='_compute_vsb')
+    pt_amt_vsb      = fields.Boolean("pt_amt_vsb"     , compute='_compute_vsb')
     pu_ht_vsb             = fields.Boolean("pu_ht_vsb"            , compute='_compute_vsb')
     pu_ht_tnd_vsb         = fields.Boolean("pu_ht_tnd_vsb"        , compute='_compute_vsb')
     pu_ht_1000_vsb        = fields.Boolean("pu_ht_1000_vsb"       , compute='_compute_vsb')
@@ -260,7 +267,7 @@ class is_facture_pk(models.Model):
                 'annee_facture','semaine_facture', 'date_echeance','moule_ids','conditions_generales',
                 'matiere_premiere','main_oeuvre','total_moules','frais_perturbation','total','total_plastigray','total_ass_tnd',
                 'nb_pieces', 'nb_cartons','nb_colis', 'volume', 'poids_net', 'poids_brut',
-                'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf',
+                'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf','pu_amt','pt_amt',
                 'reception','ref_client','pump_tnd','pump_1000','ptmp_tnd','pu_ht','pu_ht_tnd','pu_ht_1000','pu_ht_1000_ass','montant_total',
                 'montant_total_tnd',
             ]
@@ -412,6 +419,8 @@ class is_facture_pk_line(models.Model):
 
     pupf          = fields.Float('P.U.P.F (€)'     , digits=(14, 4))
     total_pf      = fields.Float('P.T.P.F. (€)', digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False)
+    pu_amt        = fields.Float('PU.AMT (€)'    , digits=(14, 4))
+    pt_amt        = fields.Float('PT.AMT (€)'    , digits=(14, 4), compute='_compute_pt_amt', store=True)
     num_bl        = fields.Many2one(related='is_facture_id.num_bl') 
 
     pu_ht          = fields.Float('P.U. H.T. (€)'     , digits=(14, 4))     # Nouveau champ du 04/05/2025
@@ -421,6 +430,12 @@ class is_facture_pk_line(models.Model):
 
     montant_total     = fields.Float('Montant H.T. (€)'  , digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
     montant_total_tnd = fields.Float('Montant H.T. (TND)', digits=(14, 4)) #, compute='_compute_montant', store=True, readonly=False) # Nouveau champ du 04/05/2025
+
+
+    @api.depends('qt', 'pu_amt')
+    def _compute_pt_amt(self):
+        for obj in self:
+            obj.pt_amt = obj.qt * obj.pu_amt
 
 
     @api.onchange('pump_tnd','pu_ht_tnd','qt','pump','pupf','pu_ht','montant_total_tnd')

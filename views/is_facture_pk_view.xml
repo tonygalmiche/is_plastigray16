@@ -71,6 +71,8 @@
                         <field name="ptmp_tnd_vsb" invisible="1"/> 
                         <field name="pupf_vsb" invisible="1"/> 
                         <field name="total_pf_vsb" invisible="1"/> 
+                        <field name="pu_amt_vsb" invisible="1"/> 
+                        <field name="pt_amt_vsb" invisible="1"/> 
                         <field name="pu_ht_vsb" invisible="1"/> 
                         <field name="pu_ht_tnd_vsb" invisible="1"/> 
                         <field name="pu_ht_1000_vsb" invisible="1"/> 
@@ -145,6 +147,8 @@
                                 <field name="ptmp"        attrs="{'column_invisible': [('parent.ptmp_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
                                 <field name="pupf"        attrs="{'column_invisible': [('parent.pupf_vsb'       , '!=', True)], 'readonly': [('num_bl', '!=', False)]}"/>
                                 <field name="total_pf"    attrs="{'column_invisible': [('parent.total_pf_vsb'   , '!=', True)], 'readonly': [('num_bl', '!=', False)]}" sum="Total"/>
+                                <field name="pu_amt"      attrs="{'column_invisible': [('parent.pu_amt_vsb'     , '!=', True)]}"/>
+                                <field name="pt_amt"      attrs="{'column_invisible': [('parent.pt_amt_vsb'     , '!=', True)]}" sum="Total"/>
                                 <field name="montant_total_tnd" attrs="{'column_invisible': [('parent.montant_total_tnd_vsb', '!=', True)]}" sum="Total"/>
                                 <field name="montant_total"     attrs="{'column_invisible': [('parent.montant_total_vsb'    , '!=', True)]}" sum="Total"/>
                                 <field name="num_bl" invisible="1"/>
@@ -356,6 +360,8 @@
                                 <field name="ptmp_tnd"/> 
                                 <field name="pupf"/> 
                                 <field name="total_pf"/> 
+                                <field name="pu_amt"/> 
+                                <field name="pt_amt"/> 
                                 <field name="pu_ht_tnd"/> 
                                 <field name="pu_ht"/> 
                                 <field name="pu_ht_1000"/> 

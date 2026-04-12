@@ -97,8 +97,10 @@
                                     <tr t-if="o.frais_perturbation_vsb">
                                         <td class="text-right"><b>Total frais de préparation à taxer : </b></td>
                                         <td class="text-right"><span t-field="o.frais_perturbation"/></td>
-                                    </tr>
-                                    <tr t-if="type=='douane' and o.total">
+                                    </tr>                                    <tr t-if="o.pt_amt_vsb and o.total_pt_amt">
+                                        <td class="text-right"><b>Total amortissement outillage : </b></td>
+                                        <td class="text-right"><span t-field="o.total_pt_amt"/></td>
+                                    </tr>                                    <tr t-if="type=='douane' and o.total">
                                         <td class="text-right"><b>TOTAL : </b></td>
                                         <td class="text-right"><span t-field="o.total"/></td>
                                     </tr>
@@ -203,6 +205,8 @@
                                             <th t-if="o.ptmp_vsb"              width="8%"><strong>P.T.M.P</strong></th>
                                             <th t-if="o.pupf_vsb"              width="6%"><strong>P.U.P.F</strong></th>
                                             <th t-if="o.total_pf_vsb"          width="6%"><strong>P.T.P.F</strong></th>
+                                            <th t-if="o.pu_amt_vsb"            width="6%"><strong>PU.AMT</strong></th>
+                                            <th t-if="o.pt_amt_vsb"            width="6%"><strong>PT.AMT</strong></th>
                                             <th t-if="o.montant_total_tnd_vsb" width="6%"><strong>Montant H.T. (TND)</strong></th>
                                             <th t-if="o.montant_total_vsb"     width="6%"><strong>Montant H.T. (€)</strong></th>
                                         </tr>
@@ -215,6 +219,7 @@
                                         <t t-set="total_ptmp_tnd"            t-value="0"/>
                                         <t t-set="total_ptmp"                t-value="0"/>
                                         <t t-set="total_total_pf"            t-value="0"/>
+                                        <t t-set="total_pt_amt"              t-value="0"/>
                                         <t t-set="total_montant_total"       t-value="0"/>
                                         <t t-set="total_montant_total_tnd"   t-value="0"/>
                                         <tr t-foreach="o.line_ids" t-as="l">
@@ -225,6 +230,7 @@
                                             <t t-set="total_ptmp_tnd"          t-value="total_ptmp_tnd+l.ptmp_tnd"/>
                                             <t t-set="total_ptmp"              t-value="total_ptmp+l.ptmp"/>
                                             <t t-set="total_total_pf"          t-value="total_total_pf+l.total_pf"/>
+                                            <t t-set="total_pt_amt"            t-value="total_pt_amt+l.pt_amt"/>
                                             <t t-set="total_montant_total_tnd" t-value="total_montant_total_tnd+l.montant_total_tnd"/>
                                             <t t-set="total_montant_total"     t-value="total_montant_total+l.montant_total"/>
 
@@ -264,6 +270,8 @@
                                             <td t-if="o.ptmp_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.ptmp"/> </td>
                                             <td t-if="o.pupf_vsb"              class="text-right" style="white-space: nowrap;"> <span t-field="l.pupf"/> </td>
                                             <td t-if="o.total_pf_vsb"          class="text-right" style="white-space: nowrap;"> <span t-field="l.total_pf"/> </td>
+                                            <td t-if="o.pu_amt_vsb"            class="text-right" style="white-space: nowrap;"> <t t-esc='&quot;{:,.4f}&quot;.format(l.pu_amt).replace(&quot;,&quot;,&quot; &quot;).replace(&quot;.&quot;,&quot;,&quot;)'/> </td>
+                                            <td t-if="o.pt_amt_vsb"            class="text-right" style="white-space: nowrap;"> <t t-esc='&quot;{:,.2f}&quot;.format(l.pt_amt).replace(&quot;,&quot;,&quot; &quot;).replace(&quot;.&quot;,&quot;,&quot;)'/> </td>
                                             <td t-if="o.montant_total_tnd_vsb" class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total_tnd"/> </td>
                                             <td t-if="o.montant_total_vsb"     class="text-right" style="white-space: nowrap;"> <span t-field="l.montant_total"/> </td>
                                         </tr>
@@ -327,6 +335,10 @@
                                     <tr t-if="o.main_oeuvre">
                                         <td class="text-right"><b>Total main d'oeuvre : </b></td>
                                         <td class="text-right"><span t-field="o.main_oeuvre"/></td>
+                                    </tr>
+                                    <tr t-if="o.pt_amt_vsb and o.total_pt_amt">
+                                        <td class="text-right"><b>Total amortissement outillage : </b></td>
+                                        <td class="text-right"><span t-field="o.total_pt_amt"/></td>
                                     </tr>
                                     <tr t-if="o.total">
                                         <td class="text-right"><b>Total facture : </b></td>
