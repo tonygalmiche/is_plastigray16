@@ -317,6 +317,10 @@ class mrp_prevision(models.Model):
 
 
     def get_delai_cq_tps_fab_start_date(self, type_od, product_id, quantity, end_date, partner_id):
+
+        #print('TEST get_delai_cq_tps_fab_start_date',type_od,partner_id)
+
+
         partner_obj = self.env['res.partner']
         user = self.env["res.users"].browse(self._uid)
         company = user.company_id
@@ -330,7 +334,15 @@ class mrp_prevision(models.Model):
         if type_od=='sa' and partner_id:
             partner = self.env["res.partner"].browse(partner_id)
             start_date_cq = partner_obj.get_date_dispo(partner           , start_date_cq, avec_jours_feries=True)  # Date dispo pour le fourniseur avec calendrier pays
-            start_date_cq = partner_obj.get_date_dispo(company.partner_id, start_date_cq, avec_jours_feries=False) # Date dispo pour Plastigray sans calendrier pays
+
+            #Site d'expédition indiqué dans la fiche du client si existe sinon, celui de la société
+            calendrier_expedition_id = partner.is_calendrier_expedition_id or company.partner_id
+
+            #print('calendrier_expedition_id=',calendrier_expedition_id,partner.is_calendrier_expedition_id)
+
+
+
+            start_date_cq = partner_obj.get_date_dispo(calendrier_expedition_id, start_date_cq, avec_jours_feries=False) # Date dispo pour Plastigray sans calendrier pays
         start_date = start_date_cq
         days=0
         tps_fab=0
@@ -367,7 +379,17 @@ class mrp_prevision(models.Model):
         partner = self.env["res.partner"].browse(partner_id)
         if partner:
             start_date_cq = partner_obj.get_date_dispo(partner       , start_date_cq, avec_jours_feries=True)  # Date dispo pour le fourniseur avec calendrier pays
-        start_date_cq = partner_obj.get_date_dispo(company.partner_id, start_date_cq, avec_jours_feries=False) # Date dispo pour Plastigray sans calendrier pays
+
+        #Site d'expédition indiqué dans la fiche du client si existe sinon, celui de la société
+        calendrier_expedition_id = company.partner_id
+        if partner:
+            calendrier_expedition_id = partner.is_calendrier_expedition_id or company.partner_id
+
+
+        #print('get_dates_from_start_date_cq : calendrier_expedition_id=',calendrier_expedition_id)
+
+
+        start_date_cq = partner_obj.get_date_dispo(calendrier_expedition_id, start_date_cq, avec_jours_feries=False) # Date dispo pour Plastigray sans calendrier pays
         #***********************************************************************
 
         product_obj = self.env['product.product']

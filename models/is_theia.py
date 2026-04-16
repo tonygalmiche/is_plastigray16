@@ -617,7 +617,7 @@ class is_theia_habilitation_operateur(models.Model):
     operateur_id = fields.Many2one("hr.employee", u"Opérateur", required=True , index=True)
     valideur_id  = fields.Many2one("hr.employee", u"Valideur" , required=False, index=True)
     state        = fields.Selection(states, 'État'            , required=True , index=True)
-
+    dequalification_id = fields.Many2one('is.theia.type.dequalification', "Type de déqualification")
 
 
     def dequalification_operateur_action(self):
@@ -734,7 +734,20 @@ class is_theia_lecture_ip(models.Model):
 class is_mold(models.Model):
     _inherit = 'is.mold'
 
-    def dequalification_moule_action(self):
+    def dequalification_moule_action(self, dequalification_id=False):
+        if not dequalification_id:
+            # Ouvrir l'assistant pour demander le type de déqualification
+            for obj in self:
+                return {
+                    'name': "Déqualification moule",
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'is.theia.dequalification.moule.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_moule_id': obj.id,
+                    },
+                }
         cr = self._cr
         for obj in self:
             valideur_id = False
@@ -748,17 +761,28 @@ class is_mold(models.Model):
             """
             cr.execute(SQL,[obj.name])
             result = cr.fetchall()
+            created_ids = []
             for row in result:
                 vals={
-                    "heure_debut" : fields.datetime.now(),
-                    "heure_fin"   : fields.datetime.now(),
-                    "presse_id"   : row[0],
-                    "moule"       : obj.name,
-                    "operateur_id": row[1],
-                    "valideur_id" : valideur_id,
-                    "state"       : "dequalification",
+                    "heure_debut"      : fields.datetime.now(),
+                    "heure_fin"        : fields.datetime.now(),
+                    "presse_id"        : row[0],
+                    "moule"            : obj.name,
+                    "operateur_id"     : row[1],
+                    "valideur_id"      : valideur_id,
+                    "dequalification_id": dequalification_id,
+                    "state"            : "dequalification",
                 }
-                id=self.env['is.theia.habilitation.operateur'].create(vals)
+                rec = self.env['is.theia.habilitation.operateur'].create(vals)
+                created_ids.append(rec.id)
+            return {
+                'name'     : u"Habilitations déqualifiées - " + obj.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'is.theia.habilitation.operateur',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', created_ids)],
+                'target'   : 'current',
+            }
 
 
 class is_theia_alerte_type(models.Model):
@@ -768,6 +792,14 @@ class is_theia_alerte_type(models.Model):
 
     name = fields.Char(u"Type d'alerte", required=True)
     code = fields.Char(u"Code"         , required=True)
+
+
+class is_theia_type_dequalification(models.Model):
+    _name = 'is.theia.type.dequalification'
+    _description = u"Type de déqualification dans THEIA"
+    _order='name'
+
+    name = fields.Char("Type de déqualification", required=True)
 
 
 class is_theia_alerte(models.Model):

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_theia_dequalification_moule_wizard_form_view" model="ir.ui.view">
+            <field name="name">is.theia.dequalification.moule.wizard.form</field>
+            <field name="model">is.theia.dequalification.moule.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Déqualification moule">
+                    <group>
+                        <field name="moule_id" readonly="1"/>
+                        <field name="dequalification_id"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirmer" string="Déqualifier" type="object" class="btn-primary" data-hotkey="q"/>
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

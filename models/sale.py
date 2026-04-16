@@ -742,11 +742,20 @@ class sale_order_line(models.Model):
                         weekday = date_expedition.weekday()
                         if weekday not in [5,6]:
                             delai_transport = delai_transport - 1
+
+                #Site d'expédition indiqué dans la fiche du client si existe sinon, celui de la société
+                calendrier_expedition_id = order.order_id.partner_id.is_calendrier_expedition_id or order.order_id.company_id.is_calendrier_expedition_id
+                #print(calendrier_expedition_id, calendrier_expedition_id.is_adr_code)
+
                 # jours de fermeture de la société
-                jours_fermes = res_partner.num_closing_days(order.order_id.company_id.is_calendrier_expedition_id)
+                jours_fermes = res_partner.num_closing_days(calendrier_expedition_id)
+                #print('jours_fermes=', jours_fermes)
 
                 # Jours de congé de la société
-                leave_dates = res_partner.get_leave_dates(order.order_id.company_id.is_calendrier_expedition_id)
+                leave_dates = res_partner.get_leave_dates(calendrier_expedition_id)
+                #print('leave_dates=', leave_dates)
+
+
                 #date_expedition = date_expedition - datetime.timedelta(days=delai_transport)
                 new_date = date_expedition
                 while True:

@@ -555,6 +555,11 @@ class res_partner(models.Model):
     user_id    = fields.Many2one(string='Commercial') # Pour renommer 'Vendeur' en 'Commercial'
 
     display_name            = fields.Char(string='Nom affiché', compute='_compute_display_name')
+
+    is_calendrier_expedition_id = fields.Many2one('res.partner', "Site d'expéditions et de réceptions (Calendrier)", tracking=True,
+        domain=[('is_company','=',True),('is_code','=','EXP')], 
+        help="Calendrier utilisé dans le calcul de la date d'expédition des commandes des clients (code adresse=EXP). Si ce champ n'est pas renseigné, c'est celui renseigné dans la société qui sera pris en compte")
+
     is_transporteur_id      = fields.Many2one('res.partner', 'Transporteur', tracking=True)
     is_mode_transport_id    = fields.Many2one('is.mode.transport', 'Mode de transport', tracking=True)
     is_distance             = fields.Integer(string='Distance (km)', tracking=True)
@@ -647,8 +652,6 @@ class res_partner(models.Model):
     is_champ_obligatoire_id  = fields.Many2one('is.champ.obligatoire',"Champs obligatoires dans EDI, Cde et Liv", tracking=True)
     is_configuration_bl_id   = fields.Many2one('is.configuration.bl',"Configuration BL Galia", tracking=True)
     is_configuration_facture = fields.Selection(configuration_facture, "Configuration du PDF des factures", default='standard', tracking=True)
-
-
 
     def _message_auto_subscribe_notify(self, partner_ids, template):
         #Désactiver le message "Vous avez été assigné à"
@@ -1260,6 +1263,10 @@ class res_partner(models.Model):
                 new_date = new_date - datetime.timedelta(days=1)
             else:
                 break
+
+        #print('get_date_dispo',partner, partner.is_adr_code,num_closing_days,num_closing_days, new_date )
+
+
         return new_date.strftime('%Y-%m-%d')
 
 

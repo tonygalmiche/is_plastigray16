@@ -227,6 +227,7 @@ Module Odoo 16 pour Plastigray
         "wizard/generate_previsions_view.xml",
         "wizard/is_cas_emploi_wizard_new.xml",
         "wizard/is_liste_servir_wizard_view.xml",
+        "wizard/is_theia_dequalification_moule_wizard_view.xml",
         "wizard/stock_transfer_details.xml",
         "wizard/set_sheduler_cout_article.xml",
 

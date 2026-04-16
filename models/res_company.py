@@ -43,7 +43,9 @@ class res_company(models.Model):
     is_sms_password = fields.Char('SMS password')
     is_sms_from     = fields.Char('SMS from')
 
-    is_calendrier_expedition_id = fields.Many2one('res.partner', 'Calendrier Expéditions', domain=[('is_company','=',True),('is_adr_code','=','EXP')], help="Calendrier utilisé dans le calcul de la date d'expédition des commandes des clients (code adresse=EXP)")
+    is_calendrier_expedition_id = fields.Many2one('res.partner', "Site d'expéditions et de réceptions", 
+        domain=[('is_company','=',True),('is_code','=','EXP')], 
+        help="Calendrier utilisé dans le calcul de la date d'expédition des commandes des clients (code adresse=EXP)")
     is_annee_pic_3ans           = fields.Char('Année PIC à 3 ans', help='Paramètre utilisé en particulier pour Analyse / Taux de rotation des stocks')
     is_cachet_plastigray        = fields.Binary("Cachet de Plastigray", help="Utilisé pour imprimer les certificats matière fournisseur")
 

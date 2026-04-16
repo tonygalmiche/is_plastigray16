@@ -793,6 +793,56 @@
 
 
 
+              
+
+
+
+    <!-- is.theia.type.dequalification -->
+    <record model="ir.ui.view" id="is_theia_type_dequalification_tree_view">
+        <field name="name">is_theia_type_dequalification_tree_view</field>
+        <field name="model">is.theia.type.dequalification</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_theia_type_dequalification_form_view">
+        <field name="name">is_theia_type_dequalification_form_view</field>
+        <field name="model">is.theia.type.dequalification</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="name"/>
+                </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_theia_type_dequalification_search_view" >
+        <field name="name">is_theia_type_dequalification_search_view</field>
+        <field name="model">is.theia.type.dequalification</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="is_theia_type_dequalification_action">
+        <field name="name">Type de déqualification</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.theia.type.dequalification</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_theia_type_dequalification_action" 
+              id="is_theia_type_dequalification_menu" 
+              parent="is_theia_parametres_menu" 
+              sequence="46" groups="base.group_erp_manager"/>
+
+
+
+
 
 
 
@@ -1295,6 +1345,7 @@
                 <field name="moule"/>
                 <field name="operateur_id"/>
                 <field name="valideur_id"/>
+                <field name="dequalification_id" optional="show"/>
                 <field name="state"/>
                 <field name="create_date" optional="hide"/>
                 <field name="create_uid"  optional="hide"/>
@@ -1316,6 +1367,7 @@
                     <field name="moule"/>
                     <field name="operateur_id"/>
                     <field name="valideur_id"/>
+                    <field name="dequalification_id"/>
                     <field name="state"/>
                 </group>
             </sheet>
@@ -1331,12 +1383,14 @@
                 <field name="moule"/>
                 <field name="operateur_id"/>
                 <field name="valideur_id"/>
+                <field name="dequalification_id"/>
                 <field name="state"/>
                 <group expand="0" string="Regrouper par...">
                     <filter name="group_by_presse_id"    string="Presse" domain="[]" context="{'group_by':'presse_id'}"/>
                     <filter name="group_by_moule"        string="Moule" domain="[]" context="{'group_by':'moule'}"/>
                     <filter name="group_by_operateur_id" string="Opérateur" domain="[]" context="{'group_by':'operateur_id'}"/>
                     <filter name="group_by_valideur_id"  string="Valideur" domain="[]" context="{'group_by':'valideur_id'}"/>
+                    <filter name="group_by_dequalification_id" string="Typede décalification" domain="[]" context="{'group_by':'dequalification_id'}"/>
                     <filter name="group_by_state"        string="Etat" domain="[]" context="{'group_by':'state'}"/>
                 </group>
             </search>
@@ -1474,12 +1528,13 @@
                     <field name="nb_empreintes"/>
                     <field name="emplacement"/>
                     <field name="is_database_id"/>
+                </group>
+                <div>
                     <button 
                             string="Déqualification des opérateurs de ce moule"
                             name="dequalification_moule_action"
-                            confirm="Voulez-vous vraiment déqualifier tous les opérateurs de ce moule ?"
                             type="object" class="oe_highlight"/>
-                </group>
+                </div>
             </sheet>
         </form>
         </field>

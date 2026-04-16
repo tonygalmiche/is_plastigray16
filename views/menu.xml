@@ -146,7 +146,7 @@
         ])]"/>
     </record>
     <record id="menu_is_societes_10" model="ir.ui.menu">
-        <field name="name">Société</field>
+        <field name="name">Adresse d'expédition</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_is_societes')"/>
         <field name="action"    ref="is_action_partner_supplier_form"/>
