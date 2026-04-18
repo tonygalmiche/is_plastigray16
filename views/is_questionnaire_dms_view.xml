@@ -65,13 +65,20 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.questionnaire.dms</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_ids" eval="[
-                (5, 0, 0),
-                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_questionnaire_dms_questionnaire_tree_view'), 'sequence': 1}),
-                (0, 0, {'view_mode': 'form', 'view_id': ref('is_questionnaire_dms_form_view'), 'sequence': 2})
-            ]"/>
             <field name="domain">[('questionnaire','=',True)]</field>
             <field name="context">{'default_questionnaire': True}</field>
+        </record>
+        <record model="ir.actions.act_window.view" id="is_questionnaire_dms_questionnaire_action_tree">
+            <field name="act_window_id" ref="is_questionnaire_dms_questionnaire_action"/>
+            <field name="view_id" ref="is_questionnaire_dms_questionnaire_tree_view"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence">1</field>
+        </record>
+        <record model="ir.actions.act_window.view" id="is_questionnaire_dms_questionnaire_action_form">
+            <field name="act_window_id" ref="is_questionnaire_dms_questionnaire_action"/>
+            <field name="view_id" ref="is_questionnaire_dms_form_view"/>
+            <field name="view_mode">form</field>
+            <field name="sequence">2</field>
         </record>
 
         <!-- Réponses -->
@@ -93,12 +100,19 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.questionnaire.dms</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_ids" eval="[
-                (5, 0, 0),
-                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_questionnaire_dms_reponse_tree_view'), 'sequence': 1}),
-                (0, 0, {'view_mode': 'form', 'view_id': ref('is_questionnaire_dms_form_view'), 'sequence': 2})
-            ]"/>
             <field name="domain">[('questionnaire','=',False)]</field>
+        </record>
+        <record model="ir.actions.act_window.view" id="is_questionnaire_dms_reponse_action_tree">
+            <field name="act_window_id" ref="is_questionnaire_dms_reponse_action"/>
+            <field name="view_id" ref="is_questionnaire_dms_reponse_tree_view"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence">1</field>
+        </record>
+        <record model="ir.actions.act_window.view" id="is_questionnaire_dms_reponse_action_form">
+            <field name="act_window_id" ref="is_questionnaire_dms_reponse_action"/>
+            <field name="view_id" ref="is_questionnaire_dms_form_view"/>
+            <field name="view_mode">form</field>
+            <field name="sequence">2</field>
         </record>
 
 

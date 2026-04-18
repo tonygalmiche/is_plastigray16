@@ -67,17 +67,30 @@ class is_cout_calcul(models.Model):
 
 
 
+    ###########################################################################
+    ###################### PARTIE VENANT DE is_cout2 ##########################
+    ###########################################################################
+
+
+    # PROBLEME : Ce __init__ génère un WARNING Odoo 16 :
+    #   "The method is_cout_calcul.__init__ doesn't match the new signature"
+    # car Odoo 16 attend une signature précise pour __init__ sur les modèles.
+    #
+    # POURQUOI IL EST LA : Les attributs d'instance (mem_couts, detail_nomenclature...)
+    # sont déclarés dans __slots__ et doivent être initialisés. Cependant, ils sont
+    # tous réinitialisés explicitement avant chaque utilisation dans les méthodes
+    # (_creation_couts, action_calcul_prix_achat_thread, etc.), donc ce __init__
+    # n'est pas fonctionnellement nécessaire.
+    #
+    # SOLUTION PROPOSEE : Supprimer ce __init__ (les variables sont réinitialisées
+    # dans les méthodes qui les utilisent, donc pas de risque fonctionnel).
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)
-
-
         self.detail_nomenclature=[]
         self.detail_gamme_ma=[]
         self.detail_gamme_mo=[]
-
         self.detail_gamme_ma_pk=[]
         self.detail_gamme_mo_pk=[]
-
         self.mem_couts={}
 
 

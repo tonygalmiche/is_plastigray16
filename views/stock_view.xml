@@ -113,13 +113,18 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">stock.lot</field>
             <field name="view_mode">tree,form</field>
-            <!-- <field name="view_id" ref="stock.view_production_lot_tree"/> -->
-            <field name="view_id" ref=""/>
-            <field name="view_ids" eval="[
-                (5, 0, 0),
-                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_view_production_lot_tree'), 'sequence': 1}),
-                (0, 0, {'view_mode': 'form', 'view_id': ref('is_view_production_lot_form'), 'sequence': 2})
-            ]"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="is_stock_production_lot_action_tree">
+            <field name="act_window_id" ref="is_stock_production_lot_action"/>
+            <field name="view_id" ref="is_view_production_lot_tree"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence">1</field>
+        </record>
+        <record model="ir.actions.act_window.view" id="is_stock_production_lot_action_form">
+            <field name="act_window_id" ref="is_stock_production_lot_action"/>
+            <field name="view_id" ref="is_view_production_lot_form"/>
+            <field name="view_mode">form</field>
+            <field name="sequence">2</field>
         </record>
 
 
