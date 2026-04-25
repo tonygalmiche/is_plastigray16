@@ -33,7 +33,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <table style="width:100%">
-                                    <tr><th class="text-right">Remarque générale    </th><td><span t-field="o.remarque_generale"/></td></tr>
+                                    <tr><th class="text-right">Remarque générale    </th><td><div t-field="o.remarque_generale"/></td></tr>
                                     <tr><th class="text-right">Total MOD Injection  </th><td><span t-field="o.total_mod_inj"/></td></tr>
                                     <tr><th class="text-right">Total MOD Assemblage </th><td><span t-field="o.total_mod_ass"/></td></tr>
                                 </table>
@@ -86,7 +86,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <table style="width:100%">
-                                        <tr><th class="text-right">Remarque générale    </th><td><span t-field="o.remarque_generale"/></td></tr>
+                                        <tr><th class="text-right">Remarque générale    </th><td><div t-field="o.remarque_generale"/></td></tr>
                                         <tr><th class="text-right">Total MOD Injection  </th><td><span t-field="o.total_mod_inj"/></td></tr>
                                         <tr><th class="text-right">Total MOD Assemblage </th><td><span t-field="o.total_mod_ass"/></td></tr>
                                     </table>

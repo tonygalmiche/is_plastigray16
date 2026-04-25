@@ -15,7 +15,7 @@ class is_consigne_journaliere(models.Model):
 
     name                = fields.Char('Titre')
     chef_atelier        = fields.Char("Chef d'atelier")
-    remarque_generale   = fields.Text('Remarque générale')
+    remarque_generale   = fields.Html('Remarque générale')
     date_derniere_modif = fields.Datetime("Date dernière modification", readonly=True)
     total_mod_inj       = fields.Float('Total MOD Injection' , readonly=True, compute='_compute', store=True)
     total_mod_ass       = fields.Float('Total MOD Assemblage', readonly=True, compute='_compute', store=True)

@@ -259,11 +259,17 @@ class is_demande_conges(models.Model):
                             }
                             res=self.env['is.pointage.commentaire'].sudo().create(vals)
                 #***************************************************************
+
+
             try:
                 if obj.demande_collective=='non':
                     obj.ajouter_dans_agenda()
-            except:
-                pass
+            except Exception as e:
+                _logger.error("Erreur lors de l'ajout dans l'agenda pour la demande %s : %s", obj.name, e)
+
+
+
+
             obj.state = "validation_rh"
         if len(demandes)>1:
             ids=[]
@@ -387,7 +393,7 @@ class is_demande_conges(models.Model):
             events.append([start, stop])
         email = self.demandeur_id.partner_id.email
         company = self.env.user.company_id
-        DB = "odoo-agenda"
+        DB = "odoo19-agenda"
         USERID = 2
         DBLOGIN = "admin"
         USERPASS = company.is_agenda_pwd
@@ -428,7 +434,11 @@ class is_demande_conges(models.Model):
                         "partner_ids": [[6, False, [partner_id]]],
                     }
                     event_id = models.execute_kw(DB, USERID, USERPASS, 'calendar.event', 'create', [vals])
+                    _logger.info("Agenda - Création event : demandeur=%s, n°=%s, type=%s, date=%s", self.demandeur_id.name, self.name, name, event[0])
                     if event_id:
+                        event_url = '%s/web#id=%s&view_type=form&model=calendar.event' % (company.is_agenda_url, event_id)
+                        self.message_post(body=u"Agenda : event créé pour %s [%s] %s le %s - <a href='%s' target='_blank'>Voir l'événement</a>" % (
+                            self.demandeur_id.name, self.name, name, str(event[0])[:10], event_url))
                         attendee = models.execute_kw(
                             DB, USERID, USERPASS, 
                             'calendar.attendee', 
