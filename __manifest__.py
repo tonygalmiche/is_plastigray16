@@ -154,6 +154,7 @@ Module Odoo 16 pour Plastigray
         'views/report_is_livraison_gefbox_tree.xml',
         "views/report_is_ot_indicateur.xml",
         "views/report_is_facture_pk.xml",
+        "views/report_is_facture_pk_valeo.xml",
         "views/report_is_facture_pk_line_tree.xml",
         "views/report_is_proforma_chine.xml",
         "views/report_is_facture_proforma_outillage.xml",

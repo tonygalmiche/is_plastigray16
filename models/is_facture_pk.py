@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 from odoo import models,fields,api           # type: ignore
 from odoo.exceptions import ValidationError  # type: ignore
 from datetime import datetime
@@ -69,6 +70,9 @@ class is_facture_pk_type(models.Model):
     pu_ht_1000_ass = fields.Boolean('P.U. H.T. x 1000 assistance incluse (€)', default=True)  # Nouveau champ du 04/05/2025
     montant_total     = fields.Boolean('Montant H.T. (€)', default=True) # Nouveau champ du 04/05/2025
     montant_total_tnd = fields.Boolean('Montant H.T. (TND)', default=True) # Nouveau champ du 04/05/2025
+
+    rapport_id            = fields.Many2one('ir.actions.report', string='Rapport à utiliser', domain="[('model', '=', 'is.facture.pk')]")
+    facture_pk_plastigray = fields.Boolean("Facture PK Plastigray", default=False)
 
 
 class is_facture_pk(models.Model):
@@ -226,9 +230,34 @@ class is_facture_pk(models.Model):
     pu_ht_1000_vsb        = fields.Boolean("pu_ht_1000_vsb"       , compute='_compute_vsb')
     pu_ht_1000_ass_vsb    = fields.Boolean("pu_ht_1000_ass_vsb"   , compute='_compute_vsb')
     montant_total_vsb     = fields.Boolean("montant_total_vsb"    , compute='_compute_vsb')
-    montant_total_tnd_vsb = fields.Boolean("montant_total_tnd_vsb", compute='_compute_vsb')
+    montant_total_tnd_vsb     = fields.Boolean("montant_total_tnd_vsb"    , compute='_compute_vsb')
+    facture_pk_plastigray_vsb = fields.Boolean("facture_pk_plastigray_vsb", compute='_compute_vsb')
     taux_devise_dinar     = fields.Float("Taux devise dinar" , digits=(12, 4), readonly=True)
     taux_commission       = fields.Float("Taux de commission", digits=(12, 4), readonly=True)
+
+    facture_pdf_ids           = fields.One2many('is.facture.pk.pdf', 'facture_pk_id', 'Factures PDF')
+    has_plastigray_pdf        = fields.Boolean('PDF Plastigray généré', compute='_compute_has_plastigray_pdf')
+    has_type_rapport_pdf      = fields.Boolean('PDF rapport type généré', compute='_compute_has_type_rapport_pdf')
+
+
+    @api.depends('facture_pdf_ids.rapport_id', 'type_facture_id.rapport_id')
+    def _compute_has_type_rapport_pdf(self):
+        for obj in self:
+            rapport = obj.type_facture_id.rapport_id
+            if rapport:
+                obj.has_type_rapport_pdf = any(l.rapport_id == rapport for l in obj.facture_pdf_ids)
+            else:
+                obj.has_type_rapport_pdf = False
+
+
+    @api.depends('facture_pdf_ids.rapport_id')
+    def _compute_has_plastigray_pdf(self):
+        plastigray_report = self.env.ref('is_plastigray16.is_facture_pk_plastigray_report', raise_if_not_found=False)
+        for obj in self:
+            if plastigray_report:
+                obj.has_plastigray_pdf = any(l.rapport_id == plastigray_report for l in obj.facture_pdf_ids)
+            else:
+                obj.has_plastigray_pdf = False
 
 
     @api.onchange('client_id')
@@ -269,7 +298,7 @@ class is_facture_pk(models.Model):
                 'nb_pieces', 'nb_cartons','nb_colis', 'volume', 'poids_net', 'poids_brut',
                 'num_colis','commande','product_id','ref_pk','designation','poids_net','poids_brut','qt','uc','nb_uc','pump','ptmp','pupf','total_pf','pu_amt','pt_amt',
                 'reception','ref_client','pump_tnd','pump_1000','ptmp_tnd','pu_ht','pu_ht_tnd','pu_ht_1000','pu_ht_1000_ass','montant_total',
-                'montant_total_tnd',
+                'montant_total_tnd','facture_pk_plastigray',
             ]
             for champ in champs:
                 vsb=False
@@ -390,6 +419,50 @@ class is_facture_pk(models.Model):
             }
 
 
+    def imprimer_pdf(self):
+        self.ensure_one()
+        if not self.type_facture_id or not self.type_facture_id.rapport_id:
+            raise ValidationError("Aucun rapport défini dans le type de facture !")
+        report = self.type_facture_id.rapport_id
+        result = self.env['ir.actions.report']._render_qweb_pdf(report.report_name, [self.id])[0]
+        self.sauvegarde_pdf(result, report)
+        return report.report_action(self)
+
+
+    def imprimer_pdf_plastigray(self):
+        self.ensure_one()
+        report = self.env.ref('is_plastigray16.is_facture_pk_plastigray_report')
+        result = self.env['ir.actions.report']._render_qweb_pdf(report.report_name, [self.id])[0]
+        self.sauvegarde_pdf(result, report)
+        return report.report_action(self)
+
+
+    def sauvegarde_pdf(self, datas, report=None):
+        for obj in self:
+            vals = {'facture_pk_id': obj.id}
+            if report:
+                vals['rapport_id'] = report.id
+            line = self.env['is.facture.pk.pdf'].create(vals)
+            attachment_obj = self.env['ir.attachment']
+            file_name = (obj.num_facture or 'facture') + '.pdf'
+            vals = {
+                'name':      file_name,
+                'type':      'binary',
+                'res_model': 'is.facture.pk.pdf',
+                'res_id':    line.id,
+                'datas':     base64.b64encode(datas),
+            }
+            attachment = attachment_obj.create(vals)
+            line.facture_pdf_ids = [attachment.id]
+            rapport_name = report.name if report else ''
+            body = "PDF généré : %s" % file_name
+            if rapport_name:
+                body += " [%s]" % rapport_name
+            obj.message_post(
+                body=body,
+                attachment_ids=[attachment.id],
+            )
+
 
 
 class is_facture_pk_line(models.Model):
@@ -502,5 +575,14 @@ class is_facture_pk_moule(models.Model):
     is_facture_id = fields.Many2one('is.facture.pk', string='Moules')
     mold_id       = fields.Many2one('is.mold', string='Moule à taxer', required=True)
     montant       = fields.Integer('Montant à taxer (€)')
+
+
+class is_facture_pk_pdf(models.Model):
+    _name = 'is.facture.pk.pdf'
+    _description = 'Facture PK PDF'
+
+    facture_pk_id   = fields.Many2one('is.facture.pk', 'Facture PK', required=True, ondelete='cascade')
+    rapport_id      = fields.Many2one('ir.actions.report', 'Rapport utilisé', readonly=True)
+    facture_pdf_ids = fields.Many2many('ir.attachment', 'is_facture_pk_pdf_rel', 'pdf_id', 'attachment_id', 'Facture PDF')
 
 
