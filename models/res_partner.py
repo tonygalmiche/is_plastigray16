@@ -135,6 +135,7 @@ class is_configuration_bl(models.Model):
     port                     = fields.Boolean('Afficher port', default=True)
     identification_transport = fields.Boolean('Afficher identication transport', default=True)
     poids_net                = fields.Boolean('Afficher poids net', default=True)
+    dossier_transport        = fields.Boolean('Afficher n° de dossier de transport', default=True)
     is_database_origine_id   = fields.Integer("Id d'origine", readonly=True)
 
     caldel_number = fields.Boolean("Afficher 'Caldel Number' dans 'N° de l'ordre", default=False)
@@ -168,6 +169,7 @@ class is_configuration_bl(models.Model):
             'port'                    : self.port,
             'identification_transport': self.identification_transport,
             'poids_net'               : self.poids_net,
+            'dossier_transport'       : self.dossier_transport,
             'is_database_origine_id'  : self.id
         }
         return vals

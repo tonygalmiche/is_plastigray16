@@ -286,7 +286,9 @@
                             <td style="width:42mm" class="adresse">
                                 <div>
                                     N° de véhicule moteur : <b><span t-field="o.is_plaque_immatriculation" /></b><br />
-                                    N° de dossier de transport : <b><span t-field="o.is_dossier_transport" /></b> <br />
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.dossier_transport">
+                                        N° de dossier de transport : <b><span t-field="o.is_dossier_transport" /></b> <br />
+                                    </t>
 
                                     <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.mode_transport">
                                         Mode de transport : <b><span t-field="o.partner_id.is_mode_transport_id.name" /></b> <br />

@@ -721,6 +721,7 @@
                     <field name="port"                     optional="show" widget="boolean_toggle"/>
                     <field name="identification_transport" optional="show" widget="boolean_toggle"/>
                     <field name="poids_net"                optional="show" widget="boolean_toggle"/>
+                    <field name="dossier_transport"        optional="show" widget="boolean_toggle"/>
                     <field name="caldel_number"            optional="show" widget="boolean_toggle"/>
                     <field name="poids_net"                optional="show" widget="boolean_toggle"/>
                     <field name="num_ran"                  optional="show"/>
@@ -746,6 +747,7 @@
                             <field name="port"                     widget="boolean_toggle"/>
                             <field name="identification_transport" widget="boolean_toggle"/>
                             <field name="poids_net"                widget="boolean_toggle"/>
+                            <field name="dossier_transport"        widget="boolean_toggle"/>
                             <field name="caldel_number"            widget="boolean_toggle"/>
                             <field name="num_ran"                  widget="boolean_toggle"/>
                         </group> 
