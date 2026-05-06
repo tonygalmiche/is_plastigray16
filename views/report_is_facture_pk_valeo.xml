@@ -267,16 +267,11 @@
                                         <td class="text-right"><b>Poids brut : </b></td>
                                         <td class="text-right"><span t-field="o.poids_brut"/></td>
                                     </tr>
- 
-
-
                                 </table>
                             </div>
                             <div class="col-2"/>
                             <div class="col-5">
                                 <table class="table table-condensed td-compact" width="100%" style="border:solid 0px white;margin-bottom:0px;border-bottom:none;">
-
-
                                     <tr t-if="type=='douane' and o.matiere_premiere">
                                         <td class="text-right" style="white-space: nowrap;"><b>Total de la Matière première N/FACT en EURO : </b></td>
                                         <td class="text-right"><span t-field="o.matiere_premiere"/></td>
@@ -294,7 +289,8 @@
                                     <tr t-if="o.frais_perturbation_vsb">
                                         <td class="text-right"><b>Total frais de préparation à taxer : </b></td>
                                         <td class="text-right"><span t-field="o.frais_perturbation"/></td>
-                                    </tr>                                    <tr t-if="o.pt_amt_vsb and o.total_pt_amt">
+                                    </tr>                                    
+                                    <tr t-if="o.pt_amt_vsb">
                                         <td class="text-right"><b>Total amortissement outillage : </b></td>
                                         <td class="text-right"><span t-field="o.total_pt_amt"/></td>
                                     </tr>
@@ -306,24 +302,6 @@
                                         <td class="text-right"><b>TOTAL : </b></td>
                                         <td class="text-right"><span t-field="o.total"/></td>
                                     </tr>
-
-
-                                    <!-- <t t-if="o.total_ass_tnd_vsb">
-                                        <t t-set="total_assistance"      t-value="(o.taux_commission - 1) * total_montant_total_tnd"/>
-                                        <t t-set="total_avec_assistance" t-value="o.taux_commission * total_montant_total_tnd"/>
-                                        <tr>
-                                            <td class="text-right"><b>Total Montant H.T. (TND) : </b></td>
-                                            <td class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_montant_total_tnd).replace(".",",")'/></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-right"><b>Total assistance (TND) : </b></td>
-                                            <td class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_assistance).replace(".",",")'/></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-right" style="white-space: nowrap;"><b>Total Montant H.T. assistance incluse (TND) : </b></td>
-                                            <td class="text-right" style="white-space: nowrap;"><span t-esc='"{:,.3f}".format(total_avec_assistance).replace(".",",")'/></td>
-                                        </tr>
-                                    </t> -->
                                 </table>
                             </div>
                         </div>
@@ -347,13 +325,6 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- <div class="row" style="margin-top:4px;">
-                            <div class="col-12 text-center">
-                                Règlement : par virement SWIFT sur le compte n° 7300 0080 8592 0340 0046<br/>
-                                T.I.B. : Tunis International Banq,Avenue des Etats-Unis- TUNISIE<br/>
-                                Code SWIFT : TUIBTNTT
-                            </div>
-                        </div> -->
                     </div>
 
 
