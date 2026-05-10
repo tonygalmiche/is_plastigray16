@@ -711,19 +711,18 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="logo_pg"                  optional="show" widget="boolean_toggle"/>
-                    <field name="code_barre"               optional="show" widget="boolean_toggle"/>
-                    <field name="code_pg"                  optional="show" widget="boolean_toggle"/>
-                    <field name="nomenclature_douaniere"   optional="show" widget="boolean_toggle"/>
-                    <field name="numero_lot"               optional="show" widget="boolean_toggle"/>
-                    <field name="type_colis"               optional="show" widget="boolean_toggle"/>
-                    <field name="mode_transport"           optional="show" widget="boolean_toggle"/>
-                    <field name="port"                     optional="show" widget="boolean_toggle"/>
-                    <field name="identification_transport" optional="show" widget="boolean_toggle"/>
-                    <field name="poids_net"                optional="show" widget="boolean_toggle"/>
-                    <field name="dossier_transport"        optional="show" widget="boolean_toggle"/>
-                    <field name="caldel_number"            optional="show" widget="boolean_toggle"/>
-                    <field name="poids_net"                optional="show" widget="boolean_toggle"/>
+                    <field name="logo_pg"                  optional="show"/>
+                    <field name="code_barre"               optional="show"/>
+                    <field name="code_pg"                  optional="show"/>
+                    <field name="nomenclature_douaniere"   optional="show"/>
+                    <field name="numero_lot"               optional="show"/>
+                    <field name="type_colis"               optional="show"/>
+                    <field name="mode_transport"           optional="show"/>
+                    <field name="port"                     optional="show"/>
+                    <field name="identification_transport" optional="show"/>
+                    <field name="poids_net"                optional="show"/>
+                    <field name="dossier_transport"        optional="show"/>
+                    <field name="caldel_number"            optional="show"/>
                     <field name="num_ran"                  optional="show"/>
                     <field name="is_database_origine_id"   optional="hide"/>
                 </tree>
@@ -752,6 +751,11 @@
                             <field name="num_ran"                  widget="boolean_toggle"/>
                         </group> 
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>

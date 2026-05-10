@@ -123,23 +123,24 @@ class is_champ_obligatoire(models.Model):
 class is_configuration_bl(models.Model):
     _name = 'is.configuration.bl'
     _description = 'Configuration du BL Galia par client'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name                     = fields.Char('Code', required=True)
-    logo_pg                  = fields.Boolean('Afficher logo Plastigray', default=True)
-    code_barre               = fields.Boolean('Afficher code barre', default=True)
-    code_pg                  = fields.Boolean('Afficher code Plastigray', default=True)
-    nomenclature_douaniere   = fields.Boolean('Afficher nomenclature douanière', default=True)
-    numero_lot               = fields.Boolean('Afficher numéro de lot', default=True)
-    type_colis               = fields.Boolean('Afficher le tableau des colis', default=True)
-    mode_transport           = fields.Boolean('Afficher mode de transport', default=True)
-    port                     = fields.Boolean('Afficher port', default=True)
-    identification_transport = fields.Boolean('Afficher identication transport', default=True)
-    poids_net                = fields.Boolean('Afficher poids net', default=True)
-    dossier_transport        = fields.Boolean('Afficher n° de dossier de transport', default=True)
+    name                     = fields.Char('Code', required=True, tracking=True)
+    logo_pg                  = fields.Boolean('Afficher logo Plastigray', default=True, tracking=True)
+    code_barre               = fields.Boolean('Afficher code barre', default=True, tracking=True)
+    code_pg                  = fields.Boolean('Afficher code Plastigray', default=True, tracking=True)
+    nomenclature_douaniere   = fields.Boolean('Afficher nomenclature douanière', default=True, tracking=True)
+    numero_lot               = fields.Boolean('Afficher numéro de lot', default=True, tracking=True)
+    type_colis               = fields.Boolean('Afficher le tableau des colis', default=True, tracking=True)
+    mode_transport           = fields.Boolean('Afficher mode de transport', default=True, tracking=True)
+    port                     = fields.Boolean('Afficher port', default=True, tracking=True)
+    identification_transport = fields.Boolean('Afficher identication transport', default=True, tracking=True)
+    poids_net                = fields.Boolean('Afficher poids net', default=True, tracking=True)
+    dossier_transport        = fields.Boolean('Afficher n° de dossier de transport', default=True, tracking=True)
     is_database_origine_id   = fields.Integer("Id d'origine", readonly=True)
 
-    caldel_number = fields.Boolean("Afficher 'Caldel Number' dans 'N° de l'ordre", default=False)
-    num_ran       = fields.Boolean("Afficher 'NumRAN' dans 'N° de l'ordre", default=True)
+    caldel_number = fields.Boolean("Afficher 'Caldel Number' dans 'N° de l'ordre", default=False, tracking=True)
+    num_ran       = fields.Boolean("Afficher 'NumRAN' dans 'N° de l'ordre", default=True, tracking=True)
 
 
     def write(self, vals):
