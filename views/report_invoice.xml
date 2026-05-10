@@ -114,16 +114,12 @@
                         </thead>
                         <t t-if="o.partner_id.is_configuration_facture!='regrouper_article_commande'">
                             <tbody class="invoice_tbody">
-                                <t t-set="pds_brut_total" t-value="0"/>
-                                <t t-set="pds_net_total" t-value="0"/>
-
                                 <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+                                <t t-set="pds_brut_total" t-value="round(sum(l.quantity*l.product_id.weight for l in lines), 2)"/>
+                                <t t-set="pds_net_total"  t-value="round(sum(l.quantity*l.product_id.weight_net for l in lines), 2)"/>
                                 <tr t-foreach="lines" t-as="l">
-                                    <t t-set="qt1" t-value="l.is_move_id.product_uom_qty"/>
-                                    <t t-set="pds_brut" t-value="round(qt1*l.is_move_id.product_id.weight,2)"/>
-                                    <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,2)"/>
-                                    <t t-set="pds_net" t-value="round(qt1*l.is_move_id.product_id.weight_net,2)"/>
-                                    <t t-set="pds_net_total" t-value="round(pds_net_total + pds_net,2)"/>
+                                    <t t-set="pds_brut" t-value="round(l.quantity*l.product_id.weight,2)"/>
+                                    <t t-set="pds_net"  t-value="round(l.quantity*l.product_id.weight_net,2)"/>
                                     <td>
                                         <t t-if="l.is_move_id.sale_line_id.is_client_order_ref">
                                             <span t-field="l.is_move_id.sale_line_id.is_client_order_ref"/><br />
@@ -168,14 +164,12 @@
                         </t>
                         <t t-if="o.partner_id.is_configuration_facture=='regrouper_article_commande'">
                             <tbody class="invoice_tbody">
-                                <t t-set="pds_brut_total" t-value="0"/>
-                                <t t-set="pds_net_total"  t-value="0"/>
                                 <t t-set="lines" t-value="o.get_lines_facture()"/>
+                                <t t-set="pds_brut_total" t-value="round(sum(l['pds_brut'] for l in lines), 2)"/>
+                                <t t-set="pds_net_total"  t-value="round(sum(l['pds_net'] for l in lines), 2)"/>
                                 <tr t-foreach="lines" t-as="l">
                                     <t t-set="pds_brut"       t-value="round(l['pds_brut'],2)"/>
-                                    <t t-set="pds_brut_total" t-value="round(pds_brut_total + pds_brut,2)"/>
                                     <t t-set="pds_net"        t-value="round(l['pds_net'],2)"/>
-                                    <t t-set="pds_net_total"  t-value="round(pds_net_total + pds_net,2)"/>
                                     <td>
                                         <t t-if="l['is_client_order_ref']">
                                             <span t-esc="l['is_client_order_ref']"/><br />

@@ -705,9 +705,9 @@ class account_invoice(models.Model):
                         'quantity'  : 0,
                         'price_subtotal'  : 0,
                     }
-                qt1        = l.is_move_id.product_uom_qty
-                pds_brut = round(qt1*l.is_move_id.product_id.weight,2)
-                pds_net  = round(qt1*l.is_move_id.product_id.weight_net,2)
+                qt1      = l.quantity
+                pds_brut = round(qt1*l.product_id.weight,2)
+                pds_net  = round(qt1*l.product_id.weight_net,2)
                 res[key]['pds_brut']+=pds_brut
                 res[key]['pds_net']+=pds_net
                 res[key]['quantity']+=l.quantity
