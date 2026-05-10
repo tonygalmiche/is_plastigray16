@@ -193,6 +193,7 @@ class is_import_facture_owork(models.Model):
                             'supplier_invoice_number': line.numfac,
                             'is_owork_id'     : obj.id,
                             'is_id_owork'     : line.id_owork,
+                            'is_masse_nette'  : line.masse_net,
                         }
                         factures[numfac]=vals
                     else:
@@ -788,6 +789,7 @@ class is_import_facture_owork_line(models.Model):
     montantht      = fields.Float("Montant HT Facture", tracking=True)
     montanttva     = fields.Float("Montant TVA Facture", tracking=True)
     montanttc      = fields.Float("Montant TTC Facture", tracking=True)
+    masse_net      = fields.Float("Masse nette (Kg)", tracking=True)
     numidodoo      = fields.Char("Id Odoo", tracking=True)
     id_owork       = fields.Integer("id O'Work", tracking=True)
     totalfacture   = fields.Float("Total ligne facture", tracking=True)

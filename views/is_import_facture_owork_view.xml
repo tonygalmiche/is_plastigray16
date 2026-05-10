@@ -212,6 +212,7 @@
                             <field name="montantht" />
                             <field name="montanttva" />
                             <field name="montanttc" />
+                            <field name="masse_net" />
                             <field name="litige"/>
                        </group>
                        <group string="Autre">
@@ -270,6 +271,7 @@
                     <field name="montantht"      optional="show" sum="Total"/>
                     <field name="montanttva"     optional="show" sum="Total"/>
                     <field name="montanttc"      optional="show" sum="Total"/>
+                    <field name="masse_net"      optional="show" sum="Total"/>
                     <field name="litige"         optional="show"/>
                     <field name="codeetab"       optional="hide"/>
                     <field name="numidodoo"      optional="hide"/>
