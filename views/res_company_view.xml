@@ -43,6 +43,11 @@
                                 <field name="is_cegid_login"/>
                                 <field name="is_cegid_mdp" password="True"/>
                             </group>
+                            <group string="Kelio">
+                                <field name="is_kelio_url"/>
+                                <field name="is_kelio_user"/>
+                                <field name="is_kelio_password" password="True"/>
+                            </group>
                             <group string="Google Agenda">
                                 <field name="is_agenda_url"/>
                                 <field name="is_agenda_pwd" password="True"/>

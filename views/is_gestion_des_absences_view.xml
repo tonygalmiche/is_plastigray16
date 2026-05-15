@@ -165,6 +165,7 @@
                                    domain="[('id', '=', uid)]"
                                 />
                                 <field name="type_demande"/>
+                                <field name="kelio_type_absence"/>
                                 <field 
                                     name="autre_id"
                                     attrs="{

@@ -8,6 +8,9 @@ _logger = logging.getLogger(__name__)
 
 from collections import defaultdict
 from datetime import datetime, timedelta
+import warnings
+from pyparsing import PyparsingDeprecationWarning
+warnings.filterwarnings("ignore", category=PyparsingDeprecationWarning)
 import matplotlib
 import matplotlib.transforms
 matplotlib.use('Agg')

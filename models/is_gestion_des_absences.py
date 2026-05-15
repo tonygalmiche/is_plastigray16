@@ -11,6 +11,8 @@ _logger = logging.getLogger(__name__)
 import codecs
 import base64
 import pytz
+import requests
+import xml.etree.ElementTree as ET
 
 
 _TYPE_DEMANDE = [
@@ -21,6 +23,17 @@ _TYPE_DEMANDE = [
     ('sans_solde'         , 'Congés sans solde'),
     ('autre'              , 'Autre'),
 ]
+
+# Correspondance type_demande → abréviation du type d'absence dans Kelio
+# À adapter selon la configuration Kelio du client
+_KELIO_TYPE_ABSENCE = {
+    'cp_rtt_journee'     : 'CP',
+    'cp_rtt_demi_journee': 'CP',
+    'rc_journee'         : 'RC',
+    'rc_heures'          : 'RC',
+    'sans_solde'         : 'SS',
+    'autre'              : '',
+}
 
 
 class is_demande_conges(models.Model):
@@ -267,8 +280,11 @@ class is_demande_conges(models.Model):
             except Exception as e:
                 _logger.error("Erreur lors de l'ajout dans l'agenda pour la demande %s : %s", obj.name, e)
 
-
-
+            try:
+                if obj.demande_collective=='non':
+                    obj._creer_absence_kelio()
+            except Exception as e:
+                _logger.error("Erreur lors de la création dans Kelio pour la demande %s : %s", obj.name, e)
 
             obj.state = "validation_rh"
         if len(demandes)>1:
@@ -284,6 +300,222 @@ class is_demande_conges(models.Model):
             }
         else:
             return True
+
+    def _creer_absence_kelio(self):
+        """Crée la fiche d'absence dans Kelio via Web Service SOAP."""
+        NS = "http://echange.service.open.bodet.com"
+        company = self.env.user.company_id
+        kelio_url      = company.is_kelio_url
+        kelio_user     = company.is_kelio_user
+        kelio_password = company.is_kelio_password
+
+        if not kelio_url or not kelio_user or not kelio_password:
+            msg = "⚠️ Kelio : paramètres de connexion non configurés — création d'absence ignorée."
+            _logger.info("Kelio : paramètres de connexion non configurés, création ignorée pour %s", self.name)
+            self.message_post(body=msg)
+            return
+        type_absence = _KELIO_TYPE_ABSENCE.get(self.type_demande, '')
+        if not type_absence:
+            msg = f"⚠️ Kelio : type de demande <b>{self.type_demande}</b> non mappé dans _KELIO_TYPE_ABSENCE — création d'absence ignorée."
+            _logger.info("Kelio : type d'absence non mappé pour type_demande=%s (demande %s), création ignorée", self.type_demande, self.name)
+            self.message_post(body=msg)
+            return
+
+        # Récupération du matricule Kelio depuis hr.employee
+        employe = self.env['hr.employee'].search([('user_id', '=', self.demandeur_id.id)], limit=1)
+        matricule = employe.is_matricule if employe else False
+        if matricule:
+            matricule = str(matricule).zfill(10)
+        if not matricule:
+            msg = f"⚠️ Kelio : matricule non renseigné pour <b>{self.demandeur_id.name}</b> — création d'absence ignorée."
+            _logger.warning("Kelio : matricule non trouvé pour le demandeur %s (demande %s)", self.demandeur_id.name, self.name)
+            self.message_post(body=msg)
+            return
+
+        # Vérification de l'existence du salarié dans Kelio
+        try:
+            salarie_body = f"""<?xml version='1.0' encoding='utf-8'?>
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap-env:Body>
+    <ns0:exportSalaries xmlns:ns0="{NS}">
+      <ns0:matricule>{matricule}</ns0:matricule>
+    </ns0:exportSalaries>
+  </soap-env:Body>
+</soap-env:Envelope>"""
+            salarie_resp = requests.post(
+                f"{kelio_url}/open/services/SalarieService",
+                data=salarie_body.encode("utf-8"),
+                headers={"Content-Type": "text/xml; charset=utf-8", "SOAPAction": "urn:exportSalaries"},
+                auth=(kelio_user, kelio_password),
+                timeout=30,
+            )
+            if salarie_resp.ok:
+                salarie_root = ET.fromstring(salarie_resp.text)
+                tag_s = lambda n: '{%s}%s' % (NS, n)
+                salaries = list(salarie_root.iter(tag_s('Salarie')))
+                if not salaries:
+                    msg = f"⚠️ Kelio : salarié avec matricule <b>{matricule}</b> introuvable dans Kelio — création d'absence ignorée."
+                    _logger.warning("Kelio : salarié matricule=%s non trouvé pour %s (demande %s)", matricule, self.demandeur_id.name, self.name)
+                    self.message_post(body=msg)
+                    return
+                _logger.info("Kelio : salarié matricule=%s trouvé (%d enregistrement(s))", matricule, len(salaries))
+            else:
+                _logger.warning("Kelio : impossible de vérifier le salarié matricule=%s (HTTP %s) — on continue quand même", matricule, salarie_resp.status_code)
+        except Exception as ex:
+            _logger.warning("Kelio : erreur lors de la vérification du salarié matricule=%s : %s — on continue quand même", matricule, ex)
+
+        def b(v):
+            return "true" if v else "false"
+
+        # Construction du XML selon le type de demande
+        if self.type_demande == 'cp_rtt_demi_journee':
+            start_date = str(self.le)
+            end_date   = str(self.le)
+            start_in_morning   = b(self.matin_ou_apres_midi == 'matin')
+            ending_afternoon   = b(self.matin_ou_apres_midi == 'apres_midi')
+        elif self.type_demande == 'rc_heures':
+            start_date = str(self.le)
+            end_date   = str(self.le)
+            hours_debut, min_debut = divmod(int(self.heure_debut * 60), 60)
+            hours_fin,   min_fin   = divmod(int(self.heure_fin   * 60), 60)
+            first_start = "%02d:%02d" % (hours_debut, min_debut)
+            first_end   = "%02d:%02d" % (hours_fin,   min_fin)
+            start_in_morning = b(True)
+            ending_afternoon = b(True)
+        else:
+            start_date = str(self.date_debut)
+            end_date   = str(self.date_fin)
+            start_in_morning = b(True)
+            ending_afternoon = b(True)
+
+        # Champs spécifiques RC heures
+        heures_xml = ""
+        if self.type_demande == 'rc_heures':
+            heures_xml = f"""
+          <ns0:firstStartTime>{first_start}</ns0:firstStartTime>
+          <ns0:firstEndTime>{first_end}</ns0:firstEndTime>"""
+
+        absence_xml = f"""        <ns0:AbsenceFile>
+          <ns0:employeeIdentificationNumber>{matricule}</ns0:employeeIdentificationNumber>
+          <ns0:startDate>{start_date}</ns0:startDate>
+          <ns0:endDate>{end_date}</ns0:endDate>
+          <ns0:absenceTypeAbbreviation>{type_absence}</ns0:absenceTypeAbbreviation>
+          <ns0:startInTheMorning>{start_in_morning}</ns0:startInTheMorning>
+          <ns0:endingTheAfternoon>{ending_afternoon}</ns0:endingTheAfternoon>{heures_xml}
+        </ns0:AbsenceFile>"""
+
+        body = f"""<?xml version='1.0' encoding='utf-8'?>
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap-env:Body>
+    <ns0:importAbsenceFiles xmlns:ns0="{NS}">
+      <ns0:absenceFilesToImport>
+{absence_xml}
+      </ns0:absenceFilesToImport>
+    </ns0:importAbsenceFiles>
+  </soap-env:Body>
+</soap-env:Envelope>"""
+
+        url = f"{kelio_url}/open/services/AbsenceFileService"
+        headers = {
+            "Content-Type": "text/xml; charset=utf-8",
+            "SOAPAction": "urn:importAbsenceFiles",
+        }
+
+        # Message chat : détail des données envoyées (sera complété après la réponse)
+        chat_lines = [
+            f"<b>Kelio — importAbsenceFiles</b>",
+            f"Matricule : {matricule}",
+            f"Type absence : {type_absence}",
+            f"Date début : {start_date} | Date fin : {end_date}",
+            f"Matin : {start_in_morning} | Après-midi : {ending_afternoon}",
+        ]
+        if self.type_demande == 'rc_heures':
+            chat_lines.append(f"Heure début : {first_start} | Heure fin : {first_end}")
+        _logger.info("Kelio : SOAP body envoyé pour %s :\n%s", self.name, body)
+
+        response = requests.post(
+            url,
+            data=body.encode("utf-8"),
+            headers=headers,
+            auth=(kelio_user, kelio_password),
+            timeout=30,
+        )
+        if not response.ok:
+            chat_lines.append(f"❌ HTTP {response.status_code} — {response.text[:500]}")
+            self.message_post(body="<br/>".join(chat_lines))
+            raise Exception(f"Kelio HTTP {response.status_code} — {response.text[:500]}")
+
+        # Vérification des erreurs métier dans le corps SOAP (HTTP 200 mais absenceFilesInError)
+        _logger.info("Kelio : réponse importAbsenceFiles pour %s : %s", self.name, response.text[:300])
+        try:
+            tag = lambda n: '{%s}%s' % (NS, n)
+            import_root = ET.fromstring(response.text)
+            errors_el = import_root.find('.//' + tag('absenceFilesInError'))
+            if errors_el is not None and len(errors_el):
+                error_texts = []
+                for abs_el in errors_el:
+                    err_code = abs_el.find(tag('errorCode'))
+                    err_msg  = abs_el.find(tag('errorMessage'))
+                    parts = []
+                    if err_code is not None and err_code.text:
+                        parts.append(f"code {err_code.text}")
+                    if err_msg  is not None and err_msg.text:
+                        parts.append(err_msg.text)
+                    part = " — ".join(parts) if parts else str(ET.tostring(abs_el, encoding='unicode'))[:200]
+                    if part:
+                        error_texts.append(part)
+                error_detail = "<br/>".join(error_texts) if error_texts else response.text[:500]
+                chat_lines.append(f"❌ Erreur Kelio : {error_detail}")
+                _logger.error("Kelio : absenceFilesInError pour %s : %s", self.name, error_detail)
+                self.message_post(body="<br/>".join(chat_lines))
+                raise Exception(f"Kelio : absenceFilesInError — {error_detail}")
+        except ET.ParseError as parse_err:
+            _logger.warning("Kelio : impossible de parser la réponse XML : %s", parse_err)
+
+        _logger.info("Kelio : absence créée pour %s (demande %s)", employe.name, self.name)
+        chat_lines.append(f"✅ Absence créée pour <b>{employe.name}</b>")
+
+        # Récupération de l'absenceFileKey via exportAbsenceFiles
+        try:
+            export_body = f"""<?xml version='1.0' encoding='utf-8'?>
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap-env:Body>
+    <ns0:exportAbsenceFiles xmlns:ns0="{NS}">
+      <ns0:startDate>{start_date}</ns0:startDate>
+      <ns0:endDate>{end_date}</ns0:endDate>
+    </ns0:exportAbsenceFiles>
+  </soap-env:Body>
+</soap-env:Envelope>"""
+            export_resp = requests.post(
+                f"{kelio_url}/open/services/AbsenceFileService",
+                data=export_body.encode("utf-8"),
+                headers={"Content-Type": "text/xml; charset=utf-8", "SOAPAction": "urn:exportAbsenceFiles"},
+                auth=(kelio_user, kelio_password),
+                timeout=30,
+            )
+            if export_resp.ok:
+                root = ET.fromstring(export_resp.text)
+                tag = lambda n: '{%s}%s' % (NS, n)
+                for absence in root.iter(tag('AbsenceFile')):
+                    mat_el  = absence.find(tag('employeeIdentificationNumber'))
+                    sd_el   = absence.find(tag('startDate'))
+                    ed_el   = absence.find(tag('endDate'))
+                    type_el = absence.find(tag('absenceTypeAbbreviation'))
+                    key_el  = absence.find(tag('absenceFileKey'))
+                    if (mat_el  is not None and mat_el.text  == matricule
+                            and sd_el   is not None and sd_el.text   == start_date
+                            and ed_el   is not None and ed_el.text   == end_date
+                            and type_el is not None and type_el.text == type_absence
+                            and key_el  is not None and key_el.text):
+                        self.kelio_key = key_el.text
+                        _logger.info("Kelio : absenceFileKey=%s stockée pour la demande %s", key_el.text, self.name)
+                        chat_lines.append(f"🔑 Clé absence : <b>{key_el.text}</b>")
+                        break
+        except Exception as ex:
+            _logger.warning("Kelio : impossible de récupérer la clé absence pour %s : %s", self.name, ex)
+            chat_lines.append(f"⚠️ Impossible de récupérer la clé absence : {ex}")
+
+        self.message_post(body="<br/>".join(chat_lines))
 
     def vers_solde_action(self):
         for obj in self:
@@ -616,6 +848,11 @@ class is_demande_conges(models.Model):
         return True
 
 
+    @api.depends('type_demande')
+    def _compute_kelio_type_absence(self):
+        for obj in self:
+            obj.kelio_type_absence = _KELIO_TYPE_ABSENCE.get(obj.type_demande, '')
+
     @api.depends('demandeur_id')
     def _compute_matricule(self):
         for obj in self:
@@ -697,6 +934,8 @@ class is_demande_conges(models.Model):
     recapitulatif              = fields.Html(string='Récapitulatif', compute='_compute_recapitulatif')
     active                     = fields.Boolean(string='Active', tracking=True, default=True, copy=False)
     demande_origine_id         = fields.Many2one('is.demande.conges', "Demande d'origine", tracking=True, readonly=True, copy=False)
+    kelio_type_absence         = fields.Char('Type absence Kelio', compute='_compute_kelio_type_absence', readonly=True, store=True, help="Abréviation du type d'absence dans Kelio, déterminée automatiquement depuis la table de correspondance _KELIO_TYPE_ABSENCE")
+    kelio_key                  = fields.Char('Clé absence Kelio', copy=False, readonly=True, help="Identifiant de la fiche d'absence créée dans Kelio")
 
 
     def get_cp_rc(self):

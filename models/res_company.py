@@ -76,6 +76,10 @@ class res_company(models.Model):
     is_cegid_login = fields.Char('Login base CEGID')
     is_cegid_mdp   = fields.Char('Mot de passe base CEGID')
 
+    is_kelio_url      = fields.Char('URL Kelio', help="URL de base Kelio, ex: https://xxx.kelio.io")
+    is_kelio_user     = fields.Char('Utilisateur Kelio')
+    is_kelio_password = fields.Char('Mot de passe Kelio')
+
     is_regrouper_ligne_commande = fields.Boolean('Regrouper les lignes des commandes de ventes sur les factures', default=False)
 
 
