@@ -110,6 +110,7 @@ class is_champ_obligatoire(models.Model):
             'tg_number'                : self.tg_number,
             'code_routage'             : self.code_routage,
             'point_destination'        : self.point_destination,
+            'point_destination_unique' : self.point_destination_unique,
             'num_commande_client'      : self.num_commande_client,
             'is_plaque_immatriculation': self.is_plaque_immatriculation,
             'is_dossier_transport'     : self.is_dossier_transport,

@@ -289,7 +289,6 @@ class is_edi_cde_cli(models.Model):
                                     'numero_document',
                                     'caldel_number',
                                     'num_ran',
-                                    'identifiant_transport',
                                     'tg_number',
                                     'code_routage',
                                     'point_destination',

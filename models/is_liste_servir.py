@@ -257,11 +257,12 @@ class is_liste_servir(models.Model):
                     'numero_document'      : 'is_numero_document',
                     'caldel_number'        : 'is_caldel_number',
                     'num_ran'              : 'is_num_ran',
-                    'identifiant_transport': 'is_identifiant_transport',
                     'tg_number'            : 'is_tg_number',
                     'code_routage'         : 'is_code_routage',
                     'point_destination'    : 'is_point_destination',
                 }
+                    #'identifiant_transport': 'is_identifiant_transport',
+
                 ligne=1
                 for line in obj.line_ids:
                     for key in field_dict:

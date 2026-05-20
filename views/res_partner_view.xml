@@ -809,7 +809,6 @@
                                 <field name="numero_document"          widget="boolean_toggle"/>
                                 <field name="caldel_number"            widget="boolean_toggle"/>
                                 <field name="num_ran"                  widget="boolean_toggle"/>
-                                <field name="identifiant_transport"    widget="boolean_toggle"/>
                                 <field name="tg_number"                widget="boolean_toggle"/>
                                 <field name="code_routage"             widget="boolean_toggle"/>
                                 <field name="point_destination"        widget="boolean_toggle"/>
@@ -818,9 +817,10 @@
                                 <field name="ref_pg_unique"            widget="boolean_toggle"/>
                             </group> 
                             <group string="BL">
+                                <field name="identifiant_transport"           widget="boolean_toggle"/>
                                 <field name="controle_remplacement_etiquette" widget="boolean_toggle"/>
-                                <field name="is_plaque_immatriculation" widget="boolean_toggle"/>
-                                <field name="is_dossier_transport"      widget="boolean_toggle"/>
+                                <field name="is_plaque_immatriculation"       widget="boolean_toggle"/>
+                                <field name="is_dossier_transport"            widget="boolean_toggle"/>
                             </group>
                         </group>
                      </sheet>
