@@ -607,6 +607,33 @@ class is_liste_servir(models.Model):
     def action_generer_bl(self):
         cr = self._cr
         for obj in self:
+            #** Mettre à jour le stock sur les lignes ****************************
+            for line in obj.line_ids:
+                product = line.product_id
+                line.stock01 = product.get_stock('f', '01')
+                line.lots01  = product.get_stock_lot('01')
+                line.stocka  = product.get_stock('f')
+                line.stockq  = product.get_stock('t')
+            #***********************************************************************
+
+            #** Vérifier que le stock disponible (stocka) est suffisant par article ***
+            stock_par_article = {}
+            for line in obj.line_ids:
+                pid = line.product_id.id
+                if pid not in stock_par_article:
+                    stock_par_article[pid] = {'stock01': line.stock01, 'quantite': 0, 'code': line.product_id.display_name}
+                stock_par_article[pid]['quantite'] += line.quantite
+            manquants = []
+            for pid, data in stock_par_article.items():
+                if data['quantite'] > data['stock01']:
+                    manquants.append(u"  - %s : quantité totale %.0f > stock 01 disponible %.0f" % (
+                        data['code'], data['quantite'], data['stock01']))
+            if manquants:
+                raise ValidationError(
+                    u"Stock insuffisant pour les articles suivants :\n" + u"\n".join(manquants)
+                )
+            #***********************************************************************
+
             obj.order_ids.unlink()
             SQL=self._get_sql(obj)
             cr.execute(SQL)
@@ -973,10 +1000,10 @@ class is_liste_servir_line(models.Model):
     dossierf_id        = fields.Many2one('is.dossierf', 'Dossier F'  , related='product_id.is_dossierf_id', readonly=True)
     mold_dossierf      = fields.Char('Moule / Dossier F', compute='_compute', readonly=True, store=True)
 
-    stock01            = fields.Float('Stock 01 US' , help="Stock 01 en US")
-    lots01             = fields.Text('Lots 01 US')
-    stocka             = fields.Float('Stock A US'  , help="Stock A en US")
-    stockq             = fields.Float('Stock Q US'  , help="Stock Q en US")
+    stock01            = fields.Float('Stock 01 US', readonly=True , help="Stock 01 en US")
+    lots01             = fields.Text('Lots 01 US'  , readonly=True)
+    stocka             = fields.Float('Stock A US' , readonly=True  , help="Stock A en US")
+    stockq             = fields.Float('Stock Q US' , readonly=True  , help="Stock Q en US")
 
     stock01_uc         = fields.Float('Stock 01 UC' , help="Stock 01 en UC", compute='_compute', readonly=True, store=True)
     stocka_uc          = fields.Float('Stock A UC'  , help="Stock A en UC" , compute='_compute', readonly=True, store=True)
