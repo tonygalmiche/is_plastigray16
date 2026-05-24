@@ -295,6 +295,12 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
 
+    <record model="res.groups" id="is_directeur_technique_group" >
+        <field name="name">Directeur technique</field>
+        <field name="comment">Accès aux moules et dossiers F marqués comme modèles</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
 
 
 
