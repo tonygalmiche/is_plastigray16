@@ -34,7 +34,7 @@ class is_account_invoice_line(models.Model):
 
     description             = fields.Char('Description')
     is_document             = fields.Char("N° du chantier")
-    quantity                = fields.Float('Quantité', digits=(14,2))
+    quantity                = fields.Float('Quantité', digits=(14,4))
     product_uom_id          = fields.Many2one('uom.uom', 'Unité')
     price_unit              = fields.Float('Prix unitaire', digits=(14,4))
     total                   = fields.Float('Montant Total', digits=(14,2))
@@ -48,6 +48,11 @@ class is_account_invoice_line(models.Model):
     montant_cagnotage       = fields.Float('Montant cagnotage'         , digits=(14,2))
 
     montant_matiere         = fields.Float('Montant matière livrée', digits=(14,2))
+
+    cout_budget_matiere     = fields.Float('Coût budget matière'   , digits=(12,4))
+    montant_budget_matiere  = fields.Float('Montant budget matière', digits=(14,2))
+    ecart_budget            = fields.Float('Ecart budget'          , digits=(12,4))
+    ecart_budget_total      = fields.Float('Ecart budget total'    , digits=(14,2))
 
     invoice_line_id         = fields.Many2one('account.move.line', 'Ligne de facture')
     move_id                 = fields.Many2one('stock.move', 'Mouvement de stock')
@@ -124,6 +129,18 @@ class is_account_invoice_line(models.Model):
         }
 
 
+    def action_acces_cout(self):
+        for obj in self:
+            couts = self.env['is.cout'].search([('name', '=', obj.product_id.id)])
+            if couts:
+                return {
+                    'name'     : obj.product_id.display_name,
+                    'view_mode': 'form',
+                    'res_model': 'is.cout',
+                    'type'     : 'ir.actions.act_window',
+                    'res_id'   : couts[0].id,
+                }
+
     def init(self):
         if self.env.company.is_activer_init:
             start = time.time()
@@ -181,6 +198,11 @@ class is_account_invoice_line(models.Model):
                         ail.is_montant_amt_interne montant_amt_interne,
                         ail.is_montant_cagnotage   montant_cagnotage,
                         ail.is_montant_matiere     montant_matiere,
+
+                        ail.is_cout_budget_matiere             cout_budget_matiere,
+                        ail.is_cout_budget_matiere * ail.quantity montant_budget_matiere,
+                        ail.is_ecart_budget                    ecart_budget,
+                        ail.is_ecart_budget * ail.quantity     ecart_budget_total,
 
                         ail.is_move_id            move_id,
                         sm.picking_id             picking_id,

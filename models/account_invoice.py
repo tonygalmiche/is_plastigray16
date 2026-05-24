@@ -799,6 +799,8 @@ class account_invoice_line(models.Model):
     is_montant_amt_interne = fields.Float('Montant amt interne'       , digits=(14,2), store=True, compute='_compute_amortissement_moule')
     is_montant_cagnotage   = fields.Float('Montant cagnotage'         , digits=(14,2), store=True, compute='_compute_amortissement_moule')
     is_montant_matiere     = fields.Float('Montant matière livrée'    , digits=(14,2), store=True, compute='_compute_amortissement_moule')
+    is_cout_budget_matiere = fields.Float('Coût budget matière'       , digits=(12, 4), readonly=True)
+    is_ecart_budget        = fields.Float('Ecart budget'              , digits=(12, 4), readonly=True)
 
 
 

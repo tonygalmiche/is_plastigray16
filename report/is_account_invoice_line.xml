@@ -90,12 +90,22 @@
                 <field name="product_uom_id"    optional="show"/>
                 <field name="quantity"          optional="show" sum="Total"/>
                 <field name="price_unit"        optional="show" />
-                <field name="total"             optional="show" sum="Total"/>
+                <field name="cout_budget_matiere"    optional="show"/>
+                <button name="action_acces_cout" type="object" icon="fa-search" title="Ouvrir la fiche coût"/>
+                <field name="ecart_budget"           optional="show"/>
+
+
+                <field name="total"             optional="show" sum="Total"/> 
+                <field name="montant_budget_matiere" optional="show" sum="Total"/>
+                <field name="ecart_budget_total"     optional="show" sum="Total"/>
+
+ 
+ 
                 <field name="state"             optional="show" />
                 <field name="picking_id"        optional="hide" widget="many2one_clickable"/>
                 <field name="purchase_order_id" optional="hide" widget="many2one_clickable"/>
                 <field name="move_id"           optional="hide" widget="many2one_clickable"/>
-           </tree>
+            </tree>
         </field>
     </record>
 
