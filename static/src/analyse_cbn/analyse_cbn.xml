@@ -149,6 +149,8 @@
                                             t-att-product_tmpl_id="line.product_tmpl_id"
                                             t-on-click="ProductClick" 
                                             class="link"
+                                            t-att-style="line.date_retour_prise_avance ? 'background-color:red;color:white;padding:1px 3px;border-radius:2px' : ''"
+                                            t-att-title="line.date_retour_prise_avance ? 'Prise d\'avance - Retour prévu le ' + line.date_retour_prise_avance : ''"
                                         />
                                         <br />
                                         <span 

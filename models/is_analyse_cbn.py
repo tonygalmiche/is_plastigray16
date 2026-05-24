@@ -338,6 +338,8 @@ class product_product(models.Model):
                     Delai=Delai_Fournisseurs.get(product_id,0)
                 else:
                     Delai=row["produce_delay"]
+                drpa = row.get("date_retour_prise_avance")
+                date_retour_pa = drpa.strftime('%d/%m/%Y') if drpa and drpa > datetime.now().date() else ''
                 res[key] = {
                     "key"        : key,
                     "Code"       : Code,
@@ -352,6 +354,7 @@ class product_product(models.Model):
                     "Delai"      : Delai,
                     "StockA"     : int(StocksA.get(product_id,0) or 0),
                     "StockQ"     : int(StocksQ.get(product_id,0) or 0),
+                    "date_retour_prise_avance": date_retour_pa,
                     "typeod"     : {},
                 }
 
@@ -921,6 +924,7 @@ class product_product(models.Model):
                 pt.lot_mini, 
                 pt.multiple,
                 pt.is_mold_dossierf as moule,
+                im.date_retour_prise_avance,
                 mp.name as name,
                 ig.name as gest
             FROM mrp_prevision mp inner join product_product      pp   on mp.product_id=pp.id 
@@ -957,6 +961,7 @@ class product_product(models.Model):
                 pt.lot_mini, 
                 pt.multiple,
                 pt.is_mold_dossierf as moule,
+                im.date_retour_prise_avance,
                 so.name as name,
 
                 sum(sol.product_uom_qty) as qt
@@ -975,7 +980,7 @@ class product_product(models.Model):
             WHERE sol.id>0 """+filtre+""" and so.state in ('draft','sent')
             GROUP BY 
                 so.id, sol.is_date_expedition, sol.is_type_commande, sol.product_id, pt.is_code, pt.name, pt.is_stock_secu, pt.produce_delay,
-                pt.lot_mini, pt.multiple, pt.is_mold_dossierf, so.name
+                pt.lot_mini, pt.multiple, pt.is_mold_dossierf, so.name, im.date_retour_prise_avance
             ORDER BY so.name
         """
         cr.execute(SQL)
@@ -1030,6 +1035,7 @@ class product_product(models.Model):
                 pt.lot_mini, 
                 pt.multiple,
                 pt.is_mold_dossierf as moule,
+                im.date_retour_prise_avance,
                 mp.name as name
             FROM mrp_production mp inner join product_product      pp   on mp.product_id=pp.id
                                    inner join product_template      pt   on pp.product_tmpl_id=pt.id
@@ -1068,6 +1074,7 @@ class product_product(models.Model):
                 pt.lot_mini, 
                 pt.multiple,
                 pt.is_mold_dossierf as moule,
+                im.date_retour_prise_avance,
                 mp.name as name,
                 mp.is_qt_reste_uom,
                 bom.product_qty
@@ -1112,6 +1119,7 @@ class product_product(models.Model):
                 pt.lot_mini, 
                 pt.multiple,
                 pt.is_mold_dossierf as moule,
+                im.date_retour_prise_avance,
                 po.name as name
             FROM purchase_order_line pol left outer join purchase_order po    on pol.order_id=po.id 
                                      inner join product_product           pp    on pol.product_id=pp.id

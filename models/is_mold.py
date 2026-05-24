@@ -132,7 +132,8 @@ class is_mold(models.Model):
     date_fin         = fields.Date("Date de fin", tracking=True)
     mouliste_id      = fields.Many2one('res.partner', 'Mouliste', tracking=True)
     carcasse         = fields.Char("Carcasse", tracking=True)
-    emplacement      = fields.Char("Emplacement", tracking=True)
+    emplacement                = fields.Char("Emplacement", tracking=True)
+    date_retour_prise_avance   = fields.Date(u"Date retour prise d'avance", tracking=True)
     type_dateur      = fields.Selection([
             ('dateur_grille'    , u'dateur à grille'),
             ('dateur_laiton'    , u'dateur laiton'),
@@ -333,7 +334,8 @@ class is_mold(models.Model):
             'date_fin'         : self.date_fin,
             'mouliste_id'      : self._get_mouliste_id(DB, USERID, USERPASS, sock),
             'carcasse'         : self.carcasse,
-            'emplacement'      : self.emplacement or '',
+            'emplacement'               : self.emplacement or '',
+            'date_retour_prise_avance'  : self.date_retour_prise_avance,
             'type_dateur'      : self.type_dateur,
             'dateur_specifique': self.dateur_specifique,
             'date_peremption'  : self.date_peremption,

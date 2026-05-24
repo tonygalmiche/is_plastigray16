@@ -85,6 +85,7 @@
                                 <field name="mouliste_id" domain="[('supplier','=',True),('is_company','=',True)]"/>
                                 <field name="carcasse"/>
                                 <field name="emplacement"/>
+                                <field name="date_retour_prise_avance"/>
                                 <field name="garantie_outillage" required="1"/>
                                 <field name="extension_garantie"/>
                                 <field name="numero_plaquette_interne"/>
@@ -299,6 +300,7 @@
                     <field name="mouliste_id"      optional="show"  /> 
                     <field name="carcasse"         optional="show"/>
                     <field name="emplacement"      optional="show"/>
+                    <field name="date_retour_prise_avance" optional="show"/>
                     <field name="fiche_description_commentaire" optional="show"/>
                     <field name="is_database_id"   optional="show"/>
                     <field name="create_date"      optional="hide"/>
