@@ -628,10 +628,10 @@ class is_liste_servir(models.Model):
                 if data['quantite'] > data['stock01']:
                     manquants.append(u"  - %s : quantité totale %.0f > stock 01 disponible %.0f" % (
                         data['code'], data['quantite'], data['stock01']))
-            if manquants:
-                raise ValidationError(
-                    u"Stock insuffisant pour les articles suivants :\n" + u"\n".join(manquants)
-                )
+            # if manquants:
+            #     raise ValidationError(
+            #         u"Stock insuffisant pour les articles suivants :\n" + u"\n".join(manquants)
+            #     )
             #***********************************************************************
 
             obj.order_ids.unlink()
