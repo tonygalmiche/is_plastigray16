@@ -90,12 +90,19 @@ class stock_picking(models.Model):
                    alerte.append("Le champ 'Plaque d’immatriculation' est obligatoire")
                 if champ_obligatoire.is_dossier_transport and not obj.is_dossier_transport:
                    alerte.append("Le champ 'N° de dossier de transport' est obligatoire")
+
+                if champ_obligatoire.identifiant_transport and not obj.is_identifiant_transport:
+                   alerte.append("Le champ 'N° identifiant transport' est obligatoire")
+
+
+
+
                 field_dict={
                     'num_commande_client'  : 'is_client_order_ref',
                     'numero_document'      : 'is_numero_document',
                     'caldel_number'        : 'is_caldel_number',
                     'num_ran'              : 'is_num_ran',
-                    'identifiant_transport': 'is_identifiant_transport',
+                    #'identifiant_transport': 'is_identifiant_transport',
                     'tg_number'            : 'is_tg_number',
                     'code_routage'         : 'is_code_routage',
                     'point_destination'    : 'is_point_destination',
