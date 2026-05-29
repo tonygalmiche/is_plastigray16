@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="is_heures_theoriques_line_pivot_view">
+            <field name="name">is_heures_theoriques_line_pivot_view</field>
+            <field name="model">is.heures.theoriques.line</field>
+            <field name="type">pivot</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="workcenter_id" type="row"/>
+                    <field name="tps_tot_h" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_heures_theoriques_line_graph_view">
+            <field name="name">is_heures_theoriques_line_graph_view</field>
+            <field name="model">is.heures.theoriques.line</field>
+            <field name="type">graph</field>
+            <field name="arch" type="xml">
+                <graph type="bar">
+                    <field name="workcenter_id" type="row"/>
+                    <field name="tps_tot_h" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_heures_theoriques_line_tree_view">
+            <field name="name">is_heures_theoriques_line_tree_view</field>
+            <field name="model">is.heures.theoriques.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="false" delete="false">
+                    <field name="code_pg"/>
+                    <field name="name"/>
+                    <field name="mold"/>
+                    <field name="workcenter_id"/>
+                    <field name="tps_s"     sum="Total"/>
+                    <field name="qt_fab"    sum="Total"/>
+                    <field name="tps_tot_h" sum="Total"/>
+                    <field name="cout_unit"/>
+                    <field name="cout_total" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_heures_theoriques_form_view">
+            <field name="name">is_heures_theoriques_form_view</field>
+            <field name="model">is.heures.theoriques</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Heures Théoriques M.O.">
+                    <header>
+                            <button name="action_calculer"
+                                    type="object"
+                                    string="Lancer la recherche"
+                                    class="btn-primary"
+                                    icon="fa-refresh"/>
+                            <button name="action_afficher_lignes"
+                                    type="object"
+                                    string="Afficher les lignes"
+                                    class="btn-secondary"
+                                    icon="fa-list"/>
+                    </header>
+                    <sheet>
+                       <div class="oe_button_box" name="button_box">
+                            <button name="action_afficher_lignes"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-list">
+                                <field name="nb_lignes" widget="statinfo" string="Lignes"/>
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="type_tps"/>
+                                <field name="workcenter_id" domain="[('resource_type', '=', type_tps)]"/>
+                                <field name="date_debut"/>
+                                <field name="date_fin"/>
+                                <field name="picking_type_id"/>
+                            </group>
+                            <group>
+                                <field name="code_pg"/>
+                                <field name="moule"/>
+                                <field name="of_name"/>
+                            </group>
+                        </group>
+                        <group>
+                            <div class="text-muted" colspan="2">
+                                <em>
+                                    * Si date début ≠ date fin : la période va de 5H à 5H.<br/>
+                                    * Si date début = date fin : la période va de 0H à 24H.
+                                </em>
+                            </div>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="is_heures_theoriques_form_action" model="ir.actions.act_window">
+            <field name="name">Heures Théoriques</field>
+            <field name="res_model">is.heures.theoriques</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="is_heures_theoriques_form_view"/>
+            <field name="target">current</field>
+        </record>
+
+
+        <record id="is_heures_theoriques_open_action" model="ir.actions.server">
+            <field name="name">Heures Théoriques</field>
+            <field name="model_id" ref="model_is_heures_theoriques"/>
+            <field name="state">code</field>
+            <field name="code">action = model.action_open_or_create()</field>
+        </record>
+
+        <menuitem
+            id="is_heures_theoriques_menu"
+            name="Heures Théoriques M.O."
+            parent="menu_is_cpi_indicateurs"
+            action="is_heures_theoriques_open_action"
+            sequence="50"/>
+
+    </data>
+</odoo>

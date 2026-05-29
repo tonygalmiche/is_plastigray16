@@ -129,6 +129,7 @@ Module Odoo 16 pour Plastigray
         "views/is_capteur_view.xml",
         "views/webclient_templates.xml",
         "views/is_head_model_view.xml",
+        "views/is_heures_theoriques_view.xml",
         "views/is_questionnaire_dms_view.xml",
         "views/is_reception_inter_site_view.xml",
         "views/is_gestion_portail_view.xml",

@@ -63,6 +63,8 @@ access_gestionnaire_is_ilot,access_gestionnaire_is_ilot,model_is_ilot,base.group
 access_is_inventaire,access_is_inventaire,model_is_inventaire,base.group_user,1,0,0,0
 access_is_inventaire_line,access_is_inventaire_line,model_is_inventaire_line,base.group_user,1,0,0,0
 access_is_mem_var,access_is_mem_var,model_is_mem_var,base.group_user,1,1,1,1
+access_is_heures_theoriques,access_is_heures_theoriques,model_is_heures_theoriques,base.group_user,1,1,1,1
+access_is_heures_theoriques_line,access_is_heures_theoriques_line,model_is_heures_theoriques_line,base.group_user,1,1,1,1
 access_is_inventaire_feuille,access_is_inventaire_feuille,model_is_inventaire_feuille,base.group_user,1,0,0,0
 access_is_inventaire_inventory,access_is_inventaire_inventory,model_is_inventaire_inventory,base.group_user,1,0,0,0
 access_is_inventaire_line_tmp,access_is_inventaire_line_tmp,model_is_inventaire_line_tmp,base.group_user,1,0,0,0

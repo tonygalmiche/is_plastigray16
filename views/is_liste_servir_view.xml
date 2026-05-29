@@ -14,12 +14,13 @@
                     <button title="Voir les listes à servir" name="liste_servir_action" type="object" icon="fa-list" attrs="{'invisible':[('nb_liste_servir','=',0)]}" />
                     <field name="listes_servir" optional="show"/>
                     <field name="nb_liste_servir" invisible="1" />
-                    <field name="zip"/>
-                    <field name="city"/>
-                    <field name="delai_transport"/>
-                    <field name="date_debut"/>
-                    <field name="date_fin"/>
-                    <field name="livrable"/>
+                    <field name="is_source_location_id" optional="show"/>
+                    <field name="zip" optional="show"/>
+                    <field name="city" optional="show"/>
+                    <field name="delai_transport" optional="show"/>
+                    <field name="date_debut" optional="show"/>
+                    <field name="date_fin" optional="show"/>
+                    <field name="livrable" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -67,6 +68,11 @@
                             string="Générer la commande de livraison" 
                             confirm2="Générer le bon de livraison ?"
                             attrs="{'invisible':['|',('state','!=','analyse'),('alerte_obligatoire','!=',False)]}" 
+                        />
+                        <button
+                            name="action_actualiser_stock" type="object"
+                            string="Actualiser le stock"
+                            attrs="{'invisible':[('state','=','traite')]}"
                         />
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
@@ -232,9 +238,13 @@
                     <field name="date_debut"/> 
                     <field name="date_fin"/> 
                     <field name="livrable"/> 
-                    <field name="state"/> 
+                    <field name="is_source_location_id" optional="show"/> 
                     <field name="is_point_dechargement" optional="hide"/> 
                     <field name="is_livree_aqp" optional="hide"/> 
+                    <field name="state" widget="badge" 
+                        decoration-success="state == 'traite'" 
+                        decoration-info="state == 'creation'" 
+                        decoration-warning="state == 'analyse'" optional="show"/> 
                 </tree>
             </field>
         </record>
@@ -246,6 +256,7 @@
                 <search>
                     <field name="name"/>
                     <field name="partner_id"/>
+                    <field name="is_source_location_id"/> 
                     <filter string="En cours" name="en_cours" domain="[('state','!=','traite')]"/>
                     <separator/>
                     <filter string="Archivé" name="inactive" domain="[('active','=',False)]"/>

@@ -15,12 +15,13 @@ class is_liste_servir_client(models.Model):
     _description="Client Liste à servir"
     _order='name'
 
-    name            = fields.Many2one('res.partner', 'Client')
-    liste_servir_id = fields.Many2one('is.liste.servir', 'Liste à servir')
-    listes_servir   = fields.Text("Listes à servir", compute='_compute_aff_listes_servir', readonly=True, store=False)
-    nb_liste_servir = fields.Integer("Nombre de listes à servir", compute='_compute_nb_liste_servir', readonly=True, store=False)
-    zip             = fields.Char('Code postal')
-    city            = fields.Char('Ville')
+    name                  = fields.Many2one('res.partner', 'Client')
+    liste_servir_id       = fields.Many2one('is.liste.servir', 'Liste à servir')
+    is_source_location_id = fields.Many2one('stock.location', 'Emplacement Source', related='name.is_source_location_id', store=True)
+    listes_servir         = fields.Text("Listes à servir", compute='_compute_aff_listes_servir', readonly=True, store=False)
+    nb_liste_servir       = fields.Integer("Nombre de listes à servir", compute='_compute_nb_liste_servir', readonly=True, store=False)
+    zip                   = fields.Char('Code postal')
+    city                  = fields.Char('Ville')
     delai_transport = fields.Integer('Délai de transport')
     date_debut      = fields.Date("Date de début d'expédition")
     date_fin        = fields.Date("Date de fin d'expédition")
@@ -559,8 +560,8 @@ class is_liste_servir(models.Model):
                         _logger.info(msg)
                 #***************************************************************
 
-                stock01 = product.get_stock('f', '01')
-                lots01 = product.get_stock_lot('01')
+                stock01 = product.get_stock('f', obj.is_source_location_id.name)
+                lots01 = product.get_stock_lot(obj.is_source_location_id.name)
                 stocka  = product.get_stock('f')
                 stockq  = product.get_stock('t')
                 qt=row['product_uom_qty']
@@ -604,16 +605,20 @@ class is_liste_servir(models.Model):
             obj.state="analyse"
 
 
+    def action_actualiser_stock(self):
+        for obj in self:
+            for line in obj.line_ids:
+                product = line.product_id
+                line.stock01 = product.get_stock('f', obj.is_source_location_id.name)
+                line.lots01  = product.get_stock_lot(obj.is_source_location_id.name)
+                line.stocka  = product.get_stock('f')
+                line.stockq  = product.get_stock('t')
+
     def action_generer_bl(self):
         cr = self._cr
         for obj in self:
             #** Mettre à jour le stock sur les lignes ****************************
-            for line in obj.line_ids:
-                product = line.product_id
-                line.stock01 = product.get_stock('f', '01')
-                line.lots01  = product.get_stock_lot('01')
-                line.stocka  = product.get_stock('f')
-                line.stockq  = product.get_stock('t')
+            obj.action_actualiser_stock()
             #***********************************************************************
 
             #** Vérifier que le stock disponible (stocka) est suffisant par article ***
@@ -626,12 +631,12 @@ class is_liste_servir(models.Model):
             manquants = []
             for pid, data in stock_par_article.items():
                 if data['quantite'] > data['stock01']:
-                    manquants.append(u"  - %s : quantité totale %.0f > stock 01 disponible %.0f" % (
+                    manquants.append(u"  - %s : quantité totale %.0f > stock source disponible %.0f" % (
                         data['code'], data['quantite'], data['stock01']))
-            # if manquants:
-            #     raise ValidationError(
-            #         u"Stock insuffisant pour les articles suivants :\n" + u"\n".join(manquants)
-            #     )
+            if manquants:
+                raise ValidationError(
+                    u"Stock insuffisant pour les articles suivants :\n" + u"\n".join(manquants)
+                )
             #***********************************************************************
 
             obj.order_ids.unlink()
@@ -1000,12 +1005,12 @@ class is_liste_servir_line(models.Model):
     dossierf_id        = fields.Many2one('is.dossierf', 'Dossier F'  , related='product_id.is_dossierf_id', readonly=True)
     mold_dossierf      = fields.Char('Moule / Dossier F', compute='_compute', readonly=True, store=True)
 
-    stock01            = fields.Float('Stock 01 US', readonly=True , help="Stock 01 en US")
-    lots01             = fields.Text('Lots 01 US'  , readonly=True)
+    stock01            = fields.Float('Stock Source US', readonly=True , help="Stock 01 en US")
+    lots01             = fields.Text('Lots Source US'  , readonly=True)
     stocka             = fields.Float('Stock A US' , readonly=True  , help="Stock A en US")
     stockq             = fields.Float('Stock Q US' , readonly=True  , help="Stock Q en US")
 
-    stock01_uc         = fields.Float('Stock 01 UC' , help="Stock 01 en UC", compute='_compute', readonly=True, store=True)
+    stock01_uc         = fields.Float('Stock 01 UC' , help="Stock Source en UC", compute='_compute', readonly=True, store=True)
     stocka_uc          = fields.Float('Stock A UC'  , help="Stock A en UC" , compute='_compute', readonly=True, store=True)
     stockq_uc          = fields.Float('Stock Q UC'  , help="Stock Q en UC" , compute='_compute', readonly=True, store=True)
 
