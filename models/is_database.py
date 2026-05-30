@@ -11,14 +11,16 @@ class is_database(models.Model):
     _order='name'
 
     name                   = fields.Char('Site'           , required=True)
-    ip_server              = fields.Char('Adresse IP'     , required=False)
-    port_server            = fields.Integer('Port'        , required=False)
-    database               = fields.Char('Base de données', required=False)
-    login                  = fields.Char('Login'          , required=False)
-    password               = fields.Char('Mot de passe'   , required=False)
+    ip_server              = fields.Char('Adresse IP'     , required=False, exportable=False)
+    port_server            = fields.Integer('Port'        , required=False, exportable=False)
+    database               = fields.Char('Base de données', required=False, exportable=False)
+    login                  = fields.Char('Login'          , required=False, exportable=False)
+    password               = fields.Char('Mot de passe'   , required=False, exportable=False)
     standard_telephonique  = fields.Char('Standard téléphonique')
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
     preventif_equipement_user_ids = fields.Many2many('res.users', 'is_database_preventif_equipement_user_ids_rel', 'database_id','user_id', string=u"Destinataires mails préventif équipement")
+    moyen_controle_user_ids       = fields.Many2many('res.users', 'is_database_moyen_controle_user_ids_rel', 'database_id','user_id', string=u"Destinataires mails moyens de contrôles")
+    directeur_site_ids            = fields.Many2many('res.users', 'is_database_directeur_site_ids_rel', 'database_id','user_id', string=u"Directeur du site")
 
 
 

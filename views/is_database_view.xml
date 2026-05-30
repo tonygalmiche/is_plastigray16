@@ -12,18 +12,20 @@
                         <group>
                             <group>
                                 <field name='name' />
+                                <field name='standard_telephonique'/>
+                            </group>
+                            <group groups="base.group_system">
                                 <field name='ip_server' />
                                 <field name='database' />
                                 <field name='port_server' />
-                            </group>
-                            <group>
                                 <field name='login' />
                                 <field name='password' password='True' />
-                                <field name='standard_telephonique'/>
                             </group>
                         </group>
                         <group>
                             <field name="preventif_equipement_user_ids" widget="many2many_tags"/>
+                            <field name="moyen_controle_user_ids" widget="many2many_tags"/>
+                            <field name="directeur_site_ids" widget="many2many_tags"/>
                         </group>
                     </sheet>
                 </form>
@@ -35,12 +37,17 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name='name' />
-                    <field name='ip_server' />
-                    <field name='port_server' />
-                    <field name='database' />
-                    <field name='login' />
                     <field name='standard_telephonique'/>
-                    <field name='is_database_origine_id' />
+                    <field name='ip_server' groups="base.group_system" optional="show"/>
+                    <field name='port_server' groups="base.group_system" optional="show"/>
+                    <field name='database' groups="base.group_system" optional="show"/>
+                    <field name='login' groups="base.group_system" optional="show"/>
+                    <field name='standard_telephonique' optional="show"/>
+                    <field name="preventif_equipement_user_ids" widget="many2many_tags" optional="show"/>
+                    <field name="moyen_controle_user_ids" widget="many2many_tags" optional="show"/>
+                    <field name="directeur_site_ids" widget="many2many_tags" optional="show"/>
+                    <field name='is_database_origine_id' optional="hide" />
+
                 </tree>
             </field>
         </record>
