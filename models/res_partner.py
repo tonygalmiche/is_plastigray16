@@ -61,6 +61,12 @@ configuration_facture=[
 ]
 
 
+societe_comptable_list=[
+    ('plastigray', 'Plastigray'),
+    ('plasti_ka' , 'Plasti-ka'),
+]
+
+
 class is_champ_obligatoire(models.Model):
     _name = 'is.champ.obligatoire'
     _description = 'Champs obligatoires dans EDI, commande et livraison'
@@ -635,6 +641,7 @@ class res_partner(models.Model):
         ('mail_client_bl'  , 'Envoi par mail avec BL (1 mail par client)'),
         ('mail_regroupe_bl', 'Regroupement des BL sur une même facture et envoi par mail'),
     ], "Mode d'envoi des factures", tracking=True)
+    is_societe_comptable    = fields.Selection(societe_comptable_list, "Société comptable", default='plastigray', required=False, tracking=True, index=True)
 
     is_vendeur_id           = fields.Many2one('res.partner', 'Vendeur', help="Champ utilisé pour les BL Galia de Weidplas / PO", domain="[('is_company','=',True),('customer','=',True)]" )
     is_type_cde_fournisseur = fields.Selection(type_commande_list, "Type commande fourniseur", readonly=True)
@@ -804,6 +811,7 @@ class res_partner(models.Model):
             'is_configuration_bl_id'    : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
             'is_configuration_facture'  : self.is_configuration_facture,
             'is_mode_envoi_facture'   : self.is_mode_envoi_facture,
+            'is_societe_comptable'    : self.is_societe_comptable,
             'is_vendeur_id'           : self._get_is_vendeur_id(DB, USERID, USERPASS, sock),
             'is_database_line_ids'    : self._get_is_database_line_ids(DB, USERID, USERPASS, sock),
             'vat'                              : self.vat,
@@ -1047,6 +1055,15 @@ class res_partner(models.Model):
         res= super()._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
         return res
 
+    @api.model
+    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        # Filtrer par société comptable de l'utilisateur
+        user = self.env.user
+        if user.is_societe_comptable:
+            args = args.copy()
+            args.append(('is_societe_comptable', '=', user.is_societe_comptable))
+        
+        return super(res_partner, self)._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
 
     def _get_name(self):
         """ Utility method to allow name_get to be overrided without re-browse the partner """

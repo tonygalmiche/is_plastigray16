@@ -125,7 +125,7 @@
                 </field> 
                 <field name="partner_invoice_id" position="attributes">
                     <attribute name="context">{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}</attribute>
-                </field> 
+                </field>
                 <xpath expr="//page[@name='order_lines']/field[@name='order_line']" position="before">
                     <button 
                         name="numeroter_lignes" 

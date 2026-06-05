@@ -288,7 +288,10 @@
                         </group>
                     </group>
                     <group>
-                        <field name="active"/>
+                        <group>
+                            <field name="is_societe_comptable"/>
+                            <field name="active" invisible="1"/>
+                        </group>
                     </group>
                 </field>
             </field>
@@ -373,6 +376,7 @@
                         groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"
                         optional="hide"
                     />
+                    <field name="is_societe_comptable" optional="hide"/>
                     <field 
                         name="is_database_origine_id" 
                         groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"

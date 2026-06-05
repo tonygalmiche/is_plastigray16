@@ -30,17 +30,20 @@
                 <page name="access_rights" position="after">
                     <page name="Plastigray">
                         <group>
-                            <field name="is_site_id"/>
-                            <field name="is_site_ids" widget="many2many_tags"/>
-                            <field name="is_ligne_directe"/>
-                            <field name="is_service_id"/>
-                            <field name="is_adresse_ip"/>
-                            <field name="is_zebra_id"/>
-                            <field 
-                                name="is_signature" 
-                                widget="image" class="oe_center oe_avatar" 
-                                options='{"preview_image": "is_signature", "size": [150, 150]}'
-                            />
+                            <group>
+                                <field name="is_societe_comptable"/>
+                                <field name="is_site_id"/>
+                                <field name="is_site_ids" widget="many2many_tags"/>
+                                <field name="is_ligne_directe"/>
+                                <field name="is_service_id"/>
+                                <field name="is_adresse_ip"/>
+                                <field name="is_zebra_id"/>
+                                <field 
+                                    name="is_signature" 
+                                    widget="image" class="oe_center oe_avatar" 
+                                    options='{"preview_image": "is_signature", "size": [150, 150]}'
+                                />
+                            </group>
                         </group>
                     </page>
                 </page>

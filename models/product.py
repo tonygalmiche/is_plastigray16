@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError
 from datetime import datetime
 import time
 import logging
+# from .res_partner import societe_comptable_list
 _logger = logging.getLogger(__name__)
 
 
@@ -83,20 +84,21 @@ class product_packaging(models.Model):
 
 class is_category(models.Model):
     _name='is.category'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description="Catégorie article"
     _order='name'    #Ordre de tri par defaut des listes
     _sql_constraints = [('name_uniq','UNIQUE(name)', 'Ce code existe déjà')] 
-    name         = fields.Char("Code",size=40,required=True, index=True)
-    commentaire  = fields.Char('Intitulé')
-    fantome      = fields.Boolean('Article fantôme', \
+    name         = fields.Char("Code",size=40,required=True, index=True, tracking=True)
+    active       = fields.Boolean('Actif', default=True, tracking=True)
+    commentaire  = fields.Char('Intitulé', tracking=True)
+    fantome      = fields.Boolean('Article fantôme', tracking=True, \
         help="Si cette case est cochée, les articles de cette catégorie passeront en fantôme dans les composants de la nomenclature")
-    calcul_cout  = fields.Boolean('Calculer le coût', default=True, \
+    calcul_cout  = fields.Boolean('Calculer le coût', default=True, tracking=True, \
         help="Si cette case est cochée, le coût sera calculé pour les articles de cette catégorie")
-    a_inventorier = fields.Boolean(u'Articles à inventorier', \
+    a_inventorier = fields.Boolean(u'Articles à inventorier', tracking=True, \
         help="Si cette case est cochée, les articles de cette catégorie seront inventoriés",default=True)
-    limiter_designation_35 = fields.Boolean('Limiter la désignation à 35 caractères', default=True, \
+    limiter_designation_35 = fields.Boolean('Limiter la désignation à 35 caractères', default=True, tracking=True, \
         help="Si cette case est cochée, la désignation des articles de cette catégorie sera limitée à 35 caractères")
-
 
     def _calcul_cout(self):
         cats=self.search([('calcul_cout', '=', True)])
@@ -595,6 +597,7 @@ class product_template(models.Model):
                             ids.append(line.product_id.product_tmpl_id.id)
                 args = args.copy()
                 args.append((('id', 'in', ids)))
+        
         return super(product_template, self)._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
 
 
@@ -855,6 +858,7 @@ class product_product(models.Model):
 
                 args = args.copy()
                 args.append((('id', 'in', ids)))
+        
         return super(product_product, self)._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
 
 
