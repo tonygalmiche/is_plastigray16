@@ -197,6 +197,7 @@ Module Odoo 16 pour Plastigray
         "report/is_comparatif_uc_lot.xml",
         "report/is_comparatif_uc_lot_mini.xml",
         "report/is_encres_utilisees_view.xml",
+        "report/is_heures_theoriques_report.xml",
         "report/is_ligne_livraison.xml",
         "report/is_ligne_reception.xml",
         "report/is_livraison_gefco.xml",

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Format de papier -->
+        <record id="is_heures_theoriques_paperformat" model="report.paperformat">
+            <field name="name">Format Heures Théoriques</field>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">8</field>
+            <field name="margin_bottom">8</field>
+            <field name="margin_left">8</field>
+            <field name="margin_right">8</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">8</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Action du rapport -->
+        <record id="is_heures_theoriques_report_action" model="ir.actions.report">
+            <field name="name">Rapport Heures Théoriques</field>
+            <field name="model">is.heures.theoriques</field>
+            <field name="binding_model_id" ref="model_is_heures_theoriques"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_plastigray16.is_heures_theoriques_template</field>
+            <field name="report_file">is_plastigray16.is_heures_theoriques_template</field>
+            <field name="paperformat_id" ref="is_heures_theoriques_paperformat"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Template du rapport -->
+        <template id="is_heures_theoriques_template">
+            <t t-set="company" t-value="res_company"/>
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="o">
+                    <style>
+                        body {
+                            font-size: 12px;
+                        }
+                        .report-header {
+                            margin-bottom: 8px;
+                            border-bottom: 1px solid #333;
+                            padding-bottom: 5px;
+                        }
+                        .report-title {
+                            font-size: 14px;
+                            font-weight: bold;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .info-section {
+                            margin-bottom: 8px;
+                        }
+                        .info-section h3 {
+                            font-size: 12px;
+                            font-weight: bold;
+                            background-color: #f0f0f0;
+                            padding: 4px;
+                            margin: 0 0 4px 0;
+                        }
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-size: 11px;
+                            margin-bottom: 0;
+                        }
+                        .info-table td {
+                            padding: 2px 3px;
+                            border: 1px solid #ddd;
+                        }
+                        .info-table tr:first-child td {
+                            background-color: #f5f5f5;
+                            font-weight: bold;
+                        }
+                        .table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 4px;
+                            font-size: 11px;
+                        }
+                        .table th {
+                            background-color: #2c3e50;
+                            color: white;
+                            padding: 4px;
+                            text-align: left;
+                            font-weight: bold;
+                            border: 1px solid #333;
+                            font-size: 10px;
+                        }
+                        .table th.text-right {
+                            text-align: right;
+                        }
+                        .table td {
+                            padding: 3px 4px;
+                            border: 1px solid #ddd;
+                            text-align: left;
+                        }
+                        .table td.text-right {
+                            text-align: right !important;
+                        }
+                        .table td.text-left {
+                            text-align: left;
+                        }
+                        .table tbody tr:nth-child(odd) {
+                            background-color: #f9f9f9;
+                        }
+                        .total-row {
+                            background-color: #e8e8e8;
+                            font-weight: bold;
+                        }
+                        .text-right {
+                            text-align: right;
+                        }
+                        .text-center {
+                            text-align: center;
+                        }
+                        .text-left {
+                            text-align: left;
+                        }
+                        .footer {
+                            margin-top: 8px;
+                            border-top: 1px solid #ddd;
+                            padding-top: 4px;
+                            font-size: 8px;
+                            color: #666;
+                        }
+                    </style>
+
+                    <div class="page">
+                        <!-- En-tête -->
+                        <div class="report-header">
+                            <div class="report-title">
+                                Heures Théoriques
+                                <t t-if="o.date_calcul"> du <t t-esc="context_timestamp(o.date_calcul).strftime('%d/%m/%Y %H:%M')"/></t>
+                            </div>
+                        </div>
+
+                        <!-- Informations de l'entête en tableau 2 lignes -->
+                        <div class="info-section">
+                            <table class="info-table">
+                                <tr>
+                                    <t t-if="o.user_id"><td><strong>Utilisateur :</strong></td></t>
+                                    <t t-if="o.date_debut"><td><strong>Période :</strong></td></t>
+                                    <t t-if="o.type_tps"><td><strong>Type :</strong></td></t>
+                                    <t t-if="o.code_pg"><td><strong>Code PG :</strong></td></t>
+                                    <t t-if="o.moule"><td><strong>Moule :</strong></td></t>
+                                    <t t-if="o.of_name"><td><strong>OF :</strong></td></t>
+                                    <t t-if="o.picking_type_id"><td><strong>Type Mvt :</strong></td></t>
+                                    <t t-if="o.workcenter_id"><td><strong>Poste :</strong></td></t>
+                                    <t t-if="o.date_calcul"><td><strong>Calcul :</strong></td></t>
+                                    <t t-if="o.nb_lignes"><td><strong>Nb lignes :</strong></td></t>
+                                </tr>
+                                <tr>
+                                    <t t-if="o.user_id"><td><t t-esc="o.user_id.name"/></td></t>
+                                    <t t-if="o.date_debut">
+                                        <td>
+                                            <t t-if="o.date_debut != o.date_fin">
+                                                <t t-esc="o.date_debut.strftime('%d/%m/%Y 05:00')"/> au <t t-esc="o.date_fin.strftime('%d/%m/%Y 05:00')"/>
+                                            </t>
+                                            <t t-if="o.date_debut == o.date_fin">
+                                                <t t-esc="o.date_debut.strftime('%d/%m/%Y 00:00')"/> au <t t-esc="o.date_fin.strftime('%d/%m/%Y 23:59')"/>
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <t t-if="o.type_tps"><td><t t-if="o.type_tps == 'user'">M.O.</t><t t-if="o.type_tps == 'material'">Machine</t></td></t>
+                                    <t t-if="o.code_pg"><td><t t-esc="o.code_pg"/></td></t>
+                                    <t t-if="o.moule"><td><t t-esc="o.moule"/></td></t>
+                                    <t t-if="o.of_name"><td><t t-esc="o.of_name"/></td></t>
+                                    <t t-if="o.picking_type_id"><td><t t-esc="o.picking_type_id.name"/></td></t>
+                                    <t t-if="o.workcenter_id"><td><t t-esc="o.workcenter_id.name"/></td></t>
+                                    <t t-if="o.date_calcul"><td><t t-esc="context_timestamp(o.date_calcul).strftime('%d/%m/%Y %H:%M')"/></td></t>
+                                    <t t-if="o.nb_lignes"><td><t t-esc="o.nb_lignes"/></td></t>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Tableau des lignes -->
+                        <div class="info-section">
+                            <t t-if="o.line_ids">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">Code PG</th>
+                                            <th class="text-left">Désignation</th>
+                                            <th class="text-left">Moule</th>
+                                            <th class="text-left">Poste</th>
+                                            <th class="text-right">Tps (s)</th>
+                                            <th class="text-right">Qt</th>
+                                            <th class="text-right">Tps Tot (H)</th>
+                                            <th class="text-right">Coût Unit.</th>
+                                            <th class="text-right">Coût Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_tps" t-value="0.0"/>
+                                        <t t-set="total_cout" t-value="0.0"/>
+                                        <tr t-foreach="o.line_ids" t-as="line">
+                                            <td class="text-left"><t t-esc="line.code_pg"/></td>
+                                            <td class="text-left"><t t-esc="line.name"/></td>
+                                            <td class="text-left"><t t-esc="line.mold"/></td>
+                                            <td class="text-left"><t t-esc="line.workcenter_id.name" t-if="line.workcenter_id"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.2f}'.format(line.tps_s).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.0f}'.format(line.qt_fab).replace(',', ' ')"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.2f}'.format(line.tps_tot_h).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.4f}'.format(line.cout_unit).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.0f}'.format(line.cout_total).replace(',', ' ')"/></td>
+                                            <t t-set="total_tps" t-value="total_tps + line.tps_tot_h"/>
+                                            <t t-set="total_cout" t-value="total_cout + line.cout_total"/>
+                                        </tr>
+                                        <!-- Ligne de total -->
+                                        <tr class="total-row">
+                                            <td colspan="4" class="text-right"><strong>TOTAL :</strong></td>
+                                            <td class="text-right"></td>
+                                            <td class="text-right"></td>
+                                            <td class="text-right"><strong><t t-esc="'{:,.2f}'.format(total_tps).replace(',', ' ').replace('.', ',')"/></strong></td>
+                                            <td class="text-right"></td>
+                                            <td class="text-right"><strong><t t-esc="'{:,.0f}'.format(total_cout).replace(',', ' ')"/></strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-if="not o.line_ids">
+                                <p style="color: #999; text-align: center; padding: 8px; margin: 0;">Aucune ligne détail</p>
+                            </t>
+                        </div>
+
+                        <!-- Pied de page -->
+                        <div class="footer">
+                            <table style="width: 100%; border: none;">
+                                <tr>
+                                    <td style="border: none; padding: 0; text-align: left; font-size: 8px;">
+                                        <t t-if="o.date_calcul">Calcul : <t t-esc="context_timestamp(o.date_calcul).strftime('%d/%m/%Y %H:%M')"/></t>
+                                    </td>
+                                    <td style="border: none; padding: 0; text-align: right; font-size: 8px;">Page <span class="page"/>/<span class="topage"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

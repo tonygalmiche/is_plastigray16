@@ -25,6 +25,7 @@ class is_heures_theoriques(models.Model):
     workcenter_id   = fields.Many2one('mrp.workcenter', 'Poste de travail')
     date_debut      = fields.Date('Date Début', required=True)
     date_fin        = fields.Date('Date Fin', required=True)
+    date_calcul     = fields.Datetime('Date calcul', readonly=True, help='Date et heure du dernier calcul')
     line_ids        = fields.One2many('is.heures.theoriques.line',
                                       'heures_theoriques_id', 'Lignes')
     nb_lignes       = fields.Integer('Nb lignes', compute='_compute_nb_lignes')
@@ -82,6 +83,8 @@ class is_heures_theoriques(models.Model):
 
     def action_calculer(self):
         for obj in self:
+            # Enregistrer la date de lancement du calcul
+            obj.date_calcul = fields.Datetime.now()
             obj.line_ids.unlink()
 
             cr = self._cr
@@ -163,6 +166,10 @@ class is_heures_theoriques(models.Model):
             if obj.code_pg:
                 SQL += " AND pt.is_code LIKE %s"
                 params.append(obj.code_pg + '%')
+
+            if obj.moule:
+                SQL += " AND sm.mold = %s"
+                params.append(obj.moule)
 
             SQL += " ORDER BY pt.is_code, sm.mold"
 

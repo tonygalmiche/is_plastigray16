@@ -62,6 +62,11 @@
                                     string="Afficher les lignes"
                                     class="btn-secondary"
                                     icon="fa-list"/>
+                            <button name="is_plastigray16.is_heures_theoriques_report_action"
+                                    type="action"
+                                    string="Imprimer PDF"
+                                    class="btn-info"
+                                    icon="fa-print"/>
                     </header>
                     <sheet>
                        <div class="oe_button_box" name="button_box">
