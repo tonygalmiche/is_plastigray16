@@ -60,6 +60,12 @@ configuration_facture=[
 ]
 
 
+envoi_bl_mail=[
+    ('depuis_bl'   , 'Depuis le BL'),
+    ('avec_desadv', 'Avec le DESADV'),
+]
+
+
 societe_comptable_list=[
     ('plastigray', 'Plastigray'),
     ('plasti_ka' , 'Plasti-ka'),
@@ -661,6 +667,7 @@ class res_partner(models.Model):
     pricelist_purchase_id    = fields.Many2one('product.pricelist',"Liste de prix d'achat", tracking=True)
     is_champ_obligatoire_id  = fields.Many2one('is.champ.obligatoire',"Champs obligatoires dans EDI, Cde et Liv", tracking=True)
     is_configuration_bl_id   = fields.Many2one('is.configuration.bl',"Configuration BL Galia", tracking=True)
+    is_envoi_bl_mail         = fields.Selection(envoi_bl_mail, "Envoie du BL par mail", tracking=True)
     is_configuration_facture = fields.Selection(configuration_facture, "Configuration du PDF des factures", default='standard', tracking=True)
 
     def _message_auto_subscribe_notify(self, partner_ids, template):
@@ -808,6 +815,7 @@ class res_partner(models.Model):
             'is_caracteristique_bl'   : self.is_caracteristique_bl,
             'is_champ_obligatoire_id'   : self._get_is_champ_obligatoire_id(DB, USERID, USERPASS, sock),
             'is_configuration_bl_id'    : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
+            'is_envoi_bl_mail'          : self.is_envoi_bl_mail,
             'is_configuration_facture'  : self.is_configuration_facture,
             'is_mode_envoi_facture'   : self.is_mode_envoi_facture,
             'is_societe_comptable'    : self.is_societe_comptable,

@@ -8,6 +8,7 @@ import string
 import time
 import re
 import logging
+import base64
 _logger = logging.getLogger(__name__)
 
 
@@ -33,6 +34,18 @@ class is_stock_picking_colisage(models.Model):
     nb         = fields.Float('Nb')
 
 
+
+class is_stock_picking_pdf(models.Model):
+    _name = 'is.stock.picking.pdf'
+    _description = u'BL PDF'
+    _order='id desc'
+
+    picking_id        = fields.Many2one('stock.picking', 'Picking', required=True, ondelete="cascade")
+    bl_pdf_ids        = fields.Many2many('ir.attachment', 'is_stock_picking_pdf_rel', 'pdf_id', 'attachment_id', 'BL PDF')
+
+
+
+
 class stock_picking(models.Model):
     _inherit = "stock.picking"
     _order   = "date desc, name desc"
@@ -53,6 +66,7 @@ class stock_picking(models.Model):
     is_traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
     is_import_function     = fields.Selection(related='partner_id.is_import_function')
     is_date_imprime_bl     = fields.Datetime("Date impression BL Galia", tracking=True)
+    is_date_envoi_bl_mail  = fields.Datetime("Date envoi du BL par mail", tracking=True)
     is_date_traitement_edi = fields.Datetime("Date traitement EDI", tracking=True)
     invoice_state = fields.Selection([
             ('none'      , 'Non applicable'),
@@ -76,7 +90,8 @@ class stock_picking(models.Model):
     is_poids_net              = fields.Float("Poids brut", digits=(12, 1), copy=False, tracking=True)
     is_poids_brut             = fields.Float("Poids net" , digits=(12, 1), copy=False, tracking=True)
     is_alerte_obligatoire     = fields.Text("Champs obligatoires", compute='_compute_is_alerte_obligatoire', store=False, readonly=True)
-
+    is_bl_pdf_ids             = fields.One2many('is.stock.picking.pdf', 'picking_id', 'BL PDF')
+    is_envoi_bl_mail          = fields.Selection(related='partner_id.is_envoi_bl_mail', readonly=True)
 
     @api.depends('move_ids_without_package','is_point_dechargement','is_plaque_immatriculation','is_dossier_transport')
     def _compute_is_alerte_obligatoire(self):
@@ -157,8 +172,12 @@ class stock_picking(models.Model):
                             alerte.append("Il y a %s étiquettes UC à ré-imprimer"%len(ucs))
                 #**************************************************************
 
-
-
+            #** Vérifier si des contacts "Envoi bl automatique" existent *****
+            if obj.picking_type_id.id == 2 and obj.partner_id.is_envoi_bl_mail == 'depuis_bl':
+                contacts_envoi = obj._get_contacts_envoi_bl()
+                if not contacts_envoi:
+                    alerte.append("⚠️ Aucun contact de type 'Envoi bl automatique' trouvé pour envoyer le BL par mail")
+            #*****************************************************************
 
             if len(alerte):
                 alerte='\n'.join(alerte)
@@ -245,19 +264,6 @@ class stock_picking(models.Model):
             obj.is_nb_uc = nb_uc
 
 
-    # def compute_alerte(self):
-    #     for obj in self:
-    #         alerte=False
-    #         is_qt_uc = quantity_done = 0
-    #         for move in obj.move_ids_without_package:
-    #             is_qt_uc+=move.is_qt_uc
-    #             quantity_done+=move.quantity_done
-    #         if is_qt_uc!=quantity_done and is_qt_uc>0:
-    #             alerte="La quantité totale scannée (%s) ne correspond pas à la quantité livrée (%s) !"%(is_qt_uc,quantity_done)
-    #         obj.is_alerte=alerte
-
-
-
     def compute_alerte(self):
         for obj in self:
             alerte=[]
@@ -270,14 +276,6 @@ class stock_picking(models.Model):
             else:
                 alerte = False
             obj.is_alerte=alerte
-
-
-
-
-
-
-
-
 
 
     def is_alerte_action(self):
@@ -932,9 +930,122 @@ class stock_picking(models.Model):
                     uc.imprimer_etiquette_uc_action()
 
 
-    def imprimer_bl_galia_action(self):
-        """Met à jour la date d'impression et retourne l'action de rapport BL Galia"""
+    def sauvegarde_pdf(self, filename='_BL_Galia.pdf'):
+        """Prépare le BL, génère le PDF et l'enregistre. Retourne l'attachment"""
+        attachment = None
         for obj in self:
+            # Préparer le BL
+            obj.mise_a_jour_colisage_action()
+            obj.compute_is_identifiant_transport()
             obj.is_date_imprime_bl = datetime.now()
-        return self.env.ref('is_plastigray16.bl_galia_actions_report').report_action(self)
+        
+        # Générer le PDF
+        pdf_data = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.bl_galia_actions_report', self.ids)[0]
+        
+        # Enregistrer le PDF
+        for obj in self:
+            # Créer un enregistrement dans is_stock_picking_pdf
+            vals = {'picking_id': obj.id}
+            pdf_record = self.env['is.stock.picking.pdf'].create(vals)
+            
+            # Créer la pièce jointe liée à cet enregistrement
+            attachment_obj = self.env['ir.attachment']
+            vals = {
+                'name':        obj.name + filename,
+                'type':        'binary',
+                'res_model':   'is.stock.picking.pdf',
+                'res_id':      pdf_record.id,
+                'datas':       base64.b64encode(pdf_data),
+            }
+            attachment = attachment_obj.create(vals)
+            pdf_record.bl_pdf_ids = [attachment.id]
+        return attachment
+
+    def _get_contacts_envoi_bl(self):
+        """Recherche les contacts de type 'Envoi bl automatique' du client"""
+        contacts = []
+        for obj in self:
+            if obj.partner_id:
+                # Rechercher les contacts de type "Envoi bl automatique"
+                domain = [
+                    ('parent_id', '=', obj.partner_id.id),
+                    ('is_type_contact.name', '=', 'Envoi bl automatique'),
+                    ('email', '!=', False),
+                ]
+                contacts = self.env['res.partner'].search(domain)
+        return contacts
+
+    def envoyer_bl_par_mail_action(self):
+        """Envoie le BL par mail si is_envoi_bl_mail = 'depuis_bl'"""
+        for obj in self:
+            # Vérifier que le client a activé l'envoi du BL par mail "Depuis le BL"
+            if not obj.partner_id.is_envoi_bl_mail or obj.partner_id.is_envoi_bl_mail != 'depuis_bl':
+                raise ValidationError("L'envoi du BL par mail n'est pas activé pour ce client ou n'est pas configuré en 'Depuis le BL'")
+            
+            # Rechercher les contacts destinataires
+            contacts_envoi = obj._get_contacts_envoi_bl()
+            
+            if not contacts_envoi:
+                raise ValidationError("Aucun contact de type 'Envoi bl automatique' n'a été trouvé pour envoyer le BL par mail")
+            
+            # Préparer, générer et sauvegarder le PDF
+            attachment = obj.sauvegarde_pdf()
+            
+            # Construire le corps du mail
+            emails = [contact.email for contact in contacts_envoi if contact.email]
+            email_body = f"""
+            <p>Bonjour,</p>
+            <p>Veuillez trouver ci-joint le bon de livraison <b>{obj.name}</b> pour la commande <b>{obj.sale_id.name if obj.sale_id else ''}</b>.</p>
+            <p>Cordialement,<br/>
+            Plastigray</p>
+            """
+            
+            # Envoyer le mail
+            user = self.env.user
+            mail_values = {
+                'subject': f'Bon de livraison {obj.name}',
+                'body_html': email_body,
+                'email_to': ','.join(emails),
+                'email_cc': user.email if user.email else '',
+                'res_id': obj.id,
+                'model': 'stock.picking',
+                'state': 'outgoing',
+                'attachment_ids': [(4, attachment.id)],
+            }
+            
+            mail = self.env['mail.mail'].create(mail_values)
+            mail.send()
+            
+            # Ajouter un message au chat avec le PDF
+            message_body = f"""
+            <p><b>BL envoyé par mail</b></p>
+            <p>Le BL <b>{obj.name}</b> a été envoyé à :</p>
+            <ul>
+            """
+            for contact in contacts_envoi:
+                message_body += f"<li>{contact.name} ({contact.email})</li>"
+            message_body += """
+            </ul>
+            """
+            
+            vals = {
+                'author_id': user.partner_id.id,
+                'subtype_id': self.env.ref('mail.mt_comment').id,
+                'body': message_body,
+                'model': 'stock.picking',
+                'res_id': obj.id,
+                'attachment_ids': [(4, attachment.id)],
+            }
+            self.env['mail.message'].create(vals)
+            
+            # Enregistrer la date d'envoi du BL par mail
+            obj.is_date_envoi_bl_mail = datetime.now()
+
+    def imprimer_bl_galia_action(self):
+        """Génère et enregistre le PDF du BL Galia puis retourne l'action de rapport"""
+        self.sauvegarde_pdf()
+        
+        # Retourner l'action de rapport
+        report_ref = self.env.ref('is_plastigray16.bl_galia_actions_report')
+        return report_ref.report_action(self)
 

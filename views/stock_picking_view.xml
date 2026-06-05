@@ -139,13 +139,27 @@
                         string="Mise à jour du colisage" 
                         type="object" 
                         name="mise_a_jour_colisage_action" 
-                        colspan="2"
+                        attrs="{'invisible': [('is_date_imprime_bl', '!=', False)]}"
                     />
                     <field name="is_import_function" invisible="1"/> 
+                    <field name="is_envoi_bl_mail" invisible="1"/>
                     <button 
                         name="imprimer_bl_galia_action" 
                         string="Imprimer BL Galia" 
                         type="object"
+                        attrs="{'invisible': [('is_date_imprime_bl', '!=', False)]}"
+                    />
+                    <button 
+                        name="envoyer_bl_par_mail_action" 
+                        string="Envoyer le BL par mail" 
+                        type="object"
+                        confirm="Voulez-vous vraiment envoyer le BL par mail ?"
+                        attrs="{'invisible': ['|','|','|',
+                            ('state', '!=', 'done'),
+                            ('picking_type_id', '!=', 2),
+                            ('is_envoi_bl_mail', '!=', 'depuis_bl'),
+                            ('is_date_envoi_bl_mail', '!=', False)
+                        ]}"
                     />
                      <button 
                         name="desadv_action" 
@@ -304,6 +318,7 @@
                     <field name="is_reception_inter_site_id" attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
                     <field name="is_qt_livree_inter_site"    attrs="{'invisible': [('is_reception_inter_site_id', '=', False)]}"/> 
                     <field name="is_date_imprime_bl"         attrs="{'invisible': [('is_date_imprime_bl', '=', False)]}"/> 
+                    <field name="is_date_envoi_bl_mail"      attrs="{'invisible': [('is_date_envoi_bl_mail', '=', False)]}"/> 
                     <field name="is_date_traitement_edi"     attrs="{'invisible': [('is_date_traitement_edi', '=', False)]}"/> 
                 </xpath>
                 <page name="operations" position="after">
@@ -351,6 +366,25 @@
                             />
                         </div>
                       </page>
+                    <page string="BL PDF">
+                        <group>
+                            <field name="is_bl_pdf_ids" colspan="2" nolabel="1">
+                                <tree editable="bottom" delete="0" create="0">
+                                    <field name="create_date" string="PDF enregistré le"/>
+                                    <field name="create_uid"  string="Par"/>
+                                    <field name="bl_pdf_ids" widget="many2many_binary" readonly="1"/>
+                                </tree>
+                            </field>    
+                        </group>
+                        <div>
+                            <button 
+                                name="imprimer_bl_galia_action" 
+                                string="Imprimer BL Galia" 
+                                type="object"
+                                class="oe_inline btn btn-secondary margin-right"
+                            />
+                        </div>
+                     </page>
                 </page>
              </field>
         </record>
@@ -370,14 +404,17 @@
                     <button title="Pièce jointe" name="pj_action" type="object" icon="fa-file" attrs="{'invisible': [('is_piece_jointe', '==', False)]}"/>
                 </field>
                 <field name="date_done" position="after" >
-                    <field name="create_date"        optional="show"/>
-                    <field name="is_date_expedition" optional="show"/>
-                    <field name="is_date_livraison"  optional="show"/>
-                    <field name="is_num_bl"          optional="show"/>
-                    <field name="is_nb_uc"           optional="hide" sum="Total"/>
-                    <field name="is_nb_um"           optional="hide" sum="Total"/>
-                    <field name="is_poids_net"       optional="hide" sum="Total"/>
-                    <field name="is_poids_brut"      optional="hide" sum="Total"/>
+                    <field name="create_date"            optional="show"/>
+                    <field name="is_date_expedition"     optional="show"/>
+                    <field name="is_date_livraison"      optional="show"/>
+                    <field name="is_date_imprime_bl"     optional="hide"/>
+                    <field name="is_date_envoi_bl_mail"  optional="hide"/>
+                    <field name="is_date_traitement_edi" optional="hide"/>
+                    <field name="is_num_bl"              optional="show"/>
+                    <field name="is_nb_uc"               optional="hide" sum="Total"/>
+                    <field name="is_nb_um"               optional="hide" sum="Total"/>
+                    <field name="is_poids_net"           optional="hide" sum="Total"/>
+                    <field name="is_poids_brut"          optional="hide" sum="Total"/>
                     <button 
                         name="is_alerte_action" type="object" class="oe_stat_button" 
                         icon="fa-exclamation-triangle"

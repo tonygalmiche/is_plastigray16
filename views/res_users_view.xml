@@ -56,13 +56,36 @@
             <field name="arch" type="xml">
                 <field name="login" position="after">
                     <field name="email"/>
-                    <field name="is_site_id"    optional="show"/>
-                    <field name="is_site_ids"   optional="show"/>
-                    <field name="is_service_id" optional="show"/>
-                    <field name="is_ligne_directe"   optional="hide"/>
-                    <field name="is_adresse_ip" optional="show"/>
-                    <field name="is_zebra_id"   optional="show"/>
+                    <field name="is_societe_comptable" optional="show"/>
+                    <field name="is_site_id"           optional="show"/>
+                    <field name="is_site_ids"          optional="show"/>
+                    <field name="is_service_id"        optional="show"/>
+                    <field name="is_ligne_directe"     optional="hide"/>
+                    <field name="is_adresse_ip"        optional="show"/>
+                    <field name="is_zebra_id"          optional="show"/>
                 </field>
+            </field>
+        </record>
+
+        <!-- Search view utilisateurs -->
+        <record id="is_view_users_search" model="ir.ui.view">
+            <field name="name">is_view_users_search</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_search"/>
+            <field name="arch" type="xml">
+                <search position="inside">
+                    <separator/>
+                    <field name="is_societe_comptable"/>
+                    <field name="is_site_id"/>
+                    <field name="is_service_id"/>
+                    <separator/>
+                    <filter name="filter_plastigray" string="Plastigray" domain="[('is_societe_comptable', '=', 'plastigray')]"/>
+                    <filter name="filter_plasti_ka" string="Plasti-ka" domain="[('is_societe_comptable', '=', 'plasti_ka')]"/>
+                    <separator/>
+                    <filter name="group_by_societe" string="Société comptable" context="{'group_by': 'is_societe_comptable'}"/>
+                    <filter name="group_by_site" string="Site" context="{'group_by': 'is_site_id'}"/>
+                    <filter name="group_by_service" string="Service" context="{'group_by': 'is_service_id'}"/>
+                </search>
             </field>
         </record>
 
