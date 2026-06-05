@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,tools
+from ..models.res_partner import societe_comptable_list
 import time
 import logging
 _logger = logging.getLogger(__name__)
@@ -17,6 +18,9 @@ class is_ligne_reception(models.Model):
     is_cfc_id            = fields.Many2one('is.cde.ferme.cadencee', 'Cde ferme cadencée')
     order_line_id        = fields.Many2one('purchase.order.line', 'Ligne de Commande')
     partner_id           = fields.Many2one('res.partner', 'Fournisseur')
+    # AJOUT 2026-06-05: champ is_societe_comptable pour filtrage par société comptable
+    # TODO: Surveiller que cet ajout ne ralentisse pas cette vue déjà lente
+    is_societe_comptable = fields.Selection(societe_comptable_list, "Société comptable", readonly=True)
     is_demandeur_id      = fields.Many2one('res.users', 'Demandeur')
     is_date_confirmation = fields.Date('Date de confirmation')
     is_commentaire       = fields.Text('Commentaire')
@@ -116,6 +120,9 @@ class is_ligne_reception(models.Model):
                         pol.id                as order_line_id,
                         pol.price_unit        as price_unit,
                         sp.partner_id            as partner_id, 
+                        -- AJOUT 2026-06-05: champ is_societe_comptable pour filtrage par société comptable
+                        -- TODO: Surveiller que cet ajout ne ralentisse pas cette vue déjà lente
+                        rp.is_societe_comptable  as is_societe_comptable,
                         po.is_demandeur_id       as is_demandeur_id,
                         po.is_date_confirmation  as is_date_confirmation,
                         po.is_commentaire        as is_commentaire,
@@ -164,6 +171,8 @@ class is_ligne_reception(models.Model):
                     INNER JOIN product_template pt ON pp.product_tmpl_id = pt.id
                     LEFT OUTER JOIN purchase_order_line pol ON sm.purchase_line_id = pol.id
                     LEFT OUTER JOIN purchase_order po ON pol.order_id = po.id
+                    -- AJOUT 2026-06-05: JOIN res_partner pour récupérer is_societe_comptable
+                    LEFT OUTER JOIN res_partner rp ON sp.partner_id = rp.id
                     LEFT OUTER JOIN facturation f ON sm.id = f.is_move_id
                 WHERE sp.picking_type_id = 1
             )

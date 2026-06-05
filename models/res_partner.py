@@ -47,7 +47,6 @@ type_commande_list=[
     ('ferme_uniquement', 'Commande ferme uniquement')
 ]
 
-
 traitement_edi=[
     ('DESADV'         , 'DESADV (Fusion Gray et ST-Brice)'),
     ('DESADV_GRAY'    , 'DESADV Gray'),
