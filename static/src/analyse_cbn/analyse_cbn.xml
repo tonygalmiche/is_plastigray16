@@ -152,6 +152,17 @@
                                             t-att-style="line.date_retour_prise_avance ? 'background-color:red;color:white;padding:1px 3px;border-radius:2px' : ''"
                                             t-att-title="line.date_retour_prise_avance ? 'Prise d\'avance - Retour prévu le ' + line.date_retour_prise_avance : ''"
                                         />
+
+                                        <t t-if="line.groupage_cbn == 'mensuel'">
+                                            <span style="color:blue;font-weight: bold;"> Mensuel</span>
+                                        </t>
+                                        <t t-if="line.groupage_cbn == '2semaines'">
+                                            <span style="color:blue;font-weight: bold;"> Bi-Mensuel</span>
+                                        </t>
+
+
+
+
                                         <br />
                                         <span 
                                             class="fa fa-refresh link"
@@ -175,7 +186,7 @@
                                         <span t-esc="line.multiple"/> / 
                                         <span t-esc="line.StockA" style="color:green;font-weight: bold;"/> / 
                                         <span t-esc="line.StockQ" style="color:orange;font-weight: bold;"/>
-                                    </td>
+                                     </td>
                                     <td>
                                         <span t-esc="t.name_typeod"/>
                                     </td>

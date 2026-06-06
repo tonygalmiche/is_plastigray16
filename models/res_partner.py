@@ -616,7 +616,16 @@ class res_partner(models.Model):
     is_fournisseur_imp                    = fields.Boolean(u'Fournisseur imposé', tracking=True)
     is_fournisseur_da_fg                  = fields.Boolean(u'Fournisseur pour DA-FG', default=False, tracking=True)
     is_site_livre_ids                     = fields.Many2many('is.site', "is_site_res_partner_rel", 'partner_id', 'site_id', string='sites livrés', tracking=True)
-    is_groupage                           = fields.Boolean('Groupage', tracking=True)
+
+    is_groupage                           = fields.Boolean('Groupage (Ne plus utiliser)', tracking=True)
+    is_groupage_cbn     = fields.Selection([
+        ('mensuel'  , 'Mensuel'),
+        ('2semaines', 'Toutes les 2 semaines'),
+    ], 'Groupage CBN', tracking=True , help="""
+        Mensuel => Rechercher tous les articles du fournisseur => Rechercher la SA de se fournisseur la plus récente =>  Rechercher la SA la plus récente dans le mois pour ce fournisseur et mettre toutes les autres sur cette même date
+        Toutes les 2 semaines' => Regrouper sur les semaine PAIR => Si besoin uniquement sur semaine Impair, il faudra bien le mettre sur la semaine PAIR
+    """)
+
     is_tolerance_delai                    = fields.Boolean('Tolérance sur délai', tracking=True)
     is_nb_jours_tolerance                 = fields.Integer('Nb jours tolérance sur délai', tracking=True)
     is_tolerance_quantite                 = fields.Boolean('Tolérance sur quantité', tracking=True)
@@ -762,6 +771,15 @@ class res_partner(models.Model):
             self.env['is.database'].copy_other_database(obj,filtre)
         return res
 
+
+    #TODO : Le 06/06/2026, j'ai désactivé la synchro de ces champs
+    # <group string="Conditions Logistiques">
+    #     <field name="is_groupage"/>
+    #     <field name="is_tolerance_quantite"/>
+    #     <field name="is_tolerance_delai" />
+    #     <field name="is_nb_jours_tolerance" attrs="{'invisible': [('is_tolerance_delai', '=', False)]}" />
+    #     <field name="is_transmission_cde"/>
+
     def get_copy_other_database_vals(self, DB, USERID, USERPASS, sock):
         vals ={
             'name'               : self.name,
@@ -803,11 +821,11 @@ class res_partner(models.Model):
             'is_fournisseur_imp'    :  self.is_fournisseur_imp,
             'is_fournisseur_da_fg'  :  self.is_fournisseur_da_fg,
             'is_site_livre_ids'     :  self._get_is_site_livre_ids(DB, USERID, USERPASS, sock),
-            'is_groupage'           :  self.is_groupage,
-            'is_tolerance_delai'    :  self.is_tolerance_delai,
-            'is_nb_jours_tolerance' :  self.is_nb_jours_tolerance,
-            'is_tolerance_quantite' :  self.is_tolerance_quantite,
-            'is_transmission_cde'   :  self._get_is_transmission_cde(DB, USERID, USERPASS, sock),
+            # 'is_groupage'           :  self.is_groupage,
+            # 'is_tolerance_delai'    :  self.is_tolerance_delai,
+            # 'is_nb_jours_tolerance' :  self.is_nb_jours_tolerance,
+            # 'is_tolerance_quantite' :  self.is_tolerance_quantite,
+            # 'is_transmission_cde'   :  self._get_is_transmission_cde(DB, USERID, USERPASS, sock),
             'is_certifications'     :  self._get_is_certifications(DB, USERID, USERPASS, sock),
             'is_adr_liv_sur_facture' : self.is_adr_liv_sur_facture,
             'is_num_autorisation_tva': self.is_num_autorisation_tva,

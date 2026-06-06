@@ -95,6 +95,18 @@
                     <field name="is_source_location_id" />
                 </xpath>
 
+                <group name="purchase" position="after">
+                    <group>
+                       <group string="Conditions Logistiques">
+                            <field name="is_groupage_cbn"/>
+                            <field name="is_tolerance_quantite"/>
+                            <field name="is_tolerance_delai" />
+                            <field name="is_nb_jours_tolerance" attrs="{'invisible': [('is_tolerance_delai', '=', False)]}" />
+                            <field name="is_transmission_cde"/>
+                        </group>
+                    </group>
+                </group>
+
                 <xpath expr="//field[@name='name']" position="attributes">
                     <attribute name="invisible">1</attribute> 
                 </xpath>
@@ -182,20 +194,7 @@
                             <field name="is_fournisseur_da_fg"/>
                             <field name="is_site_livre_ids" widget="many2many_tags" />
                         </group>
-                        <group string="Conditions Logistiques">
-                            <field name="is_groupage"/>
-                            <field name="is_tolerance_quantite"/>
-                            <field name="is_transmission_cde"/>
-                        </group>
-                        <group>
-                            <group>
-                                <field name="is_tolerance_delai" />
-                            </group>
-                            <group>
-                                <field name="is_nb_jours_tolerance" attrs="{'invisible': [('is_tolerance_delai', '=', False)]}" />
-                            </group>
-                        </group>
-                    </page>
+                     </page>
                     <page name="is_qualite" string="Qualité" attrs="{'invisible': ['|',('is_company', '=', False),('supplier','=', False)]}">
                         <group>
                             <field name="is_certifications"  colspan="2">
@@ -378,6 +377,7 @@
                         groups="is_plastigray16.is_gestionnaire_donnees_techniques_group"
                         optional="hide"
                     />
+                    <field name="is_groupage_cbn" optional="hide"/>
                     <field name="is_societe_comptable" optional="hide"/>
                     <field 
                         name="is_database_origine_id" 

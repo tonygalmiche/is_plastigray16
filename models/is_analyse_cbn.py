@@ -273,7 +273,6 @@ class product_product(models.Model):
                 "date": d.strftime("%d.%m"),
             }
             d = d + timedelta(days=7)
-        #print(json.dumps(TabSemaines, indent = 4))
         _logger.info("Titres des colonnes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
@@ -293,7 +292,7 @@ class product_product(models.Model):
         _logger.info("StocksSecu (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
 
         debut2=datetime.now()
-        Fournisseurs, Delai_Fournisseurs = self._get_Fournisseurs_Delai_Fournisseurs() # Fournisseurs + Delai_Fournisseurs
+        Fournisseurs, Delai_Fournisseurs, Groupage_CBN = self._get_Fournisseurs_Delai_Fournisseurs() # Fournisseurs + Delai_Fournisseurs + Groupage_CBN
         _logger.info("Fournisseurs (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         #**********************************************************************
 
@@ -319,12 +318,14 @@ class product_product(models.Model):
                 k = code_fournisseur+'/'+str(product_id)
                 t=TypeCde.get(k)
                 if t:
-                    Code = "%s / %s / %s (%s)"%(code_fournisseur,code,row["moule"],t)
+                    Code = "%s / %s / %s (%s)"%(code_fournisseur,code,row["moule"] or '',t)
                 else:
-                    Code = "%s / %s / %s "%(code_fournisseur,code,row["moule"])
+                    Code = "%s / %s / %s "%(code_fournisseur,code,row["moule"] or '')
             else:
                 key="%s/%s"%(row["moule"],code)
                 Code = "%s / %s"%(row["moule"],code)
+
+
             cout=0
             if valorisation=="Oui":
                 cout = Couts.get(product_id,0)
@@ -336,8 +337,13 @@ class product_product(models.Model):
                 product_tmpl = product.product_tmpl_id
                 if type_rapport=='Achat':
                     Delai=Delai_Fournisseurs.get(product_id,0)
+                    groupage_cbn=Groupage_CBN.get(product_id,'')
+
+
+
                 else:
                     Delai=row["produce_delay"]
+                    groupage_cbn=''
                 drpa = row.get("date_retour_prise_avance")
                 date_retour_pa = drpa.strftime('%d/%m/%Y') if drpa and drpa > datetime.now().date() else ''
                 res[key] = {
@@ -352,6 +358,7 @@ class product_product(models.Model):
                     "multiple"   : row["multiple"],
                     "StockSecu"  : row["is_stock_secu"],
                     "Delai"      : Delai,
+                    "groupage_cbn": groupage_cbn,
                     "StockA"     : int(StocksA.get(product_id,0) or 0),
                     "StockQ"     : int(StocksQ.get(product_id,0) or 0),
                     "date_retour_prise_avance": date_retour_pa,
@@ -686,17 +693,6 @@ class product_product(models.Model):
             #*******************************************************************
         #**********************************************************************
 
-
-
-
-        #** Sauvegarde du résultat ********************************************
-        #TODO : Cela ne semble pas pertinent, car Odoo met moins de 2s à générer le résultat, 
-        # mais le navigateur 6s à traiter les 8Mo d'informations
-        # x = json.dumps(sorted_dict)
-        # print("Taille du json : %.1fMo"%(len(x)/1024/1024))
-        # self.env['is.mem.var'].set(self._uid, 'analyse_cbn_dict', x)
-        # _logger.info("enregistrement json (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
-        #**********************************************************************
 
         duree = datetime.now()-debut
         _logger.info("Fin (durée=%.2fs)"%(datetime.now()-debut).total_seconds())
@@ -1196,7 +1192,8 @@ class product_product(models.Model):
                 rp.is_code as is_code, 
                 rp.name    as name, 
                 ps.delay   as delay, 
-                rp.is_adr_code
+                rp.is_adr_code,
+                rp.is_groupage_cbn
             from product_product pp, product_supplierinfo ps, res_partner rp 
             where pp.product_tmpl_id=ps.product_tmpl_id and ps.partner_id=rp.id 
             order by ps.sequence, ps.id
@@ -1205,13 +1202,17 @@ class product_product(models.Model):
         result = cr.fetchall()
         Fournisseurs={}
         Delai_Fournisseurs={}
+        Groupage_CBN={}
         for row in result:
             name=('0000'+row[1])[-4:]+'-'+row[4]
             if name=='':
                 name=row[2]
             Fournisseurs[row[0]]=name
             Delai_Fournisseurs[row[0]]=row[3]
-        return [Fournisseurs,Delai_Fournisseurs]
+            Groupage_CBN[row[0]]=row[5] or ''
+
+
+        return [Fournisseurs,Delai_Fournisseurs,Groupage_CBN]
 
 
     def _get_stock(self,filtre):
