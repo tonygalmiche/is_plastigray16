@@ -566,7 +566,7 @@ class is_liste_servir(models.Model):
                 stockq  = product.get_stock('t')
                 qt=row['product_uom_qty']
                 livrable=False
-                if qt<=stocka:
+                if qt<=stock01:
                     livrable=True
                 test=True
                 if obj.livrable==True and livrable==False:
@@ -605,6 +605,30 @@ class is_liste_servir(models.Model):
             obj.state="analyse"
 
 
+    def _calculer_livrable_lignes(self, obj):
+        """Cumule les besoins par article, met à jour le champ livrable de chaque ligne
+        et retourne la liste des articles en stock insuffisant."""
+        stock_par_article = {}
+        for line in obj.line_ids:
+            pid = line.product_id.id
+            if pid not in stock_par_article:
+                stock_par_article[pid] = {
+                    'stock01'  : line.stock01,
+                    'quantite' : 0,
+                    'code'     : line.product_id.display_name,
+                }
+            stock_par_article[pid]['quantite'] += line.quantite
+        for line in obj.line_ids:
+            pid = line.product_id.id
+            line.livrable = stock_par_article[pid]['quantite'] <= stock_par_article[pid]['stock01']
+        manquants = []
+        for pid, data in stock_par_article.items():
+            if data['quantite'] > data['stock01']:
+                manquants.append(u"  - %s : quantité totale %.0f > stock source disponible %.0f" % (
+                    data['code'], data['quantite'], data['stock01']))
+        return manquants
+
+
     def action_actualiser_stock(self):
         for obj in self:
             for line in obj.line_ids:
@@ -613,6 +637,8 @@ class is_liste_servir(models.Model):
                 line.lots01  = product.get_stock_lot(obj.is_source_location_id.name)
                 line.stocka  = product.get_stock('f')
                 line.stockq  = product.get_stock('t')
+            self._calculer_livrable_lignes(obj)
+
 
     def action_generer_bl(self):
         cr = self._cr
@@ -621,18 +647,8 @@ class is_liste_servir(models.Model):
             obj.action_actualiser_stock()
             #***********************************************************************
 
-            #** Vérifier que le stock disponible (stocka) est suffisant par article ***
-            stock_par_article = {}
-            for line in obj.line_ids:
-                pid = line.product_id.id
-                if pid not in stock_par_article:
-                    stock_par_article[pid] = {'stock01': line.stock01, 'quantite': 0, 'code': line.product_id.display_name}
-                stock_par_article[pid]['quantite'] += line.quantite
-            manquants = []
-            for pid, data in stock_par_article.items():
-                if data['quantite'] > data['stock01']:
-                    manquants.append(u"  - %s : quantité totale %.0f > stock source disponible %.0f" % (
-                        data['code'], data['quantite'], data['stock01']))
+            #** Vérifier que le stock disponible (stock01) est suffisant par article ***
+            manquants = self._calculer_livrable_lignes(obj)
             if manquants:
                 raise ValidationError(
                     u"Stock insuffisant pour les articles suivants :\n" + u"\n".join(manquants)
