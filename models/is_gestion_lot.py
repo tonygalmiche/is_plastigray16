@@ -190,44 +190,76 @@ class is_gestion_lot_report(models.Model):
         start = time.time()
         cr = self._cr
         tools.drop_view_if_exists(cr, 'is_gestion_lot_report')
+        # cr.execute("""
+        #         CREATE OR REPLACE FUNCTION is_qt_par_uc2(productid integer, OUT uc int) RETURNS int AS $$
+        #         BEGIN
+        #             uc:=cast((select qty from product_packaging where product_id=productid order by id limit 1) as int);
+        #             IF uc=0 THEN
+        #                 uc:=1;
+        #             END IF;
+        #             IF   uc IS NULL THEN
+        #                 uc:=1;
+        #             END IF;
+        #         END;
+        #         $$ LANGUAGE plpgsql;
+
+        #         CREATE OR REPLACE view is_gestion_lot_report AS (
+        #         SELECT
+        #                 min(quant.id)      as id,
+        #                 sum(quant.quantity)     as qty,
+        #                 is_qt_par_uc2(pp.id) as qty_par_uc,
+        #                 (sum(quant.quantity) / is_qt_par_uc2(pp.id))  as qty_uc,
+        #                 quant.lot_id       as lot_id,
+        #                 quant.product_id   as product_id,
+        #                 im.name            as mold,
+        #                 quant.location_id  as location_id,
+        #                 location.usage            as usage,
+        #                 location.control_quality  as control_quality,
+        #                 location.scrap_location   as scrap_location,
+        #                 -- 'bloque'           as operation,
+        #                 max(quant.in_date) as in_date
+
+        #         FROM    stock_quant quant INNER JOIN stock_location location ON quant.location_id = location.id
+        #                                   INNER JOIN product_product pp      ON quant.product_id  = pp.id
+        #                                   INNER JOIN product_template pt     ON pp.product_tmpl_id = pt.id
+        #                                   LEFT OUTER JOIN is_mold im         ON pt.is_mold_id=im.id 
+        #         WHERE   quant.lot_id is not Null
+        #         GROUP BY quant.lot_id, quant.product_id, pp.id, quant.location_id, im.name, location.usage, location.control_quality , location.scrap_location 
+        #         HAVING     sum(quant.quantity) > 0
+        #         ORDER BY quant.product_id
+        #        )
+        # """)
+
+
+        #TODO : Nouvelle requete mise en place le 07/06/2026 suite à analyse pgbadger
         cr.execute("""
-                CREATE OR REPLACE FUNCTION is_qt_par_uc2(productid integer, OUT uc int) RETURNS int AS $$
-                BEGIN
-                    uc:=cast((select qty from product_packaging where product_id=productid order by id limit 1) as int);
-                    IF uc=0 THEN
-                        uc:=1;
-                    END IF;
-                    IF   uc IS NULL THEN
-                        uc:=1;
-                    END IF;
-                END;
-                $$ LANGUAGE plpgsql;
-
-                CREATE OR REPLACE view is_gestion_lot_report AS (
+            CREATE OR REPLACE VIEW is_gestion_lot_report AS (
                 SELECT
-                        min(quant.id)      as id,
-                        sum(quant.quantity)     as qty,
-                        is_qt_par_uc2(pp.id) as qty_par_uc,
-                        (sum(quant.quantity) / is_qt_par_uc2(pp.id))  as qty_uc,
-                        quant.lot_id       as lot_id,
-                        quant.product_id   as product_id,
-                        im.name            as mold,
-                        quant.location_id  as location_id,
-                        location.usage            as usage,
-                        location.control_quality  as control_quality,
-                        location.scrap_location   as scrap_location,
-                        -- 'bloque'           as operation,
-                        max(quant.in_date) as in_date
-
-                FROM    stock_quant quant INNER JOIN stock_location location ON quant.location_id = location.id
-                                          INNER JOIN product_product pp      ON quant.product_id  = pp.id
-                                          INNER JOIN product_template pt     ON pp.product_tmpl_id = pt.id
-                                          LEFT OUTER JOIN is_mold im         ON pt.is_mold_id=im.id 
-                WHERE   quant.lot_id is not Null
-                GROUP BY quant.lot_id, quant.product_id, pp.id, quant.location_id, im.name, location.usage, location.control_quality , location.scrap_location 
-                HAVING     sum(quant.quantity) > 0
-                ORDER BY quant.product_id
-               )
+                    quant.id                                         as id, -- Le VRAI id, indexé nativement !
+                    quant.quantity                                   as qty,
+                    COALESCE(NULLIF(pack.qty, 0), 1)                 as qty_par_uc,
+                    (quant.quantity / COALESCE(NULLIF(pack.qty, 0), 1)) as qty_uc,
+                    quant.lot_id                                     as lot_id,
+                    quant.product_id                                 as product_id,
+                    im.name                                          as mold,
+                    quant.location_id                                as location_id,
+                    location.usage                                   as usage,
+                    location.control_quality                         as control_quality,
+                    location.scrap_location                          as scrap_location,
+                    quant.in_date                                    as in_date
+                FROM stock_quant quant 
+                INNER JOIN stock_location location ON quant.location_id = location.id
+                INNER JOIN product_product pp      ON quant.product_id  = pp.id
+                INNER JOIN product_template pt     ON pp.product_tmpl_id = pt.id
+                LEFT OUTER JOIN is_mold im         ON pt.is_mold_id = im.id 
+                LEFT JOIN LATERAL (
+                    SELECT qty FROM product_packaging 
+                    WHERE product_id = pp.id 
+                    ORDER BY id LIMIT 1
+                ) pack ON true
+                WHERE quant.lot_id IS NOT NULL 
+                AND quant.quantity > 0
+            );
         """)
         _logger.info('## init is_gestion_lot_report en %.2fs'%(time.time()-start))
 
