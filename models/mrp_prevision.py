@@ -11,6 +11,7 @@ from math import *
 class mrp_prevision(models.Model):
     _name = 'mrp.prevision'
     _description = 'Prevision des fabrication dans le secteur automobile'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
 
     @api.depends('quantity','product_id')
@@ -23,36 +24,36 @@ class mrp_prevision(models.Model):
         company_id  = self.env.user.company_id.id
         return company_id
 
-    num_od           = fields.Integer("Numéro", readonly=True)
-    name             =  fields.Char('OD', size=128, required=True, default="/")
-    parent_id        = fields.Many2one('mrp.prevision', "FS d'origine", ondelete='cascade')
+    num_od           = fields.Integer("Numéro", readonly=True, tracking=True)
+    name             =  fields.Char('OD', size=128, required=True, default="/", tracking=True)
+    parent_id        = fields.Many2one('mrp.prevision', "FS d'origine", ondelete='cascade', tracking=True)
     type             = fields.Selection([
         ('fs', u"FS"),
         ('ft', u"FT"),
         ('sa', "SA")
-    ], "Type", required=True, index=True)
-    product_id         = fields.Many2one('product.product', 'Article', required=True, index=True)
-    is_category_id     = fields.Many2one('is.category', 'Catégorie', readonly=True)
-    is_gestionnaire_id = fields.Many2one('is.gestionnaire', 'Gestionnaire', readonly=True)
-    partner_id         = fields.Many2one('res.partner', 'Client/Fournisseur', readonly=True)
-    start_date         = fields.Date('Date de début', index=True)
-    start_date_cq      = fields.Date('Date début CQ (Réception)')
-    end_date           = fields.Date('Date fin contrôle qualité')
-    quantity           = fields.Float('Quantité', required=True)
+    ], "Type", required=True, index=True, tracking=True)
+    product_id         = fields.Many2one('product.product', 'Article', required=True, index=True, tracking=True)
+    is_category_id     = fields.Many2one('is.category', 'Catégorie', readonly=True, tracking=True)
+    is_gestionnaire_id = fields.Many2one('is.gestionnaire', 'Gestionnaire', readonly=True, tracking=True)
+    partner_id         = fields.Many2one('res.partner', 'Client/Fournisseur', readonly=True, tracking=True)
+    start_date         = fields.Date('Date de début', index=True, tracking=True)
+    start_date_cq      = fields.Date('Date début CQ (Réception)', tracking=True)
+    end_date           = fields.Date('Date fin contrôle qualité', tracking=True)
+    quantity           = fields.Float('Quantité', required=True, tracking=True)
     quantity_ha        = fields.Float("Quantité (UA)", compute="_compute", digits=(12, 4))
-    quantity_origine   = fields.Float("Quantité d'origine")
+    quantity_origine   = fields.Float("Quantité d'origine", tracking=True)
     uom_id             = fields.Many2one('uom.uom', 'Unité'        , related='product_id.uom_id'   , readonly=True)
     uom_po_id          = fields.Many2one('uom.uom', "Unité d'achat", related='product_id.uom_po_id', readonly=True)
-    delai_cq           = fields.Float("Délai contrôle qualité", readonly=True  , digits=(12, 2))
-    tps_fab            = fields.Float("Temps de fabrication (Jour)", readonly=True, digits=(12, 1))
-    delai_livraison    = fields.Integer("Délai de livraison", readonly=True)
-    note               = fields.Text('Information')
-    niveau             = fields.Integer('Niveau', readonly=True, required=True, default=0)
-    stock_th           = fields.Float('Stock Théorique', readonly=True)
-    company_id         = fields.Many2one('res.company', 'Société', required=True, change_default=True, readonly=True,  default=lambda self: self._get_company_id())
-    active             = fields.Boolean('Active', default=True)
+    delai_cq           = fields.Float("Délai contrôle qualité", readonly=True  , digits=(12, 2), tracking=True)
+    tps_fab            = fields.Float("Temps de fabrication (Jour)", readonly=True, digits=(12, 1), tracking=True)
+    delai_livraison    = fields.Integer("Délai de livraison", readonly=True, tracking=True)
+    note               = fields.Text('Information', tracking=True)
+    niveau             = fields.Integer('Niveau', readonly=True, required=True, default=0, tracking=True)
+    stock_th           = fields.Float('Stock Théorique', readonly=True, tracking=True)
+    company_id         = fields.Many2one('res.company', 'Société', required=True, change_default=True, readonly=True,  default=lambda self: self._get_company_id(), tracking=True)
+    active             = fields.Boolean('Active', default=True, tracking=True)
     ft_ids             = fields.One2many('mrp.prevision', 'parent_id', u'Composants')
-    state              = fields.Selection([('creation', u'Création'),('valide', u'Validé')], u"État", readonly=True, index=True, default="creation")
+    state              = fields.Selection([('creation', u'Création'),('valide', u'Validé')], u"État", readonly=True, index=True, default="creation", tracking=True)
 
 
     def convertir_sa(self):
@@ -157,6 +158,56 @@ class mrp_prevision(models.Model):
                     obj.unlink()
 
 
+
+    def groupage_date_sa(self):
+        """Regroupe les dates (start_date_cq) des SA selon le paramètre is_groupage_cbn du fournisseur.
+
+        Règles :
+        - Si is_groupage_cbn est vide : on ne touche à rien.
+        - Si 'mensuel'    : pour chaque couple (article, mois), on recherche la start_date_cq
+                            la plus ancienne parmi toutes les SA du mois, et on aligne toutes
+                            les autres SA du même groupe sur cette date minimale.
+        - Si '2semaines'  : pour chaque SA, on positionne start_date_cq sur le lundi de la
+                            semaine ISO paire la plus proche qui soit <= à la date d'origine.
+                            Si la semaine d'origine est impaire, on recule d'une semaine (7 j)
+                            pour tomber sur la semaine paire précédente.
+
+        ATTENTION : le write() de ce modèle appelle get_dates_from_start_date_cq() qui réajuste
+        automatiquement start_date_cq sur le prochain jour ouvré (fournisseur + entreprise).
+        Ce réajustement peut faire basculer la date calculée sur une semaine impaire
+        (ex : lundi S34 (paire) décalé au jeudi 28/08 => S35 impaire)
+        """
+        sa_records = self.filtered(lambda r: r.type == 'sa' and r.start_date_cq)
+
+        # --- Traitement '2semaines' ---
+        for sa in sa_records.filtered(lambda r: r.partner_id and r.partner_id.is_groupage_cbn == '2semaines'):
+            date = sa.start_date_cq
+            # Numéro de semaine ISO (1 = impaire, 2 = paire, ...)
+            iso_week = date.isocalendar()[1]
+            # Lundi de la semaine courante
+            monday = date - timedelta(days=date.weekday())
+            if iso_week % 2 != 0:
+                # Semaine impaire : on recule au lundi de la semaine paire précédente
+                monday = monday - timedelta(days=7)
+            # Écriture uniquement si la date change (déclenche le recalcul de start_date)
+            if monday != date:
+                sa.write({'start_date_cq': monday})
+
+        # --- Traitement 'mensuel' ---
+        mensuel_sa = sa_records.filtered(lambda r: r.partner_id and r.partner_id.is_groupage_cbn == 'mensuel')
+        # Regroupement par (article, année, mois) pour isoler chaque groupe mensuel
+        groups = {}
+        for sa in mensuel_sa:
+            key = (sa.product_id.id, sa.start_date_cq.year, sa.start_date_cq.month)
+            if key not in groups:
+                groups[key] = self.env['mrp.prevision']
+            groups[key] |= sa
+        for key, sas in groups.items():
+            # Date la plus ancienne du groupe = date cible commune
+            min_date = min(sa.start_date_cq for sa in sas)
+            for sa in sas:
+                if sa.start_date_cq != min_date:
+                    sa.write({'start_date_cq': min_date})
 
     def _start_date(self, product_id, quantity, end_date):
         start_date=end_date

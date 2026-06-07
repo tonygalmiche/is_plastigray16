@@ -32,23 +32,23 @@
                 <!-- colors="red:note!=False" -->
                 <tree>
                     <field name="name"/>
-                    <field name="parent_id" />
+                    <field name="parent_id" optional="show" />
                     <field name="product_id" />
-                    <field name="is_category_id"/>
-                    <field name="is_gestionnaire_id"/>
-                    <field name="partner_id" />
-                    <field name="quantity"    sum="Total" />
-                    <field name="uom_id"/>
-                    <field name="quantity_ha" sum="Total" />
-                    <field name="uom_po_id"/>
-                    <field name="tps_fab" />
-                    <field name="delai_livraison"/>
-                    <field name="delai_cq" />
-                    <field name="start_date" />
-                    <field name="start_date_cq" />
-                    <field name="end_date" />
-                    <field name="type" />
-                    <field name="note" />
+                    <field name="is_category_id" optional="show"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="partner_id" optional="show" />
+                    <field name="quantity" optional="show"    sum="Total" />
+                    <field name="uom_id" optional="show"/>
+                    <field name="quantity_ha" optional="show" sum="Total" />
+                    <field name="uom_po_id" optional="show"/>
+                    <field name="tps_fab" optional="show" />
+                    <field name="delai_livraison" optional="show"/>
+                    <field name="delai_cq" optional="show" />
+                    <field name="start_date" optional="show" />
+                    <field name="start_date_cq" optional="show" />
+                    <field name="end_date" optional="show" />
+                    <field name="type" optional="show" />
+                    <field name="note" optional="show" />
                     <field name="niveau" invisible="1"/>
                 </tree>
             </field>
@@ -118,6 +118,11 @@
                         </div>
 
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
            </field>
         </record>
@@ -185,6 +190,15 @@
             <field name="binding_model_id" ref="model_mrp_prevision"/>
             <field name="state">code</field>
             <field name="code">action = records.convertir_sa()</field>
+        </record>
+
+        <!-- Groupage date SA selon fournisseur -->
+        <record id="groupage_date_sa_action_server" model="ir.actions.server">
+            <field name="name">Grouper les dates SA (selon fournisseur)</field>
+            <field name="model_id" ref="model_mrp_prevision"/>
+            <field name="binding_model_id" ref="model_mrp_prevision"/>
+            <field name="state">code</field>
+            <field name="code">records.groupage_date_sa()</field>
         </record>
     </data>
 </odoo>

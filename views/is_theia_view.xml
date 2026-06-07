@@ -216,6 +216,7 @@
             <search>
                 <field name="presse_id"/>
                 <field name="type_arret_id"/>
+                <field name="origine"/>
                 <field name="of_ids"/>
                 <field name="employee_id"/>
                 <filter string="Production série + Essai" name="production_serie_essai" domain="['|',('type_arret_id','=',1),('type_arret_id','=',13)]"/>
