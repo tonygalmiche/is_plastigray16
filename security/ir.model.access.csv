@@ -120,7 +120,6 @@ access_is_etuve_rsp,access_is_etuve_rsp,model_is_etuve_rsp,base.group_user,1,0,0
 access_is_etuve_commentaire,access_is_etuve_commentaire,model_is_etuve_commentaire,base.group_user,1,0,0,0
 access_is_etuve_of,access_is_etuve_of,model_is_etuve_of,base.group_user,1,0,0,0
 access_is_mrp_routing_workcenter,access_is_mrp_routing_workcenter,mrp.model_mrp_routing_workcenter,base.group_user,1,0,0,0
-access_is_stock_move,access_is_stock_move,model_is_stock_move,base.group_user,1,1,1,1
 access_is_resource_calendar,access_is_resource_calendar,resource.model_resource_calendar,base.group_user,1,0,0,0
 access_is_cde_ouverte_fournisseur_histo,access_is_cde_ouverte_fournisseur_histo,model_is_cde_ouverte_fournisseur_histo,base.group_user,1,1,1,1
 access_is_ligne_livraison,access_is_ligne_livraison,model_is_ligne_livraison,base.group_user,1,1,1,1

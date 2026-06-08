@@ -104,17 +104,6 @@
             </search>
         </field>
     </record>
-
-
-    <!-- <group expand="0" string="Regrouper par...">
-        <filter string="Client/Fournisseur" name="group_by_partner_id" context="{'group_by':'partner_id'}"/>
-        <filter string="Article"            name="group_by_product_id" context="{'group_by':'product_id'}"/>
-        <filter string="Moule"              name="group_by_is_mold_dossierf" context="{'group_by':'is_mold_dossierf'}"/>
-        <filter string="Segment"            name="group_by_segment_id" context="{'group_by':'segment_id'}"/>
-        <filter string="Catégorie"          name="group_by_is_category_id" context="{'group_by':'is_category_id'}"/> -->
-
-
-
     <record id="pg_stock_move_action" model="ir.actions.act_window">
         <field name="name">Mouvements de stocks</field>
         <field name="res_model">pg.stock.move</field>
@@ -123,7 +112,11 @@
     </record>
 
 
-    <!-- is.stock.move -->
+
+
+
+    <!-- is.stock.move => Suppression le 08/06/2026 car n'est plus utilisé depuis longtempt (normalement) -->
+    <!--      
     <record id="is_refresh_stock_move_action" model="ir.actions.server">
         <field name="name">Mouvements de stocks</field>
         <field name="model_id" ref="model_is_stock_move" />
@@ -141,8 +134,6 @@
                         <field name="product_id" />
                         <field name="category" />
                         <field name="mold" />
-                        <!-- <field name="type_mv" /> -->
-                        <!-- <field name="name" /> -->
                         <field name="picking_type_id" />
                         <field name="picking_id" />
                         <field name="purchase_line_id" />
@@ -166,14 +157,11 @@
         <field name="name">is_stock_move_tree_view</field>
         <field name="model">is.stock.move</field>
         <field name="arch" type="xml">
-            <!-- colors="red:qty &lt; 0" -->
             <tree create="false" decoration-danger="qty &lt; 0">
                 <field name="date" />
                 <field name="product_id" widget="many2one_clickable"/>
                 <field name="category" />
                 <field name="mold" />
-                <!-- <field name="type_mv" /> -->
-                <!-- <field name="name" /> -->
                 <field name="picking_type_id" />
                 <field name="picking_id" widget="many2one_clickable"/>
                 <field name="lot_id"     widget="many2one_clickable"/>
@@ -194,19 +182,12 @@
                 <field name="product_id" />
                 <field name="category" />
                 <field name="mold" />
-                <!-- <field name="type_mv" /> -->
-                <!-- <field name="name" /> -->
                 <field name="picking_type_id" />
                 <field name="picking_id" />
                 <field name="lot_id" />
                 <field name="lot_fournisseur" />
                 <field name="location_dest" />
                 <field name="login" />
-                <!-- <group string="Regrouper par">
-                    <filter string="Article" context="{'group_by': 'product_id'}"/>
-                    <filter string="Lieu"    context="{'group_by': 'location_dest'}"/>
-                    <filter string="Mois"    context="{'group_by': 'date:month'}"/>
-                </group> -->
             </search>
         </field>
     </record>
@@ -215,7 +196,8 @@
         <field name="res_model">is.stock.move</field>
         <field name="domain">[]</field>
         <field name="view_mode">tree,form</field>
-    </record>
+    </record> 
+    -->
 
 </data>
 </odoo>
