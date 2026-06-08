@@ -1130,7 +1130,7 @@ class is_galia_base_uc(models.Model):
     qt_pieces     = fields.Integer("Qt Pièces", required=True, tracking=True)
     date_creation = fields.Datetime("Date de création", required=True, tracking=True)
     production_id = fields.Many2one('mrp.production', 'Ordre de fabrication', tracking=True)
-    production    = fields.Char('Fabrication', tracking=True)
+    production    = fields.Char('Fabrication', tracking=True, index=True)
     product_id    = fields.Many2one('product.product', 'Article', required=True , index=True, tracking=True)
     employee_id   = fields.Many2one("hr.employee", "Employé", tracking=True)
     liste_servir_id   = fields.Many2one('is.liste.servir' , 'Liste à servir'  , related='um_id.liste_servir_id')

@@ -584,6 +584,15 @@ class is_theia_trs(models.Model):
     duree_etat   = fields.Float("Durée dans cet état")
     duree_of     = fields.Float("Durée par OF")
 
+    # AJOUY de cet index composite le 08/06/2026 site à analyse
+    _sql_constraints = [
+        ('idx_theia_trs_perf', 
+         'UNIQUE(presse_id, date_heure, categorie, id)', 
+         'Index de performance pour le calcul du TRS')
+    ]
+
+
+
 
 class is_theia_validation_groupe(models.Model):
     _name = 'is.theia.validation.groupe'
