@@ -62,6 +62,22 @@ class stock_quant(models.Model):
     is_mold_id          = fields.Many2one('is.mold'    , 'Moule'            , related='product_id.is_mold_id'         , readonly=True)
 
 
+    def _auto_init(self):
+        res = super(stock_quant, self)._auto_init()
+        
+        # 4. Création de l'index composite pour stock_quant
+        self._cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_stock_quant_product_location 
+            ON stock_quant (product_id, location_id);
+        """)
+        
+        return res
+
+
+
+
+
+
     @api.onchange('location_id', 'product_id', 'lot_id', 'package_id', 'owner_id')
     def _onchange_location_or_product_id(self):
         vals = {}

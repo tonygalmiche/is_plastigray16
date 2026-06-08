@@ -576,6 +576,26 @@ class product_template(models.Model):
     }
 
 
+    def _auto_init(self):
+        # 1. Laisser Odoo exécuter son initialisation standard d'abord
+        res = super(product_template, self)._auto_init()
+        
+        # 2. Création de l'index pour le stock de sécurité (Filtre partiel)
+        self._cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_product_template_secu 
+            ON product_template (is_stock_secu) 
+            WHERE active = true AND is_stock_secu > 0;
+        """)
+        
+        # 3. Création de l'index fonctionnel sur le Substring du code article
+        self._cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_product_template_code_sub6 
+            ON product_template (substring(is_code from 1 for 6));
+        """)
+
+        return res
+
+
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
         context = self._context
@@ -820,6 +840,17 @@ class product_template(models.Model):
 class product_product(models.Model):
     _inherit = 'product.product'
     _order   = 'is_code'
+
+
+    def _auto_init(self):
+        # 1. Laisser Odoo exécuter son initialisation standard d'abord
+        res = super(product_product, self)._auto_init()
+        
+        self._cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_product_product_tmpl_id 
+            ON product_product (product_tmpl_id);
+        """)
+        return res
 
 
     def _name_get(self):
