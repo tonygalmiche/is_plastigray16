@@ -175,6 +175,39 @@
 
                         <!-- Tableau des lignes -->
                         <div class="info-section">
+                            <t t-if="o.show_pivot_table and o.line_ids">
+                                <h3 style="font-size: 12px; font-weight: bold; background-color: #f0f0f0; padding: 4px; margin: 0 0 4px 0;">Tableau croisé par poste de charge</h3>
+                                <t t-set="pivot_data" t-value="o.get_pivot_table_data()"/>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">Poste de charge</th>
+                                            <th class="text-right">Qt Fab</th>
+                                            <th class="text-right">Tps Tot (H)</th>
+                                            <th class="text-right">Coût Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="pivot_data['rows']" t-as="row">
+                                            <td class="text-left"><t t-esc="row['key']"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.0f}'.format(row['qt']).replace(',', ' ')"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.2f}'.format(row['tps']).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td class="text-right"><t t-esc="'{:,.0f}'.format(row['cout']).replace(',', ' ')"/></td>
+                                        </tr>
+                                        <!-- Ligne de total -->
+                                        <tr class="total-row">
+                                            <td class="text-left"><strong>TOTAL :</strong></td>
+                                            <td class="text-right"><strong><t t-esc="'{:,.0f}'.format(pivot_data['total_qt']).replace(',', ' ')"/></strong></td>
+                                            <td class="text-right"><strong><t t-esc="'{:,.2f}'.format(pivot_data['total_tps']).replace(',', ' ').replace('.', ',')"/></strong></td>
+                                            <td class="text-right"><strong><t t-esc="'{:,.0f}'.format(pivot_data['total_cout']).replace(',', ' ')"/></strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </div>
+
+                        <!-- Tableau des lignes -->
+                        <div class="info-section">
                             <t t-if="o.line_ids">
                                 <table class="table">
                                     <thead>
@@ -192,6 +225,7 @@
                                     </thead>
                                     <tbody>
                                         <t t-set="total_tps" t-value="0.0"/>
+                                        <t t-set="total_qt" t-value="0.0"/>
                                         <t t-set="total_cout" t-value="0.0"/>
                                         <tr t-foreach="o.line_ids" t-as="line">
                                             <td class="text-left"><t t-esc="line.code_pg"/></td>
@@ -203,6 +237,7 @@
                                             <td class="text-right"><t t-esc="'{:,.2f}'.format(line.tps_tot_h).replace(',', ' ').replace('.', ',')"/></td>
                                             <td class="text-right"><t t-esc="'{:,.4f}'.format(line.cout_unit).replace(',', ' ').replace('.', ',')"/></td>
                                             <td class="text-right"><t t-esc="'{:,.0f}'.format(line.cout_total).replace(',', ' ')"/></td>
+                                            <t t-set="total_qt" t-value="total_qt + line.qt_fab"/>
                                             <t t-set="total_tps" t-value="total_tps + line.tps_tot_h"/>
                                             <t t-set="total_cout" t-value="total_cout + line.cout_total"/>
                                         </tr>
@@ -210,7 +245,7 @@
                                         <tr class="total-row">
                                             <td colspan="4" class="text-right"><strong>TOTAL :</strong></td>
                                             <td class="text-right"></td>
-                                            <td class="text-right"></td>
+                                            <td class="text-right"><strong><t t-esc="'{:,.0f}'.format(total_qt).replace(',', ' ')"/></strong></td>
                                             <td class="text-right"><strong><t t-esc="'{:,.2f}'.format(total_tps).replace(',', ' ').replace('.', ',')"/></strong></td>
                                             <td class="text-right"></td>
                                             <td class="text-right"><strong><t t-esc="'{:,.0f}'.format(total_cout).replace(',', ' ')"/></strong></td>

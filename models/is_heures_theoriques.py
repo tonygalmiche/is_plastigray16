@@ -29,6 +29,7 @@ class is_heures_theoriques(models.Model):
     line_ids        = fields.One2many('is.heures.theoriques.line',
                                       'heures_theoriques_id', 'Lignes')
     nb_lignes       = fields.Integer('Nb lignes', compute='_compute_nb_lignes')
+    show_pivot_table = fields.Boolean('Afficher tableau croisé dans le PDF', default=True)
 
     _sql_constraints = [
         ('user_uniq', 'unique(user_id)', "Une seule fiche par utilisateur !"),
@@ -224,6 +225,43 @@ class is_heures_theoriques(models.Model):
                 self.env['is.heures.theoriques.line'].create(vals_list)
 
         return self.action_afficher_lignes()
+
+    def get_pivot_table_data(self):
+        """Générer les données du tableau croisé par poste de charge pour le rapport"""
+        pivot_data = {}
+        for line in self.line_ids:
+            workcenter_name = line.workcenter_id.name if line.workcenter_id else 'Sans poste'
+            key = workcenter_name
+            if key not in pivot_data:
+                pivot_data[key] = {'qt': 0.0, 'tps': 0.0, 'cout': 0.0}
+            pivot_data[key]['qt'] += line.qt_fab
+            pivot_data[key]['tps'] += line.tps_tot_h
+            pivot_data[key]['cout'] += line.cout_total
+        
+        # Retourner une liste triée
+        result = []
+        total_qt = 0.0
+        total_tps = 0.0
+        total_cout = 0.0
+        
+        for key in sorted(pivot_data.keys()):
+            data = pivot_data[key]
+            result.append({
+                'key': key,
+                'qt': data['qt'],
+                'tps': data['tps'],
+                'cout': data['cout'],
+            })
+            total_qt += data['qt']
+            total_tps += data['tps']
+            total_cout += data['cout']
+        
+        return {
+            'rows': result,
+            'total_qt': total_qt,
+            'total_tps': total_tps,
+            'total_cout': total_cout,
+        }
 
 
 class is_heures_theoriques_line(models.Model):

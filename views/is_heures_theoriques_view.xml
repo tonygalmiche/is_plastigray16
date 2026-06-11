@@ -9,7 +9,9 @@
             <field name="arch" type="xml">
                 <pivot>
                     <field name="workcenter_id" type="row"/>
+                    <field name="qt_fab" type="measure"/>
                     <field name="tps_tot_h" type="measure"/>
+                    <field name="cout_total" type="measure"/>
                 </pivot>
             </field>
         </record>
@@ -89,6 +91,7 @@
                                 <field name="code_pg"/>
                                 <field name="moule"/>
                                 <field name="of_name"/>
+                                <field name="show_pivot_table"/>
                             </group>
                         </group>
                         <group>
