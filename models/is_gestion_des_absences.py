@@ -29,9 +29,9 @@ _TYPE_DEMANDE = [
 _KELIO_TYPE_ABSENCE = {
     'cp_rtt_journee'     : 'CP',
     'cp_rtt_demi_journee': 'CP',
-    'rc_journee'         : 'RC',
-    'rc_heures'          : 'RC',
-    'sans_solde'         : 'SS',
+    'rc_journee'         : 'REC',
+    'rc_heures'          : 'REC',
+    'sans_solde'         : 'CSS',
     'autre'              : '',
 }
 
@@ -309,16 +309,71 @@ class is_demande_conges(models.Model):
         kelio_user     = company.is_kelio_user
         kelio_password = company.is_kelio_password
 
+        chat_lines = []
+
         if not kelio_url or not kelio_user or not kelio_password:
             msg = "⚠️ Kelio : paramètres de connexion non configurés — création d'absence ignorée."
             _logger.info("Kelio : paramètres de connexion non configurés, création ignorée pour %s", self.name)
             self.message_post(body=msg)
             return
+
+        _logger.info("Kelio : types mappés — CP=%s, RC=%s, SS=%s",
+                     _KELIO_TYPE_ABSENCE.get('cp_rtt_journee'),
+                     _KELIO_TYPE_ABSENCE.get('rc_journee'),
+                     _KELIO_TYPE_ABSENCE.get('sans_solde'))
+
+        # Récupération des types d'absences depuis Kelio (pour obtenir l'absenceTypeKey)
         type_absence = _KELIO_TYPE_ABSENCE.get(self.type_demande, '')
+        absence_type_key_value = None
+        try:
+            body = f"""<?xml version='1.0' encoding='utf-8'?>
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap-env:Body>
+    <ns0:exportAbsenceTypes xmlns:ns0="{NS}">
+    </ns0:exportAbsenceTypes>
+  </soap-env:Body>
+</soap-env:Envelope>"""
+            _logger.info("Kelio : envoi exportAbsenceTypes...")
+            resp = requests.post(
+                f"{kelio_url}/open/services/TypeService",
+                data=body.encode("utf-8"),
+                headers={"Content-Type": "text/xml; charset=utf-8", "SOAPAction": "urn:exportAbsenceTypes"},
+                auth=(kelio_user, kelio_password),
+                timeout=30,
+            )
+            _logger.info("Kelio : réponse HTTP %s", resp.status_code)
+            if resp.ok:
+                root = ET.fromstring(resp.text)
+                tag = lambda n: '{%s}%s' % (NS, n)
+                types_absences = list(root.iter(tag('AbsenceType')))
+                _logger.info("Kelio : %d types d'absence trouvés", len(types_absences))
+                if types_absences:
+                    for t in types_absences:
+                        abrev_el = t.find(tag('typeAbbreviation'))
+                        desc_el  = t.find(tag('typeDescription'))
+                        # Chercher typeKey sans utiliser 'or' (un élément XML sans enfants est falsy)
+                        key_el = t.find(tag('typeKey'))
+                        if key_el is None:
+                            key_el = t.find(tag('absenceTypeKey'))
+                        abrev = (abrev_el.text or '').strip() if abrev_el is not None else '?'
+                        desc  = (desc_el.text  or '').strip() if desc_el  is not None else '?'
+                        tkey  = key_el.text if key_el is not None and key_el.text else None
+                        if abrev == type_absence and tkey:
+                            absence_type_key_value = tkey
+                        _logger.info("Kelio : type disponible — %s = %s (clé=%s)", abrev, desc, tkey)
+                else:
+                    _logger.warning("Kelio : aucun type d'absence dans la réponse")
+            else:
+                _logger.warning("Kelio : erreur HTTP %s lors de la récupération des types — %s", resp.status_code, resp.text[:200])
+        except Exception as ex:
+            _logger.warning("Kelio : exception lors de la récupération des types : %s", ex)
+
         if not type_absence:
             msg = f"⚠️ Kelio : type de demande <b>{self.type_demande}</b> non mappé dans _KELIO_TYPE_ABSENCE — création d'absence ignorée."
             _logger.info("Kelio : type d'absence non mappé pour type_demande=%s (demande %s), création ignorée", self.type_demande, self.name)
-            self.message_post(body=msg)
+            chat_lines.append("")
+            chat_lines.append(msg)
+            self.message_post(body="<br/>".join(chat_lines))
             return
 
         # Récupération du matricule Kelio depuis hr.employee
@@ -329,7 +384,9 @@ class is_demande_conges(models.Model):
         if not matricule:
             msg = f"⚠️ Kelio : matricule non renseigné pour <b>{self.demandeur_id.name}</b> — création d'absence ignorée."
             _logger.warning("Kelio : matricule non trouvé pour le demandeur %s (demande %s)", self.demandeur_id.name, self.name)
-            self.message_post(body=msg)
+            chat_lines.append("")
+            chat_lines.append(msg)
+            self.message_post(body="<br/>".join(chat_lines))
             return
 
         # Vérification de l'existence du salarié dans Kelio
@@ -361,6 +418,7 @@ class is_demande_conges(models.Model):
                 _logger.info("Kelio : salarié matricule=%s trouvé (%d enregistrement(s))", matricule, len(salaries))
             else:
                 _logger.warning("Kelio : impossible de vérifier le salarié matricule=%s (HTTP %s) — on continue quand même", matricule, salarie_resp.status_code)
+                _logger.warning("Kelio : réponse HTTP 403/401 : %s", salarie_resp.text[:500])
         except Exception as ex:
             _logger.warning("Kelio : erreur lors de la vérification du salarié matricule=%s : %s — on continue quand même", matricule, ex)
 
@@ -378,8 +436,8 @@ class is_demande_conges(models.Model):
             end_date   = str(self.le)
             hours_debut, min_debut = divmod(int(self.heure_debut * 60), 60)
             hours_fin,   min_fin   = divmod(int(self.heure_fin   * 60), 60)
-            first_start = "%02d:%02d" % (hours_debut, min_debut)
-            first_end   = "%02d:%02d" % (hours_fin,   min_fin)
+            first_start = "%02d:%02d:00" % (hours_debut, min_debut)
+            first_end   = "%02d:%02d:00" % (hours_fin,   min_fin)
             start_in_morning = b(True)
             ending_afternoon = b(True)
         else:
@@ -395,11 +453,19 @@ class is_demande_conges(models.Model):
           <ns0:firstStartTime>{first_start}</ns0:firstStartTime>
           <ns0:firstEndTime>{first_end}</ns0:firstEndTime>"""
 
+        # Inclure absenceTypeKey si on a pu le récupérer (évite l'erreur motifAbsence)
+        absence_type_key_xml = ""
+        if absence_type_key_value:
+            absence_type_key_xml = f"\n          <ns0:absenceTypeKey>{absence_type_key_value}</ns0:absenceTypeKey>"
+            _logger.info("Kelio : utilisation de absenceTypeKey=%s pour %s", absence_type_key_value, type_absence)
+        else:
+            _logger.warning("Kelio : absenceTypeKey non trouvée pour type_absence=%s — envoi sans clé", type_absence)
+
         absence_xml = f"""        <ns0:AbsenceFile>
           <ns0:employeeIdentificationNumber>{matricule}</ns0:employeeIdentificationNumber>
           <ns0:startDate>{start_date}</ns0:startDate>
           <ns0:endDate>{end_date}</ns0:endDate>
-          <ns0:absenceTypeAbbreviation>{type_absence}</ns0:absenceTypeAbbreviation>
+          <ns0:absenceTypeAbbreviation>{type_absence}</ns0:absenceTypeAbbreviation>{absence_type_key_xml}
           <ns0:startInTheMorning>{start_in_morning}</ns0:startInTheMorning>
           <ns0:endingTheAfternoon>{ending_afternoon}</ns0:endingTheAfternoon>{heures_xml}
         </ns0:AbsenceFile>"""
@@ -422,13 +488,12 @@ class is_demande_conges(models.Model):
         }
 
         # Message chat : détail des données envoyées (sera complété après la réponse)
-        chat_lines = [
-            f"<b>Kelio — importAbsenceFiles</b>",
-            f"Matricule : {matricule}",
-            f"Type absence : {type_absence}",
-            f"Date début : {start_date} | Date fin : {end_date}",
-            f"Matin : {start_in_morning} | Après-midi : {ending_afternoon}",
-        ]
+        chat_lines.append("")  # Séparateur
+        chat_lines.append(f"<b>📤 Envoi Kelio — importAbsenceFiles</b>")
+        chat_lines.append(f"Matricule : {matricule}")
+        chat_lines.append(f"Type absence : {type_absence}")
+        chat_lines.append(f"Date début : {start_date} | Date fin : {end_date}")
+        chat_lines.append(f"Matin : {start_in_morning} | Après-midi : {ending_afternoon}")
         if self.type_demande == 'rc_heures':
             chat_lines.append(f"Heure début : {first_start} | Heure fin : {first_end}")
         _logger.info("Kelio : SOAP body envoyé pour %s :\n%s", self.name, body)
@@ -456,12 +521,18 @@ class is_demande_conges(models.Model):
                 for abs_el in errors_el:
                     err_code = abs_el.find(tag('errorCode'))
                     err_msg  = abs_el.find(tag('errorMessage'))
+                    absence_type_key = abs_el.find(tag('absenceTypeKey'))
                     parts = []
                     if err_code is not None and err_code.text:
                         parts.append(f"code {err_code.text}")
                     if err_msg  is not None and err_msg.text:
                         parts.append(err_msg.text)
-                    part = " — ".join(parts) if parts else str(ET.tostring(abs_el, encoding='unicode'))[:200]
+                    # Info supplémentaire : la clé du motif d'absence est-elle NULL ?
+                    if absence_type_key is not None:
+                        is_nil = absence_type_key.get('{http://www.w3.org/2001/XMLSchema-instance}nil') == 'true'
+                        if is_nil:
+                            parts.append("⚠️ absenceTypeKey=NULL (motif d'absence introuvable dans Kelio)")
+                    part = " | ".join(parts) if parts else str(ET.tostring(abs_el, encoding='unicode'))[:200]
                     if part:
                         error_texts.append(part)
                 error_detail = "<br/>".join(error_texts) if error_texts else response.text[:500]
