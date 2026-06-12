@@ -137,7 +137,7 @@ class IsMrpProductionWizard(models.TransientModel):
             self.line_ids = lines
 
 
-    def _get_bom_lines(self):
+    def _get_bom_lines(self, filtre_cbn=False):
         bom_lines = []
         active_id = self.env.context.get("active_id")
         if active_id:
@@ -146,12 +146,13 @@ class IsMrpProductionWizard(models.TransientModel):
                 production._compute_is_bom_line_ids()
             if production.is_bom_line_ids and self.bom_id:
                 for line in production.is_bom_line_ids:
-                    qt = float_round(line.product_qty * self.product_qty, precision_rounding=line.product_id.uom_id.rounding)
-                    vals={
-                        "product_id" : line.product_id.id,
-                        "qt"         : round(qt,6),
-                    }
-                    bom_lines.append([0, False, vals])
+                    if filtre_cbn==False or (filtre_cbn and line.is_cbn==True):
+                        qt = float_round(line.product_qty * self.product_qty, precision_rounding=line.product_id.uom_id.rounding)
+                        vals={
+                            "product_id" : line.product_id.id,
+                            "qt"         : round(qt,6),
+                        }
+                        bom_lines.append([0, False, vals])
         return bom_lines
 
 
@@ -467,10 +468,6 @@ class MrpProduction(models.Model):
             if qt_bonne>0:
                 qt=qt_bonne
                 location_id = obj.location_dest_id.id
-                # filtre = [
-                #     ('name' , '=', 'ATELIER'),
-                #     ('usage', '=', 'internal'),
-                # ]
             if qt_rebut>0:
                 qt=qt_rebut
                 filtre = [
@@ -499,7 +496,7 @@ class MrpProduction(models.Model):
                 }
                 wiz = wiz_obj.create(vals)
                 wiz.onchange_qt()
-                lines = wiz.with_context(active_id=obj.id)._get_bom_lines()
+                lines = wiz.with_context(active_id=obj.id)._get_bom_lines(filtre_cbn=True)
                 wiz.line_ids = lines
                 if qt_rebut>0:
                     for line in wiz.line_ids:
