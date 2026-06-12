@@ -155,25 +155,6 @@ class IsMrpProductionWizard(models.TransientModel):
         return bom_lines
 
 
-    # def _get_bom_lines(self):
-    #     bom_lines = []
-    #     if self.bom_id:
-    #         factor = self.product_id.uom_id._compute_quantity(self.product_qty, self.bom_id.product_uom_id) / self.bom_id.product_qty
-    #         boms, lines = self.bom_id.explode(self.product_id, factor, picking_type=self.bom_id.picking_type_id)
-    #         for bom_line, line_data in lines:
-    #             if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
-    #                     bom_line.product_id.type not in ['product', 'consu']:
-    #                 continue
-    #             qt = float_round(bom_line.product_qty * self.product_qty, precision_rounding=bom_line.product_id.uom_id.rounding)
-    #             vals={
-    #                 "product_id" : bom_line.product_id.id,
-    #                 "qt"         : qt,
-    #                 "bom_line_id": bom_line.id,
-    #             }
-    #             bom_lines.append([0, False, vals])
-    #     return bom_lines
-
-
 class IsMrpProductionBom(models.Model):
     _name = "is.mrp.production.bom"
     _description = "Nomenclature de l'ordre de production"
@@ -198,20 +179,6 @@ class IsMrpProductionBom(models.Model):
     def _onchange_product_id(self):
         self.product_uom_id = self.product_id.uom_id.id
        
-
-
-    # def action_product_forecast_report(self):
-    #     action = self.product_id.action_product_forecast_report()
-    #     action['context'] = {
-    #         'active_id': self.product_id.id,
-    #         'active_model': 'product.product',
-    #         'move_to_match_ids': self.production_id.move_raw_ids.filtered(lambda m: m.product_id == self.product_id).ids
-    #     }
-    #     warehouse = self.production_id.warehouse_id
-    #     if warehouse:
-    #         action['context']['warehouse'] = warehouse.id
-    #    return action
-
 
 class MrpProduction(models.Model):
     _inherit = "mrp.production"
@@ -265,9 +232,6 @@ class MrpProduction(models.Model):
             obj.is_bom_line_ids = False
             bom_lines = []
             if obj.bom_id:
-                #qty = 1
-                #factor = obj.product_id.uom_id._compute_quantity(qty, obj.bom_id.product_uom_id) / obj.bom_id.product_qty
-                #boms, lines = obj.bom_id.explode(obj.product_id, factor, picking_type=obj.bom_id.picking_type_id)
                 res = obj.bom_id.explode_phantom()
                 for line in res:
                     vals={
@@ -277,17 +241,6 @@ class MrpProduction(models.Model):
                             "is_cbn"        : line["line"].is_cbn,
                     }
                     bom_lines.append([0, False, vals])
-                # for bom_line, line_data in lines:
-                #     if bom_line.child_bom_id and bom_line.child_bom_id.type == 'phantom' or\
-                #             bom_line.product_id.type not in ['product', 'consu']:
-                #         continue
-                #     qt = float_round(bom_line.product_qty * qty, precision_rounding=bom_line.product_id.uom_id.rounding)
-                #     vals={
-                #         "product_id"    : bom_line.product_id.id,
-                #         "product_uom_id": bom_line.product_uom_id.id,
-                #         "product_qty"   : qt,
-                #     }
-                #     bom_lines.append([0, False, vals])
             obj.is_bom_line_ids = bom_lines
 
 
@@ -304,7 +257,6 @@ class MrpProduction(models.Model):
 
     product_qty = fields.Float('Qt à fabriquer', required=True, readonly=False)  #digits_compute=dp.get_precision('Product Unit of Measure')
     state       = fields.Selection(compute=False, default="draft") #Desactive la fonction compute pour gérer cela autrement
-    #product_lines             = fields.One2many('mrp.production.product.line', 'production_id', 'Scheduled goods', readonly=False)
     is_qt_fabriquee_uom       = fields.Float(string="Qt fabriquée"     , compute="_compute_qt_reste", store=True)
     is_qt_rebut_uom           = fields.Float(string="Qt rebut"         , compute="_compute_qt_reste", store=True)
     is_qt_reste_uom           = fields.Float(string="Qt reste"         , compute="_compute_qt_reste", store=True)
@@ -314,15 +266,11 @@ class MrpProduction(models.Model):
     is_qt_fabriquee           = fields.Float(string="Qt fabriquée (UC)", compute="_compute_qt_reste", store=True)
     is_qt_rebut               = fields.Float(string="Qt rebut (UC)"    , compute="_compute_qt_reste", store=True)
     is_qt_reste               = fields.Float(string="Qt reste (UC)"    , compute="_compute_qt_reste", store=True)
-    #date_planned              = fields.Datetime(string='Date plannifiée', required=True, readonly=False)
     is_done                   = fields.Boolean(string="Is done ?", default=False)
     mrp_product_suggestion_id = fields.Many2one('mrp.prevision','MRP Product Suggestion')
-    #is_mold_id                = fields.Many2one('is.mold', 'Moule', related='product_id.is_mold_id'      , readonly=True)
     is_mold_dossierf          = fields.Char("Moule", help='Moule ou Dossier F', related='product_id.is_mold_dossierf', readonly=True)
     is_num_essai              = fields.Char("N°Essai")
     is_prioritaire            = fields.Boolean("Prioritaire", help="Ordre de fabrication prioritaire")
-
-    #move_lines_composants_prevus    = fields.One2many('stock.move', 'raw_material_production_id', 'Composants prévus'   , domain=[('state', 'in' , ['draft', 'assigned'])], readonly=True)
     move_lines_composants_consommes = fields.One2many('stock.move', 'raw_material_production_id', 'Composants consommés', domain=[('state', 'in', ['done'])]              , readonly=True)
     move_lines_produits_finis       = fields.One2many('stock.move', 'production_id', 'Produits finis', domain=[('state', 'in', ['done'])]                                 , readonly=True)
     is_bom_line_ids                 = fields.One2many('is.mrp.production.bom', 'production_id', "Composants à consommer", copy=False, states={'done': [('readonly', True)]})
@@ -341,20 +289,15 @@ class MrpProduction(models.Model):
         "Désactive cette fonction standard, car il n'est pas utile de mettre à jour le champ move_finished_ids"
         return True
 
+
     @api.depends('company_id', 'bom_id', 'product_id', 'product_qty', 'product_uom_id', 'location_src_id', 'date_planned_start')
     def _compute_move_raw_ids(self):
         "Désactive cette fonction standard, car il n'est pas utile de générer des mouvements de stock de réservation"
         return True
 
 
-    # @api.onchange('product_id', 'product_qty',)
-    # def compute_move_lines_composants_prevus(self):
-    #     self.move_lines_composants_prevus = self.move_raw_ids.filtered(lambda wo: wo.state in ['draft', 'assigned'])
-
-
     @api.onchange('product_id')
     def onchange_product_id_pg(self):
-        #self.product_qty = self.package_qty
         self.product_qty = self.product_id.lot_mini
 
 
@@ -542,11 +485,6 @@ class MrpProduction(models.Model):
 
             if qt==0:
                 err="Qt = 0"
-            # if err=="":
-            #     lines = self.env["stock.location"].search(filtre)
-            #     location_id = lines and lines[0].id or False
-            #     if location_id==False:
-            #         err="Emplacement non trouve"
             if err=="":
                 #** Création du wizard ****************************************
                 wiz_obj = self.env['is.mrp.production.wizard']
@@ -570,25 +508,6 @@ class MrpProduction(models.Model):
                             line.unlink()
                 res = wiz.with_context(active_id=obj.id).ok_action(is_employee_theia_id=is_employee_theia_id)
                 #**************************************************************
-
-                # #** Recherche / Création du lot *******************************
-                # lot_obj = self.env["stock.lot"]
-                # filtre = [
-                #     ('name'      , '=', obj.name),
-                #     ('product_id', '=', obj.product_id.id),
-                # ]
-                # lots = lot_obj.search(filtre)
-                # if lots:
-                #     lot_id=lots[0].id
-                # else:
-                #     vals={
-                #         'name'      : obj.name,
-                #         'product_id': obj.product_id.id,
-                #     }
-                #     lot = lot_obj.create(vals)
-                #     lot_id = lot.id
-                # wiz.lot_id = lot_id
-                #**************************************************************
         res=True
         if err!="":
             res={"err": err}
@@ -600,19 +519,10 @@ class MrpProduction(models.Model):
         wiz_obj = self.env['is.mrp.production.wizard']
         vals = {
             'product_id': production.product_id.id,
-            #'product_qty': 1.0,
             'nb_uc': 1.0,
-            #'mode': 'consume_produce',
-            #'lot_id': False,
-            #'consume_lines': self.get_consume_lines(production.id, 1.0),
-            #'track_production': self.get_track(production.product_id.id)
         }
         wiz = wiz_obj.create(vals)
         return wiz
-
-
-
-
 
 
     def envoi_mail(self, email_from,email_to,email_cc,subject,body_html):
@@ -678,320 +588,5 @@ class MrpProduction(models.Model):
                 obj.mail_quantite_modifiee(obj.product_qty,  vals["product_qty"])
         res=super(MrpProduction, self).write(vals)
         return res
-
-
-
-
-
-
-
-    # _name = "is.mrp.production.wizard"
-    # wizard_id   = fields.Many2one('is.mrp.production.wizard', 'Wizard', required=True, ondelete='cascade')
-    # product_id  = fields.Many2one("product.product", "Article", required=True)
-    # qt          = fields.Float("Quantité", required=1, digits='Product Unit of Measure')
-    # bom_line_id = fields.Many2one("mrp.bom.line", "Ligne")
-
-
-
-
-    # def action_confirm(self):
-    #     res=super(MrpProduction, self).action_confirm()
-    #     for obj in self:
-    #         obj.force_production()
-    #         obj.action_in_production()
-    #     return res
-
-
-    # def action_produce(self, production_id, qty, production_mode, wiz=False, is_employee_theia_id=False):
-    #     stock_mov_obj = self.env['stock.move']
-    #     uom_obj       = self.env["product.uom"]
-    #     production    = self.browse(production_id)
-    #     qty_uom       = uom_obj._compute_qty(production.product_uom.id, qty, production.product_id.uom_id.id)
-    #     precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
-    #     #** Traitement des produits finis **************************************
-    #     main_production_move = False
-    #     if production_mode == 'consume_produce':
-    #         for move in production.move_created_ids:
-    #             dest_id=wiz.finished_products_location_id
-    #             reste=move.product_uom_qty
-    #             if not dest_id.scrap_location:
-    #                 reste=reste-qty_uom
-    #             move.product_uom_qty=reste
-    #             if qty_uom>=0:
-    #                 location_id      = move.location_id.id
-    #                 location_dest_id = dest_id.id
-    #             else:
-    #                 qty_uom=-qty_uom
-    #                 location_id      = dest_id.id
-    #                 location_dest_id = move.location_id.id 
-    #             lot_id = wiz.lot_id.id
-    #             new_move = move.copy(default={
-    #                 'product_uom_qty'  : qty_uom, 
-    #                 'production_id'    : production_id,
-    #                 'location_id'      : location_id,
-    #                 'location_dest_id' : location_dest_id,
-    #                 'restrict_lot_id'  : lot_id,
-    #                 'is_employee_theia_id': is_employee_theia_id, 
-    #             })
-    #             new_move.action_confirm()
-    #             new_move.action_done()
-    #             main_production_move = new_move.id
-    #     #***********************************************************************
-
-    #     #** Traitement des composants ******************************************
-    #     if production_mode in ['consume', 'consume_produce']:
-    #         sequence=0
-    #         nb=len(wiz.consume_lines)
-    #         ct=0
-    #         for move in production.move_lines:
-    #             sequence=sequence+1
-    #             for wiz_line in wiz.consume_lines:
-    #                 if move.product_id==wiz_line.product_id and wiz_line.is_sequence==sequence:
-    #                     ct=ct+1
-    #                     consumed_qty = wiz_line.product_qty
-    #                     lot_id       = wiz_line.lot_id.id
-    #                     move.action_consume(consumed_qty, move.location_id.id, restrict_lot_id=lot_id, consumed_for=main_production_move)
-    #                     move.is_employee_theia_id = is_employee_theia_id
-
-
-    #         # TODO : Ajout d'un blocage le 27/01/2018 pour empècher les problèmes de déclarations sur les OF
-    #         if nb!=ct:
-    #             raise ValidationError("Probleme de synchronisation de nomenclature. Il faut modifier la quantite de cet OF pour resynchroniser la nomenclature")
-    #     #***********************************************************************
-
-
-    #     #** Vérifier qu'il n'y a pas de desyncronisation après *****************
-    #     #TODO : Ajout de cette partie pour synchronier la nomenclature avec sudo si problème constaté le 20/02/2020
-    #     if production_mode in ['consume', 'consume_produce']:
-    #         sequence=0
-    #         nb=len(wiz.consume_lines)
-    #         ct=0
-    #         for move in production.move_lines:
-    #             sequence=sequence+1
-    #             for wiz_line in wiz.consume_lines:
-    #                 if move.product_id==wiz_line.product_id and wiz_line.is_sequence==sequence:
-    #                     ct=ct+1
-    #         if nb!=ct:
-    #             _logger.info(u"#### Nomenclature Ordre de Fabrication desynchronise => importer_nomenclature avec sudo() ####")
-    #             production.sudo().importer_nomenclature()
-    #     #***********************************************************************
-
-    #     return
-
-
-
-    # def _prepare_lines(self, cr, uid, production, properties=None, context=None):
-    #     bom_obj = self.pool.get('mrp.bom')
-    #     uom_obj = self.pool.get('product.uom')
-    #     bom_point = production.bom_id
-    #     bom_id = production.bom_id.id
-    #     if not bom_point:
-    #         bom_id = bom_obj._bom_find(cr, uid, product_id=production.product_id.id, properties=properties, context=context)
-    #         if bom_id:
-    #             bom_point = bom_obj.browse(cr, uid, bom_id)
-    #             routing_id = bom_point.routing_id.id or False
-    #             self.write(cr, uid, [production.id], {'bom_id': bom_id, 'routing_id': routing_id})
-    #     if not bom_id:
-    #         raise osv.except_osv(_('Error!'), _("Cannot find a bill of material for this product."))
-    #     factor = uom_obj._compute_qty(cr, uid, production.product_uom.id, production.product_qty, bom_point.product_uom.id)
-    #     return bom_obj._bom_explode(cr, uid, bom_point, production.product_id, factor / bom_point.product_qty, properties, routing_id=production.routing_id.id, context=context)
-
-
-    # def _action_compute_lines(self, properties=None):
-    #     """ Compute product_lines and workcenter_lines from BoM structure
-    #     @return: product_lines
-    #     """
-    #     if properties is None:
-    #         properties = []
-    #     results = []
-    #     prod_line_obj = self.pool.get('mrp.production.product.line')
-    #     workcenter_line_obj = self.pool.get('mrp.production.workcenter.line')
-    #     for production in self:
-    #         production.product_lines.unlink()
-    #         production.workcenter_lines.unlink()
-    #         res = self._prepare_lines(production, properties=properties)
-    #         results = res[0] # product_lines
-    #         results2 = res[1] # workcenter_lines
-    #         uom_obj = self.pool.get('product.uom')
-    #         bom_obj = self.pool.get('mrp.bom')
-    #         factor = uom_obj._compute_qty(cr, uid, production.product_uom.id, production.product_qty, production.bom_id.product_uom.id)
-    #         res=bom_obj._bom_explode(cr, uid, production.bom_id, production.product_id, 1, properties, routing_id=production.routing_id.id, context=context)
-    #         results = res[0] # product_lines
-    #         for line in results:
-    #             qty=line['product_qty']
-    #             line['production_id'] = production.id
-    #             line['product_qty']   = qty*factor
-    #             line['is_bom_qty']    = qty
-    #             prod_line_obj.create(cr, uid, line)
-    #         for line in results2:
-    #             line['production_id'] = production.id
-    #             workcenter_line_obj.create(cr, uid, line, context)
-    #     return results
-
-
-    # def action_production_end(self):
-    #     for production in self:
-    #         production._costs_generate(production)
-    #     proc_obj = self.env["procurement.order"]
-    #     procs = proc_obj.search([('production_id', 'in', self.ids)])
-    #     procs.check()
-    #     self.write({'is_done': True})
-    #     return True
-    
-
-    # def action_done(self):
-    #     self.action_cancel()
-    #     self.write({'state': 'done', 'date_finished': time.strftime('%Y-%m-%d %H:%M:%S')})
-    #     return True
-
-
-    # def recreer_mouvements(self):
-    #     """
-    #     Recréer les mouvements de stocks si nomenclature OF modifiée
-    #     """
-    #     for obj in self:
-    #         qt_reste=obj.is_qt_reste_uom
-    #         for move in obj.move_created_ids:
-    #             move.product_uom_qty=qt_reste
-    #         for move in obj.move_lines:
-    #             move.action_cancel()
-    #         stock_moves = []
-    #         for line in obj.product_lines:
-    #             if line.product_id.type != 'service':
-    #                 qty=qt_reste*line.is_bom_qty
-    #                 #Si la quantité restante est à 0 , mettre 0.00001 pour ne pas solder le mouvement
-    #                 if float_compare(qty, 0, precision_rounding=line.product_uom.rounding) == 0:
-    #                     qty=line.product_uom.rounding
-    #                 line.product_qty=qty
-    #                 stock_move_id = obj._make_production_consume_line(line)
-    #                 stock_moves.append(stock_move_id)
-    #             line.product_qty=obj.product_qty*line.is_bom_qty
-    #         if stock_moves:
-    #             move_obj=self.pool.get('stock.move')
-    #             move_obj.action_confirm(cr, uid, stock_moves, context=context)
-    #             move_obj.force_assign(cr, uid, stock_moves)
-    #         #** Mise à jour des ordres de travaux sans supprimer les lignes ****
-    #         res = self._prepare_lines(obj)
-    #         results = res[1] # workcenter_lines
-    #         for row in results:
-    #             for line in obj.workcenter_lines:
-    #                 if row['sequence']==line.sequence:
-    #                     line.cycle = row['cycle']
-    #                     line.hour  = row['hour']
-    #         #*******************************************************************
-
-
-
-    # def importer_nomenclature(self):
-    #     prod_line_obj = self.pool.get('mrp.production.product.line')
-    #     uom_obj = self.pool.get('product.uom')
-    #     bom_obj = self.pool.get('mrp.bom')
-    #     for production in self:
-    #         production.product_lines.unlink()
-    #         res = self._prepare_lines(production)
-    #         results = res[0] # product_lines
-    #         res=bom_obj._bom_explode(cr, uid, production.bom_id, production.product_id, 1, None, routing_id=production.routing_id.id, context=context)
-    #         results = res[0] # product_lines
-    #         for line in results:
-    #             qty=line['product_qty']
-    #             line['production_id'] = production.id
-    #             line['product_qty']   = qty*production.product_qty
-    #             line['is_bom_qty']    = qty
-    #             prod_line_obj.create(cr, uid, line)
-    #         production.recreer_mouvements()
-
-
-    # def get_consume_lines(self, production_id, product_qty):
-    #     prod_obj = self.env["mrp.production"]
-    #     uom_obj = self.env["product.uom"]
-    #     production = prod_obj.browse(production_id)
-    #     consume_lines = []
-    #     new_consume_lines = []
-    #     if product_qty > 0.0:
-    #         product_uom_qty = uom_obj._compute_qty(production.product_uom.id, product_qty, production.product_id.uom_id.id)
-    #         consume_lines = prod_obj._calculate_qty(production, product_qty=product_uom_qty)
-        
-    #     for consume in consume_lines:
-    #         new_consume_lines.append([0, False, consume])
-    #     return new_consume_lines
-    
-
-    # def get_track(self, product_id):
-    #     prod_obj = self.env["product.product"]
-    #     return product_id and prod_obj.browse(product_id).track_production or False
-
-
-
-
-
-# class MrpWorkorder(models.Model):
-#     _inherit = 'mrp.workorder'
-
-#     def _get_duration_expected(self, alternative_workcenter=False, ratio=1):
-#         qty_production = self.production_id.product_uom_id._compute_quantity(self.qty_production, self.production_id.product_id.uom_id)
-#         capacity = self.workcenter_id._get_capacity(self.product_id)
-#         cycle_number = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
-#         time_cycle = self.operation_id.time_cycle
-
-#         duration = self.workcenter_id._get_expected_duration(self.product_id) + cycle_number * time_cycle * 100.0 / self.workcenter_id.time_efficiency
-
-
-#         duration =  time_cycle
-        
-#         return duration
-
-#         self.ensure_one()
-#         if not self.workcenter_id:
-#             return self.duration_expected
-#         if not self.operation_id:
-#             duration_expected_working = (self.duration_expected - self.workcenter_id.time_start - self.workcenter_id.time_stop) * self.workcenter_id.time_efficiency / 100.0
-#             if duration_expected_working < 0:
-#                 duration_expected_working = 0
-#             return self.workcenter_id._get_expected_duration(self.product_id) + duration_expected_working * ratio * 100.0 / self.workcenter_id.time_efficiency
-#         qty_production = self.production_id.product_uom_id._compute_quantity(self.qty_production, self.production_id.product_id.uom_id)
-#         capacity = self.workcenter_id._get_capacity(self.product_id)
-#         cycle_number = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
-#         if alternative_workcenter:
-#             # TODO : find a better alternative : the settings of workcenter can change
-#             duration_expected_working = (self.duration_expected - self.workcenter_id.time_start - self.workcenter_id.time_stop) * self.workcenter_id.time_efficiency / (100.0 * cycle_number)
-#             if duration_expected_working < 0:
-#                 duration_expected_working = 0
-#             capacity = alternative_workcenter._get_capacity(self.product_id)
-#             alternative_wc_cycle_nb = float_round(qty_production / capacity, precision_digits=0, rounding_method='UP')
-#             return alternative_workcenter._get_expected_duration(self.product_id) + alternative_wc_cycle_nb * duration_expected_working * 100.0 / alternative_workcenter.time_efficiency
-#         time_cycle = self.operation_id.time_cycle
-#         return self.workcenter_id._get_expected_duration(self.product_id) + cycle_number * time_cycle * 100.0 / self.workcenter_id.time_efficiency
-
-
-
-# class mrp_production_product_line(models.Model):
-#     _inherit = 'mrp.production.product.line'
-
-#     is_bom_qty = fields.Float("Quantité unitaire", digits=(16, 6))
-
-#     def action_acceder_ligne(self):
-#         for obj in self:
-#             return {
-#                 'name': "Mouvement de stock",
-#                 'view_mode': 'form',
-#                 'res_model': 'mrp.production.product.line',
-#                 'type': 'ir.actions.act_window',
-#                 'res_id': obj.id,
-#                 'domain': '[]',
-#             }
-
-
-#     def on_change_product_id(self, product_id,is_bom_qty):
-#         qty=context.get('product_qty',1)
-#         value = {}
-#         if product_id:
-#             product=self.env["product.product"].browse(product_id)
-#             value = {
-#                 'name'       : product.name,
-#                 'product_uom': product.uom_id.id,
-#                 'product_qty': is_bom_qty*qty
-#             }
-#         return {'value': value}
-
 
 

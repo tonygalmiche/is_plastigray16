@@ -38,35 +38,35 @@ class stock_lot(models.Model):
     company_id = fields.Many2one('res.company', 'Company', required=True, store=True, index=True, default=1) #J'ai ajouté default=1, sinon, impossible de créer des lots
 
 
+    # TODO : Cela n'a pas fonctionné
+    # def _auto_init(self):
+    #     # L'extension 'pg_trgm' (Trigrammes) est indispensable car les index standards (B-Tree) 
+    #     # sont incapables de gérer les recherches floues commençant par un joker (ex: '%43445%'). 
+    #     # Elle découpe le texte en blocs de 3 lettres pour indexer l'intérieur même des chaînes.
 
-    def _auto_init(self):
-        # L'extension 'pg_trgm' (Trigrammes) est indispensable car les index standards (B-Tree) 
-        # sont incapables de gérer les recherches floues commençant par un joker (ex: '%43445%'). 
-        # Elle découpe le texte en blocs de 3 lettres pour indexer l'intérieur même des chaînes.
+    #     # 1. Initialisation des extensions et passage de unaccent en IMMUTABLE
+    #     self._cr.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+    #     self._cr.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
+    #     self._cr.execute("ALTER FUNCTION unaccent(text) IMMUTABLE;")
 
-        # 1. Initialisation des extensions et passage de unaccent en IMMUTABLE
-        self._cr.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
-        self._cr.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
-        self._cr.execute("ALTER FUNCTION unaccent(text) IMMUTABLE;")
-
-        # 2. On nettoie les anciens essais
-        self._cr.execute("DROP INDEX IF EXISTS idx_stock_lot_name_gin_exact;")
+    #     # 2. On nettoie les anciens essais
+    #     self._cr.execute("DROP INDEX IF EXISTS idx_stock_lot_name_gin_exact;")
         
-        # 3. On s'assure que notre index exact est bien là
-        self._cr.execute("""
-            CREATE INDEX IF NOT EXISTS idx_stock_lot_name_gin_exact 
-            ON stock_lot 
-            USING gin (unaccent((name)::text) gin_trgm_ops);
-        """)
+    #     # 3. On s'assure que notre index exact est bien là
+    #     self._cr.execute("""
+    #         CREATE INDEX IF NOT EXISTS idx_stock_lot_name_gin_exact 
+    #         ON stock_lot 
+    #         USING gin (unaccent((name)::text) gin_trgm_ops);
+    #     """)
         
-        # 4. L'ASTUCE : On augmente artificiellement le coût du scan séquentiel
-        # pour forcer Postgres à préférer l'index GIN sur cette petite table
-        self._cr.execute("ALTER INDEX idx_stock_lot_name_gin_exact SET (fastupdate = off);")
+    #     # 4. L'ASTUCE : On augmente artificiellement le coût du scan séquentiel
+    #     # pour forcer Postgres à préférer l'index GIN sur cette petite table
+    #     self._cr.execute("ALTER INDEX idx_stock_lot_name_gin_exact SET (fastupdate = off);")
 
-        # 5. Laisser Odoo initialiser le modèle standard
-        res = super(stock_lot, self)._auto_init()
+    #     # 5. Laisser Odoo initialiser le modèle standard
+    #     res = super(stock_lot, self)._auto_init()
 
-        return res
+    #     return res
 
 
 

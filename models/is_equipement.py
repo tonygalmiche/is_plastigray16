@@ -917,3 +917,29 @@ class is_equipement(models.Model):
     zone_id_obl                 = fields.Boolean("zone_id_obl", compute='_compute')
     zone_id                     = fields.Many2one("is.preventif.equipement.zone", "Zone préventif")
 
+
+    #TEST DU 11/06/2026:
+    # Le but était de résoudre un problème de lenteur sur les cycles par équipement dans THEIA avec
+    # WHERE (unaccent ("is_equipement"."numero_equipement"::text) ilike unaccent ('%9999%'))
+    # Mais cela n'a pas fonctionné.
+
+    # def init(self):
+    #     # Toujours appeler le parent pour ne pas casser le comportement d'origine
+    #     super(is_equipement, self).init()
+        
+    #     # Exécution des requêtes SQL directement sur le curseur de la base de données
+    #     self.env.cr.execute("""
+    #         -- 1. Nettoyage de l'ancien index s'il existe
+    #         DROP INDEX IF EXISTS idx_is_equipement_num_unaccent_trgm;
+                            
+    #         -- 1. On s'assure que l'index trigramme est là
+    #         CREATE EXTENSION IF NOT EXISTS pg_trgm;
+    #         CREATE INDEX IF NOT EXISTS idx_is_equipement_num_unaccent_trgm 
+    #         ON is_equipement USING gin (unaccent(numero_equipement::text) gin_trgm_ops);
+            
+    #         -- 2. On pousse PostgreSQL à analyser cette colonne de manière ultra-détaillée
+    #         ALTER TABLE is_equipement ALTER COLUMN numero_equipement SET STATISTICS 1000;
+            
+    #         -- 3. On recalcule immédiatement les statistiques
+    #         ANALYZE is_equipement;
+    #     """)
