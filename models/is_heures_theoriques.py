@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+import base64
 import datetime
 import pytz
 import logging
@@ -69,6 +70,27 @@ class is_heures_theoriques(models.Model):
             'views':     [(False, 'form')],
             'target':    'current',
         }
+
+    def get_report_pdf_base64(self):
+        """Génère et retourne le rapport PDF en base64 pour les enregistrements.
+        
+        Returns:
+            str: Contenu du PDF encodé en base64
+        """
+        # Cherche le rapport pour is.heures.theoriques
+        report = self.env['ir.actions.report'].search([
+            ('model', '=', 'is.heures.theoriques'),
+            ('report_type', '=', 'qweb-pdf')
+        ], limit=1)
+        
+        if not report:
+            raise ValueError("Rapport PDF non trouvé pour is.heures.theoriques")
+        
+        # Génère le PDF : _render_qweb_pdf(report_ref, res_ids)
+        pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(report.report_name, self.ids)
+        
+        # Retourne en base64
+        return base64.b64encode(pdf_content).decode('utf-8')
 
     def action_afficher_lignes(self):
         for obj in self:
