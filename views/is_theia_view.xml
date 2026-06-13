@@ -173,8 +173,7 @@
         <field name="model">is.presse.cycle</field>
         <field name="arch" type="xml">
             <pivot>
-                <field name="date_heure"    type="row"/>
-                <field name="presse_id" type="col"/>
+                <field name="presse_id" type="row"/>
             </pivot>
         </field>
     </record>
@@ -183,7 +182,6 @@
         <field name="model">is.presse.cycle</field>
         <field name="arch" type="xml">
             <graph>
-                <field name="date_heure"/>
                 <field name="presse_id"/>
             </graph>
         </field>
@@ -274,8 +272,7 @@
         <field name="model">is.presse.arret</field>
         <field name="arch" type="xml">
             <pivot>
-                <field name="date_heure"    type="row"/>
-                <field name="type_arret_id" type="col"/>
+                <field name="type_arret_id"    type="row"/>
                 <field name="tps_arret"     type="measure"/>
             </pivot>
         </field>
@@ -285,7 +282,6 @@
         <field name="model">is.presse.arret</field>
         <field name="arch" type="xml">
             <graph>
-                <field name="date_heure"/>
                 <field name="type_arret_id"/>
                 <field name="tps_arret" type="measure"/>
             </graph>
