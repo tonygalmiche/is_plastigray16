@@ -995,7 +995,7 @@ class stock_picking(models.Model):
             emails = [contact.email for contact in contacts_envoi if contact.email]
             email_body = f"""
             <p>Bonjour,</p>
-            <p>Veuillez trouver ci-joint le bon de livraison <b>{obj.name}</b> pour la commande <b>{obj.sale_id.name if obj.sale_id else ''}</b>.</p>
+            <p>Veuillez trouvez ci-joint le bon de livraison <b>{obj.name}</b> en départ du  <b>{obj.is_date_expedition.strftime('%d/%m/%Y') if obj.is_date_expedition else ''}</b>.</p>
             <p>Cordialement,<br/>
             Plastigray</p>
             """
