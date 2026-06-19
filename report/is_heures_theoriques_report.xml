@@ -129,8 +129,7 @@
                         <!-- En-tête -->
                         <div class="report-header">
                             <div class="report-title">
-                                Heures Théoriques
-                                <t t-if="o.date_calcul"> du <t t-esc="context_timestamp(o.date_calcul).strftime('%d/%m/%Y %H:%M')"/></t>
+                                <t t-esc="o.report_title"/>
                             </div>
                         </div>
 

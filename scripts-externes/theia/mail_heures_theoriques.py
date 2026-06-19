@@ -123,9 +123,9 @@ def get_or_create_heures_theoriques(db, uid, models):
     """Crée/met à jour et calcule les heures théoriques pour la plage de dates configurée"""
     
     if NB_JOURS == 1:
-        # Si 1 jour, on traite la veille
+        # Veille de 5H à 5H : du J-1 (5H) au J (5H)
         start_date = date.today() - timedelta(days=1)
-        end_date = date.today() - timedelta(days=1)
+        end_date = date.today()
     else:
         # Sinon, on traite les NB_JOURS derniers jours révolus (en excluant aujourd'hui)
         start_date = date.today() - timedelta(days=NB_JOURS)
@@ -218,7 +218,7 @@ def generate_pdf_report(db, uid, models, record_ids, period_start, period_end):
 # Envoi de l'e-mail
 # ---------------------------------------------------------------------------
 
-def send_email_with_pdf(db, uid, models, emails, pdf_bytes, period_start, period_end):
+def send_email_with_pdf(db, uid, models, emails, pdf_bytes, period_start, period_end, db_label=""):
     """Envoie le mail avec le rapport PDF en pièce jointe"""
     
     dest_email = MAIL_TEST if MAIL_TEST else ", ".join(emails)
@@ -233,10 +233,10 @@ def send_email_with_pdf(db, uid, models, emails, pdf_bytes, period_start, period
     
     # Formater le sujet et le corps selon le nombre de jours
     if NB_JOURS == 1:
-        subject = f"Rapport heures théoriques M.O. - {start_display}"
-        period_text = f"pour la journée du <strong>{start_display}</strong>"
+        subject = f"Rapport heures théoriques M.O. {db_label} du {start_display} 5H au {end_display} 5H"
+        period_text = f"pour la veille (5H-5H) du <strong>{start_display}</strong> au <strong>{end_display}</strong>"
     else:
-        subject = f"Rapport heures théoriques M.O. - du {start_display} au {end_display}"
+        subject = f"Rapport heures théoriques M.O. {db_label} du {start_display} au {end_display}"
         period_text = f"pour la période du <strong>{start_display}</strong> au <strong>{end_display}</strong>"
     
     body = f"""
@@ -295,8 +295,9 @@ def main():
     print("=" * 80)
     print("ENVOI DU RAPPORT HEURES THÉORIQUES M.O.")
     if NB_JOURS == 1:
-        yesterday = (date.today() - timedelta(days=1)).strftime("%d/%m/%Y")
-        print(f"Paramètre : 1 jour (veille) - {yesterday}")
+        j1 = (date.today() - timedelta(days=1)).strftime("%d/%m/%Y")
+        j0 = date.today().strftime("%d/%m/%Y")
+        print(f"Paramètre : du {j1} 5H au {j0} 5H")
     else:
         start = (date.today() - timedelta(days=NB_JOURS)).strftime("%d/%m/%Y")
         end = (date.today() - timedelta(days=1)).strftime("%d/%m/%Y")
@@ -353,7 +354,8 @@ def main():
         
         # Envoi de l'e-mail
         print(f"  Envoi de l'e-mail...")
-        send_email_with_pdf(db, uid, models, emails, pdf_bytes, period_start, period_end)
+        db_label = db_cfg.get("name") or db_cfg.get("db", db)
+        send_email_with_pdf(db, uid, models, emails, pdf_bytes, period_start, period_end, db_label)
     
     print(f"\n{'='*80}")
     print("Traitement de toutes les bases terminé.")

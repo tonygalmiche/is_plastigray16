@@ -31,6 +31,7 @@ class is_heures_theoriques(models.Model):
                                       'heures_theoriques_id', 'Lignes')
     nb_lignes       = fields.Integer('Nb lignes', compute='_compute_nb_lignes')
     show_pivot_table = fields.Boolean('Afficher tableau croisé dans le PDF', default=True)
+    report_title    = fields.Char('Titre rapport', compute='_compute_report_title')
 
     _sql_constraints = [
         ('user_uniq', 'unique(user_id)', "Une seule fiche par utilisateur !"),
@@ -44,6 +45,22 @@ class is_heures_theoriques(models.Model):
     def _compute_nb_lignes(self):
         for obj in self:
             obj.nb_lignes = len(obj.line_ids)
+
+    @api.depends('type_tps', 'date_debut', 'date_fin')
+    def _compute_report_title(self):
+        for obj in self:
+            type_label = dict(obj._fields['type_tps'].selection).get(obj.type_tps, '')
+            if obj.date_debut and obj.date_fin:
+                if obj.date_debut != obj.date_fin:
+                    debut = obj.date_debut.strftime('%d/%m/%Y') + ' 5H'
+                    fin   = obj.date_fin.strftime('%d/%m/%Y') + ' 5H'
+                else:
+                    debut = obj.date_debut.strftime('%d/%m/%Y') + ' 00:00'
+                    fin   = obj.date_fin.strftime('%d/%m/%Y') + ' 23:59'
+                period = f' du {debut} au {fin}'
+            else:
+                period = ''
+            obj.report_title = f'Heures Théoriques {type_label}{period}'
 
     @api.model
     def action_open_or_create(self):
