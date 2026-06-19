@@ -33,7 +33,13 @@ class is_reception_inter_site(models.Model):
             ('controle' , 'Contrôle physique'),
             ('termine'  , 'Terminé'),
         ], "Etat", default='analyse', tracking=True)
-    active = fields.Boolean('Active', default=True, tracking=True)
+    active        = fields.Boolean('Active', default=True, tracking=True)
+    is_base_test  = fields.Boolean('Base de test', compute='_compute_is_base_test')
+
+    def _compute_is_base_test(self):
+        is_test = self._cr.dbname == 'pg-odoo16-1'
+        for obj in self:
+            obj.is_base_test = is_test
 
 
     @api.onchange('state')
@@ -552,19 +558,106 @@ class is_reception_inter_site(models.Model):
             return res
 
 
+    def _valider_picking_par_lot_fournisseur(self, obj, picking, qt_by_product_production, productions):
+        """Valide un picking en créant une réception partielle par lot fournisseur."""
+        current_picking = picking
+        for production in productions:
+            current_picking.is_num_bl = obj.num_bl
+            current_picking.is_date_reception = current_picking.is_date_reception or fields.Date.today()
+            current_picking.move_line_ids_without_package.unlink()
+
+            for move in current_picking.move_ids_without_package:
+                product_id = move.product_id.id
+                qty = qt_by_product_production.get((product_id, production), 0)
+                if qty <= 0:
+                    continue
+
+                # Création du lot (même convention que le wizard : AAMMJJ + nom picking)
+                numlot = date.today().strftime('%y%m%d') + current_picking.name
+                lots = self.env['stock.lot'].search([('product_id', '=', product_id), ('name', '=', numlot)])
+                lot = lots[0] if lots else self.env['stock.lot'].create({'name': numlot, 'product_id': product_id})
+                if production:
+                    lot.is_lot_fournisseur = production
+
+                # Emplacement de destination
+                if current_picking.purchase_id:
+                    location_dest_id = current_picking.purchase_id.location_id.id
+                else:
+                    location_dest_id = current_picking.location_dest_id.id
+                if move.product_id.is_ctrl_rcp == 'bloque':
+                    q2 = self.env['stock.location'].search([('name', '=', 'Q2')], limit=1)
+                    if q2:
+                        location_dest_id = q2.id
+
+                move.location_dest_id = location_dest_id
+                self.env['stock.move.line'].create({
+                    'location_id'     : move.location_id.id,
+                    'location_dest_id': location_dest_id,
+                    'lot_id'          : lot.id,
+                    'qty_done'        : qty,
+                    'product_id'      : product_id,
+                    'move_id'         : move.id,
+                    'picking_id'      : current_picking.id,
+                })
+                move.invoice_state = '2binvoiced'
+
+            old_move_ids = current_picking.move_ids_without_package.ids
+            current_picking._action_done()
+
+            # Recherche du reliquat (backorder) pour le prochain lot fournisseur
+            backorder = self.env['stock.picking'].search([
+                ('backorder_id', '=', current_picking.id),
+                ('state', 'not in', ['done', 'cancel']),
+            ], limit=1)
+            if backorder:
+                # Associer le reliquat à la réception inter-site (copy=False ne le propage pas)
+                backorder.is_reception_inter_site_id = obj.id
+
+                # Réaffecter les UC des productions suivantes vers les nouveaux mouvements du backorder
+                backorder_move_by_product = {m.product_id.id: m.id for m in backorder.move_ids_without_package}
+                future_ucs = self.env['is.galia.base.uc'].search([
+                    ('stock_move_rcp_id', 'in', old_move_ids),
+                    ('production', '!=', production),
+                ])
+                for uc in future_ucs:
+                    new_move_id = backorder_move_by_product.get(uc.product_id.id)
+                    if new_move_id:
+                        uc.stock_move_rcp_id = new_move_id
+                current_picking = backorder
+
     def valider_receptions_action(self):
         for obj in self:
             for picking in obj.picking_ids:
-                if picking.state!='done':
-                    vals={
-                        'is_num_bl': obj.num_bl
-                    }
-                    transfert = self.env['stock.transfer_details'].with_context(active_id=picking.id).create(vals)
-                    for line in transfert.line_ids:
-                        line.quantity = picking.is_qt_livree_inter_site
-                    transfert.valider_action()
-                    picking.mise_a_jour_colisage_action()
-            obj.state='controle'
+                if picking.state != 'done':
+                    # Grouper les UC par (product_id, production)
+                    qt_by_product_production = {}
+                    productions = []
+                    for move in picking.move_ids_without_package:
+                        ucs = self.env['is.galia.base.uc'].search([
+                            ('stock_move_rcp_id'      , '=', move.id),
+                            ('reception_inter_site_id', '=', obj.id),
+                        ])
+                        for uc in ucs:
+                            prod = uc.production or ''
+                            key = (move.product_id.id, prod)
+                            qt_by_product_production[key] = qt_by_product_production.get(key, 0) + uc.qt_pieces
+                            if prod not in productions:
+                                productions.append(prod)
+
+                    if productions:
+                        self._valider_picking_par_lot_fournisseur(obj, picking, qt_by_product_production, productions)
+                    else:
+                        # Aucune UC trouvée → comportement original
+                        vals = {'is_num_bl': obj.num_bl}
+                        transfert = self.env['stock.transfer_details'].with_context(active_id=picking.id).create(vals)
+                        for line in transfert.line_ids:
+                            line.quantity = picking.is_qt_livree_inter_site
+                        transfert.valider_action()
+
+            # mise_a_jour_colisage_action sur toutes les réceptions (y compris déjà validées)
+            for picking in obj.picking_ids:
+                picking.mise_a_jour_colisage_action()
+            obj.state = 'controle'
 
 
     def get_um_reception_action(self):
@@ -683,6 +776,53 @@ class is_reception_inter_site(models.Model):
         }
         return res
     
+
+    def dupliquer_reception_test_action(self):
+        dbname = self._cr.dbname
+        if dbname != 'pg-odoo16-1':
+            raise ValidationError(
+                "Cette action n'est disponible que sur la base 'pg-odoo16-1' (base actuelle : '%s')" % dbname
+            )
+        for obj in self:
+            # Annuler les réceptions en attente du fournisseur
+            pending = self.env['stock.picking'].search([
+                ('partner_id'          , '=', obj.fournisseur_reception_id.id),
+                ('state'               , 'not in', ['done', 'cancel']),
+                ('picking_type_id.code', '=', 'incoming'),
+            ])
+            pending.action_cancel()
+
+            # Récupérer les UM avant suppression des UC
+            ucs = self.env['is.galia.base.uc'].search([('reception_inter_site_id', '=', obj.id)])
+            um_ids = ucs.mapped('um_id').ids
+
+            # Dupliquer les commandes fournisseurs liées aux réceptions et les valider
+            po_already_done = []
+            new_picking_ids = []
+            for picking in obj.picking_ids:
+                purchase = picking.purchase_id
+                if purchase and purchase.id not in po_already_done:
+                    po_already_done.append(purchase.id)
+                    new_po = purchase.copy()
+                    new_po.button_confirm()
+                    for new_picking in new_po.picking_ids:
+                        new_picking.is_date_reception = picking.is_date_reception
+                    new_picking_ids += new_po.picking_ids.ids
+
+            # Dupliquer la réception inter-site
+            new_reception = obj.copy({'num_bl': obj.num_bl})
+
+            # Supprimer les UC et UM associées à cette réception
+            ucs.unlink()
+            ums = self.env['is.galia.base.um'].browse(um_ids)
+            ums.unlink()
+
+            return {
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'is.reception.inter.site',
+                'res_id'   : new_reception.id,
+                'view_mode': 'form',
+            }
 
     def move_stock(self):
         for obj in self:

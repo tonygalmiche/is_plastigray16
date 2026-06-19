@@ -68,26 +68,35 @@
                             name="voir_articles_action" 
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                         />
-                        <!-- <button 
-                            string="TEST get_um_reception" 
-                            type="object" 
-                            name="get_um_reception_action" 
+                        <!-- <button
+                            string="TEST get_um_reception"
+                            type="object"
+                            name="get_um_reception_action"
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                             groups="base.group_no_one"
                         />
-                        <button 
-                            string="TEST move_stock" 
-                            type="object" 
-                            name="move_stock" 
+                        <button
+                            string="TEST move_stock"
+                            type="object"
+                            name="move_stock"
                             attrs="{'invisible': [('picking_ids', '==', [])]}"
                             groups="base.group_no_one"
                         /> -->
+                        <button
+                            string="Dupliquer cette réception avec ses commandes (pour base de test seulement)"
+                            type="object"
+                            name="dupliquer_reception_test_action"
+                            groups="base.group_system"
+                            confirm="Cette action va dupliquer la réception inter-site et ses commandes fournisseurs, supprimer les UC/UM associées, et annuler toutes les réceptions en attente du fournisseur. Confirmer ?"
+                            attrs="{'invisible': [('is_base_test', '=', False)]}"
+                        />
                     <field name="state" widget="statusbar"/>
                      <!-- options="{'clickable': '1'}" -->
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <field name="active" invisible="1"/>
+                        <field name="is_base_test" invisible="1"/>
                         <group>
                             <group>
                                 <field name="site_livraison_id"        attrs="{'readonly': [('state', '!=', 'analyse')]}"/>

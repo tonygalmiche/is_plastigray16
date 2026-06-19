@@ -32,7 +32,7 @@ _KELIO_TYPE_ABSENCE = {
     'rc_journee'         : 'REC',
     'rc_heures'          : 'REC',
     'sans_solde'         : 'CSS',
-    'autre'              : '',
+    'autre'              : 'EV',
 }
 
 

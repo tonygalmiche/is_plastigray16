@@ -161,6 +161,8 @@
                 <!-- <field name="location_dest_id"  optional="show"/> -->
                 <field name="picking_state"     optional="hide"/>
                 <field name="invoice_state"     optional="show"/>
+                <field name="create_date"       optional="hide"/>
+                <field name="write_date"        optional="hide"/>
                 <field name="is_facturable" invisible="1"/>
            </tree>
         </field>

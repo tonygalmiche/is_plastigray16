@@ -51,6 +51,8 @@ class is_ligne_reception(models.Model):
     user_id              = fields.Many2one('res.users', 'Utilisateur')
     move_id              = fields.Many2one('stock.move', 'Mouvement de stock')
     location_dest_id     = fields.Many2one('stock.location', 'Destination')
+    create_date          = fields.Datetime('Date de création réception')
+    write_date           = fields.Datetime('Date de modification réception')
 
 
     picking_state        = fields.Selection([
@@ -164,7 +166,9 @@ class is_ligne_reception(models.Model):
                             WHERE sml.move_id = sm.id 
                             LIMIT 1
                         ) as lot_fournisseur,
-                        pol.is_num_chantier
+                        pol.is_num_chantier,
+                        sp.create_date        as create_date,
+                        sp.write_date         as write_date
                 FROM stock_picking sp 
                     INNER JOIN stock_move sm ON sm.picking_id = sp.id 
                     INNER JOIN product_product pp ON sm.product_id = pp.id
