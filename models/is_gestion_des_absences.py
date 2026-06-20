@@ -29,8 +29,8 @@ _TYPE_DEMANDE = [
 _KELIO_TYPE_ABSENCE = {
     'cp_rtt_journee'     : 'CP',
     'cp_rtt_demi_journee': 'CP',
-    'rc_journee'         : 'REC',
-    'rc_heures'          : 'REC',
+    'rc_journee'         : 'RC',
+    'rc_heures'          : 'RC',
     'sans_solde'         : 'CSS',
     'autre'              : 'EV',
 }
