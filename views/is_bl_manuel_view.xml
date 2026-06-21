@@ -118,7 +118,8 @@
             <field name="arch" type="xml">
                 <tree decoration-muted="state=='termine'" decoration-danger="state=='brouillon'">
                     <field name="name"/>
-                    <field name="emetteur_id"/> 
+                    <field name="destinataire_id"/>
+                    <field name="emetteur_id"/>
                     <field name="date_bl"/> 
                     <field name="incoterm_id"          optional="show"/> 
                     <field name="transporteur_id"      optional="show"/> 
