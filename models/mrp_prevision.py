@@ -159,55 +159,58 @@ class mrp_prevision(models.Model):
 
 
 
-    def groupage_date_sa(self):
-        """Regroupe les dates (start_date_cq) des SA selon le paramètre is_groupage_cbn du fournisseur.
+    # def groupage_date_sa(self):
+    #     """Regroupe les dates (start_date_cq) des SA selon le paramètre is_groupage_cbn du fournisseur.
 
-        Règles :
-        - Si is_groupage_cbn est vide : on ne touche à rien.
-        - Si 'mensuel'    : pour chaque couple (article, mois), on recherche la start_date_cq
-                            la plus ancienne parmi toutes les SA du mois, et on aligne toutes
-                            les autres SA du même groupe sur cette date minimale.
-        - Si '2semaines'  : pour chaque SA, on positionne start_date_cq sur le lundi de la
-                            semaine ISO paire la plus proche qui soit <= à la date d'origine.
-                            Si la semaine d'origine est impaire, on recule d'une semaine (7 j)
-                            pour tomber sur la semaine paire précédente.
+    #     Règles :
+    #     - Si is_groupage_cbn est vide : on ne touche à rien.
+    #     - Si 'mensuel'    : pour chaque couple (article, mois), on recherche la start_date_cq
+    #                         la plus ancienne parmi toutes les SA du mois, et on aligne toutes
+    #                         les autres SA du même groupe sur cette date minimale.
+    #     - Si '2semaines'  : pour chaque SA, on positionne start_date_cq sur le lundi de la
+    #                         semaine ISO paire la plus proche qui soit <= à la date d'origine.
+    #                         Si la semaine d'origine est impaire, on recule d'une semaine (7 j)
+    #                         pour tomber sur la semaine paire précédente.
 
-        ATTENTION : le write() de ce modèle appelle get_dates_from_start_date_cq() qui réajuste
-        automatiquement start_date_cq sur le prochain jour ouvré (fournisseur + entreprise).
-        Ce réajustement peut faire basculer la date calculée sur une semaine impaire
-        (ex : lundi S34 (paire) décalé au jeudi 28/08 => S35 impaire)
-        """
-        sa_records = self.filtered(lambda r: r.type == 'sa' and r.start_date_cq)
+    #     ATTENTION : le write() de ce modèle appelle get_dates_from_start_date_cq() qui réajuste
+    #     automatiquement start_date_cq sur le prochain jour ouvré (fournisseur + entreprise).
+    #     Ce réajustement peut faire basculer la date calculée sur une semaine impaire
+    #     (ex : lundi S34 (paire) décalé au jeudi 28/08 => S35 impaire)
+    #     """
+    #     sa_records = self.filtered(lambda r: r.type == 'sa' and r.start_date_cq)
 
-        # --- Traitement '2semaines' ---
-        for sa in sa_records.filtered(lambda r: r.partner_id and r.partner_id.is_groupage_cbn == '2semaines'):
-            date = sa.start_date_cq
-            # Numéro de semaine ISO (1 = impaire, 2 = paire, ...)
-            iso_week = date.isocalendar()[1]
-            # Lundi de la semaine courante
-            monday = date - timedelta(days=date.weekday())
-            if iso_week % 2 != 0:
-                # Semaine impaire : on recule au lundi de la semaine paire précédente
-                monday = monday - timedelta(days=7)
-            # Écriture uniquement si la date change (déclenche le recalcul de start_date)
-            if monday != date:
-                sa.write({'start_date_cq': monday})
+    #     # --- Traitement '2semaines' ---
+    #     for sa in sa_records.filtered(lambda r: r.partner_id and r.partner_id.is_groupage_cbn == '2semaines'):
+    #         date = sa.start_date_cq
+    #         # Numéro de semaine ISO (1 = impaire, 2 = paire, ...)
+    #         iso_week = date.isocalendar()[1]
+    #         # Lundi de la semaine courante
+    #         monday = date - timedelta(days=date.weekday())
+    #         if iso_week % 2 != 0:
+    #             # Semaine impaire : on recule au lundi de la semaine paire précédente
+    #             monday = monday - timedelta(days=7)
+    #         # Écriture uniquement si la date change (déclenche le recalcul de start_date)
+    #         if monday != date:
+    #             sa.write({'start_date_cq': monday})
 
-        # --- Traitement 'mensuel' ---
-        mensuel_sa = sa_records.filtered(lambda r: r.partner_id and r.partner_id.is_groupage_cbn == 'mensuel')
-        # Regroupement par (article, année, mois) pour isoler chaque groupe mensuel
-        groups = {}
-        for sa in mensuel_sa:
-            key = (sa.product_id.id, sa.start_date_cq.year, sa.start_date_cq.month)
-            if key not in groups:
-                groups[key] = self.env['mrp.prevision']
-            groups[key] |= sa
-        for key, sas in groups.items():
-            # Date la plus ancienne du groupe = date cible commune
-            min_date = min(sa.start_date_cq for sa in sas)
-            for sa in sas:
-                if sa.start_date_cq != min_date:
-                    sa.write({'start_date_cq': min_date})
+    #     # --- Traitement 'mensuel' ---
+    #     mensuel_sa = sa_records.filtered(lambda r: r.partner_id and r.partner_id.is_groupage_cbn == 'mensuel')
+    #     # Regroupement par (article, année, mois) pour isoler chaque groupe mensuel
+    #     groups = {}
+    #     for sa in mensuel_sa:
+    #         key = (sa.product_id.id, sa.start_date_cq.year, sa.start_date_cq.month)
+    #         if key not in groups:
+    #             groups[key] = self.env['mrp.prevision']
+    #         groups[key] |= sa
+    #     for key, sas in groups.items():
+    #         # Date la plus ancienne du groupe = date cible commune
+    #         min_date = min(sa.start_date_cq for sa in sas)
+    #         for sa in sas:
+    #             if sa.start_date_cq != min_date:
+    #                 sa.write({'start_date_cq': min_date})
+
+
+
 
     def _start_date(self, product_id, quantity, end_date):
         start_date=end_date

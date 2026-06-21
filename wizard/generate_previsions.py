@@ -30,9 +30,10 @@ class mrp_generate_previsions(models.TransientModel):
     _name = "mrp.previsions.generate"
     _description = "Generate previsions"
 
-    max_date     = fields.Date('Date limite'               , required=True, default=lambda self: self._max_date())
-    company_id   = fields.Many2one('res.company', 'Société', required=True, default=lambda self: self.env.user.company_id)
-    regroupement = fields.Selection([('jour','Jour'),('semaine','Semaine')], string='Regroupement', default="jour")
+    max_date                  = fields.Date('Date limite'               , required=True, default=lambda self: self._max_date())
+    company_id                = fields.Many2one('res.company', 'Société', required=True, default=lambda self: self.env.user.company_id)
+    regroupement              = fields.Selection([('jour','Jour'),('semaine','Semaine')], string='Regroupement', default="jour")
+    groupage_cbn_fournisseur  = fields.Boolean('Groupage CBN du fournisseur', default=True)
 
 
     @api.constrains('max_date')
@@ -376,22 +377,42 @@ class mrp_generate_previsions(models.TransientModel):
             _logger.info(_now(debut) + "## Fin du CBN")
 
 
-            ##** Regroupement des FS et SA par semaine *************************
-            _logger.info(_now(debut) + "## Debut du regroupement des SA et FS par semaine")
+            ##** Regroupement des FS et SA *************************************
+            _logger.info(_now(debut) + "## Debut du regroupement des SA et FS")
             dates = self._dates(obj.max_date, 7)
+
+            # --- Identifier les fournisseurs à groupage spécifique (si case cochée) ---
+            partners_mensuel   = []  # is_groupage_cbn = 'mensuel'
+            partners_2semaines = []  # is_groupage_cbn = '2semaines'
+            if obj.groupage_cbn_fournisseur:
+                cr.execute("select distinct partner_id from mrp_prevision where type='sa' and partner_id is not null")
+                partner_ids_sa = [r[0] for r in cr.fetchall()]
+                for partner in partner_obj.browse(partner_ids_sa):
+                    if partner.is_groupage_cbn == 'mensuel':
+                        partners_mensuel.append(partner.id)
+                    elif partner.is_groupage_cbn == '2semaines':
+                        partners_2semaines.append(partner.id)
+
+            # --- FS et SA par semaine (toujours actif, SA hors fournisseurs mensuel/2semaines) ---
+            excl_partners = partners_mensuel + partners_2semaines
+            sa_excl = ""
+            if excl_partners:
+                excl_str = ','.join(str(x) for x in excl_partners)
+                sa_excl = " and (type='fs' or partner_id is null or partner_id not in (" + excl_str + "))"
             for date in dates:
-                _logger.info(_now(debut) + '- ' + str(date))
+                _logger.info(_now(debut) + '- FS/SA-semaine ' + str(date))
                 date_debut  = date
-                date_fin    = self._date_fin(date,nb_jours)
+                date_fin    = self._date_fin(date, nb_jours)
                 now=datetime.datetime.now().strftime('%Y-%m-%d')
                 if date_debut<=now:
                     date_debut="2000-01-01"
                 sql="""
                     select product_id, type, count(*), sum(quantity)
-                    from mrp_prevision 
-                    where   start_date>='"""+date_debut+"""' 
+                    from mrp_prevision
+                    where   start_date>='"""+date_debut+"""'
                         and start_date<'"""+date_fin+"""'
-                        and type in ('fs', 'sa')
+                        and type in ('fs','sa')
+                        """+sa_excl+"""
                     group by product_id, type
                     having count(*)>1
                 """
@@ -410,7 +431,111 @@ class mrp_generate_previsions(models.TransientModel):
                         else:
                             prevision.unlink()
                         ct=ct+1
-            _logger.info(_now(debut) + "## Fin du regroupement des SA et FS par semaine")
+
+            # --- SA mensuel (uniquement si groupage_cbn_fournisseur coché) -----
+            # Groupage par start_date_cq (date réception, utilisée pour l'affichage CBN)
+            # et non par start_date (date commande) qui peut être dans le mois précédent
+            # à cause du délai fournisseur.
+            if partners_mensuel:
+                _logger.info(_now(debut) + "## SA mensuel")
+                months = set()
+                for date in dates:
+                    d = datetime.datetime.strptime(date, '%Y-%m-%d')
+                    months.add((d.year, d.month))
+                for pid in partners_mensuel:
+                    partner_name = partner_obj.browse(pid).name
+                    for year, month in sorted(months):
+                        month_start = '%04d-%02d-01' % (year, month)
+                        if month == 12:
+                            month_end = '%04d-01-01' % (year + 1)
+                        else:
+                            month_end = '%04d-%02d-01' % (year, month + 1)
+                        now=datetime.datetime.now().strftime('%Y-%m-%d')
+                        eff_start = "2000-01-01" if month_start <= now else month_start
+                        # Date réception la plus ancienne du mois pour CE fournisseur (SA + FS)
+                        cr.execute("""
+                            select min(start_date_cq)
+                            from mrp_prevision
+                            where type in ('sa','fs')
+                              and partner_id = """+str(pid)+"""
+                              and start_date_cq >= '"""+eff_start+"""'
+                              and start_date_cq < '"""+month_end+"""'
+                        """)
+                        row = cr.fetchone()
+                        target_date = str(row[0]) if row and row[0] else month_start
+                        _logger.info(_now(debut) + '- mensuel fournisseur=%s mois=%s date_regroupement=%s' % (partner_name, month_start, target_date))
+                        # Regrouper les SA de chaque article du mois pour CE fournisseur
+                        cr.execute("""
+                            select product_id, min(id), sum(quantity), array_agg(id)
+                            from mrp_prevision
+                            where type = 'sa'
+                              and partner_id = """+str(pid)+"""
+                              and start_date_cq >= '"""+eff_start+"""'
+                              and start_date_cq < '"""+month_end+"""'
+                            group by product_id
+                        """)
+                        for row in cr.fetchall():
+                            _, first_id, total_qty, all_ids = row
+                            other_ids = [i for i in all_ids if i != first_id]
+                            # write() sur start_date_cq déclenche le recalcul de start_date via get_dates_from_start_date_cq
+                            prevision_obj.browse(first_id).write({'start_date_cq': target_date, 'quantity': total_qty})
+                            if other_ids:
+                                prevision_obj.browse(other_ids).unlink()
+
+            # --- SA toutes les 2 semaines (semaines paires) --------------------
+            if partners_2semaines:
+                _logger.info(_now(debut) + "## SA 2 semaines")
+                for pid in partners_2semaines:
+                    partner_name = partner_obj.browse(pid).name
+                    processed_periods = set()
+                    for date in dates:
+                        d = datetime.datetime.strptime(date, '%Y-%m-%d')
+                        iso_week = d.isocalendar()[1]
+                        # Lundi de la semaine paire correspondante
+                        if iso_week % 2 == 0:
+                            even_monday = d
+                        else:
+                            even_monday = d - datetime.timedelta(days=7)
+                        key = even_monday.strftime('%Y-%m-%d')
+                        if key in processed_periods:
+                            continue
+                        processed_periods.add(key)
+                        even_week_start = key
+                        even_week_end   = (even_monday + datetime.timedelta(days=7)).strftime('%Y-%m-%d')
+                        period_end      = (even_monday + datetime.timedelta(days=14)).strftime('%Y-%m-%d')
+                        now=datetime.datetime.now().strftime('%Y-%m-%d')
+                        eff_start = "2000-01-01" if even_week_start <= now else even_week_start
+                        # Date réception la plus ancienne dans la semaine paire pour CE fournisseur
+                        cr.execute("""
+                            select min(start_date_cq)
+                            from mrp_prevision
+                            where type in ('sa','fs')
+                              and partner_id = """+str(pid)+"""
+                              and start_date_cq >= '"""+eff_start+"""'
+                              and start_date_cq < '"""+even_week_end+"""'
+                        """)
+                        row = cr.fetchone()
+                        target_date = str(row[0]) if row and row[0] else even_week_start
+                        _logger.info(_now(debut) + '- 2semaines fournisseur=%s periode=%s=>%s date_regroupement=%s' % (partner_name, even_week_start, period_end, target_date))
+                        # Regrouper les SA de chaque article sur les 2 semaines pour CE fournisseur
+                        cr.execute("""
+                            select product_id, min(id), sum(quantity), array_agg(id)
+                            from mrp_prevision
+                            where type = 'sa'
+                              and partner_id = """+str(pid)+"""
+                              and start_date_cq >= '"""+eff_start+"""'
+                              and start_date_cq < '"""+period_end+"""'
+                            group by product_id
+                        """)
+                        for row in cr.fetchall():
+                            _, first_id, total_qty, all_ids = row
+                            other_ids = [i for i in all_ids if i != first_id]
+                            # write() sur start_date_cq déclenche le recalcul de start_date via get_dates_from_start_date_cq
+                            prevision_obj.browse(first_id).write({'start_date_cq': target_date, 'quantity': total_qty})
+                            if other_ids:
+                                prevision_obj.browse(other_ids).unlink()
+
+            _logger.info(_now(debut) + "## Fin du regroupement des SA et FS")
             #*******************************************************************
 
         _logger.info(_now(debut) + "## FIN")

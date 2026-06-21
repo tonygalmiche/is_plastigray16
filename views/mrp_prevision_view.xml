@@ -193,12 +193,12 @@
         </record>
 
         <!-- Groupage date SA selon fournisseur -->
-        <record id="groupage_date_sa_action_server" model="ir.actions.server">
+        <!-- <record id="groupage_date_sa_action_server" model="ir.actions.server">
             <field name="name">Grouper les dates SA (selon fournisseur)</field>
             <field name="model_id" ref="model_mrp_prevision"/>
             <field name="binding_model_id" ref="model_mrp_prevision"/>
             <field name="state">code</field>
             <field name="code">records.groupage_date_sa()</field>
-        </record>
+        </record> -->
     </data>
 </odoo>
