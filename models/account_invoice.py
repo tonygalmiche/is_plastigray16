@@ -311,7 +311,7 @@ class account_invoice(models.Model):
             if obj.is_mode_envoi_facture=='courrier2':
                 r = range(1, 3)
             for x in r:
-                file_name = path + '/'+str(obj.name) + '-' + str(x) + '.pdf'
+                file_name = path + '/'+str(obj.name).replace('/', '-') + '-' + str(x) + '.pdf'
                 fd = os.open(file_name,os.O_RDWR|os.O_CREAT)
                 try:
                     os.write(fd, result)
