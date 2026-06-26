@@ -85,6 +85,14 @@
 
 
         <!-- Demande de congés -->
+        <record id="creer_absence_kelio_action_server" model="ir.actions.server">
+            <field name="name">Créer absence dans Kelio</field>
+            <field name="model_id" ref="model_is_demande_conges"/>
+            <field name="binding_model_id" ref="model_is_demande_conges"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.creer_absence_kelio_action()</field>
+        </record>
         <record id="repartir_par_mois_action_server" model="ir.actions.server">
             <field name="name">Répartir par mois</field>
            <field name="model_id" ref="model_is_demande_conges"/>

@@ -588,6 +588,17 @@ class is_demande_conges(models.Model):
 
         self.message_post(body="<br/>".join(chat_lines))
 
+    def creer_absence_kelio_action(self):
+        etats_autorises = ['validation_rh', 'solde']
+        for obj in self:
+            if obj.state not in etats_autorises:
+                _logger.info("Kelio : demande %s ignorée (état=%s)", obj.name, obj.state)
+                continue
+            try:
+                obj._creer_absence_kelio()
+            except Exception as e:
+                _logger.error("Kelio : erreur pour la demande %s : %s", obj.name, e)
+
     def vers_solde_action(self):
         for obj in self:
             if obj.demande_collective=='oui':
