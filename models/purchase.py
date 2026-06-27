@@ -394,7 +394,19 @@ class purchase_order(models.Model):
                             res=res+da.num_devis
                         if date_devis:
                             res=res+' du '+date_devis
-        return res 
+        return res
 
-
+    def voir_lignes_receptions_action(self):
+        for obj in self:
+            ids = [p.id for p in obj.picking_ids]
+            view_id = self.env.ref('is_plastigray16.is_view_move_line_tree')
+            res = {
+                'name'     : obj.name,
+                'view_mode': 'tree,form',
+                'views'    : [[view_id.id, 'list'], [False, 'form']],
+                'res_model': 'stock.move.line',
+                'type'     : 'ir.actions.act_window',
+                'domain'   : [('picking_id', 'in', ids)],
+            }
+            return res
 

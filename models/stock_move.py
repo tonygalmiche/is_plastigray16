@@ -520,7 +520,9 @@ class stock_move(models.Model):
         return date_livraison
 
 
+class stock_move_line(models.Model):
+    _inherit = "stock.move.line"
 
-
+    is_lot_fournisseur = fields.Char("Lot fournisseur", related='lot_id.is_lot_fournisseur', readonly=True)
 
 

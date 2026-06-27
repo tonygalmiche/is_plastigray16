@@ -96,6 +96,16 @@
                     <field name="is_date_end_cfc" attrs="{'invisible': [('is_cfc_id', '=', False)]}"/>
                     <field name="is_modified"/>
                 </field>
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button type="object"
+                        name="voir_lignes_receptions_action"
+                        class="oe_stat_button"
+                        icon="fa-list"
+                        attrs="{'invisible':[('incoming_picking_count','=', 0)]}"
+                        groups="stock.group_stock_user">
+                        <span class="o_stat_text">Lignes réceptions</span>
+                    </button>
+                </xpath>
                 <field name="picking_type_id" position="replace"/>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="replace">
                     <field name="date_planned" attrs="{'required': [('display_type', '=', False)]}" force_save="1"/>

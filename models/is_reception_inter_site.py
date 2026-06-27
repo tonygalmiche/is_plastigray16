@@ -507,6 +507,25 @@ class is_reception_inter_site(models.Model):
             }
             return res
 
+    def voir_lignes_receptions_action(self):
+        for obj in self:
+            ids = []
+            lines = self.env['stock.picking'].search([('is_reception_inter_site_id', '=', obj.id)])
+            for line in lines:
+                picking_id = line.id
+                if picking_id not in ids:
+                    ids.append(picking_id)
+            view_id = self.env.ref('is_plastigray16.is_view_move_line_tree')
+            res = {
+                'name'     : obj.name,
+                'view_mode': 'tree,form',
+                'views'    : [[view_id.id, 'list'], [False, 'form']],
+                'res_model': 'stock.move.line',
+                'type'     : 'ir.actions.act_window',
+                'domain'   : [('picking_id', 'in', ids)],
+            }
+            return res
+
     def voir_uc_action(self):
         for obj in self:
             res= {
