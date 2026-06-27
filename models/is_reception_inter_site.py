@@ -664,6 +664,7 @@ class is_reception_inter_site(models.Model):
                                 productions.append(prod)
 
                     if productions:
+                        productions.sort()
                         self._valider_picking_par_lot_fournisseur(obj, picking, qt_by_product_production, productions)
                     else:
                         # Aucune UC trouvée → comportement original
