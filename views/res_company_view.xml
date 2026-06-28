@@ -92,6 +92,7 @@
                                 <field name="is_regrouper_ligne_commande"/>
                                 <field name="is_temps_effectif_par_jour"/>
                                 <field name="is_cout_ctrl_qualite"/>
+                                <field name="is_cout_ctrl_qualite_vendu_fournisseur"/>
                                 <field name="is_dossier_interface_cegid"/>
                                 <field name="is_calendrier_expedition_id"/>
                                 <field 
