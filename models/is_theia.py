@@ -157,6 +157,8 @@ class is_raspberry(models.Model):
     onglet_40          = fields.Boolean('Onglet 4.0'       , default=False, help="Pour PK")
     onglet_actif       = fields.Char('Onglet actif', readonly=True, help=u"Ce champ est utilsé pour détecter si une mise à jour de l'onglet Indicateurs est necessaire")
     declaration_odoo   = fields.Boolean('Prod Odoo', help='Activer la déclaration de production dans Odoo', default=False)
+    reintegration_ci   = fields.Boolean('Réintégration CI', default=False)
+    solder_um          = fields.Boolean('Solder automatiquement UM', default=False)
     zebra_id           = fields.Many2one('is.raspberry.zebra', "Zebra", help="Imprimante Zebra")
     entree_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Entrées du Raspberry",  domain=[('entree_sortie','=','entree')])
     sortie_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Sorties du Raspberry",  domain=[('entree_sortie','=','sortie')])
@@ -248,6 +250,7 @@ class is_of(models.Model):
     affecte           = fields.Boolean(u"OF affecté à l'équipement", index=True,help=u"Cocher cette case si l'OF est affecté à l'équipement")
     ordre             = fields.Integer('Ordre', index=True, required=False)
     qt                = fields.Integer('Qt à produire', required=False)
+    qt_reintegree_ci  = fields.Integer('Quantité ré-intégrée (CI)', required=False)
     nb_cycles         = fields.Integer('Nombre de cycles')
     qt_theorique      = fields.Integer('Qt réalisée théorique', required=False)
     qt_declaree       = fields.Integer('Qt déclarée', required=False)
@@ -275,11 +278,47 @@ class is_of(models.Model):
     date_dms_logistique = fields.Datetime('Date DMS Logistique')
     date_dms_qualite    = fields.Datetime('Date DMS Qualité')
     date_dms_operateur  = fields.Datetime('Date DMS Opérateur')
+    declaration_ids     = fields.One2many('is.of.declaration', 'of_id', "Déclarations", readonly=True)
+    nb_declarations     = fields.Integer('Nombre de déclarations', compute='_compute_nb_declarations')
+    nb_etiquettes_uc    = fields.Integer('Nombre étiquettes UC', compute='_compute_nb_etiquettes_uc')
 
 
     _sql_constraints = [
         ('name_uniq', 'unique(name)', u"Le numéro d'OF doit être unique !"),
     ]
+
+
+    @api.depends('declaration_ids')
+    def _compute_nb_declarations(self):
+        for obj in self:
+            obj.nb_declarations = len(obj.declaration_ids)
+
+
+    def _compute_nb_etiquettes_uc(self):
+        for obj in self:
+            obj.nb_etiquettes_uc = self.env['is.galia.base.uc'].search_count([('production', '=', obj.name)])
+
+
+    def action_voir_declarations(self):
+        self.ensure_one()
+        return {
+            'name': u"Déclarations de l'OF "+self.name,
+            'view_mode': 'tree,form',
+            'res_model': 'is.of.declaration',
+            'domain': [('of_id', '=', self.id)],
+            'type': 'ir.actions.act_window',
+        }
+
+
+    def action_voir_etiquettes_uc(self):
+        self.ensure_one()
+        return {
+            'name': u"Etiquettes UC de l'OF "+self.name,
+            'view_mode': 'tree,form',
+            'res_model': 'is.galia.base.uc',
+            'domain': [('production', '=', self.name)],
+            'type': 'ir.actions.act_window',
+        }
 
 
     def get_id_production_serie(self):
@@ -499,6 +538,17 @@ class is_of_declaration(models.Model):
     qt_rebut    = fields.Integer('Qt rebut', required=False)
     defaut_id   = fields.Many2one('is.type.defaut', u"Type de défaut", required=False)
     employee_id = fields.Many2one("hr.employee", "Employé")
+
+
+    def action_voir_uc(self):
+        self.ensure_one()
+        return {
+            'name': "Etiquettes UC",
+            'view_mode': 'tree,form',
+            'res_model': 'is.galia.base.uc',
+            'domain': [('production', '=', self.of_id.name), ('num_carton', '=', self.num_carton)],
+            'type': 'ir.actions.act_window',
+        }
 
 
 class is_presse_cycle(models.Model):

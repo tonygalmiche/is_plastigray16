@@ -408,16 +408,17 @@
                 <field name="affecte" optional="show"/>
                 <field name="ordre" optional="show"/>
                 <field name="qt" optional="show"/>
+                <field name="qt_reintegree_ci" optional="hide"/>
                 <field name="qt_theorique" optional="show"/>
                 <field name="qt_declaree" optional="show"/>
                 <field name="qt_restante" optional="show"/>
                 <field name="qt_rebut" optional="show"/>
                 <field name="qt_rebut_theo" optional="show"/>
-                <field name="taux_rebut" optional="show"/>
-                <field name="taux_rebut_theo" optional="show"/>
-                <field name="cycle_gamme" optional="show"/>
-                <field name="cycle_moyen" optional="show"/>
-                <field name="cycle_moyen_serie" optional="show"/>
+                <field name="taux_rebut" optional="hide"/>
+                <field name="taux_rebut_theo" optional="hide"/>
+                <field name="cycle_gamme" optional="hide"/>
+                <field name="cycle_moyen" optional="hide"/>
+                <field name="cycle_moyen_serie" optional="hide"/>
                 <field name="tps_restant" optional="show" widget="float_time"/>
                 <field name="heure_debut" optional="show"/>
                 <field name="heure_fin" optional="show"/>
@@ -432,6 +433,14 @@
         <field name="arch" type="xml">
         <form create="0">
             <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_voir_declarations" type="object" class="oe_stat_button" icon="fa-list">
+                        <field name="nb_declarations" widget="statinfo" string="Déclarations"/>
+                    </button>
+                    <button name="action_voir_etiquettes_uc" type="object" class="oe_stat_button" icon="fa-barcode">
+                        <field name="nb_etiquettes_uc" widget="statinfo" string="Etiquettes UC"/>
+                    </button>
+                </div>
                 <group>
                     <group>
                         <field name="name"          readonly="1"/>
@@ -450,6 +459,7 @@
                     </group>
                     <group>
                         <field name="qt"                 readonly="1"/>
+                        <field name="qt_reintegree_ci"/>
                         <field name="nb_cycles"          invisible="1"/>
                         <field name="qt_theorique"       readonly="1"/>
                         <field name="qt_declaree"        readonly="1"/>
@@ -666,6 +676,11 @@
         <field name="arch" type="xml">
         <form>
             <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_voir_uc" type="object" class="oe_stat_button" icon="fa-barcode">
+                        <span>Etiquettes UC</span>
+                    </button>
+                </div>
                 <group>
                     <field name="name" />
                     <field name="of_id" />
@@ -1043,15 +1058,17 @@
                 <field name="name"/>
                 <field name="adresse_mac"/>
                 <field name="last_presse_id"/>
-                <field name="onglet_indicateurs" optional="show"/>
-                <field name="onglet_es"          optional="show"/>
-                <field name="onglet_amr"         optional="show"/>
-                <field name="onglet_dms"         optional="show"/>
-                <field name="onglet_ot"          optional="show"/>
-                <field name="onglet_40"          optional="show"/>
-                <field name="onglet_actif"       optional="show"/>
+                <field name="onglet_indicateurs" optional="hide"/>
+                <field name="onglet_es"          optional="hide"/>
+                <field name="onglet_amr"         optional="hide"/>
+                <field name="onglet_dms"         optional="hide"/>
+                <field name="onglet_ot"          optional="hide"/>
+                <field name="onglet_40"          optional="hide"/>
+                <field name="onglet_actif"       optional="hide"/>
                 <field name="declaration_odoo"   optional="show"/>
-                <field name="zebra_id"           optional="show"/>
+                <field name="reintegration_ci"   optional="show"/>
+                <field name="solder_um"          optional="show"/>
+                <field name="zebra_id"           optional="hide"/>
                 <field name="create_date"        optional="hide"/>
                 <field name="write_date"         optional="show"/>
             </tree>
@@ -1065,20 +1082,26 @@
         <form>
             <sheet>
                 <group>
-                    <field name="name"/>
-                    <field name="adresse_mac"/>
-                    <field name="last_presse_id"/>
-                    <field name="onglet_indicateurs"/>
-                    <field name="onglet_es"/>
-                    <field name="onglet_amr"/>
-                    <field name="onglet_dms"/>
-                    <field name="onglet_ot"/>
-                    <field name="onglet_40"/>
-                    <field name="onglet_actif"/>
-                    <field name="declaration_odoo"/>
-                    <field name="zebra_id"/>
+                    <group>
+                        <field name="name"/>
+                        <field name="onglet_indicateurs"/>
+                        <field name="onglet_es"/>
+                        <field name="onglet_amr"/>
+                        <field name="onglet_dms"/>
+                        <field name="onglet_ot"/>
+                        <field name="onglet_40"/>
+                        <field name="onglet_actif"/>
+                    </group>
+                    <group>
+                        <field name="adresse_mac"/>
+                        <field name="last_presse_id"/>
+                        <field name="zebra_id"/>
+                        <field name="declaration_odoo"/>
+                        <field name="reintegration_ci"/>
+                        <field name="solder_um"/>
+                    </group>
                 </group>
-                <table>
+                 <table>
                     <tr style="vertical-align: top">
                         <td style="width:50%">
                             <group string="Entrées"/>

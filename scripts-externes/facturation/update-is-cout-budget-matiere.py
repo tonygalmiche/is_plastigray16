@@ -67,9 +67,10 @@ def update_database(dbname):
 
 
 if __name__ == '__main__':
-    for db in DATABASES:
+    for db in DATABASES.values():
+        dbname = db["db"]
         try:
-            update_database(db)
+            update_database(dbname)
         except Exception as e:
-            print(f"  ERREUR sur {db} : {e}")
+            print(f"  ERREUR sur {dbname} : {e}")
     print("\nTerminé.")
