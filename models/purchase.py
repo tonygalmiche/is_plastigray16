@@ -11,7 +11,6 @@ class purchase_order_line(models.Model):
 
     is_justification = fields.Char("Justification" , help="Ce champ est obligatoire si l'article n'est pas renseigné ou le prix à 0")
     is_num_chantier  = fields.Char("N° du chantier", help="Champ utilisé pour la gestion des investissements sous la forme Mxxxx/xxxxx")
-    #date_planned     = fields.Date("Date prévue") #TODO : Pour remplacer Datetime par Date
 
 
     @api.depends('product_qty', 'product_uom')
@@ -19,20 +18,6 @@ class purchase_order_line(models.Model):
         'Désactivation de cette fonction le 20/01/2024'
         print("## _compute_price_unit_and_date_planned_and_name",self, self.product_qty)
         return
-
-
-    # @api.depends('product_packaging_qty')
-    # def _compute_product_qty(self):
-    #     'Désactivation de cette fonction le 18/02/2024'
-    #     print("## _compute_product_qty",self, self.product_qty, self.product_uom_qty)
-    #     return
- 
-
-    # @api.depends('product_uom', 'product_qty', 'product_id.uom_id')
-    # def _compute_product_uom_qty(self):
-    #     'Désactivation de cette fonction le 18/02/2024'
-    #     print("## _compute_product_uom_qty",self, self.product_qty, self.product_uom_qty)
-    #     return
 
 
     def set_price_justification(self):
@@ -162,32 +147,9 @@ class purchase_order(models.Model):
             obj.is_date_creation_picking = d
 
 
-    # def _message_auto_subscribe_notify(self, partner_ids, template):
-    #     "Désactiver les notifications d'envoi des mails"
-    #     print("_message_auto_subscribe_notify")
-    #     return True
-
-
     def _add_supplier_to_product(self):
         # Désactivation de cette fonction qui ajoute automatiquement un fournisseur à la fiche article lors de la validation de la commande
         return True
-
-
-    #TODO : Désactvié le 15/01/2024, car cela posait des problèmes d'emplacement lors de la modification des commandes
-    # def button_confirm(self):
-    #     res = super().button_confirm()
-    #     if self.location_id:
-    #         for picking in self.picking_ids:
-    #             if picking.state=="assigned":
-    #                 picking.location_dest_id = self.location_id.id
-    #                 for move in picking.move_ids_without_package:
-    #                     if move.state not in ('done','cancel'):
-    #                         print(move, move.state,move.location_dest_id)
-    #                         for line in move.move_line_ids:
-    #                             if line.state not in ('done','cancel'):
-    #                                 print(line, line.state, line.location_dest_id)
-    #                                 line.location_dest_id=self.location_id.id
-    #    return res
 
 
     def envoyer_par_mail(self):
@@ -223,10 +185,6 @@ class purchase_order(models.Model):
             name=u'commande-'+obj.name+u'.pdf'
             #pdf = self.env['report'].get_pdf(obj, 'is_plastigray16.is_report_purchaseorder')
             pdf = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.purchaseorder_report',[obj.id])[0]
-
-
-
-
             #*******************************************************************
 
             # ** Recherche si une pièce jointe est déja associèe ***************
@@ -328,19 +286,6 @@ class purchase_order(models.Model):
         for obj in self:
             for line in obj.order_line:
                 line.set_price_justification()
-                # res = line.onchange_product_id(
-                #     obj.pricelist_id.id, 
-                #     line.product_id.id, 
-                #     line.product_qty, 
-                #     line.product_uom.id,
-                #     obj.partner_id.id, 
-                #     date_order   = str(line.date_planned)+u' 12:00:00',
-                #     date_planned = line.date_planned,
-                # )
-                # price=res['value']['price_unit']
-                # if not price:
-                #     raise ValidationError(u"Modification non éffectuée, car prix non trouvé")
-                # line.price_unit=price
 
 
     def actualiser_taxes_commande(self):
