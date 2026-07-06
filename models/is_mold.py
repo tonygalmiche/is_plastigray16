@@ -262,6 +262,9 @@ class is_mold(models.Model):
     nb_circuit_eau_mobile = fields.Selection(_NB_CIRCUIT_EAU, "Nombre de circuits d'eau - Partie mobile", tracking=True)
     nb_circuit_eau_mobile_commentaire = fields.Char(u"Nombre de circuits d'eau - Partie mobile - Commentaire", tracking=True)
 
+    nb_torpilles = fields.Integer(u"Nombre de torpilles", tracking=True)
+    nb_points_injection = fields.Integer(u"Nombre de points d'injection", tracking=True)
+
     cinematique = fields.Selection([
             ("standard"  , u"Standard : Cycle sans HM"),
             ("specifique", u"Spécifique"),

@@ -239,6 +239,11 @@
                                     </group>
                                 </group>
 
+                                <group string="Torpilles / Points d'injection">
+                                    <field name="nb_torpilles"/>
+                                    <field name="nb_points_injection"/>
+                                </group>
+
                                 <group string="Nombre de noyaux">
                                     <group>
                                         <field name="nb_noyaux_fixe"/>
