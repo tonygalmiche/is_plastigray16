@@ -17,6 +17,7 @@
                         <th>Moule (Liste avec virgule)</th>
                         <th>Projet</th>
                         <th>Client</th>
+                        <th>Client multi-niveaux</th>
                         <th>Fournisseur</th>
                         <th>Semaines</th>
                         <th>Type Cde</th>
@@ -43,6 +44,7 @@
                         <td><input name="analyse_cbn_moule"        t-att-value="state.analyse_cbn_moule" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
                         <td><input name="analyse_cbn_projet"       t-att-value="state.analyse_cbn_projet" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
                         <td><input name="analyse_cbn_client"       t-att-value="state.analyse_cbn_client" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control"/></td>
+                        <td><input name="analyse_cbn_client_multi" t-att-value="state.analyse_cbn_client_multi" t-on-change="onChangeInput" t-on-keyup="OKkey" type="text" class="form-control" title="Code client (ex: 900000) ou code client/code adresse (ex: 900000/1)"/></td>
                        <td>
                             <select name="analyse_cbn_fournisseur" class="form-select" t-on-change="onChangeInput">
                                 <t t-foreach="state.fournisseur_options or []" t-as="o"  t-key="o.id">
@@ -252,6 +254,7 @@
                                                             />
                                                             <t t-esc="o.name"/>
                                                             <t t-esc="o.qt"/>
+                                                            <t t-if="o.fs_code_pg"> (<t t-esc="o.fs_code_pg"/>)</t>
                                                         </div>
                                                     </t>
                                                 </pre>

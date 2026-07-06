@@ -33,9 +33,10 @@ class product_product(models.Model):
             gest=False, 
             cat=False, 
             moule=False, 
-            projet=False, 
-            client=False, 
-            fournisseur=False, 
+            projet=False,
+            client=False,
+            client_multi=False,
+            fournisseur=False,
             semaines=False, 
             type_cde=False, 
             type_rapport=False, 
@@ -57,6 +58,7 @@ class product_product(models.Model):
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_moule'       , moule)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_projet'      , projet)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_client'      , client)
+            self.env['is.mem.var'].set(self._uid, 'analyse_cbn_client_multi', client_multi)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_fournisseur' , fournisseur)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_semaines'    , semaines)
             self.env['is.mem.var'].set(self._uid, 'analyse_cbn_type_cde'    , type_cde)
@@ -70,6 +72,7 @@ class product_product(models.Model):
             moule        = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_moule')
             projet       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_projet')
             client       = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_client')
+            client_multi = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_client_multi')
             fournisseur  = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_fournisseur')
             semaines     = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_semaines')
             type_cde     = self.env['is.mem.var'].get(self._uid, 'analyse_cbn_type_cde')
@@ -89,6 +92,7 @@ class product_product(models.Model):
         moule         = moule          or ''
         projet        = projet         or ''
         client        = client         or ''
+        client_multi  = client_multi   or ''
         fournisseur   = fournisseur    or ''
         type_cde      = type_cde       or ''
         type_rapport  = type_rapport   or 'Fabrication'
@@ -121,6 +125,12 @@ class product_product(models.Model):
             filtre=filtre+" and (imp1.name ilike '%"+projet+"%' or imp2.name ilike '%"+projet+"%') "
         if client:
             filtre=filtre+" and rp.is_code='"+client+"' "
+        if client_multi:
+            product_ids_client_multi = self._get_product_ids_client_multi(client_multi)
+            if product_ids_client_multi:
+                filtre=filtre+" and pp.id in ("+",".join(str(i) for i in product_ids_client_multi)+") "
+            else:
+                filtre=filtre+" and pp.id in (0) "
         _logger.info("Filtre pour les requêtes (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
         # *********************************************************************
 
@@ -448,6 +458,7 @@ class product_product(models.Model):
                         "name" : row["name"],
                         "qt"   : round(row["qt"],4),
                         "trash": trash,
+                        "fs_code_pg": row.get("fs_code_pg"),
                     }
                     res[key]["typeod"][key2]["cols"][DateLundi]["od"][numod] = v
 
@@ -706,6 +717,7 @@ class product_product(models.Model):
             "moule"       : moule,
             "projet"      : projet,
             "client"      : client,
+            "client_multi": client_multi,
             "fournisseur" : fournisseur,
             "semaines"    : semaines,
             "type_cde"    : type_cde,
@@ -903,6 +915,67 @@ class product_product(models.Model):
         return select_fournisseur
 
 
+    def _get_product_ids_client_multi(self, client_multi):
+        """Filtre 'Client multi-niveaux' :
+        - Recherche le(s) partenaire(s) correspondant au code saisi (ex: '900000' ou '900000/1' pour code+code adresse)
+        - Recherche tous les articles dont ce partenaire est le 'Client par défaut' (is_client_id)
+        - Éclate les nomenclatures de ces articles à tous les niveaux pour retrouver tous les articles composants
+        Retourne la liste des ids product.product (articles clients + tous les composants) à utiliser dans un "pp.id in (...)"
+        """
+        debut = datetime.now()
+        product_ids = []
+
+        code = client_multi.strip()
+        adr_code = False
+        if '/' in code:
+            code, adr_code = code.split('/', 1)
+            code = code.strip()
+            adr_code = adr_code.strip()
+
+        domain = [('is_code', '=', code)]
+        if adr_code:
+            domain.append(('is_adr_code', '=', adr_code))
+        partners = self.env['res.partner'].search(domain)
+        _logger.info("Client multi-niveaux : code=%s adr_code=%s => %s partenaire(s) trouvé(s) : %s"%(code, adr_code, len(partners), partners.ids))
+        if not partners:
+            return product_ids
+
+        templates = self.env['product.template'].search([('is_client_id', 'in', partners.ids)])
+        _logger.info("Client multi-niveaux : %s article(s) (product.template) trouvé(s) pour ce(s) client(s)"%len(templates))
+
+        products = templates.mapped('product_variant_ids')
+        product_ids = list(products.ids)
+        _logger.info("Client multi-niveaux : niveau 0 (articles client) => %s article(s) : %s"%(len(product_ids), product_ids))
+
+        bom_obj = self.env['mrp.bom']
+        vus = set(product_ids)
+
+        def explode(product, niveau):
+            boms_by_product = bom_obj.with_context(active_test=True)._bom_find(product)
+            bom = boms_by_product.get(product)
+            if not bom:
+                return
+            lignes = bom.explode_phantom(qty=1)
+            nouveaux = []
+            for ligne in lignes:
+                line_product_id = ligne["product_id"]
+                if line_product_id not in vus:
+                    vus.add(line_product_id)
+                    product_ids.append(line_product_id)
+                    nouveaux.append(line_product_id)
+            _logger.info("Client multi-niveaux : niveau %s (nomenclature de %s) => %s nouveau(x) composant(s) : %s"%(niveau, product.display_name, len(nouveaux), nouveaux))
+            for line_product_id in nouveaux:
+                line_product = self.env['product.product'].browse(line_product_id)
+                explode(line_product, niveau+1)
+
+        for product in products:
+            explode(product, 1)
+
+        product_ids = sorted(set(product_ids))
+        _logger.info("Client multi-niveaux : TOTAL = %s article(s) (durée=%.2fs) : %s"%(len(product_ids), (datetime.now()-debut).total_seconds(), product_ids))
+        return product_ids
+
+
     def _get_FS_SA(self,filtre):
         cr = self._cr
         SQL="""
@@ -922,8 +995,9 @@ class product_product(models.Model):
                 pt.is_mold_dossierf as moule,
                 im.date_retour_prise_avance,
                 mp.name as name,
-                ig.name as gest
-            FROM mrp_prevision mp inner join product_product      pp   on mp.product_id=pp.id 
+                ig.name as gest,
+                fs_pt.is_code as fs_code_pg
+            FROM mrp_prevision mp inner join product_product      pp   on mp.product_id=pp.id
                                   inner join product_template     pt   on pp.product_tmpl_id=pt.id
                                   left outer join is_mold         im   on pt.is_mold_id=im.id
                                   left outer join is_dossierf     id   on pt.is_dossierf_id=id.id
@@ -932,6 +1006,9 @@ class product_product(models.Model):
                                   left outer join is_mold_project imp1 on im.project=imp1.id
                                   left outer join is_mold_project imp2 on id.project=imp2.id
                                   left outer join res_partner     rp   on pt.is_client_id=rp.id
+                                  left outer join mrp_prevision   fs   on mp.parent_id=fs.id
+                                  left outer join product_product fs_pp on fs.product_id=fs_pp.id
+                                  left outer join product_template fs_pt on fs_pp.product_tmpl_id=fs_pt.id
             WHERE mp.id>0 """+filtre+""" 
             ORDER BY mp.name
         """
