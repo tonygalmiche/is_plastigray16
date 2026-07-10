@@ -201,6 +201,7 @@
     <menuitem id="menu_is_dt_tables_50" sequence="50" name="Nature budget"          parent="menu_is_dt_tables"   action="is_budget_nature_action" />
     <menuitem id="menu_is_dt_tables_55" sequence="55" name="Incoterms"              parent="menu_is_dt_tables"   action="is_stock_incoterms_action" />
     <menuitem id="menu_is_dt_tables_60" sequence="60" name="Type étiquette GALIA"   parent="menu_is_dt_tables"   action="is_type_etiquette_action" />
+    <menuitem id="menu_is_dt_tables_61" sequence="61" name="Type étiquette UM"      parent="menu_is_dt_tables"   action="is_type_etiquette_um_action" />
     <menuitem id="menu_is_dt_tables_65" sequence="65" name="Emplacement emballage"  parent="menu_is_dt_tables"   action="is_emb_emplacement_action" />
     <menuitem id="menu_is_dt_tables_70" sequence="70" name="Norme emballage"        parent="menu_is_dt_tables"   action="is_emb_norme_action" />
     <menuitem id="menu_is_dt_tables_97" sequence="97" name="Catégories comptables"  parent="menu_is_dt_tables"   action="product.product_category_action_form" />

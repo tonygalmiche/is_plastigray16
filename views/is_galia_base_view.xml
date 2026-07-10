@@ -232,13 +232,20 @@
             <field name="arch" type="xml">
                 <form string="Form">  
                     <header>
-                        <button 
-                            name="imprimer_etiquette_um_action" 
-                            string="Imprimer étiquette UM" 
+                        <field name="etiquette_um_a5" invisible="1"/>
+                        <button
+                            name="imprimer_etiquette_um_action"
+                            string="Imprimer étiquette UM"
                             type="object"
-                            attrs="{'invisible': [('active', '!=', True)]}"
+                            attrs="{'invisible': ['|',('active', '!=', True),('etiquette_um_a5', '=', True)]}"
                         />
-                        <button 
+                        <button
+                            name="imprimer_etiquette_um_a5"
+                            string="Imprimer étiquette UM A5"
+                            type="object"
+                            attrs="{'invisible': ['|',('active', '!=', True),('etiquette_um_a5', '=', False)]}"
+                        />
+                        <button
                             string="Déplacer cette UM" 
                             type="object" 
                             name="deplacer_um_action" 

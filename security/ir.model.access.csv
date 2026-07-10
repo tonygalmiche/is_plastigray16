@@ -20,6 +20,7 @@ access_is_config_champ,access_is_config_champ,model_is_config_champ,base.group_u
 access_is_config_champ_line,access_is_config_champ_line,model_is_config_champ_line,base.group_user,1,0,0,0
 access_is_product_client,access_is_product_client,model_is_product_client,base.group_user,1,0,0,0
 access_is_type_etiquette,access_is_type_etiquette,model_is_type_etiquette,base.group_user,1,0,0,0
+access_is_type_etiquette_um,access_is_type_etiquette_um,model_is_type_etiquette_um,base.group_user,1,0,0,0
 access_is_config_champ,access_is_config_champ,model_is_config_champ,base.group_user,1,0,0,0
 access_is_emb_emplacement,access_is_emb_emplacement,model_is_emb_emplacement,base.group_user,1,0,0,0
 access_is_emb_norme,access_is_emb_norme,model_is_emb_norme,base.group_user,1,0,0,0

@@ -311,14 +311,15 @@
                     <field name="is_date_expedition"  readonly="1" optional="show"/>
                     <field name="is_type_commande"    readonly="1" optional="show" />
                     <button title="Client"    name="action_acceder_client"   type="object" icon="fa-home" />
-                    <field name="order_id"            readonly="1" optional="show" widget="many2one_clickable"/>
-                    <field name="is_client_order_ref" readonly="1" optional="show"/>
-                    <field name="price_unit"          readonly="1" optional="show"/>
-                    <field name="price_subtotal"      readonly="1" optional="show" sum="Total"/>
-                    <field name="is_justification"    readonly="1" optional="show"/>
-                    <field name="is_code_routage"      readonly="1" optional="hide"/>
-                    <field name="is_point_destination" readonly="1" optional="hide"/>
-                    <field name="state"                readonly="1" optional="show"/>
+                    <field name="order_id"                 readonly="1" optional="show" widget="many2one_clickable"/>
+                    <field name="is_client_order_ref"      readonly="1" optional="show"/>
+                    <field name="price_unit"               readonly="1" optional="show"/>
+                    <field name="price_subtotal"           readonly="1" optional="show" sum="Total"/>
+                    <field name="is_justification"         readonly="1" optional="show"/>
+                    <field name="is_code_routage"          readonly="1" optional="hide"/>
+                    <field name="is_point_destination"     readonly="1" optional="hide"/>
+                    <field name="is_identifiant_transport" readonly="1" optional="hide"/>
+                    <field name="state"                    readonly="1" optional="show"/>
                 </tree>
             </field>
         </record>

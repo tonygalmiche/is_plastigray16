@@ -12,6 +12,12 @@ class stock_move(models.Model):
     _order   = "date desc, id"
 
 
+    def _action_confirm(self, merge=True, merge_into=False):
+        res = super()._action_confirm(merge=merge, merge_into=merge_into)
+        res.picking_id.compute_is_identifiant_transport()
+        return res
+
+
     @api.depends('product_id','product_uom_qty','picking_id.state')
     def _compute_lots(self):
         cr = self._cr

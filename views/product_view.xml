@@ -447,6 +447,51 @@
         </record>
 
 
+        <!-- Type d'étiquette UM -->
+        <record id="is_type_etiquette_um_tree_view" model="ir.ui.view">
+            <field name="name">is_type_etiquette_um_tree_view</field>
+            <field name="model">is.type.etiquette.um</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+                    <field name="ref_logistique" />
+                    <field name="produit" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_type_etiquette_um_form_view" model="ir.ui.view">
+            <field name="name">is_type_etiquette_um_form_view</field>
+            <field name="model">is.type.etiquette.um</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <group>
+                            <group>
+                                <field name="active" invisible="1"/>
+                                <field name="name" />
+                                <field name="adresse_expediteur" />
+                                <field name="ref_logistique" />
+                                <field name="produit" />
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="is_type_etiquette_um_action" model="ir.actions.act_window">
+            <field name="name">Type d'étiquette UM</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.type.etiquette.um</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
         <!-- is.emb.emplacement -->
         <record id="is_emb_emplacement_tree_view" model="ir.ui.view">
             <field name="name">is_emb_emplacement_tree_view</field>
@@ -638,6 +683,9 @@
 
                                 <field name="is_type_etiquette_id_vsb" invisible="1"/>
                                 <field name="is_type_etiquette_id" attrs="{'invisible': [('is_type_etiquette_id_vsb', '=', True)]}"/>
+
+                                <field name="is_type_etiquette_um_id_vsb" invisible="1"/>
+                                <field name="is_type_etiquette_um_id" attrs="{'invisible': [('is_type_etiquette_um_id_vsb', '=', True)]}"/>
 
                                 <field name="is_um_egale_uc_vsb" invisible="1"/>
                                 <field name="is_um_egale_uc" attrs="{'invisible': [('is_um_egale_uc_vsb', '=', True)]}"/>

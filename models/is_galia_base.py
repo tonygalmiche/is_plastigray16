@@ -825,6 +825,9 @@ class is_galia_base(models.Model):
 
 
     def imprimer_zpl(self,ZPL):
+
+        _logger.info('ZPL:\n%s'%ZPL)
+
         user=self.env['res.users'].browse(self._uid)
         imprimante=user.is_zebra_id.name or user.company_id.is_zebra_id.name
         if not imprimante:
@@ -858,6 +861,8 @@ class is_galia_base_um(models.Model):
                     product_id = line.product_id
             obj.product_id = product_id
             obj.qt_pieces  = qt_pieces
+            premiere_uc = obj.uc_ids[:1]
+            obj.etiquette_um_a5 = bool(premiere_uc.product_id.product_tmpl_id.is_type_etiquette_um_id)
 
     name             = fields.Char("N°Étiquette UM", readonly=True             , index=True, tracking=True)
     mixte            = fields.Selection(_MIXTE, "UM mixte", default='non', required=True, tracking=True)
@@ -869,6 +874,7 @@ class is_galia_base_um(models.Model):
     uc_ids           = fields.One2many('is.galia.base.uc'  , 'um_id', "UCs")
     product_id       = fields.Many2one('product.product', 'Article', readonly=True, compute='_compute', store=False)
     qt_pieces        = fields.Integer("Qt Pièces"                  , readonly=True, compute='_compute', store=False)
+    etiquette_um_a5  = fields.Boolean("Étiquette UM A5", readonly=True, compute='_compute', store=False)
     employee_id      = fields.Many2one("hr.employee", "Employé", tracking=True)
     date_fin         = fields.Datetime("Date fin UM", tracking=True)
     active           = fields.Boolean("Active", default=True, copy=False, index=True, tracking=True)
@@ -1091,7 +1097,323 @@ class is_galia_base_um(models.Model):
                 lines=os.popen(x).readlines()
                 for line in lines:
                     _logger.info(line.strip())
- 
+
+
+    def imprimer_etiquette_um_a5(self):
+        # Balises ZPL utilisées :
+        # ^XA : début du format d'étiquette
+        # ^CI28 : encodage UTF-8, pour les caractères accentués
+        # ^PW : largeur de l'étiquette (en dots)
+        # ^LL : longueur/hauteur de l'étiquette (en dots)
+        # ^FO : position (x,y) de l'élément qui suit, depuis le coin haut-gauche
+        # ^GB : dessine un cadre/une ligne (largeur, hauteur, épaisseur du trait)
+        # ^A0R : police utilisée pour le texte qui suit (hauteur, largeur des caractères), tournée à 90°
+        # ^FD : donnée (texte) à afficher
+        # ^FS : fin de l'élément
+        # ~DG : télécharge un graphique (logo Sécu) en mémoire imprimante
+        # ^XG : rappelle un graphique déjà téléchargé en mémoire (position, facteurs d'agrandissement x/y)
+        # ^BY : épaisseur/ratio des modules du code-barre qui suit
+        # ^B3 : dessine un code-barre Code 39 (orientation, checksum, hauteur, ligne de lecture...)
+        # ^XZ : fin du format d'étiquette
+        #
+        # Comme pour l'étiquette UC (Uc2.zpl) et l'étiquette UM actuelle (qui recharge le même format 'UC'),
+        # toute l'étiquette est dessinée tournée à 90° (^A0R) : le logo Secu.grf, qui n'est jamais tourné
+        # lui-même, s'affiche alors dans le bon sens une fois l'étiquette physiquement tournée à la lecture.
+
+        # Imprimante Zebra 300dpi => 300/25.4 dots par mm
+        #DOTS_PAR_MM = 300/25.4
+        DOTS_PAR_MM = 300/25 # Pour grossir un peu
+
+        def mm(valeur_mm):
+            return round(valeur_mm*DOTS_PAR_MM)
+
+        # Toutes les dimensions ci-dessous sont exprimées en mm, dans le repère logique
+        # non tourné (0,0)=haut-gauche, x vers la droite, y vers le bas, comme un plan classique.
+        LARGEUR  = 210  # Largeur étiquette (A5 paysage)
+        HAUTEUR  = 148  # Hauteur étiquette (A5 paysage)
+        EPAISSEUR = 3   # Epaisseur des traits, en dots
+        TAILLE_POLICE       = 3 # Hauteur/largeur des caractères des labels
+        TAILLE_POLICE_5MM   = 5 # Hauteur/largeur des caractères des valeurs, en 5mm
+        TAILLE_POLICE_7MM   = 7 # Hauteur/largeur des caractères des valeurs, en 7mm
+        TAILLE_POLICE_13MM  = 13 # Hauteur/largeur des caractères des valeurs, en 13mm
+        MARGE_TEXTE_GAUCHE  = 2 # Marge ajoutée devant les labels de la colonne de gauche
+        DECALAGE_TEXTE      = 8 # Décalage des labels, en dots (1pt vers le bas et vers la droite)
+        ESPACE_LABEL_VALEUR = 1 # Espace minimum entre le label et sa valeur, en mm
+
+        # Rotation 90° de tout le plan logique (x,y) vers le repère physique de l'étiquette,
+        # pour que le texte ^A0R se lise de haut en bas comme sur l'étiquette UC.
+        # taille_police : pour le texte (^A0R), l'ancre déborde vers la cellule au-dessus si on
+        # ne décale pas d'une hauteur de caractère ; laisser à 0 pour les lignes (^GB).
+        def FO(x, y, taille_police=0):
+            decalage = DECALAGE_TEXTE if taille_police else 0 # Uniquement pour le texte, pas pour les lignes (^GB)
+            px = mm(HAUTEUR-y-taille_police)-decalage # -decalage : vers la gauche, pour ne pas coller à la ligne
+            py = mm(x)+decalage                       # +decalage : vers le bas, pour ne pas coller à la ligne
+            return "^FO%s,%s"%(px, py)
+
+        # Logo Sécu (case vide entre les poids et le Produit, colonne de droite)
+        # NB : avec FO(x,y), c'est y qui pilote la position horizontale à l'écran et x la position
+        # verticale (le texte tourné ^A0R inverse les deux par rapport à une lecture non tournée).
+        LOGO_SECU_MAGNIFICATION = 1 # ^XG n'accepte que des facteurs entiers (1,2,3...)
+        LOGO_SECU_TAILLE = 22*LOGO_SECU_MAGNIFICATION # Taille du logo (256 dots ≈ 22mm à l'échelle 1), pour ne pas déborder dans la cellule au-dessus, comme le texte
+        LOGO_SECU_Y = 46+((76-46)-LOGO_SECU_TAILLE)/2 # Centré horizontalement (à l'écran) dans la ligne 46-76
+        LOGO_SECU_X = 210-LOGO_SECU_TAILLE-TAILLE_POLICE_7MM-2 # Proche du bas (à l'écran), en laissant la place aux lettres R/S juste après
+        LOGO_SECU_LETTRE_X = LOGO_SECU_X+LOGO_SECU_TAILLE # Lettres R/S affichées juste après le logo (à l'écran)
+
+        # Contenu du graphique Secu.grf (logo sécurité), envoyé une fois en mémoire imprimante
+        addons_path = tools.config['addons_path'].split(',')[1]
+        path = "%s/is_plastigray16/static/src/galia/"%addons_path
+        SECU_GRF = open(path+'Secu.grf','rb').read().decode("utf-8")
+        SECU_GRF = SECU_GRF.split('^XA')[0] # Le fichier contient un fragment parasite '^XA^LL0750' en fin de fichier, qui casse le format
+
+        # Lignes horizontales (dans le repère logique) : (y, x_debut, x_fin)
+        LIGNES_H = [
+            (0    , 0  , 210),
+            (20   , 0  , 210),
+            (46   , 0  , 210),
+            (76   , 0  , 210),
+            (104  , 0  , 100),
+            (125  , 0  , 210),
+            (148  , 0  , 210),
+            (33   , 100, 210),
+            (86.5 , 100, 210),
+            (114.5, 100, 210),
+        ]
+
+        # Lignes verticales (dans le repère logique) : (x, y_debut, y_fin)
+        LIGNES_V = [
+            (0  , 0    , 148),
+            (210, 0    , 148),
+            (100, 0    , 148),
+            (136, 33   , 46),
+            (173, 33   , 46),
+            (140, 114.5, 125),
+        ]
+
+        # Labels (dans le repère logique) : (x, y, texte, colonne)
+        LABELS = [
+            (0  , 0    , "Destinataire"       , 'gauche'),
+            (0  , 20   , "N°document"         , 'gauche'),
+            (0  , 46   , "N°produit (P)"      , 'gauche'),
+            (0  , 76   , "Quantité (Q)"       , 'gauche'),
+            (0  , 104  , "Fournisseur (V)"    , 'gauche'),
+            (0  , 125  , "N°étiquette"        , 'gauche'),
+
+            (100, 0    , "Lieu de livraison"  , 'droite'),
+            (100, 20   , "Adresse expéditeur" , 'droite'),
+            (100, 33   , "Poids net (kg)"     , 'droite'),
+            (136, 33   , "Poids brut (kg)"    , 'droite'),
+            (173, 33   , "Nb boites"          , 'droite'),
+            (100, 76   , "Produit"            , 'droite'),
+            (100, 86.5 , "Ref Logistique"     , 'droite'),
+            (100, 114.5, "Date"               , 'droite'),
+            (140, 114.5, "Indice Modification", 'droite'),
+            (100, 125  , "N°lot (H)"          , 'droite'),
+        ]
+
+        # Codes-barres : (x, y, hauteur, clé de la valeur, préfixe)
+        # y = bas de la ligne du tableau - hauteur - ESPACE_CODE_BARRE (espace avant le trait du dessous)
+        # x des codes-barres à droite = base de la colonne (100) + 2mm (décalage vers la droite)
+        ESPACE_CODE_BARRE = 3 # mm - marge de sécurité (le rendu ne semble pas respecter exactement 1mm)
+        CODES_BARRES = [
+            (MARGE_TEXTE_GAUCHE, 76   -13-ESPACE_CODE_BARRE, 13, 'numero_produit', 'P'),
+            (MARGE_TEXTE_GAUCHE, 104  -13-ESPACE_CODE_BARRE, 13, 'quantite_um'   , 'Q'),
+            (MARGE_TEXTE_GAUCHE, 125  -13-ESPACE_CODE_BARRE, 13, 'fournisseur'   , 'V'),
+            (MARGE_TEXTE_GAUCHE, 148  -13-ESPACE_CODE_BARRE, 13, 'num_etiquette' , ''),
+            (100+2             , 114.5-13-ESPACE_CODE_BARRE, 13, 'ref_logistique', ''),
+            (100+2             , 148  -13-ESPACE_CODE_BARRE, 13, 'num_lot'       , 'H'),
+        ]
+
+        for obj in self:
+            # Destinataire : adresse du client par défaut de l'article de la première UC de cette UM, sur 3 lignes
+            premiere_uc = obj.uc_ids[:1]
+            client = premiere_uc.product_id.product_tmpl_id.is_client_ids.filtered(lambda c: c.client_defaut)[:1].client_id
+            lignes_destinataire = [
+                client.name or '',
+                client.street or '',
+                ' '.join(filter(None, [client.zip, client.city])),
+            ] if client else []
+
+            # Point de déchargement de la commande de la ligne de livraison de la première UC, juste après le label Destinataire
+            point_dechargement = premiere_uc.stock_move_id.sale_line_id.order_id.is_point_dechargement or ''
+
+            # Adresse expéditeur : champ 'Adresse expéditeur' du type étiquette UM de l'article, sur une ligne
+            expediteur = premiere_uc.product_id.product_tmpl_id.is_type_etiquette_um_id.adresse_expediteur or ''
+
+            # Fournisseur (V) : champ is_cofor du client de l'article
+            fournisseur = client.is_cofor or ''
+
+            # Poids net/brut : somme, pour chaque UC, du poids net/brut de l'article multiplié par sa quantité
+            poids_net  = sum(uc.qt_pieces*uc.product_id.product_tmpl_id.weight_net for uc in obj.uc_ids)
+            poids_brut = sum(uc.qt_pieces*uc.product_id.product_tmpl_id.weight     for uc in obj.uc_ids)
+
+            # Nb boites : nombre d'UC de cette UM
+            nb_boites = len(obj.uc_ids)
+
+            # Lieu de livraison : point de destination de la ligne de commande de la ligne de livraison de la première UC
+            lieu_livraison = premiere_uc.stock_move_id.sale_line_id.is_point_destination or ''
+
+            # N°produit (P) : référence de l'article selon le type étiquette UM (ref PG/plan/client)
+            article        = premiere_uc.product_id.product_tmpl_id
+            type_eti_um    = article.is_type_etiquette_um_id
+            REF_LOGISTIQUE = {
+                'ref_pg'    : article.is_code,
+                'ref_plan'  : article.is_ref_plan,
+                'ref_client': article.is_ref_client,
+            }
+            numero_produit = REF_LOGISTIQUE.get(type_eti_um.ref_logistique) or ''
+
+            # Logo Sécu : affiché si is_soumise_regl est renseigné, avec les lettres R et/ou S
+            is_soumise_regl = article.is_soumise_regl or ''
+
+            # Produit : désignation de l'article, précédée du code fabrication selon is_type_etiquette_um
+            produit = article.name or ''
+            if type_eti_um.produit=='avec_code_fabrication' and article.is_code_fabrication:
+                produit = "%s-%s"%(article.is_code_fabrication, produit)
+
+            # Quantité (Q) : quantité de l'UM
+            quantite_um = obj.qt_pieces
+
+            # Ref Logistique : référence plan de l'article
+            ref_logistique = article.is_ref_plan or ''
+
+            # Date : date de création de la première UC, au format Ymd
+            date = premiere_uc.date_creation.strftime('%Y%m%d') if premiere_uc.date_creation else ''
+
+            # N°lot (H) : champ 'Production' de la première UC
+            num_lot = premiere_uc.production or ''
+
+            # Indice Modification : indice plan de l'article
+            indice_modification = article.is_ind_plan or ''
+
+            # N°étiquette : nom de l'UM
+            num_etiquette = obj.name or ''
+
+            # Pour les UM mixtes, ces valeurs n'ont pas de sens (pas un seul article) et sont effacées, sans code-barre
+            CODES_BARRES_SUPPRIMES = []
+            if obj.mixte=='oui':
+                is_soumise_regl   = ''
+                numero_produit    = ''
+                quantite_um       = ''
+                produit           = ''
+                ref_logistique    = ''
+                indice_modification = ''
+                date              = ''
+                num_lot           = ''
+                CODES_BARRES_SUPPRIMES = ['numero_produit', 'quantite_um', 'ref_logistique', 'num_lot']
+
+            ZPL  = "^XA\n"
+            ZPL += "^CI28\n" # Encodage UTF-8, pour les caractères accentués
+            ZPL += "^PW%s\n"%(mm(HAUTEUR)+EPAISSEUR) # Largeur physique = hauteur logique (étiquette tournée à 90°)
+            ZPL += "^LL%s\n"%(mm(LARGEUR)+EPAISSEUR) # Hauteur physique = largeur logique (étiquette tournée à 90°)
+            if is_soumise_regl:
+                ZPL += SECU_GRF # Envoi du graphique une seule fois, avant tout le reste (sinon l'étiquette est corrompue)
+            for y, x_debut, x_fin in LIGNES_H:
+                # Ligne horizontale logique => ligne verticale physique
+                ZPL += "%s^GB%s,%s,%s^FS\n"%(FO(x_debut, y), EPAISSEUR, mm(x_fin-x_debut), EPAISSEUR)
+            for x, y_debut, y_fin in LIGNES_V:
+                # Ligne verticale logique => ligne horizontale physique
+                ZPL += "%s^GB%s,%s,%s^FS\n"%(FO(x, y_fin), mm(y_fin-y_debut), EPAISSEUR, EPAISSEUR)
+            for x, y, texte, colonne in LABELS:
+                marge = MARGE_TEXTE_GAUCHE if colonne=='gauche' else 0
+                if texte=="N°étiquette":
+                    # Suffixe (G) UM mixte ou (M) UM homogène
+                    texte = "%s (%s)"%(texte, 'G' if obj.mixte=='oui' else 'M')
+                ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x+marge, y, TAILLE_POLICE), mm(TAILLE_POLICE), mm(TAILLE_POLICE), texte)
+
+            # Valeur du Point de déchargement, juste après le label Destinataire (sur la même ligne)
+            x_point_dechargement = 25 # Largeur approximative du label 'Destinataire'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_point_dechargement, 0, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), point_dechargement)
+
+            # Valeur du Destinataire, affichée ligne par ligne sous le label
+            y_valeur = TAILLE_POLICE+ESPACE_LABEL_VALEUR # Juste sous le label, avec un minimum d'espace
+            for num_ligne, ligne in enumerate(lignes_destinataire):
+                y_ligne = y_valeur+num_ligne*TAILLE_POLICE_5MM
+                ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(MARGE_TEXTE_GAUCHE, y_ligne, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), ligne)
+
+            # Valeur de l'Adresse expéditeur, sur une seule ligne sous le label
+            y_expediteur = 20+TAILLE_POLICE+ESPACE_LABEL_VALEUR # Label 'Adresse expéditeur' positionné à y=20
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(100, y_expediteur, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), expediteur)
+
+            # Valeurs des poids net/brut et du nb boites, sous les labels positionnés à y=33
+            y_poids = 33+TAILLE_POLICE+ESPACE_LABEL_VALEUR
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(100, y_poids, TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), '%.2f'%poids_net)
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(136, y_poids, TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), '%.2f'%poids_brut)
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(173, y_poids, TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), nb_boites)
+
+            # Valeur du Lieu de livraison, sous le label positionné à y=0
+            y_livraison = TAILLE_POLICE+ESPACE_LABEL_VALEUR
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(100, y_livraison, TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), lieu_livraison)
+
+            # Valeur du N°produit (P), juste après le label (sur la même ligne) pour économiser de la hauteur
+            x_produit = 20 # Largeur approximative du label 'N°produit (P)'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_produit, 46, TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), numero_produit)
+
+            # Valeur du Produit, sous le label positionné à y=76
+            y_produit_designation = 76+TAILLE_POLICE+ESPACE_LABEL_VALEUR
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(100, y_produit_designation, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), produit)
+
+            # Valeur de la Quantité (Q), juste après le label (sur la même ligne)
+            x_quantite = 20 # Largeur approximative du label 'Quantité (Q)'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_quantite, 76, TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), quantite_um)
+
+            # Valeur de Ref Logistique, juste après le label (sur la même ligne) pour gagner de la hauteur
+            x_ref_logistique = 100+28 # Colonne de droite (base 100) + largeur approximative du label 'Ref Logistique'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_ref_logistique, 86.5, TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), mm(TAILLE_POLICE_13MM), ref_logistique)
+
+            # Valeurs de Date et Indice Modification, sous les labels positionnés à y=114.5
+            y_date = 114.5+TAILLE_POLICE+ESPACE_LABEL_VALEUR
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(100, y_date, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), date)
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(140, y_date, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), indice_modification)
+
+            # Valeur du N°lot (H), juste après le label (sur la même ligne) pour gagner de la hauteur
+            x_num_lot = 100+14 # Colonne de droite (base 100) + largeur approximative du label 'N°lot (H)'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_num_lot, 125, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), num_lot)
+
+            # Valeur du N°étiquette, juste après le label (sur la même ligne) pour gagner de la hauteur
+            x_etiquette = 25 # Largeur approximative du label 'N°étiquette'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_etiquette, 125, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), num_etiquette)
+
+            # Valeur du Fournisseur (V), juste après le label (sur la même ligne) pour gagner de la hauteur
+            x_fournisseur = 25 # Largeur approximative du label 'Fournisseur (V)'
+            ZPL += "%s^A0R,%s,%s^FD%s^FS\n"%(FO(x_fournisseur, 104, TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), mm(TAILLE_POLICE_5MM), fournisseur)
+
+            # Codes-barres : N°produit (P), Quantité (Q), Fournisseur (V), N°étiquette, Ref Logistique
+            VALEURS_CODE_BARRE = {
+                'numero_produit' : numero_produit,
+                'quantite_um'    : quantite_um,
+                'fournisseur'    : fournisseur,
+                # Préfixe G (UM mixte) ou M (UM homogène), uniquement pour le code-barre
+                'num_etiquette'  : ('G' if obj.mixte=='oui' else 'M')+num_etiquette,
+                'ref_logistique' : ref_logistique,
+                'num_lot'        : num_lot,
+            }
+            for x, y, hauteur, cle, prefixe in CODES_BARRES:
+                if cle in CODES_BARRES_SUPPRIMES:
+                    continue
+                valeur = "%s%s"%(prefixe, VALEURS_CODE_BARRE[cle])
+                ZPL += "^BY4,2.0\n" # Module doublé (2 -> 4 dots) pour des codes-barres 2x plus larges
+                ZPL += "%s^B3R,N,%s,N,N^FD%s^FS\n"%(FO(x, y, hauteur), mm(hauteur), valeur)
+
+            # Logo Sécu : identique au code de creer_etiquette (^XGR:SECU2.grf,1,1^FS, sans ^FW),
+            # correctement orienté car toute l'étiquette est tournée à 90° comme l'étiquette UC.
+            if is_soumise_regl:
+                ZPL += "%s^XGR:SECU2.grf,%s,%s^FS\n"%(FO(LOGO_SECU_X, LOGO_SECU_Y, LOGO_SECU_TAILLE), LOGO_SECU_MAGNIFICATION, LOGO_SECU_MAGNIFICATION)
+                if 'R' in is_soumise_regl:
+                    # R aligné sur le bord haut du logo (à l'écran)
+                    ZPL += "%s^A0R,%s,%s^FDR^FS\n"%(FO(LOGO_SECU_LETTRE_X, LOGO_SECU_Y, TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM))
+                if 'S' in is_soumise_regl:
+                    # S aligné sur le bord bas du logo (à l'écran)
+                    ZPL += "%s^A0R,%s,%s^FDS^FS\n"%(FO(LOGO_SECU_LETTRE_X, LOGO_SECU_Y+LOGO_SECU_TAILLE-TAILLE_POLICE_7MM, TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM), mm(TAILLE_POLICE_7MM))
+
+            ZPL += "^MMT\n"   #Avance de l'éiquette
+            ZPL += "^XZ\n"
+
+
+            # Écrire dans le chatter à chaque impression
+            obj.message_post(body="Impression étiquette UM A5 (%s)"%obj.name)
+
+            self.env['is.galia.base'].imprimer_zpl(ZPL)
+
 
     def imprimer_etiquette_uc_action(self):
         user = self.env['res.users'].browse(self._uid)

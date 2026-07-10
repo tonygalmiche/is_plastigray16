@@ -208,6 +208,26 @@ class is_type_etiquette(models.Model):
     is_cde_rtge_fond_noir = fields.Boolean("Zone 'CDE RTGE' sur fond noir", default=False, tracking=True)
 
 
+class is_type_etiquette_um(models.Model):
+    _name='is.type.etiquette.um'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _description="Type étiquette UM"
+    _order='name'
+
+    active            = fields.Boolean('Actif', default=True, tracking=True)
+    name              = fields.Char("Type d'étiquette UM"  , required=True, tracking=True)
+    adresse_expediteur = fields.Char('Adresse expéditeur'  , tracking=True)
+    ref_logistique    = fields.Selection([
+        ('ref_pg','Ref PG'),
+        ('ref_plan','Ref Plan'),
+        ('ref_client','Ref client'),
+    ], "Ref logistique", tracking=True)
+    produit           = fields.Selection([
+        ('avec_code_fabrication','Avec code fabrication'),
+        ('sans_code_fabrication','Sans code fabrication'),
+    ], "Produit", tracking=True)
+
+
 class is_code_cas(models.Model):
     _name='is.code.cas'
     _description="Code CAS"
@@ -435,6 +455,9 @@ class product_template(models.Model):
 
     is_type_etiquette_id          = fields.Many2one('is.type.etiquette', 'Type étiquette GALIA', tracking=True)
     is_type_etiquette_id_vsb      = fields.Boolean('Type étiquette GALIA vsb', store=False, compute='_compute')
+
+    is_type_etiquette_um_id       = fields.Many2one('is.type.etiquette.um', 'Type étiquette UM', tracking=True)
+    is_type_etiquette_um_id_vsb   = fields.Boolean('Type étiquette UM vsb', store=False, compute='_compute')
 
     is_um_egale_uc                = fields.Boolean("UM=UC", tracking=True, help=u"Si l'UM est égale à l'UC, il faut cocher cette case et dans ce cas, l'étiquette UM ne sera pas imprimée")
     is_um_egale_uc_vsb            = fields.Boolean('UM=UC vsb', store=False, compute='_compute')
