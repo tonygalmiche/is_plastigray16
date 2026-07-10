@@ -824,23 +824,30 @@ class is_galia_base(models.Model):
             obj.imprimer_zpl(ZPL)
 
 
-    def imprimer_zpl(self,ZPL):
+    def imprimer_zpl(self,ZPL, imprimante=None):
 
-        _logger.info('ZPL:\n%s'%ZPL)
 
-        user=self.env['res.users'].browse(self._uid)
-        imprimante=user.is_zebra_id.name or user.company_id.is_zebra_id.name
+        if not imprimante:
+            user=self.env['res.users'].browse(self._uid)
+            imprimante=user.is_zebra_id.name or user.company_id.is_zebra_id.name
         if not imprimante:
             raise ValidationError('Imprimante Zebra non définie !')
+
+        _logger.info('imprimante=%s : ZPL:\n%s'%(imprimante,ZPL))
+
+
         if imprimante and ZPL!='':
             cmd = 'echo "'+ZPL+'" | lpr -P'+imprimante
             p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
             stdout, stderr = p.communicate()
             if stderr:
                 msg="Impossible d'imprimer sur %s !\n%s"%(imprimante,stderr.decode("utf-8"))
+                _logger.error(msg)
                 raise ValidationError(msg)
             msg='Envoi code ZPL sur imprimante %s'%imprimante
             _logger.info(msg)
+
+        return imprimante
 
 
 class is_galia_base_um(models.Model):
@@ -1099,7 +1106,7 @@ class is_galia_base_um(models.Model):
                     _logger.info(line.strip())
 
 
-    def imprimer_etiquette_um_a5(self):
+    def imprimer_etiquette_um_a5(self, imprimante=False):
         # Balises ZPL utilisées :
         # ^XA : début du format d'étiquette
         # ^CI28 : encodage UTF-8, pour les caractères accentués
@@ -1409,10 +1416,22 @@ class is_galia_base_um(models.Model):
             ZPL += "^XZ\n"
 
 
-            # Écrire dans le chatter à chaque impression
-            obj.message_post(body="Impression étiquette UM A5 (%s)"%obj.name)
+            try:
+                imprimante_utilisee = self.env['is.galia.base'].imprimer_zpl(ZPL, imprimante=imprimante)
+            except Exception as e:
+                # Nouveau curseur : le message doit survivre au rollback provoqué par l'exception
+                with self.pool.cursor() as new_cr:
+                    new_env = api.Environment(new_cr, self.env.uid, self.env.context)
+                    new_env['is.galia.base.um'].browse(obj.id).message_post(
+                        body="Échec de l'impression étiquette UM A5 (%s) : %s"%(obj.name, e)
+                    )
+                raise
 
-            self.env['is.galia.base'].imprimer_zpl(ZPL)
+            # Écrire dans le chatter à chaque impression
+            message = "Impression étiquette UM A5 (%s) sur l'imprimante <b>%s</b>"%(obj.name, imprimante_utilisee)
+            obj.message_post(body=message)
+
+        return True
 
 
     def imprimer_etiquette_uc_action(self):
