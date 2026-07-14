@@ -243,7 +243,29 @@ class is_liste_servir(models.Model):
     is_point_dechargement  = fields.Char('Point de déchargement', tracking=True)
     is_livree_aqp          = fields.Boolean('Pièce livrée en AQP', tracking=True)
     alerte_obligatoire     = fields.Text("Champs obligatoires", compute='_compute_alerte_obligatoire', store=False, readonly=True)
+    nb_uc_ids              = fields.Integer(u"Nb UCs", compute='_compute_nb_uc_um_ids', store=False, readonly=True)
+    nb_um_ids              = fields.Integer(u"Nb UMs", compute='_compute_nb_uc_um_ids', store=False, readonly=True)
 
+
+    @api.depends('galia_um_ids', 'galia_um_ids.uc_ids')
+    def _compute_nb_uc_um_ids(self):
+        for obj in self:
+            obj.nb_um_ids = len(obj.galia_um_ids)
+            obj.nb_uc_ids = sum(len(um.uc_ids) for um in obj.galia_um_ids)
+
+
+    def action_view_uc(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.is_galia_base_uc_action')
+        action['domain'] = [('liste_servir_id', '=', self.id)]
+        action['context'] = {}
+        return action
+
+
+    def action_view_um(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.is_galia_base_um_action')
+        action['domain'] = [('liste_servir_id', '=', self.id)]
+        action['context'] = {}
+        return action
 
 
     @api.depends('line_ids')

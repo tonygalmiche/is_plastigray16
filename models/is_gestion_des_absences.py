@@ -200,6 +200,7 @@ class is_demande_conges(models.Model):
         demandes=[]
         for obj in self:
             if str(obj.date_debut)[:8]!=str(obj.date_fin)[:8]:
+                nouvelles_demandes=self.env['is.demande.conges']
                 ladate=obj.date_debut
                 while ladate<=obj.date_fin:
                     cemois=calendar.monthrange(ladate.year,ladate.month)
@@ -217,6 +218,20 @@ class is_demande_conges(models.Model):
                     copy.state      = obj.state
                     ladate=date_fin+timedelta(days=1)
                     demandes.append(copy)
+                    nouvelles_demandes += copy
+
+                lignes = u''
+                for demande in nouvelles_demandes:
+                    url = u'/web#id=' + str(demande.id) + u'&view_type=form&model=is.demande.conges'
+                    lignes += u"<li><a href='" + url + u"'>" + demande.name + u"</a> : du " + demande.date_debut.strftime('%d/%m/%Y') + u" au " + demande.date_fin.strftime('%d/%m/%Y') + u"</li>"
+                body_html = u"<p>Cette demande a été répartie par mois en " + str(len(nouvelles_demandes)) + u" nouvelles demandes :</p><ul>" + lignes + u"</ul>"
+                obj.message_post(body=body_html)
+
+                url_origine = u'/web#id=' + str(obj.id) + u'&view_type=form&model=is.demande.conges'
+                body_html_origine = u"<p>Demande issue de la répartition par mois de <a href='" + url_origine + u"'>" + obj.name + u"</a> : du " + obj.date_debut.strftime('%d/%m/%Y') + u" au " + obj.date_fin.strftime('%d/%m/%Y') + u".</p>"
+                for demande in nouvelles_demandes:
+                    demande.message_post(body=body_html_origine)
+
                 obj.active=False
             else:
                 demandes.append(obj)

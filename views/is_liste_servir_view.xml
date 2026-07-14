@@ -79,6 +79,14 @@
                     <sheet class="oe_form_sheet_width_wider">
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_view_uc" icon="fa-list">
+                                <field name="nb_uc_ids" widget="statinfo" string="UCs"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_um" icon="fa-list">
+                                <field name="nb_um_ids" widget="statinfo" string="UMs"/>
+                            </button>
+                        </div>
                         <group>
                             <group>
                                 <field name="name"/> 
@@ -213,9 +221,6 @@
                             <group>
                                 <field name="info_client"/>
                             </group>
-                        </group>
-                        <group>
-                            <a href="https://dynacase-rp/?sole=Y&amp;app=FDL&amp;action=FDL_CARD&amp;id=69112" target="_blank">Liste des certificats matière</a>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
