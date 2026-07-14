@@ -294,6 +294,7 @@ access_is_of_declaration,access_is_of_declaration,model_is_of_declaration,base.g
 access_is_of_gestionnaire,access_is_of,model_is_of,group_gestionnaire_cpi_raspberry,1,1,0,0
 access_is_of_gestionnaire_of,access_is_of,model_is_of,group_gestionnaire_of,1,1,0,0
 access_is_of_declaration_gestionnaire,access_is_of_declaration,model_is_of_declaration,group_gestionnaire_cpi_raspberry,1,1,1,0
+access_is_of_declaration_admin,access_is_of_declaration,model_is_of_declaration,base.group_system,1,1,1,1
 access_is_of_tps,access_is_of_tps,model_is_of_tps,base.group_user,1,0,0,0
 access_is_of_tps_gestionnaire,access_is_of_tps,model_is_of_tps,group_gestionnaire_cpi_raspberry,1,1,1,1
 access_is_of_rebut,access_is_of_rebut,model_is_of_rebut,base.group_user,1,0,0,0

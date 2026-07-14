@@ -281,6 +281,7 @@ class is_of(models.Model):
     declaration_ids     = fields.One2many('is.of.declaration', 'of_id', "Déclarations", readonly=True)
     nb_declarations     = fields.Integer('Nombre de déclarations', compute='_compute_nb_declarations')
     nb_etiquettes_uc    = fields.Integer('Nombre étiquettes UC', compute='_compute_nb_etiquettes_uc')
+    nb_um               = fields.Integer('Nombre UM', compute='_compute_nb_um')
 
 
     _sql_constraints = [
@@ -297,6 +298,11 @@ class is_of(models.Model):
     def _compute_nb_etiquettes_uc(self):
         for obj in self:
             obj.nb_etiquettes_uc = self.env['is.galia.base.uc'].search_count([('production', '=', obj.name)])
+
+
+    def _compute_nb_um(self):
+        for obj in self:
+            obj.nb_um = self.env['is.galia.base.um'].search_count([('production_id.name', '=', obj.name)])
 
 
     def action_voir_declarations(self):
@@ -317,6 +323,42 @@ class is_of(models.Model):
             'view_mode': 'tree,form',
             'res_model': 'is.galia.base.uc',
             'domain': [('production', '=', self.name)],
+            'type': 'ir.actions.act_window',
+        }
+
+
+    def action_voir_um(self):
+        self.ensure_one()
+        return {
+            'name': u"UM de l'OF "+self.name,
+            'view_mode': 'tree,form',
+            'res_model': 'is.galia.base.um',
+            'domain': [('production_id.name', '=', self.name)],
+            'type': 'ir.actions.act_window',
+        }
+
+
+    def action_voir_production(self):
+        self.ensure_one()
+        production = self.env['mrp.production'].search([('name', '=', self.name)], limit=1)
+        return {
+            'name': "Ordre de production",
+            'view_mode': 'form',
+            'res_model': 'mrp.production',
+            'res_id': production.id,
+            'type': 'ir.actions.act_window',
+        }
+
+
+    def action_voir_equipement(self):
+        self.ensure_one()
+        view = self.env.ref('is_plastigray16.is_theia_presse_form_view')
+        return {
+            'name': "Equipement",
+            'view_mode': 'form',
+            'views': [(view.id, 'form')],
+            'res_model': 'is.equipement',
+            'res_id': self.presse_id.id,
             'type': 'ir.actions.act_window',
         }
 

@@ -250,6 +250,15 @@ class is_equipement(models.Model):
     #         args.append(['numero_equipement','ilike', name])
     #     return super()._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
+    def get_formview_id(self, access_uid=None):
+        form_view_ref = self.env.context.get('form_view_ref')
+        if form_view_ref:
+            view = self.env.ref(form_view_ref, raise_if_not_found=False)
+            if view:
+                return view.id
+        return super().get_formview_id(access_uid=access_uid)
+
+
     @api.depends('type_id')
     def _compute(self):
         for obj in self:

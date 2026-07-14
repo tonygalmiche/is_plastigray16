@@ -440,6 +440,15 @@
                     <button name="action_voir_etiquettes_uc" type="object" class="oe_stat_button" icon="fa-barcode">
                         <field name="nb_etiquettes_uc" widget="statinfo" string="Etiquettes UC"/>
                     </button>
+                    <button name="action_voir_um" type="object" class="oe_stat_button" icon="fa-cubes">
+                        <field name="nb_um" widget="statinfo" string="UM"/>
+                    </button>
+                    <button name="action_voir_production" type="object" class="oe_stat_button" icon="fa-industry">
+                        <span>Ordre de production</span>
+                    </button>
+                    <button name="action_voir_equipement" type="object" class="oe_stat_button" icon="fa-cogs" attrs="{'invisible': [('presse_id', '=', False)]}">
+                        <span>Equipement</span>
+                    </button>
                 </div>
                 <group>
                     <group>
@@ -453,7 +462,7 @@
                         <field name="designation"   readonly="1"/>
                         <field name="uc"            readonly="1"/>
                         <field name="cout"          readonly="1"/>
-                        <field name="presse_id"     readonly="1"/>
+                        <field name="presse_id"     readonly="1" context="{'form_view_ref': 'is_plastigray16.is_theia_presse_form_view'}"/>
                         <field name="affecte"       readonly="1"/>
                         <field name="ordre"/>
                     </group>
