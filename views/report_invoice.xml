@@ -67,7 +67,7 @@
                     <div t-if="o.is_num_bl_manuel"><b>N° BL manuel   : </b><span t-field="o.is_num_bl_manuel"/></div>
                     <t t-set="picking" t-value="0"/>
                     <div t-foreach="o.invoice_line_ids" t-as="l">
-                        <t t-set="picking" t-value="l.is_move_id.picking_id"/>
+                        <t t-if="l.is_move_id.picking_id" t-set="picking" t-value="l.is_move_id.picking_id"/>
                     </div>
                     <div t-if="picking">
                         <t t-if="o.partner_id.is_mode_envoi_facture!='mail_regroupe_bl'">
