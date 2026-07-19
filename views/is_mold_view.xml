@@ -115,7 +115,7 @@
                                         <field name="nb_cycles_dernier_preventif" readonly="1"/>
                                         <field name="nb_cycles_actuel"            readonly="1"/>
                                         <field name="nb_cycles_avant_preventif"   readonly="1"/>
-                                        <field name="garantie_outillage"          readonly="1"/>
+                                        <field name="garantie_outillage_preventif" readonly="1"/>
                                     </group>
                                     <group>
                                         <field name="periodicite_maintenance_moule"/>
@@ -290,24 +290,25 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="designation"      optional="show"/>
-                    <field name="project"          optional="show" widget="many2one_clickable"/>
-                    <field name="client_id"        optional="show" widget="many2one_clickable"/> 
-                    <field name="chef_projet_id"   optional="show" />
-                    <field name="dossierf_id"      optional="show" widget="many2one_clickable"/>
-                    <field name="dossierf_ids"     optional="show" widget="many2many_tags"/>
-                    <field name="nb_empreintes"    optional="show"/>
-                    <field name="moule_a_version"  optional="show"/>
-                    <field name="lieu_changement"  optional="show"/>
-                    <field name="temps_changement" optional="show"/>
-                    <field name="date_creation"    optional="show"/>
-                    <field name="date_fin"         optional="show"/>
-                    <field name="mouliste_id"      optional="show"  /> 
-                    <field name="carcasse"         optional="show"/>
-                    <field name="emplacement"      optional="show"/>
-                    <field name="date_retour_prise_avance" optional="show"/>
-                    <field name="fiche_description_commentaire" optional="show"/>
-                    <field name="is_database_id"   optional="show"/>
+                    <field name="designation"        optional="show"/>
+                    <field name="project"            optional="show" widget="many2one_clickable"/>
+                    <field name="client_id"          optional="show" widget="many2one_clickable"/> 
+                    <field name="chef_projet_id"     optional="hide" />
+                    <field name="dossierf_id"        optional="show" widget="many2one_clickable"/>
+                    <field name="dossierf_ids"       optional="hide" widget="many2many_tags"/>
+                    <field name="nb_empreintes"      optional="show"/>
+                    <field name="moule_a_version"    optional="hide"/>
+                    <field name="lieu_changement"    optional="hide"/>
+                    <field name="temps_changement"   optional="hide"/>
+                    <field name="date_creation"      optional="show"/>
+                    <field name="date_fin"           optional="show"/>
+                    <field name="garantie_outillage" optional="hide"/>
+                    <field name="mouliste_id"        optional="show"  /> 
+                    <field name="carcasse"           optional="hide"/>
+                    <field name="emplacement"        optional="show"/>
+                    <field name="date_retour_prise_avance" optional="hide"/>
+                    <field name="fiche_description_commentaire" optional="hide"/>
+                    <field name="is_database_id"   optional="hide"/>
                     <field name="create_date"      optional="hide"/>
                     <field name="create_uid"       optional="hide"/>
                     <field name="write_date"       optional="hide"/>
