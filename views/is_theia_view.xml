@@ -122,6 +122,7 @@
                 <field name="entree"  optional="show"/>
                 <field name="couleur" optional="hide" widget="pgcolor"/>
                 <field name="etat"    optional="hide"/>
+                <field name="tps_cycle" optional="show"/>
                 <field name="of_ids" widget="many2many_tags"/>
             </tree>
         </field>
@@ -137,6 +138,7 @@
                     <field name="presse_id"/>
                     <field name="entree"/>
                     <field name="etat"/>
+                    <field name="tps_cycle"/>
                     <field name="of_ids" widget="many2many_tags" />
                 </group>
             </sheet>
@@ -193,10 +195,19 @@
         <field name="context">{'search_default_depuis_7j': 1}</field>
         <field name="view_mode">tree,form,pivot,graph</field>
     </record>
-    <menuitem action="is_presse_cycle_action" 
-              id="menu_is_presse_cycle" 
-              parent="is_theia_presse_main_menu" 
+    <menuitem action="is_presse_cycle_action"
+              id="menu_is_presse_cycle"
+              parent="is_theia_presse_main_menu"
               sequence="20"/>
+    <record id="maj_tps_cycle_ir_cron" model="ir.cron">
+        <field name="name">Calcul Tps cycle des presses (is.presse.cycle)</field>
+        <field name="model_id" ref="model_is_presse_cycle"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="state">code</field>
+        <field name="code">model.maj_tps_cycle_action()</field>
+    </record>
 
 
     <!-- presse.arret -->

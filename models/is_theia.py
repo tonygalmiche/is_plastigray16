@@ -615,7 +615,59 @@ class is_presse_cycle(models.Model):
     etat       = fields.Char("État"  , index=True)
     couleur    = fields.Char('Couleur', compute='_couleur')
     of_ids     = fields.Many2many('is.of', 'is_presse_cycle_of_rel', 'is_of_id', 'is_presse_cycle_id', 'OF', readonly=False, required=False)
-    
+    tps_cycle  = fields.Float(u"Tps cycle (s)", digits=(12,2))
+
+    def _auto_init(self):
+        res = super(is_presse_cycle, self)._auto_init()
+        # Index nécessaire pour la fenêtre LAG() (partition/tri) utilisée par maj_tps_cycle_action()
+        self._cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_is_presse_cycle_presse_date
+            ON is_presse_cycle (presse_id, date_heure)
+        """)
+        return res
+
+    def maj_tps_cycle_action(self):
+        u"""Renseigne tps_cycle (durée en secondes depuis le cycle précédent sur la même presse).
+        Champ non alimenté à l'insert car la table est alimentée par un script externe."""
+        cr=self._cr
+        SQL="""
+            UPDATE is_presse_cycle t
+            SET tps_cycle = sub.tps_cycle
+            FROM (
+                SELECT
+                    c.id,
+                    EXTRACT(EPOCH FROM (c.date_heure - LAG(c.date_heure) OVER (PARTITION BY c.presse_id ORDER BY c.date_heure))) AS tps_cycle
+                FROM is_presse_cycle c
+                WHERE c.presse_id IS NOT NULL
+                AND c.date_heure >= now() - interval '3 days'
+            ) sub
+            WHERE t.id=sub.id
+            AND t.tps_cycle IS NULL
+            AND sub.tps_cycle IS NOT NULL
+        """
+        cr.execute(SQL)
+
+    def maj_tps_cycle_historique_action(self):
+        u"""Recalcule tps_cycle sur tout l'historique (toutes presses, toutes dates).
+        A lancer manuellement (pas via le cron horaire) car coûteux sur une grosse table.
+        Ex: odoo-bin shell -c /etc/odoo/pg-odoo16.conf -d <db>
+            self.env['is.presse.cycle'].maj_tps_cycle_historique_action()
+            self.env.cr.commit()"""
+        cr=self._cr
+        SQL="""
+            UPDATE is_presse_cycle t
+            SET tps_cycle = sub.tps_cycle
+            FROM (
+                SELECT
+                    c.id,
+                    EXTRACT(EPOCH FROM (c.date_heure - LAG(c.date_heure) OVER (PARTITION BY c.presse_id ORDER BY c.date_heure))) AS tps_cycle
+                FROM is_presse_cycle c
+                WHERE c.presse_id IS NOT NULL
+            ) sub
+            WHERE t.id=sub.id
+        """
+        cr.execute(SQL)
+
 
 class is_presse_arret(models.Model):
     _name = 'is.presse.arret'

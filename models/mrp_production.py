@@ -460,6 +460,7 @@ class MrpProduction(models.Model):
 
 
     def declaration_production_theia_action(self,qt_bonne, qt_rebut, is_employee_theia_id=False):
+        _logger.info("declaration_production_theia_action - APPEL - production=%s qt_bonne=%s qt_rebut=%s is_employee_theia_id=%s" % (self.ids, qt_bonne, qt_rebut, is_employee_theia_id))
         err=""
         for obj in self:
             qt=0
@@ -482,6 +483,8 @@ class MrpProduction(models.Model):
 
             if qt==0:
                 err="Qt = 0"
+            if err!="":
+                _logger.warning("declaration_production_theia_action - production=%s wizard NON exécuté - err=%s" % (obj.id, err))
             if err=="":
                 #** Création du wizard ****************************************
                 wiz_obj = self.env['is.mrp.production.wizard']
@@ -494,6 +497,7 @@ class MrpProduction(models.Model):
                     'product_qty'     : qt,
                     'nb_uc'           : 0,
                 }
+                _logger.info("declaration_production_theia_action - production=%s vals wizard=%s" % (obj.id, vals))
                 wiz = wiz_obj.create(vals)
                 wiz.onchange_qt()
                 lines = wiz.with_context(active_id=obj.id)._get_bom_lines(filtre_cbn=True)
@@ -503,11 +507,17 @@ class MrpProduction(models.Model):
                         code = line.product_id.is_code
                         if code[:1]!="5":
                             line.unlink()
-                res = wiz.with_context(active_id=obj.id).ok_action(is_employee_theia_id=is_employee_theia_id)
+                try:
+                    res = wiz.with_context(active_id=obj.id).ok_action(is_employee_theia_id=is_employee_theia_id)
+                    _logger.info("declaration_production_theia_action - production=%s wizard=%s exécuté OK - res=%s" % (obj.id, wiz.id, res))
+                except Exception as e:
+                    _logger.error("declaration_production_theia_action - production=%s wizard=%s ERREUR lors de l'exécution : %s" % (obj.id, wiz.id, e))
+                    raise
                 #**************************************************************
         res=True
         if err!="":
             res={"err": err}
+        _logger.info("declaration_production_theia_action - RESULTAT FINAL production=%s res=%s" % (self.ids, res))
         return res
     
 
