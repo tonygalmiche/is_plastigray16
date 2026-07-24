@@ -246,27 +246,51 @@
                         </tbody>
                     </table>
                     <br />
-                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.type_colis">
-                        <table class="table table-condensed" style="width:40%">
-                            <thead>
-                            <tr>
-                                <th class="text-left thhead">Type de colis</th>
-                                <th class="text-left thhead">Nombre</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                <tr t-foreach="o.is_colisage_ids" t-as="colis">
-                                    <td class="text-left" style="padding: 0.1rem 0.1rem;">
-                                        <span t-field="colis.colis_id.name" style="white-space: nowrap;"/>
-                                    </td>
-                                    <td class="text-right" style="padding: 0.1rem 0.1rem;">
-                                        <span t-field="colis.nb"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <br />
-                    </t>
+                    <table style="width:100%">
+                        <tr>
+                            <td style="width:40%; vertical-align:top; border:none">
+                                <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.type_colis">
+                                    <table class="table table-condensed" style="width:100%">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-left thhead">Type de colis</th>
+                                            <th class="text-left thhead">Nombre</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="o.is_colisage_ids" t-as="colis">
+                                                <td class="text-left" style="padding: 0.1rem 0.1rem;">
+                                                    <span t-field="colis.colis_id.name" style="white-space: nowrap;"/>
+                                                </td>
+                                                <td class="text-right" style="padding: 0.1rem 0.1rem;">
+                                                    <span t-field="colis.nb"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </td>
+                            <td style="vertical-align:top; border:none; padding-left:10mm">
+                                <t t-if="o.partner_id.is_configuration_bl_id and o.partner_id.is_configuration_bl_id.info_client and o.sale_id.is_info_client">
+                                    <table class="table table-condensed" style="width:100%">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-left thhead">INFORMATION CLIENT COMPLEMENTAIRE</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 0.1rem 0.1rem;">
+                                                    <span t-field="o.sale_id.is_info_client"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
+                    <br />
                     <table style="width:100%">
                         <tr>
                             <td style="width:42mm" class="adresse">

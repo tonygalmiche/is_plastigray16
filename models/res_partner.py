@@ -153,6 +153,7 @@ class is_configuration_bl(models.Model):
 
     caldel_number = fields.Boolean("Afficher 'Caldel Number' dans 'N° de l'ordre", default=False, tracking=True)
     num_ran       = fields.Boolean("Afficher 'NumRAN' dans 'N° de l'ordre", default=True, tracking=True)
+    info_client   = fields.Boolean("Afficher l'information client complémentaire", default=False, tracking=True)
 
 
     def write(self, vals):
@@ -183,6 +184,7 @@ class is_configuration_bl(models.Model):
             'identification_transport': self.identification_transport,
             'poids_net'               : self.poids_net,
             'dossier_transport'       : self.dossier_transport,
+            'info_client'             : self.info_client,
             'is_database_origine_id'  : self.id
         }
         return vals

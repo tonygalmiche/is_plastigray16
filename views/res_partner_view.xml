@@ -730,6 +730,7 @@
                     <field name="dossier_transport"        optional="show"/>
                     <field name="caldel_number"            optional="show"/>
                     <field name="num_ran"                  optional="show"/>
+                    <field name="info_client"              optional="show"/>
                     <field name="is_database_origine_id"   optional="hide"/>
                 </tree>
             </field>
@@ -755,7 +756,8 @@
                             <field name="dossier_transport"        widget="boolean_toggle"/>
                             <field name="caldel_number"            widget="boolean_toggle"/>
                             <field name="num_ran"                  widget="boolean_toggle"/>
-                        </group> 
+                            <field name="info_client"              widget="boolean_toggle"/>
+                        </group>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids"/>
