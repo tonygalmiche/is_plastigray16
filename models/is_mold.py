@@ -106,10 +106,10 @@ class is_mold(models.Model):
                 description = _CINEMATIQUES[obj.cinematique]
             obj.cinematique_description = description
 
-    @api.depends('garantie_outillage')
-    def _compute_garantie_outillage_preventif(self):
-        for obj in self:
-            obj.garantie_outillage_preventif = obj.garantie_outillage
+    # @api.depends('garantie_outillage')
+    # def _compute_garantie_outillage_preventif(self):
+    #     for obj in self:
+    #         obj.garantie_outillage_preventif = obj.garantie_outillage
 
     @api.depends('bridage_ids')
     def _compute_bridage_specifique_vsb(self):
@@ -304,7 +304,7 @@ class is_mold(models.Model):
     fournisseur_bloc_chaud_id     = fields.Many2one('res.partner', string='Fournisseur du bloc chaud', domain="[('supplier','=',True)]", tracking=True)
     num_systeme                   = fields.Char(string=u'N° du système', tracking=True)
     garantie_outillage            = fields.Char(string=u"Garantie de l'outillage (en nombre de cycles)", tracking=True)
-    garantie_outillage_preventif  = fields.Char(string=u"Garantie outillage (en nombre de cycles)", compute='_compute_garantie_outillage_preventif', readonly=True)
+    # garantie_outillage_preventif  = fields.Char(string=u"Garantie outillage (en nombre de cycles)", compute='_compute_garantie_outillage_preventif', readonly=True)
     extension_garantie            = fields.Char(string=u"Extension de garantie", tracking=True)
     indice_creation_fiche         = fields.Char(string='Indice Fiche', default='A', tracking=True)
     createur_fiche_id             = fields.Many2one("res.users", string=u'Créateur Fiche', tracking=True)
