@@ -2087,15 +2087,27 @@ class is_edi_cde_cli(models.Model):
                     anomalie=False
                     if len(product)==0:
                         anomalie=u'Article '+lig[3]+u' non trouvé'
-                    # Recherche commande ouverte
+                    # Recherche commande ouverte (en tenant compte du n° de commande client)
+                    num_commande_client_fichier = lig[2].strip()
                     order=self.env['sale.order'].search([
                         ('partner_id.is_code'    , '=', obj.partner_id.is_code),
                         ('is_article_commande_id', '=', product.id),
                         ('is_type_commande'      , '=', 'ouverte'),
                         ('state'                 , '=', 'draft'),
+                        ('client_order_ref'      , '=', num_commande_client_fichier),
                     ])
                     if len(order)==0:
-                        anomalie=u"Commande non trouvée pour l'article "+lig[3]
+                        # Recherche commande ouverte sans tenir compte du n° de commande client
+                        order=self.env['sale.order'].search([
+                            ('partner_id.is_code'    , '=', obj.partner_id.is_code),
+                            ('is_article_commande_id', '=', product.id),
+                            ('is_type_commande'      , '=', 'ouverte'),
+                            ('state'                 , '=', 'draft'),
+                        ])
+                        if len(order)==0:
+                            anomalie=u"Commande non trouvée pour l'article "+lig[3]
+                        elif num_commande_client_fichier:
+                            anomalie=u"N° de commande client incorrect : reçu '%s', attendu '%s'"%(num_commande_client_fichier, order.client_order_ref)
                     ref_article_client  = product.is_ref_client
                     num_commande_client = order.client_order_ref
                     val={
