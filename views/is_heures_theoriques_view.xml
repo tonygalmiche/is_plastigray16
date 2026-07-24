@@ -52,7 +52,7 @@
             <field name="model">is.heures.theoriques</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Heures Théoriques M.O.">
+                <form string="Heures Théoriques M.O." create="false">
                     <header>
                             <button name="action_calculer"
                                     type="object"
@@ -83,6 +83,7 @@
                             <group>
                                 <field name="type_tps"/>
                                 <field name="workcenter_id" domain="[('resource_type', '=', type_tps)]"/>
+                                <field name="type_gamme"/>
                                 <field name="date_debut"/>
                                 <field name="date_fin"/>
                                 <field name="picking_type_id"/>

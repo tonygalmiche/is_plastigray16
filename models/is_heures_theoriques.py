@@ -23,6 +23,8 @@ class is_heures_theoriques(models.Model):
                                       domain=[('active', '=', True)])
     type_tps        = fields.Selection([('user', 'M.O.'), ('material', 'Machine')],
                                        'Type Temps', required=True, default='user')
+    type_gamme      = fields.Selection([('generique', 'Gamme générique'), ('standard', 'Gamme standard')],
+                                       'Type Gamme', required=True, default='generique')
     workcenter_id   = fields.Many2one('mrp.workcenter', 'Poste de travail')
     date_debut      = fields.Date('Date Début', required=True)
     date_fin        = fields.Date('Date Fin', required=True)
@@ -40,6 +42,7 @@ class is_heures_theoriques(models.Model):
     @api.onchange('type_tps')
     def _onchange_type_tps(self):
         self.workcenter_id = False
+        self.type_gamme = 'generique' if self.type_tps == 'user' else 'standard'
 
     @api.depends('line_ids')
     def _compute_nb_lignes(self):
@@ -226,10 +229,11 @@ class is_heures_theoriques(models.Model):
                 product_tmpl_id = row['product_tmpl_id']
                 cout            = row['cout']           or 0.0
 
-                SQL2 = """
+                gamme_field = 'routing_id' if obj.type_gamme == 'standard' else 'is_gamme_generique_id'
+                SQL2 = f"""
                     SELECT mrw.workcenter_id AS section, mrw.is_nb_secondes AS tps_s
                     FROM  mrp_bom                  mb
-                    JOIN  mrp_routing              mr  ON mb.is_gamme_generique_id = mr.id
+                    JOIN  mrp_routing              mr  ON mb.{gamme_field} = mr.id
                     JOIN  mrp_routing_workcenter   mrw ON mr.id = mrw.routing_id
                     WHERE mb.product_tmpl_id = %s
                       AND mrw.workcenter_id IN (

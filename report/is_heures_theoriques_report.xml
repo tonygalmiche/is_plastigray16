@@ -140,6 +140,7 @@
                                     <t t-if="o.user_id"><td><strong>Utilisateur :</strong></td></t>
                                     <t t-if="o.date_debut"><td><strong>Période :</strong></td></t>
                                     <t t-if="o.type_tps"><td><strong>Type :</strong></td></t>
+                                    <t t-if="o.type_gamme"><td><strong>Type Gamme :</strong></td></t>
                                     <t t-if="o.code_pg"><td><strong>Code PG :</strong></td></t>
                                     <t t-if="o.moule"><td><strong>Moule :</strong></td></t>
                                     <t t-if="o.of_name"><td><strong>OF :</strong></td></t>
@@ -161,6 +162,7 @@
                                         </td>
                                     </t>
                                     <t t-if="o.type_tps"><td><t t-if="o.type_tps == 'user'">M.O.</t><t t-if="o.type_tps == 'material'">Machine</t></td></t>
+                                    <t t-if="o.type_gamme"><td><t t-if="o.type_gamme == 'generique'">Gamme générique</t><t t-if="o.type_gamme == 'standard'">Gamme standard</t></td></t>
                                     <t t-if="o.code_pg"><td><t t-esc="o.code_pg"/></td></t>
                                     <t t-if="o.moule"><td><t t-esc="o.moule"/></td></t>
                                     <t t-if="o.of_name"><td><t t-esc="o.of_name"/></td></t>
