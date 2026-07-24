@@ -976,7 +976,9 @@ class stock_picking(models.Model):
         return contacts
 
     def envoyer_bl_par_mail_action(self):
-        """Envoie le BL par mail si is_envoi_bl_mail = 'depuis_bl'"""
+        """Envoie le BL par mail si is_envoi_bl_mail = 'depuis_bl'
+        Sur la base de test, Postfix redirige les mails externes vers le service "discard"
+        (transport_maps) : le mail apparaît "sent" dans les logs mais n'est jamais réellement délivré."""
         for obj in self:
             # Vérifier que le client a activé l'envoi du BL par mail "Depuis le BL"
             if not obj.partner_id.is_envoi_bl_mail or obj.partner_id.is_envoi_bl_mail != 'depuis_bl':
@@ -990,7 +992,15 @@ class stock_picking(models.Model):
             
             # Préparer, générer et sauvegarder le PDF
             attachment = obj.sauvegarde_pdf()
-            
+
+            # Récupérer les pièces jointes ajoutées dans le chatter (hors PDF du BL)
+            chatter_attachments = self.env['ir.attachment'].search([
+                ('res_model', '=', 'stock.picking'),
+                ('res_id', '=', obj.id),
+                ('id', '!=', attachment.id),
+            ])
+            attachment_command_ids = [(4, attachment.id)] + [(4, att.id) for att in chatter_attachments]
+
             # Construire le corps du mail
             emails = [contact.email for contact in contacts_envoi if contact.email]
             email_body = f"""
@@ -999,18 +1009,19 @@ class stock_picking(models.Model):
             <p>Cordialement,<br/>
             Plastigray</p>
             """
-            
+
             # Envoyer le mail
+            # Ne pas renseigner 'model'/'res_id' : mail.mail hérite de mail.message par délégation,
+            # ce qui posterait automatiquement un 2e message (avec les PJ) dans le chatter du BL,
+            # en plus du message personnalisé créé ci-dessous.
             user = self.env.user
             mail_values = {
                 'subject': f'Bon de livraison {obj.name}',
                 'body_html': email_body,
                 'email_to': ','.join(emails),
                 'email_cc': user.email if user.email else '',
-                'res_id': obj.id,
-                'model': 'stock.picking',
                 'state': 'outgoing',
-                'attachment_ids': [(4, attachment.id)],
+                'attachment_ids': attachment_command_ids,
             }
             
             mail = self.env['mail.mail'].create(mail_values)
@@ -1034,7 +1045,7 @@ class stock_picking(models.Model):
                 'body': message_body,
                 'model': 'stock.picking',
                 'res_id': obj.id,
-                'attachment_ids': [(4, attachment.id)],
+                'attachment_ids': attachment_command_ids,
             }
             self.env['mail.message'].create(vals)
             

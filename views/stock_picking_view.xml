@@ -153,7 +153,7 @@
                         name="envoyer_bl_par_mail_action" 
                         string="Envoyer le BL par mail" 
                         type="object"
-                        confirm="Voulez-vous vraiment envoyer le BL par mail ?"
+                        confirm="Voulez-vous vraiment envoyer le BL par mail avec les pièces jointes du chatter ?"
                         attrs="{'invisible': ['|','|','|',
                             ('state', '!=', 'done'),
                             ('picking_type_id', '!=', 2),
