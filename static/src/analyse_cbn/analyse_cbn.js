@@ -260,7 +260,7 @@ class AnalyseCbn extends Component {
             "cat"         : this.state.analyse_cbn_cat,
             "moule"       : this.state.analyse_cbn_moule,
             "projet"      : this.state.analyse_cbn_projet,
-            "client"      : this.state.analyse_cbn_client,
+            // "client"      : this.state.analyse_cbn_client,
             "client_multi": this.state.analyse_cbn_client_multi,
             "fournisseur" : this.state.analyse_cbn_fournisseur,
             "semaines"    : this.state.analyse_cbn_semaines,
@@ -279,7 +279,7 @@ class AnalyseCbn extends Component {
         this.state.analyse_cbn_cat          = res.cat;
         this.state.analyse_cbn_moule        = res.moule;
         this.state.analyse_cbn_projet       = res.projet;
-        this.state.analyse_cbn_client       = res.client;
+        // this.state.analyse_cbn_client       = res.client;
         this.state.analyse_cbn_client_multi = res.client_multi;
         this.state.analyse_cbn_fournisseur  = res.fournisseur;
         this.state.analyse_cbn_semaines     = res.semaines;

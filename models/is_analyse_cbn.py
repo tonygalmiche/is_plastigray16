@@ -123,8 +123,8 @@ class product_product(models.Model):
             filtre=filtre+" and (im.name in "+moules+" or id.name in "+moules+" )"
         if projet:
             filtre=filtre+" and (imp1.name ilike '%"+projet+"%' or imp2.name ilike '%"+projet+"%') "
-        if client:
-            filtre=filtre+" and rp.is_code='"+client+"' "
+        # if client:
+        #     filtre=filtre+" and rp.is_code='"+client+"' "
         if client_multi:
             product_ids_client_multi = self._get_product_ids_client_multi(client_multi)
             if product_ids_client_multi:
