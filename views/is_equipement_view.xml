@@ -188,7 +188,7 @@
                     <field name="partner_id" optional="show"/>
                     <field name="date_fabrication" optional="show"/>
                     <field name="date_de_fin" optional="show"/>
-                    <field name="is_database_origine_id" optional="hide"/>
+                     <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -761,6 +761,13 @@
                     <field name="nbre_noyau_pm"                   optional="hide"/>
                     <field name="passage_buse"                    optional="hide"/>
                     <field name="poids_kg"                        optional="hide"/>
+                    <field name="date_fabrication"                optional="hide"/>
+                    <field name="date_de_fin"                     optional="hide"/>
+                    <field name="force_fermeture"                 optional="hide"/>
+                    <field name="pression_maximum"                optional="hide"/>
+                    <field name="pression_maximum2"               optional="hide"/>
+                    <field name="vis_mn"                          optional="hide"/>
+                    <field name="vis_mn2"                         optional="hide"/>
                     <field name="is_database_origine_id"          optional="hide"/>
                 </tree>
             </field>
