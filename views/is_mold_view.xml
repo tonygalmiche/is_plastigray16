@@ -93,7 +93,7 @@
                         </group>
                         <group  string="Dateurs" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}"/>
                         <field name="dateur_ids" nolabel="1" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}">
-                            <tree editable="bottom">
+                            <tree editable="bottom" limit="200">
                                 <field name="type_dateur"/>
                                 <field name="qt_dans_moule"/>
                                 <field name="diametre_dateur"/>
@@ -127,7 +127,7 @@
                                     <field name="is_base_check" invisible="1" />
                                 </group>
                                 <field name="is_preventif_moule" readonly="1" nolabel="1">
-                                    <tree>
+                                    <tree limit="200">
                                         <field name="date_preventif"/>
                                         <field name="nb_cycles"/>
                                         <field name="periodicite"/>
@@ -136,7 +136,7 @@
                                 </field>
                                 <group string="Opérations systématiques"/>
                                 <field name="systematique_ids" nolabel="1">
-                                    <tree editable="bottom">
+                                    <tree editable="bottom" limit="200">
                                         <field name="operation_systematique_id"/>
                                         <field name="activer"/>
                                         <field name="frequence_preventif_id"/>
@@ -144,7 +144,7 @@
                                 </field>
                                 <group string="Opérations spécifiques"/>
                                 <field name="specifique_ids" nolabel="1">
-                                    <tree editable="bottom">
+                                    <tree editable="bottom" limit="200">
                                         <field name="operation_specifique_id"/>
                                         <field name="activer"/>
                                         <field name="frequence_preventif_id"/>
@@ -152,7 +152,7 @@
                                 </field>
                                 <group string="Spécifications particulières"/>
                                 <field name="specification_ids" nolabel="1">
-                                    <tree editable="bottom">
+                                    <tree editable="bottom" limit="200">
                                         <field name="specification_particuliere_id"/>
                                         <field name="activer"/>
                                         <field name="frequence_preventif_id"/>
