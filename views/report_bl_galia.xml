@@ -219,7 +219,7 @@
                                     <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.numero_lot">
                                         <span t-out="line['is_uc_galia']" style="white-space: nowrap;"/>
                                     </t>
-                                    <t t-if="o.partner_id.is_configuration_bl_id and not o.partner_id.is_configuration_bl_id.numero_lot">
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or not o.partner_id.is_configuration_bl_id.numero_lot">
                                         <span t-out="line['is_uc']" style="white-space: nowrap;"/>
                                     </t>
                                 </td>
@@ -232,10 +232,10 @@
                                     <!-- <t t-if="line['is_numero_document']">
                                         <span t-esc="line['is_numero_document']"/>
                                     </t> -->
-                                    <t t-if="o.partner_id.is_configuration_bl_id and o.partner_id.is_configuration_bl_id.caldel_number">
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.caldel_number">
                                         <div t-esc="line['is_caldel_number']"/> 
                                     </t>
-                                    <t t-if="o.partner_id.is_configuration_bl_id and o.partner_id.is_configuration_bl_id.num_ran">
+                                    <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.num_ran">
                                         <div t-esc="line['is_num_ran']"/> 
                                     </t>
                                 </td>
@@ -271,7 +271,7 @@
                                 </t>
                             </td>
                             <td style="vertical-align:top; border:none; padding-left:10mm">
-                                <t t-if="o.partner_id.is_configuration_bl_id and o.partner_id.is_configuration_bl_id.info_client and o.sale_id.is_info_client">
+                                <t t-if="(not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.info_client) and o.sale_id.is_info_client">
                                     <table class="table table-condensed" style="width:100%">
                                         <thead>
                                         <tr>
