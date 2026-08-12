@@ -9,11 +9,10 @@
             <field name="arch" type="xml">
                 <field name="currency_id" position="before">
                     <field name="type" />
-                    <field 
-                        name="partner_id" 
-                        string="Client"       
-                        domain="[('customer','=',True),('is_company','=',True)]" 
-                        attrs="{'invisible': ['|',('type', '=' , 'purchase'),('type', '=' , False)]}"
+                    <field
+                        name="partner_id"
+                        string="Client / Fournisseur"
+                        domain="[('is_company','=',True),('supplier','=',True)] if type == 'purchase' else [('is_company','=',True),('customer','=',True)]"
                     />
                 </field>
                 <page name="pricelist_rules" position="attributes">

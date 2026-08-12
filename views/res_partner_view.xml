@@ -317,8 +317,9 @@
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="arch" type="xml">
                 <field name="display_name" position="after">
-                    <field name="is_code"     optional="show"/>
-                    <field name="is_adr_code" optional="show"/>
+                    <field name="is_code"              optional="show"/>
+                    <field name="is_adr_code"          optional="show"/>
+                    <field name="is_database_line_ids" optional="show" widget="many2many_tags"/>
                 </field>
                 <field name="email" position="after">
                     <field name="is_type_contact"        optional="hide"/>
