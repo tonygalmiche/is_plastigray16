@@ -9,8 +9,9 @@
             <field name="inherit_id" ref="base.view_res_partner_filter" />
             <field name="arch" type="xml">
                 <field name="user_id" position="before">
-                   <field name="is_code"/>
-                   <field name="is_segment_achat"/>
+                    <field name="is_code"/>
+                    <field name="is_segment_achat"/>
+                    <field name="is_import_function"/>
                 </field>
             </field>
         </record>
@@ -88,7 +89,8 @@
                         name="is_code_destinataire_agence" 
                         attrs="{'invisible': [('is_traitement_edi','=', False)]}"
                     />
-                    <field name="is_import_function"      attrs="{'invisible': [('customer','=', False)]}"/>
+                    <field name="is_import_function"             attrs="{'invisible': [('customer','=', False)]}"/>
+                    <field name="is_creation_commande_ferme_edi" attrs="{'invisible': [('is_import_function','!=', 'STELLANTIS')]}"/>
                     <field name="is_identification_edi"   attrs="{'invisible': [('customer','=', False)]}"/>
                     <field name="is_type_cde_fournisseur" attrs="{'invisible': [('supplier','=', False)]}"/>
                     <field name="is_livre_a_id"           attrs="{'invisible': [('supplier','=', False)]}"/>
@@ -326,6 +328,10 @@
                     <field name="is_mode_transport_id"       optional="hide"/>
                     <field name="property_product_pricelist" optional="hide"/>
                     <field name="pricelist_purchase_id"      optional="hide"/>
+
+                    <field name="is_import_function"             optional="hide"/>
+                    <field name="is_creation_commande_ferme_edi" optional="hide"/>
+
                     <field name="is_database_origine_id"     optional="hide"/>
                 </field>
             </field>

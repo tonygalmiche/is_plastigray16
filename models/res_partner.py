@@ -584,7 +584,10 @@ class res_partner(models.Model):
     is_livre_a_id           = fields.Many2one('res.partner', 'Livrer à', tracking=True, help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
     is_certificat_matiere   = fields.Boolean(u'Certificat matière demandé', tracking=True)
 
-    is_import_function      = fields.Selection(import_function, "Fonction d'importation EDI", tracking=True)
+    is_import_function             = fields.Selection(import_function, "Fonction d'importation EDI", tracking=True)
+    is_creation_commande_ferme_edi = fields.Boolean('Création commande ferme par EDI', tracking=True, default=False, 
+        help="Si cette case est cochée l'importation EDI de type STELLANTIS créera les commandes fermes non trouvées")
+ 
     is_traitement_edi       = fields.Selection(traitement_edi, "Traitement EDI", tracking=True)
     is_identification_edi   = fields.Char(string='Identification fichier EDI', tracking=True, help="Ce champ permet d'identifier les fichiers réceptionnés par EDI pour créer automatiquement la fiche EDI (ex : XML_DELJIT_VESOUL_ ou XML_DELJIT_RENNES_)")
 
