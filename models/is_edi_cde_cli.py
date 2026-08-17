@@ -1728,6 +1728,10 @@ class is_edi_cde_cli(models.Model):
                             num_ran=partie_citee.xpath("INSTRUCTIONS_EMBALLAGE/NumRAN")[0].text
                         except IndexError:
                             num_ran=False
+
+
+
+
                     if  partie_citee.xpath("ARTICLE_PROGRAMME"):
                         ref_article_client=partie_citee.xpath("ARTICLE_PROGRAMME/NumeroArticleClient")[0].text
                         try:
@@ -1751,32 +1755,29 @@ class is_edi_cde_cli(models.Model):
                             type_uc=partie_citee.xpath("INSTRUCTIONS_EMBALLAGE/TYPE_UM_UC/IdentifiantTypeUC")[0].text
                         except IndexError:
                             type_uc=""
-
-
-
                         order_id=False
                         product=False
                         if not len(anomalie):
-                            orders=self.env['sale.order'].search([
-                                ('is_type_commande'  , '=', 'standard'),
-                                ('state'             , '=', 'draft'),
-                                ('partner_id'        , '=', obj.partner_id.id),
-                                ('client_order_ref'  , '=', num_commande_client),
-                            ])
-                            if len(orders)==0:
-                                # Création de la commande si prévu par le client
-                                if obj.partner_id.is_creation_commande_ferme_edi:
+                            if obj.partner_id.is_creation_commande_ferme_edi:
+                                orders=self.env['sale.order'].search([
+                                    ('is_type_commande'  , '=', 'standard'),
+                                    ('state'             , '=', 'draft'),
+                                    ('partner_id'        , '=', obj.partner_id.id),
+                                    ('client_order_ref'  , '=', num_commande_client),
+                                ])
+                                if len(orders)==0:
+                                    # Création de la commande si prévu par le client
                                     products=self.env['product.product'].search([
                                         ('is_client_id' , '=', obj.partner_id.id),
                                         ('is_ref_client', '=', ref_article_client),
-                                        ('is_gestionnaire_id', '!=', '04'), 
-                                        ('is_gestionnaire_id', '!=', '07'), 
-                                        ('is_gestionnaire_id', '!=', '12'), 
-                                        ('is_gestionnaire_id', '!=', '14'), 
-                                        ('is_gestionnaire_id', '!=', '23'), 
-                                        ('segment_id', 'not ilike', 'fictif'), 
-                                        ('segment_id', 'not ilike', 'fantome'), 
-                                        ('segment_id', 'not ilike', 'consommable'), 
+                                        ('is_gestionnaire_id', '!=', '04'),
+                                        ('is_gestionnaire_id', '!=', '07'),
+                                        ('is_gestionnaire_id', '!=', '12'),
+                                        ('is_gestionnaire_id', '!=', '14'),
+                                        ('is_gestionnaire_id', '!=', '23'),
+                                        ('segment_id', 'not ilike', 'fictif'),
+                                        ('segment_id', 'not ilike', 'fantome'),
+                                        ('segment_id', 'not ilike', 'consommable'),
                                         ('segment_id', 'not ilike', 'comptable'),
                                     ])
                                     if len(products)==0:
@@ -1794,29 +1795,30 @@ class is_edi_cde_cli(models.Model):
                                     order=self.env['sale.order'].create(vals)
                                     order.pg_onchange_partner_id()
                                     order_id=order.id
+                                else:
+                                    order=orders[0]
+                                    if order.client_order_ref!=num_commande_client:
+                                        anomalie.append("Commande EDI client '%s' différente de la commande Odoo '%s'"%(num_commande_client,order.client_order_ref))
+                                    order_id=order.id
                             else:
-                                order=orders[0]
-                                if order.client_order_ref!=num_commande_client:
-                                    anomalie.append("Commande EDI client '%s' différente de la commande Odoo '%s'"%(num_commande_client,order.client_order_ref))
-                                order_id=order.id
-
-                            # orders=self.env['sale.order'].search([
-                            #     ('partner_id'        , '=', obj.partner_id.id),
-                            #     ('is_ref_client'     , '=', ref_article_client),
-                            #     ('is_type_commande'  , '=', 'ouverte'),
-                            #     ('state'             , '=', 'draft'),
-                            # ])
-                            # for order in orders:
-                            #     order_id = order.id
-                            #     if order.client_order_ref!=num_commande_client:
-                            #         anomalie.append("Commande EDI client '%s' différente de la commande Odoo '%s'"%(num_commande_client,order.client_order_ref))
+                                orders=self.env['sale.order'].search([
+                                    ('partner_id'        , '=', obj.partner_id.id),
+                                    ('is_ref_client'     , '=', ref_article_client),
+                                    ('is_type_commande'  , '=', 'ouverte'),
+                                    ('state'             , '=', 'draft'),
+                                ])
+                                for order in orders:
+                                    order_id = order.id
+                                    if order.client_order_ref!=num_commande_client:
+                                        anomalie.append("Commande EDI client '%s' différente de la commande Odoo '%s'"%(num_commande_client,order.client_order_ref))
                         val = {
                             'order_id'           : order_id,
                             'ref_article_client' : ref_article_client,
                             'num_commande_client': num_commande_client,
-                            'product'            : product,
                             'lignes'             : []
                         }
+                        if product:
+                            val['product'] = product
                         point_dechargement = False
                         code_routage       = False
                         point_destination  = False
