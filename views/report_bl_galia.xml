@@ -219,9 +219,9 @@
                                     <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.numero_lot">
                                         <span t-out="line['is_uc_galia']" style="white-space: nowrap;"/>
                                     </t>
-                                    <t t-if="not o.partner_id.is_configuration_bl_id or not o.partner_id.is_configuration_bl_id.numero_lot">
+                                    <!-- <t t-if="not o.partner_id.is_configuration_bl_id or not o.partner_id.is_configuration_bl_id.numero_lot">
                                         <span t-out="line['is_uc']" style="white-space: nowrap;"/>
-                                    </t>
+                                    </t> -->
                                 </td>
                                 <td class="text-right">
                                     <t t-if="line['nb2']">
