@@ -455,6 +455,9 @@ class is_edi_cde_cli(models.Model):
                         if obj.date_maxi:
                             if line.date_livraison>obj.date_maxi:
                                 test=False
+                        product_id = line.order_id.is_article_commande_id.id or line.product_id.id
+                        if test and not product_id:
+                            test = False
                         if test:
                             order=line.order_id
                             if order not in orders:
@@ -467,7 +470,7 @@ class is_edi_cde_cli(models.Model):
                                 'order_id'            : line.order_id.id, 
                                 'is_date_livraison'   : line.date_livraison, 
                                 'is_type_commande'    : line.type_commande, 
-                                'product_id'          : line.order_id.is_article_commande_id.id or line.product_id.id, 
+                                'product_id'          : product_id,
                                 'product_uom_qty'     : line.quantite, 
                                 'is_client_order_ref' : line.order_id.client_order_ref, 
                                 'price_unit'          : line.prix,
@@ -1756,9 +1759,32 @@ class is_edi_cde_cli(models.Model):
                         except IndexError:
                             type_uc=""
                         order_id=False
+                        order = False
                         product=False
                         if not len(anomalie):
                             if obj.partner_id.is_creation_commande_ferme_edi:
+
+                                #** Recherche de l'article ********************
+                                products=self.env['product.product'].search([
+                                    ('is_client_id' , '=', obj.partner_id.id),
+                                    ('is_ref_client', '=', ref_article_client),
+                                    ('is_gestionnaire_id', '!=', '04'),
+                                    ('is_gestionnaire_id', '!=', '07'),
+                                    ('is_gestionnaire_id', '!=', '12'),
+                                    ('is_gestionnaire_id', '!=', '14'),
+                                    ('is_gestionnaire_id', '!=', '23'),
+                                    ('segment_id', 'not ilike', 'fictif'),
+                                    ('segment_id', 'not ilike', 'fantome'),
+                                    ('segment_id', 'not ilike', 'consommable'),
+                                    ('segment_id', 'not ilike', 'comptable'),
+                                ])
+                                if len(products)==0:
+                                    anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+                                if len(products)>1:
+                                    anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
+                                if len(products)>=1:
+                                    product=products[0]
+
                                 orders=self.env['sale.order'].search([
                                     ('is_type_commande'  , '=', 'standard'),
                                     ('state'             , '=', 'draft'),
@@ -1767,25 +1793,6 @@ class is_edi_cde_cli(models.Model):
                                 ])
                                 if len(orders)==0:
                                     # Création de la commande si prévu par le client
-                                    products=self.env['product.product'].search([
-                                        ('is_client_id' , '=', obj.partner_id.id),
-                                        ('is_ref_client', '=', ref_article_client),
-                                        ('is_gestionnaire_id', '!=', '04'),
-                                        ('is_gestionnaire_id', '!=', '07'),
-                                        ('is_gestionnaire_id', '!=', '12'),
-                                        ('is_gestionnaire_id', '!=', '14'),
-                                        ('is_gestionnaire_id', '!=', '23'),
-                                        ('segment_id', 'not ilike', 'fictif'),
-                                        ('segment_id', 'not ilike', 'fantome'),
-                                        ('segment_id', 'not ilike', 'consommable'),
-                                        ('segment_id', 'not ilike', 'comptable'),
-                                    ])
-                                    if len(products)==0:
-                                        anomalie.append("Article '%s' non trouvé pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                                    if len(products)>1:
-                                        anomalie.append("Il existe plusieurs articles actifs pour la référence client '%s' et pour le client %s/%s"%(ref_article_client,obj.partner_id.is_code,obj.partner_id.is_adr_code))
-                                    if len(products)>=1:
-                                        product=products[0]
 
                                     vals={
                                         "partner_id": obj.partner_id.id,
@@ -1829,6 +1836,10 @@ class is_edi_cde_cli(models.Model):
                                     code_routage = CodeRoutage.text
                                 for CodeIdentificationPointDestination in POINT_DE_DECHARGEMENT.xpath("CodeIdentificationPointDestination"):
                                     point_destination = CodeIdentificationPointDestination.text
+
+                        if obj.partner_id.is_creation_commande_ferme_edi and order and not order.is_point_dechargement:
+                            order.is_point_dechargement = point_dechargement
+
                         res1 = []
                         for detail_programme in partie_citee.xpath("ARTICLE_PROGRAMME/DETAIL_PROGRAMME_ARTICLE"):
                             quantite                          = detail_programme.xpath("QteALivrer")[0].text
