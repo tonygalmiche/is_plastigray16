@@ -4,6 +4,7 @@ from odoo.exceptions import AccessError, ValidationError, UserError  # type: ign
 from subprocess import PIPE, Popen
 from xmlrpc import client as xmlrpclib
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import time
 import pytz
 import os
@@ -870,6 +871,7 @@ class is_galia_base_um(models.Model):
             obj.qt_pieces  = qt_pieces
             premiere_uc = obj.uc_ids[:1]
             obj.etiquette_um_a5 = bool(premiere_uc.product_id.product_tmpl_id.is_type_etiquette_um_id)
+            obj.nb_uc = len(obj.uc_ids)
 
     name             = fields.Char("N°Étiquette UM", readonly=True             , index=True, tracking=True)
     mixte            = fields.Selection(_MIXTE, "UM mixte", default='non', required=True, tracking=True)
@@ -882,6 +884,7 @@ class is_galia_base_um(models.Model):
     product_id       = fields.Many2one('product.product', 'Article', readonly=True, compute='_compute', store=False)
     qt_pieces        = fields.Integer("Qt Pièces"                  , readonly=True, compute='_compute', store=False)
     etiquette_um_a5  = fields.Boolean("Étiquette UM A5", readonly=True, compute='_compute', store=False)
+    nb_uc            = fields.Integer("Nb UC", readonly=True, compute='_compute', store=False)
     employee_id      = fields.Many2one("hr.employee", "Employé", tracking=True)
     date_fin         = fields.Datetime("Date fin UM", tracking=True)
     active           = fields.Boolean("Active", default=True, copy=False, index=True, tracking=True)
@@ -999,17 +1002,26 @@ class is_galia_base_um(models.Model):
             return True
 
 
-
-
-
-
-
-
-
-
-
-
-
+    def archiver_sur_stock_action(self):
+        date_limite = datetime.now() - relativedelta(months=1)
+        filtre = [
+            #('name' , '=', 'Inventaire'),
+            ('usage', '=', 'inventory'),
+        ]
+        lines = self.env["stock.location"].search(filtre)
+        location_inventaire_id = lines and lines[0].id or False
+        total = len(self)
+        for i, obj in enumerate(self, start=1):
+            if obj.create_date > date_limite:
+                continue
+            if obj.location_id and obj.location_id.usage != 'internal':
+                continue
+            if not obj.uc_ids:
+                msg = "%s/%s : UM %s archivée automatiquement car elle n'a plus d'UC active."%(i, total, obj.name)
+                obj.location_id = location_inventaire_id
+                obj.message_post(body=msg)
+                _logger.info(msg)
+                obj.active = False
 
 
     def _get_location_id(self):
@@ -1020,7 +1032,7 @@ class is_galia_base_um(models.Model):
         lines = self.env["stock.location"].search(filtre)
         location_id = lines and lines[0].id or False
         return location_id
-       
+
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -1473,6 +1485,7 @@ class is_galia_base_uc(models.Model):
     production_id = fields.Many2one('mrp.production', 'Ordre de fabrication', tracking=True)
     production    = fields.Char('Fabrication', tracking=True, index=True)
     product_id    = fields.Many2one('product.product', 'Article', required=True , index=True, tracking=True)
+    qty_available = fields.Float('Stock article', related='product_id.qty_available')
     employee_id   = fields.Many2one("hr.employee", "Employé", tracking=True)
     liste_servir_id   = fields.Many2one('is.liste.servir' , 'Liste à servir'  , related='um_id.liste_servir_id')
     bon_transfert_id  = fields.Many2one('is.bon.transfert', 'Bon de transfert', related='um_id.bon_transfert_id')
@@ -1504,6 +1517,19 @@ class is_galia_base_uc(models.Model):
                 'res_id': obj.id,
                 'domain': '[]',
             }
+
+
+    def archiver_sur_stock_action(self):
+        date_limite = datetime.now() - relativedelta(months=1)
+        total = len(self)
+        for i, obj in enumerate(self, start=1):
+            if obj.date_creation > date_limite:
+                continue
+            if obj.product_id.qty_available == 0:
+                msg = "%s/%s : UC %s archivée automatiquement car le stock de l'article %s est à 0."%(i, total, obj.num_eti, obj.product_id.is_code)
+                obj.message_post(body=msg)
+                _logger.info(msg)
+                obj.active = False
 
 
     def imprimer_etiquette_uc_action(self):
@@ -1572,3 +1598,65 @@ class is_galia_base_uc(models.Model):
             ZPL = res.get('ZPL')
             self.env['is.galia.base'].imprimer_zpl(ZPL)
             return True
+
+
+class is_galia_base_uc_comparatif_stock(models.Model):
+    _name        = 'is.galia.base.uc.comparatif.stock'
+    _description = "Comparatif stock article / UC"
+    _order       = 'product_id'
+    _auto        = False
+
+    product_id         = fields.Many2one('product.product', 'Article', readonly=True)
+    is_category_id     = fields.Many2one('is.category', 'Catégorie', readonly=True)
+    is_gestionnaire_id = fields.Many2one('is.gestionnaire', 'Gestionnaire', readonly=True)
+    segment_id         = fields.Many2one('is.product.segment', 'Segment', readonly=True)
+    qty_stock          = fields.Float("Qté en stock", readonly=True)
+    nb_uc              = fields.Integer("Nb UC", readonly=True)
+    qt_uc              = fields.Float("Qté UC", readonly=True)
+    diff               = fields.Float("Différence", readonly=True)
+
+    def init(self):
+        cr = self._cr
+        tools.drop_view_if_exists(cr, 'is_galia_base_uc_comparatif_stock')
+        cr.execute("""CREATE OR REPLACE VIEW is_galia_base_uc_comparatif_stock AS (
+            SELECT
+                pp.id                        AS id,
+                pp.id                        AS product_id,
+                pt.is_category_id            AS is_category_id,
+                pt.is_gestionnaire_id        AS is_gestionnaire_id,
+                pt.segment_id                AS segment_id,
+                COALESCE(stock.qty, 0)       AS qty_stock,
+                COALESCE(uc.nb_uc, 0)        AS nb_uc,
+                COALESCE(uc.qt_uc, 0)        AS qt_uc,
+                COALESCE(stock.qty, 0) - COALESCE(uc.qt_uc, 0) AS diff
+            FROM product_product pp
+            INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+            LEFT JOIN (
+                SELECT sq.product_id, SUM(sq.quantity) AS qty
+                FROM stock_quant sq
+                INNER JOIN stock_location sl ON sl.id = sq.location_id
+                WHERE sl.usage = 'internal'
+                GROUP BY sq.product_id
+            ) stock ON stock.product_id = pp.id
+            LEFT JOIN (
+                SELECT product_id, COUNT(*) AS nb_uc, SUM(qt_pieces) AS qt_uc
+                FROM is_galia_base_uc
+                WHERE active = true
+                GROUP BY product_id
+            ) uc ON uc.product_id = pp.id
+            INNER JOIN is_product_segment ips ON ips.id = pt.segment_id
+            WHERE COALESCE(stock.qty, 0) <> COALESCE(uc.qt_uc, 0)
+            AND ips.name IN ('NEGOCE', 'NEGOCE INTERSITE', 'PRODUIT FINI SOUS TRAITE', 'PRODUIT FINI')
+        )
+        """)
+
+
+    def voir_uc_action(self):
+        for obj in self:
+            return {
+                'name': "UCs %s"%obj.product_id.display_name,
+                'view_mode': 'tree,form',
+                'res_model': 'is.galia.base.uc',
+                'type': 'ir.actions.act_window',
+                'domain': [('product_id','=',obj.product_id.id)],
+            }

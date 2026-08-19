@@ -163,21 +163,22 @@
                     <field name="num_carton"        optional="show"/>
                     <field name="qt_pieces"         optional="show" sum="Total" />
                     <field name="date_creation"     optional="show"/>
-                    <field name="production"        optional="show"/>
+                    <field name="production"        optional="hide"/>
                     <field name="product_id"        optional="show" widget="many2one_clickable"/>
-                    <field name="employee_id"       optional="show"/>
-                    <field name="liste_servir_id"   optional="show" widget="many2one_clickable"/>
+                    <field name="qty_available"     optional="show" string="Stock"/>
+                    <field name="employee_id"       optional="hide"/>
+                    <field name="liste_servir_id"   optional="hide" widget="many2one_clickable"/>
                     <field name="ls_line_id"        optional="hide" widget="many2one_clickable"/>
-                    <field name="bon_transfert_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="bon_transfert_id"  optional="hide" widget="many2one_clickable"/>
                     <field name="bt_line_id"        optional="hide" widget="many2one_clickable"/>
-                    <field name="stock_move_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="stock_move_id"     optional="hide" widget="many2one_clickable"/>
                     <field name="stock_move_rcp_id" optional="hide" widget="many2one_clickable"/>
                     <field name="reception_inter_site_id" optional="hide" widget="many2one_clickable"/>
                     <field name="reimprime"               optional="show"/>
                     <field name="etiquette_remplacee_le"  optional="show"/>
                     <field name="create_date"       optional="show"/>
                     <field name="create_uid"        optional="hide"/>
-                    <field name="write_date"        optional="show"/>
+                    <field name="write_date"        optional="hide"/>
                     <field name="write_uid"         optional="hide"/>
                 </tree>
             </field>
@@ -200,6 +201,7 @@
                     <field name="bt_line_id"/>
                     <field name="stock_move_id"/>
                     <field name="reception_inter_site_id"/>
+                    <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
                     <group expand="0" string="Group By...">
                         <filter name="group_um_id"      string="Regrouper par UM"       domain="[]" context="{'group_by':'um_id'}"/>
                         <filter name="group_bt_line_id" string="Ligne bon de transfert" domain="[]" context="{'group_by':'bt_line_id'}"/>
@@ -214,6 +216,23 @@
             <field name="name">Etiquettes UC</field>
             <field name="res_model">is.galia.base.uc</field>
             <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.server" id="is_galia_base_uc_archiver_sur_stock_action">
+            <field name="name">Archiver sur stock</field>
+            <field name="model_id" ref="model_is_galia_base_uc"/>
+            <field name="binding_model_id" ref="model_is_galia_base_uc"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.archiver_sur_stock_action()</field>
+        </record>
+        <record model="ir.cron" id="is_galia_base_uc_archiver_sur_stock_cron">
+            <field name="name">Archiver les UC sur stock à 0</field>
+            <field name="model_id" ref="model_is_galia_base_uc"/>
+            <field name="state">code</field>
+            <field name="code">model.search([]).archiver_sur_stock_action()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
         </record>
 
 
@@ -328,20 +347,21 @@
                 <tree>
                     <field name="name"/>
                     <field name="mixte"/>
-                    <field name="liste_servir_id"  optional="show" widget="many2one_clickable"/>
-                    <field name="bon_transfert_id" optional="show" widget="many2one_clickable"/>
-                    <field name="production_id"    optional="show" widget="many2one_clickable"/>
+                    <field name="liste_servir_id"  optional="hide" widget="many2one_clickable"/>
+                    <field name="bon_transfert_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="production_id"    optional="hide" widget="many2one_clickable"/>
                     <field name="product_id"       optional="show" widget="many2one_clickable"/>
                     <field name="location_id"      optional="show"/>
                     <field name="location_dest_id" optional="hide"/>
+                    <field name="nb_uc"            optional="show"/>
                     <field name="qt_pieces"        optional="show"/>
                     <field name="employee_id"      optional="show"/>
                     <field name="date_ctrl_rcp"    optional="hide"/>
-                    <field name="date_fin"         optional="show"/>
+                    <field name="date_fin"         optional="hide"/>
                     <field name="uc_ids"           optional="hide"/>
                     <field name="create_date"      optional="hide"/>
                     <field name="create_uid"       optional="hide"/>
-                    <field name="write_date"       optional="show"/>
+                    <field name="write_date"       optional="hide"/>
                     <field name="write_uid"        optional="hide"/>
                 </tree>
             </field>
@@ -357,6 +377,7 @@
                     <field name="production_id"/>
                     <field name="product_id"/>
                     <field name="location_id"/>
+                    <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
                 </search>
             </field>
         </record>
@@ -364,6 +385,49 @@
             <field name="name">Etiquettes UM</field>
             <field name="res_model">is.galia.base.um</field>
             <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.server" id="is_galia_base_um_archiver_sur_stock_action">
+            <field name="name">Archiver UM sans UC</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.archiver_sur_stock_action()</field>
+        </record>
+        <record model="ir.cron" id="is_galia_base_um_archiver_sur_stock_cron">
+            <field name="name">Archiver les UM sans UC</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="state">code</field>
+            <field name="code">model.search([]).archiver_sur_stock_action()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+
+
+        <!-- is.galia.base.uc.comparatif.stock -->
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_stock_tree_view">
+            <field name="name">is_galia_base_uc_comparatif_stock_tree_view</field>
+            <field name="model">is.galia.base.uc.comparatif.stock</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="false" edit="false" delete="false">
+                    <field name="product_id" widget="many2one_clickable"/>
+                    <field name="is_category_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="segment_id"/>
+                    <field name="qty_stock"/>
+                    <field name="nb_uc"/>
+                    <field name="qt_uc"/>
+                    <field name="diff"/>
+                    <button title="Voir les UC" name="voir_uc_action" type="object" icon="fa-list"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_galia_base_uc_comparatif_stock_action">
+            <field name="name">Comparatif stock article / UC</field>
+            <field name="res_model">is.galia.base.uc.comparatif.stock</field>
+            <field name="view_mode">tree</field>
         </record>
 
     </data>
