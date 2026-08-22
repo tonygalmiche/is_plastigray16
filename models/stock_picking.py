@@ -1055,8 +1055,18 @@ class stock_picking(models.Model):
     def imprimer_bl_galia_action(self):
         """Génère et enregistre le PDF du BL Galia puis retourne l'action de rapport"""
         self.sauvegarde_pdf()
-        
+
         # Retourner l'action de rapport
         report_ref = self.env.ref('is_plastigray16.bl_galia_actions_report')
         return report_ref.report_action(self)
+
+    def imprimer_bl_galia_liste_action(self):
+        """Génère et enregistre le PDF du BL Galia pour chaque BL sélectionné,
+        puis retourne le PDF de tous les BL concaténés en téléchargement"""
+        attachment = self.sauvegarde_pdf()
+        if attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': '/web/content/%s?download=true' % (attachment.id),
+            }
 

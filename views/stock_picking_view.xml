@@ -25,6 +25,14 @@
             <field name="state">code</field>
             <field name="code">action = records.mise_a_jour_colisage_action()</field>
         </record>
+        <record id="imprimer_bl_galia_liste_action_server" model="ir.actions.server">
+            <field name="name">Imprimer BL Galia</field>
+            <field name="model_id" ref="model_stock_picking"/>
+            <field name="binding_model_id" ref="model_stock_picking"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.imprimer_bl_galia_liste_action()</field>
+        </record>
         <record id="is_view_picking_form" model="ir.ui.view">
             <field name="name">is_view_picking_form</field>
             <field name="model">stock.picking</field>
