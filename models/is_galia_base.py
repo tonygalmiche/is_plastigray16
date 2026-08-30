@@ -941,6 +941,10 @@ class is_galia_base_um(models.Model):
         for obj in self:
             information=[]
             anomalie = []
+            if obj.location_id.usage=='customer':
+                obj.information = False
+                obj.anomalie    = False
+                continue
             sorted_dict = obj.get_qt_par_lot()
             for key in sorted_dict:
                 vals=sorted_dict[key]
@@ -1002,26 +1006,26 @@ class is_galia_base_um(models.Model):
             return True
 
 
-    def archiver_sur_stock_action(self):
-        date_limite = datetime.now() - relativedelta(months=1)
-        filtre = [
-            #('name' , '=', 'Inventaire'),
-            ('usage', '=', 'inventory'),
-        ]
-        lines = self.env["stock.location"].search(filtre)
-        location_inventaire_id = lines and lines[0].id or False
-        total = len(self)
-        for i, obj in enumerate(self, start=1):
-            if obj.create_date > date_limite:
-                continue
-            if obj.location_id and obj.location_id.usage != 'internal':
-                continue
-            if not obj.uc_ids:
-                msg = "%s/%s : UM %s archivée automatiquement car elle n'a plus d'UC active."%(i, total, obj.name)
-                obj.location_id = location_inventaire_id
-                obj.message_post(body=msg)
-                _logger.info(msg)
-                obj.active = False
+    # def archiver_sur_stock_action(self):
+    #     date_limite = datetime.now() - relativedelta(months=1)
+    #     filtre = [
+    #         #('name' , '=', 'Inventaire'),
+    #         ('usage', '=', 'inventory'),
+    #     ]
+    #     lines = self.env["stock.location"].search(filtre)
+    #     location_inventaire_id = lines and lines[0].id or False
+    #     total = len(self)
+    #     for i, obj in enumerate(self, start=1):
+    #         if obj.create_date > date_limite:
+    #             continue
+    #         if obj.location_id and obj.location_id.usage != 'internal':
+    #             continue
+    #         if not obj.uc_ids:
+    #             msg = "%s/%s : UM %s archivée automatiquement car elle n'a plus d'UC active."%(i, total, obj.name)
+    #             obj.location_id = location_inventaire_id
+    #             obj.message_post(body=msg)
+    #             _logger.info(msg)
+    #             obj.active = False
 
 
     def _get_location_id(self):
@@ -1032,6 +1036,33 @@ class is_galia_base_um(models.Model):
         lines = self.env["stock.location"].search(filtre)
         location_id = lines and lines[0].id or False
         return location_id
+
+
+    def actualiser_emplacement_um_action(self):
+        lines = self.env["stock.location"].search([('usage','=','customer')], limit=1)
+        location_client_id = lines and lines[0].id or False
+        if not location_client_id:
+            raise ValidationError("Aucun emplacement de type 'Client' n'a été trouvé.")
+        total = len(self)
+        for i, obj in enumerate(self, start=1):
+            if not obj.uc_ids or obj.location_id.id==location_client_id:
+                continue
+            if all(uc.stock_move_id and uc.stock_move_id.state=='done' for uc in obj.uc_ids):
+                msg = "UM %s déplacée dans l'emplacement Client car toutes ses UC sont livrées."%obj.name
+                obj.message_post(body=msg)
+                _logger.info("%s/%s : %s"%(i, total, msg))
+                obj.location_id = location_client_id
+
+                doublons = self.env['is.galia.base.uc'].search([
+                    ('num_eti','in', obj.uc_ids.mapped('num_eti')),
+                    ('um_id','!=', obj.id),
+                ])
+                if doublons:
+                    details = ', '.join("UC %s (UM %s)"%(uc.num_eti, uc.um_id.name) for uc in doublons)
+                    _logger.info("UM %s : archivage des UC en doublon : %s"%(obj.name, details))
+                    for doublon in doublons:
+                        doublon.message_post(body="UC archivée automatiquement : doublon avec l'UC %s de l'UM %s."%(doublon.num_eti, obj.name))
+                    doublons.active = False
 
 
     @api.model_create_multi
@@ -1477,6 +1508,7 @@ class is_galia_base_uc(models.Model):
     um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade', tracking=True)
     um_mixte      = fields.Selection(related="um_id.mixte")
     um_active     = fields.Boolean(related="um_id.active")
+    location_id   = fields.Many2one('stock.location', 'Emplacement UM', related='um_id.location_id', store=True)
     num_eti       = fields.Integer("N°Étiquette UC", required=True, index=True, tracking=True)
     type_eti      = fields.Char("Type étiquette", required=True   , index=True, tracking=True)
     num_carton    = fields.Integer("N°Carton", required=True      , index=True, tracking=True)
@@ -1497,8 +1529,21 @@ class is_galia_base_uc(models.Model):
     reimprime               = fields.Boolean("UC à ré-imprimer", default=False, tracking=True, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
     etiquette_remplacee_le  = fields.Datetime("Etiquette remplacée le", tracking=True, help="Date et heure de mise en place de l'étiquette ré-imprimée")
     active                  = fields.Boolean("Actif", default=True, tracking=True)
+    anomalie                = fields.Text("Anomalie", readonly=True, compute='_compute_anomalie', store=False)
 
 
+    @api.depends('num_eti')
+    def _compute_anomalie(self):
+        for obj in self:
+            anomalie = []
+            if obj.num_eti and obj.active and obj.um_id.active:
+                domain = [('num_eti','=',obj.num_eti),('id','!=',obj.id),('um_id.active','=',True)]
+                doublons = self.search(domain)
+                if doublons:
+                    ums = (obj.um_id | doublons.um_id).mapped('name')
+                    msg = "Etiquette dans plusieurs UM (%s)"%', '.join(ums)
+                    anomalie.append(msg)
+            obj.anomalie = (len(anomalie) and '\n'.join(anomalie)) or False
 
 
     def etiquette_remplacee_action(self):
@@ -1519,17 +1564,17 @@ class is_galia_base_uc(models.Model):
             }
 
 
-    def archiver_sur_stock_action(self):
-        date_limite = datetime.now() - relativedelta(months=1)
-        total = len(self)
-        for i, obj in enumerate(self, start=1):
-            if obj.date_creation > date_limite:
-                continue
-            if obj.product_id.qty_available == 0:
-                msg = "%s/%s : UC %s archivée automatiquement car le stock de l'article %s est à 0."%(i, total, obj.num_eti, obj.product_id.is_code)
-                obj.message_post(body=msg)
-                _logger.info(msg)
-                obj.active = False
+    # def archiver_sur_stock_action(self):
+    #     date_limite = datetime.now() - relativedelta(months=1)
+    #     total = len(self)
+    #     for i, obj in enumerate(self, start=1):
+    #         if obj.date_creation > date_limite:
+    #             continue
+    #         if obj.product_id.qty_available == 0:
+    #             msg = "%s/%s : UC %s archivée automatiquement car le stock de l'article %s est à 0."%(i, total, obj.num_eti, obj.product_id.is_code)
+    #             obj.message_post(body=msg)
+    #             _logger.info(msg)
+    #             obj.active = False
 
 
     def imprimer_etiquette_uc_action(self):

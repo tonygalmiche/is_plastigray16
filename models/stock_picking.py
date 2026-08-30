@@ -938,7 +938,11 @@ class stock_picking(models.Model):
             obj.mise_a_jour_colisage_action()
             obj.compute_is_identifiant_transport()
             obj.is_date_imprime_bl = datetime.now()
-        
+            if obj.state=='done':
+                ums = self.env['is.galia.base.um'].browse(obj.get_um_ids())
+                if ums:
+                    ums.actualiser_emplacement_um_action()
+
         # Générer le PDF
         pdf_data = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.bl_galia_actions_report', self.ids)[0]
         

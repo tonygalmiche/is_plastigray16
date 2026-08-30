@@ -111,13 +111,18 @@
                         />
                     </header>
                     <sheet>
+                        <field name="anomalie" invisible="1"/>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <field name="active" invisible="1"/>
+                        <div style="font-size:11pt;font-family:courier, courier new, serif">
+                            <div attrs="{'invisible': [('anomalie', '=', False)]}" style="background:DarkOrange"> <field name="anomalie" nolabel="1"/></div>
+                        </div>
                         <group>
                             <group>
                                 <field name="um_id"/>
                                 <field name="um_mixte"/>
                                 <field name="um_active"/>
+                                <field name="location_id"/>
                                 <field name="num_eti"/>
                                 <field name="type_eti"/>
                                 <field name="num_carton"/>
@@ -158,6 +163,7 @@
                     <field name="um_id"             optional="show" widget="many2one_clickable"/>
                     <field name="um_mixte"          optional="show"/>
                     <field name="um_active"         optional="show"/>
+                    <field name="location_id"       optional="show"/>
                     <field name="num_eti"           optional="show"/>
                     <field name="type_eti"          optional="show"/>
                     <field name="num_carton"        optional="show"/>
@@ -176,6 +182,13 @@
                     <field name="reception_inter_site_id" optional="hide" widget="many2one_clickable"/>
                     <field name="reimprime"               optional="show"/>
                     <field name="etiquette_remplacee_le"  optional="show"/>
+                    <button
+                        name="acceder_uc_action" type="object"
+                        icon="fa-exclamation-triangle"
+                        attrs="{'invisible': [('anomalie', '=', False)]}"
+                        title="Anomalie"
+                    />
+                    <field name="anomalie"          optional="hide"/>
                     <field name="create_date"       optional="show"/>
                     <field name="create_uid"        optional="hide"/>
                     <field name="write_date"        optional="hide"/>
@@ -190,6 +203,7 @@
                 <search>
                     <field name="um_id"/>
                     <field name="um_mixte"/>
+                    <field name="location_id"/>
                     <field name="num_eti"/>
                     <field name="type_eti"/>
                     <field name="num_carton"/>
@@ -217,7 +231,7 @@
             <field name="res_model">is.galia.base.uc</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record model="ir.actions.server" id="is_galia_base_uc_archiver_sur_stock_action">
+        <!-- <record model="ir.actions.server" id="is_galia_base_uc_archiver_sur_stock_action">
             <field name="name">Archiver sur stock</field>
             <field name="model_id" ref="model_is_galia_base_uc"/>
             <field name="binding_model_id" ref="model_is_galia_base_uc"/>
@@ -233,7 +247,7 @@
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
-        </record>
+        </record> -->
 
 
         <!-- is.galia.base.um -->
@@ -322,6 +336,7 @@
                                 <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
                                 <field name="num_eti"/>
                                 <field name="type_eti" optional="show"/>
+                                <field name="location_id" optional="hide"/>
                                 <field name="num_carton"/>
                                 <field name="qt_pieces" sum="Total"/>
                                 <field name="date_creation" optional="show"/>
@@ -359,6 +374,13 @@
                     <field name="date_ctrl_rcp"    optional="hide"/>
                     <field name="date_fin"         optional="hide"/>
                     <field name="uc_ids"           optional="hide"/>
+                    <button
+                        name="acceder_um_action" type="object"
+                        icon="fa-exclamation-triangle"
+                        attrs="{'invisible': [('anomalie', '=', False)]}"
+                        title="Anomalie"
+                    />
+                    <field name="anomalie" optional="hide"/>
                     <field name="create_date"      optional="hide"/>
                     <field name="create_uid"       optional="hide"/>
                     <field name="write_date"       optional="hide"/>
@@ -386,7 +408,15 @@
             <field name="res_model">is.galia.base.um</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record model="ir.actions.server" id="is_galia_base_um_archiver_sur_stock_action">
+        <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_action">
+            <field name="name">Actualiser emplacement UM</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.actualiser_emplacement_um_action()</field>
+        </record>
+        <!-- <record model="ir.actions.server" id="is_galia_base_um_archiver_sur_stock_action">
             <field name="name">Archiver UM sans UC</field>
             <field name="model_id" ref="model_is_galia_base_um"/>
             <field name="binding_model_id" ref="model_is_galia_base_um"/>
@@ -403,7 +433,7 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
         </record>
-
+ -->
 
         <!-- is.galia.base.uc.comparatif.stock -->
         <record model="ir.ui.view" id="is_galia_base_uc_comparatif_stock_tree_view">
