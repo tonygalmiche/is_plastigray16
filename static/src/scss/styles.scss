@@ -24,8 +24,22 @@
 //     position: inherit !important;
 // }
 
-// Le 01/03/2025, j'ai remis ces lignes, car cepuis l'annalyse du CBN, 
+// Le 01/03/2025, j'ai remis ces lignes, car cepuis l'annalyse du CBN,
 // la statusbar de la commande fournsseur affichée en boite de dialague n'était pas conforme
 .o_dialog .o_form_sheet_bg .o_form_statusbar {
     position: unset !important;
+}
+
+// Le 31/08/2026 - sticky_header_tree_and_form_view passe la statusbar en
+// position: fixed et compense en ajoutant margin-top: 50px, mais
+// uniquement sur .o_form_sheet (form_asset.css). Or les bandeaux d'alerte
+// insérés par account_invoice_en16931/l10n_fr_einvoicing (ex: "This
+// invoice will be sent automatically...") sont un enfant direct de
+// .o_form_sheet_bg au même niveau que .o_form_statusbar et .o_form_sheet
+// (vérifié dans le DOM réel), pas seulement .o_form_sheet : sans la même
+// compensation, ce bandeau remonte à la place laissée vide par la
+// statusbar sortie du flux (position: fixed) et se retrouve recouvert par
+// elle. Même correctif (margin-top: 50px), appliqué à ce bandeau précis.
+.o_form_view .o_form_sheet_bg > .alert[role="alert"] {
+    margin-top: 50px;
 }
