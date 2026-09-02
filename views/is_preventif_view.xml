@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <tree string="Préventif Moule">
                     <field name="date_preventif"/>
-                    <field name="moule"/>
+                    <field name="moule" widget="many2one_clickable"/>
                     <field name="nb_cycles" sum="Total"/>
                     <field name="periodicite"/>
                     <field name="fiche_preventif_ids"/>
@@ -30,6 +30,11 @@
                         <field name="fiche_preventif_ids" widget="many2many_binary"/>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
             </field>
         </record>

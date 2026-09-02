@@ -102,6 +102,26 @@ def migrate(cr, version):
         if imd and imd.res_id != res_id and categ_model.browse(res_id).exists():
             imd.write({"res_id": res_id})
 
+    # --- Unites : doublon "reference" dans la categorie "Unite" -----------
+    # Sur certaines bases, une unite "maison" (ex. "rouleau") a ete creee en
+    # tant que 2e unite de reference dans la categorie "Unite", en plus de
+    # celle du xmlid uom.product_uom_unit. Odoo l'accepte a la creation mais
+    # _check_category_reference_uniqueness() refuse ensuite toute creation
+    # ulterieure dans cette categorie (bloque la creation de
+    # product_uom_dozen ci-dessous). Comme ces doublons ne sont reference
+    # nulle part (produits/lignes de commande/mouvements), on les repasse en
+    # "bigger" pour lever le blocage sans toucher aux donnees metier.
+    unit_categ_imd = imd_for("uom.category", "product_uom_categ_unit")
+    unit_uom_imd = imd_for("uom.uom", "product_uom_unit")
+    if unit_categ_imd and unit_uom_imd:
+        duplicate_refs = uom_model.search([
+            ("category_id", "=", unit_categ_imd.res_id),
+            ("uom_type", "=", "reference"),
+            ("id", "!=", unit_uom_imd.res_id),
+        ])
+        if duplicate_refs:
+            duplicate_refs.write({"uom_type": "bigger"})
+
     surface_imd = imd_for("uom.category", "uom_categ_surface")
     surface_categ = env["uom.category"]
     if surface_imd:

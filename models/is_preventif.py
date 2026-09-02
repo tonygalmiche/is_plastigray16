@@ -19,6 +19,7 @@ class is_mold_cycle(models.Model):
 class is_preventif_moule(models.Model):
     _name = 'is.preventif.moule'
     _description="is_preventif_moule"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'moule'
     _order = 'date_preventif desc,moule'
 
@@ -43,11 +44,11 @@ class is_preventif_moule(models.Model):
                 obj.nb_cycles = nb_cycles
                 obj.periodicite = obj.moule.periodicite_maintenance_moule
 
-    moule               = fields.Many2one('is.mold', string='Moule',index=True)
-    date_preventif      = fields.Date(string=u'Date du préventif', default=fields.Date.context_today,index=True)
-    nb_cycles           = fields.Integer(u"Nb cycles"            , compute="_compute", store=True, readonly=True)
-    periodicite         = fields.Integer(u"Périodicité préventif", compute="_compute", store=True, readonly=True)
-    fiche_preventif_ids = fields.Many2many('ir.attachment', 'is_preventif_moule_attachment_rel', 'preventif_id', 'file_id', u"Fiche de réalisation du préventif")
+    moule               = fields.Many2one('is.mold', string='Moule',index=True, tracking=True)
+    date_preventif      = fields.Date(string=u'Date du préventif', default=fields.Date.context_today,index=True  , tracking=True)
+    nb_cycles           = fields.Integer(u"Nb cycles"            , compute="_compute", store=True, readonly=False, tracking=True)
+    periodicite         = fields.Integer(u"Périodicité préventif", compute="_compute", store=True, readonly=True , tracking=True)
+    fiche_preventif_ids = fields.Many2many('ir.attachment', 'is_preventif_moule_attachment_rel', 'preventif_id', 'file_id', u"Fiche de réalisation du préventif", tracking=True)
 
 
     @api.model_create_multi
@@ -60,6 +61,18 @@ class is_preventif_moule(models.Model):
                 obj.moule.date_dernier_preventif      = obj.date_preventif
                 obj.moule.nb_cycles_avant_preventif   = obj.periodicite
         return res
+
+
+    def action_acceder_fiche(self):
+        for obj in self:
+            return {
+                'name': "Préventif Moule",
+                'view_mode': 'form',
+                'res_model': 'is.preventif.moule',
+                'type': 'ir.actions.act_window',
+                'res_id': obj.id,
+                'domain': '[]',
+            }
 
 
 class is_mold_operation_systematique(models.Model):

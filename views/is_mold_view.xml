@@ -128,6 +128,7 @@
                                 </group>
                                 <field name="is_preventif_moule" readonly="1" nolabel="1">
                                     <tree limit="200">
+                                        <button title="Préventif" name="action_acceder_fiche" type="object" icon="fa-search-plus"/>
                                         <field name="date_preventif"/>
                                         <field name="nb_cycles"/>
                                         <field name="periodicite"/>
