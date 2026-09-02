@@ -30,6 +30,7 @@ Module Odoo 16 pour Plastigray
         "is_top_menu"
     ],
     "data" : [
+        "data/ir_config_parameter.xml",
         "security/res.groups.xml",
         "security/ir.model.access.csv",
         "security/ir.model.access.xml", 

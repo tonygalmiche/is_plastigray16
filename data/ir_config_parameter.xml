@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate="1" : valeur par défaut posée uniquement à l'installation,
+         modifiable ensuite librement dans Réglages > Technique > Paramètres système
+         sans être écrasée lors des mises à jour du module -->
+    <data noupdate="1">
+        <record id="config_parameter_blocked_recipient_emails" model="ir.config_parameter">
+            <field name="key">is_plastigray16.blocked_recipient_emails</field>
+            <field name="value">exemple@domaine.fake</field>
+        </record>
+    </data>
+</odoo>

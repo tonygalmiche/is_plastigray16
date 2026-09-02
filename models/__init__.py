@@ -6,6 +6,7 @@ from . import hr
 from . import ir_actions_act_url
 from . import ir_actions_report
 from . import ir_attachment
+from . import ir_mail_server
 from . import is_analyse_cbn
 from . import is_article
 from . import is_bl_manuel
