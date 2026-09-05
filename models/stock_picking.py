@@ -930,14 +930,16 @@ class stock_picking(models.Model):
                     uc.imprimer_etiquette_uc_action()
 
 
-    def sauvegarde_pdf(self, filename='_BL_Galia.pdf'):
-        """Prépare le BL, génère le PDF et l'enregistre. Retourne l'attachment"""
+    def sauvegarde_pdf(self, filename='_BL_Galia.pdf', enregistrer_onglet_bl_pdf=True):
+        """Prépare le BL, génère le PDF et l'enregistre. Retourne l'attachment
+        Si enregistrer_onglet_bl_pdf=False, le PDF n'est pas ajouté à l'onglet 'BL PDF' du BL"""
         attachment = None
         for obj in self:
             # Préparer le BL
             obj.mise_a_jour_colisage_action()
             obj.compute_is_identifiant_transport()
-            obj.is_date_imprime_bl = datetime.now()
+            if enregistrer_onglet_bl_pdf:
+                obj.is_date_imprime_bl = datetime.now()
             if obj.state=='done':
                 ums = self.env['is.galia.base.um'].browse(obj.get_um_ids())
                 if ums:
@@ -945,24 +947,35 @@ class stock_picking(models.Model):
 
         # Générer le PDF
         pdf_data = self.env['ir.actions.report']._render_qweb_pdf('is_plastigray16.bl_galia_actions_report', self.ids)[0]
-        
+
         # Enregistrer le PDF
         for obj in self:
-            # Créer un enregistrement dans is_stock_picking_pdf
-            vals = {'picking_id': obj.id}
-            pdf_record = self.env['is.stock.picking.pdf'].create(vals)
-            
-            # Créer la pièce jointe liée à cet enregistrement
             attachment_obj = self.env['ir.attachment']
-            vals = {
-                'name':        obj.name + filename,
-                'type':        'binary',
-                'res_model':   'is.stock.picking.pdf',
-                'res_id':      pdf_record.id,
-                'datas':       base64.b64encode(pdf_data),
-            }
-            attachment = attachment_obj.create(vals)
-            pdf_record.bl_pdf_ids = [attachment.id]
+            if enregistrer_onglet_bl_pdf:
+                # Créer un enregistrement dans is_stock_picking_pdf
+                vals = {'picking_id': obj.id}
+                pdf_record = self.env['is.stock.picking.pdf'].create(vals)
+
+                # Créer la pièce jointe liée à cet enregistrement
+                vals = {
+                    'name':        obj.name + filename,
+                    'type':        'binary',
+                    'res_model':   'is.stock.picking.pdf',
+                    'res_id':      pdf_record.id,
+                    'datas':       base64.b64encode(pdf_data),
+                }
+                attachment = attachment_obj.create(vals)
+                pdf_record.bl_pdf_ids = [attachment.id]
+            else:
+                # Pièce jointe non liée à l'onglet 'BL PDF' du BL
+                vals = {
+                    'name':        obj.name + filename,
+                    'type':        'binary',
+                    'res_model':   'stock.picking',
+                    'res_id':      obj.id,
+                    'datas':       base64.b64encode(pdf_data),
+                }
+                attachment = attachment_obj.create(vals)
         return attachment
 
     def _get_contacts_envoi_bl(self):
@@ -1065,9 +1078,9 @@ class stock_picking(models.Model):
         return report_ref.report_action(self)
 
     def imprimer_bl_galia_liste_action(self):
-        """Génère et enregistre le PDF du BL Galia pour chaque BL sélectionné,
+        """Génère le PDF du BL Galia pour chaque BL sélectionné (sans l'enregistrer dans l'onglet 'BL PDF'),
         puis retourne le PDF de tous les BL concaténés en téléchargement"""
-        attachment = self.sauvegarde_pdf()
+        attachment = self.sauvegarde_pdf(enregistrer_onglet_bl_pdf=False)
         if attachment:
             return {
                 'type': 'ir.actions.act_url',
