@@ -75,7 +75,7 @@ class is_dossier_article(models.Model):
     dessiccateur        = fields.Selection([('Oui', u'Oui'),('Non'  , "Non")], "Dessiccateur", tracking=True) #:  oui/non
     temp_rose           = fields.Integer("T°C Rosée", tracking=True) #: champ nombre
     taux_humidite       = fields.Float("Taux d'humidité maximum (%)", digits=(14,2), tracking=True) #: champ nombre : 2 chiffres après la virgule
-    commentaire         = fields.Char("Commentaires", tracking=True) #: champ libre
+    commentaire         = fields.Text("Commentaires", tracking=True) #: champ libre
     code_recyclage_id   = fields.Many2one('is.dossier.article.code.recyclage', "Code recyclage", tracking=True) #: menu déroulant : A,B…
     caracteristique_specifique = fields.Text("Caractéristiques spécifiques", tracking=True)
     controle_qualite    = fields.Char("Contrôle qualité", tracking=True) #: champ libre : attention : champ présent dans onglet information à transférer dans ce nouvel onglet : attention lien avec les réceptions.
