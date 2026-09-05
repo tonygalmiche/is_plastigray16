@@ -7,6 +7,9 @@
             <field name="prefix">PK-</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
+            <!-- no_gap : évite les trous de numérotation si create() échoue après le tirage du numéro
+                 (ex: erreur de droit d'accès sur la commande/le BL) -->
+            <field name="implementation">no_gap</field>
         </record>
         <record model="ir.ui.view" id="is_facture_pk_form_view">
             <field name="name">is.facture.pk.form.view</field>

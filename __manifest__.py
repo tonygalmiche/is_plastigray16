@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name"     : "Module Odoo 16 pour Plastigray",
-    "version"  : "0.9",
+    "version"  : "16.0.0.10",
     "author"   : "InfoSaône",
     "category" : "InfoSaône",
     "description": """
