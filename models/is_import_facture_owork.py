@@ -391,11 +391,17 @@ class is_import_facture_owork(models.Model):
                 
                 # Préparer la description avec l'information sur l'écart
                 description_ajustement = "Ajustement d'arrondi (écart de %.4f€ HT) - %s" % (ecart_ht_ajuste, ligne_max.name or '')
-                
+
+                # Recherche du produit dont le code comptable correspond à la
+                # concaténation du compte et de la section analytique de la
+                # ligne de référence (ex: compte 601100 + section VENT -> "601100VENT")
+                code_recherche = (ligne_max.account_id.code or '') + (ligne_max.is_section_analytique_id.name or '')
+                produit_ajustement = self.env['product.product'].search([('is_code', '=', code_recherche)], limit=1)
+
                 # Créer une nouvelle ligne d'ajustement à la fin
                 vals_ajustement = {
                     'move_id': invoice.id,
-                    'product_id': ligne_max.product_id.id if ligne_max.product_id else False,
+                    'product_id': produit_ajustement.id if produit_ajustement else False,
                     'name': description_ajustement,
                     'quantity': 1,
                     'product_uom_id': ligne_max.product_uom_id.id if ligne_max.product_uom_id else False,
