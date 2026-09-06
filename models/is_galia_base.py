@@ -950,7 +950,7 @@ class is_galia_base_um(models.Model):
                 vals=sorted_dict[key]
                 msg="%s : %s : lot_id=%s : Qt UM=%s : Stock=%s"%(
                     vals['product'].is_code.ljust(8),
-                    vals['production'].ljust(8),
+                    (vals['production'] or '').ljust(8),
                     str(vals['lot_id']).ljust(8),
                     str(int(vals['qt_pieces'])).ljust(4),
                     int(vals['stock'])
@@ -1039,20 +1039,42 @@ class is_galia_base_um(models.Model):
 
 
     def actualiser_emplacement_um_action(self):
+        # Bascule chaque UM vers l'emplacement Client dès que toutes ses UC sont livrées,
+        # et archive les UC en doublon (même num_eti) trouvées sur d'autres UM.
+        self._actualiser_emplacement_um(verifier_livraison=True)
+
+
+    def actualiser_emplacement_um_sans_livraison_action(self):
+        # Comme actualiser_emplacement_um_action, mais sans vérifier que les UC sont
+        # livrées : il suffit que l'UM soit affectée à une liste à servir ou un bon
+        # de transfert pour être basculée dans l'emplacement Client.
+        self._actualiser_emplacement_um(verifier_livraison=False)
+
+
+    def _actualiser_emplacement_um(self, verifier_livraison):
         lines = self.env["stock.location"].search([('usage','=','customer')], limit=1)
         location_client_id = lines and lines[0].id or False
         if not location_client_id:
             raise ValidationError("Aucun emplacement de type 'Client' n'a été trouvé.")
         total = len(self)
         for i, obj in enumerate(self, start=1):
-            if not obj.uc_ids or obj.location_id.id==location_client_id:
+            if obj.location_id.id==location_client_id:
                 continue
-            if all(uc.stock_move_id and uc.stock_move_id.state=='done' for uc in obj.uc_ids):
-                msg = "UM %s déplacée dans l'emplacement Client car toutes ses UC sont livrées."%obj.name
-                obj.message_post(body=msg)
-                _logger.info("%s/%s : %s"%(i, total, msg))
-                obj.location_id = location_client_id
+            if verifier_livraison:
+                if not obj.uc_ids or not all(uc.stock_move_id and uc.stock_move_id.state=='done' for uc in obj.uc_ids):
+                    continue
+                raison = "toutes ses UC sont livrées"
+            else:
+                if not (obj.liste_servir_id or obj.bon_transfert_id):
+                    continue
+                raison = "elle est affectée à une liste à servir ou un bon de transfert"
 
+            msg = "UM %s déplacée dans l'emplacement Client car %s."%(obj.name, raison)
+            obj.message_post(body=msg)
+            _logger.info("%s/%s : %s"%(i, total, msg))
+            obj.location_id = location_client_id
+
+            if obj.uc_ids:
                 doublons = self.env['is.galia.base.uc'].search([
                     ('num_eti','in', obj.uc_ids.mapped('num_eti')),
                     ('um_id','!=', obj.id),

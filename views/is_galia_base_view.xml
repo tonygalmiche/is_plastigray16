@@ -409,12 +409,20 @@
             <field name="view_mode">tree,form</field>
         </record>
         <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_action">
-            <field name="name">Actualiser emplacement UM</field>
+            <field name="name">Actualiser emplacement UM si UC livrées</field>
             <field name="model_id" ref="model_is_galia_base_um"/>
             <field name="binding_model_id" ref="model_is_galia_base_um"/>
             <field name="binding_view_types">list,form</field>
             <field name="state">code</field>
             <field name="code">records.actualiser_emplacement_um_action()</field>
+        </record>
+        <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_sans_livraison_action">
+            <field name="name">Actualiser emplacement UM (sans vérifier les UC)</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.actualiser_emplacement_um_sans_livraison_action()</field>
         </record>
         <!-- <record model="ir.actions.server" id="is_galia_base_um_archiver_sur_stock_action">
             <field name="name">Archiver UM sans UC</field>
