@@ -196,6 +196,28 @@
                 </tree>
             </field>
         </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_pivot_view">
+            <field name="name">is_galia_base_uc_pivot_view</field>
+            <field name="model">is.galia.base.uc</field>
+            <field name="type">pivot</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="location_id" type="row"/>
+                    <field name="qt_pieces" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_graph_view">
+            <field name="name">is_galia_base_uc_graph_view</field>
+            <field name="model">is.galia.base.uc</field>
+            <field name="type">graph</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="location_id"/>
+                    <field name="qt_pieces" type="measure"/>
+                </graph>
+            </field>
+        </record>
         <record model="ir.ui.view" id="is_galia_base_uc_search_view" >
             <field name="name">is_galia_base_uc_search_view</field>
             <field name="model">is.galia.base.uc</field>
@@ -215,6 +237,7 @@
                     <field name="bt_line_id"/>
                     <field name="stock_move_id"/>
                     <field name="reception_inter_site_id"/>
+                    <filter name="en_stock" string="En stock" domain="[('location_id.usage','=','internal')]"/>
                     <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
                     <group expand="0" string="Group By...">
                         <filter name="group_um_id"      string="Regrouper par UM"       domain="[]" context="{'group_by':'um_id'}"/>
@@ -229,7 +252,8 @@
         <record model="ir.actions.act_window" id="is_galia_base_uc_action">
             <field name="name">Etiquettes UC</field>
             <field name="res_model">is.galia.base.uc</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="context">{'search_default_en_stock': 1}</field>
         </record>
         <!-- <record model="ir.actions.server" id="is_galia_base_uc_archiver_sur_stock_action">
             <field name="name">Archiver sur stock</field>
@@ -388,6 +412,26 @@
                 </tree>
             </field>
         </record>
+        <record model="ir.ui.view" id="is_galia_base_um_pivot_view">
+            <field name="name">is_galia_base_um_pivot_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="type">pivot</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="location_id" type="row"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_um_graph_view">
+            <field name="name">is_galia_base_um_graph_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="type">graph</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="location_id"/>
+                </graph>
+            </field>
+        </record>
         <record model="ir.ui.view" id="is_galia_base_um_search_view" >
             <field name="name">is_galia_base_um_search_view</field>
             <field name="model">is.galia.base.um</field>
@@ -399,6 +443,7 @@
                     <field name="production_id"/>
                     <field name="product_id"/>
                     <field name="location_id"/>
+                    <filter name="en_stock" string="En stock" domain="[('location_id.usage','=','internal')]"/>
                     <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
                 </search>
             </field>
@@ -406,7 +451,8 @@
         <record model="ir.actions.act_window" id="is_galia_base_um_action">
             <field name="name">Etiquettes UM</field>
             <field name="res_model">is.galia.base.um</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="context">{'search_default_en_stock': 1}</field>
         </record>
         <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_action">
             <field name="name">Actualiser emplacement UM si UC livrées</field>
