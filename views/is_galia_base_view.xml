@@ -501,17 +501,59 @@
                     <field name="is_gestionnaire_id"/>
                     <field name="segment_id"/>
                     <field name="qty_stock"/>
+                    <field name="nb_um"/>
                     <field name="nb_uc"/>
                     <field name="qt_uc"/>
                     <field name="diff"/>
                     <button title="Voir les UC" name="voir_uc_action" type="object" icon="fa-list"/>
+                    <button title="Voir les UM" name="voir_um_action" type="object" icon="fa-list-alt"/>
                 </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_stock_pivot_view">
+            <field name="name">is_galia_base_uc_comparatif_stock_pivot_view</field>
+            <field name="model">is.galia.base.uc.comparatif.stock</field>
+            <field name="type">pivot</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="is_gestionnaire_id" type="row"/>
+                    <field name="qty_stock" type="measure"/>
+                    <field name="qt_uc" type="measure"/>
+                    <field name="diff" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_stock_graph_view">
+            <field name="name">is_galia_base_uc_comparatif_stock_graph_view</field>
+            <field name="model">is.galia.base.uc.comparatif.stock</field>
+            <field name="type">graph</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="qty_stock" type="measure"/>
+                    <field name="qt_uc" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_stock_search_view">
+            <field name="name">is_galia_base_uc_comparatif_stock_search_view</field>
+            <field name="model">is.galia.base.uc.comparatif.stock</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/>
+                    <field name="is_category_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="segment_id"/>
+                    <filter name="avec_ecart" string="Avec écart" domain="[('diff','!=',0)]"/>
+                    <filter name="sans_ecart" string="Sans écart" domain="[('diff','=',0)]"/>
+                </search>
             </field>
         </record>
         <record model="ir.actions.act_window" id="is_galia_base_uc_comparatif_stock_action">
             <field name="name">Comparatif stock article / UC</field>
             <field name="res_model">is.galia.base.uc.comparatif.stock</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">tree,pivot,graph</field>
+            <field name="context">{'search_default_avec_ecart': 1}</field>
         </record>
 
     </data>

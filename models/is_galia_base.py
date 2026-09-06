@@ -1678,6 +1678,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
     is_gestionnaire_id = fields.Many2one('is.gestionnaire', 'Gestionnaire', readonly=True)
     segment_id         = fields.Many2one('is.product.segment', 'Segment', readonly=True)
     qty_stock          = fields.Float("Qté en stock", readonly=True)
+    nb_um              = fields.Integer("Nb UM", readonly=True)
     nb_uc              = fields.Integer("Nb UC", readonly=True)
     qt_uc              = fields.Float("Qté UC", readonly=True)
     diff               = fields.Float("Différence", readonly=True)
@@ -1693,6 +1694,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 pt.is_gestionnaire_id        AS is_gestionnaire_id,
                 pt.segment_id                AS segment_id,
                 COALESCE(stock.qty, 0)       AS qty_stock,
+                COALESCE(um.nb_um, 0)        AS nb_um,
                 COALESCE(uc.nb_uc, 0)        AS nb_uc,
                 COALESCE(uc.qt_uc, 0)        AS qt_uc,
                 COALESCE(stock.qty, 0) - COALESCE(uc.qt_uc, 0) AS diff
@@ -1706,14 +1708,25 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 GROUP BY sq.product_id
             ) stock ON stock.product_id = pp.id
             LEFT JOIN (
-                SELECT product_id, COUNT(*) AS nb_uc, SUM(qt_pieces) AS qt_uc
-                FROM is_galia_base_uc
-                WHERE active = true
-                GROUP BY product_id
+                SELECT guc.product_id, COUNT(*) AS nb_uc, SUM(guc.qt_pieces) AS qt_uc
+                FROM is_galia_base_uc guc
+                INNER JOIN stock_location sl2 ON sl2.id = guc.location_id
+                WHERE guc.active = true
+                AND sl2.usage = 'internal'
+                GROUP BY guc.product_id
             ) uc ON uc.product_id = pp.id
+            LEFT JOIN (
+                SELECT guc.product_id, COUNT(DISTINCT guc.um_id) AS nb_um
+                FROM is_galia_base_uc guc
+                INNER JOIN stock_location sl2 ON sl2.id = guc.location_id
+                INNER JOIN is_galia_base_um gum ON gum.id = guc.um_id
+                WHERE guc.active = true
+                AND gum.active = true
+                AND sl2.usage = 'internal'
+                GROUP BY guc.product_id
+            ) um ON um.product_id = pp.id
             INNER JOIN is_product_segment ips ON ips.id = pt.segment_id
-            WHERE COALESCE(stock.qty, 0) <> COALESCE(uc.qt_uc, 0)
-            AND ips.name IN ('NEGOCE', 'NEGOCE INTERSITE', 'PRODUIT FINI SOUS TRAITE', 'PRODUIT FINI')
+            WHERE ips.name IN ('NEGOCE', 'NEGOCE INTERSITE', 'PRODUIT FINI SOUS TRAITE', 'PRODUIT FINI')
         )
         """)
 
@@ -1725,5 +1738,22 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 'view_mode': 'tree,form',
                 'res_model': 'is.galia.base.uc',
                 'type': 'ir.actions.act_window',
-                'domain': [('product_id','=',obj.product_id.id)],
+                'domain': [
+                    ('product_id','=',obj.product_id.id),
+                    ('location_id.usage','=','internal'),
+                ],
+            }
+
+
+    def voir_um_action(self):
+        for obj in self:
+            return {
+                'name': "UMs %s"%obj.product_id.display_name,
+                'view_mode': 'tree,form',
+                'res_model': 'is.galia.base.um',
+                'type': 'ir.actions.act_window',
+                'domain': [
+                    ('uc_ids.product_id','=',obj.product_id.id),
+                    ('location_id.usage','=','internal'),
+                ],
             }
