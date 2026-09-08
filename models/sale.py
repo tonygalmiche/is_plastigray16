@@ -509,12 +509,28 @@ class sale_order(models.Model):
     def pg_onchange_partner_id(self):
         if self.partner_id:
             partner = self.partner_id
-            if partner.is_adr_facturation:
-                self.partner_invoice_id = partner.is_adr_facturation.id
+            # 08/09/2026 - Déplacé dans _compute_partner_invoice_id() : posé ici, ce onchange
+            # était écrasé à la sauvegarde par le recalcul standard Odoo de partner_invoice_id
+            # (qui ignore is_adr_facturation), d'où une adresse de facturation fausse après
+            # enregistrement.
+            # if partner.is_adr_facturation:
+            #     self.partner_invoice_id = partner.is_adr_facturation.id
             if partner.is_source_location_id:
                 self.is_source_location_id = partner.is_source_location_id.id
             if partner.is_transporteur_id:
                 self.is_transporteur_id = partner.is_transporteur_id.id
+
+
+    def _compute_partner_invoice_id(self):
+        # 08/09/2026 - Surcharge du compute standard Odoo (addons/sale/models/sale_order.py) :
+        # celui-ci se base uniquement sur partner.address_get(['invoice']) et ignore notre champ
+        # métier is_adr_facturation. Comme ce compute se redéclenche à l'enregistrement
+        # (partner_id change), la correction doit être ici plutôt qu'en onchange, sinon elle est
+        # écrasée à la sauvegarde.
+        super()._compute_partner_invoice_id()
+        for order in self:
+            if order.partner_id.is_adr_facturation:
+                order.partner_invoice_id = order.partner_id.is_adr_facturation
 
 
     @api.depends('is_article_commande_id', 'is_article_commande_id.is_ref_client', 'is_article_commande_id.product_tmpl_id.is_ref_client')
