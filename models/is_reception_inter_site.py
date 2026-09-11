@@ -251,6 +251,12 @@ class is_reception_inter_site(models.Model):
                         if move.is_location_dest_prevu_id.id:
                             location_id = move.is_location_dest_prevu_id.id
 
+                        #** Livraison depuis un autre site : UM dans 'Client' *
+                        if obj.fournisseur_reception_id.is_livraison_autre_site:
+                            location_client = self.env['stock.location'].search([('usage','=','customer')], limit=1)
+                            if location_client:
+                                location_id = location_client.id
+
                         #** Recherche des UC/UM *******************************
                         SQL="""
                             SELECT 

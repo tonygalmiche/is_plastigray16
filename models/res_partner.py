@@ -574,8 +574,10 @@ class res_partner(models.Model):
     display_name            = fields.Char(string='Nom affiché', compute='_compute_display_name')
 
     is_calendrier_expedition_id = fields.Many2one('res.partner', "Site d'expéditions et de réceptions (Calendrier)", tracking=True,
-        domain=[('is_company','=',True),('is_code','=','EXP')], 
+        domain=[('is_company','=',True),('is_code','=','EXP')],
         help="Calendrier utilisé dans le calcul de la date d'expédition des commandes des clients (code adresse=EXP). Si ce champ n'est pas renseigné, c'est celui renseigné dans la société qui sera pris en compte")
+    is_livraison_autre_site     = fields.Boolean('Livraison depuis autre site', default=False, tracking=True,
+        help="Si cette case est cochée lors d'une réception inter-site, il faudra mettre les UM dans l'emplacement 'Client'")
 
     is_transporteur_id      = fields.Many2one('res.partner', 'Transporteur', tracking=True)
     is_mode_transport_id    = fields.Many2one('is.mode.transport', 'Mode de transport', tracking=True)

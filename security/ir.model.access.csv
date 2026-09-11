@@ -231,6 +231,8 @@ access_is_galia_base_uc_comparatif_stock,access_is_galia_base_uc_comparatif_stoc
 
 access_is_galia_base_um_manager,access_is_galia_base_um_manager,model_is_galia_base_um,is_administration_vente_group,1,1,1,0
 access_is_galia_base_uc_manager,access_is_galia_base_uc_manager,model_is_galia_base_uc,is_administration_vente_group,1,1,1,0
+access_is_galia_base_um_admin,access_is_galia_base_um_admin,model_is_galia_base_um,base.group_system,1,1,1,1
+access_is_galia_base_uc_admin,access_is_galia_base_uc_admin,model_is_galia_base_uc,base.group_system,1,1,1,1
 
 access_is_vente_message,access_is_vente_message,model_is_vente_message,base.group_user,1,1,1,1
 
