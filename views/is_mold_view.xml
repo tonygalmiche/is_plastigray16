@@ -65,7 +65,7 @@
                     <sheet>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                        <group>
+                        <group name="header">
                             <group name="identification">
                                 <field name="name"/>
                                 <field name="designation"/>
@@ -91,6 +91,11 @@
                                 <field name="is_database_id"/>
                             </group>
                         </group>
+
+<!-- 
+                        TODO : Migration de toute cette partie dans is_dynacase2odoo le 11/09/2026
+
+
                         <group  string="Dateurs" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}"/>
                         <field name="dateur_ids" nolabel="1" attrs="{'invisible': [('dateur_ids_vsb', '!=', True)]}">
                             <tree editable="bottom" limit="200">
@@ -101,6 +106,9 @@
                                 <field name="commentaire"/>
                             </tree>
                         </field>
+
+
+
                         <notebook colspan="4">
                             <page string="Préventif Moule" attrs="{'invisible': [('is_base_check','!=',True)]}">
                                 <button 
@@ -275,6 +283,10 @@
                             </page>
 
                         </notebook>
+ -->
+
+
+
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>

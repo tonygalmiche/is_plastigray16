@@ -421,6 +421,15 @@ class is_mold(models.Model):
         return True
 
 
+    def _update_dernier_preventif(self):
+        for moule in self:
+            dernier = self.env['is.preventif.moule'].search([('moule', '=', moule.id)], order='date_preventif desc, id desc', limit=1)
+            moule.nb_cycles_dernier_preventif = dernier.nb_cycles
+            moule.nb_cycles_actuel            = dernier.nb_cycles
+            moule.date_dernier_preventif      = dernier.date_preventif
+            moule.nb_cycles_avant_preventif   = dernier.periodicite
+
+
     def default_get(self, default_fields):
         res = super(is_mold, self).default_get(default_fields)
         res['is_base_check'] = False

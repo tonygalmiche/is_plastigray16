@@ -54,12 +54,22 @@ class is_preventif_moule(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
-        for obj in res:
-            if obj and 'moule' in vals_list[0]:
-                obj.moule.nb_cycles_dernier_preventif = obj.nb_cycles
-                obj.moule.nb_cycles_actuel            = obj.nb_cycles
-                obj.moule.date_dernier_preventif      = obj.date_preventif
-                obj.moule.nb_cycles_avant_preventif   = obj.periodicite
+        res.mapped('moule')._update_dernier_preventif()
+        return res
+
+
+    def write(self, vals):
+        moules = self.mapped('moule')
+        res = super().write(vals)
+        if 'nb_cycles' in vals or 'date_preventif' in vals or 'moule' in vals:
+            (moules | self.mapped('moule'))._update_dernier_preventif()
+        return res
+
+
+    def unlink(self):
+        moules = self.mapped('moule')
+        res = super().unlink()
+        moules._update_dernier_preventif()
         return res
 
 
