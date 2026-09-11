@@ -1051,7 +1051,13 @@ class is_galia_base_um(models.Model):
         self._actualiser_emplacement_um(verifier_livraison=False)
 
 
-    def _actualiser_emplacement_um(self, verifier_livraison):
+    def actualiser_emplacement_um_client_sans_restriction_action(self):
+        # Force le basculement de l'UM dans l'emplacement Client, sans aucune
+        # vérification (ni UC livrées, ni liste à servir/bon de transfert).
+        self._actualiser_emplacement_um(verifier_livraison=False, sans_restriction=True)
+
+
+    def _actualiser_emplacement_um(self, verifier_livraison, sans_restriction=False):
         lines = self.env["stock.location"].search([('usage','=','customer')], limit=1)
         location_client_id = lines and lines[0].id or False
         if not location_client_id:
@@ -1060,7 +1066,9 @@ class is_galia_base_um(models.Model):
         for i, obj in enumerate(self, start=1):
             if obj.location_id.id==location_client_id:
                 continue
-            if verifier_livraison:
+            if sans_restriction:
+                raison = "l'emplacement a été forcé sans restriction"
+            elif verifier_livraison:
                 if not obj.uc_ids or not all(uc.stock_move_id and uc.stock_move_id.state=='done' for uc in obj.uc_ids):
                     continue
                 raison = "toutes ses UC sont livrées"
@@ -1094,6 +1102,15 @@ class is_galia_base_um(models.Model):
             if not vals.get('name'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('is.galia.base.um')
         return super().create(vals_list)
+
+
+    def write(self, vals):
+        need_recompute = 'location_id' in vals
+        num_etis = self.uc_ids.mapped('num_eti') if need_recompute else []
+        res = super().write(vals)
+        if need_recompute:
+            self.env['is.galia.base.uc']._recompute_doublon_num_eti(num_etis)
+        return res
 
 
     @api.onchange('liste_servir_id')
@@ -1529,8 +1546,8 @@ class is_galia_base_uc(models.Model):
 
     um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade', tracking=True)
     um_mixte      = fields.Selection(related="um_id.mixte")
-    um_active     = fields.Boolean(related="um_id.active")
-    location_id   = fields.Many2one('stock.location', 'Emplacement UM', related='um_id.location_id', store=True)
+    um_active     = fields.Boolean(related="um_id.active", string="UM active", store=True, tracking=True)
+    location_id   = fields.Many2one('stock.location', 'Emplacement UM', related='um_id.location_id', store=True, index=True)
     num_eti       = fields.Integer("N°Étiquette UC", required=True, index=True, tracking=True)
     type_eti      = fields.Char("Type étiquette", required=True   , index=True, tracking=True)
     num_carton    = fields.Integer("N°Carton", required=True      , index=True, tracking=True)
@@ -1550,8 +1567,9 @@ class is_galia_base_uc(models.Model):
     reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', tracking=True)
     reimprime               = fields.Boolean("UC à ré-imprimer", default=False, tracking=True, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
     etiquette_remplacee_le  = fields.Datetime("Etiquette remplacée le", tracking=True, help="Date et heure de mise en place de l'étiquette ré-imprimée")
-    active                  = fields.Boolean("Actif", default=True, tracking=True)
+    active                  = fields.Boolean("Actif", default=True, tracking=True, index=True)
     anomalie                = fields.Text("Anomalie", readonly=True, compute='_compute_anomalie', store=False)
+    doublon                 = fields.Boolean("Doublon", readonly=True, compute='_compute_doublon', store=True, tracking=True)
 
 
     @api.depends('num_eti')
@@ -1566,6 +1584,60 @@ class is_galia_base_uc(models.Model):
                     msg = "Etiquette dans plusieurs UM (%s)"%', '.join(ums)
                     anomalie.append(msg)
             obj.anomalie = (len(anomalie) and '\n'.join(anomalie)) or False
+
+
+    @api.depends('num_eti', 'active', 'location_id', 'location_id.usage')
+    def _compute_doublon(self):
+        for obj in self:
+            doublon = False
+            if obj.num_eti and obj.active and obj.location_id.usage=='internal':
+                domain = [
+                    ('num_eti','=',obj.num_eti),
+                    ('id','!=',obj.id),
+                    ('active','=',True),
+                    ('location_id.usage','=','internal'),
+                ]
+                doublon = bool(self.search_count(domain))
+            obj.doublon = doublon
+
+
+    def _recompute_doublon_num_eti(self, num_etis):
+        # Recalcule le champ 'doublon' de toutes les UC partageant l'un de ces num_eti.
+        # Nécessaire car le calcul dépend d'autres enregistrements (recherche de
+        # doublons), ce qu'Odoo ne peut pas suivre automatiquement via @api.depends.
+        num_etis = [n for n in num_etis if n]
+        if not num_etis:
+            return
+        records = self.with_context(active_test=False).search([('num_eti','in', num_etis)])
+        if records:
+            records._compute_doublon()
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._recompute_doublon_num_eti(records.mapped('num_eti'))
+        return records
+
+
+    def write(self, vals):
+        need_recompute = 'active' in vals or 'um_id' in vals or 'num_eti' in vals
+        num_etis = self.mapped('num_eti') if need_recompute else []
+        res = super().write(vals)
+        if need_recompute:
+            self._recompute_doublon_num_eti(num_etis + self.mapped('num_eti'))
+        return res
+
+
+    def unlink(self):
+        num_etis = self.mapped('num_eti')
+        res = super().unlink()
+        self._recompute_doublon_num_eti(num_etis)
+        return res
+
+
+    def recalculer_doublon_action(self):
+        self._recompute_doublon_num_eti(self.mapped('num_eti'))
 
 
     def etiquette_remplacee_action(self):
@@ -1584,6 +1656,10 @@ class is_galia_base_uc(models.Model):
                 'res_id': obj.id,
                 'domain': '[]',
             }
+
+
+    def mettre_um_client_action(self):
+        self.um_id.actualiser_emplacement_um_client_sans_restriction_action()
 
 
     # def archiver_sur_stock_action(self):
@@ -1680,8 +1756,21 @@ class is_galia_base_uc_comparatif_stock(models.Model):
     qty_stock          = fields.Float("Qté en stock", readonly=True)
     nb_um              = fields.Integer("Nb UM", readonly=True)
     nb_uc              = fields.Integer("Nb UC", readonly=True)
-    qt_uc              = fields.Float("Qté UC", readonly=True)
+    qt_uc              = fields.Float("Qté dans UC", readonly=True)
     diff               = fields.Float("Différence", readonly=True)
+    qt_par_uc          = fields.Integer("Qt/UC", related='product_id.is_uc_qt', readonly=True)
+    nb_uc_par_um       = fields.Integer("Nb UC/UM", related='product_id.is_uc_par_um', readonly=True)
+    nb_uc_stock        = fields.Float("Nb UC stock", compute='_compute_nb_stock', readonly=True)
+    nb_um_stock        = fields.Float("Nb UM stock", compute='_compute_nb_stock', readonly=True)
+
+    @api.depends('qty_stock', 'product_id.is_uc_qt', 'product_id.is_uc_par_um')
+    def _compute_nb_stock(self):
+        for obj in self:
+            qt_par_uc = obj.product_id.is_uc_qt
+            nb_uc_par_um = obj.product_id.is_uc_par_um
+            obj.nb_uc_stock = obj.qty_stock / qt_par_uc if qt_par_uc else 0
+            obj.nb_um_stock = obj.nb_uc_stock / nb_uc_par_um if nb_uc_par_um else 0
+
 
     def init(self):
         cr = self._cr
@@ -1757,3 +1846,100 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                     ('location_id.usage','=','internal'),
                 ],
             }
+
+
+# class is_galia_base_uc_doublon(models.Model):
+#     _name        = 'is.galia.base.uc.doublon'
+#     _description = "UC en double sur un emplacement interne"
+#     _order       = 'num_eti, id'
+#     _auto        = False
+#
+#     uc_id                    = fields.Many2one('is.galia.base.uc', 'UC', readonly=True)
+#     um_id                    = fields.Many2one('is.galia.base.um', 'UM', readonly=True)
+#     um_mixte                 = fields.Selection(_MIXTE, 'Mixte', readonly=True)
+#     location_id              = fields.Many2one('stock.location', 'Emplacement', readonly=True)
+#     num_eti                  = fields.Integer("N°Étiquette UC", readonly=True)
+#     type_eti                 = fields.Char("Type étiquette", readonly=True)
+#     num_carton               = fields.Integer("N°Carton", readonly=True)
+#     qt_pieces                = fields.Integer("Qt Pièces", readonly=True)
+#     date_creation            = fields.Datetime("Date de création", readonly=True)
+#     production_id            = fields.Many2one('mrp.production', 'Ordre de fabrication', readonly=True)
+#     production               = fields.Char('Fabrication', readonly=True)
+#     product_id               = fields.Many2one('product.product', 'Article', readonly=True)
+#     is_category_id           = fields.Many2one('is.category', 'Catégorie', readonly=True)
+#     is_gestionnaire_id       = fields.Many2one('is.gestionnaire', 'Gestionnaire', readonly=True)
+#     segment_id               = fields.Many2one('is.product.segment', 'Segment', readonly=True)
+#     qty_available            = fields.Float('Stock article', related='product_id.qty_available', readonly=True)
+#     employee_id              = fields.Many2one('hr.employee', 'Employé', readonly=True)
+#     liste_servir_id          = fields.Many2one('is.liste.servir', 'Liste à servir', readonly=True)
+#     bon_transfert_id         = fields.Many2one('is.bon.transfert', 'Bon de transfert', readonly=True)
+#     ls_line_id               = fields.Many2one('is.liste.servir.line', 'Ligne liste à servir', readonly=True)
+#     bt_line_id               = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert', readonly=True)
+#     stock_move_id            = fields.Many2one('stock.move', 'Ligne livraison', readonly=True)
+#     stock_move_rcp_id        = fields.Many2one('stock.move', 'Ligne réception', readonly=True)
+#     reception_inter_site_id  = fields.Many2one('is.reception.inter.site', 'Réception inter-site', readonly=True)
+#     reimprime                = fields.Boolean("UC à ré-imprimer", readonly=True)
+#     etiquette_remplacee_le   = fields.Datetime("Etiquette remplacée le", readonly=True)
+#     anomalie                 = fields.Text("Anomalie", related='uc_id.anomalie', readonly=True)
+#     create_date              = fields.Datetime("Créé le", readonly=True)
+#     create_uid               = fields.Many2one('res.users', 'Créé par', readonly=True)
+#     write_date               = fields.Datetime("Modifié le", readonly=True)
+#     write_uid                = fields.Many2one('res.users', 'Modifié par', readonly=True)
+#
+#     def init(self):
+#         cr = self._cr
+#         tools.drop_view_if_exists(cr, 'is_galia_base_uc_doublon')
+#         cr.execute("""CREATE OR REPLACE VIEW is_galia_base_uc_doublon AS (
+#             SELECT
+#                 guc.id                       AS id,
+#                 guc.id                       AS uc_id,
+#                 guc.um_id                    AS um_id,
+#                 gum.mixte                    AS um_mixte,
+#                 guc.location_id              AS location_id,
+#                 guc.num_eti                  AS num_eti,
+#                 guc.type_eti                 AS type_eti,
+#                 guc.num_carton               AS num_carton,
+#                 guc.qt_pieces                AS qt_pieces,
+#                 guc.date_creation            AS date_creation,
+#                 guc.production_id            AS production_id,
+#                 guc.production               AS production,
+#                 guc.product_id               AS product_id,
+#                 pt.is_category_id            AS is_category_id,
+#                 pt.is_gestionnaire_id        AS is_gestionnaire_id,
+#                 pt.segment_id                AS segment_id,
+#                 guc.employee_id              AS employee_id,
+#                 gum.liste_servir_id          AS liste_servir_id,
+#                 gum.bon_transfert_id         AS bon_transfert_id,
+#                 guc.ls_line_id               AS ls_line_id,
+#                 guc.bt_line_id               AS bt_line_id,
+#                 guc.stock_move_id            AS stock_move_id,
+#                 guc.stock_move_rcp_id        AS stock_move_rcp_id,
+#                 guc.reception_inter_site_id  AS reception_inter_site_id,
+#                 guc.reimprime                AS reimprime,
+#                 guc.etiquette_remplacee_le   AS etiquette_remplacee_le,
+#                 guc.create_date              AS create_date,
+#                 guc.create_uid               AS create_uid,
+#                 guc.write_date               AS write_date,
+#                 guc.write_uid                AS write_uid
+#             FROM is_galia_base_uc guc
+#             INNER JOIN is_galia_base_um gum ON gum.id = guc.um_id
+#             INNER JOIN product_product pp ON pp.id = guc.product_id
+#             INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+#             WHERE guc.doublon = true
+#         )
+#         """)
+#
+#
+#     def acceder_uc_action(self):
+#         for obj in self:
+#             return {
+#                 'name': "Doublons UC %s"%obj.num_eti,
+#                 'view_mode': 'tree,form',
+#                 'res_model': 'is.galia.base.uc',
+#                 'type': 'ir.actions.act_window',
+#                 'domain': [('num_eti','=', obj.num_eti)],
+#             }
+#
+#
+#     def mettre_um_client_action(self):
+#         self.um_id.actualiser_emplacement_um_client_sans_restriction_action()

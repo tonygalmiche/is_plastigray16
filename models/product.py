@@ -344,13 +344,15 @@ class product_template(models.Model):
         for obj in self:
 
             #** Conditionnement (UC) *******************************************
-            is_uc = is_uc_qt = False
+            is_uc = is_uc_qt = is_uc_par_um = False
             if obj.packaging_ids:
                 packaging=obj.packaging_ids[0]
-                is_uc    = packaging.ul.name
-                is_uc_qt = packaging.qty
-            obj.is_uc    = is_uc
-            obj.is_uc_qt = is_uc_qt
+                is_uc        = packaging.ul.name
+                is_uc_qt     = packaging.qty
+                is_uc_par_um = packaging.ul_qty * packaging.rows
+            obj.is_uc        = is_uc
+            obj.is_uc_qt     = is_uc_qt
+            obj.is_uc_par_um = is_uc_par_um
             #*******************************************************************
 
 
@@ -538,6 +540,7 @@ class product_template(models.Model):
 
     is_uc                         = fields.Char('UC'      , store=False, compute='_compute')
     is_uc_qt                      = fields.Integer('Qt/UC', store=False, compute='_compute')
+    is_uc_par_um                  = fields.Integer('Nb UC/UM', store=False, compute='_compute')
 
     is_mold_dossierf              = fields.Char('Moule ou Dossier F'                       , store=True, compute='_compute_is_mold_dossierf', tracking=True)
     is_client_id                  = fields.Many2one('res.partner', 'Client par défaut'     , store=True, compute='_compute_is_client_id', tracking=True)
@@ -556,7 +559,7 @@ class product_template(models.Model):
                                         ('cerclage','cerclage'),
                                         ('filmage+cerclage','filmage+cerclage')
                                     ], "Cerclage/film", tracking=True)
-    is_emb_nb_uc_par_um           = fields.Integer('Nb UC/UM', tracking=True)
+    is_emb_nb_uc_par_um           = fields.Integer('Nb UC/UM.', tracking=True)
     is_gerbage_stockage           = fields.Integer('Gerbage au stockage', tracking=True)
     is_emb_matiere                = fields.Selection([
                                         ('bois'      , 'bois'),

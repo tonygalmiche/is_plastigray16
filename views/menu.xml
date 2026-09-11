@@ -2202,6 +2202,19 @@
             ref('is_administration_vente_group'),
         ])]"/>
     </record>
+    <!-- obsolète, remplacé par le champ is.galia.base.uc.doublon
+    <record id="is_galia_base_uc_doublon_menu" model="ir.ui.menu" >
+        <field name="name">UC en double sur emplacement interne</field>
+        <field name="sequence">40</field>
+        <field name="action"    ref="is_galia_base_uc_doublon_action"/>
+        <field name="parent_id" eval="ref('is_tracabilite_main_menu')"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_rsp_production_group'),
+            ref('is_magasiniers_group'),
+            ref('is_administration_vente_group'),
+        ])]"/>
+    </record>
+    -->
 
 
 
