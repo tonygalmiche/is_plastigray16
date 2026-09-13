@@ -132,6 +132,9 @@
                                 <field name="production"/>
                                 <field name="production_id" widget="many2one_clickable"/>
                                 <field name="product_id" widget="many2one_clickable"/>
+                                <field name="is_category_id"/>
+                                <field name="is_gestionnaire_id"/>
+                                <field name="segment_id"/>
                                 <field name="employee_id"/>
                             </group>
                             <group>
@@ -173,6 +176,9 @@
                     <field name="date_creation"     optional="show"/>
                     <field name="production"        optional="hide"/>
                     <field name="product_id"        optional="show" widget="many2one_clickable"/>
+                    <field name="is_category_id"    optional="hide"/>
+                    <field name="is_gestionnaire_id" optional="hide"/>
+                    <field name="segment_id"        optional="hide"/>
                     <field name="qty_available"     optional="show" string="Stock"/>
                     <field name="employee_id"       optional="hide"/>
                     <field name="liste_servir_id"   optional="hide" widget="many2one_clickable"/>
@@ -233,6 +239,9 @@
                     <field name="num_carton"/>
                     <field name="production"/>
                     <field name="product_id"/>
+                    <field name="is_category_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="segment_id"/>
                     <field name="liste_servir_id"/>
                     <field name="ls_line_id"/>
                     <field name="bon_transfert_id"/>
