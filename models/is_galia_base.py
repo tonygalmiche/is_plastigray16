@@ -1753,6 +1753,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
     _auto        = False
 
     product_id         = fields.Many2one('product.product', 'Article', readonly=True)
+    client_id          = fields.Many2one('res.partner', 'Client', readonly=True)
     is_category_id     = fields.Many2one('is.category', 'Catégorie', readonly=True)
     is_gestionnaire_id = fields.Many2one('is.gestionnaire', 'Gestionnaire', readonly=True)
     segment_id         = fields.Many2one('is.product.segment', 'Segment', readonly=True)
@@ -1782,6 +1783,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
             SELECT
                 pp.id                        AS id,
                 pp.id                        AS product_id,
+                pt.is_client_id              AS client_id,
                 pt.is_category_id            AS is_category_id,
                 pt.is_gestionnaire_id        AS is_gestionnaire_id,
                 pt.segment_id                AS segment_id,

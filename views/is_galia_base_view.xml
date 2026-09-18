@@ -534,6 +534,7 @@
             <field name="arch" type="xml">
                 <tree create="false" edit="false" delete="false">
                     <field name="product_id" widget="many2one_clickable"/>
+                    <field name="client_id" optional="show"/>
                     <field name="qt_par_uc" optional="hide"/>
                     <field name="nb_uc_par_um" optional="hide"/>
                     <field name="is_category_id" optional="show"/>
@@ -582,11 +583,15 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="product_id"/>
+                    <field name="client_id"/>
                     <field name="is_category_id"/>
                     <field name="is_gestionnaire_id"/>
                     <field name="segment_id"/>
                     <filter name="avec_ecart" string="Avec écart" domain="[('diff','!=',0)]"/>
                     <filter name="sans_ecart" string="Sans écart" domain="[('diff','=',0)]"/>
+                    <group expand="0" string="Grouper par">
+                        <filter name="group_client" string="Client" context="{'group_by':'client_id'}"/>
+                    </group>
                 </search>
             </field>
         </record>
