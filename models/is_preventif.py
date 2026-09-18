@@ -42,12 +42,16 @@ class is_preventif_moule(models.Model):
                 for res in res_ids:
                     nb_cycles = res[0]
                 obj.nb_cycles = nb_cycles
-                obj.periodicite = obj.moule.periodicite_maintenance_moule
+
+    @api.depends('moule')
+    def _compute_periodicite(self):
+        for obj in self:
+            obj.periodicite = obj.moule.periodicite_maintenance_moule
 
     moule               = fields.Many2one('is.mold', string='Moule',index=True, tracking=True)
     date_preventif      = fields.Date(string=u'Date du préventif', default=fields.Date.context_today,index=True  , tracking=True)
     nb_cycles           = fields.Integer(u"Nb cycles"            , compute="_compute", store=True, readonly=False, tracking=True)
-    periodicite         = fields.Integer(u"Périodicité préventif", compute="_compute", store=True, readonly=True , tracking=True)
+    periodicite         = fields.Integer(u"Périodicité préventif", compute="_compute_periodicite", store=True, readonly=False, tracking=True)
     fiche_preventif_ids = fields.Many2many('ir.attachment', 'is_preventif_moule_attachment_rel', 'preventif_id', 'file_id', u"Fiche de réalisation du préventif", tracking=True)
 
 
