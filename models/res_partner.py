@@ -585,6 +585,7 @@ class res_partner(models.Model):
     is_delai_transport      = fields.Integer('Delai de transport (jour)', default=0, tracking=True)
     is_livre_a_id           = fields.Many2one('res.partner', 'Livrer à', tracking=True, help="Indiquez l'adresse de livraison si celle-ci est différente de celle de la société")
     is_certificat_matiere   = fields.Boolean(u'Certificat matière demandé', tracking=True)
+    is_refuse_reintegration_ci = fields.Boolean('Refuse la ré-intégration des CI', default=False, tracking=True)
 
     is_import_function             = fields.Selection(import_function, "Fonction d'importation EDI", tracking=True)
     is_creation_commande_ferme_edi = fields.Boolean('Création commande ferme par EDI', tracking=True, default=False, 
