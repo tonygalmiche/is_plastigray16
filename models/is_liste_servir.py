@@ -128,6 +128,14 @@ class is_liste_servir_client(models.Model):
                             liste_servir.is_livree_aqp = aqp
                         listes_servir.append(liste_servir)
 
+            if not listes_servir:
+                criteres = "commandes fermes jusqu'au %s"%obj.date_fin.strftime('%d/%m/%Y') if obj.date_fin else "commandes fermes"
+                if obj.date_debut:
+                    criteres += " à partir du %s"%obj.date_debut.strftime('%d/%m/%Y')
+                if obj.livrable:
+                    criteres += ", livrables uniquement"
+                raise ValidationError("Aucune ligne de commande à livrer pour %s avec ces critères (%s)"%(obj.name.name, criteres))
+
             if len(listes_servir) > 1:
                 return {
                     'name': 'ls',
