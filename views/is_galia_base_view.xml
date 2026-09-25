@@ -292,6 +292,14 @@
             <field name="state">code</field>
             <field name="code">records.recalculer_doublon_action()</field>
         </record>
+        <record model="ir.actions.server" id="is_galia_base_uc_picking_um_action">
+            <field name="name">Picking des UM</field>
+            <field name="model_id" ref="model_is_galia_base_uc"/>
+            <field name="binding_model_id" ref="model_is_galia_base_uc"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.picking_um_action()</field>
+        </record>
         <!-- <record model="ir.actions.server" id="is_galia_base_uc_archiver_sur_stock_action">
             <field name="name">Archiver sur stock</field>
             <field name="model_id" ref="model_is_galia_base_uc"/>

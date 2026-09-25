@@ -1734,6 +1734,83 @@ class is_galia_base_uc(models.Model):
         self.um_id.actualiser_emplacement_um_client_sans_restriction_action()
 
 
+    def picking_um_action(self):
+        # Action du menu : met les UC sélectionnées dans une nouvelle UM
+        if not self:
+            return True
+        um_dest_id = self.picking_um()
+        return {
+            'name'     : "Etiquettes UM",
+            'view_mode': 'form',
+            'res_model': 'is.galia.base.um',
+            'type'     : 'ir.actions.act_window',
+            'res_id'   : um_dest_id,
+        }
+
+
+    def picking_um(self, um_dest_id=False, liste_servir_id=False):
+        # Retire les UC de leurs UM et les met toutes dans l'UM de destination
+        # (créée si um_dest_id n'est pas fourni, et associée à la liste à servir
+        # liste_servir_id si fournie). Retourne l'id de l'UM de destination.
+        # Appelée aussi depuis scan-exp (picking-um.php) en XML-RPC.
+        if not self:
+            raise ValidationError("Aucune UC à déplacer")
+        ums = self.um_id
+        um_dest     = self.env['is.galia.base.um'].browse(um_dest_id) if um_dest_id else False
+        liste_servir = self.env['is.liste.servir'].browse(liste_servir_id) if liste_servir_id else (um_dest and um_dest.liste_servir_id)
+        if um_dest and um_dest in ums:
+            raise ValidationError("Les UC sont déjà dans l'UM %s"%um_dest.name)
+        for um in ums:
+            if not um.active:
+                raise ValidationError("Picking impossible car l'UM %s est archivée"%um.name)
+            if um.location_id.usage!='internal':
+                raise ValidationError("Picking impossible car l'UM %s n'est pas dans un emplacement interne (%s)"%(um.name, um.location_id.name or 'aucun emplacement'))
+            if um.liste_servir_id:
+                raise ValidationError("Picking impossible car l'UM %s est associée à la liste à servir %s"%(um.name, um.liste_servir_id.name))
+            if um.bon_transfert_id:
+                raise ValidationError("Picking impossible car l'UM %s est associée au bon de transfert %s"%(um.name, um.bon_transfert_id.name))
+        if um_dest and not um_dest.active:
+            raise ValidationError("Picking impossible car l'UM de destination %s est archivée"%um_dest.name)
+        locations = ums.location_id | (um_dest.location_id if um_dest else self.env['stock.location'])
+        if len(locations)>1:
+            raise ValidationError("Picking impossible car les UM ne sont pas toutes dans le même emplacement (%s)"%', '.join(locations.mapped('name')))
+        products_um_uc = self.product_id.filtered(lambda p: p.is_um_egale_uc)
+        if products_um_uc:
+            raise ValidationError("Picking impossible car ces articles sont de type UM=UC : %s"%', '.join(products_um_uc.mapped('is_code')))
+        if liste_servir:
+            products_hors_ls = self.product_id - liste_servir.line_ids.product_id
+            if products_hors_ls:
+                raise ValidationError("Picking impossible car ces articles ne sont pas sur la liste à servir %s : %s"%(liste_servir.name, ', '.join(products_hors_ls.mapped('is_code'))))
+        creation = not um_dest
+        if creation:
+            um_dest = self.env['is.galia.base.um'].create({
+                'mixte'          : 'non',
+                'location_id'    : ums.location_id.id,
+                'production_id'  : ums.production_id.id if len(ums.production_id)==1 else False,
+                'liste_servir_id': liste_servir.id if liste_servir else False,
+            })
+        lien_um     = Markup('<a href="#" data-oe-model="is.galia.base.um" data-oe-id="%s">%s</a>')
+        lien_um_new = lien_um%(um_dest.id, um_dest.name)
+        lignes = []
+        for um in ums:
+            ucs         = self.filtered(lambda uc: uc.um_id==um)
+            num_etis    = ', '.join(str(uc.num_eti) for uc in ucs.sorted('num_eti'))
+            lien_um_old = lien_um%(um.id, um.name)
+            ucs.write({'um_id': um_dest.id})
+            um.message_post(body=Markup("Picking : %s UC retirées (%s) et mises dans l'UM %s")%(len(ucs), num_etis, lien_um_new))
+            if not self.search_count([('um_id','=',um.id)]):
+                um.message_post(body="Picking : UM archivée car elle ne contient plus d'UC")
+                um.active = False
+            for uc in ucs:
+                uc.message_post(body=Markup("Picking : UC déplacée de l'UM %s vers l'UM %s")%(lien_um_old, lien_um_new))
+            lignes.append(Markup("<li>%s UC (%s) retirées de l'UM %s</li>")%(len(ucs), num_etis, lien_um_old))
+        if len(um_dest.uc_ids.product_id)>1 and um_dest.mixte!='oui':
+            um_dest.mixte = 'oui'
+        titre = "Picking : UM créée avec %s UC :" if creation else "Picking : ajout de %s UC :"
+        um_dest.message_post(body=Markup(titre+"<ul>%s</ul>")%(len(self), Markup('').join(lignes)))
+        return um_dest.id
+
+
     # def archiver_sur_stock_action(self):
     #     date_limite = datetime.now() - relativedelta(months=1)
     #     total = len(self)
