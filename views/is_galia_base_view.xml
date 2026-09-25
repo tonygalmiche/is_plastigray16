@@ -106,8 +106,16 @@
                     <header>
                         <button 
                             name="imprimer_etiquette_uc_action" 
-                            string="Imprimer étiquette UC" 
+                            string="Imprimer étiquette UC"
                             type="object"
+                        />
+                        <field name="emplacement_ci" invisible="1"/>
+                        <button
+                            name="reintegrer_ci_production_action"
+                            string="Réintégrer CI en production"
+                            type="object"
+                            confirm="Voulez-vous vraiment archiver cette UC et son UM et déplacer le stock de CI vers ATELIER ?"
+                            attrs="{'invisible': ['|',('emplacement_ci', '=', False),('active', '=', False)]}"
                         />
                     </header>
                     <sheet>

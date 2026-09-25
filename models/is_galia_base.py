@@ -4,6 +4,7 @@ from odoo.exceptions import AccessError, ValidationError, UserError  # type: ign
 from subprocess import PIPE, Popen
 from xmlrpc import client as xmlrpclib
 from datetime import datetime
+from markupsafe import Markup
 from dateutil.relativedelta import relativedelta
 import time
 import pytz
@@ -1573,6 +1574,74 @@ class is_galia_base_uc(models.Model):
     active                  = fields.Boolean("Actif", default=True, tracking=True, index=True)
     anomalie                = fields.Text("Anomalie", readonly=True, compute='_compute_anomalie', store=False)
     doublon                 = fields.Boolean("Doublon", readonly=True, compute='_compute_doublon', store=True, tracking=True)
+    emplacement_ci          = fields.Boolean("Emplacement CI", compute='_compute_emplacement_ci', store=False)
+
+
+    @api.depends('location_id')
+    def _compute_emplacement_ci(self):
+        for obj in self:
+            obj.emplacement_ci = obj.location_id.name=='CI' and obj.location_id.usage=='internal'
+
+
+    def reintegrer_ci_production_action(self):
+        # Archive l'UC et son UM et remet le stock de l'UC de CI vers ATELIER
+        for obj in self:
+            um = obj.um_id
+            if not obj.emplacement_ci:
+                raise ValidationError("L'UC %s n'est pas dans l'emplacement CI"%obj.num_eti)
+            if len(um.uc_ids)>1:
+                raise ValidationError("Réintégration impossible car l'UM %s contient %s UC"%(um.name,len(um.uc_ids)))
+            atelier_id = um._get_location_id()
+            if not atelier_id:
+                raise ValidationError("Emplacement ATELIER non trouvé")
+            product = obj.product_id
+            qty     = obj.qt_pieces
+            lots = self.env['stock.lot'].search([('product_id','=',product.id),('name','=',obj.production)], limit=1)
+            if not lots:
+                raise ValidationError("Lot %s non trouvé pour l'article %s"%(obj.production,product.is_code))
+            quants = self.env['stock.quant'].search([
+                ('product_id' ,'=',product.id),
+                ('location_id','=',obj.location_id.id),
+                ('lot_id'     ,'=',lots.id),
+            ])
+            stock = sum(quants.mapped('quantity'))
+            if stock<qty:
+                raise ValidationError("Réintégration impossible car stock insuffisant en CI pour le lot %s : Stock=%s < Qt UC=%s"%(obj.production,stock,qty))
+            name="UC %s"%obj.num_eti
+            vals={
+                "product_id": product.id,
+                "product_uom": product.uom_id.id,
+                "location_id": obj.location_id.id,
+                "location_dest_id": atelier_id,
+                "origin": name,
+                "name": name,
+                "reference": name,
+                "procure_method": "make_to_stock",
+                "product_uom_qty": qty,
+                "scrapped": False,
+                "propagate_cancel": True,
+                "is_inventory": True,
+                "additional": False,
+            }
+            move=self.env['stock.move'].create(vals)
+            vals={
+                "move_id": move.id,
+                "product_id": product.id,
+                "product_uom_id": product.uom_id.id,
+                "location_id": obj.location_id.id,
+                "location_dest_id": atelier_id,
+                "lot_id": lots.id,
+                "qty_done": qty,
+                "reference": name,
+            }
+            self.env['stock.move.line'].create(vals)
+            move._action_done()
+            msg=Markup('Réintégration de CI en production : %s pièces du lot %s déplacées vers ATELIER (mouvement <a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>)')%(qty,obj.production,move.id,move.id)
+            obj.message_post(body=msg)
+            um.message_post(body=msg)
+            obj.active = False
+            um.active  = False
+        return True
 
 
     @api.depends('num_eti')
