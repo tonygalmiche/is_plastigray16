@@ -249,7 +249,11 @@
                     <field name="state" widget="badge" 
                         decoration-success="state == 'traite'" 
                         decoration-info="state == 'creation'" 
-                        decoration-warning="state == 'analyse'" optional="show"/> 
+                        decoration-warning="state == 'analyse'" optional="show"/>
+                    <field name="create_uid"  optional="hide"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="write_uid"   optional="hide"/>
+                    <field name="write_date"  optional="hide"/>
                 </tree>
             </field>
         </record>
