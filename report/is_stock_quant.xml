@@ -8,6 +8,14 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_uc_emplacement" icon="fa-map-marker">
+                            <field name="nb_uc_emplacement" widget="statinfo" string="UCs emplacement"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_view_uc_interne" icon="fa-list">
+                            <field name="nb_uc_interne" widget="statinfo" string="UCs internes"/>
+                        </button>
+                    </div>
                     <group>
                         <field name="product_id" readonly="1"/>
                         <field name="gestionnaire_id" readonly="1"/>

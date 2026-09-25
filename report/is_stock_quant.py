@@ -28,6 +28,44 @@ class is_stock_quant(models.Model):
     quantite           = fields.Float('Quantité', digits=(16,6))
     uom_id             = fields.Many2one('uom.uom', 'Unité')
     date_entree        = fields.Datetime("Date d'entrée")
+    nb_uc_emplacement  = fields.Integer("Nb UC emplacement"        , compute='_compute_nb_uc', store=False)
+    nb_uc_interne      = fields.Integer("Nb UC emplacements internes", compute='_compute_nb_uc', store=False)
+
+
+    def _get_uc_domain(self, tous_emplacements=False):
+        self.ensure_one()
+        domain = [
+            ('product_id.product_tmpl_id', '=', self.product_id.id),
+            ('production', '=', self.lot_id.name),
+            ('um_active', '=', True),
+        ]
+        if tous_emplacements:
+            domain.append(('location_id.usage', '=', 'internal'))
+        else:
+            domain.append(('location_id', '=', self.location_id.id))
+        return domain
+
+
+    def _compute_nb_uc(self):
+        for obj in self:
+            obj.nb_uc_emplacement = self.env['is.galia.base.uc'].search_count(obj._get_uc_domain())
+            obj.nb_uc_interne     = self.env['is.galia.base.uc'].search_count(obj._get_uc_domain(tous_emplacements=True))
+
+
+    def _action_view_uc(self, tous_emplacements=False):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.is_galia_base_uc_action')
+        action['domain'] = self._get_uc_domain(tous_emplacements)
+        action['context'] = {}
+        return action
+
+
+    def action_view_uc_emplacement(self):
+        return self._action_view_uc()
+
+
+    def action_view_uc_interne(self):
+        return self._action_view_uc(tous_emplacements=True)
 
 
     def init(self):
