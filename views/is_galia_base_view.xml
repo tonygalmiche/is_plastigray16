@@ -407,6 +407,8 @@
                                 <field name="employee_id"/>
                                 <field name="date_ctrl_rcp"/>
                                 <field name="date_fin"/>
+                                <field name="date_preparation_reintegration_pi" attrs="{'invisible': [('date_preparation_reintegration_pi', '=', False)]}"/>
+                                <field name="date_effective_reintegration_pi"   attrs="{'invisible': [('date_effective_reintegration_pi', '=', False)]}"/>
                             </group>    
                         </group>
 
@@ -458,6 +460,8 @@
                     <field name="employee_id"      optional="show"/>
                     <field name="date_ctrl_rcp"    optional="hide"/>
                     <field name="date_fin"         optional="hide"/>
+                    <field name="date_preparation_reintegration_pi" optional="hide"/>
+                    <field name="date_effective_reintegration_pi"   optional="hide"/>
                     <field name="uc_ids"           optional="hide"/>
                     <button
                         name="acceder_um_action" type="object"
@@ -505,6 +509,8 @@
                     <field name="product_id" filter_domain="[('uc_ids.product_id', 'ilike', self)]"/>
                     <field name="location_id"/>
                     <filter name="en_stock" string="En stock" domain="[('location_id.usage','=','internal')]"/>
+                    <filter name="um_pi_en_attente_reintegration" string="En attente de ré-intégration PI" domain="[('date_preparation_reintegration_pi','!=',False),('date_effective_reintegration_pi','=',False)]"/>
+                    <filter name="um_pi_reintegrees"              string="Ré-intégrées PI"                 domain="[('date_effective_reintegration_pi','!=',False)]"/>
                     <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
                 </search>
             </field>

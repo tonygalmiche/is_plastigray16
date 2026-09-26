@@ -157,7 +157,7 @@ class is_raspberry(models.Model):
     onglet_40          = fields.Boolean('Onglet 4.0'       , default=False, help="Pour PK")
     onglet_actif       = fields.Char('Onglet actif', readonly=True, help=u"Ce champ est utilsé pour détecter si une mise à jour de l'onglet Indicateurs est necessaire")
     declaration_odoo   = fields.Boolean('Prod Odoo', help='Activer la déclaration de production dans Odoo', default=False)
-    reintegration_ci   = fields.Boolean('Réintégration CI', default=False)
+    reintegration_ci   = fields.Boolean('Réintégration CI/PI', default=False)
     solder_um          = fields.Boolean('Solder automatiquement UM', default=False)
     zebra_id           = fields.Many2one('is.raspberry.zebra', "Zebra", help="Imprimante Zebra")
     entree_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Entrées du Raspberry",  domain=[('entree_sortie','=','entree')])

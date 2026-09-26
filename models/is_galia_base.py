@@ -887,12 +887,14 @@ class is_galia_base_um(models.Model):
     etiquette_um_a5  = fields.Boolean("Étiquette UM A5", readonly=True, compute='_compute', store=False)
     nb_uc            = fields.Integer("Nb UC", readonly=True, compute='_compute', store=False)
     employee_id      = fields.Many2one("hr.employee", "Employé", tracking=True)
-    date_fin         = fields.Datetime("Date fin UM", tracking=True)
+    date_fin         = fields.Datetime("Date fin UM", tracking=True, help="Renseignée par le bouton 'Fin UM' de la presse (THEIA), qui imprime l'étiquette UM. Tant qu'elle est vide, l'UM est l'UM en cours de l'OF et reçoit les UC scannées ; ensuite, une nouvelle UM est créée.")
     active           = fields.Boolean("Active", default=True, copy=False, index=True, tracking=True)
     date_ctrl_rcp    = fields.Datetime("Date contrôle réception", tracking=True)
     information      = fields.Text("Information", readonly=True, compute='_compute_information_anomalie', store=False)
     anomalie         = fields.Text("Anomalie"   , readonly=True, compute='_compute_information_anomalie', store=False)
     emplacement_pi   = fields.Boolean("Emplacement PI", compute='_compute_emplacement_pi', store=False)
+    date_preparation_reintegration_pi = fields.Datetime("Date préparation ré-intégration PI", copy=False, index=True, tracking=True, help="Renseignée lors de la réintégration PI vers ATELIER. Tant que la date effective est vide, l'UM est reprise au premier scan d'UC du même article sur une presse, au lieu de créer une nouvelle UM.")
+    date_effective_reintegration_pi   = fields.Datetime("Date effective ré-intégration PI"  , copy=False, index=True, tracking=True, help="Renseignée par la presse lors de la reprise de l'UM : elle est rattachée au nouvel OF et rouverte pour recevoir les UC suivantes.")
 
 
     def get_qt_par_lot(self):
@@ -1093,6 +1095,12 @@ class is_galia_base_um(models.Model):
                 raise ValidationError("Réintégration impossible car l'UM %s ne contient aucune UC"%obj.name)
             obj.location_dest_id = atelier_id
             obj.deplacer_um_action()
+            # UM en attente d'être complétée par le premier scan d'UC sur une presse (THEIA), qui la rouvrira
+            # (date effective vidée si l'UM avait déjà été réintégrée une première fois : l'historique reste dans le chatter)
+            obj.write({
+                'date_preparation_reintegration_pi': fields.Datetime.now(),
+                'date_effective_reintegration_pi'  : False,
+            })
         return True
 
 
