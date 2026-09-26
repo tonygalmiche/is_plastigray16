@@ -245,7 +245,7 @@
                     <field name="num_eti"/>
                     <field name="type_eti"/>
                     <field name="num_carton"/>
-                    <field name="production"/>
+                    <field name="production" filter_domain="[('production', '=', self)]"/>
                     <field name="product_id"/>
                     <field name="is_category_id"/>
                     <field name="is_gestionnaire_id"/>
@@ -339,12 +339,14 @@
                             name="imprimer_etiquette_um_action"
                             string="Imprimer étiquette UM"
                             type="object"
+                            icon="fa-print"
                             attrs="{'invisible': ['|',('active', '!=', True),('etiquette_um_a5', '=', True)]}"
                         />
                         <button
                             name="imprimer_etiquette_um_a5"
                             string="Imprimer étiquette UM A5"
                             type="object"
+                            icon="fa-print"
                             attrs="{'invisible': ['|',('active', '!=', True),('etiquette_um_a5', '=', False)]}"
                         />
                         <button
@@ -356,18 +358,32 @@
                         />
                         <button 
                             name="imprimer_etiquette_uc_action" 
-                            string="Imprimer les étiquettes des UC" 
+                            string="Imprimer les étiquettes des UC"
                             type="object"
+                            icon="fa-print"
                             attrs="{'invisible': [('active', '!=', True)]}"
                         />
-                        <button 
-                            string="Voir les UC" 
-                            type="object" 
-                            name="voir_uc_action" 
-                            attrs="{'invisible': [('uc_ids', '==', [])]}"
+                        <field name="emplacement_pi" invisible="1"/>
+                        <button
+                            name="reintegrer_pi_production_action"
+                            string="Réintégrer PI en production"
+                            type="object"
+                            confirm="Voulez-vous vraiment déplacer cette UM et son stock de PI vers ATELIER ?"
+                            attrs="{'invisible': ['|','|','|','|','|',('emplacement_pi', '=', False),('active', '=', False),('uc_ids', '==', []),('mixte', '!=', 'non'),('liste_servir_id', '!=', False),('bon_transfert_id', '!=', False)]}"
                         />
                     </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button
+                                name="voir_uc_action"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-tags"
+                                attrs="{'invisible': [('uc_ids', '==', [])]}"
+                            >
+                                <field name="nb_uc" widget="statinfo" string="UC"/>
+                            </button>
+                        </div>
                         <field name="information" invisible="1"/>
                         <field name="anomalie"    invisible="1"/>
 
@@ -486,7 +502,7 @@
                     <field name="liste_servir_id"/>
                     <field name="bon_transfert_id"/>
                     <field name="production_id"/>
-                    <field name="product_id"/>
+                    <field name="product_id" filter_domain="[('uc_ids.product_id', 'ilike', self)]"/>
                     <field name="location_id"/>
                     <filter name="en_stock" string="En stock" domain="[('location_id.usage','=','internal')]"/>
                     <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>

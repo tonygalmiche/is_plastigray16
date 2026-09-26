@@ -892,6 +892,7 @@ class is_galia_base_um(models.Model):
     date_ctrl_rcp    = fields.Datetime("Date contrôle réception", tracking=True)
     information      = fields.Text("Information", readonly=True, compute='_compute_information_anomalie', store=False)
     anomalie         = fields.Text("Anomalie"   , readonly=True, compute='_compute_information_anomalie', store=False)
+    emplacement_pi   = fields.Boolean("Emplacement PI", compute='_compute_emplacement_pi', store=False)
 
 
     def get_qt_par_lot(self):
@@ -969,6 +970,17 @@ class is_galia_base_um(models.Model):
             if obj.anomalie:
                 raise ValidationError("Déplacement impossible car stock non disponible dans emplacement '%s':\n%s"%(obj.location_id.name,obj.anomalie))
             sorted_dict = obj.get_qt_par_lot()
+            #** Vérification que les lots des UC sont disponibles en stock ****
+            for key in sorted_dict:
+                vals = sorted_dict[key]
+                if not vals['lot_id']:
+                    raise ValidationError("Déplacement impossible car le lot %s n'existe pas pour l'article %s"%(vals['production'] or '',vals['product'].is_code))
+                if vals['stock']<vals['qt_pieces']:
+                    raise ValidationError("Déplacement impossible car stock insuffisant dans l'emplacement '%s' pour l'article %s et le lot %s : Stock=%s < Qt UM=%s"%(obj.location_id.name,vals['product'].is_code,vals['production'],vals['stock'],vals['qt_pieces']))
+            #******************************************************************
+            location_src  = obj.location_id
+            location_dest = obj.location_dest_id
+            moves={}
             for key in sorted_dict:
                 product = sorted_dict[key]['product']
                 qty     = sorted_dict[key]['qt_pieces']
@@ -1002,8 +1014,24 @@ class is_galia_base_um(models.Model):
                 }
                 move_line=self.env['stock.move.line'].create(vals)
                 move._action_done()
+                moves[key]=move
             obj.location_id = obj.location_dest_id.id
             obj.location_dest_id = False
+
+            #** Traçabilité dans le chatter de l'UM et des UC *****************
+            def lien_move(move):
+                return Markup('<a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>')%(move.id,move.id)
+            lignes=[]
+            for key in sorted_dict:
+                vals = sorted_dict[key]
+                lignes.append(Markup('<li>%s : %s pièces du lot %s (mouvement %s)</li>')%(vals['product'].is_code,int(vals['qt_pieces']),vals['production'],lien_move(moves[key])))
+            msg=Markup('Déplacement de l\'UM de %s vers %s :<ul>%s</ul>')%(location_src.name,location_dest.name,Markup('').join(lignes))
+            obj.message_post(body=msg)
+            for uc in obj.uc_ids:
+                key="%s-%s"%(uc.product_id.is_code,uc.production)
+                msg=Markup('Déplacement avec l\'UM %s de %s vers %s : %s pièces du lot %s (mouvement %s)')%(obj.name,location_src.name,location_dest.name,uc.qt_pieces,uc.production,lien_move(moves[key]))
+                uc.message_post(body=msg)
+            #******************************************************************
             return True
 
 
@@ -1037,6 +1065,35 @@ class is_galia_base_um(models.Model):
         lines = self.env["stock.location"].search(filtre)
         location_id = lines and lines[0].id or False
         return location_id
+
+
+    @api.depends('location_id')
+    def _compute_emplacement_pi(self):
+        for obj in self:
+            obj.emplacement_pi = obj.location_id.name=='PI' and obj.location_id.usage=='internal'
+
+
+    def reintegrer_pi_production_action(self):
+        # Déplace l'UM et le stock de ses UC de PI vers ATELIER
+        atelier_id = self._get_location_id()
+        if not atelier_id:
+            raise ValidationError("Emplacement ATELIER non trouvé")
+        for obj in self:
+            if not obj.active:
+                raise ValidationError("Réintégration impossible car l'UM %s est archivée"%obj.name)
+            if not obj.emplacement_pi:
+                raise ValidationError("Réintégration impossible car l'UM %s n'est pas dans l'emplacement PI (emplacement actuel : %s)"%(obj.name,obj.location_id.name or 'aucun'))
+            if obj.mixte!='non':
+                raise ValidationError("Réintégration impossible car l'UM %s est mixte"%obj.name)
+            if obj.liste_servir_id:
+                raise ValidationError("Réintégration impossible car l'UM %s est dans la liste à servir %s"%(obj.name,obj.liste_servir_id.name))
+            if obj.bon_transfert_id:
+                raise ValidationError("Réintégration impossible car l'UM %s est dans le bon de transfert %s"%(obj.name,obj.bon_transfert_id.name))
+            if not obj.uc_ids:
+                raise ValidationError("Réintégration impossible car l'UM %s ne contient aucune UC"%obj.name)
+            obj.location_dest_id = atelier_id
+            obj.deplacer_um_action()
+        return True
 
 
     def actualiser_emplacement_um_action(self):
