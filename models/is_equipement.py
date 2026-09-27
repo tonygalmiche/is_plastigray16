@@ -358,6 +358,7 @@ class is_equipement(models.Model):
             'nbre_noyau_pm'                         : self.nbre_noyau_pm,
             'nbre_circuit_eau'                      : self.nbre_circuit_eau,
             'nbre_zone_de_chauffe_moule'            : self.nbre_zone_de_chauffe_moule,
+            'poids_moule_maxi'                      : self.poids_moule_maxi,
             'puissance_electrique_installee'        : self.puissance_electrique_installee,
             'puissance_electrique_moteur'           : self.puissance_electrique_moteur,
             'puissance_de_chauffe'                  : self.puissance_de_chauffe,
@@ -750,6 +751,10 @@ class is_equipement(models.Model):
     nbre_zone_de_chauffe_moule_vsb           = fields.Boolean("Nbre de zone de chauffe moule vsb", compute='_compute')
     nbre_zone_de_chauffe_moule_obl           = fields.Boolean("Nbre de zone de chauffe moule obl", compute='_compute')
     nbre_zone_de_chauffe_moule               = fields.Integer("Nbre de zone de chauffe moule")
+
+    poids_moule_maxi_vsb                     = fields.Boolean("Poids du moule maxi (kg) vsb", compute='_compute')
+    poids_moule_maxi_obl                     = fields.Boolean("Poids du moule maxi (kg) obl", compute='_compute')
+    poids_moule_maxi                         = fields.Integer("Poids du moule maxi (kg)")
     
     puissance_electrique_installee_vsb       = fields.Boolean("Puissance Electrique Installee (kw) vsb", compute='_compute')
     puissance_electrique_installee_obl       = fields.Boolean("Puissance Electrique Installee (kw) obl", compute='_compute')

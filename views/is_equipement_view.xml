@@ -497,6 +497,10 @@
                                 <field name="nbre_zone_de_chauffe_moule_obl" invisible="1" />
                                 <field name="nbre_zone_de_chauffe_moule" 
                                     attrs="{'invisible': [('nbre_zone_de_chauffe_moule_vsb', '!=', True)], 'required':  [('nbre_zone_de_chauffe_moule_obl', '=', True)]}"/>
+                                <field name="poids_moule_maxi_vsb" invisible="1" />
+                                <field name="poids_moule_maxi_obl" invisible="1" />
+                                <field name="poids_moule_maxi"
+                                    attrs="{'invisible': [('poids_moule_maxi_vsb', '!=', True)], 'required':  [('poids_moule_maxi_obl', '=', True)]}"/>
                             </group>
                             <group>
                                 <field name="puissance_electrique_installee_vsb" invisible="1" />
@@ -754,6 +758,7 @@
                     <field name="nbre_noyau_pf"                   optional="hide"/>
                     <field name="nbre_noyau_total"                optional="hide"/>
                     <field name="nbre_zone_de_chauffe_moule"      optional="hide"/>
+                    <field name="poids_moule_maxi"                optional="hide"/>
                     <field name="puissance_electrique_installee"  optional="hide"/>
                     <field name="puissance_electrique_moteur"     optional="hide"/>
                     <field name="puissance_de_chauffe"            optional="hide"/>
