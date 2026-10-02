@@ -233,15 +233,26 @@ class is_export_cegid(models.Model):
 
                     #Mode de paiement	
                     #BOR	Billet à ordre
-                    #CHQ	Chèque
                     #DIV	Divers
                     #ESP	Espèces
                     #LCR	LCR acceptée
                     #LCS	LCR soumis acceptation
-                    #PRE	Prélèvements
-                    #VIR	Virement
                     #VRT	Virement international
-                    modepaie          = 'VIR'
+
+
+                    #VIR	Virement
+                    #CHQ	Chèque
+                    #PRE	Prélèvements
+
+
+                    #Correspondance code journal du type de règlement du partenaire => mode de paiement Cegid
+                    tab_modepaie={
+                        'VI' : 'VIR', # Virement France
+                        'CH' : 'CHQ', # Chèque
+                        'PR' : 'PRE', # Prélèvement
+                        'PRE': 'PRE', # Prélèvement
+                    }
+                    modepaie = tab_modepaie.get(row[8], 'VIR')
 
                     echeance          = row[7]
                     debit             = row[9]
