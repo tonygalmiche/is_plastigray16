@@ -111,12 +111,6 @@ class is_facture_pk(models.Model):
             obj.annee_facture   = annee_facture
             obj.semaine_facture = semaine_facture
 
-            #** Taux de change et de commission *******************************
-            company = self.env.user.company_id
-            obj.taux_devise_dinar = company.is_taux_devise_dinar
-            obj.taux_commission   = company.is_taux_commission
-            #******************************************************************
-
             #** poids_net et poids_brut ***************************************
             poids_net=poids_brut=0
             for row in obj.line_ids:
@@ -132,7 +126,25 @@ class is_facture_pk(models.Model):
     def _compute_total_plastigray(self):
         for obj in self:
             obj.total_plastigray = obj.main_oeuvre + obj.frais_perturbation + obj.total_pt_amt
-          
+
+
+    @api.depends('total','line_ids','line_ids.montant_total')
+    def _compute_total_facture(self):
+        for obj in self:
+            obj.total_facture = obj.total or sum(obj.line_ids.mapped('montant_total'))
+
+
+    @api.depends('total_facture','taux_devise_dinar','taux_commission','type_facture_id.total_ass_tnd','line_ids','line_ids.montant_total_tnd')
+    def _compute_total_facture_tnd(self):
+        for obj in self:
+            montants_tnd = obj.line_ids.mapped('montant_total_tnd')
+            if any(montants_tnd):
+                obj.total_facture_tnd = sum(montants_tnd)
+                if obj.type_facture_id.total_ass_tnd:
+                    obj.total_facture_tnd = obj.total_facture_tnd * obj.taux_commission
+            else:
+                obj.total_facture_tnd = obj.total_facture * obj.taux_devise_dinar
+
     num_facture        = fields.Char('N° de Facture',tracking=True)
     date_facture       = fields.Date('Date de facture', required=True, default=lambda *a: fields.datetime.now(),tracking=True)
     date_echeance      = fields.Date("Date d'échéance",tracking=True)
@@ -154,6 +166,8 @@ class is_facture_pk(models.Model):
     total_pt_amt       = fields.Float("Total amortissement outillage (€)", digits=(14, 2), compute='_compute', store=True, tracking=True)
     total              = fields.Float("TOTAL (€)"           , digits=(14, 2), compute='_compute', store=True,tracking=True)
     total_plastigray   = fields.Float("Total Plastigray (€)", digits=(14, 2), compute='_compute_total_plastigray',tracking=True, store=True, help="Total Main d'oeuvre / Prestation de service + Total frais de préparation à taxer + Total amortissement outillage")
+    total_facture      = fields.Float("Total facture (€)", digits=(14, 2), compute='_compute_total_facture', store=True, tracking=True, help="TOTAL (€) ou, s'il est nul, somme des Montant H.T. (€) des lignes")
+    total_facture_tnd  = fields.Float("Total facture (TND)", digits=(14, 3), compute='_compute_total_facture_tnd', store=True, tracking=True, help="Somme des Montant H.T. (TND) des lignes (x Taux de commission si le type de facture inclut l'assistance) ou, s'il n'y en a pas, Total facture (€) x Taux devise dinar")
 
     nb_pieces          = fields.Integer("Nombre de pièces", readonly=False,tracking=True)
     nb_cartons         = fields.Integer("Nombre de cartons", readonly=False,tracking=True)
@@ -232,8 +246,8 @@ class is_facture_pk(models.Model):
     montant_total_vsb     = fields.Boolean("montant_total_vsb"    , compute='_compute_vsb')
     montant_total_tnd_vsb     = fields.Boolean("montant_total_tnd_vsb"    , compute='_compute_vsb')
     facture_pk_plastigray_vsb = fields.Boolean("facture_pk_plastigray_vsb", compute='_compute_vsb')
-    taux_devise_dinar     = fields.Float("Taux devise dinar" , digits=(12, 4), readonly=True)
-    taux_commission       = fields.Float("Taux de commission", digits=(12, 4), readonly=True)
+    taux_devise_dinar     = fields.Float("Taux devise dinar" , digits=(12, 4), readonly=True, default=lambda self: self.env.user.company_id.is_taux_devise_dinar)
+    taux_commission       = fields.Float("Taux de commission", digits=(12, 4), readonly=True, default=lambda self: self.env.user.company_id.is_taux_commission)
 
     facture_pdf_ids           = fields.One2many('is.facture.pk.pdf', 'facture_pk_id', 'Factures PDF')
     has_plastigray_pdf        = fields.Boolean('PDF Plastigray généré', compute='_compute_has_plastigray_pdf')

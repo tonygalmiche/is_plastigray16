@@ -240,8 +240,8 @@
                     <field name="facture_avoir"      optional="hide"/> 
                     <field name="facture_origine_id" optional="hide"/> 
                     <field name="date_facture"       optional="show"/> 
-                    <field name="annee_facture"      optional="show"/> 
-                    <field name="semaine_facture"    optional="show"/> 
+                    <field name="annee_facture"      optional="hide"/> 
+                    <field name="semaine_facture"    optional="hide"/> 
                     <field name="client_id"          optional="show"/>
                     <field name="num_bl"             optional="show"/>
                     <field name="matiere_premiere"   optional="show" sum="Total"/>
@@ -249,14 +249,16 @@
                     <field name="total_moules"       optional="show" sum="Total"/>
                     <field name="frais_perturbation" optional="show" sum="Total"/> 
                     <field name="frais_perturbation_commentaire" optional="hide"/> 
-                    <field name="total"              optional="show" sum="Total"/>
+                    <field name="total"              optional="hide" sum="Total"/>
+                    <field name="total_facture"      optional="show" sum="Total"/>
+                    <field name="total_facture_tnd"  optional="show" sum="Total"/>
                     <field name="total_plastigray"   optional="show" sum="Total"/>
-                    <field name="nb_cartons"         optional="show" sum="Total"/>
-                    <field name="nb_colis"           optional="show" sum="Total"/>
-                    <field name="nb_pieces"          optional="show" sum="Total"/>
-                    <field name="poids_net"          optional="show" sum="Total"/>
-                    <field name="poids_brut"         optional="show" sum="Total"/>
-                    <field name="volume"             optional="show" sum="Total"/>
+                    <field name="nb_cartons"         optional="hide" sum="Total"/>
+                    <field name="nb_colis"           optional="hide" sum="Total"/>
+                    <field name="nb_pieces"          optional="hide" sum="Total"/>
+                    <field name="poids_net"          optional="hide" sum="Total"/>
+                    <field name="poids_brut"         optional="hide" sum="Total"/>
+                    <field name="volume"             optional="hide" sum="Total"/>
                 </tree>
             </field>
         </record>
@@ -270,14 +272,39 @@
                     <field name="client_id"/>
                     <field name="num_bl"/>
                     <field name="annee_facture"/>
-                    <field name="semaine_facture"/> 
+                    <field name="semaine_facture"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter string="Type facture" name="group_by_type_facture_id" context="{'group_by': 'type_facture_id'}"/>
+                        <filter string="Client"       name="group_by_client_id"       context="{'group_by': 'client_id'}"/>
+                    </group>
                 </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_facture_pk_pivot_view">
+            <field name="name">is_facture_pk_pivot_view</field>
+            <field name="model">is.facture.pk</field>
+            <field name="arch" type="xml">
+                <pivot string="Factures PK">
+                    <field name="type_facture_id"   type="row"/>
+                    <field name="total_facture"     type="measure"/>
+                    <field name="total_facture_tnd" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_facture_pk_graph_view">
+            <field name="name">is_facture_pk_graph_view</field>
+            <field name="model">is.facture.pk</field>
+            <field name="arch" type="xml">
+                <graph string="Factures PK" type="bar">
+                    <field name="type_facture_id" type="row"/>
+                    <field name="total_facture"   type="measure"/>
+                </graph>
             </field>
         </record>
         <record model="ir.actions.act_window" id="is_facture_pk_action">
             <field name="name">Factures PK</field>
             <field name="res_model">is.facture.pk</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
         </record>
 
 
