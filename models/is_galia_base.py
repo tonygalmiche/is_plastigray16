@@ -1714,7 +1714,7 @@ class is_galia_base_uc(models.Model):
         for obj in self:
             anomalie = []
             if obj.num_eti and obj.active and obj.um_id.active:
-                domain = [('num_eti','=',obj.num_eti),('id','!=',obj.id),('um_id.active','=',True)]
+                domain = [('num_eti','=',obj.num_eti),('id','!=',obj._origin.id),('um_id.active','=',True)]
                 doublons = self.search(domain)
                 if doublons:
                     ums = (obj.um_id | doublons.um_id).mapped('name')
@@ -1730,7 +1730,7 @@ class is_galia_base_uc(models.Model):
             if obj.num_eti and obj.active and obj.location_id.usage=='internal':
                 domain = [
                     ('num_eti','=',obj.num_eti),
-                    ('id','!=',obj.id),
+                    ('id','!=',obj._origin.id),
                     ('active','=',True),
                     ('location_id.usage','=','internal'),
                 ]
