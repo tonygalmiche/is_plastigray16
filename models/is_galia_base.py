@@ -852,6 +852,131 @@ class is_galia_base(models.Model):
         return imprimante
 
 
+    def copier_uc_vers_site_action(self):
+        "Copie les étiquettes sélectionnées dans les UC de la base du site (champ soc) avec une nouvelle UM par article et lot"
+        erreurs=[]
+        sites={}
+
+        #** Contrôles et regroupement par site puis par article et lot ********
+        for obj in self:
+            if not obj.soc:
+                erreurs.append("Etiquette %s : société non renseignée"%obj.num_eti)
+                continue
+            if obj.soc not in sites:
+                database = self.env['is.database'].search([('database','=like','%%-%s'%obj.soc)], limit=1)
+                if not (database.port_server and database.database and database.password):
+                    erreurs.append("Etiquette %s : base du site %s non trouvée ou non paramétrée"%(obj.num_eti,obj.soc))
+                    continue
+                #** Sans adresse IP, la base du site est sur le même serveur Odoo
+                ip_server = database.ip_server or 'localhost'
+                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object'%(ip_server,database.port_server))
+                ids = sock.execute(database.database, 2, database.password, 'stock.location', 'search', [('usage','=','customer')], 0, 1)
+                if not ids:
+                    erreurs.append("Etiquette %s : aucun emplacement de type 'Client' dans %s"%(obj.num_eti,database.database))
+                    continue
+                sites[obj.soc]={
+                    'database'   : database,
+                    'sock'       : sock,
+                    'location_id': ids[0],
+                    'groupes'    : {},
+                }
+            site     = sites[obj.soc]
+            database = site['database']
+            DB       = database.database
+            USERID   = 2
+            USERPASS = database.password
+            sock     = site['sock']
+
+            #** L'UC ne doit pas déjà exister, même archivée ******************
+            domain=[('num_eti','=',obj.num_eti),('active','in',[True,False])]
+            if sock.execute(DB, USERID, USERPASS, 'is.galia.base.uc', 'search', domain):
+                erreurs.append("Etiquette %s : UC déjà présente dans %s"%(obj.num_eti,DB))
+                continue
+
+            #** Recherche de l'article dans la base du site *******************
+            product_id=production_id=False
+            if obj.type_eti=='OF':
+                rows = sock.execute(DB, USERID, USERPASS, 'mrp.production', 'search_read', [('name','=',obj.num_of)], ['product_id'], 0, 1)
+                product_id    = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
+                production_id = rows and rows[0]['id']
+            if obj.type_eti=='Commande':
+                rows = sock.execute(DB, USERID, USERPASS, 'purchase.order.line', 'search_read', [('order_id.name','=',obj.num_of)], ['product_id'], 0, 1)
+                product_id = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
+            if obj.type_eti=='CodePG':
+                ids = sock.execute(DB, USERID, USERPASS, 'product.product', 'search', [('is_code','=',obj.num_of)], 0, 1)
+                product_id = ids and ids[0]
+            if not product_id:
+                erreurs.append("Etiquette %s : article non trouvé dans %s (%s %s)"%(obj.num_eti,DB,obj.type_eti,obj.num_of))
+                continue
+
+            #** Recherche du lot dans la base du site *************************
+            ids = sock.execute(DB, USERID, USERPASS, 'stock.lot', 'search', [('name','=',obj.num_of),('product_id','=',product_id)], 0, 1)
+            lot_id = ids and ids[0]
+
+            key=(product_id,obj.num_of,production_id,lot_id)
+            site['groupes'].setdefault(key, self.env['is.galia.base'])
+            site['groupes'][key]|=obj
+        if erreurs:
+            raise ValidationError("Aucune UC n'a été copiée :\n%s"%'\n'.join(erreurs))
+        #**********************************************************************
+
+        #** Création des UM et des UC dans la base du site ********************
+        #** L'UM et ses UC sont créées en un seul appel pour ne pas laisser
+        #** d'UM vide dans la base du site en cas d'erreur
+        ums=[]
+        for site in sites.values():
+            database = site['database']
+            DB       = database.database
+            USERID   = 2
+            USERPASS = database.password
+            sock     = site['sock']
+            for (product_id,num_of,production_id,lot_id),objs in site['groupes'].items():
+                uc_ids=[]
+                for obj in objs:
+                    vals={
+                        'num_eti'      : obj.num_eti,
+                        'type_eti'     : obj.type_eti,
+                        'num_carton'   : obj.num_carton,
+                        'qt_pieces'    : obj.qt_pieces,
+                        'production'   : obj.num_of,
+                        'production_id': production_id,
+                        'lot_id'       : lot_id,
+                        'product_id'   : product_id,
+                        'date_creation': fields.Datetime.to_string(obj.date_creation),
+                    }
+                    uc_ids.append((0,0,vals))
+                um_vals={
+                    'mixte'      : 'non',
+                    'location_id': site['location_id'],
+                    'uc_ids'     : uc_ids,
+                }
+                try:
+                    um_id   = sock.execute(DB, USERID, USERPASS, 'is.galia.base.um', 'create', um_vals)
+                    um_name = sock.execute(DB, USERID, USERPASS, 'is.galia.base.um', 'read', [um_id], ['name'])[0]['name']
+                except xmlrpclib.Fault as e:
+                    msg="Erreur création UM dans %s pour %s UC (%s) : %s"%(DB,len(objs),num_of,e.faultString.strip().split('\n')[0])
+                    _logger.error("copier_uc_vers_site_action : %s"%msg)
+                    erreurs.append(msg)
+                    continue
+                msg="UM %s créée dans %s avec %s UC (%s)"%(um_name,DB,len(objs),num_of)
+                _logger.info("copier_uc_vers_site_action : %s"%msg)
+                ums.append(msg)
+                for obj in objs:
+                    obj.message_post(body="UC copiée dans l'UM %s de la base %s"%(um_name,DB))
+        #**********************************************************************
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title'  : "Copie des UC dans la base du site",
+                'message': '\n'.join(ums+erreurs),
+                'type'   : (erreurs and 'danger') or 'success',
+                'sticky' : True,
+            },
+        }
+
+
 class is_galia_base_um(models.Model):
     _name='is.galia.base.um'
     _description="Etiquettes Galia UM"
@@ -1620,6 +1745,7 @@ class is_galia_base_uc(models.Model):
     qt_pieces     = fields.Integer("Qt Pièces", required=True, tracking=True)
     date_creation = fields.Datetime("Date de création", required=True, tracking=True)
     production_id = fields.Many2one('mrp.production', 'Ordre de fabrication', tracking=True)
+    lot_id        = fields.Many2one('stock.lot', 'Lot', tracking=True)
     production    = fields.Char('Fabrication', tracking=True, index=True)
     product_id    = fields.Many2one('product.product', 'Article', required=True , index=True, tracking=True)
     is_category_id     = fields.Many2one('is.category', 'Catégorie', related='product_id.is_category_id', store=True)
@@ -1637,9 +1763,20 @@ class is_galia_base_uc(models.Model):
     reimprime               = fields.Boolean("UC à ré-imprimer", default=False, tracking=True, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
     etiquette_remplacee_le  = fields.Datetime("Etiquette remplacée le", tracking=True, help="Date et heure de mise en place de l'étiquette ré-imprimée")
     active                  = fields.Boolean("Actif", default=True, tracking=True, index=True)
+    information             = fields.Text("Information", readonly=True, compute='_compute_anomalie', store=False)
     anomalie                = fields.Text("Anomalie", readonly=True, compute='_compute_anomalie', store=False)
-    doublon                 = fields.Boolean("Doublon", readonly=True, compute='_compute_doublon', store=True, tracking=True)
+    doublon                = fields.Boolean("Doublon", readonly=True, compute='_compute_doublon', store=True, tracking=True)
     emplacement_ci          = fields.Boolean("Emplacement CI", compute='_compute_emplacement_ci', store=False)
+    lot_ids                 = fields.One2many('is.galia.base.uc.lot', 'uc_id', "Lots", help="Pour les colis incomplets (CI) contenant plusieurs lots")
+
+
+    @api.constrains('qt_pieces', 'lot_ids')
+    def _check_qt_lots(self):
+        for obj in self:
+            if obj.lot_ids:
+                qt_lots = sum(obj.lot_ids.mapped('qt_pieces'))
+                if qt_lots!=obj.qt_pieces:
+                    raise ValidationError("UC %s : la somme des quantités des lots (%s) doit être égale à Qt Pièces (%s)"%(obj.num_eti,qt_lots,obj.qt_pieces))
 
 
     @api.depends('location_id')
@@ -1709,9 +1846,10 @@ class is_galia_base_uc(models.Model):
         return True
 
 
-    @api.depends('num_eti')
+    @api.depends('num_eti', 'active', 'um_id', 'location_id', 'product_id', 'qt_pieces', 'production', 'lot_id', 'lot_ids', 'lot_ids.lot_id', 'lot_ids.qt_pieces')
     def _compute_anomalie(self):
         for obj in self:
+            information = []
             anomalie = []
             if obj.num_eti and obj.active and obj.um_id.active:
                 domain = [('num_eti','=',obj.num_eti),('id','!=',obj._origin.id),('um_id.active','=',True)]
@@ -1720,7 +1858,50 @@ class is_galia_base_uc(models.Model):
                     ums = (obj.um_id | doublons.um_id).mapped('name')
                     msg = "Etiquette dans plusieurs UM (%s)"%', '.join(ums)
                     anomalie.append(msg)
-            obj.anomalie = (len(anomalie) and '\n'.join(anomalie)) or False
+
+            #** Comparaison des quantités par lot avec le stock de l'emplacement (comme sur l'UM)
+            if obj.product_id and obj.location_id.usage=='internal':
+                for vals in obj.get_qt_par_lot():
+                    msg="%s : %s : Qt UC=%s : Stock=%s"%(
+                        (obj.product_id.is_code or '').ljust(8),
+                        (vals['lot'].name or 'Lot non trouvé').ljust(8),
+                        str(int(vals['qt_pieces'])).ljust(4),
+                        int(vals['stock'])
+                    )
+                    if vals['lot'] and vals['qt_pieces']<=vals['stock']:
+                        information.append(msg)
+                    else:
+                        anomalie.append(msg)
+            obj.information = (len(information) and '\n'.join(information)) or False
+            obj.anomalie    = (len(anomalie)    and '\n'.join(anomalie)) or False
+
+
+    def get_qt_par_lot(self):
+        "Quantités par lot de l'UC (tableau des lots, sinon champ Lot, sinon lot de la Fabrication) et stock du lot dans l'emplacement de l'UC"
+        self.ensure_one()
+        res=[]
+        if self.lot_ids:
+            lignes = [(line.lot_id, line.qt_pieces) for line in self.lot_ids]
+        else:
+            lot = self.lot_id
+            if not lot and self.production:
+                lot = self.env['stock.lot'].search([('product_id','=',self.product_id.id),('name','=',self.production)], limit=1)
+            lignes = [(lot, self.qt_pieces)]
+        for lot,qt_pieces in lignes:
+            stock=0
+            if lot:
+                domain=[
+                    ('product_id' ,'=',self.product_id.id),
+                    ('location_id','=',self.location_id.id),
+                    ('lot_id'     ,'=',lot.id),
+                ]
+                stock = sum(self.env['stock.quant'].search(domain).mapped('quantity'))
+            res.append({
+                'lot'      : lot,
+                'qt_pieces': qt_pieces,
+                'stock'    : stock,
+            })
+        return res
 
 
     @api.depends('num_eti', 'active', 'location_id', 'location_id.usage')
@@ -1750,10 +1931,24 @@ class is_galia_base_uc(models.Model):
             records._compute_doublon()
 
 
+    @api.onchange('lot_ids')
+    def onchange_lot_ids(self):
+        if self.lot_ids:
+            self.lot_id = False
+
+
+    def _effacer_lot_si_tableau(self):
+        # Le champ 'lot_id' est réservé au cas d'un seul lot : il est effacé si le tableau des lots est renseigné
+        ucs = self.filtered(lambda uc: uc.lot_ids and uc.lot_id)
+        if ucs:
+            ucs.write({'lot_id': False})
+
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
         records._recompute_doublon_num_eti(records.mapped('num_eti'))
+        records._effacer_lot_si_tableau()
         return records
 
 
@@ -1763,6 +1958,8 @@ class is_galia_base_uc(models.Model):
         res = super().write(vals)
         if need_recompute:
             self._recompute_doublon_num_eti(num_etis + self.mapped('num_eti'))
+        if 'lot_id' in vals or 'lot_ids' in vals:
+            self._effacer_lot_si_tableau()
         return res
 
 
@@ -1775,6 +1972,22 @@ class is_galia_base_uc(models.Model):
 
     def recalculer_doublon_action(self):
         self._recompute_doublon_num_eti(self.mapped('num_eti'))
+
+
+    def actualiser_production_lot_action(self):
+        "Retrouve l'ordre de fabrication et le lot à partir du champ Fabrication"
+        for obj in self:
+            if not obj.production:
+                continue
+            vals={}
+            productions = self.env['mrp.production'].search([('name','=',obj.production)], limit=1)
+            if productions and productions!=obj.production_id:
+                vals['production_id'] = productions.id
+            lots = self.env['stock.lot'].search([('name','=',obj.production),('product_id','=',obj.product_id.id)], limit=1)
+            if lots and lots!=obj.lot_id:
+                vals['lot_id'] = lots.id
+            if vals:
+                obj.write(vals)
 
 
     def etiquette_remplacee_action(self):
@@ -1955,6 +2168,23 @@ class is_galia_base_uc(models.Model):
             ZPL = res.get('ZPL')
             self.env['is.galia.base'].imprimer_zpl(ZPL)
             return True
+
+
+class is_galia_base_uc_lot(models.Model):
+    _name='is.galia.base.uc.lot'
+    _description="Lots des étiquettes Galia UC"
+    _order='uc_id,id'
+
+    uc_id     = fields.Many2one('is.galia.base.uc', 'UC', required=True, ondelete='cascade', index=True)
+    lot_id    = fields.Many2one('stock.lot', 'Lot', required=True)
+    qt_pieces = fields.Integer("Quantité", required=True)
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records.uc_id._effacer_lot_si_tableau()
+        return records
 
 
 class is_galia_base_uc_comparatif_stock(models.Model):
