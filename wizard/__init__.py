@@ -9,6 +9,7 @@ from . import stock_transfer_details
 from . import account_move_reversal
 from . import set_sheduler_cout_article
 from . import is_theia_dequalification_moule_wizard
+from . import is_galia_base_uc_reintegrer_ci_wizard
 
 
 # import is_stock_mise_rebut

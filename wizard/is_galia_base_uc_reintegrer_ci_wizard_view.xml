@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_galia_base_uc_reintegrer_ci_wizard_form_view" model="ir.ui.view">
+            <field name="name">is.galia.base.uc.reintegrer.ci.wizard.form</field>
+            <field name="model">is.galia.base.uc.reintegrer.ci.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Réintégrer un CI dans cette UC">
+                    <div style="background:Gainsboro;padding:8px;margin-bottom:12px">
+                        La Qt pièces de la nouvelle UC est la quantité totale du colis, pièces du CI comprises
+                        (comme dans THEIA : le CI est complété avec les premières pièces du nouvel OF).
+                        Elle n'est pas modifiée : elle est répartie dans le tableau des lots de la nouvelle UC entre le lot du CI
+                        (Qt UC CI) et le lot du nouvel OF (Qt nouvelle UC − Qt UC CI).
+                        Le stock du lot du CI est déplacé de CI vers l'emplacement de la nouvelle UM, puis l'UC CI et son UM sont archivées.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="uc_id"/>
+                            <field name="product_id"/>
+                            <field name="qt_pieces"/>
+                            <field name="employee_id"/>
+                        </group>
+                        <group>
+                            <field name="uc_ci_id"/>
+                            <field name="lot_ci"/>
+                            <field name="qt_ci"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_confirmer" string="Réintégrer" type="object" class="btn-primary" data-hotkey="q"/>
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="is_galia_base_uc_reintegrer_ci_wizard_action" model="ir.actions.act_window">
+            <field name="name">Réintégrer un CI dans cette UC</field>
+            <field name="res_model">is.galia.base.uc.reintegrer.ci.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="model_is_galia_base_uc"/>
+            <field name="binding_view_types">form</field>
+            <field name="groups_id" eval="[(6,0,[ref('is_administration_vente_group')])]"/>
+        </record>
+    </data>
+</odoo>

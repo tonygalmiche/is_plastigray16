@@ -193,6 +193,135 @@ class is_galia_base_uc(models.Model):
         return True
 
 
+    def _env_employe(self, employee_id):
+        "Recordset dans l'environnement de l'utilisateur Odoo de l'employé (droits ignorés), sinon dans l'environnement courant"
+        employee = self.env['hr.employee'].sudo().browse(int(employee_id or 0)).exists()
+        user = employee.user_id
+        if user and user.active:
+            return self.with_user(user).sudo(), employee
+        return self, employee
+
+
+    def creer_uc_theia(self, vals):
+        "Création d'une UC depuis THEIA (XML-RPC) avec l'utilisateur Odoo de l'employé qui a scanné son badge. Retourne l'id de l'UC"
+        model, employee = self._env_employe(vals.get('employee_id'))
+        uc = model.create(vals)
+        if employee:
+            uc.message_post(body="UC créée sur la presse par l'employé %s"%employee.name)
+        return uc.id
+
+
+    def _creer_mouvement_lot(self, product, qty, lot, location_src, location_dest, name):
+        "Mouvement de stock d'un lot validé immédiatement. Retourne le mouvement"
+        move=self.env['stock.move'].create({
+            "product_id": product.id,
+            "product_uom": product.uom_id.id,
+            "location_id": location_src.id,
+            "location_dest_id": location_dest.id,
+            "origin": name,
+            "name": name,
+            "reference": name,
+            "procure_method": "make_to_stock",
+            "product_uom_qty": qty,
+            "scrapped": False,
+            "propagate_cancel": True,
+            "is_inventory": True,
+            "additional": False,
+        })
+        self.env['stock.move.line'].create({
+            "move_id": move.id,
+            "product_id": product.id,
+            "product_uom_id": product.uom_id.id,
+            "location_id": location_src.id,
+            "location_dest_id": location_dest.id,
+            "lot_id": lot.id,
+            "qty_done": qty,
+            "reference": name,
+        })
+        move._action_done()
+        return move
+
+
+    def reintegrer_ci_dans_uc(self, uc_ci_id, qt_ci, employee_id=False):
+        """Réintégration d'une UC CI dans la 1re UC d'un nouvel OF (appelée sur la nouvelle UC par THEIA ou par l'assistant) :
+        déplace le stock des lots du CI vers l'emplacement de l'UM de la nouvelle UC, crée le tableau des lots de la nouvelle UC
+        (lots du CI + lot du nouvel OF) et archive l'UC CI et son UM"""
+        self.ensure_one()
+        uc, employee = self._env_employe(employee_id or self.employee_id.id)
+        uc_ci = uc.browse(int(uc_ci_id)).exists()
+        qt_ci = int(qt_ci or 0)
+
+        #** Contrôles *********************************************************
+        # Emplacements pris sur les UM : l'emplacement des UC créées par INSERT SQL n'est pas renseigné
+        if not uc.active:
+            raise ValidationError("La nouvelle UC %s est archivée"%uc.num_eti)
+        if uc.lot_ids:
+            raise ValidationError("La nouvelle UC %s a déjà un tableau des lots"%uc.num_eti)
+        if not uc_ci or not uc_ci.active:
+            raise ValidationError("UC CI non trouvée ou archivée")
+        if uc_ci==uc:
+            raise ValidationError("L'UC CI et la nouvelle UC sont identiques")
+        um_ci         = uc_ci.um_id
+        location_ci   = um_ci.location_id
+        location_dest = uc.um_id.location_id
+        if not (location_ci.name=='CI' and location_ci.usage=='internal'):
+            raise ValidationError("L'UC %s n'est pas dans l'emplacement CI (%s)"%(uc_ci.num_eti,location_ci.name or 'aucun'))
+        if len(um_ci.uc_ids)>1:
+            raise ValidationError("Réintégration impossible car l'UM %s de l'UC CI contient %s UC"%(um_ci.name,len(um_ci.uc_ids)))
+        if uc_ci.product_id!=uc.product_id:
+            raise ValidationError("L'article de l'UC CI (%s) n'est pas celui de la nouvelle UC (%s)"%(uc_ci.product_id.is_code,uc.product_id.is_code))
+        if qt_ci<=0:
+            raise ValidationError("Aucune quantité CI à réintégrer")
+        if uc_ci.qt_pieces!=qt_ci:
+            raise ValidationError("La quantité de l'UC CI %s (%s) est différente de la quantité CI à réintégrer (%s)"%(uc_ci.num_eti,uc_ci.qt_pieces,qt_ci))
+        if qt_ci>=uc.qt_pieces:
+            raise ValidationError("La quantité CI (%s) doit être inférieure à la quantité de la nouvelle UC (%s)"%(qt_ci,uc.qt_pieces))
+        if location_dest.usage!='internal':
+            raise ValidationError("L'UM %s de la nouvelle UC n'est pas dans un emplacement interne (%s)"%(uc.um_id.name,location_dest.name or 'aucun'))
+        lots_ci = uc_ci.get_lots()
+        for lot,qty in lots_ci:
+            if not lot:
+                raise ValidationError("Le lot de l'UC CI %s n'est pas trouvé (Fabrication %s)"%(uc_ci.num_eti,uc_ci.production))
+            quants = self.env['stock.quant'].search([
+                ('product_id' ,'=',uc_ci.product_id.id),
+                ('location_id','=',location_ci.id),
+                ('lot_id'     ,'=',lot.id),
+            ])
+            stock = sum(quants.mapped('quantity'))
+            if stock<qty:
+                raise ValidationError("Stock insuffisant en CI pour le lot %s : Stock=%s < Qt UC CI=%s"%(lot.name,stock,qty))
+        lot_new = uc.lot_id or self.env['stock.lot'].search([('product_id','=',uc.product_id.id),('name','=',uc.production)], limit=1)
+        if not lot_new:
+            raise ValidationError("Le lot %s du nouvel OF n'existe pas encore pour l'article %s (la déclaration de production doit être faite avant)"%(uc.production,uc.product_id.is_code))
+        #**********************************************************************
+
+        #** Mouvements de stock des lots du CI vers l'emplacement de la nouvelle UM
+        name="UC %s"%uc_ci.num_eti
+        lignes_msg=[]
+        for lot,qty in lots_ci:
+            move = uc._creer_mouvement_lot(uc.product_id, qty, lot, location_ci, location_dest, name)
+            lignes_msg.append(Markup('<li>%s pièces du lot %s de %s vers %s (mouvement <a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>)</li>')%(int(qty),lot.name,location_ci.name,location_dest.name,move.id,move.id))
+        #**********************************************************************
+
+        #** Tableau des lots de la nouvelle UC (le champ Lot est vidé automatiquement)
+        lignes  = [(0,0,{'lot_id': lot.id, 'qt_pieces': qty}) for lot,qty in lots_ci]
+        lignes += [(0,0,{'lot_id': lot_new.id, 'qt_pieces': uc.qt_pieces-qt_ci})]
+        uc.write({'lot_ids': lignes})
+        #**********************************************************************
+
+        #** Archivage de l'UC CI et de son UM et traçabilité ******************
+        lien_uc = Markup('<a href="#" data-oe-model="is.galia.base.uc" data-oe-id="%s">%s</a>')
+        par = (" par l'employé %s"%employee.name) if employee else ""
+        msg = Markup("Réintégration de l'UC CI %s dans l'UC %s%s :<ul>%s</ul>")%(lien_uc%(uc_ci.id,uc_ci.num_eti),lien_uc%(uc.id,uc.num_eti),par,Markup('').join(lignes_msg))
+        uc.message_post(body=msg)
+        uc_ci.message_post(body=msg)
+        um_ci.message_post(body=msg)
+        uc_ci.active = False
+        um_ci.active = False
+        #**********************************************************************
+        return True
+
+
     @api.depends('num_eti', 'active', 'um_id', 'location_id', 'product_id', 'qt_pieces', 'production', 'lot_id', 'lot_ids', 'lot_ids.lot_id', 'lot_ids.qt_pieces')
     def _compute_anomalie(self):
         for obj in self:
