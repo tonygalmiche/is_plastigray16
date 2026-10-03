@@ -47,7 +47,7 @@ from . import is_galia_base
 from . import is_galia_base_um
 from . import is_galia_base_uc
 from . import is_galia_base_uc_comparatif_stock
-from . import is_galia_base_uc_comparatif_stock_lot
+from . import is_galia_base_uc_comparatif_lot
 from . import is_gestion_des_absences
 from . import is_mold
 from . import is_mold_project

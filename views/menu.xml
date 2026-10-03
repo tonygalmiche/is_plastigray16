@@ -2205,7 +2205,7 @@
     <record id="is_galia_base_uc_comparatif_stock_lot_menu" model="ir.ui.menu" >
         <field name="name">Comparatif stock lot / UC par emplacement</field>
         <field name="sequence">31</field>
-        <field name="action"    ref="is_galia_base_uc_comparatif_stock_lot_action"/>
+        <field name="action"    ref="is_galia_base_uc_comparatif_lot_action"/>
         <field name="parent_id" eval="ref('is_tracabilite_main_menu')"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_rsp_production_group'),

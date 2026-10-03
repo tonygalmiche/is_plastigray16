@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.galia.base.uc.comparatif.lot -->
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_lot_form_view">
+            <field name="name">is_galia_base_uc_comparatif_lot_form_view</field>
+            <field name="model">is.galia.base.uc.comparatif.lot</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="lancer_recherche_action" type="object" string="Lancer la recherche" class="oe_highlight"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="voir_lignes_action" type="object" class="oe_stat_button" icon="fa-list">
+                                <field name="nb_lignes" widget="statinfo" string="Lignes"/>
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="is_category_id"/>
+                                <field name="segment_id"/>
+                                <field name="client"/>
+                            </group>
+                            <group>
+                                <field name="date_calcul"/>
+                                <field name="create_uid" string="Créé par"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_lot_tree_view">
+            <field name="name">is_galia_base_uc_comparatif_lot_tree_view</field>
+            <field name="model">is.galia.base.uc.comparatif.lot</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="is_category_id"/>
+                    <field name="segment_id"/>
+                    <field name="client"/>
+                    <field name="date_calcul"/>
+                    <field name="create_uid" string="Créé par"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_galia_base_uc_comparatif_lot_action">
+            <field name="name">Comparatif stock lot / UC par emplacement</field>
+            <field name="res_model">is.galia.base.uc.comparatif.lot</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- is.galia.base.uc.comparatif.lot.line -->
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_lot_line_tree_view">
+            <field name="name">is_galia_base_uc_comparatif_lot_line_tree_view</field>
+            <field name="model">is.galia.base.uc.comparatif.lot.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="false" edit="false" delete="false">
+                    <field name="product_id"         widget="many2one_clickable"/>
+                    <field name="location_id"/>
+                    <field name="lot_id"             widget="many2one_clickable"/>
+                    <field name="client_id"          optional="show"/>
+                    <field name="is_category_id"     optional="hide"/>
+                    <field name="is_gestionnaire_id" optional="show"/>
+                    <field name="segment_id"         optional="hide"/>
+                    <field name="qty_stock" sum="Total"/>
+                    <field name="qt_uc"     sum="Total"/>
+                    <field name="diff"      sum="Total"/>
+                    <field name="nb_uc"     sum="Total"/>
+                    <field name="nb_um"     sum="Total"/>
+                    <button title="Voir le stock" name="voir_quant_action" type="object" icon="fa-cubes"/>
+                    <button title="Voir les UC"   name="voir_uc_action"    type="object" icon="fa-list"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_lot_line_pivot_view">
+            <field name="name">is_galia_base_uc_comparatif_lot_line_pivot_view</field>
+            <field name="model">is.galia.base.uc.comparatif.lot.line</field>
+            <field name="type">pivot</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="location_id" type="row"/>
+                    <field name="qty_stock"   type="measure"/>
+                    <field name="qt_uc"       type="measure"/>
+                    <field name="diff"        type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_uc_comparatif_lot_line_search_view">
+            <field name="name">is_galia_base_uc_comparatif_lot_line_search_view</field>
+            <field name="model">is.galia.base.uc.comparatif.lot.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="lot_id"/>
+                    <field name="client_id"/>
+                    <field name="is_category_id"/>
+                    <field name="is_gestionnaire_id"/>
+                    <field name="segment_id"/>
+                    <filter name="avec_ecart" string="Avec écart" domain="[('diff','!=',0)]"/>
+                    <filter name="sans_ecart" string="Sans écart" domain="[('diff','=',0)]"/>
+                    <separator/>
+                    <filter name="sans_lot"      string="Sans lot"      domain="[('lot_id','=',False)]"/>
+                    <filter name="stock_sans_uc" string="Stock sans UC" domain="[('qty_stock','!=',0),('nb_uc','=',0)]"/>
+                    <filter name="uc_sans_stock" string="UC sans stock" domain="[('nb_uc','!=',0),('qty_stock','=',0)]"/>
+                    <group expand="0" string="Grouper par">
+                        <filter name="group_product"  string="Article"     context="{'group_by':'product_id'}"/>
+                        <filter name="group_location" string="Emplacement" context="{'group_by':'location_id'}"/>
+                        <filter name="group_client"   string="Client"      context="{'group_by':'client_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>
