@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.galia.base.um -->
+        <record id="is_galia_base_um_seq" model="ir.sequence">
+            <field name="name">Etiquettes UM</field>
+            <field name="code">is.galia.base.um</field>
+            <field name="prefix"></field>
+            <field name="padding">8</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_um_form_view">
+            <field name="name">is_galia_base_um_form_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Form">  
+                    <header>
+                        <field name="etiquette_um_a5" invisible="1"/>
+                        <button
+                            name="imprimer_etiquette_um_action"
+                            string="Imprimer étiquette UM"
+                            type="object"
+                            icon="fa-print"
+                            attrs="{'invisible': ['|',('active', '!=', True),('etiquette_um_a5', '=', True)]}"
+                        />
+                        <button
+                            name="imprimer_etiquette_um_a5"
+                            string="Imprimer étiquette UM A5"
+                            type="object"
+                            icon="fa-print"
+                            attrs="{'invisible': ['|',('active', '!=', True),('etiquette_um_a5', '=', False)]}"
+                        />
+                        <button
+                            string="Déplacer cette UM" 
+                            type="object" 
+                            name="deplacer_um_action" 
+                            attrs="{'invisible': ['|',('uc_ids', '==', []),('location_dest_id', '==', False)]}"
+                            class="btn btn-primary"
+                        />
+                        <button 
+                            name="imprimer_etiquette_uc_action" 
+                            string="Imprimer les étiquettes des UC"
+                            type="object"
+                            icon="fa-print"
+                            attrs="{'invisible': [('active', '!=', True)]}"
+                        />
+                        <field name="emplacement_pi" invisible="1"/>
+                        <button
+                            name="reintegrer_pi_production_action"
+                            string="Réintégrer PI en production"
+                            type="object"
+                            confirm="Voulez-vous vraiment déplacer cette UM et son stock de PI vers ATELIER ?"
+                            attrs="{'invisible': ['|','|','|','|','|',('emplacement_pi', '=', False),('active', '=', False),('uc_ids', '==', []),('mixte', '!=', 'non'),('liste_servir_id', '!=', False),('bon_transfert_id', '!=', False)]}"
+                        />
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button
+                                name="voir_uc_action"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-tags"
+                                attrs="{'invisible': [('uc_ids', '==', [])]}"
+                            >
+                                <field name="nb_uc" widget="statinfo" string="UC"/>
+                            </button>
+                        </div>
+                        <field name="information" invisible="1"/>
+                        <field name="anomalie"    invisible="1"/>
+
+
+
+                        <widget name="web_ribbon" title="Archivée" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/> 
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="mixte"/>
+                                <field name="liste_servir_id"/>
+                                <field name="bon_transfert_id"/>
+                                <field name="production_id" attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
+                                <field name="product_id"    attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
+                            </group>
+                            <group>
+                                <field name="location_id"/>
+                                <field name="location_dest_id"/>
+                                <field name="qt_pieces"     attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
+                                <field name="employee_id"/>
+                                <field name="date_ctrl_rcp"/>
+                                <field name="date_fin"/>
+                                <field name="date_preparation_reintegration_pi" attrs="{'invisible': [('date_preparation_reintegration_pi', '=', False)]}"/>
+                                <field name="date_effective_reintegration_pi"   attrs="{'invisible': [('date_effective_reintegration_pi', '=', False)]}"/>
+                            </group>    
+                        </group>
+
+                        <div style="font-size:11pt;font-family:courier, courier new, serif">
+                            <div  attrs="{'invisible': [('anomalie'   , '=', False)]}"  style="background:DarkOrange"> <field name="anomalie" nolabel="1"/></div>
+                            <div  attrs="{'invisible': [('information', '=', False)]}"  style="background:Gainsboro">  <field name="information" nolabel="1"/></div>
+                        </div>
+
+
+                        <field name="uc_ids" nolabel="1" >
+                            <tree editable="bottom">
+                                <button title="UC" name="acceder_uc_action" type="object" icon="fa-search-plus"/>
+                                <field name="num_eti"/>
+                                <field name="type_eti" optional="show"/>
+                                <field name="location_id" optional="hide"/>
+                                <field name="num_carton"/>
+                                <field name="qt_pieces" sum="Total"/>
+                                <field name="date_creation" optional="show"/>
+                                <field name="production" optional="show"/>
+                                <field name="product_id" optional="show" widget="many2one_clickable"/>
+                                <field name="reimprime" optional="show"/>
+                                <field name="etiquette_remplacee_le" optional="show"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_um_tree_view">
+            <field name="name">is_galia_base_um_tree_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="mixte"/>
+                    <field name="liste_servir_id"  optional="hide" widget="many2one_clickable"/>
+                    <field name="bon_transfert_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="production_id"    optional="hide" widget="many2one_clickable"/>
+                    <field name="product_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="location_id"      optional="show"/>
+                    <field name="location_dest_id" optional="hide"/>
+                    <field name="nb_uc"            optional="show" sum="Total"/>
+                    <field name="qt_pieces"        optional="show" sum="Total"/>
+                    <field name="employee_id"      optional="show"/>
+                    <field name="date_ctrl_rcp"    optional="hide"/>
+                    <field name="date_fin"         optional="hide"/>
+                    <field name="date_preparation_reintegration_pi" optional="hide"/>
+                    <field name="date_effective_reintegration_pi"   optional="hide"/>
+                    <field name="uc_ids"           optional="hide"/>
+                    <button
+                        name="acceder_um_action" type="object"
+                        icon="fa-exclamation-triangle"
+                        attrs="{'invisible': [('anomalie', '=', False)]}"
+                        title="Anomalie"
+                    />
+                    <field name="anomalie" optional="hide"/>
+                    <field name="create_date"      optional="hide"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_date"       optional="hide"/>
+                    <field name="write_uid"        optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_um_pivot_view">
+            <field name="name">is_galia_base_um_pivot_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="type">pivot</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="location_id" type="row"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_um_graph_view">
+            <field name="name">is_galia_base_um_graph_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="type">graph</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="location_id"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_galia_base_um_search_view" >
+            <field name="name">is_galia_base_um_search_view</field>
+            <field name="model">is.galia.base.um</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="liste_servir_id"/>
+                    <field name="bon_transfert_id"/>
+                    <field name="production_id"/>
+                    <field name="product_id" filter_domain="[('uc_ids.product_id', 'ilike', self)]"/>
+                    <field name="location_id"/>
+                    <filter name="en_stock" string="En stock" domain="[('location_id.usage','=','internal')]"/>
+                    <filter name="um_pi_en_attente_reintegration" string="En attente de ré-intégration PI" domain="[('date_preparation_reintegration_pi','!=',False),('date_effective_reintegration_pi','=',False)]"/>
+                    <filter name="um_pi_reintegrees"              string="Ré-intégrées PI"                 domain="[('date_effective_reintegration_pi','!=',False)]"/>
+                    <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_galia_base_um_action">
+            <field name="name">Etiquettes UM</field>
+            <field name="res_model">is.galia.base.um</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="context">{'search_default_en_stock': 1}</field>
+        </record>
+        <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_action">
+            <field name="name">Actualiser emplacement UM si UC livrées</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.actualiser_emplacement_um_action()</field>
+        </record>
+        <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_sans_livraison_action">
+            <field name="name">Actualiser emplacement UM (sans vérifier les UC)</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.actualiser_emplacement_um_sans_livraison_action()</field>
+        </record>
+        <record model="ir.actions.server" id="is_galia_base_um_actualiser_emplacement_client_sans_restriction_action">
+            <field name="name">Mettre l'emplacement UM dans 'Client' (sans restriction)</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.actualiser_emplacement_um_client_sans_restriction_action()</field>
+        </record>
+        <!-- <record model="ir.actions.server" id="is_galia_base_um_archiver_sur_stock_action">
+            <field name="name">Archiver UM sans UC</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_model_id" ref="model_is_galia_base_um"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.archiver_sur_stock_action()</field>
+        </record>
+        <record model="ir.cron" id="is_galia_base_um_archiver_sur_stock_cron">
+            <field name="name">Archiver les UM sans UC</field>
+            <field name="model_id" ref="model_is_galia_base_um"/>
+            <field name="state">code</field>
+            <field name="code">model.search([]).archiver_sur_stock_action()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+ -->
+    </data>
+</odoo>

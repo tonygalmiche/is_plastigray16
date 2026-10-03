@@ -99,6 +99,8 @@ Module Odoo 16 pour Plastigray
         "views/is_facture_pk_view.xml",
         "views/is_fiche_tampographie_view.xml",
         "views/is_galia_base_view.xml",
+        "views/is_galia_base_um_view.xml",
+        "views/is_galia_base_uc_view.xml",
         "views/is_galia_base_uc_comparatif_stock_view.xml",
         "views/is_galia_base_uc_comparatif_stock_lot_view.xml",
         "views/is_historique_controle_view.xml",
