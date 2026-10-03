@@ -127,6 +127,72 @@ class is_galia_base_uc(models.Model):
         return True
 
 
+    def deplacer_uc_action(self, location_dest_id):
+        # Déplace le stock des lots d'une UC seule (CI) et l'emplacement de son UM (appelée depuis scan-exp)
+        location_dest = self.env['stock.location'].browse(int(location_dest_id))
+        if not location_dest.exists() or location_dest.usage!='internal':
+            raise ValidationError("Emplacement de destination non trouvé ou non interne")
+        for obj in self:
+            um = obj.um_id
+            location_src = obj.location_id
+            if len(um.uc_ids)>1:
+                raise ValidationError("Déplacement impossible car l'UM %s contient %s UC"%(um.name,len(um.uc_ids)))
+            if location_src==location_dest:
+                raise ValidationError("L'UC %s est déjà dans l'emplacement %s"%(obj.num_eti,location_dest.name))
+            if location_src.usage!='internal':
+                raise ValidationError("L'UC %s n'est pas dans un emplacement interne (%s)"%(obj.num_eti,location_src.name))
+
+            #** Vérification du stock de chaque lot de l'UC *******************
+            lignes = obj.get_qt_par_lot()
+            for vals in lignes:
+                if not vals['lot']:
+                    raise ValidationError("Déplacement impossible car le lot de l'UC %s n'est pas trouvé pour l'article %s"%(obj.num_eti,obj.product_id.is_code))
+                if vals['stock']<vals['qt_pieces']:
+                    raise ValidationError("Déplacement impossible car stock insuffisant dans l'emplacement '%s' pour le lot %s : Stock=%s < Qt UC=%s"%(location_src.name,vals['lot'].name,vals['stock'],vals['qt_pieces']))
+            #******************************************************************
+
+            #** Mouvements de stock par lot ***********************************
+            product = obj.product_id
+            name="UC %s"%obj.num_eti
+            liens=[]
+            for vals in lignes:
+                qty = vals['qt_pieces']
+                move=self.env['stock.move'].create({
+                    "product_id": product.id,
+                    "product_uom": product.uom_id.id,
+                    "location_id": location_src.id,
+                    "location_dest_id": location_dest.id,
+                    "origin": name,
+                    "name": name,
+                    "reference": name,
+                    "procure_method": "make_to_stock",
+                    "product_uom_qty": qty,
+                    "scrapped": False,
+                    "propagate_cancel": True,
+                    "is_inventory": True,
+                    "additional": False,
+                })
+                self.env['stock.move.line'].create({
+                    "move_id": move.id,
+                    "product_id": product.id,
+                    "product_uom_id": product.uom_id.id,
+                    "location_id": location_src.id,
+                    "location_dest_id": location_dest.id,
+                    "lot_id": vals['lot'].id,
+                    "qty_done": qty,
+                    "reference": name,
+                })
+                move._action_done()
+                liens.append(Markup('<li>%s pièces du lot %s (mouvement <a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>)</li>')%(int(qty),vals['lot'].name,move.id,move.id))
+            #******************************************************************
+
+            um.location_id = location_dest.id
+            msg=Markup("Déplacement de l'UC seule %s de %s vers %s :<ul>%s</ul>")%(obj.num_eti,location_src.name,location_dest.name,Markup('').join(liens))
+            obj.message_post(body=msg)
+            um.message_post(body=msg)
+        return True
+
+
     @api.depends('num_eti', 'active', 'um_id', 'location_id', 'product_id', 'qt_pieces', 'production', 'lot_id', 'lot_ids', 'lot_ids.lot_id', 'lot_ids.qt_pieces')
     def _compute_anomalie(self):
         for obj in self:
@@ -157,18 +223,22 @@ class is_galia_base_uc(models.Model):
             obj.anomalie    = (len(anomalie)    and '\n'.join(anomalie)) or False
 
 
+    def get_lots(self):
+        "Lots et quantités de l'UC : tableau des lots (CI), sinon champ Lot, sinon lot portant le nom de la Fabrication"
+        self.ensure_one()
+        if self.lot_ids:
+            return [(line.lot_id, line.qt_pieces) for line in self.lot_ids]
+        lot = self.lot_id
+        if not lot and self.production:
+            lot = self.env['stock.lot'].search([('product_id','=',self.product_id.id),('name','=',self.production)], limit=1)
+        return [(lot, self.qt_pieces)]
+
+
     def get_qt_par_lot(self):
-        "Quantités par lot de l'UC (tableau des lots, sinon champ Lot, sinon lot de la Fabrication) et stock du lot dans l'emplacement de l'UC"
+        "Quantités par lot de l'UC (voir get_lots) et stock du lot dans l'emplacement de l'UC"
         self.ensure_one()
         res=[]
-        if self.lot_ids:
-            lignes = [(line.lot_id, line.qt_pieces) for line in self.lot_ids]
-        else:
-            lot = self.lot_id
-            if not lot and self.production:
-                lot = self.env['stock.lot'].search([('product_id','=',self.product_id.id),('name','=',self.production)], limit=1)
-            lignes = [(lot, self.qt_pieces)]
-        for lot,qt_pieces in lignes:
+        for lot,qt_pieces in self.get_lots():
             stock=0
             if lot:
                 domain=[

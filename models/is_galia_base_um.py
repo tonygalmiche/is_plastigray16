@@ -57,33 +57,33 @@ class is_galia_base_um(models.Model):
     date_effective_reintegration_pi   = fields.Datetime("Date effective ré-intégration PI"  , copy=False, index=True, tracking=True, help="Renseignée par la presse lors de la reprise de l'UM : elle est rattachée au nouvel OF et rouverte pour recevoir les UC suivantes.")
 
 
+    def _get_cle_lot(self, uc, lot):
+        "Clé de regroupement article / lot (nom du lot, sinon Fabrication si le lot n'est pas trouvé)"
+        return "%s-%s"%(uc.product_id.is_code, lot.name if lot else (uc.production or ''))
+
+
     def get_qt_par_lot(self):
         for obj in self:
             #** Recherche des quantités par article et par lot ****************
+            #** (lots des UC : tableau des lots, champ Lot ou Fabrication)    **
             mydict={}
             for uc in obj.uc_ids:
-                key="%s-%s"%(uc.product_id.is_code,uc.production)
-                if key not in mydict:
-                    mydict[key]={
-                        'product'   : uc.product_id,
-                        'production': uc.production,
-                        'qt_pieces' : 0
-                    }
-                mydict[key]['qt_pieces']+=uc.qt_pieces
-            sorted_dict = dict(sorted(mydict.items())) 
+                for lot,qt_pieces in uc.get_lots():
+                    key=obj._get_cle_lot(uc, lot)
+                    if key not in mydict:
+                        mydict[key]={
+                            'product'   : uc.product_id,
+                            'production': lot.name if lot else uc.production,
+                            'lot_id'    : lot.id or False,
+                            'qt_pieces' : 0
+                        }
+                    mydict[key]['qt_pieces']+=qt_pieces
+            sorted_dict = dict(sorted(mydict.items()))
             #******************************************************************
 
             for key in sorted_dict:
-                #** Recherche du lot ******************************************
                 vals=sorted_dict[key]
-                domain=[
-                    ('product_id','=',vals['product'].id),
-                    ('name'      ,'=',vals['production']),
-                ]
-                lots=self.env['stock.lot'].search(domain)
-                lot_id=(len(lots) and lots[0].id) or False
-                vals['lot_id'] = lot_id
-                #**************************************************************
+                lot_id=vals['lot_id']
 
                 #** Recherche du stock ****************************************
                 domain=[
@@ -190,9 +190,10 @@ class is_galia_base_um(models.Model):
             msg=Markup('Déplacement de l\'UM de %s vers %s :<ul>%s</ul>')%(location_src.name,location_dest.name,Markup('').join(lignes))
             obj.message_post(body=msg)
             for uc in obj.uc_ids:
-                key="%s-%s"%(uc.product_id.is_code,uc.production)
-                msg=Markup('Déplacement avec l\'UM %s de %s vers %s : %s pièces du lot %s (mouvement %s)')%(obj.name,location_src.name,location_dest.name,uc.qt_pieces,uc.production,lien_move(moves[key]))
-                uc.message_post(body=msg)
+                for lot,qt_pieces in uc.get_lots():
+                    key=obj._get_cle_lot(uc, lot)
+                    msg=Markup('Déplacement avec l\'UM %s de %s vers %s : %s pièces du lot %s (mouvement %s)')%(obj.name,location_src.name,location_dest.name,qt_pieces,sorted_dict[key]['production'],lien_move(moves[key]))
+                    uc.message_post(body=msg)
             #******************************************************************
             return True
 
