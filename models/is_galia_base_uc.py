@@ -202,9 +202,18 @@ class is_galia_base_uc(models.Model):
         return self, employee
 
 
+    @api.model
     def creer_uc_theia(self, vals):
         "Création d'une UC depuis THEIA (XML-RPC) avec l'utilisateur Odoo de l'employé qui a scanné son badge. Retourne l'id de l'UC"
         model, employee = self._env_employe(vals.get('employee_id'))
+        # La date de création lue dans odoo0 (is_galia_base) peut contenir des microsecondes, refusées par Odoo
+        if isinstance(vals.get('date_creation'), str):
+            vals['date_creation'] = vals['date_creation'][:19]
+        # Lot de la Fabrication s'il existe déjà
+        if not vals.get('lot_id') and vals.get('production') and vals.get('product_id'):
+            lot = self.env['stock.lot'].search([('product_id','=',int(vals['product_id'])),('name','=',vals['production'])], limit=1)
+            if lot:
+                vals['lot_id'] = lot.id
         uc = model.create(vals)
         if employee:
             uc.message_post(body="UC créée sur la presse par l'employé %s"%employee.name)

@@ -57,6 +57,16 @@ class is_galia_base_um(models.Model):
     date_effective_reintegration_pi   = fields.Datetime("Date effective ré-intégration PI"  , copy=False, index=True, tracking=True, help="Renseignée par la presse lors de la reprise de l'UM : elle est rattachée au nouvel OF et rouverte pour recevoir les UC suivantes.")
 
 
+    @api.model
+    def creer_um_theia(self, vals):
+        "Création d'une UM depuis THEIA (XML-RPC) avec l'utilisateur Odoo de l'employé qui a scanné son badge. Retourne l'id de l'UM"
+        model_uc, employee = self.env['is.galia.base.uc']._env_employe(vals.get('employee_id'))
+        um = self.with_env(model_uc.env).create(vals)
+        if employee:
+            um.message_post(body="UM créée sur la presse par l'employé %s"%employee.name)
+        return um.id
+
+
     def _get_cle_lot(self, uc, lot):
         "Clé de regroupement article / lot (nom du lot, sinon Fabrication si le lot n'est pas trouvé)"
         return "%s-%s"%(uc.product_id.is_code, lot.name if lot else (uc.production or ''))
