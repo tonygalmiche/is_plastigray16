@@ -78,13 +78,14 @@ class is_galia_base_uc_comparatif_lot(models.Model):
                     GROUP BY product_id, location_id, lot_id
                 ),
                 stock AS (
-                    SELECT sq.product_id, sq.location_id, sq.lot_id, SUM(sq.quantity) AS qty
+                    -- ROUND : certains quants ont des résidus flottants (ex : 26.000000000000004)
+                    SELECT sq.product_id, sq.location_id, sq.lot_id, ROUND(SUM(sq.quantity), 4) AS qty
                     FROM stock_quant sq
                     INNER JOIN produits p ON p.id = sq.product_id
                     INNER JOIN stock_location sl ON sl.id = sq.location_id
                     WHERE sl.usage = 'internal'
                     GROUP BY sq.product_id, sq.location_id, sq.lot_id
-                    HAVING SUM(sq.quantity) <> 0
+                    HAVING ROUND(SUM(sq.quantity), 4) <> 0
                 ),
                 lignes AS (
                     SELECT

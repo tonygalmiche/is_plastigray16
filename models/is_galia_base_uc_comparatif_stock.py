@@ -51,7 +51,8 @@ class is_galia_base_uc_comparatif_stock(models.Model):
             FROM product_product pp
             INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
             LEFT JOIN (
-                SELECT sq.product_id, SUM(sq.quantity) AS qty
+                -- ROUND : certains quants ont des résidus flottants (ex : 26.000000000000004)
+                SELECT sq.product_id, ROUND(SUM(sq.quantity), 4) AS qty
                 FROM stock_quant sq
                 INNER JOIN stock_location sl ON sl.id = sq.location_id
                 WHERE sl.usage = 'internal'
