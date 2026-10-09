@@ -683,6 +683,10 @@ class is_reception_inter_site(models.Model):
             # mise_a_jour_colisage_action sur toutes les réceptions (y compris déjà validées)
             for picking in obj.picking_ids:
                 picking.mise_a_jour_colisage_action()
+
+            # Lot des UC retrouvé à partir de la Fabrication (lot fournisseur pour les articles achetés)
+            ucs = self.env['is.galia.base.uc'].search([('reception_inter_site_id', '=', obj.id)])
+            ucs.retrouver_lot_action()
             obj.state = 'controle'
 
 
@@ -818,8 +822,8 @@ class is_reception_inter_site(models.Model):
             ])
             pending.action_cancel()
 
-            # Récupérer les UM avant suppression des UC
-            ucs = self.env['is.galia.base.uc'].search([('reception_inter_site_id', '=', obj.id)])
+            # Récupérer les UM avant suppression des UC (y compris archivées)
+            ucs = self.env['is.galia.base.uc'].with_context(active_test=False).search([('reception_inter_site_id', '=', obj.id)])
             um_ids = ucs.mapped('um_id').ids
 
             # Dupliquer les commandes fournisseurs liées aux réceptions et les valider
