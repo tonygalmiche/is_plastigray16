@@ -67,6 +67,18 @@ class is_galia_base_um(models.Model):
         return um.id
 
 
+    @api.model
+    def fin_um_theia(self, production_id, employee_id):
+        "Bouton 'Fin UM' de THEIA (XML-RPC) : termine les UM en cours de l'OF avec l'utilisateur Odoo de l'employé. Retourne le nombre d'UM terminées"
+        model_uc, employee = self.env['is.galia.base.uc']._env_employe(employee_id)
+        ums = self.with_env(model_uc.env).with_context(active_test=False).search([('production_id','=',int(production_id)),('date_fin','=',False)])
+        ums.write({'date_fin': fields.Datetime.now(), 'employee_id': employee.id or False})
+        if employee:
+            for um in ums:
+                um.message_post(body="UM terminée sur la presse par l'employé %s"%employee.name)
+        return len(ums)
+
+
     def _get_cle_lot(self, uc, lot):
         "Clé de regroupement article / lot (nom du lot, sinon Fabrication si le lot n'est pas trouvé)"
         return "%s-%s"%(uc.product_id.is_code, lot.name if lot else (uc.production or ''))
