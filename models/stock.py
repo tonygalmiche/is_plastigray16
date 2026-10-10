@@ -71,6 +71,21 @@ class stock_lot(models.Model):
 
 
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        lots = super().create(vals_list)
+        # L'UC est scannée sur la presse avant la déclaration de production qui crée le lot : renseigner le lot sur
+        # les UC de même Fabrication et même article (en sudo car l'utilisateur n'a pas forcément le droit de modifier les UC)
+        for lot in lots:
+            ucs = self.env['is.galia.base.uc'].sudo().search([
+                ('production', '=', lot.name),
+                ('product_id', '=', lot.product_id.id),
+                ('lot_id'    , '=', False),
+            ])
+            ucs.retrouver_lot_action()
+        return lots
+
+
     def _domain_product_id(self):
         "Modification de la fonction par défaut pour autoriser tous les articles dans un lot"
         domain = [
