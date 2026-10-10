@@ -53,6 +53,15 @@
                             confirm="Voulez-vous vraiment déplacer cette UM et son stock de PI vers ATELIER ?"
                             attrs="{'invisible': ['|','|','|','|','|',('emplacement_pi', '=', False),('active', '=', False),('uc_ids', '==', []),('mixte', '!=', 'non'),('liste_servir_id', '!=', False),('bon_transfert_id', '!=', False)]}"
                         />
+                        <field name="creer_um_homogenes_vsb" invisible="1"/>
+                        <button
+                            name="creer_um_homogenes_action"
+                            string="Créer les UM homogènes à partir de cette UM mixte"
+                            type="object"
+                            icon="fa-cubes"
+                            confirm="Voulez-vous vraiment créer une UM par article avec les UC de cette UM mixte, puis archiver cette UM mixte ?"
+                            attrs="{'invisible': [('creer_um_homogenes_vsb', '=', False)]}"
+                        />
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -191,8 +200,15 @@
                     <field name="product_id" filter_domain="[('uc_ids.product_id', 'ilike', self)]"/>
                     <field name="location_id"/>
                     <filter name="en_stock" string="En stock" domain="[('location_id.usage','=','internal')]"/>
+                    <separator/>
+                    <filter name="mixte" string="UM mixtes" domain="[('mixte','=','oui')]"/>
+                    <separator/>
+                    <filter name="vide" string="UM vides" domain="[('uc_ids','=',False)]"/>
+                    <separator/>
                     <filter name="um_pi_en_attente_reintegration" string="En attente de ré-intégration PI" domain="[('date_preparation_reintegration_pi','!=',False),('date_effective_reintegration_pi','=',False)]"/>
+                    <separator/>
                     <filter name="um_pi_reintegrees"              string="Ré-intégrées PI"                 domain="[('date_effective_reintegration_pi','!=',False)]"/>
+                    <separator/>
                     <filter name="archived" string="Archivées" domain="[('active','=',False)]"/>
                 </search>
             </field>

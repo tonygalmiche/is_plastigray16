@@ -53,6 +53,7 @@ class is_galia_base_um(models.Model):
     information      = fields.Text("Information", readonly=True, compute='_compute_information_anomalie', store=False)
     anomalie         = fields.Text("Anomalie"   , readonly=True, compute='_compute_information_anomalie', store=False)
     emplacement_pi   = fields.Boolean("Emplacement PI", compute='_compute_emplacement_pi', store=False)
+    creer_um_homogenes_vsb = fields.Boolean("Créer les UM homogènes visible", compute='_compute_creer_um_homogenes_vsb', store=False)
     date_preparation_reintegration_pi = fields.Datetime("Date préparation ré-intégration PI", copy=False, index=True, tracking=True, help="Renseignée lors de la réintégration PI vers ATELIER. Tant que la date effective est vide, l'UM est reprise au premier scan d'UC du même article sur une presse, au lieu de créer une nouvelle UM.")
     date_effective_reintegration_pi   = fields.Datetime("Date effective ré-intégration PI"  , copy=False, index=True, tracking=True, help="Renseignée par la presse lors de la reprise de l'UM : elle est rattachée au nouvel OF et rouverte pour recevoir les UC suivantes.")
 
@@ -256,6 +257,41 @@ class is_galia_base_um(models.Model):
     def _compute_emplacement_pi(self):
         for obj in self:
             obj.emplacement_pi = obj.location_id.name=='PI' and obj.location_id.usage=='internal'
+
+
+    @api.depends('active','mixte','location_id','uc_ids')
+    def _compute_creer_um_homogenes_vsb(self):
+        for obj in self:
+            obj.creer_um_homogenes_vsb = obj.active and obj.mixte=='oui' and obj.location_id.usage=='internal' and bool(obj.uc_ids)
+
+
+    def creer_um_homogenes_action(self):
+        # Répartit les UC de l'UM mixte dans une nouvelle UM par article (même emplacement, donc sans mouvement de stock),
+        # puis archive l'UM mixte vidée et la met dans INV. Les autres contrôles (liste à servir, bon de transfert,
+        # articles UM=UC...) sont ceux de picking_um
+        lien_um = Markup('<a href="#" data-oe-model="is.galia.base.um" data-oe-id="%s">%s</a>')
+        ums = self.env['is.galia.base.um']
+        for obj in self:
+            if not obj.creer_um_homogenes_vsb:
+                raise ValidationError("L'UM %s doit être active, mixte, en stock et contenir des UC"%obj.name)
+            ums_obj = self.env['is.galia.base.um']
+            for product in obj.uc_ids.product_id.sorted('is_code'):
+                ucs = obj.uc_ids.filtered(lambda uc: uc.product_id==product)
+                um  = self.browse(ucs.picking_um())
+                # Date de fin renseignée : sinon THEIA prendrait cette UM pour l'UM en cours de son OF
+                um.date_fin = fields.Datetime.now()
+                um.message_post(body=Markup("UM homogène créée à partir de l'UM mixte %s")%(lien_um%(obj.id, obj.name)))
+                ums_obj |= um
+            obj.message_post(body=Markup("UM mixte remplacée par les UM homogènes : %s")%Markup(', ').join(lien_um%(um.id, um.name) for um in ums_obj))
+            obj.mettre_um_archivee_dans_inv_action()
+            ums |= ums_obj
+        return {
+            'name'     : "UM homogènes",
+            'view_mode': 'tree,form',
+            'res_model': 'is.galia.base.um',
+            'type'     : 'ir.actions.act_window',
+            'domain'   : [('id','in',ums.ids)],
+        }
 
 
     def reintegrer_pi_production_action(self):
