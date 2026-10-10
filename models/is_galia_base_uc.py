@@ -203,8 +203,11 @@ class is_galia_base_uc(models.Model):
 
 
     @api.model
-    def creer_uc_theia(self, vals):
-        "Création d'une UC depuis THEIA (XML-RPC) avec l'utilisateur Odoo de l'employé qui a scanné son badge. Retourne l'id de l'UC"
+    def creer_uc(self, vals):
+        """Création d'une UC par XML-RPC (THEIA, scan-exp) pour que les champs calculés soient renseignés. Retourne l'id de l'UC
+        - THEIA : avec l'utilisateur Odoo de l'employé qui a scanné son badge (employee_id)
+        - scan-exp : sans employé, avec la clé facultative 'origine' (ex : 'scan-exp / Créer et lire UC') reprise dans le chatter"""
+        origine = vals.pop('origine', False)
         model, employee = self._env_employe(vals.get('employee_id'))
         # La date de création lue dans odoo0 (is_galia_base) peut contenir des microsecondes, refusées par Odoo
         if isinstance(vals.get('date_creation'), str):
@@ -217,7 +220,15 @@ class is_galia_base_uc(models.Model):
         uc = model.create(vals)
         if employee:
             uc.message_post(body="UC créée sur la presse par l'employé %s"%employee.name)
+        elif origine:
+            uc.message_post(body="UC créée par %s"%origine)
         return uc.id
+
+
+    @api.model
+    def creer_uc_theia(self, vals):
+        "Ancien nom de creer_uc, conservé pour les Raspberry THEIA non encore mis à jour"
+        return self.creer_uc(vals)
 
 
     def _creer_mouvement_lot(self, product, qty, lot, location_src, location_dest, name):
