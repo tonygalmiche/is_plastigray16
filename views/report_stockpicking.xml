@@ -300,7 +300,7 @@
         <record id="stock.action_report_delivery" model="ir.actions.report">
             <field name="name">Bon de livraison PG</field>
             <field name="model">stock.picking</field>
-            <field name="binding_model_id" ref="model_stock_picking"/>
+            <field name="binding_model_id" eval="False"/> <!-- Pas dans le menu 'Imprimer' : impression uniquement via le bouton 'Imprimer BL Galia' -->
             <field name="paperformat_id" ref="is_stock_picking_paperformat"/>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">is_plastigray16.is_stock_picking_report</field>
