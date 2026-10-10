@@ -306,6 +306,31 @@ class is_galia_base_um(models.Model):
         self._actualiser_emplacement_um(verifier_livraison=False, sans_restriction=True)
 
 
+    def mettre_um_archivee_dans_inv_action(self):
+        # Sort du stock les UM archivées restées dans un emplacement interne (et leurs UC, dont l'emplacement suit
+        # celui de l'UM) en les mettant dans l'emplacement d'inventaire INV. Les UM actives sont ignorées
+        location_inv = self.env["stock.location"].search([('name','=','INV'),('usage','=','inventory')], limit=1)
+        if not location_inv:
+            raise ValidationError("Emplacement 'INV' de type 'Inventaire' non trouvé.")
+        ums = self.filtered(lambda um: not um.active and um.location_id.usage=='internal')
+        total = len(ums)
+        for i, obj in enumerate(ums, start=1):
+            msg = "UM archivée déplacée de l'emplacement %s vers %s pour la sortir du stock."%(obj.location_id.name, location_inv.name)
+            _logger.info("%s/%s : UM %s : %s"%(i, total, obj.name, msg))
+            obj.message_post(body=msg)
+            obj.location_id = location_inv.id
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': "UM archivées dans 'INV'",
+                'message': "%s UM déplacée(s) dans INV, %s ignorée(s) (actives ou pas dans un emplacement interne)"%(total, len(self)-total),
+                'type': 'success' if total else 'warning',
+                'sticky': False,
+            },
+        }
+
+
     def _actualiser_emplacement_um(self, verifier_livraison, sans_restriction=False):
         lines = self.env["stock.location"].search([('usage','=','customer')], limit=1)
         location_client_id = lines and lines[0].id or False
