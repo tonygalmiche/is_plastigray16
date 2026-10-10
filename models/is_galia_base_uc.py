@@ -16,7 +16,7 @@ class is_galia_base_uc(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [('num_eti_uniq','UNIQUE(num_eti,um_id)', u'Cette étiquette existe déjà dans cette UM')]
 
-    um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade', tracking=True)
+    um_id         = fields.Many2one('is.galia.base.um', 'UM', required=True, ondelete='cascade', tracking=True, index=True)
     um_mixte      = fields.Selection(related="um_id.mixte")
     um_active     = fields.Boolean(related="um_id.active", string="UM active", store=True, tracking=True)
     location_id   = fields.Many2one('stock.location', 'Emplacement UM', related='um_id.location_id', store=True, index=True)
