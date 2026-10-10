@@ -14,7 +14,7 @@
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="voir_lignes_action" type="object" class="oe_stat_button" icon="fa-list">
-                                <field name="nb_lignes" widget="statinfo" string="Lignes"/>
+                                <field name="nb_ecarts" widget="statinfo" string="Écarts"/>
                             </button>
                         </div>
                         <group>

@@ -17,6 +17,7 @@ class is_galia_base_uc_comparatif_lot(models.Model):
     date_calcul    = fields.Datetime("Date de la recherche", readonly=True)
     line_ids       = fields.One2many('is.galia.base.uc.comparatif.lot.line', 'comparatif_id', "Lignes", readonly=True)
     nb_lignes      = fields.Integer("Nb lignes", compute='_compute_nb_lignes')
+    nb_ecarts      = fields.Integer("Nb écarts", compute='_compute_nb_lignes')
 
 
     def init(self):
@@ -34,6 +35,7 @@ class is_galia_base_uc_comparatif_lot(models.Model):
     def _compute_nb_lignes(self):
         for obj in self:
             obj.nb_lignes = len(obj.line_ids)
+            obj.nb_ecarts = len(obj.line_ids.filtered(lambda l: l.diff!=0))
 
 
     def lancer_recherche_action(self):
@@ -54,21 +56,25 @@ class is_galia_base_uc_comparatif_lot(models.Model):
                     AND   (%(segment_id)s  IS NULL OR pt.segment_id     = %(segment_id)s)
                     AND   (%(client)s      IS NULL OR rp.name ILIKE %(client)s)
                 ),
+                -- État actif et emplacement lus sur l'UM (et non sur uc.um_active / uc.location_id, recopiés par l'ORM
+                -- et faux si l'UC ou l'UM a été écrite en SQL)
                 uc_lot AS (
-                    SELECT uc.id AS uc_id, uc.um_id, uc.product_id, uc.location_id, l.lot_id, l.qt_pieces
+                    SELECT uc.id AS uc_id, uc.um_id, uc.product_id, um.location_id, l.lot_id, l.qt_pieces
                     FROM is_galia_base_uc uc
+                    INNER JOIN is_galia_base_um um ON um.id = uc.um_id
                     INNER JOIN produits p ON p.id = uc.product_id
                     INNER JOIN is_galia_base_uc_lot l ON l.uc_id = uc.id
-                    INNER JOIN stock_location sl ON sl.id = uc.location_id
-                    WHERE uc.active = true AND uc.um_active = true AND sl.usage = 'internal'
+                    INNER JOIN stock_location sl ON sl.id = um.location_id
+                    WHERE uc.active = true AND um.active = true AND sl.usage = 'internal'
                     UNION ALL
-                    SELECT uc.id, uc.um_id, uc.product_id, uc.location_id, COALESCE(uc.lot_id, lot.id), uc.qt_pieces
+                    SELECT uc.id, uc.um_id, uc.product_id, um.location_id, COALESCE(uc.lot_id, lot.id), uc.qt_pieces
                     FROM is_galia_base_uc uc
+                    INNER JOIN is_galia_base_um um ON um.id = uc.um_id
                     INNER JOIN produits p ON p.id = uc.product_id
-                    INNER JOIN stock_location sl ON sl.id = uc.location_id
+                    INNER JOIN stock_location sl ON sl.id = um.location_id
                     LEFT JOIN stock_lot lot ON lot.product_id = uc.product_id AND lot.name = uc.production
                     LEFT JOIN (SELECT DISTINCT uc_id FROM is_galia_base_uc_lot) l ON l.uc_id = uc.id
-                    WHERE uc.active = true AND uc.um_active = true AND sl.usage = 'internal'
+                    WHERE uc.active = true AND um.active = true AND sl.usage = 'internal'
                     AND l.uc_id IS NULL
                 ),
                 uc AS (
@@ -164,9 +170,9 @@ class is_galia_base_uc_comparatif_lot_line(models.Model):
     def voir_uc_action(self):
         for obj in self:
             domain = [
-                ('product_id' ,'=',obj.product_id.id),
-                ('location_id','=',obj.location_id.id),
-                ('um_active'  ,'=',True),
+                ('product_id'       ,'=',obj.product_id.id),
+                ('um_id.location_id','=',obj.location_id.id),
+                ('um_id.active'     ,'=',True),
             ]
             if obj.lot_id:
                 domain += [

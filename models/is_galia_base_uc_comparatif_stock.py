@@ -59,18 +59,21 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 GROUP BY sq.product_id
             ) stock ON stock.product_id = pp.id
             LEFT JOIN (
+                -- État actif et emplacement lus sur l'UM (et non sur les champs recopiés dans l'UC)
                 SELECT guc.product_id, COUNT(*) AS nb_uc, SUM(guc.qt_pieces) AS qt_uc
                 FROM is_galia_base_uc guc
-                INNER JOIN stock_location sl2 ON sl2.id = guc.location_id
+                INNER JOIN is_galia_base_um gum ON gum.id = guc.um_id
+                INNER JOIN stock_location sl2 ON sl2.id = gum.location_id
                 WHERE guc.active = true
+                AND gum.active = true
                 AND sl2.usage = 'internal'
                 GROUP BY guc.product_id
             ) uc ON uc.product_id = pp.id
             LEFT JOIN (
                 SELECT guc.product_id, COUNT(DISTINCT guc.um_id) AS nb_um
                 FROM is_galia_base_uc guc
-                INNER JOIN stock_location sl2 ON sl2.id = guc.location_id
                 INNER JOIN is_galia_base_um gum ON gum.id = guc.um_id
+                INNER JOIN stock_location sl2 ON sl2.id = gum.location_id
                 WHERE guc.active = true
                 AND gum.active = true
                 AND sl2.usage = 'internal'

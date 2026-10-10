@@ -37,12 +37,13 @@ class is_stock_quant(models.Model):
         domain = [
             ('product_id.product_tmpl_id', '=', self.product_id.id),
             ('production', '=', self.lot_id.name),
-            ('um_active', '=', True),
+            ('um_id.active', '=', True),
         ]
+        # État actif et emplacement lus sur l'UM (et non sur les champs recopiés dans l'UC)
         if tous_emplacements:
-            domain.append(('location_id.usage', '=', 'internal'))
+            domain.append(('um_id.location_id.usage', '=', 'internal'))
         else:
-            domain.append(('location_id', '=', self.location_id.id))
+            domain.append(('um_id.location_id', '=', self.location_id.id))
         return domain
 
 
