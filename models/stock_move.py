@@ -529,6 +529,9 @@ class stock_move(models.Model):
 class stock_move_line(models.Model):
     _inherit = "stock.move.line"
 
+    # Index sur le lot (absent en standard) : la fiche d'un lot recherche ses mouvements 3 fois (livraisons, ventes,
+    # achats), soit un parcours complet de la table (11 millions de lignes, environ 0,8 s chacun) sans cet index
+    lot_id             = fields.Many2one(index=True)
     is_lot_fournisseur = fields.Char("Lot fournisseur", related='lot_id.is_lot_fournisseur', readonly=True)
 
 
