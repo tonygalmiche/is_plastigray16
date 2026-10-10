@@ -40,7 +40,7 @@ class is_galia_base_uc(models.Model):
     bt_line_id        = fields.Many2one('is.bon.transfert.line', 'Ligne bon de transfert', tracking=True)
     stock_move_id     = fields.Many2one('stock.move', 'Ligne livraison', tracking=True)
     stock_move_rcp_id = fields.Many2one('stock.move', 'Ligne réception', tracking=True)
-    reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', tracking=True)
+    reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', tracking=True, index=True)
     reimprime               = fields.Boolean("UC à ré-imprimer", default=False, tracking=True, help="Il faut ré-imprimer cette UC car le point de déchargement, le code routage ou le point de destination a changé")
     etiquette_remplacee_le  = fields.Datetime("Etiquette remplacée le", tracking=True, help="Date et heure de mise en place de l'étiquette ré-imprimée")
     active                  = fields.Boolean("Actif", default=True, tracking=True, index=True)
