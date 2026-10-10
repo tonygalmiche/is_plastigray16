@@ -690,8 +690,11 @@ class stock_picking(models.Model):
                 #**************************************************************
 
                 #** Écriture des seules UC modifiées **************************
-                # Toutes les UC des UM de la liste à servir, archivées comprises (comme l'ancien UPDATE SQL)
-                ucs = self.env['is.galia.base.uc'].with_context(active_test=False).search([
+                # Toutes les UC des UM de la liste à servir, archivées comprises (comme l'ancien UPDATE SQL).
+                # En sudo car seuls les groupes 'ADV - Expéditions' et administrateur peuvent écrire sur les UC, alors
+                # que cette méthode est appelée à l'impression du BL et à l'envoi du DESADV (l'ancien UPDATE SQL
+                # contournait les droits). L'auteur dans le chatter reste l'utilisateur
+                ucs = self.env['is.galia.base.uc'].sudo().with_context(active_test=False).search([
                     ('um_id.liste_servir_id','=',liste_servir_id),
                 ])
                 for uc in ucs:
