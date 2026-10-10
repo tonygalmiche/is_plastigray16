@@ -664,12 +664,11 @@ class stock_picking(models.Model):
         for obj in self:
             liste_servir_id = obj.sale_id.is_liste_servir_id.id
             if liste_servir_id:
-                #** Reinitialisation du lien entre UC et ligne livraison ******
-                SQL="update is_galia_base_uc set stock_move_id=NULL where um_id in (select id from is_galia_base_um where liste_servir_id=%s)"
-                cr.execute(SQL,[liste_servir_id])
-                cr.commit()
-
-                #** Affectation des lignes de livraisons aux UC ***************
+                #** Calcul de l'affectation des lignes de livraisons aux UC ***
+                # Calculée en mémoire puis écrite par l'ORM (et non plus par une remise à vide en SQL suivie d'une
+                # réaffectation) : seules les UC dont la ligne de livraison change sont écrites, et le changement
+                # apparaît dans le chatter
+                affectation = {}  # uc.id -> move
                 moves = obj.move_ids_without_package.sorted(key=lambda l: (l.quantity_done), reverse=False)
                 for move in moves:
                     quantite = move.product_uom_qty
@@ -681,16 +680,25 @@ class stock_picking(models.Model):
                     ums=self.env['is.galia.base.um'].search(filtre)
                     test=True
                     for um in ums:
-                        ct=1
                         ucs = um.uc_ids.sorted(key=lambda l: (l.qt_pieces), reverse=False)
                         for uc in ucs:
-                            if uc.product_id==move.product_id and not uc.stock_move_id and test:
-                                qt_pieces = uc.qt_pieces
-                                uc.stock_move_id = move.id
-                                quantite=quantite-qt_pieces
+                            if uc.product_id==move.product_id and uc.id not in affectation and test:
+                                affectation[uc.id] = move
+                                quantite=quantite-uc.qt_pieces
                                 if quantite<=0:
                                     test=False
-                                ct+=1
+                #**************************************************************
+
+                #** Écriture des seules UC modifiées **************************
+                # Toutes les UC des UM de la liste à servir, archivées comprises (comme l'ancien UPDATE SQL)
+                ucs = self.env['is.galia.base.uc'].with_context(active_test=False).search([
+                    ('um_id.liste_servir_id','=',liste_servir_id),
+                ])
+                for uc in ucs:
+                    move = affectation.get(uc.id, self.env['stock.move'])
+                    if uc.stock_move_id!=move:
+                        uc.stock_move_id = move.id
+                #**************************************************************
         cr.commit()
 
 
