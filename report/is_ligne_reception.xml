@@ -126,7 +126,7 @@
         <field name="res_model">is.ligne.reception</field>
         <field name="domain">[('state','in', ('waiting','confirmed','assigned'))]</field>
         <field name="view_id" ref="is_ligne_reception_a_traiter_tree_view"/>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
 
     <record id="is_ligne_reception_tree_view" model="ir.ui.view">
@@ -173,7 +173,7 @@
         <field name="domain">[('state','=', 'done')]</field>
         <field name="context">{'search_default_filter_date_transfert_12mois': 1, 'order': 'date_transfert desc'}</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
     <!-- Graph view -->
     <record id="is_ligne_reception_graph_view" model="ir.ui.view">
@@ -218,7 +218,7 @@
             ('montant_reste','&gt;', 0.05),
         ]</field>
         <field name="view_id" ref="is_ligne_reception_tree_view"/>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
     </record>
 
             <!-- ('reste_a_facturer','&gt;', 0), -->
