@@ -11,6 +11,13 @@
 
 
         <!-- is.controle.qualite.um -->
+        <!-- Action avant le formulaire, qui y fait référence (bouton « Retour à la liste des contrôles ») -->
+        <record model="ir.actions.act_window" id="is_controle_qualite_um_action">
+            <field name="name">Contrôle qualité</field>
+            <field name="res_model">is.controle.qualite.um</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'search_default_en_cours': 1}</field>
+        </record>
         <record model="ir.ui.view" id="is_controle_qualite_um_form_view">
             <field name="name">is_controle_qualite_um_form_view</field>
             <field name="model">is.controle.qualite.um</field>
@@ -59,6 +66,13 @@
                         <div attrs="{'invisible': [('um_en_cours_html', '=', False)]}">
                             <div class="o_is_titre">UM en cours</div>
                             <field name="um_en_cours_html" nolabel="1"/>
+                            <button
+                                name="fin_um_en_cours_action"
+                                string="Fin UM en cours"
+                                type="object"
+                                class="btn-primary w-100 mb-1"
+                                attrs="{'invisible': ['|', '|', '|', ('state', '!=', 'tri'), ('um_en_cours_id', '=', False), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
+                            />
                         </div>
                         <div attrs="{'invisible': [('um_triees_html', '=', False)]}">
                             <div class="o_is_titre">UM triées</div>
@@ -101,13 +115,6 @@
                             class="btn-primary w-100 mb-2"
                             attrs="{'invisible': ['|', ('state', '!=', 'scan_um'), ('nb_um_origine', '=', 0)]}"
                         />
-                        <button
-                            name="fin_um_en_cours_action"
-                            string="Fin UM en cours"
-                            type="object"
-                            class="btn-primary w-100 mb-2"
-                            attrs="{'invisible': ['|', '|', '|', ('state', '!=', 'tri'), ('um_en_cours_id', '=', False), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
-                        />
                         <div class="d-flex mb-2">
                             <button
                                 name="abandonner_action"
@@ -132,6 +139,13 @@
                             type="object"
                             class="btn-info w-100 mb-2"
                             attrs="{'invisible': ['|', '|', ('state', '!=', 'tri'), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
+                        />
+                        <!-- Sur smartphone, la barre du haut est masquée (controle_qualite_um.js) : retour à la liste par ce bouton -->
+                        <button
+                            name="%(is_controle_qualite_um_action)d"
+                            string="Retour à la liste des contrôles"
+                            type="action"
+                            class="btn-secondary w-100 mb-2 d-md-none"
                         />
                         <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22), où la zone grise suffit -->
                         <div class="d-none d-md-block">
@@ -278,12 +292,6 @@
                     </group>
                 </search>
             </field>
-        </record>
-        <record model="ir.actions.act_window" id="is_controle_qualite_um_action">
-            <field name="name">Contrôle qualité</field>
-            <field name="res_model">is.controle.qualite.um</field>
-            <field name="view_mode">kanban,tree,form</field>
-            <field name="context">{'search_default_en_cours': 1}</field>
         </record>
         <record id="is_controle_qualite_um_nouveau_action" model="ir.actions.server">
             <field name="name">Nouveau contrôle qualité</field>

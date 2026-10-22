@@ -1,7 +1,12 @@
 // Contrôle qualité des UM par scan : formulaire compact pour le Zebra TC22 (moins d'espace au-dessus de la fiche)
 .o_is_controle_qualite_um .o_form_sheet_bg > .o_form_sheet {
-    margin-top: 0.25rem;
-    padding-top: 0.5rem;
+    margin-top: 0.25rem !important;
+    padding-top: 0.25rem !important;
+}
+
+// Champ qui reçoit les scans : il doit être monté (pas d'invisible="1") mais n'a rien à afficher
+.o_is_controle_qualite_um .o_field_widget[name='_barcode_scanned'] {
+    display: none !important;
 }
 
 // Titres des blocs (UM en cours, UM triées, UM à trier) : bandeau gris foncé sur toute la largeur
@@ -19,10 +24,10 @@
 .o_is_controle_qualite_um {
     .o_is_cartes,
     .o_field_one2many .o_kanban_renderer {
-        display: grid;
+        display: grid !important;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 0.25rem;
-        padding: 0;
+        padding: 0 !important;
         margin-bottom: 0.25rem;
     }
     // Le cadre de la carte est porté par o_is_carte (comme les cartes HTML) : on retire ceux du kanban d'Odoo
@@ -35,15 +40,16 @@
     }
     .o_field_one2many .o_kanban_renderer {
         .o_kanban_record {
-            width: auto;
-            margin: 0;
-            padding: 0;
-            border: 0;
-            box-shadow: none;
-            background: transparent;
+            width: auto !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
         }
         .o_kanban_ghost {
-            display: none;
+            display: none !important;
         }
     }
 }
