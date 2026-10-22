@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError, UserError
+from markupsafe import escape
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -78,7 +79,26 @@ class is_controle_qualite_um(models.Model):
             obj.abandon_possible  = obj.state in ('scan_um', 'tri') and not obj.ligne_ids.filtered(lambda l: l.type!='um_origine')
 
 
+    @api.depends('product_id', 'lot_id', 'location_id', 'qt_initiale', 'qt_restante', 'nb_um_origine')
+    def _compute_info_html(self):
+        for obj in self:
+            info = False
+            if obj.product_id:
+                info = (
+                    "<div class='lh-sm'>"
+                    "<b>%s</b> <span class='text-muted'>%s</span><br/>"
+                    "Lot <b>%s</b> en <b>%s</b> · %s UM · reste <b>%s</b> / %s"
+                    "</div>"
+                )%(
+                    escape(obj.product_id.is_code or ''), escape(obj.product_id.name or ''),
+                    escape(obj.lot_id.name or ''), escape(obj.location_id.name or ''),
+                    obj.nb_um_origine, obj.qt_restante, obj.qt_initiale,
+                )
+            obj.info_html = info
+
+
     name                      = fields.Char("N° contrôle", readonly=True, copy=False, index=True)
+    info_html                 = fields.Html("Article et lot", compute='_compute_info_html', sanitize=False)
     state                     = fields.Selection(_STATE, "État", default='scan_um', required=True, readonly=True, tracking=True, index=True)
     imprimante_id             = fields.Many2one('is.raspberry.zebra', "Imprimante", default=lambda self: self._get_imprimante_id(), tracking=True)
     location_id               = fields.Many2one('stock.location', "Emplacement", readonly=True, tracking=True, help="Emplacement Qxx de la 1re UM scannée")
@@ -194,16 +214,16 @@ class is_controle_qualite_um(models.Model):
                 else:
                     raise ValidationError("Aucun scan attendu dans l'état « %s »"%dict(_STATE)[self.state])
             _logger.info("Contrôle qualité UM : %s : %s : %s", self.name, code, message)
-            self.message_post(body="Scan %s : %s"%(code, message))
+            self.message_post(body="✅ Scan %s : %s"%(code, message))
             self._noter_activite(message=message)
         except UserError as e:
             _logger.info("Contrôle qualité UM : %s : %s : refus : %s", self.name, code, e.args[0])
-            self.message_post(body="Scan %s : refusé : %s"%(code, e.args[0]))
+            self.message_post(body="❌ Scan %s : refusé : %s"%(code, e.args[0]))
             self._noter_activite(alerte="%s : %s"%(code, e.args[0]))
         except Exception as e:
             _logger.exception("Contrôle qualité UM : %s : %s : erreur", self.name, code)
             erreur = "Erreur : %s"%(e.args and e.args[0] or e)
-            self.message_post(body="Scan %s : %s"%(code, erreur))
+            self.message_post(body="❌ Scan %s : %s"%(code, erreur))
             self._noter_activite(alerte="%s : %s"%(code, erreur))
 
 
@@ -350,8 +370,8 @@ class is_controle_qualite_um_ligne(models.Model):
             if not controle.um_origine_ids:
                 controle.write({'product_id': False, 'lot_id': False, 'location_id': False})
             message = "UM %s retirée du contrôle %s"%(um.name, controle.name)
-            controle.message_post(body=message)
-            um.sudo().message_post(body=message, author_id=self.env.user.partner_id.id)
+            controle.message_post(body="✅ %s"%message)
+            um.sudo().message_post(body="✅ %s"%message, author_id=self.env.user.partner_id.id)
             controle._noter_activite(message=message)
 
 

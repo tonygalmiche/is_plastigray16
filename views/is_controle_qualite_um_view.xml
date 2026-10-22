@@ -52,6 +52,9 @@
                         <div class="alert alert-success py-1 px-2 mb-1" role="status" attrs="{'invisible': [('message', '=', False)]}">
                             <field name="message"/>
                         </div>
+                        <div class="bg-light border rounded py-1 px-2 mb-1" attrs="{'invisible': [('product_id', '=', False)]}">
+                            <field name="info_html" nolabel="1"/>
+                        </div>
                         <field name="ligne_um_origine_ids" mode="kanban" attrs="{'invisible': [('ligne_um_origine_ids', '=', [])]}">
                             <kanban>
                                 <field name="um_id"/>
