@@ -593,7 +593,7 @@ class is_controle_qualite_um(models.Model):
             vals['lot_ids'] = [(1, uc.lot_ids.id, {'qt_pieces': qt})]
         uc.sudo().write(vals)
         uc.sudo().message_post(body="Contrôle qualité %s : quantité %s → %s"%(self.name, qt_avant, qt))
-        self._imprimer_uc(uc)
+        impression = self._imprimer_uc(uc)
         if uc.product_id.is_um_egale_uc:
             um = um_origine
         else:
@@ -611,7 +611,7 @@ class is_controle_qualite_um(models.Model):
             'location_dest_id': location_ci.id,
             'move_ids'        : [(6, 0, moves.ids)],
         })
-        return "UC %s diminuée (%s → %s pièces), UM %s déplacée en CI"%(uc.num_eti, qt_avant, qt, um.name)
+        return "UC %s diminuée (%s → %s pièces), UM %s déplacée en CI%s"%(uc.num_eti, qt_avant, qt, um.name, impression)
 
 
     def _fin_um_en_cours(self):
@@ -620,12 +620,12 @@ class is_controle_qualite_um(models.Model):
         um = self.um_en_cours_id
         if not um:
             raise ValidationError("Aucune UM en cours")
-        self._imprimer_um(um)
+        impression = self._imprimer_um(um)
         self.write({
             'attente_emplacement': 'fin_um',
             'um_a_deplacer_id'   : um.id,
         })
-        return "UM %s terminée (%s UC, %s pièces) : scannez son emplacement"%(um.name, um.nb_uc, um.qt_pieces)
+        return "UM %s terminée (%s UC, %s pièces) : scannez son emplacement%s"%(um.name, um.nb_uc, um.qt_pieces, impression)
 
 
     def _scan_emplacement(self, code):
@@ -679,12 +679,11 @@ class is_controle_qualite_um(models.Model):
         message = "Tri terminé"
         um = self.um_en_cours_id
         if um:
-            self._imprimer_um(um)
             vals.update({
                 'attente_emplacement': 'fin_um',
                 'um_a_deplacer_id'   : um.id,
             })
-            message += " : scannez l'emplacement de l'UM en cours %s"%um.name
+            message += " : scannez l'emplacement de l'UM en cours %s%s"%(um.name, self._imprimer_um(um))
         self.write(vals)
         self.qt_saisie = self.qt_restante
         if not um:
@@ -786,14 +785,14 @@ class is_controle_qualite_um(models.Model):
             'location_dest_id': location.id,
             'move_ids'        : [(6, 0, moves.ids)],
         })
-        self._imprimer_uc(uc)
+        impression = self._imprimer_uc(uc, zpl=etiquette['zpl'])
         self.qt_saisie = self.qt_restante
-        message = "UC %s (carton %s, %s pièces) à recontrôler dans l'UM %s en %s"%(uc.num_eti, uc.num_carton, qt, um.name, location.name)
+        message = "UC %s (carton %s, %s pièces) à recontrôler dans l'UM %s en %s%s"%(uc.num_eti, uc.num_carton, qt, um.name, location.name, impression)
         return message + self._terminer_si_reste_nul()
 
 
     def _creer_etiquette_odoo0(self, uc_ref, qt):
-        "Crée l'étiquette UC dans odoo0 (même société, type et OF que uc_ref, n° de carton = plus grand + 1). Retourne num_eti et num_carton"
+        "Crée l'étiquette UC dans odoo0 (même société, type et OF que uc_ref, n° de carton = plus grand + 1). Retourne num_eti, num_carton et le ZPL"
         company  = self.env.company
         DB       = company.is_nom_base_odoo0
         USERID   = 2
@@ -833,7 +832,7 @@ class is_controle_qualite_um(models.Model):
         lignes = executer('search_read', [domain+[('num_carton','=',num_carton)]], {'fields': ['num_eti'], 'limit': 1})
         if not lignes:
             raise ValidationError("Étiquette %s / carton %s non créée dans odoo0"%(uc_ref.production, num_carton))
-        return {'num_eti': lignes[0]['num_eti'], 'num_carton': num_carton}
+        return {'num_eti': lignes[0]['num_eti'], 'num_carton': num_carton, 'zpl': res.get('ZPL')}
 
 
     def _rebut(self):
@@ -862,8 +861,9 @@ class is_controle_qualite_um(models.Model):
         Retourne le complément du message"""
         if self.state!='fin' or self.qt_restante>0 or self.attente_emplacement or self.um_en_cours_id:
             return ""
+        impression = ""
         for um in self.ligne_ids.filtered(lambda l: l.type=='nouvelle_uc').um_id:
-            self._imprimer_um(um)
+            impression += self._imprimer_um(um)
         # UM d'origine pas reprises par le tri (une UM d'un article UC=UM triée a été déplacée et reste active)
         lignes_triees = self.ligne_ids.filtered(lambda l: l.type!='um_origine')
         ums = (self.ligne_um_origine_ids.um_id - lignes_triees.um_id).filtered('active').sudo()
@@ -876,7 +876,7 @@ class is_controle_qualite_um(models.Model):
         ums.write({'active': False})
         ums.mettre_um_archivee_dans_inv_action()
         self.write({'state': 'termine', 'qt_saisie': 0})
-        return " · contrôle terminé (%s UM et %s UC d'origine archivées)"%(len(ums), len(ucs))
+        return " · contrôle terminé (%s UM et %s UC d'origine archivées)%s"%(len(ums), len(ucs), impression)
 
 
     def _sortir_um_vide(self, um):
@@ -909,14 +909,47 @@ class is_controle_qualite_um(models.Model):
         return Move.search([('id','>',id_max), ('reference','=',"UM %s"%um.name)])
 
 
-    #** Impressions (étape 6) *************************************************
-    def _imprimer_uc(self, uc):
-        self.message_post(body="Étiquette UC %s à réimprimer (%s pièces) : impression à l'étape 6"%(uc.num_eti, uc.qt_pieces))
+    #** Impressions sur l'imprimante du contrôle ******************************
+    def _imprimante(self):
+        if not self.imprimante_id:
+            raise ValidationError("Choisissez l'imprimante du contrôle")
+        return self.imprimante_id.name
+
+
+    def _imprimer(self, libelle, fonction):
+        """Une erreur d'impression n'annule pas l'opération (étiquette à réimprimer depuis la fiche UC ou UM).
+        Retourne le complément du message"""
+        try:
+            with self.env.cr.savepoint():
+                fonction()
+            return " · %s imprimée"%libelle
+        except Exception as e:
+            _logger.exception("Contrôle qualité UM : %s : impression %s", self.name, libelle)
+            erreur = e.args and e.args[0] or e
+            self.message_post(body="❌ Impression %s : %s"%(libelle, erreur))
+            return " · ⚠ %s non imprimée : %s"%(libelle, erreur)
+
+
+    def _imprimer_uc(self, uc, zpl=False):
+        "Étiquette UC : ZPL déjà généré par odoo0 (UC à recontrôler), sinon réimpression (UC diminuée)"
+        def imprimer():
+            imprimante = self._imprimante()
+            if zpl:
+                self.env['is.galia.base'].imprimer_zpl(zpl, imprimante=imprimante)
+            else:
+                uc.sudo().imprimer_etiquette_uc_action(imprimante=imprimante)
+        return self._imprimer("étiquette UC %s"%uc.num_eti, imprimer)
 
 
     def _imprimer_um(self, um):
-        format_um = um.etiquette_um_a5 and "A5" or "ancienne"
-        self.message_post(body="Étiquette UM %s (%s) à imprimer : impression à l'étape 6"%(um.name, format_um))
+        "Étiquette UM : A5 si le type d'étiquette UM de l'article le demande, sinon l'ancienne"
+        def imprimer():
+            imprimante = self._imprimante()
+            if um.etiquette_um_a5:
+                um.sudo().imprimer_etiquette_um_a5(imprimante=imprimante)
+            else:
+                um.sudo().imprimer_etiquette_um_ancienne(imprimante=imprimante)
+        return self._imprimer("étiquette UM %s (%s)"%(um.name, um.etiquette_um_a5 and "A5" or "ancienne"), imprimer)
 
 
 class is_controle_qualite_um_ligne(models.Model):

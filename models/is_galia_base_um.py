@@ -826,6 +826,212 @@ class is_galia_base_um(models.Model):
         return True
 
 
+    def imprimer_etiquette_um_ancienne(self, imprimante=False):
+        """Ancienne étiquette UM : reprise du script externe scripts-externes/imprimer-etiquette-um.py (même SQL, mêmes
+        champs, mêmes masques UM.zpl / UM-MIXTE.zpl + Secu.grf de static/src/galia/). Utilisée seulement par le contrôle
+        qualité des UM par scan : imprimer_etiquette_um_action passe toujours par la commande externe"""
+        cr = self.env.cr
+        addons_path = tools.config['addons_path'].split(',')[1]
+        path = "%s/is_plastigray16/static/src/galia/"%addons_path
+        for obj in self:
+            SQL = """
+                SELECT
+                    um.name              num_eti,
+                    pt.id                product_id,
+                    pp.id                product_product_id,
+                    pt.is_code           code_pg,
+                    pt.name->>'fr_FR'    designation,
+                    pt.is_code_fabrication  as is_code_fabrication,
+                    pt.is_livree_aqp     aqp,
+                    pt.is_ref_client        ref_client,
+                    pt.is_ref_plan          ref_plan,
+                    pt.is_ind_plan          ind_plan,
+                    pt.weight               poids_brut,
+                    pt.weight_net           poids_net,
+                    coalesce(im.name, id.name) moule,
+                    ic.name                 categorie,
+                    ig.name                 gestionnaire,
+                    pt.is_droite_grauche    droite_gauche,
+                    pt.is_soumise_regl      logo_secu,
+                    ite.name                type_etiquette,
+                    ite.format_etiquette    format_etiquette,
+                    ite.adresse             adresse,
+                    ite.code_fournisseur    code_fournisseur,
+                    pt.is_um_egale_uc,
+                    um.mixte,
+                    sum(uc.qt_pieces)       qt
+                FROM is_galia_base_uc uc join is_galia_base_um um on uc.um_id=um.id
+                                         join product_product  pp on uc.product_id=pp.id
+                                         join product_template pt on pp.product_tmpl_id=pt.id
+                                         inner join is_category                      ic on pt.is_category_id = ic.id
+                                         inner join is_gestionnaire                  ig on pt.is_gestionnaire_id = ig.id
+                                         left outer join is_type_etiquette          ite on pt.is_type_etiquette_id=ite.id
+                                         left outer join is_mold     im on pt.is_mold_id=im.id
+                                         left outer join is_dossierf id on pt.is_dossierf_id=id.id
+                WHERE um.id = %s and uc.active and (pt.is_um_egale_uc is null or pt.is_um_egale_uc='f')
+                GROUP BY
+                    um.name, pt.id, pp.id, pt.is_code, pt.name, pt.is_code_fabrication, pt.is_livree_aqp, pt.is_ref_client,
+                    pt.is_ref_plan, pt.is_ind_plan, pt.weight, pt.weight_net, im.name, id.name, ic.name, ig.name,
+                    pt.is_droite_grauche, pt.is_soumise_regl, ite.name, ite.format_etiquette, ite.adresse,
+                    ite.code_fournisseur, pt.is_um_egale_uc, um.mixte
+            """
+            cr.execute(SQL, [obj.id])
+            rows = cr.dictfetchall()
+            if not rows:
+                raise ValidationError("UM %s : aucune UC active (ou article UC=UM, sans étiquette UM)"%obj.name)
+            row = rows[0]
+
+            CodePG       = row['code_pg'] or ''
+            Designation  = row['designation'] or ''
+            RefClient    = row['ref_client'] or ''
+            RefPlan      = row['ref_plan'] or ''
+            IndPlan      = row['ind_plan'] or ''
+            Moule        = row['moule'] or ''
+            Cat          = int(row['categorie'])
+            GaucheDroite = row['droite_gauche']
+            LogoSecu     = row['logo_secu']
+            NumLot       = ""
+            PoidsBrut    = row['poids_brut']
+            PoidsNet     = row['poids_net']
+            Quantite     = row['qt']
+            mixte        = row['mixte']
+            # Le script compare à 't' alors que la valeur est un booléen : AQP n'y est jamais imprimé
+            AQP = row['aqp'] and 'AQP' or ''
+            CodeFabrication = row['is_code_fabrication'] or ''
+            if CodeFabrication!='':
+                Designation = "%s - %s"%(CodeFabrication, Designation)
+            TypeEti         = row['type_etiquette'] or ''
+            FormatEti       = row['format_etiquette'] or ''
+            Adresse         = row['adresse'] or ''
+            CodeFournisseur = row['code_fournisseur'] or ''
+
+            #** Client par défaut de l'article ********************************
+            Fournisseur = CodeClient = NomClient = ''
+            cr.execute("""
+                select rp.is_cofor, rp.name as nom_client, rp.is_code as code_client
+                from is_product_client ipc inner join res_partner rp on ipc.client_id=rp.id
+                where ipc.product_id=%s and ipc.client_defaut='t' limit 1
+            """, [row['product_id']])
+            for row2 in cr.dictfetchall():
+                Fournisseur = row2['is_cofor'] or ''
+                CodeClient  = row2['code_client'] or ''
+                NomClient   = row2['nom_client'] or ''
+            #******************************************************************
+
+            #** Conditionnement ***********************************************
+            conditionnement = ""
+            cr.execute("SELECT qty,ul_qty,rows from product_packaging where product_id=%s", [row['product_product_id']])
+            for row2 in cr.dictfetchall():
+                conditionnement = "%sx%sx%s"%(int(row2['qty']), row2['ul_qty'], row2['rows'])
+            #******************************************************************
+
+            #** Champs de l'étiquette (FN = ^FN du masque) ********************
+            # Le script plante si le format n'est pas dans cette liste (FN10 non défini) : vide ici
+            FN10 = ""
+            if FormatEti in ("PG",):
+                FN10 = CodePG
+            if FormatEti in ("MGI", "VS", "DD", "EMS"):
+                FN10 = RefClient
+            if FormatEti in ("RE", "EC") or TypeEti=="DEVIALET":
+                FN10 = RefPlan
+            FN1 = RefClient
+            FN2 = FN1
+            if Cat<10 or Cat==46 or Cat==48:
+                if FormatEti in ("PG", "RE", "EC"):
+                    FN1 = RefClient
+                if FormatEti in ("MGI", "VS", "DD", "EMS"):
+                    FN1 = RefPlan
+                if TypeEti=="DD" or TypeEti=="SIMU":
+                    FN2 = FN1
+                else:
+                    FN2 = "P"+FN1
+            FN4  = "Q"+str(Quantite)
+            FN6  = "V"+Fournisseur
+            FN11 = "30S"+FN10
+            FN3  = str(Quantite)
+            FN5  = Fournisseur
+            FN7  = row["num_eti"]
+            FN8  = (mixte=='oui' and "G" or "M")+FN7
+            FN9  = Designation
+            FN12 = ""
+            FN13 = NumLot
+            FN14 = AQP=="AQP" and "AQP" or ""
+            FN15 = CodePG+" / "+Moule+" / "+conditionnement
+            FN99 = ""
+            FN16 = Adresse
+            FN17 = IndPlan
+            FN18 = ""
+            if GaucheDroite=="G":
+                FN18 = "G"
+            if GaucheDroite=="D":
+                FN18 = "D"
+            FN20 = NomClient
+            if FormatEti in ("DD", "EMS"):
+                FN20 = " "
+            FN21 = str(Quantite*PoidsBrut)+" Kg"
+            FN24 = str(Quantite*PoidsNet)+" Kg"
+            FN30 = ""
+            FN90 = LogoSecu in ("R", "RS", "SR") and "R" or ""
+            FN91 = LogoSecu in ("RS", "SR") and "S" or ""
+            FN98 = LogoSecu=="UR" and "QMMY2" or ""
+            FN97 = ""
+            FN22 = "1"
+            #******************************************************************
+
+            #** UM mixte : poids de toutes les UC, pas de produit *************
+            if mixte=='oui':
+                cr.execute("""
+                    SELECT pt.weight poids_brut, pt.weight_net poids_net, uc.qt_pieces
+                    FROM is_galia_base_uc uc join product_product  pp on uc.product_id=pp.id
+                                             join product_template pt on pp.product_tmpl_id=pt.id
+                    WHERE uc.um_id = %s and uc.active
+                """, [obj.id])
+                rows2 = cr.dictfetchall()
+                poids_brut = poids_net = 0
+                FN22 = str(len(rows2))
+                for row2 in rows2:
+                    poids_brut += row2['poids_brut'] * row2['qt_pieces']
+                    poids_net  += row2['poids_net']  * row2['qt_pieces']
+                FN21 = str(round(poids_brut,2)) + " Kg"
+                FN24 = str(round(poids_net,2))  + " Kg"
+                FN1 = 'UM MIXTE'
+                FN2 = FN3 = FN4 = FN9 = FN10 = FN11 = FN13 = FN14 = FN15 = FN17 = FN18 = FN97 = FN30 = ''
+            #******************************************************************
+
+            #** ZPL ***********************************************************
+            if LogoSecu in ("R", "S", "RS", "SR"):
+                ZPL = "^XA^XFR:UC^FS \n\r"
+            else:
+                ZPL = "^XA^IDR:SECU2.grf^FS \n\r"     # Efface le Logo Sécu de la mémoire
+                ZPL += "^XFR:UC^FS \n\r"
+            FN23 = (TypeEti in ("LOT", "DEVIALET")) and "H"+FN13 or ''
+            for num, valeur in [
+                ('1', FN1), ('2', FN2), ('3', FN3), ('4', FN4), ('5', FN5), ('6', FN6), ('7', FN7), ('8', FN8),
+                ('9 ', FN9), ('10', FN10), ('11', FN11), ('12', FN12), ('13', FN13), ('14', FN14), ('15', FN15),
+                ('16', FN16), ('17', FN17), ('18', FN18), ('20', FN20), ('97', FN97), ('21', FN21), ('24', FN24),
+                ('23', FN23), ('22', FN22), ('30', FN30), ('40', FormatEti in ("DD", "EMS") and CodeFournisseur or " "),
+                ('90', FN90), ('91', FN91), ('99', FN99), ('98', FN98),
+            ]:
+                ZPL += "^FN%s^FD%s^FS \n\r"%(num, valeur)
+            if TypeEti in ("DD", "EMS"):
+                # Data Matrix Delta Dore (date fixe, comme le script)
+                ZPL += """
+                    ^FO400,900
+                    ^BXN,6,200
+                    ^FD(P)%s(2P)%s(Q)%s(9D)%s(1T)%s(K)(1P)%s-PLASTIGRAY(A1)PLASTIGRAY(A2)(A3)^FS
+                """%(RefClient, IndPlan, Quantite, "220503", NumLot, RefClient)
+            ZPL += "^MMT \n\r"     # Avance de l'étiquette
+            ZPL += "^XZ \n\r"
+            masque = mixte=='oui' and "UM-MIXTE.zpl" or "UM.zpl"
+            MASQUE = open(path+masque, 'rb').read().decode("utf-8")
+            SECU   = open(path+'Secu.grf', 'rb').read().decode("utf-8")
+            #******************************************************************
+
+            imprimante_utilisee = self.env['is.galia.base'].imprimer_zpl(MASQUE+SECU+ZPL, imprimante=imprimante)
+            obj.message_post(body="Impression ancienne étiquette UM (%s, masque %s) sur l'imprimante <b>%s</b>"%(obj.name, masque, imprimante_utilisee))
+        return True
+
+
     def imprimer_etiquette_uc_action(self):
         user = self.env['res.users'].browse(self._uid)
         company = self.env.company

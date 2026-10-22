@@ -608,7 +608,8 @@ class is_galia_base_uc(models.Model):
     #             obj.active = False
 
 
-    def imprimer_etiquette_uc_action(self):
+    def imprimer_etiquette_uc_action(self, imprimante=False):
+        "Réimpression des UC (même n°). imprimante : nom de l'imprimante, sinon celle de l'utilisateur ou de la société"
         user = self.env['res.users'].browse(self._uid)
         company = self.env.company
         DB        = company.is_nom_base_odoo0
@@ -672,8 +673,8 @@ class is_galia_base_uc(models.Model):
                 if res['Msg']!='':
                     raise ValidationError(res['Msg'])
             ZPL = res.get('ZPL')
-            self.env['is.galia.base'].imprimer_zpl(ZPL)
-            return True
+            self.env['is.galia.base'].imprimer_zpl(ZPL, imprimante=imprimante)
+        return True
 
 
 class is_galia_base_uc_lot(models.Model):
