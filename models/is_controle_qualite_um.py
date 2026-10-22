@@ -2,6 +2,7 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError, UserError
 from markupsafe import escape
+from xmlrpc import client as xmlrpclib
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -33,10 +34,11 @@ _CHAMPS_FORMULAIRE = [
     'message', 'alerte', 'date_derniere_activite', 'user_derniere_activite_id',
 ]
 
-# Scan d'emplacement attendu en état tri
+# Scan d'emplacement attendu en état tri ou fin
 _ATTENTE_EMPLACEMENT = [
-    ('fin_um', "Fin UM en cours"),
-    ('uc_um' , "UC bonne d'un article UC=UM"),
+    ('fin_um'    , "Fin UM en cours"),
+    ('uc_um'     , "UC bonne d'un article UC=UM"),
+    ('recontrole', "UC à recontrôler"),
 ]
 
 
@@ -73,7 +75,7 @@ class is_controle_qualite_um(models.Model):
             obj.progression     = qt['um_origine'] and 100.0*qt_sortie/qt['um_origine'] or 0
 
 
-    @api.depends('state', 'ligne_ids.type', 'uc_a_valider_id', 'attente_emplacement', 'um_a_deplacer_id')
+    @api.depends('state', 'ligne_ids.type', 'uc_a_valider_id', 'attente_emplacement', 'um_a_deplacer_id', 'qt_restante', 'um_en_cours_id', 'qt_saisie')
     def _compute_action_attendue(self):
         for obj in self:
             action_attendue = False
@@ -86,12 +88,21 @@ class is_controle_qualite_um(models.Model):
                     action_attendue = "Validez la quantité de l'UC %s"%obj.uc_a_valider_id.num_eti
                 else:
                     action_attendue = "Scannez une UC"
+            if obj.state=='fin':
+                if obj.attente_emplacement=='recontrole':
+                    action_attendue = "Scannez l'emplacement Qxx (Q0, Q2…) de l'UC à recontrôler (%s pcs)"%obj.qt_saisie
+                elif obj.attente_emplacement:
+                    action_attendue = "Scannez l'emplacement de l'UM %s"%obj.um_a_deplacer_id.name
+                elif obj.um_en_cours_id:
+                    action_attendue = "Terminez l'UM en cours %s"%obj.um_en_cours_id.name
+                elif obj.qt_restante>0:
+                    action_attendue = "Reste %s pcs : quantité à recontrôler, ou rebut"%obj.qt_restante
             obj.action_attendue   = action_attendue
             # Abandon possible tant qu'aucune UC n'a été traitée
             obj.abandon_possible  = obj.state in ('scan_um', 'tri') and not obj.ligne_ids.filtered(lambda l: l.type!='um_origine')
 
 
-    @api.depends('name', 'state', 'product_id', 'lot_id', 'location_id', 'ligne_ids', 'qt_initiale', 'qt_restante', 'qt_bonne', 'qt_ci', 'nb_um_origine', 'progression')
+    @api.depends('name', 'state', 'product_id', 'lot_id', 'location_id', 'ligne_ids', 'qt_initiale', 'qt_restante', 'qt_bonne', 'qt_ci', 'qt_nouvelles_uc', 'qt_rebut', 'nb_um_origine', 'progression')
     def _compute_info_html(self):
         couleurs = {'scan_um': '#17a2b8', 'tri': '#fd7e14', 'fin': '#dc3545', 'termine': '#28a745', 'annule': '#8a8f94'}
         for obj in self:
@@ -108,12 +119,16 @@ class is_controle_qualite_um(models.Model):
                 # Pièces écartées : retirées des UC diminuées, à recontrôler ou à mettre au rebut à la fin du contrôle
                 qt_ecartees  = obj.qt_restante - qt_a_trier
                 progression  = int(round(obj.progression))
+                # Fin du contrôle : pièces mises dans les UC à recontrôler et au rebut
+                fin = ""
+                if obj.qt_nouvelles_uc or obj.qt_rebut:
+                    fin = "<br/>Recontrôle <b>%s</b> · rebut <b>%s</b>"%(obj.qt_nouvelles_uc, obj.qt_rebut)
                 info = (
                     "<div class='lh-sm'>"
                     "%s"
                     "<b>%s</b> <span class='text-muted'>%s</span><br/>"
                     "Lot <b>%s</b> en <b>%s</b> · %s UM · %s pcs<br/>"
-                    "À trier <b>%s</b> · écartées <b>%s</b> · bonnes %s · CI %s"
+                    "À trier <b>%s</b> · écartées <b>%s</b> · bonnes %s · CI %s%s"
                     "</div>"
                     "<div class='d-flex align-items-center mt-1'>"
                     "<div class='progress flex-grow-1 me-2' style='height:8px'><div class='progress-bar' style='width:%s%%'></div></div>"
@@ -123,7 +138,7 @@ class is_controle_qualite_um(models.Model):
                     titre,
                     escape(obj.product_id.is_code or ''), escape(obj.product_id.name or ''),
                     escape(obj.lot_id.name or ''), escape(obj.location_id.name or ''), obj.nb_um_origine, obj.qt_initiale,
-                    qt_a_trier, qt_ecartees, obj.qt_bonne, obj.qt_ci,
+                    qt_a_trier, qt_ecartees, obj.qt_bonne, obj.qt_ci, fin,
                     progression, nb_uc_triees, nb_uc, progression,
                 )
             obj.info_html = info
@@ -141,14 +156,14 @@ class is_controle_qualite_um(models.Model):
         for obj in self:
             ums = {}
             # Dans l'onchange du scan, les lignes sont des NewId : ordre selon l'id en base (_origin)
-            lignes = obj.ligne_ids.filtered(lambda l: l.type in ('uc_bonne', 'uc_ci', 'fin_um'))
+            lignes = obj.ligne_ids.filtered(lambda l: l.type in ('uc_bonne', 'uc_ci', 'fin_um', 'nouvelle_uc'))
             for ligne in sorted(lignes, key=lambda l: l._origin.id or 0):
                 um = ligne.um_id
                 if um not in ums:
                     ums[um] = {'ucs': [], 'quantite': 0, 'destination': False, 'ordre': 0}
                 vals = ums[um]
                 vals['ordre'] = ligne._origin.id or 0
-                if ligne.type in ('uc_bonne', 'uc_ci'):
+                if ligne.type in ('uc_bonne', 'uc_ci', 'nouvelle_uc'):
                     vals['ucs'].append(ligne)
                     vals['quantite'] += ligne.quantite
                 if ligne.location_dest_id:
@@ -159,8 +174,12 @@ class is_controle_qualite_um(models.Model):
                 if um==obj.um_en_cours_id:
                     badge = "<span class='badge bg-warning text-dark ms-1'>en cours</span>"
                 elif vals['destination']:
-                    # Gris en style : la classe bg-secondary ne ressort pas dans le thème Odoo 16
-                    couleur = vals['destination'].name=='CI' and '#8a8f94' or '#28a745'
+                    # Gris en style : la classe bg-secondary ne ressort pas dans le thème Odoo 16. Orange : UM à recontrôler en Qxx
+                    couleur = '#28a745'
+                    if vals['destination'].name=='CI':
+                        couleur = '#8a8f94'
+                    if vals['destination'].control_quality:
+                        couleur = '#fd7e14'
                     badge = "<span class='badge ms-1' style='background-color:%s;color:#fff'>→ %s</span>"%(couleur, escape(vals['destination'].name))
                 else:
                     badge = ""
@@ -330,6 +349,12 @@ class is_controle_qualite_um(models.Model):
             if code[:1] in ('M', 'G'):
                 return self._ajouter_um(self._get_um_scan_um(code))
             return self._scan_uc(code)
+        if self.state=='fin':
+            if self.attente_emplacement=='recontrole':
+                return self._scan_qxx(code)
+            if self.attente_emplacement:
+                return self._scan_emplacement(code)
+            raise ValidationError("Saisissez la quantité à recontrôler et validez avant de scanner l'emplacement Qxx")
         raise ValidationError("Aucun scan attendu dans l'état « %s »"%dict(_STATE)[self.state])
 
 
@@ -463,6 +488,21 @@ class is_controle_qualite_um(models.Model):
             obj._executer("Fin UM en cours", obj._fin_um_en_cours)
 
 
+    def fin_controle_action(self):
+        for obj in self:
+            obj._executer("Fin du contrôle", obj._fin_controle)
+
+
+    def valider_recontrole_action(self):
+        for obj in self:
+            obj._executer("UC à recontrôler", obj._valider_recontrole)
+
+
+    def rebut_action(self):
+        for obj in self:
+            obj._executer("Tout mettre au rebut", obj._rebut)
+
+
     #** Tri des UC (état tri) *************************************************
     def _verifier_rien_en_attente(self):
         if self.uc_a_valider_id and not self.attente_emplacement:
@@ -575,7 +615,7 @@ class is_controle_qualite_um(models.Model):
 
 
     def _fin_um_en_cours(self):
-        self._verifier_etat(['tri'])
+        self._verifier_etat(['tri', 'fin'])
         self._verifier_rien_en_attente()
         um = self.um_en_cours_id
         if not um:
@@ -624,7 +664,219 @@ class is_controle_qualite_um(models.Model):
             'attente_emplacement': False,
             'um_a_deplacer_id'   : False,
         })
+        if self.state=='fin':
+            self.qt_saisie = self.qt_restante
+            message += self._terminer_si_reste_nul()
         return message
+
+
+    #** Fin du contrôle (état fin) ********************************************
+    def _fin_controle(self):
+        "Fin du tri : l'UM en cours est terminée (scan de son emplacement), le reste sera à recontrôler ou au rebut"
+        self._verifier_etat(['tri'])
+        self._verifier_rien_en_attente()
+        vals = {'state': 'fin'}
+        message = "Tri terminé"
+        um = self.um_en_cours_id
+        if um:
+            self._imprimer_um(um)
+            vals.update({
+                'attente_emplacement': 'fin_um',
+                'um_a_deplacer_id'   : um.id,
+            })
+            message += " : scannez l'emplacement de l'UM en cours %s"%um.name
+        self.write(vals)
+        self.qt_saisie = self.qt_restante
+        if not um:
+            message += self._terminer_si_reste_nul()
+        return message
+
+
+    def _verifier_reste(self, qt):
+        "Vérifie qu'une partie du reste peut sortir du Qxx d'origine (UC à recontrôler ou rebut)"
+        self._verifier_etat(['fin'])
+        if self.attente_emplacement:
+            raise ValidationError("Scannez d'abord l'emplacement de l'UM %s, ou annulez"%self.um_a_deplacer_id.name)
+        if self.um_en_cours_id:
+            raise ValidationError("Terminez d'abord l'UM en cours %s"%self.um_en_cours_id.name)
+        if self.qt_restante<=0:
+            raise ValidationError("Plus aucune pièce restante")
+        if qt<=0:
+            raise ValidationError("La quantité doit être supérieure à 0")
+        if qt>self.qt_restante:
+            raise ValidationError("Quantité %s supérieure au reste (%s)"%(qt, self.qt_restante))
+
+
+    def _verifier_stock(self, qt):
+        "Stock du lot dans le Qxx d'origine suffisant pour en sortir qt pièces"
+        quants = self.env['stock.quant'].sudo().search([
+            ('product_id' , '=', self.product_id.id),
+            ('location_id', '=', self.location_id.id),
+            ('lot_id'     , '=', self.lot_id.id),
+        ])
+        stock = sum(quants.mapped('quantity'))
+        if stock<qt:
+            raise ValidationError("Stock insuffisant en %s pour le lot %s : stock %s < %s"%(self.location_id.name, self.lot_id.name, stock, qt))
+
+
+    def _valider_recontrole(self):
+        """Quantité de l'UC à recontrôler validée : le scan du Qxx est attendu. Le scan se fait hors du champ quantité
+        (avec le curseur dans un champ, le code scanné est tapé dans le champ)"""
+        qt = self.qt_saisie
+        self._verifier_reste(qt)
+        self.attente_emplacement = 'recontrole'
+        return "%s pièces à recontrôler : scannez l'emplacement Qxx"%qt
+
+
+    def _scan_qxx(self, code):
+        "Scan du Qxx de l'UC à recontrôler (quantité validée dans qt_saisie)"
+        if not code.startswith('EMP'):
+            raise ValidationError("Scannez l'étiquette d'un emplacement Qxx (EMP…)")
+        location = self._get_location(code[3:])
+        if not location.control_quality:
+            raise ValidationError("%s n'est pas un emplacement Contrôle qualité : l'UC à recontrôler va en Qxx"%location.name)
+        self.attente_emplacement = False
+        return self._creer_uc_a_recontroler(location, self.qt_saisie)
+
+
+    def _creer_uc_a_recontroler(self, location, qt):
+        "Nouvelle UC (n° de carton = plus grand + 1) dans l'UM de recontrôle de ce Qxx (une par Qxx et par contrôle)"
+        self._verifier_reste(qt)
+        uc_ref = (self.ligne_ids.uc_id | self.ligne_um_origine_ids.um_id.uc_ids)[:1]
+        if not uc_ref:
+            raise ValidationError("Aucune UC de référence (type d'étiquette, OF) dans ce contrôle")
+        if location!=self.location_id:
+            self._verifier_stock(qt)
+        # Étiquette créée dans odoo0 en dernier : le savepoint ne l'annule pas en cas d'erreur
+        etiquette = self._creer_etiquette_odoo0(uc_ref, qt)
+        ligne_um = self.ligne_ids.filtered(lambda l: l.type=='nouvelle_uc' and l.location_dest_id==location)[:1]
+        um = ligne_um.um_id
+        if not um:
+            um = self.env['is.galia.base.um'].sudo().create({
+                'mixte'        : 'non',
+                'location_id'  : location.id,
+                'production_id': uc_ref.production_id.id,
+                # date_fin renseignée : THEIA ne doit pas prendre cette UM pour l'UM en cours de l'OF
+                'date_fin'     : fields.Datetime.now(),
+            })
+            um.message_post(body="UM de recontrôle créée par le contrôle qualité %s"%self.name)
+        uc_id = self.env['is.galia.base.uc'].sudo().creer_uc({
+            'um_id'        : um.id,
+            'num_eti'      : etiquette['num_eti'],
+            'type_eti'     : uc_ref.type_eti,
+            'num_carton'   : etiquette['num_carton'],
+            'qt_pieces'    : qt,
+            'date_creation': fields.Datetime.now(),
+            'production_id': uc_ref.production_id.id,
+            'lot_id'       : self.lot_id.id,
+            'production'   : uc_ref.production,
+            'product_id'   : self.product_id.id,
+            'origine'      : "le contrôle qualité %s"%self.name,
+        })
+        uc = self.env['is.galia.base.uc'].browse(uc_id)
+        moves = self.env['stock.move']
+        if location!=self.location_id:
+            moves = self.env['is.galia.base.uc'].sudo()._creer_mouvement_lot(self.product_id, qt, self.lot_id, self.location_id, location, self.name)
+        self.env['is.controle.qualite.um.ligne'].create({
+            'controle_id'     : self.id,
+            'type'            : 'nouvelle_uc',
+            'uc_id'           : uc.id,
+            'um_id'           : um.id,
+            'quantite'        : qt,
+            'location_dest_id': location.id,
+            'move_ids'        : [(6, 0, moves.ids)],
+        })
+        self._imprimer_uc(uc)
+        self.qt_saisie = self.qt_restante
+        message = "UC %s (carton %s, %s pièces) à recontrôler dans l'UM %s en %s"%(uc.num_eti, uc.num_carton, qt, um.name, location.name)
+        return message + self._terminer_si_reste_nul()
+
+
+    def _creer_etiquette_odoo0(self, uc_ref, qt):
+        "Crée l'étiquette UC dans odoo0 (même société, type et OF que uc_ref, n° de carton = plus grand + 1). Retourne num_eti et num_carton"
+        company  = self.env.company
+        DB       = company.is_nom_base_odoo0
+        USERID   = 2
+        USERPASS = company.is_mdp_admin
+        URL      = company.is_url_odoo0
+        sock = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
+        def executer(methode, args, kwargs=None):
+            try:
+                return sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', methode, args, kwargs or {})
+            except Exception:
+                _logger.exception("Contrôle qualité UM : odoo0 : %s", methode)
+                raise ValidationError("Problème de connexion sur %s ou sur la base %s (%s)"%(URL, DB, methode))
+        lignes = executer('search_read', [[('num_eti','=',uc_ref.num_eti)]], {'fields': ['soc'], 'limit': 1, 'order': 'id desc'})
+        soc = lignes and lignes[0]['soc']
+        if not soc:
+            raise ValidationError("Étiquette %s non trouvée dans odoo0"%uc_ref.num_eti)
+        domain = [('soc','=',soc), ('type_eti','=',uc_ref.type_eti), ('num_of','=',uc_ref.production)]
+        lignes = executer('search_read', [domain], {'fields': ['num_carton'], 'limit': 1, 'order': 'num_carton desc'})
+        num_carton = (lignes and lignes[0]['num_carton'] or 0) + 1
+        # Sans le mot de passe de réimpression : refus si ce n° de carton existe déjà (deux contrôles en même temps)
+        res = executer('creer_etiquette', [[0], {
+            'ACTION'      : 'OK',
+            'Soc'         : soc,
+            'Etiquette'   : uc_ref.type_eti,
+            'Imprimante'  : 'ZPL',
+            'zzCode'      : uc_ref.production,
+            'zzDebut'     : num_carton,
+            'zzFin'       : num_carton,
+            'zzNbPieces'  : qt,
+            'zzMDP1'      : company.is_mdp_quantite,
+            'zzValidation': 'OK',
+            'zzAction'    : 'Imprimer',
+            'user_name'   : self.env.user.name,
+        }])
+        if res.get('Msg'):
+            raise ValidationError("odoo0 : %s"%res['Msg'])
+        lignes = executer('search_read', [domain+[('num_carton','=',num_carton)]], {'fields': ['num_eti'], 'limit': 1})
+        if not lignes:
+            raise ValidationError("Étiquette %s / carton %s non créée dans odoo0"%(uc_ref.production, num_carton))
+        return {'num_eti': lignes[0]['num_eti'], 'num_carton': num_carton}
+
+
+    def _rebut(self):
+        "Tout le reste au rebut (jamais automatique)"
+        qt = self.qt_restante
+        self._verifier_reste(qt)
+        location_rebut = self.env['stock.location'].search([('name','=','Rebuts'), ('scrap_location','=',True)], limit=1)
+        if not location_rebut:
+            raise ValidationError("Emplacement Rebuts non trouvé")
+        self._verifier_stock(qt)
+        move = self.env['is.galia.base.uc'].sudo()._creer_mouvement_lot(self.product_id, qt, self.lot_id, self.location_id, location_rebut, self.name)
+        self.env['is.controle.qualite.um.ligne'].create({
+            'controle_id'     : self.id,
+            'type'            : 'rebut',
+            'quantite'        : qt,
+            'location_dest_id': location_rebut.id,
+            'move_ids'        : [(6, 0, move.ids)],
+        })
+        self.qt_saisie = 0
+        message = "%s pièces du lot %s de %s vers %s"%(qt, self.lot_id.name, self.location_id.name, location_rebut.name)
+        return message + self._terminer_si_reste_nul()
+
+
+    def _terminer_si_reste_nul(self):
+        """Reste nul : étiquettes des UM de recontrôle, UM et UC d'origine restantes archivées (→ INV), contrôle terminé.
+        Retourne le complément du message"""
+        if self.state!='fin' or self.qt_restante>0 or self.attente_emplacement or self.um_en_cours_id:
+            return ""
+        for um in self.ligne_ids.filtered(lambda l: l.type=='nouvelle_uc').um_id:
+            self._imprimer_um(um)
+        # UM d'origine pas reprises par le tri (une UM d'un article UC=UM triée a été déplacée et reste active)
+        lignes_triees = self.ligne_ids.filtered(lambda l: l.type!='um_origine')
+        ums = (self.ligne_um_origine_ids.um_id - lignes_triees.um_id).filtered('active').sudo()
+        ucs = ums.uc_ids - lignes_triees.uc_id
+        for uc in ucs:
+            uc.message_post(body="UC archivée par le contrôle qualité %s (pièces à recontrôler ou au rebut)"%self.name)
+        ucs.write({'active': False})
+        for um in ums:
+            um.message_post(body="UM archivée par le contrôle qualité %s"%self.name)
+        ums.write({'active': False})
+        ums.mettre_um_archivee_dans_inv_action()
+        self.write({'state': 'termine', 'qt_saisie': 0})
+        return " · contrôle terminé (%s UM et %s UC d'origine archivées)"%(len(ums), len(ucs))
 
 
     def _sortir_um_vide(self, um):

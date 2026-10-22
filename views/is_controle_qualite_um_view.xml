@@ -43,17 +43,23 @@
                         </div>
                         <field name="attente_emplacement" invisible="1"/>
                         <field name="um_en_cours_id" invisible="1"/>
-                        <!-- UC scannée en attente de validation de sa quantité (pavé numérique au toucher du champ) -->
-                        <div class="border border-primary rounded p-2 mb-2" attrs="{'invisible': ['|', ('uc_a_valider_id', '=', False), ('attente_emplacement', '!=', False)]}">
-                            <div class="mb-1">
+                        <!-- Saisie d'une quantité (pavé numérique au toucher du champ) : UC scannée à valider en tri,
+                             ou UC à recontrôler en fin du contrôle (quantité, Valider, puis scan du Qxx : un scan avec le
+                             curseur dans le champ serait tapé dans le champ) -->
+                        <div class="border border-primary rounded p-2 mb-2" attrs="{'invisible': ['|', ('attente_emplacement', '!=', False), '&amp;', ('uc_a_valider_id', '=', False), '|', '|', ('state', '!=', 'fin'), ('um_en_cours_id', '!=', False), ('qt_restante', '&lt;=', 0)]}">
+                            <div class="mb-1" attrs="{'invisible': [('uc_a_valider_id', '=', False)]}">
                                 UC <strong><field name="uc_a_valider_id" readonly="1" options="{'no_open': True}"/></strong>
                                 · UM <field name="uc_a_valider_um_id" options="{'no_open': True}"/>
                                 · <field name="uc_a_valider_qt"/> pièces
                             </div>
+                            <div class="mb-1" attrs="{'invisible': [('state', '!=', 'fin')]}">
+                                UC à recontrôler : quantité, Valider, puis scan du Qxx
+                            </div>
                             <div class="d-flex align-items-center">
                                 <field name="qt_saisie" class="fs-4 me-2" style="max-width: 8rem;"/>
-                                <button name="valider_uc_action" string="Valider" type="object" class="btn-primary me-2"/>
-                                <button name="annuler_action" string="Annuler" type="object" class="btn-secondary"/>
+                                <button name="valider_recontrole_action" string="Valider" type="object" class="btn-primary me-2" attrs="{'invisible': [('state', '!=', 'fin')]}"/>
+                                <button name="valider_uc_action" string="Valider" type="object" class="btn-primary me-2" attrs="{'invisible': [('uc_a_valider_id', '=', False)]}"/>
+                                <button name="annuler_action" string="Annuler" type="object" class="btn-secondary" attrs="{'invisible': [('uc_a_valider_id', '=', False)]}"/>
                             </div>
                         </div>
                         <button
@@ -71,7 +77,7 @@
                                 string="Fin UM en cours"
                                 type="object"
                                 class="btn-primary w-100 mb-1"
-                                attrs="{'invisible': ['|', '|', '|', ('state', '!=', 'tri'), ('um_en_cours_id', '=', False), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
+                                attrs="{'invisible': ['|', '|', '|', ('state', 'not in', ('tri', 'fin')), ('um_en_cours_id', '=', False), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
                             />
                         </div>
                         <div attrs="{'invisible': [('um_triees_html', '=', False)]}">
@@ -115,7 +121,15 @@
                             class="btn-primary w-100 mb-2"
                             attrs="{'invisible': ['|', ('state', '!=', 'scan_um'), ('nb_um_origine', '=', 0)]}"
                         />
-                        <div class="d-flex mb-3" attrs="{'invisible': [('state', 'not in', ('scan_um', 'tri'))]}">
+                        <button
+                            name="rebut_action"
+                            string="Tout mettre au rebut"
+                            type="object"
+                            class="btn-danger w-100 mb-2"
+                            confirm="Mettre tout le reste au rebut ? Le contrôle sera terminé."
+                            attrs="{'invisible': ['|', '|', '|', ('state', '!=', 'fin'), ('attente_emplacement', '!=', False), ('um_en_cours_id', '!=', False), ('qt_restante', '&lt;=', 0)]}"
+                        />
+                        <div class="d-flex mb-3" attrs="{'invisible': [('state', 'not in', ('scan_um', 'tri', 'fin'))]}">
                             <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
                             <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
                         </div>
@@ -128,6 +142,14 @@
                             string="Retour à l'ajout des UM"
                             type="object"
                             class="btn-info w-100 mb-2"
+                            attrs="{'invisible': ['|', '|', ('state', '!=', 'tri'), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
+                        />
+                        <button
+                            name="fin_controle_action"
+                            string="Fin du contrôle"
+                            type="object"
+                            class="btn-warning w-100 mb-2"
+                            confirm="Terminer le tri ? Les pièces non triées seront à recontrôler en Qxx ou mises au rebut."
                             attrs="{'invisible': ['|', '|', ('state', '!=', 'tri'), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
                         />
                         <!-- Sur smartphone, la barre du haut est masquée (controle_qualite_um.js) : retour à la liste par ce bouton -->
