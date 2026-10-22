@@ -115,16 +115,6 @@
                             class="btn-primary w-100 mb-2"
                             attrs="{'invisible': ['|', ('state', '!=', 'scan_um'), ('nb_um_origine', '=', 0)]}"
                         />
-                        <div class="d-flex mb-2">
-                            <button
-                                name="abandonner_action"
-                                string="Abandonner"
-                                type="object"
-                                class="btn-outline-danger"
-                                confirm="Abandonner ce contrôle ? Ses UM seront libérées."
-                                attrs="{'invisible': [('abandon_possible', '=', False)]}"
-                            />
-                        </div>
                         <div class="d-flex mb-3" attrs="{'invisible': [('state', 'not in', ('scan_um', 'tri'))]}">
                             <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
                             <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
@@ -145,23 +135,19 @@
                             name="%(is_controle_qualite_um_action)d"
                             string="Retour à la liste des contrôles"
                             type="action"
-                            class="btn-secondary w-100 mb-2 d-md-none"
+                            class="btn-secondary o_is_btn_gris w-100 mb-2 d-md-none"
+                        />
+                        <!-- Abandon tout en bas, séparé des autres boutons pour éviter un appui par erreur -->
+                        <button
+                            name="abandonner_action"
+                            string="Abandonner"
+                            type="object"
+                            class="btn-outline-danger w-100 mt-4 mb-2"
+                            confirm="Abandonner ce contrôle ? Ses UM seront libérées."
+                            attrs="{'invisible': [('abandon_possible', '=', False)]}"
                         />
                         <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22), où la zone grise suffit -->
                         <div class="d-none d-md-block">
-                        <group>
-                            <group>
-                                <field name="product_id"/>
-                                <field name="lot_id"/>
-                                <field name="location_id"/>
-                            </group>
-                            <group>
-                                <field name="nb_um_origine"/>
-                                <field name="qt_initiale"/>
-                                <field name="qt_restante"/>
-                                <field name="progression" widget="progressbar"/>
-                            </group>
-                        </group>
                         <notebook>
                             <page string="Journal">
                                 <field name="ligne_ids">
@@ -184,6 +170,12 @@
                             </page>
                             <page string="Quantités et activité">
                                 <group>
+                                    <group string="Article">
+                                        <field name="product_id"/>
+                                        <field name="lot_id"/>
+                                        <field name="location_id"/>
+                                        <field name="nb_um_origine"/>
+                                    </group>
                                     <group string="Quantités">
                                         <field name="qt_initiale"/>
                                         <field name="qt_bonne"/>
@@ -238,7 +230,7 @@
             <field name="name">is_controle_qualite_um_kanban_view</field>
             <field name="model">is.controle.qualite.um</field>
             <field name="arch" type="xml">
-                <kanban create="false" class="o_kanban_mobile">
+                <kanban create="false" class="o_kanban_mobile o_is_controle_qualite_um_kanban">
                     <field name="state"/>
                     <field name="product_id"/>
                     <field name="lot_id"/>

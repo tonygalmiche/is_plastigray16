@@ -9,6 +9,32 @@
     display: none !important;
 }
 
+// Liste des contrôles (kanban) : fond gris clair et cartes blanches encadrées, bien séparées
+.o_is_controle_qualite_um_kanban {
+    background-color: #e9ecef !important;
+    padding: 0.25rem !important;
+    .o_kanban_record:not(.o_kanban_ghost) {
+        background-color: #fff !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+        margin: 0.25rem !important;
+        // Largeur 100 % + marges : la carte déborde à droite sur smartphone
+        max-width: calc(100% - 0.5rem) !important;
+    }
+    // Cartes fantômes vides ajoutées par Odoo pour aligner la grille : sans intérêt ici
+    .o_kanban_ghost {
+        display: none !important;
+    }
+}
+
+// Bouton gris moyen (btn-secondary d'Odoo 16 sans fond visible, btn-dark trop sombre)
+.o_is_controle_qualite_um .o_is_btn_gris {
+    background-color: #8a8f94 !important;
+    border-color: #8a8f94 !important;
+    color: #fff !important;
+}
+
 // Titres des blocs (UM en cours, UM triées, UM à trier) : bandeau gris foncé sur toute la largeur
 .o_is_controle_qualite_um .o_is_titre {
     background-color: #5a6268;
