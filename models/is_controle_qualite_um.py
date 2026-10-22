@@ -91,24 +91,28 @@ class is_controle_qualite_um(models.Model):
             obj.abandon_possible  = obj.state in ('scan_um', 'tri') and not obj.ligne_ids.filtered(lambda l: l.type!='um_origine')
 
 
-    @api.depends('product_id', 'lot_id', 'location_id', 'qt_initiale', 'qt_restante', 'nb_um_origine', 'um_en_cours_id')
+    @api.depends('name', 'product_id', 'lot_id', 'location_id', 'qt_initiale', 'qt_restante', 'nb_um_origine', 'um_en_cours_id', 'progression')
     def _compute_info_html(self):
         for obj in self:
-            info = False
+            info = "<div class='lh-sm'><b>%s</b></div>"%escape(obj.name or '')
             if obj.product_id:
-                um_en_cours = ""
-                if obj.um_en_cours_id:
-                    um = obj.um_en_cours_id
-                    um_en_cours = "<br/>UM en cours <b>%s</b> : %s UC, %s pièces"%(escape(um.name), um.nb_uc, um.qt_pieces)
+                progression = int(round(obj.progression))
                 info = (
                     "<div class='lh-sm'>"
+                    "<b>%s</b><br/>"
                     "<b>%s</b> <span class='text-muted'>%s</span><br/>"
-                    "Lot <b>%s</b> en <b>%s</b> · %s UM · reste <b>%s</b> / %s%s"
+                    "Lot <b>%s</b> en <b>%s</b> · %s UM · reste <b>%s</b> / %s"
+                    "</div>"
+                    "<div class='d-flex align-items-center mt-1'>"
+                    "<div class='progress flex-grow-1 me-2' style='height:8px'><div class='progress-bar' style='width:%s%%'></div></div>"
+                    "<span class='small'>%s %%</span>"
                     "</div>"
                 )%(
+                    escape(obj.name or ''),
                     escape(obj.product_id.is_code or ''), escape(obj.product_id.name or ''),
                     escape(obj.lot_id.name or ''), escape(obj.location_id.name or ''),
-                    obj.nb_um_origine, obj.qt_restante, obj.qt_initiale, um_en_cours,
+                    obj.nb_um_origine, obj.qt_restante, obj.qt_initiale,
+                    progression, progression,
                 )
             obj.info_html = info
 
