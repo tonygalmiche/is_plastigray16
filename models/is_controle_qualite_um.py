@@ -91,28 +91,40 @@ class is_controle_qualite_um(models.Model):
             obj.abandon_possible  = obj.state in ('scan_um', 'tri') and not obj.ligne_ids.filtered(lambda l: l.type!='um_origine')
 
 
-    @api.depends('name', 'product_id', 'lot_id', 'location_id', 'qt_initiale', 'qt_restante', 'nb_um_origine', 'um_en_cours_id', 'progression')
+    @api.depends('name', 'state', 'product_id', 'lot_id', 'location_id', 'ligne_ids', 'qt_initiale', 'qt_restante', 'qt_bonne', 'qt_ci', 'nb_um_origine', 'progression')
     def _compute_info_html(self):
+        couleurs = {'scan_um': '#17a2b8', 'tri': '#fd7e14', 'fin': '#dc3545', 'termine': '#28a745', 'annule': '#8a8f94'}
         for obj in self:
-            info = "<div class='lh-sm'><b>%s</b></div>"%escape(obj.name or '')
+            # N° du contrôle et état (pas de barre d'état en en-tête, pour gagner de la place sur smartphone)
+            titre = "<div class='d-flex justify-content-between align-items-center'><b>%s</b><span class='badge' style='background-color:%s;color:#fff'>%s</span></div>"%(
+                escape(obj.name or ''), couleurs.get(obj.state, '#8a8f94'), escape(dict(_STATE).get(obj.state, '')),
+            )
+            info = "<div class='lh-sm'>%s</div>"%titre
             if obj.product_id:
-                progression = int(round(obj.progression))
+                lignes_um    = obj.ligne_ids.filtered(lambda l: l.type=='um_origine')
+                qt_a_trier   = sum(lignes_um.mapped('qt_a_trier'))
+                nb_uc_triees = len(obj.ligne_ids.filtered(lambda l: l.type in ('uc_bonne', 'uc_ci')))
+                nb_uc        = nb_uc_triees + sum(lignes_um.mapped('nb_uc_a_trier'))
+                # Pièces écartées : retirées des UC diminuées, à recontrôler ou à mettre au rebut à la fin du contrôle
+                qt_ecartees  = obj.qt_restante - qt_a_trier
+                progression  = int(round(obj.progression))
                 info = (
                     "<div class='lh-sm'>"
-                    "<b>%s</b><br/>"
+                    "%s"
                     "<b>%s</b> <span class='text-muted'>%s</span><br/>"
-                    "Lot <b>%s</b> en <b>%s</b> · %s UM · reste <b>%s</b> / %s"
+                    "Lot <b>%s</b> en <b>%s</b> · %s UM · %s pcs<br/>"
+                    "À trier <b>%s</b> · écartées <b>%s</b> · bonnes %s · CI %s"
                     "</div>"
                     "<div class='d-flex align-items-center mt-1'>"
                     "<div class='progress flex-grow-1 me-2' style='height:8px'><div class='progress-bar' style='width:%s%%'></div></div>"
-                    "<span class='small'>%s %%</span>"
+                    "<span class='small'>%s / %s UC · %s %%</span>"
                     "</div>"
                 )%(
-                    escape(obj.name or ''),
+                    titre,
                     escape(obj.product_id.is_code or ''), escape(obj.product_id.name or ''),
-                    escape(obj.lot_id.name or ''), escape(obj.location_id.name or ''),
-                    obj.nb_um_origine, obj.qt_restante, obj.qt_initiale,
-                    progression, progression,
+                    escape(obj.lot_id.name or ''), escape(obj.location_id.name or ''), obj.nb_um_origine, obj.qt_initiale,
+                    qt_a_trier, qt_ecartees, obj.qt_bonne, obj.qt_ci,
+                    progression, nb_uc_triees, nb_uc, progression,
                 )
             obj.info_html = info
 
@@ -156,7 +168,7 @@ class is_controle_qualite_um(models.Model):
                     badge += "<span class='badge bg-info text-dark ms-1'>UC=UM</span>"
                 ucs = ", ".join("%s%s"%(l.uc_id.num_eti, l.type=='uc_ci' and " (%s)"%l.quantite or "") for l in vals['ucs'])
                 carte = (
-                    "<div class='border rounded px-2 py-1 mb-1 bg-white'>"
+                    "<div class='border rounded px-2 py-1 bg-white'>"
                     "<div class='d-flex justify-content-between'><span><b>UM %s</b>%s</span><span>%s UC · %s pcs</span></div>"
                     "<div class='small text-muted'>%s</div>"
                     "</div>"%(escape(um.name), badge, len(vals['ucs']), vals['quantite'], ucs)
@@ -166,8 +178,9 @@ class is_controle_qualite_um(models.Model):
                     en_cours = carte
                 else:
                     cartes.append(carte)
-            obj.um_en_cours_html = en_cours
-            obj.um_triees_html   = cartes and "".join(cartes) or False
+            # Grille o_is_cartes (controle_qualite_um.scss) : une colonne sur smartphone, plusieurs sur PC
+            obj.um_en_cours_html = en_cours and "<div class='o_is_cartes'>%s</div>"%en_cours
+            obj.um_triees_html   = cartes and "<div class='o_is_cartes'>%s</div>"%"".join(cartes) or False
 
 
     name                      = fields.Char("N° contrôle", readonly=True, copy=False, index=True)
@@ -313,6 +326,9 @@ class is_controle_qualite_um(models.Model):
         if self.state=='tri':
             if self.attente_emplacement:
                 return self._scan_emplacement(code)
+            # Étiquette UM pendant le tri : ajout direct de l'UM (seules les UC=UM, sans étiquette UM, passent par « Retour à l'ajout des UM »)
+            if code[:1] in ('M', 'G'):
+                return self._ajouter_um(self._get_um_scan_um(code))
             return self._scan_uc(code)
         raise ValidationError("Aucun scan attendu dans l'état « %s »"%dict(_STATE)[self.state])
 
@@ -377,7 +393,7 @@ class is_controle_qualite_um(models.Model):
 
 
     def _ajouter_um(self, um):
-        self._verifier_etat(['scan_um'])
+        self._verifier_etat(['scan_um', 'tri'])
         lot = self._verifier_um(um)
         vals = {'um_origine_ids': [(4, um.id)]}
         if not self.product_id:
@@ -669,6 +685,7 @@ class is_controle_qualite_um_ligne(models.Model):
     nb_uc            = fields.Integer("Nb UC", related='um_id.nb_uc')
     controle_state   = fields.Selection(related='controle_id.state')
     nb_uc_a_trier    = fields.Integer("UC à trier", compute='_compute_nb_uc_a_trier')
+    qt_a_trier       = fields.Integer("Qt à trier", compute='_compute_nb_uc_a_trier')
 
 
     @api.depends('um_id', 'controle_id.ligne_ids')
@@ -676,7 +693,9 @@ class is_controle_qualite_um_ligne(models.Model):
         "UC de l'UM d'origine pas encore triées (une UC=UM triée reste dans son UM)"
         for obj in self:
             ucs_triees = obj.controle_id.ligne_ids.filtered(lambda l: l.type in ('uc_bonne', 'uc_ci')).uc_id
-            obj.nb_uc_a_trier = len(obj.um_id.uc_ids - ucs_triees)
+            ucs = obj.um_id.uc_ids - ucs_triees
+            obj.nb_uc_a_trier = len(ucs)
+            obj.qt_a_trier    = sum(ucs.mapped('qt_pieces'))
 
 
     def retirer_um_action(self):

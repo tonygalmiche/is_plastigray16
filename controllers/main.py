@@ -28,9 +28,10 @@ class ApplicationWeb(http.Controller):
             'display'         : 'standalone',
             'background_color': '#ffffff',
             'theme_color'     : '#714B67',
+            # Logo Plastigray (carré, la plus grande icône sert à l'écran de démarrage de l'application installée)
             'icons': [
-                {'src': '/web/static/img/mobile-icons/android-192x192.png', 'sizes': '192x192', 'type': 'image/png'},
-                {'src': '/is_plastigray16/static/description/icon.png'    , 'sizes': '400x400', 'type': 'image/png'},
+                {'src': '/is_plastigray16/static/src/img/plastigray-192.png', 'sizes': '192x192', 'type': 'image/png'},
+                {'src': '/is_plastigray16/static/src/img/plastigray-512.png', 'sizes': '512x512', 'type': 'image/png'},
             ],
         }
         return request.make_response(json.dumps(manifest), headers=[
