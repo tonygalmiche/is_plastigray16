@@ -77,10 +77,19 @@
                             class="btn-secondary w-100 mb-2"
                             attrs="{'invisible': [('attente_emplacement', '=', False)]}"
                         />
-                        <field name="ligne_um_origine_ids" mode="kanban" attrs="{'invisible': [('ligne_um_origine_ids', '=', [])]}">
+                        <div attrs="{'invisible': [('um_en_cours_html', '=', False)]}">
+                            <div class="small fw-bold text-muted">UM en cours</div>
+                            <field name="um_en_cours_html" nolabel="1"/>
+                        </div>
+                        <div attrs="{'invisible': [('um_triees_html', '=', False)]}">
+                            <div class="small fw-bold text-muted">UM triées</div>
+                            <field name="um_triees_html" nolabel="1"/>
+                        </div>
+                        <div class="small fw-bold text-muted" attrs="{'invisible': ['|', ('state', '=', 'scan_um'), ('ligne_um_a_trier_ids', '=', [])]}">UM à trier</div>
+                        <field name="ligne_um_a_trier_ids" mode="kanban" attrs="{'invisible': [('ligne_um_a_trier_ids', '=', [])]}">
                             <kanban>
                                 <field name="um_id"/>
-                                <field name="nb_uc"/>
+                                <field name="nb_uc_a_trier"/>
                                 <field name="quantite"/>
                                 <field name="controle_state"/>
                                 <templates>
@@ -88,7 +97,7 @@
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div>
                                                 <strong class="fs-5"><i class="fa fa-cubes me-2" title="UM"/><field name="um_id"/></strong>
-                                                <div class="text-muted"><field name="nb_uc"/> UC, <field name="quantite"/> pièces</div>
+                                                <div class="text-muted">reste <field name="nb_uc_a_trier"/> UC (<field name="quantite"/> pièces au départ)</div>
                                             </div>
                                             <button t-if="record.controle_state.raw_value == 'scan_um'"
                                                 name="retirer_um_action"

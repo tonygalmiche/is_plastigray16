@@ -113,7 +113,63 @@ class is_controle_qualite_um(models.Model):
             obj.info_html = info
 
 
+    @api.depends('ligne_ids')
+    def _compute_ligne_um_a_trier_ids(self):
+        for obj in self:
+            obj.ligne_um_a_trier_ids = obj.ligne_ids.filtered(lambda l: l.type=='um_origine' and l.nb_uc_a_trier)
+
+
+    @api.depends('ligne_ids', 'um_en_cours_id')
+    def _compute_um_triees_html(self):
+        "Cartes des UM créées ou déplacées par le tri, les plus récentes en haut"
+        for obj in self:
+            ums = {}
+            # Dans l'onchange du scan, les lignes sont des NewId : ordre selon l'id en base (_origin)
+            lignes = obj.ligne_ids.filtered(lambda l: l.type in ('uc_bonne', 'uc_ci', 'fin_um'))
+            for ligne in sorted(lignes, key=lambda l: l._origin.id or 0):
+                um = ligne.um_id
+                if um not in ums:
+                    ums[um] = {'ucs': [], 'quantite': 0, 'destination': False, 'ordre': 0}
+                vals = ums[um]
+                vals['ordre'] = ligne._origin.id or 0
+                if ligne.type in ('uc_bonne', 'uc_ci'):
+                    vals['ucs'].append(ligne)
+                    vals['quantite'] += ligne.quantite
+                if ligne.location_dest_id:
+                    vals['destination'] = ligne.location_dest_id
+            cartes   = []
+            en_cours = False
+            for um, vals in sorted(ums.items(), key=lambda x: -x[1]['ordre']):
+                if um==obj.um_en_cours_id:
+                    badge = "<span class='badge bg-warning text-dark ms-1'>en cours</span>"
+                elif vals['destination']:
+                    # Gris en style : la classe bg-secondary ne ressort pas dans le thème Odoo 16
+                    couleur = vals['destination'].name=='CI' and '#8a8f94' or '#28a745'
+                    badge = "<span class='badge ms-1' style='background-color:%s;color:#fff'>→ %s</span>"%(couleur, escape(vals['destination'].name))
+                else:
+                    badge = ""
+                if um.product_id.is_um_egale_uc:
+                    badge += "<span class='badge bg-info text-dark ms-1'>UC=UM</span>"
+                ucs = ", ".join("%s%s"%(l.uc_id.num_eti, l.type=='uc_ci' and " (%s)"%l.quantite or "") for l in vals['ucs'])
+                carte = (
+                    "<div class='border rounded px-2 py-1 mb-1 bg-white'>"
+                    "<div class='d-flex justify-content-between'><span><b>UM %s</b>%s</span><span>%s UC · %s pcs</span></div>"
+                    "<div class='small text-muted'>%s</div>"
+                    "</div>"%(escape(um.name), badge, len(vals['ucs']), vals['quantite'], ucs)
+                )
+                # L'UM en cours est affichée à part, au-dessus des UM triées
+                if um==obj.um_en_cours_id:
+                    en_cours = carte
+                else:
+                    cartes.append(carte)
+            obj.um_en_cours_html = en_cours
+            obj.um_triees_html   = cartes and "".join(cartes) or False
+
+
     name                      = fields.Char("N° contrôle", readonly=True, copy=False, index=True)
+    ligne_um_a_trier_ids      = fields.One2many('is.controle.qualite.um.ligne', compute='_compute_ligne_um_a_trier_ids', string="UM à trier")
+    um_triees_html            = fields.Html("UM triées"  , compute='_compute_um_triees_html', sanitize=False)
+    um_en_cours_html          = fields.Html("UM en cours", compute='_compute_um_triees_html', sanitize=False)
     info_html                 = fields.Html("Article et lot", compute='_compute_info_html', sanitize=False)
     state                     = fields.Selection(_STATE, "État", default='scan_um', required=True, readonly=True, tracking=True, index=True)
     imprimante_id             = fields.Many2one('is.raspberry.zebra', "Imprimante", default=lambda self: self._get_imprimante_id(), tracking=True)
@@ -452,6 +508,7 @@ class is_controle_qualite_um(models.Model):
             # date_fin renseignée : THEIA ne doit pas prendre cette UM pour l'UM en cours de l'OF
             um_en_cours.sudo().date_fin = fields.Datetime.now()
             self.um_en_cours_id = um_en_cours.id
+        self._sortir_um_vide(um_origine)
         self.env['is.controle.qualite.um.ligne'].create({
             'controle_id'  : self.id,
             'type'         : 'uc_bonne',
@@ -482,6 +539,7 @@ class is_controle_qualite_um(models.Model):
         else:
             um = self.env['is.galia.base.um'].browse(uc.sudo().picking_um())
             um.sudo().date_fin = fields.Datetime.now()
+            self._sortir_um_vide(um_origine)
         moves = self._deplacer_um(um, location_ci)
         self.env['is.controle.qualite.um.ligne'].create({
             'controle_id'     : self.id,
@@ -549,6 +607,13 @@ class is_controle_qualite_um(models.Model):
         return message
 
 
+    def _sortir_um_vide(self, um):
+        "UM d'origine vidée par picking_um (qui l'archive) : mise tout de suite dans INV, sans attendre la fin du contrôle"
+        um = um.sudo()
+        if not um.active:
+            um.mettre_um_archivee_dans_inv_action()
+
+
     def _get_location(self, name):
         locations = self.env['stock.location'].search([('name','=',name), ('usage','=','internal')])
         if not locations:
@@ -599,6 +664,15 @@ class is_controle_qualite_um_ligne(models.Model):
     move_ids         = fields.Many2many('stock.move', 'is_controle_qualite_um_ligne_move_rel', 'ligne_id', 'move_id', "Mouvements de stock")
     nb_uc            = fields.Integer("Nb UC", related='um_id.nb_uc')
     controle_state   = fields.Selection(related='controle_id.state')
+    nb_uc_a_trier    = fields.Integer("UC à trier", compute='_compute_nb_uc_a_trier')
+
+
+    @api.depends('um_id', 'controle_id.ligne_ids')
+    def _compute_nb_uc_a_trier(self):
+        "UC de l'UM d'origine pas encore triées (une UC=UM triée reste dans son UM)"
+        for obj in self:
+            ucs_triees = obj.controle_id.ligne_ids.filtered(lambda l: l.type in ('uc_bonne', 'uc_ci')).uc_id
+            obj.nb_uc_a_trier = len(obj.um_id.uc_ids - ucs_triees)
 
 
     def retirer_um_action(self):
