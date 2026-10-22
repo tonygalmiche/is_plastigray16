@@ -15,13 +15,80 @@
             <field name="name">is_controle_qualite_um_form_view</field>
             <field name="model">is.controle.qualite.um</field>
             <field name="arch" type="xml">
-                <form create="false">
+                <form create="false" class="o_is_controle_qualite_um">
                     <header>
+                        <button
+                            name="commencer_tri_action"
+                            string="Commencer le tri"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': ['|', ('state', '!=', 'scan_um'), ('nb_um_origine', '=', 0)]}"
+                        />
+                        <button
+                            name="ajouter_um_action"
+                            string="Ajouter des UM"
+                            type="object"
+                            attrs="{'invisible': [('state', '!=', 'tri')]}"
+                        />
+                        <button
+                            name="abandonner_action"
+                            string="Abandonner"
+                            type="object"
+                            confirm="Abandonner ce contrôle ? Ses UM seront libérées."
+                            attrs="{'invisible': [('abandon_possible', '=', False)]}"
+                        />
                         <field name="state" widget="statusbar" statusbar_visible="scan_um,tri,fin,termine"/>
                     </header>
                     <sheet>
-                        <div class="oe_title">
-                            <h1><field name="name"/></h1>
+                        <!-- Sans invisible="1" : en Odoo 16, un champ invisible n'est pas monté et le widget ne reçoit pas les scans (il n'affiche rien) -->
+                        <field name="_barcode_scanned" widget="barcode_handler"/>
+                        <field name="abandon_possible" invisible="1"/>
+                        <div class="alert alert-info fs-5 py-1 px-2 mt-1 mb-1" role="status" attrs="{'invisible': [('action_attendue', '=', False)]}">
+                            <i class="fa fa-barcode me-2" title="Action attendue"/><field name="action_attendue"/>
+                        </div>
+                        <div class="alert alert-danger py-1 px-2 mb-1" role="alert" attrs="{'invisible': [('alerte', '=', False)]}">
+                            <field name="alerte"/>
+                        </div>
+                        <div class="alert alert-success py-1 px-2 mb-1" role="status" attrs="{'invisible': [('message', '=', False)]}">
+                            <field name="message"/>
+                        </div>
+                        <field name="ligne_um_origine_ids" mode="kanban" attrs="{'invisible': [('ligne_um_origine_ids', '=', [])]}">
+                            <kanban>
+                                <field name="um_id"/>
+                                <field name="nb_uc"/>
+                                <field name="quantite"/>
+                                <field name="controle_state"/>
+                                <templates>
+                                    <t t-name="kanban-box">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <strong class="fs-5"><i class="fa fa-cubes me-2" title="UM"/><field name="um_id"/></strong>
+                                                <div class="text-muted"><field name="nb_uc"/> UC, <field name="quantite"/> pièces</div>
+                                            </div>
+                                            <button t-if="record.controle_state.raw_value == 'scan_um'"
+                                                name="retirer_um_action"
+                                                type="object"
+                                                class="btn btn-link text-danger fs-4"
+                                                title="Retirer"
+                                                confirm="Retirer cette UM du contrôle ?">
+                                                <i class="fa fa-trash" title="Retirer"/>
+                                            </button>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                        <button
+                            name="commencer_tri_action"
+                            string="Commencer le tri"
+                            type="object"
+                            class="btn-primary w-100 mb-2"
+                            attrs="{'invisible': ['|', ('state', '!=', 'scan_um'), ('nb_um_origine', '=', 0)]}"
+                        />
+                        <div class="fw-bold mb-1"><field name="name"/></div>
+                        <div class="d-flex mb-3" attrs="{'invisible': [('state', 'not in', ('scan_um', 'tri'))]}">
+                            <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
+                            <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
                         </div>
                         <group>
                             <group>
@@ -38,17 +105,6 @@
                             </group>
                         </group>
                         <notebook>
-                            <page string="UM d'origine">
-                                <field name="um_origine_ids">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="product_id"/>
-                                        <field name="location_id"/>
-                                        <field name="nb_uc"/>
-                                        <field name="qt_pieces"/>
-                                    </tree>
-                                </field>
-                            </page>
                             <page string="Quantités">
                                 <group>
                                     <field name="qt_initiale"/>
@@ -145,7 +201,7 @@
                                     </div>
                                 </t>
                                 <div t-else="" class="text-muted fst-italic">
-                                    <i class="fa fa-barcode me-1"/>Aucune UM scannée
+                                    <i class="fa fa-barcode me-1" title="Aucune UM scannée"/>Aucune UM scannée
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center text-muted small mt-2 pt-2 border-top">
                                     <span><i class="fa fa-clock-o me-1" title="Dernière activité"/><field name="date_derniere_activite"/></span>

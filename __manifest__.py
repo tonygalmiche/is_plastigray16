@@ -16,6 +16,7 @@ Module Odoo 16 pour Plastigray
         "purchase",
         "hr",
         "stock",
+        "barcodes",
         "mrp",
         "account",
         "l10n_fr",

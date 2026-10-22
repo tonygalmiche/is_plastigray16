@@ -93,6 +93,7 @@
                             </group>
                             <group>
                                 <field name="location_id"/>
+                                <field name="controle_qualite_id" attrs="{'invisible': [('controle_qualite_id', '=', False)]}"/>
                                 <field name="location_dest_id"/>
                                 <field name="qt_pieces"     attrs="{'invisible': [('mixte', '!=', 'non')]}"/>
                                 <field name="employee_id"/>

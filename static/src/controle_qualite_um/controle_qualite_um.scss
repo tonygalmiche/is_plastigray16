@@ -1,0 +1,5 @@
+// Contrôle qualité des UM par scan : formulaire compact pour le Zebra TC22 (moins d'espace au-dessus de la fiche)
+.o_is_controle_qualite_um .o_form_sheet_bg > .o_form_sheet {
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+}
