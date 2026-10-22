@@ -55,6 +55,28 @@
                         <div class="bg-light border rounded py-1 px-2 mb-1" attrs="{'invisible': [('product_id', '=', False)]}">
                             <field name="info_html" nolabel="1"/>
                         </div>
+                        <field name="attente_emplacement" invisible="1"/>
+                        <field name="um_en_cours_id" invisible="1"/>
+                        <!-- UC scannée en attente de validation de sa quantité (pavé numérique au toucher du champ) -->
+                        <div class="border border-primary rounded p-2 mb-2" attrs="{'invisible': ['|', ('uc_a_valider_id', '=', False), ('attente_emplacement', '!=', False)]}">
+                            <div class="mb-1">
+                                UC <strong><field name="uc_a_valider_id" readonly="1" options="{'no_open': True}"/></strong>
+                                · UM <field name="uc_a_valider_um_id" options="{'no_open': True}"/>
+                                · <field name="uc_a_valider_qt"/> pièces
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <field name="qt_saisie" class="fs-4 me-2" style="max-width: 8rem;"/>
+                                <button name="valider_uc_action" string="Valider" type="object" class="btn-primary me-2"/>
+                                <button name="annuler_action" string="Annuler" type="object" class="btn-secondary"/>
+                            </div>
+                        </div>
+                        <button
+                            name="annuler_action"
+                            string="Annuler le déplacement"
+                            type="object"
+                            class="btn-secondary w-100 mb-2"
+                            attrs="{'invisible': [('attente_emplacement', '=', False)]}"
+                        />
                         <field name="ligne_um_origine_ids" mode="kanban" attrs="{'invisible': [('ligne_um_origine_ids', '=', [])]}">
                             <kanban>
                                 <field name="um_id"/>
@@ -87,6 +109,13 @@
                             type="object"
                             class="btn-primary w-100 mb-2"
                             attrs="{'invisible': ['|', ('state', '!=', 'scan_um'), ('nb_um_origine', '=', 0)]}"
+                        />
+                        <button
+                            name="fin_um_en_cours_action"
+                            string="Fin UM en cours"
+                            type="object"
+                            class="btn-primary w-100 mb-2"
+                            attrs="{'invisible': ['|', '|', '|', ('state', '!=', 'tri'), ('um_en_cours_id', '=', False), ('uc_a_valider_id', '!=', False), ('attente_emplacement', '!=', False)]}"
                         />
                         <div class="fw-bold mb-1"><field name="name"/></div>
                         <div class="d-flex mb-3" attrs="{'invisible': [('state', 'not in', ('scan_um', 'tri'))]}">

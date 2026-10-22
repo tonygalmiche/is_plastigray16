@@ -29,7 +29,14 @@ _TYPE_LIGNE = [
 # Champs recopiés de l'enregistrement en base vers le formulaire après un scan (on_barcode_scanned est un onchange)
 _CHAMPS_FORMULAIRE = [
     'state', 'location_id', 'product_id', 'lot_id', 'um_origine_ids', 'ligne_ids', 'ligne_um_origine_ids',
+    'um_en_cours_id', 'uc_a_valider_id', 'qt_saisie', 'attente_emplacement', 'um_a_deplacer_id',
     'message', 'alerte', 'date_derniere_activite', 'user_derniere_activite_id',
+]
+
+# Scan d'emplacement attendu en état tri
+_ATTENTE_EMPLACEMENT = [
+    ('fin_um', "Fin UM en cours"),
+    ('uc_um' , "UC bonne d'un article UC=UM"),
 ]
 
 
@@ -66,33 +73,42 @@ class is_controle_qualite_um(models.Model):
             obj.progression     = qt['um_origine'] and 100.0*qt_sortie/qt['um_origine'] or 0
 
 
-    @api.depends('state', 'ligne_ids.type')
+    @api.depends('state', 'ligne_ids.type', 'uc_a_valider_id', 'attente_emplacement', 'um_a_deplacer_id')
     def _compute_action_attendue(self):
         for obj in self:
             action_attendue = False
             if obj.state=='scan_um':
                 action_attendue = "Scannez les UM"
             if obj.state=='tri':
-                action_attendue = "Scannez une UC"
+                if obj.attente_emplacement:
+                    action_attendue = "Scannez l'emplacement de l'UM %s"%obj.um_a_deplacer_id.name
+                elif obj.uc_a_valider_id:
+                    action_attendue = "Validez la quantité de l'UC %s"%obj.uc_a_valider_id.num_eti
+                else:
+                    action_attendue = "Scannez une UC"
             obj.action_attendue   = action_attendue
             # Abandon possible tant qu'aucune UC n'a été traitée
             obj.abandon_possible  = obj.state in ('scan_um', 'tri') and not obj.ligne_ids.filtered(lambda l: l.type!='um_origine')
 
 
-    @api.depends('product_id', 'lot_id', 'location_id', 'qt_initiale', 'qt_restante', 'nb_um_origine')
+    @api.depends('product_id', 'lot_id', 'location_id', 'qt_initiale', 'qt_restante', 'nb_um_origine', 'um_en_cours_id')
     def _compute_info_html(self):
         for obj in self:
             info = False
             if obj.product_id:
+                um_en_cours = ""
+                if obj.um_en_cours_id:
+                    um = obj.um_en_cours_id
+                    um_en_cours = "<br/>UM en cours <b>%s</b> : %s UC, %s pièces"%(escape(um.name), um.nb_uc, um.qt_pieces)
                 info = (
                     "<div class='lh-sm'>"
                     "<b>%s</b> <span class='text-muted'>%s</span><br/>"
-                    "Lot <b>%s</b> en <b>%s</b> · %s UM · reste <b>%s</b> / %s"
+                    "Lot <b>%s</b> en <b>%s</b> · %s UM · reste <b>%s</b> / %s%s"
                     "</div>"
                 )%(
                     escape(obj.product_id.is_code or ''), escape(obj.product_id.name or ''),
                     escape(obj.lot_id.name or ''), escape(obj.location_id.name or ''),
-                    obj.nb_um_origine, obj.qt_restante, obj.qt_initiale,
+                    obj.nb_um_origine, obj.qt_restante, obj.qt_initiale, um_en_cours,
                 )
             obj.info_html = info
 
@@ -107,7 +123,11 @@ class is_controle_qualite_um(models.Model):
     um_origine_ids            = fields.Many2many('is.galia.base.um', 'is_controle_qualite_um_origine_rel', 'controle_id', 'um_id', "UM d'origine", readonly=True)
     um_en_cours_id            = fields.Many2one('is.galia.base.um', "UM en cours", readonly=True, help="UM en cours de remplissage avec les UC bonnes")
     uc_a_valider_id           = fields.Many2one('is.galia.base.uc', "UC à valider", readonly=True, help="UC scannée en attente de validation de sa quantité")
+    uc_a_valider_qt           = fields.Integer("Qt de l'UC", related='uc_a_valider_id.qt_pieces')
+    uc_a_valider_um_id        = fields.Many2one('is.galia.base.um', "UM de l'UC", related='uc_a_valider_id.um_id')
     qt_saisie                 = fields.Integer("Quantité")
+    attente_emplacement       = fields.Selection(_ATTENTE_EMPLACEMENT, "Emplacement attendu", readonly=True, copy=False)
+    um_a_deplacer_id          = fields.Many2one('is.galia.base.um', "UM à déplacer", readonly=True, copy=False, help="UM déplacée au scan de l'emplacement")
     qt_initiale               = fields.Integer("Qt initiale"         , compute='_compute_quantites', store=True)
     qt_bonne                  = fields.Integer("Qt bonne"            , compute='_compute_quantites', store=True)
     qt_ci                     = fields.Integer("Qt en CI"            , compute='_compute_quantites', store=True)
@@ -196,35 +216,45 @@ class is_controle_qualite_um(models.Model):
             obj.traiter_code(code)
 
 
-    def traiter_code(self, code):
-        "Traitement d'un code scanné ou saisi selon l'état du contrôle. Les refus et les erreurs sont affichés dans l'alerte et le chatter"
+    def _executer(self, libelle, fonction, *args):
+        """Exécute une opération du contrôle (scan ou bouton). Les refus et les erreurs sont affichés dans l'alerte
+        et le chatter, et l'opération est annulée (savepoint) sans perdre le message"""
         self.ensure_one()
-        self._verifier_droits()
-        code = (code or '').strip().upper()
-        if not code:
-            return
         try:
-            # Savepoint : en cas de refus ou d'erreur, le traitement est annulé mais le message reste enregistré
             with self.env.cr.savepoint():
-                if self.state=='scan_um':
-                    um = self._get_um_scan_um(code)
-                    message = self._ajouter_um(um)
-                elif self.state=='tri':
-                    raise ValidationError("Scan des UC : pas encore développé (étape 4)")
-                else:
-                    raise ValidationError("Aucun scan attendu dans l'état « %s »"%dict(_STATE)[self.state])
-            _logger.info("Contrôle qualité UM : %s : %s : %s", self.name, code, message)
-            self.message_post(body="✅ Scan %s : %s"%(code, message))
+                self._verifier_droits()
+                message = fonction(*args)
+            _logger.info("Contrôle qualité UM : %s : %s : %s", self.name, libelle, message)
+            self.message_post(body="✅ %s : %s"%(libelle, message))
             self._noter_activite(message=message)
         except UserError as e:
-            _logger.info("Contrôle qualité UM : %s : %s : refus : %s", self.name, code, e.args[0])
-            self.message_post(body="❌ Scan %s : refusé : %s"%(code, e.args[0]))
-            self._noter_activite(alerte="%s : %s"%(code, e.args[0]))
+            _logger.info("Contrôle qualité UM : %s : %s : refus : %s", self.name, libelle, e.args[0])
+            self.message_post(body="❌ %s : refusé : %s"%(libelle, e.args[0]))
+            self._noter_activite(alerte="%s : %s"%(libelle, e.args[0]))
         except Exception as e:
-            _logger.exception("Contrôle qualité UM : %s : %s : erreur", self.name, code)
+            _logger.exception("Contrôle qualité UM : %s : %s : erreur", self.name, libelle)
             erreur = "Erreur : %s"%(e.args and e.args[0] or e)
-            self.message_post(body="❌ Scan %s : %s"%(code, erreur))
-            self._noter_activite(alerte="%s : %s"%(code, erreur))
+            self.message_post(body="❌ %s : %s"%(libelle, erreur))
+            self._noter_activite(alerte="%s : %s"%(libelle, erreur))
+
+
+    def traiter_code(self, code):
+        "Traitement d'un code scanné ou saisi selon l'état du contrôle"
+        self.ensure_one()
+        code = (code or '').strip().upper()
+        if code:
+            self._executer("Scan %s"%code, self._traiter_code, code)
+
+
+    def _traiter_code(self, code):
+        if self.state=='scan_um':
+            um = self._get_um_scan_um(code)
+            return self._ajouter_um(um)
+        if self.state=='tri':
+            if self.attente_emplacement:
+                return self._scan_emplacement(code)
+            return self._scan_uc(code)
+        raise ValidationError("Aucun scan attendu dans l'état « %s »"%dict(_STATE)[self.state])
 
 
     def _get_um_scan_um(self, code):
@@ -321,6 +351,7 @@ class is_controle_qualite_um(models.Model):
         for obj in self:
             obj._verifier_droits()
             obj._verifier_etat(['tri'])
+            obj._verifier_rien_en_attente()
             obj.state = 'scan_um'
             obj._noter_activite()
 
@@ -332,6 +363,223 @@ class is_controle_qualite_um(models.Model):
                 raise ValidationError("Abandon impossible : des UC ont déjà été traitées, il faut aller jusqu'à « Fin du contrôle »")
             obj.state = 'annule'
             obj._noter_activite(message="Contrôle abandonné, UM libérées")
+
+
+    def valider_uc_action(self):
+        for obj in self:
+            obj._executer("UC %s"%obj.uc_a_valider_id.num_eti, obj._valider_uc)
+
+
+    def annuler_action(self):
+        "Annule l'UC en attente de validation ou le scan d'emplacement attendu"
+        for obj in self:
+            obj.write({
+                'uc_a_valider_id'    : False,
+                'qt_saisie'          : 0,
+                'attente_emplacement': False,
+                'um_a_deplacer_id'   : False,
+            })
+            obj._noter_activite()
+
+
+    def fin_um_en_cours_action(self):
+        for obj in self:
+            obj._executer("Fin UM en cours", obj._fin_um_en_cours)
+
+
+    #** Tri des UC (état tri) *************************************************
+    def _verifier_rien_en_attente(self):
+        if self.uc_a_valider_id and not self.attente_emplacement:
+            raise ValidationError("Validez ou annulez d'abord l'UC %s"%self.uc_a_valider_id.num_eti)
+        if self.attente_emplacement:
+            raise ValidationError("Scannez d'abord l'emplacement de l'UM %s, ou annulez"%self.um_a_deplacer_id.name)
+
+
+    def _scan_uc(self, code):
+        "Scan d'une UC à trier : elle est mise en attente de validation de sa quantité"
+        self._verifier_rien_en_attente()
+        prefixe = code[:1]
+        num     = code[1:]
+        if prefixe!='S' or not num.isdigit():
+            raise ValidationError("Code non reconnu : scannez une étiquette UC")
+        uc = self.env['is.galia.base.uc'].with_context(active_test=False).search([('num_eti','=',int(num))], order='active desc, id desc', limit=1)
+        if not uc:
+            raise ValidationError("UC non trouvée")
+        if not uc.active:
+            raise ValidationError("UC archivée")
+        if self.ligne_ids.filtered(lambda l: l.uc_id==uc and l.type!='um_origine'):
+            raise ValidationError("UC %s déjà triée"%uc.num_eti)
+        if uc.um_id not in self.ligne_um_origine_ids.um_id:
+            raise ValidationError("UC %s dans l'UM %s, qui n'est pas une UM de ce contrôle"%(uc.num_eti, uc.um_id.name))
+        self.write({
+            'uc_a_valider_id': uc.id,
+            'qt_saisie'      : uc.qt_pieces,
+        })
+        return "UC %s : %s pièces, à valider"%(uc.num_eti, uc.qt_pieces)
+
+
+    def _valider_uc(self):
+        "Validation de la quantité de l'UC : UC bonne (quantité inchangée) ou UC diminuée envoyée en CI"
+        self._verifier_etat(['tri'])
+        uc = self.uc_a_valider_id
+        if not uc:
+            raise ValidationError("Aucune UC à valider")
+        if self.attente_emplacement:
+            raise ValidationError("Scannez d'abord l'emplacement de l'UM %s, ou annulez"%self.um_a_deplacer_id.name)
+        qt = self.qt_saisie
+        if qt<=0:
+            raise ValidationError("La quantité doit être supérieure à 0")
+        if qt>uc.qt_pieces:
+            raise ValidationError("Quantité %s supérieure à celle de l'UC (%s) : augmentation interdite"%(qt, uc.qt_pieces))
+        um_origine = uc.um_id
+        if qt<uc.qt_pieces:
+            message = self._uc_diminuee(uc, qt)
+            self.write({'uc_a_valider_id': False, 'qt_saisie': 0})
+            return message
+        if uc.product_id.is_um_egale_uc:
+            # UC=UM : l'UC reste seule dans son UM, déplacée au scan de l'emplacement
+            self.write({
+                'attente_emplacement': 'uc_um',
+                'um_a_deplacer_id'   : um_origine.id,
+                'qt_saisie'          : 0,
+            })
+            return "UC %s bonne (%s pièces) : scannez l'emplacement de l'UM %s"%(uc.num_eti, qt, um_origine.name)
+        um_en_cours = self.um_en_cours_id
+        if um_en_cours:
+            uc.sudo().picking_um(um_dest_id=um_en_cours.id)
+        else:
+            um_en_cours = self.env['is.galia.base.um'].browse(uc.sudo().picking_um())
+            # date_fin renseignée : THEIA ne doit pas prendre cette UM pour l'UM en cours de l'OF
+            um_en_cours.sudo().date_fin = fields.Datetime.now()
+            self.um_en_cours_id = um_en_cours.id
+        self.env['is.controle.qualite.um.ligne'].create({
+            'controle_id'  : self.id,
+            'type'         : 'uc_bonne',
+            'uc_id'        : uc.id,
+            'um_origine_id': um_origine.id,
+            'um_id'        : um_en_cours.id,
+            'quantite'     : qt,
+        })
+        self.write({'uc_a_valider_id': False, 'qt_saisie': 0})
+        return "UC %s bonne (%s pièces) mise dans l'UM en cours %s"%(uc.num_eti, qt, um_en_cours.name)
+
+
+    def _uc_diminuee(self, uc, qt):
+        "UC diminuée : nouvelle quantité, étiquette à réimprimer, seule dans une UM déplacée en CI"
+        if len(uc.lot_ids)>1:
+            raise ValidationError("UC %s avec plusieurs lignes de lots : quantité non modifiable ici"%uc.num_eti)
+        location_ci = self._get_location('CI')
+        um_origine  = uc.um_id
+        qt_avant    = uc.qt_pieces
+        vals = {'qt_pieces': qt}
+        if uc.lot_ids:
+            vals['lot_ids'] = [(1, uc.lot_ids.id, {'qt_pieces': qt})]
+        uc.sudo().write(vals)
+        uc.sudo().message_post(body="Contrôle qualité %s : quantité %s → %s"%(self.name, qt_avant, qt))
+        self._imprimer_uc(uc)
+        if uc.product_id.is_um_egale_uc:
+            um = um_origine
+        else:
+            um = self.env['is.galia.base.um'].browse(uc.sudo().picking_um())
+            um.sudo().date_fin = fields.Datetime.now()
+        moves = self._deplacer_um(um, location_ci)
+        self.env['is.controle.qualite.um.ligne'].create({
+            'controle_id'     : self.id,
+            'type'            : 'uc_ci',
+            'uc_id'           : uc.id,
+            'um_origine_id'   : um_origine.id,
+            'um_id'           : um.id,
+            'quantite'        : qt,
+            'location_dest_id': location_ci.id,
+            'move_ids'        : [(6, 0, moves.ids)],
+        })
+        return "UC %s diminuée (%s → %s pièces), UM %s déplacée en CI"%(uc.num_eti, qt_avant, qt, um.name)
+
+
+    def _fin_um_en_cours(self):
+        self._verifier_etat(['tri'])
+        self._verifier_rien_en_attente()
+        um = self.um_en_cours_id
+        if not um:
+            raise ValidationError("Aucune UM en cours")
+        self._imprimer_um(um)
+        self.write({
+            'attente_emplacement': 'fin_um',
+            'um_a_deplacer_id'   : um.id,
+        })
+        return "UM %s terminée (%s UC, %s pièces) : scannez son emplacement"%(um.name, um.nb_uc, um.qt_pieces)
+
+
+    def _scan_emplacement(self, code):
+        "Scan de l'emplacement de destination de l'UM en attente (fin UM en cours, ou UC bonne d'un article UC=UM)"
+        if not code.startswith('EMP'):
+            raise ValidationError("Scannez l'étiquette d'un emplacement (EMP…)")
+        location = self._get_location(code[3:])
+        um = self.um_a_deplacer_id
+        moves = self._deplacer_um(um, location)
+        if self.attente_emplacement=='fin_um':
+            self.env['is.controle.qualite.um.ligne'].create({
+                'controle_id'     : self.id,
+                'type'            : 'fin_um',
+                'um_id'           : um.id,
+                'quantite'        : um.qt_pieces,
+                'location_dest_id': location.id,
+                'move_ids'        : [(6, 0, moves.ids)],
+            })
+            self.um_en_cours_id = False
+            message = "UM %s déplacée en %s"%(um.name, location.name)
+        else:
+            uc = self.uc_a_valider_id
+            self.env['is.controle.qualite.um.ligne'].create({
+                'controle_id'     : self.id,
+                'type'            : 'uc_bonne',
+                'uc_id'           : uc.id,
+                'um_origine_id'   : um.id,
+                'um_id'           : um.id,
+                'quantite'        : uc.qt_pieces,
+                'location_dest_id': location.id,
+                'move_ids'        : [(6, 0, moves.ids)],
+            })
+            message = "UC %s bonne, UM %s déplacée en %s"%(uc.num_eti, um.name, location.name)
+        self.write({
+            'uc_a_valider_id'    : False,
+            'attente_emplacement': False,
+            'um_a_deplacer_id'   : False,
+        })
+        return message
+
+
+    def _get_location(self, name):
+        locations = self.env['stock.location'].search([('name','=',name), ('usage','=','internal')])
+        if not locations:
+            raise ValidationError("Emplacement interne %s non trouvé"%name)
+        if len(locations)>1:
+            raise ValidationError("Plusieurs emplacements internes %s"%name)
+        return locations
+
+
+    def _deplacer_um(self, um, location):
+        "Déplace l'UM et son stock (deplacer_um_action). Retourne les mouvements créés"
+        if um.location_id==location:
+            return self.env['stock.move']
+        um    = um.sudo()
+        Move  = self.env['stock.move'].sudo()
+        # stock_move.reference n'est pas indexé (8 millions de lignes) : recherche limitée aux mouvements créés ici
+        self.env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM stock_move")
+        id_max = self.env.cr.fetchone()[0]
+        um.location_dest_id = location.id
+        um.deplacer_um_action()
+        return Move.search([('id','>',id_max), ('reference','=',"UM %s"%um.name)])
+
+
+    #** Impressions (étape 6) *************************************************
+    def _imprimer_uc(self, uc):
+        self.message_post(body="Étiquette UC %s à réimprimer (%s pièces) : impression à l'étape 6"%(uc.num_eti, uc.qt_pieces))
+
+
+    def _imprimer_um(self, um):
+        format_um = um.etiquette_um_a5 and "A5" or "ancienne"
+        self.message_post(body="Étiquette UM %s (%s) à imprimer : impression à l'étape 6"%(um.name, format_um))
 
 
 class is_controle_qualite_um_ligne(models.Model):
