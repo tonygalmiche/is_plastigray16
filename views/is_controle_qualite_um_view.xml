@@ -163,38 +163,42 @@
                             </group>
                         </group>
                         <notebook>
-                            <page string="Quantités">
-                                <group>
-                                    <field name="qt_initiale"/>
-                                    <field name="qt_bonne"/>
-                                    <field name="qt_ci"/>
-                                    <field name="qt_nouvelles_uc"/>
-                                    <field name="qt_rebut"/>
-                                    <field name="qt_restante"/>
-                                    <field name="um_en_cours_id"/>
-                                </group>
-                            </page>
                             <page string="Journal">
                                 <field name="ligne_ids">
                                     <tree>
                                         <field name="date"/>
                                         <field name="user_id" optional="show"/>
                                         <field name="type"/>
+                                        <button title="UC" name="voir_uc_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('uc_id', '=', False)]}"/>
                                         <field name="uc_id"/>
+                                        <button title="UM d'origine" name="voir_um_origine_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('um_origine_id', '=', False)]}"/>
                                         <field name="um_origine_id" optional="show"/>
+                                        <button title="UM" name="voir_um_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('um_id', '=', False)]}"/>
                                         <field name="um_id"/>
                                         <field name="quantite" sum="Total"/>
                                         <field name="location_dest_id"/>
+                                        <button title="Mouvements de stock" name="voir_mouvements_action" type="object" icon="fa-exchange" attrs="{'invisible': [('move_ids', '=', [])]}"/>
                                         <field name="move_ids" widget="many2many_tags" optional="hide"/>
                                     </tree>
                                 </field>
                             </page>
-                            <page string="Activité">
+                            <page string="Quantités et activité">
                                 <group>
-                                    <field name="date_derniere_activite"/>
-                                    <field name="user_derniere_activite_id"/>
-                                    <field name="create_date"/>
-                                    <field name="create_uid"/>
+                                    <group string="Quantités">
+                                        <field name="qt_initiale"/>
+                                        <field name="qt_bonne"/>
+                                        <field name="qt_ci"/>
+                                        <field name="qt_nouvelles_uc"/>
+                                        <field name="qt_rebut"/>
+                                        <field name="qt_restante"/>
+                                        <field name="um_en_cours_id"/>
+                                    </group>
+                                    <group string="Activité">
+                                        <field name="date_derniere_activite"/>
+                                        <field name="user_derniere_activite_id"/>
+                                        <field name="create_date"/>
+                                        <field name="create_uid"/>
+                                    </group>
                                 </group>
                             </page>
                         </notebook>
@@ -307,15 +311,20 @@
             <field name="model">is.controle.qualite.um.ligne</field>
             <field name="arch" type="xml">
                 <tree create="false" edit="false">
+                    <button title="Contrôle" name="voir_controle_action" type="object" icon="fa-search-plus"/>
                     <field name="controle_id"/>
                     <field name="date"/>
                     <field name="user_id" optional="show"/>
                     <field name="type"/>
+                    <button title="UC" name="voir_uc_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('uc_id', '=', False)]}"/>
                     <field name="uc_id"/>
+                    <button title="UM d'origine" name="voir_um_origine_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('um_origine_id', '=', False)]}"/>
                     <field name="um_origine_id" optional="show"/>
+                    <button title="UM" name="voir_um_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('um_id', '=', False)]}"/>
                     <field name="um_id"/>
                     <field name="quantite" sum="Total"/>
                     <field name="location_dest_id"/>
+                    <button title="Mouvements de stock" name="voir_mouvements_action" type="object" icon="fa-exchange" attrs="{'invisible': [('move_ids', '=', [])]}"/>
                     <field name="move_ids" widget="many2many_tags" optional="hide"/>
                 </tree>
             </field>

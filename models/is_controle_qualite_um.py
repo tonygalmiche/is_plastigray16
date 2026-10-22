@@ -698,6 +698,38 @@ class is_controle_qualite_um_ligne(models.Model):
             obj.qt_a_trier    = sum(ucs.mapped('qt_pieces'))
 
 
+    #** Accès aux fiches depuis le journal ************************************
+    def voir_controle_action(self):
+        for obj in self:
+            return obj.controle_id.voir_controle_action()
+
+
+    def voir_uc_action(self):
+        for obj in self:
+            return obj.uc_id.acceder_uc_action()
+
+
+    def voir_um_origine_action(self):
+        for obj in self:
+            return obj.um_origine_id.acceder_um_action()
+
+
+    def voir_um_action(self):
+        for obj in self:
+            return obj.um_id.acceder_um_action()
+
+
+    def voir_mouvements_action(self):
+        for obj in self:
+            return {
+                'name'     : "Mouvements %s"%obj.controle_id.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'stock.move',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', obj.move_ids.ids)],
+            }
+
+
     def retirer_um_action(self):
         "Retire l'UM du contrôle, tant qu'aucune de ses UC n'a été traitée"
         for obj in self:
