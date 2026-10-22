@@ -17,5 +17,12 @@
         <template id="is_login_layout" inherit_id="web.login_layout">
             <div t-if="not disable_footer" position="replace"/>
         </template>
+        <!-- Manifest d'application web (absent d'Odoo 16, présent à partir d'Odoo 17) pour pouvoir installer Odoo en plein écran depuis Chrome -->
+        <template id="is_web_layout_manifest" inherit_id="web.layout" name="Manifest application web">
+            <xpath expr="//head/link[@rel='shortcut icon']" position="after">
+                <link rel="manifest" href="/is_plastigray16/manifest.webmanifest"/>
+                <meta name="theme-color" content="#714B67"/>
+            </xpath>
+        </template>
     </data>
 </odoo>

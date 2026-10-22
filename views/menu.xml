@@ -1823,6 +1823,54 @@
 
 
     <menuitem id="menu_sub_main_outillages"       sequence="20" parent="menu_main_outillages" name="Outillages"/>
+
+    <!-- Scan -->
+    <record id="menu_main_scan" model="ir.ui.menu" >
+        <field name="name">Scan</field>
+        <field name="sequence">5</field>
+        <field name="parent_id" eval=""/>
+        <field name="web_icon">stock,static/description/icon.png</field>
+        <field name="groups_id" eval="[(6,0,[])]"/>
+    </record>
+    <record id="is_scan_tous_menus" model="ir.ui.menu">
+        <field name="name">🏠</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="menu_main_scan"/>
+        <field name="action" ref="is_top_menu.menu_navigator_action"/>
+    </record>
+    <record id="menu_scan_controle_qualite" model="ir.ui.menu" >
+        <field name="name">Contrôle qualité par scan</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('menu_main_scan')"/>
+        <field name="groups_id" eval="[(6,0,[])]"/>
+    </record>
+    <record id="is_controle_qualite_um_menu" model="ir.ui.menu" >
+        <field name="name">Contrôles</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('menu_scan_controle_qualite')"/>
+        <field name="action"    ref="is_controle_qualite_um_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_qualite_group'),
+        ])]"/>
+    </record>
+    <record id="is_controle_qualite_um_nouveau_menu" model="ir.ui.menu" >
+        <field name="name">Nouveau contrôle</field>
+        <field name="sequence">20</field>
+        <field name="parent_id" eval="ref('menu_scan_controle_qualite')"/>
+        <field name="action"    ref="is_controle_qualite_um_nouveau_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_qualite_group'),
+        ])]"/>
+    </record>
+    <record id="is_controle_qualite_um_ligne_menu" model="ir.ui.menu" >
+        <field name="name">Journal</field>
+        <field name="sequence">30</field>
+        <field name="parent_id" eval="ref('menu_scan_controle_qualite')"/>
+        <field name="action"    ref="is_controle_qualite_um_ligne_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_qualite_group'),
+        ])]"/>
+    </record>
     <menuitem id="menu_is_historique_controle_plastigray" 
             name="Historique des contrôles" 
             parent="menu_sub_main_outillages"

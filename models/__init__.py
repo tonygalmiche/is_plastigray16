@@ -101,3 +101,4 @@ from . import is_questionnaire_dms
 from . import is_reception_inter_site
 from . import is_gestion_portail
 from . import is_facture_proforma_export_tunisie
+from . import is_controle_qualite_um

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_controle_qualite_um_seq" model="ir.sequence">
+            <field name="name">Contrôle qualité des UM</field>
+            <field name="code">is.controle.qualite.um</field>
+            <field name="prefix">CQ-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+
+        <!-- is.controle.qualite.um -->
+        <record model="ir.ui.view" id="is_controle_qualite_um_form_view">
+            <field name="name">is_controle_qualite_um_form_view</field>
+            <field name="model">is.controle.qualite.um</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="scan_um,tri,fin,termine"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="lot_id"/>
+                                <field name="location_id"/>
+                                <field name="imprimante_id" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                            <group>
+                                <field name="nb_um_origine"/>
+                                <field name="qt_initiale"/>
+                                <field name="qt_restante"/>
+                                <field name="progression" widget="progressbar"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="UM d'origine">
+                                <field name="um_origine_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="product_id"/>
+                                        <field name="location_id"/>
+                                        <field name="nb_uc"/>
+                                        <field name="qt_pieces"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Quantités">
+                                <group>
+                                    <field name="qt_initiale"/>
+                                    <field name="qt_bonne"/>
+                                    <field name="qt_ci"/>
+                                    <field name="qt_nouvelles_uc"/>
+                                    <field name="qt_rebut"/>
+                                    <field name="qt_restante"/>
+                                    <field name="um_en_cours_id"/>
+                                </group>
+                            </page>
+                            <page string="Journal">
+                                <field name="ligne_ids">
+                                    <tree>
+                                        <field name="date"/>
+                                        <field name="user_id" optional="show"/>
+                                        <field name="type"/>
+                                        <field name="uc_id"/>
+                                        <field name="um_origine_id" optional="show"/>
+                                        <field name="um_id"/>
+                                        <field name="quantite" sum="Total"/>
+                                        <field name="location_dest_id"/>
+                                        <field name="move_ids" widget="many2many_tags" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Activité">
+                                <group>
+                                    <field name="date_derniere_activite"/>
+                                    <field name="user_derniere_activite_id"/>
+                                    <field name="create_date"/>
+                                    <field name="create_uid"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_controle_qualite_um_tree_view">
+            <field name="name">is_controle_qualite_um_tree_view</field>
+            <field name="model">is.controle.qualite.um</field>
+            <field name="arch" type="xml">
+                <tree create="false">
+                    <field name="name"/>
+                    <field name="product_id" optional="show"/>
+                    <field name="lot_id" optional="show"/>
+                    <field name="location_id" optional="show"/>
+                    <field name="nb_um_origine" optional="show"/>
+                    <field name="qt_initiale" optional="show"/>
+                    <field name="qt_bonne" optional="hide"/>
+                    <field name="qt_ci" optional="hide"/>
+                    <field name="qt_nouvelles_uc" optional="hide"/>
+                    <field name="qt_rebut" optional="hide"/>
+                    <field name="qt_restante" optional="show"/>
+                    <field name="progression" widget="progressbar" optional="show"/>
+                    <field name="date_derniere_activite" optional="show"/>
+                    <field name="user_derniere_activite_id" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'scan_um'" decoration-warning="state == 'tri'" decoration-danger="state == 'fin'" decoration-success="state == 'termine'" decoration-muted="state == 'annule'" optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_controle_qualite_um_kanban_view">
+            <field name="name">is_controle_qualite_um_kanban_view</field>
+            <field name="model">is.controle.qualite.um</field>
+            <field name="arch" type="xml">
+                <kanban create="false" class="o_kanban_mobile">
+                    <field name="state"/>
+                    <field name="product_id"/>
+                    <field name="lot_id"/>
+                    <field name="location_id"/>
+                    <field name="nb_um_origine"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="fs-4"><field name="name"/></strong>
+                                    <field name="state" widget="label_selection" options="{'classes': {'scan_um': 'info', 'tri': 'warning', 'fin': 'danger', 'termine': 'success', 'annule': 'default'}}"/>
+                                </div>
+                                <t t-if="record.product_id.raw_value">
+                                    <div class="fw-bold fs-5"><field name="product_id"/></div>
+                                    <div class="text-muted">
+                                        <i class="fa fa-tag me-1" title="Lot"/><field name="lot_id"/>
+                                        <i class="fa fa-map-marker ms-3 me-1" title="Emplacement"/><field name="location_id"/>
+                                        <i class="fa fa-cubes ms-3 me-1" title="UM"/><field name="nb_um_origine"/> UM
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <div class="flex-grow-1 me-2"><field name="progression" widget="progressbar"/></div>
+                                        <div class="text-nowrap">reste <strong><field name="qt_restante"/></strong> / <field name="qt_initiale"/></div>
+                                    </div>
+                                </t>
+                                <div t-else="" class="text-muted fst-italic">
+                                    <i class="fa fa-barcode me-1"/>Aucune UM scannée
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center text-muted small mt-2 pt-2 border-top">
+                                    <span><i class="fa fa-clock-o me-1" title="Dernière activité"/><field name="date_derniere_activite"/></span>
+                                    <field name="user_derniere_activite_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_controle_qualite_um_search_view">
+            <field name="name">is_controle_qualite_um_search_view</field>
+            <field name="model">is.controle.qualite.um</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="lot_id"/>
+                    <field name="location_id"/>
+                    <field name="um_origine_ids"/>
+                    <filter name="en_cours" string="En cours" domain="[('state', 'in', ('scan_um', 'tri', 'fin'))]"/>
+                    <filter name="termine"  string="Terminés" domain="[('state', '=', 'termine')]"/>
+                    <filter name="annule"   string="Annulés"  domain="[('state', '=', 'annule')]"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter name="group_state"      string="État"        context="{'group_by': 'state'}"/>
+                        <filter name="group_product_id" string="Article"     context="{'group_by': 'product_id'}"/>
+                        <filter name="group_location"   string="Emplacement" context="{'group_by': 'location_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_controle_qualite_um_action">
+            <field name="name">Contrôle qualité</field>
+            <field name="res_model">is.controle.qualite.um</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'search_default_en_cours': 1}</field>
+        </record>
+        <record id="is_controle_qualite_um_nouveau_action" model="ir.actions.server">
+            <field name="name">Nouveau contrôle qualité</field>
+            <field name="model_id" ref="model_is_controle_qualite_um"/>
+            <field name="state">code</field>
+            <field name="code">action = model.nouveau_controle_action()</field>
+        </record>
+
+
+        <!-- is.controle.qualite.um.ligne -->
+        <record model="ir.ui.view" id="is_controle_qualite_um_ligne_tree_view">
+            <field name="name">is_controle_qualite_um_ligne_tree_view</field>
+            <field name="model">is.controle.qualite.um.ligne</field>
+            <field name="arch" type="xml">
+                <tree create="false" edit="false">
+                    <field name="controle_id"/>
+                    <field name="date"/>
+                    <field name="user_id" optional="show"/>
+                    <field name="type"/>
+                    <field name="uc_id"/>
+                    <field name="um_origine_id" optional="show"/>
+                    <field name="um_id"/>
+                    <field name="quantite" sum="Total"/>
+                    <field name="location_dest_id"/>
+                    <field name="move_ids" widget="many2many_tags" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_controle_qualite_um_ligne_search_view">
+            <field name="name">is_controle_qualite_um_ligne_search_view</field>
+            <field name="model">is.controle.qualite.um.ligne</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="controle_id"/>
+                    <field name="user_id"/>
+                    <field name="type"/>
+                    <field name="uc_id"/>
+                    <field name="um_origine_id"/>
+                    <field name="um_id"/>
+                    <field name="location_dest_id"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter name="group_controle_id" string="Contrôle" context="{'group_by': 'controle_id'}"/>
+                        <filter name="group_type"        string="Type"     context="{'group_by': 'type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_controle_qualite_um_ligne_action">
+            <field name="name">Journal des contrôles qualité</field>
+            <field name="res_model">is.controle.qualite.um.ligne</field>
+            <field name="view_mode">tree</field>
+        </record>
+    </data>
+</odoo>
