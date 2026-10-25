@@ -205,7 +205,7 @@ class is_controle_qualite_um(models.Model):
     name                      = fields.Char("N° contrôle", readonly=True, copy=False, index=True)
     ligne_um_a_trier_ids      = fields.One2many('is.controle.qualite.um.ligne', compute='_compute_ligne_um_a_trier_ids', string="UM à trier")
     um_triees_html            = fields.Html("UM triées"  , compute='_compute_um_triees_html', sanitize=False)
-    um_en_cours_html          = fields.Html("UM en cours", compute='_compute_um_triees_html', sanitize=False)
+    um_en_cours_html          = fields.Html("UM en cours (affichage)",compute='_compute_um_triees_html', sanitize=False)
     info_html                 = fields.Html("Article et lot", compute='_compute_info_html', sanitize=False)
     state                     = fields.Selection(_STATE, "État", default='scan_um', required=True, readonly=True, tracking=True, index=True)
     imprimante_id             = fields.Many2one('is.raspberry.zebra', "Imprimante", default=lambda self: self._get_imprimante_id(), tracking=True)

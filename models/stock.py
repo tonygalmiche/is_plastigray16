@@ -13,6 +13,7 @@ class stock_location(models.Model):
     _inherit = 'stock.location'
 
     control_quality = fields.Boolean(u'Contrôle qualité', default=False)
+    is_stock_client = fields.Boolean('Stock client (consignation)', default=False, help="Stock en consignation chez le client : les UM des bons de transfert vers cet emplacement passent directement dans l'emplacement Client et cet emplacement est exclu des comparatifs stock / UC")
 
     def name_get(self):
         res = []

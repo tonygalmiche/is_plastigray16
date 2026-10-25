@@ -25,16 +25,34 @@
 
 
         <!-- Fiche Emplacement de stock -->
-        <!-- <record id="is_stock_location_view_form" model="ir.ui.view">
+        <record id="is_stock_location_view_form" model="ir.ui.view">
             <field name="name">is.stock.location.form</field>
             <field name="model">stock.location</field>
             <field name="inherit_id" ref="stock.view_location_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='usage']" position="after">
-                    <field name="control_quality" /> 
+                    <field name="control_quality" />
+                    <field name="is_stock_client" />
                 </xpath>
             </field>
-        </record> -->
+        </record>
+        <record id="is_stock_location_view_tree" model="ir.ui.view">
+            <field name="name">is.stock.location.tree</field>
+            <field name="model">stock.location</field>
+            <field name="inherit_id" ref="stock.view_location_tree2"/>
+            <field name="arch" type="xml">
+                <!-- Emplacements internes en noir au lieu du rouge standard, emplacements virtuels (client, fournisseur, transit...) en gris -->
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="decoration-danger"></attribute>
+                    <attribute name="decoration-muted">usage not in ('internal','view')</attribute>
+                </xpath>
+                <xpath expr="//field[@name='usage']" position="after">
+                    <field name="control_quality" optional="show"/>
+                    <field name="is_stock_client" optional="show"/>
+                    <field name="scrap_location"  optional="show"/>
+                </xpath>
+            </field>
+        </record>
         
         <!-- Commentaire mouvement de stock -->
         <!-- <record id="view_is_commentaire_tree" model="ir.ui.view">
