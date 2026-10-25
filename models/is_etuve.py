@@ -81,10 +81,12 @@ class is_etuve_rsp(models.Model):
     _name='is.etuve.rsp'
     _description="Responsable Etuve"
     _order='name'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _sql_constraints = [('name_uniq','UNIQUE(name)', u'Ce responsable existe déjà')]
 
-    name         = fields.Char("Responsable étuve", required=True, index=True)
+    name         = fields.Char("Responsable étuve", required=True, index=True, tracking=True)
     mot_de_passe = fields.Char("Mot de passe"     , required=True)
+    active       = fields.Boolean("Actif", default=True, tracking=True)
 
 
 class is_etuve_commentaire(models.Model):

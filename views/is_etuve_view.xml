@@ -100,11 +100,18 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/>
                         <group>
                             <field name="name"/>
                             <field name="mot_de_passe"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -124,6 +131,7 @@
             <field name="arch" type="xml">
                 <search string="Recherche">
                     <field name="name"/>
+                    <filter string="Archivé" name="inactive" domain="[('active', '=', False)]"/>
                 </search>
             </field>
         </record>
