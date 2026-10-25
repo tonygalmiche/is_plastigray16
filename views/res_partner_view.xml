@@ -740,6 +740,7 @@
                     <field name="caldel_number"            optional="show"/>
                     <field name="num_ran"                  optional="show"/>
                     <field name="info_client"              optional="show"/>
+                    <field name="ind_plan"                 optional="show"/>
                     <field name="is_database_origine_id"   optional="hide"/>
                 </tree>
             </field>
@@ -766,6 +767,7 @@
                             <field name="caldel_number"            widget="boolean_toggle"/>
                             <field name="num_ran"                  widget="boolean_toggle"/>
                             <field name="info_client"              widget="boolean_toggle"/>
+                            <field name="ind_plan"                 widget="boolean_toggle"/>
                         </group>
                     </sheet>
                     <div class="oe_chatter">

@@ -736,6 +736,7 @@ class stock_picking(models.Model):
                     'pays'                     : move.product_id.is_origine_produit_id.code,
                     'is_client_order_ref'      : move.sale_line_id.is_client_order_ref,
                     'is_ref_client'            : move.product_id.is_ref_client,
+                    'is_ind_plan'              : move.product_id.is_ind_plan,
                     'qt1'                      : 0,
                     'qt2'                      : 0,
                     'rowspan'                  : 0,

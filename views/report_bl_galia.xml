@@ -189,7 +189,11 @@
                                     <span t-esc="line['is_client_order_ref']"/>
                                 </td>
                                 <td t-if="line['lig']==1" t-att-rowspan="line['rowspan']">
-                                    <span t-esc="line['is_ref_client']"/><br/>
+                                    <span t-esc="line['is_ref_client']"/>
+                                    <t t-if="o.partner_id.is_configuration_bl_id.ind_plan and line['is_ind_plan']">
+                                        / <span t-esc="line['is_ind_plan']"/>
+                                    </t>
+                                    <br/>
                                     <t t-if="not o.partner_id.is_configuration_bl_id or o.partner_id.is_configuration_bl_id.code_pg">
                                         <span t-esc="line['is_code']"/><br/>
                                     </t>
