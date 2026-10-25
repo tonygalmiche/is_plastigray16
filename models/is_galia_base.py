@@ -859,80 +859,114 @@ class is_galia_base(models.Model):
         return "Base %s injoignable sur %s (%s)"%(database,url,e)
 
 
-    def copier_uc_vers_site_action(self):
-        "Copie les étiquettes sélectionnées dans les UC de la base du site (champ soc) avec une nouvelle UM par article et lot"
+    def _get_site(self, database):
+        "Connexion XML-RPC à la base d'un site"
+        if not (database.port_server and database.database and database.password):
+            raise ValidationError("Base du site %s non paramétrée (base, port et mot de passe obligatoires)"%database.name)
+        #** Sans adresse IP, la base du site est sur le même serveur Odoo
+        url = 'http://%s:%s/xmlrpc/object'%(database.ip_server or 'localhost',database.port_server)
+        return {
+            'database': database,
+            'url'     : url,
+            'sock'    : xmlrpclib.ServerProxy(url),
+        }
+
+
+    def _execute_site(self, site, model, method, *args):
+        "Appel XML-RPC à la base d'un site, avec un message lisible en cas d'erreur"
+        database = site['database']
+        try:
+            return site['sock'].execute(database.database, 2, database.password, model, method, *args)
+        except (xmlrpclib.Fault, OSError) as e:
+            raise ValidationError(self._message_erreur_site(e,database.database,site['url']))
+
+
+    def _get_database_origine(self):
+        "Base du site des étiquettes sélectionnées (elles doivent être d'une seule société)"
+        sans_soc = self.filtered(lambda r: not r.soc)
+        if sans_soc:
+            raise ValidationError("Société non renseignée sur les étiquettes %s"%', '.join(str(x) for x in sans_soc.mapped('num_eti')))
+        socs = sorted(set(self.mapped('soc')))
+        if len(socs)!=1:
+            raise ValidationError("Les étiquettes sélectionnées doivent être d'une seule société (trouvé : %s)"%', '.join(str(x) for x in socs))
+        database = self.env['is.database'].search([('database','=like','%%-%s'%socs[0])], limit=1)
+        if not database:
+            raise ValidationError("Base du site de la société %s non trouvée"%socs[0])
+        return database
+
+
+    def _rechercher_article_site(self, site, obj):
+        "Recherche de l'article (et de l'OF) de l'étiquette dans la base d'un site"
+        product_id=production_id=False
+        if obj.type_eti=='OF':
+            rows = self._execute_site(site, 'mrp.production', 'search_read', [('name','=',obj.num_of)], ['product_id'], 0, 1)
+            product_id    = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
+            production_id = rows and rows[0]['id']
+        if obj.type_eti=='Commande':
+            rows = self._execute_site(site, 'purchase.order.line', 'search_read', [('order_id.name','=',obj.num_of)], ['product_id'], 0, 1)
+            product_id = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
+        if obj.type_eti=='CodePG':
+            ids = self._execute_site(site, 'product.product', 'search', [('is_code','=',obj.num_of)], 0, 1)
+            product_id = ids and ids[0]
+        return product_id, production_id
+
+
+    def copier_uc_vers_site_action(self, database_dest):
+        """Copie les étiquettes sélectionnées dans les UC de la base du site de destination avec une nouvelle UM par article et lot.
+        Si la destination n'est pas la société des étiquettes, l'article est recherché dans la base d'origine puis par son
+        code PG dans la base de destination (comme une réception inter-site) et l'UC n'est pas liée à l'OF"""
         erreurs=[]
-        sites={}
+        groupes={}
+        database_orig = self._get_database_origine()
+        inter_site    = database_dest!=database_orig
+        site      = self._get_site(database_dest)
+        site_orig = inter_site and self._get_site(database_orig)
+        DB        = database_dest.database
+        ids = self._execute_site(site, 'stock.location', 'search', [('usage','=','customer')], 0, 1)
+        if not ids:
+            raise ValidationError("Aucun emplacement de type 'Client' dans %s"%DB)
+        location_id = ids[0]
 
-        #** Contrôles et regroupement par site puis par article et lot ********
+        #** Contrôles et regroupement par article et lot **********************
         for obj in self:
-            if not obj.soc:
-                erreurs.append("Etiquette %s : société non renseignée"%obj.num_eti)
-                continue
-            if obj.soc not in sites:
-                database = self.env['is.database'].search([('database','=like','%%-%s'%obj.soc)], limit=1)
-                if not (database.port_server and database.database and database.password):
-                    erreurs.append("Etiquette %s : base du site %s non trouvée ou non paramétrée"%(obj.num_eti,obj.soc))
-                    continue
-                #** Sans adresse IP, la base du site est sur le même serveur Odoo
-                ip_server = database.ip_server or 'localhost'
-                url  = 'http://%s:%s/xmlrpc/object'%(ip_server,database.port_server)
-                sock = xmlrpclib.ServerProxy(url)
-                try:
-                    ids = sock.execute(database.database, 2, database.password, 'stock.location', 'search', [('usage','=','customer')], 0, 1)
-                except (xmlrpclib.Fault, OSError) as e:
-                    erreurs.append("Etiquette %s : %s"%(obj.num_eti,self._message_erreur_site(e,database.database,url)))
-                    continue
-                if not ids:
-                    erreurs.append("Etiquette %s : aucun emplacement de type 'Client' dans %s"%(obj.num_eti,database.database))
-                    continue
-                sites[obj.soc]={
-                    'database'   : database,
-                    'url'        : url,
-                    'sock'       : sock,
-                    'location_id': ids[0],
-                    'groupes'    : {},
-                }
-            site     = sites[obj.soc]
-            database = site['database']
-            DB       = database.database
-            USERID   = 2
-            USERPASS = database.password
-            sock     = site['sock']
-
             try:
                 #** L'UC ne doit pas déjà exister, même archivée **************
                 domain=[('num_eti','=',obj.num_eti),('active','in',[True,False])]
-                if sock.execute(DB, USERID, USERPASS, 'is.galia.base.uc', 'search', domain):
+                if self._execute_site(site, 'is.galia.base.uc', 'search', domain):
                     erreurs.append("Etiquette %s : UC déjà présente dans %s"%(obj.num_eti,DB))
                     continue
 
-                #** Recherche de l'article dans la base du site ***************
-                product_id=production_id=False
-                if obj.type_eti=='OF':
-                    rows = sock.execute(DB, USERID, USERPASS, 'mrp.production', 'search_read', [('name','=',obj.num_of)], ['product_id'], 0, 1)
-                    product_id    = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
-                    production_id = rows and rows[0]['id']
-                if obj.type_eti=='Commande':
-                    rows = sock.execute(DB, USERID, USERPASS, 'purchase.order.line', 'search_read', [('order_id.name','=',obj.num_of)], ['product_id'], 0, 1)
-                    product_id = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
-                if obj.type_eti=='CodePG':
-                    ids = sock.execute(DB, USERID, USERPASS, 'product.product', 'search', [('is_code','=',obj.num_of)], 0, 1)
+                #** Recherche de l'article ************************************
+                if inter_site:
+                    #** Article de la base d'origine retrouvé par son code PG
+                    #** dans la base de destination, sans lien avec l'OF
+                    production_id = False
+                    product_id    = self._rechercher_article_site(site_orig, obj)[0]
+                    if not product_id:
+                        erreurs.append("Etiquette %s : article non trouvé dans %s (%s %s)"%(obj.num_eti,database_orig.database,obj.type_eti,obj.num_of))
+                        continue
+                    code_pg = self._execute_site(site_orig, 'product.product', 'read', [product_id], ['is_code'])[0]['is_code']
+                    ids = self._execute_site(site, 'product.product', 'search', [('is_code','=',code_pg)], 0, 1)
                     product_id = ids and ids[0]
-                if not product_id:
-                    erreurs.append("Etiquette %s : article non trouvé dans %s (%s %s)"%(obj.num_eti,DB,obj.type_eti,obj.num_of))
-                    continue
+                    if not product_id:
+                        erreurs.append("Etiquette %s : code PG %s non trouvé dans %s"%(obj.num_eti,code_pg,DB))
+                        continue
+                else:
+                    product_id,production_id = self._rechercher_article_site(site, obj)
+                    if not product_id:
+                        erreurs.append("Etiquette %s : article non trouvé dans %s (%s %s)"%(obj.num_eti,DB,obj.type_eti,obj.num_of))
+                        continue
 
                 #** Recherche du lot dans la base du site *********************
-                ids = sock.execute(DB, USERID, USERPASS, 'stock.lot', 'search', [('name','=',obj.num_of),('product_id','=',product_id)], 0, 1)
-                lot_id = ids and ids[0]
-            except (xmlrpclib.Fault, OSError) as e:
-                erreurs.append("Etiquette %s : %s"%(obj.num_eti,self._message_erreur_site(e,DB,site['url'])))
+                ids = self._execute_site(site, 'stock.lot', 'search', [('name','=',obj.num_of),('product_id','=',product_id)], 0, 1)
+                lot_id = ids[0] if ids else False
+            except ValidationError as e:
+                erreurs.append("Etiquette %s : %s"%(obj.num_eti,e.args[0]))
                 continue
 
             key=(product_id,obj.num_of,production_id,lot_id)
-            site['groupes'].setdefault(key, self.env['is.galia.base'])
-            site['groupes'][key]|=obj
+            groupes.setdefault(key, self.env['is.galia.base'])
+            groupes[key]|=obj
         if erreurs:
             raise ValidationError("Aucune UC n'a été copiée :\n%s"%'\n'.join(erreurs))
         #**********************************************************************
@@ -941,45 +975,40 @@ class is_galia_base(models.Model):
         #** L'UM et ses UC sont créées en un seul appel pour ne pas laisser
         #** d'UM vide dans la base du site en cas d'erreur
         ums=[]
-        for site in sites.values():
-            database = site['database']
-            DB       = database.database
-            USERID   = 2
-            USERPASS = database.password
-            sock     = site['sock']
-            for (product_id,num_of,production_id,lot_id),objs in site['groupes'].items():
-                uc_ids=[]
-                for obj in objs:
-                    vals={
-                        'num_eti'      : obj.num_eti,
-                        'type_eti'     : obj.type_eti,
-                        'num_carton'   : obj.num_carton,
-                        'qt_pieces'    : obj.qt_pieces,
-                        'production'   : obj.num_of,
-                        'production_id': production_id,
-                        'lot_id'       : lot_id,
-                        'product_id'   : product_id,
-                        'date_creation': fields.Datetime.to_string(obj.date_creation),
-                    }
-                    uc_ids.append((0,0,vals))
-                um_vals={
-                    'mixte'      : 'non',
-                    'location_id': site['location_id'],
-                    'uc_ids'     : uc_ids,
+        origine = (inter_site and " (copie inter-site depuis %s)"%database_orig.database) or ''
+        for (product_id,num_of,production_id,lot_id),objs in groupes.items():
+            uc_ids=[]
+            for obj in objs:
+                vals={
+                    'num_eti'      : obj.num_eti,
+                    'type_eti'     : obj.type_eti,
+                    'num_carton'   : obj.num_carton,
+                    'qt_pieces'    : obj.qt_pieces,
+                    'production'   : obj.num_of,
+                    'production_id': production_id,
+                    'lot_id'       : lot_id,
+                    'product_id'   : product_id,
+                    'date_creation': fields.Datetime.to_string(obj.date_creation),
                 }
-                try:
-                    um_id   = sock.execute(DB, USERID, USERPASS, 'is.galia.base.um', 'create', um_vals)
-                    um_name = sock.execute(DB, USERID, USERPASS, 'is.galia.base.um', 'read', [um_id], ['name'])[0]['name']
-                except (xmlrpclib.Fault, OSError) as e:
-                    msg="Création UM pour %s UC (%s) : %s"%(len(objs),num_of,self._message_erreur_site(e,DB,site['url']))
-                    _logger.error("copier_uc_vers_site_action : %s"%msg)
-                    erreurs.append(msg)
-                    continue
-                msg="UM %s créée dans %s avec %s UC (%s)"%(um_name,DB,len(objs),num_of)
-                _logger.info("copier_uc_vers_site_action : %s"%msg)
-                ums.append(msg)
-                for obj in objs:
-                    obj.message_post(body="UC copiée dans l'UM %s de la base %s"%(um_name,DB))
+                uc_ids.append((0,0,vals))
+            um_vals={
+                'mixte'      : 'non',
+                'location_id': location_id,
+                'uc_ids'     : uc_ids,
+            }
+            try:
+                um_id   = self._execute_site(site, 'is.galia.base.um', 'create', um_vals)
+                um_name = self._execute_site(site, 'is.galia.base.um', 'read', [um_id], ['name'])[0]['name']
+            except ValidationError as e:
+                msg="Création UM pour %s UC (%s) : %s"%(len(objs),num_of,e.args[0])
+                _logger.error("copier_uc_vers_site_action : %s"%msg)
+                erreurs.append(msg)
+                continue
+            msg="UM %s créée dans %s avec %s UC (%s)%s"%(um_name,DB,len(objs),num_of,origine)
+            _logger.info("copier_uc_vers_site_action : %s"%msg)
+            ums.append(msg)
+            for obj in objs:
+                obj.message_post(body="UC copiée dans l'UM %s de la base %s%s"%(um_name,DB,origine))
         #**********************************************************************
 
         return {
@@ -990,5 +1019,6 @@ class is_galia_base(models.Model):
                 'message': '\n'.join(ums+erreurs),
                 'type'   : (erreurs and 'danger') or 'success',
                 'sticky' : True,
+                'next'   : {'type': 'ir.actions.act_window_close'},
             },
         }

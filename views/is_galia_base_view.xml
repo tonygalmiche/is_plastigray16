@@ -93,13 +93,5 @@
             <field name="res_model">is.galia.base</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record model="ir.actions.server" id="is_galia_base_copier_uc_vers_site_action">
-            <field name="name">Copier dans les UC de la base du site</field>
-            <field name="model_id" ref="model_is_galia_base"/>
-            <field name="binding_model_id" ref="model_is_galia_base"/>
-            <field name="binding_view_types">list,form</field>
-            <field name="state">code</field>
-            <field name="code">action = records.copier_uc_vers_site_action()</field>
-        </record>
     </data>
 </odoo>
