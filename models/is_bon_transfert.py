@@ -31,6 +31,7 @@ class is_bon_transfert(models.Model):
 
     name            = fields.Char('N° de bon de transfert', readonly=True)
     location_id     = fields.Many2one('stock.location', 'Emplacement (Navette)', required=True)
+    stock_client    = fields.Boolean('Stock client (consignation)', related='location_id.is_stock_client')
     date_creation   = fields.Date('Date de création', readonly=True, default=lambda *a: fields.datetime.now())
     date_expedition = fields.Date("Date d'expédition", default=lambda *a: fields.datetime.now())
     date_fin        = fields.Date('Date de dernière entrée')
