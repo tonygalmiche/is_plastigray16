@@ -75,6 +75,10 @@ class is_ot(models.Model):
 
 
     def write(self, vals):
+        if 'active' in vals and not self.env.user.has_group('base.group_system'):
+            for data in self:
+                if data.demandeur_id != self.env.user:
+                    raise ValidationError("Seul le demandeur peut archiver ou désarchiver l'OT %s"%data.name)
         for data in self:
             if data.state == 'travaux_a_valider':
                 vals['valideur_id'] = self._uid
@@ -239,7 +243,8 @@ class is_ot(models.Model):
     emplacement         = fields.Char("Emplacement", store=True, readonly=True, compute='_compute_emplacement')
     date_creation       = fields.Date(u"Date de création", copy=False, default=fields.Date.context_today, readonly=True)
     demandeur_id        = fields.Many2one("res.users", "Demandeur", default=lambda self: self.env.uid, readonly=True)
-    type_equipement_id  = fields.Many2one("is.equipement.type", u"Type d'équipement")
+    active              = fields.Boolean("Actif", default=True, tracking=True)
+    type_equipement_id = fields.Many2one("is.equipement.type", u"Type d'équipement")
     equipement_id       = fields.Many2one("is.equipement", "Équipement")
     moule_id            = fields.Many2one("is.mold", "Moule")
     dossierf_id         = fields.Many2one("is.dossierf", "Dossier F")

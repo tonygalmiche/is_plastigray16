@@ -121,6 +121,8 @@
                         <field name="state" widget="statusbar" />
                     </header>
                     <sheet>
+                        <widget name="web_ribbon" title="Archivé" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="active" invisible="1"/>
                         <group>
                             <group>
                                 <field name="name" readonly="1"  attrs="{'readonly': [('state', '!=', 'creation')]}" />
@@ -283,6 +285,7 @@
                     <field name="code_gravite"/>
                     <field name="site_id"/>
                     <field name="state"/>
+                    <filter string="Archivé" name="inactive" domain="[('active', '=', False)]"/>
                     <group expand="0" string="Regroupé par...">
                       <filter name="group_demandeur_id"       string="Demandeur"            context="{'group_by':'demandeur_id'}"/>
                       <filter name="group_valideur_id"        string="Valideur"             context="{'group_by':'valideur_id'}"/>
