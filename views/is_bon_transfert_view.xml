@@ -48,6 +48,14 @@
                         />
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_view_uc" icon="fa-list">
+                                <field name="nb_uc_ids" widget="statinfo" string="UCs"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_um" icon="fa-list">
+                                <field name="nb_um_ids" widget="statinfo" string="UMs"/>
+                            </button>
+                        </div>
                         <group>
                             <group>
                                 <field name="name" />

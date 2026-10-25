@@ -43,9 +43,32 @@ class is_bon_transfert(models.Model):
     total_um        = fields.Float('Total UM'       , compute='_compute', readonly=True, store=True, digits=(14,1))
     line_ids        = fields.One2many('is.bon.transfert.line'  , 'bon_transfert_id', u"Lignes")
     galia_um_ids        = fields.One2many('is.galia.base.um', 'bon_transfert_id', u"UMs scannées", readonly=True)
+    nb_uc_ids           = fields.Integer(u"Nb UCs", compute='_compute_nb_uc_um_ids', store=False, readonly=True)
+    nb_um_ids           = fields.Integer(u"Nb UMs", compute='_compute_nb_uc_um_ids', store=False, readonly=True)
     uc_non_affectes     = fields.Integer(u"UCs non affectés")
     traitement_edi      = fields.Selection(related='partner_id.is_traitement_edi', string='Traitement EDI', readonly=True)
     date_traitement_edi = fields.Datetime("Date traitement EDI")
+
+
+    @api.depends('galia_um_ids', 'galia_um_ids.uc_ids')
+    def _compute_nb_uc_um_ids(self):
+        for obj in self:
+            obj.nb_um_ids = len(obj.galia_um_ids)
+            obj.nb_uc_ids = sum(len(um.uc_ids) for um in obj.galia_um_ids)
+
+
+    def action_view_uc(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.is_galia_base_uc_action')
+        action['domain'] = [('um_id.bon_transfert_id', '=', self.id)]
+        action['context'] = {}
+        return action
+
+
+    def action_view_um(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.is_galia_base_um_action')
+        action['domain'] = [('bon_transfert_id', '=', self.id)]
+        action['context'] = {}
+        return action
 
 
     def creation_facture_proforma_action(self):
