@@ -386,7 +386,10 @@ class is_galia_base_um(models.Model):
             else:
                 if not (obj.liste_servir_id or obj.bon_transfert_id):
                     continue
-                raison = "elle est affectée à une liste à servir ou un bon de transfert"
+                if obj.bon_transfert_id.stock_client:
+                    raison = "elle est affectée au bon de transfert %s vers le stock client %s"%(obj.bon_transfert_id.name, obj.bon_transfert_id.location_id.name)
+                else:
+                    raison = "elle est affectée à une liste à servir ou un bon de transfert"
 
             msg = "UM %s déplacée dans l'emplacement Client car %s."%(obj.name, raison)
             obj.message_post(body=msg)
@@ -406,13 +409,23 @@ class is_galia_base_um(models.Model):
                     doublons.active = False
 
 
+    def _actualiser_emplacement_um_stock_client(self):
+        # UM affectée à un bon de transfert vers un stock client (consignation) : passage direct dans
+        # l'emplacement Client, car les UC ne sont pas suivies chez le client (consommation sans lot)
+        ums = self.filtered(lambda um: um.active and um.bon_transfert_id.stock_client)
+        if ums:
+            ums._actualiser_emplacement_um(verifier_livraison=False)
+
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             # Utiliser la séquence uniquement si le name n'est pas déjà fourni
             if not vals.get('name'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('is.galia.base.um')
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._actualiser_emplacement_um_stock_client()
+        return records
 
 
     def write(self, vals):
@@ -421,6 +434,8 @@ class is_galia_base_um(models.Model):
         res = super().write(vals)
         if need_recompute:
             self.env['is.galia.base.uc']._recompute_doublon_num_eti(num_etis)
+        if vals.get('bon_transfert_id'):
+            self._actualiser_emplacement_um_stock_client()
         return res
 
 
