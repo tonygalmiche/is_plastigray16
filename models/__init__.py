@@ -46,6 +46,7 @@ from . import is_gabarit_controle
 from . import is_galia_base
 from . import is_galia_base_um
 from . import is_galia_base_uc
+from . import stock  # avant le comparatif : sa vue SQL utilise stock_location.is_stock_client
 from . import is_galia_base_uc_comparatif_stock
 from . import is_galia_base_uc_comparatif_lot
 from . import is_gestion_des_absences
@@ -87,7 +88,6 @@ from . import res_country
 from . import res_partner
 from . import res_users
 from . import sale
-from . import stock
 from . import stock_picking
 from . import stock_inventory
 from . import is_inventaire

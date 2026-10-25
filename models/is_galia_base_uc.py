@@ -355,8 +355,8 @@ class is_galia_base_uc(models.Model):
                     msg = "Etiquette dans plusieurs UM (%s)"%', '.join(ums)
                     anomalie.append(msg)
 
-            #** Comparaison des quantités par lot avec le stock de l'emplacement (comme sur l'UM)
-            if obj.product_id and obj.location_id.usage=='internal':
+            #** Comparaison des quantités par lot avec le stock de l'emplacement (comme sur l'UM), sauf stock client (consignation)
+            if obj.product_id and obj.location_id.usage=='internal' and not obj.location_id.is_stock_client:
                 for vals in obj.get_qt_par_lot():
                     msg="%s : %s : Qt UC=%s : Stock=%s"%(
                         (obj.product_id.is_code or '').ljust(8),

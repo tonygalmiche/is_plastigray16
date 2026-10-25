@@ -57,7 +57,7 @@ class is_galia_base_uc_comparatif_lot(models.Model):
                     AND   (%(client)s      IS NULL OR rp.name ILIKE %(client)s)
                 ),
                 -- État actif et emplacement lus sur l'UM (et non sur uc.um_active / uc.location_id, recopiés par l'ORM
-                -- et faux si l'UC ou l'UM a été écrite en SQL)
+                -- et faux si l'UC ou l'UM a été écrite en SQL). Stocks client (consignation) exclus
                 uc_lot AS (
                     SELECT uc.id AS uc_id, uc.um_id, uc.product_id, um.location_id, l.lot_id, l.qt_pieces
                     FROM is_galia_base_uc uc
@@ -65,7 +65,7 @@ class is_galia_base_uc_comparatif_lot(models.Model):
                     INNER JOIN produits p ON p.id = uc.product_id
                     INNER JOIN is_galia_base_uc_lot l ON l.uc_id = uc.id
                     INNER JOIN stock_location sl ON sl.id = um.location_id
-                    WHERE uc.active = true AND um.active = true AND sl.usage = 'internal'
+                    WHERE uc.active = true AND um.active = true AND sl.usage = 'internal' AND sl.is_stock_client IS NOT TRUE
                     UNION ALL
                     SELECT uc.id, uc.um_id, uc.product_id, um.location_id, COALESCE(uc.lot_id, lot.id), uc.qt_pieces
                     FROM is_galia_base_uc uc
@@ -74,7 +74,7 @@ class is_galia_base_uc_comparatif_lot(models.Model):
                     INNER JOIN stock_location sl ON sl.id = um.location_id
                     LEFT JOIN stock_lot lot ON lot.product_id = uc.product_id AND lot.name = uc.production
                     LEFT JOIN (SELECT DISTINCT uc_id FROM is_galia_base_uc_lot) l ON l.uc_id = uc.id
-                    WHERE uc.active = true AND um.active = true AND sl.usage = 'internal'
+                    WHERE uc.active = true AND um.active = true AND sl.usage = 'internal' AND sl.is_stock_client IS NOT TRUE
                     AND l.uc_id IS NULL
                 ),
                 uc AS (
@@ -89,7 +89,7 @@ class is_galia_base_uc_comparatif_lot(models.Model):
                     FROM stock_quant sq
                     INNER JOIN produits p ON p.id = sq.product_id
                     INNER JOIN stock_location sl ON sl.id = sq.location_id
-                    WHERE sl.usage = 'internal'
+                    WHERE sl.usage = 'internal' AND sl.is_stock_client IS NOT TRUE
                     GROUP BY sq.product_id, sq.location_id, sq.lot_id
                     HAVING ROUND(SUM(sq.quantity), 4) <> 0
                 ),

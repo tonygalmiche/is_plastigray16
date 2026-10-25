@@ -128,7 +128,8 @@ class is_galia_base_um(models.Model):
         for obj in self:
             information=[]
             anomalie = []
-            if obj.location_id.usage=='customer':
+            # Pas de contrôle du stock dans l'emplacement Client ni dans un stock client (consignation)
+            if obj.location_id.usage=='customer' or obj.location_id.is_stock_client:
                 obj.information = False
                 obj.anomalie    = False
                 continue

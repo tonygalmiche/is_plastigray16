@@ -52,10 +52,12 @@ class is_galia_base_uc_comparatif_stock(models.Model):
             INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
             LEFT JOIN (
                 -- ROUND : certains quants ont des résidus flottants (ex : 26.000000000000004)
+                -- Stocks client (consignation) exclus : leurs UM sont dans l'emplacement Client
                 SELECT sq.product_id, ROUND(SUM(sq.quantity), 4) AS qty
                 FROM stock_quant sq
                 INNER JOIN stock_location sl ON sl.id = sq.location_id
                 WHERE sl.usage = 'internal'
+                AND sl.is_stock_client IS NOT TRUE
                 GROUP BY sq.product_id
             ) stock ON stock.product_id = pp.id
             LEFT JOIN (
@@ -67,6 +69,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 WHERE guc.active = true
                 AND gum.active = true
                 AND sl2.usage = 'internal'
+                AND sl2.is_stock_client IS NOT TRUE
                 GROUP BY guc.product_id
             ) uc ON uc.product_id = pp.id
             LEFT JOIN (
@@ -77,6 +80,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 WHERE guc.active = true
                 AND gum.active = true
                 AND sl2.usage = 'internal'
+                AND sl2.is_stock_client IS NOT TRUE
                 GROUP BY guc.product_id
             ) um ON um.product_id = pp.id
             INNER JOIN is_product_segment ips ON ips.id = pt.segment_id
@@ -95,6 +99,7 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 'domain': [
                     ('product_id','=',obj.product_id.id),
                     ('location_id.usage','=','internal'),
+                    ('location_id.is_stock_client','=',False),
                 ],
             }
 
@@ -109,5 +114,6 @@ class is_galia_base_uc_comparatif_stock(models.Model):
                 'domain': [
                     ('uc_ids.product_id','=',obj.product_id.id),
                     ('location_id.usage','=','internal'),
+                    ('location_id.is_stock_client','=',False),
                 ],
             }
