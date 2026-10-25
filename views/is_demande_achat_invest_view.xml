@@ -67,6 +67,9 @@
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet class="oe_form_sheet_width_wider">
+                        <div class="alert alert-warning py-1 px-2 mb-2" role="alert" attrs="{'invisible': [('anomalies_html', '=', False)]}">
+                            <field name="anomalies_html" nolabel="1"/>
+                        </div>
                         <group>
                             <group string="Identification">
                                 <field name="name"/>

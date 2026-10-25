@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
+from markupsafe import escape
 import datetime
+import re
+
+
+FORMAT_CHANTIER         = r'^[0-9]{6}$'
+FORMAT_CHANTIER_LIBELLE = "6 chiffres (ex : 123456)"
 
 
 class is_demande_achat_invest(models.Model):
@@ -56,6 +62,19 @@ class is_demande_achat_invest(models.Model):
             obj.vers_annule_vsb=vsb
 
 
+    @api.depends('state','commentaire','line_ids','line_ids.product_id','line_ids.designation1','line_ids.designation2','line_ids.num_chantier')
+    def _compute_anomalies_html(self):
+        for obj in self:
+            html=False
+            if obj.state not in ('solde','annule'):
+                anomalies=obj._get_anomalies()
+                if anomalies:
+                    html="<b>Cette DA ne pourra pas être validée :</b><ul class='mb-1'>%s</ul>Format attendu du n° de chantier : %s"%(
+                        ''.join("<li>%s</li>"%escape(x) for x in anomalies), escape(FORMAT_CHANTIER_LIBELLE)
+                    )
+            obj.anomalies_html=html
+
+
     name                 = fields.Char("N°DA-I", tracking=True, readonly=True)
     createur_id          = fields.Many2one('res.users', 'Demandeur', tracking=True, copy=False, required=True, default=lambda self: self.env.uid)
     chef_service_id      = fields.Many2one('res.users', 'Chef de service', tracking=True, required=True)
@@ -89,6 +108,33 @@ class is_demande_achat_invest(models.Model):
     vers_transmis_achat_vsb       = fields.Boolean('Champ technique vers_transmis_achat_vsb', compute='_compute_vsb', readonly=True, store=False)
     vers_solde_vsb                = fields.Boolean('Champ technique vers_solde_vsb', compute='_compute_vsb', readonly=True, store=False)
     vers_annule_vsb               = fields.Boolean('Champ technique vers_annule_vsb', compute='_compute_vsb', readonly=True, store=False)
+    anomalies_html                = fields.Html('Anomalies', compute='_compute_anomalies_html', sanitize=False)
+
+
+    def _get_anomalies(self):
+        """Anomalies qui bloquent les changements d'état (affichées aussi dans le bandeau)"""
+        self.ensure_one()
+        anomalies=[]
+        if not (self.commentaire or '').strip():
+            anomalies.append("Commentaire non renseigné")
+        for i,line in enumerate(self.line_ids, 1):
+            if not (line.product_id or line.designation1 or line.designation2):
+                continue
+            num_chantier=line.num_chantier or ''
+            if not num_chantier.strip():
+                anomalies.append("Ligne %s : n° du chantier non renseigné"%i)
+            elif not re.match(FORMAT_CHANTIER, num_chantier):
+                anomalies.append("Ligne %s : n° du chantier %s incorrect"%(i,num_chantier))
+        return anomalies
+
+
+    def _controle_anomalies(self):
+        for obj in self:
+            anomalies=obj._get_anomalies()
+            if anomalies:
+                raise ValidationError("%s ne peut pas changer d'état :\n- %s\n\nFormat attendu du n° de chantier : %s"%(
+                    obj.name, "\n- ".join(anomalies), FORMAT_CHANTIER_LIBELLE
+                ))
 
 
     def _lieu_livraison_id(self):
@@ -128,6 +174,7 @@ class is_demande_achat_invest(models.Model):
 
     def vers_validation_rsp_action(self):
         for obj in self:
+            obj._controle_anomalies()
             subject=u'['+obj.name+u'] Validation responsable'
             email_to=obj.chef_service_id.email
             user  = self.env['res.users'].browse(self._uid)
@@ -146,6 +193,7 @@ class is_demande_achat_invest(models.Model):
 
     def vers_validation_direction_action(self):
         for obj in self:
+            obj._controle_anomalies()
             subject=u'['+obj.name+u'] Validation direction'
             email_to=obj.direction_id.email
             user  = self.env['res.users'].browse(self._uid)
@@ -164,6 +212,7 @@ class is_demande_achat_invest(models.Model):
 
     def vers_transmis_achat_action(self):
         for obj in self:
+            obj._controle_anomalies()
             subject=u'['+obj.name+u'] Transmis achat'
             email_to=obj.acheteur_id.email
             user  = self.env['res.users'].browse(self._uid)
@@ -187,17 +236,7 @@ class is_demande_achat_invest(models.Model):
             partner=obj.fournisseur_id
             if partner.id==False:
                 raise ValidationError('Fournisseur obligatoire pour générer la commande !')
-            for line in obj.line_ids:
-                if line.num_chantier==False:
-                    raise ValidationError('N° du chantier obligatoire sur toutes les lignes de la commande !')
-                else:
-                    if len(line.num_chantier)==5:
-                        line.num_chantier='0'+line.num_chantier
-                    if len(line.num_chantier)!=6:
-                        raise ValidationError('N° du chantier sur 6 chiffres obligatoire sur toutes les lignes de la commande !')
-
-
-
+            obj._controle_anomalies()
             if partner.pricelist_purchase_id==False:
                 raise ValidationError('Liste de prix non renseignée pour ce fournisseur')
             else:

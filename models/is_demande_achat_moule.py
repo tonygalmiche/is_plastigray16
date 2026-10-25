@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
+from markupsafe import escape
 import datetime
+import re
+
+
+FORMAT_CHANTIER         = r'^M[0-9]{4}/[A-Z0-9]{5}$'
+FORMAT_CHANTIER_LIBELLE = "M + 4 chiffres + / + 5 lettres ou chiffres (ex : M1234/12345, M0000/F0328, M0000/RD580)"
 
 
 class is_imputation_investissement(models.Model):
@@ -75,7 +81,20 @@ class is_demande_achat_moule(models.Model):
                 obj.num_chantier=line.num_chantier
 
 
-    name                 = fields.Char("N°DA-M", tracking=True, readonly=True)
+    @api.depends('state','line_ids','line_ids.imputation_id','line_ids.num_chantier')
+    def _compute_anomalies_html(self):
+        for obj in self:
+            html=False
+            if obj.state not in ('solde','annule'):
+                anomalies=obj._get_anomalies()
+                if anomalies:
+                    html="<b>Cette DA ne pourra pas être validée :</b><ul class='mb-1'>%s</ul>Format attendu du n° de chantier : %s"%(
+                        ''.join("<li>%s</li>"%escape(x) for x in anomalies), escape(FORMAT_CHANTIER_LIBELLE)
+                    )
+            obj.anomalies_html=html
+
+
+    name                = fields.Char("N°DA-M", tracking=True, readonly=True)
     createur_id          = fields.Many2one('res.users', 'Demandeur', tracking=True, required=True, default=lambda self: self.env.uid,copy=False)
     chef_service_id      = fields.Many2one('res.users', 'Chef de projet', tracking=True, required=True)
     direction_id         = fields.Many2one('res.users', 'Directeur technique', tracking=True, readonly=True, default=lambda self: self._dirigeant_id())
@@ -110,6 +129,29 @@ class is_demande_achat_moule(models.Model):
     vers_transmis_achat_vsb       = fields.Boolean('Champ technique vers_transmis_achat_vsb', compute='_compute_vsb', readonly=True, store=False)
     vers_solde_vsb                = fields.Boolean('Champ technique vers_solde_vsb', compute='_compute_vsb', readonly=True, store=False)
     vers_annule_vsb               = fields.Boolean('Champ technique vers_annule_vsb', compute='_compute_vsb', readonly=True, store=False)
+    anomalies_html                = fields.Html('Anomalies', compute='_compute_anomalies_html', sanitize=False)
+
+
+    def _get_anomalies(self):
+        """Anomalies qui bloquent les changements d'état (affichées aussi dans le bandeau)"""
+        self.ensure_one()
+        anomalies=[]
+        for i,line in enumerate(self.line_ids, 1):
+            if not line.imputation_id:
+                continue
+            anomalie=line._get_anomalie_num_chantier(line.num_chantier)
+            if anomalie:
+                anomalies.append("Ligne %s : %s"%(i,anomalie))
+        return anomalies
+
+
+    def _controle_anomalies(self):
+        for obj in self:
+            anomalies=obj._get_anomalies()
+            if anomalies:
+                raise ValidationError("%s ne peut pas changer d'état :\n- %s\n\nFormat attendu du n° de chantier : %s"%(
+                    obj.name, "\n- ".join(anomalies), FORMAT_CHANTIER_LIBELLE
+                ))
 
 
     def _lieu_livraison_id(self):
@@ -160,6 +202,7 @@ class is_demande_achat_moule(models.Model):
 
     def vers_validation_rsp_action(self):
         for obj in self:
+            obj._controle_anomalies()
             subject=u'['+obj.name+u'] Validation chef de projet'
             email_to=obj.chef_service_id.email
             user  = self.env['res.users'].browse(self._uid)
@@ -178,6 +221,7 @@ class is_demande_achat_moule(models.Model):
 
     def vers_validation_direction_action(self):
         for obj in self:
+            obj._controle_anomalies()
             subject=u'['+obj.name+u'] Validation directeur technique'
             email_to=obj.direction_id.email
             user  = self.env['res.users'].browse(self._uid)
@@ -196,6 +240,7 @@ class is_demande_achat_moule(models.Model):
 
     def vers_transmis_achat_action(self):
         for obj in self:
+            obj._controle_anomalies()
             subject=u'['+obj.name+u'] Transmis achat'
             email_to=obj.acheteur_id.email
             user  = self.env['res.users'].browse(self._uid)
@@ -219,14 +264,7 @@ class is_demande_achat_moule(models.Model):
             partner=obj.fournisseur_id
             if partner.id==False:
                 raise ValidationError('Fournisseur obligatoire pour générer la commande !')
-            for line in obj.line_ids:
-                if line.num_chantier==False:
-                    raise ValidationError('N° du chantier obligatoire sur toutes les lignes de la commande !')
-                else:
-                    if len(line.num_chantier)!=11 and len(line.num_chantier)!=12:
-                        raise ValidationError('Le numéro du chantier doit-être sur 11 ou 12 caractères (ex : M0000/123456)')
-                    
-
+            obj._controle_anomalies()
             if partner.pricelist_purchase_id==False:
                 raise ValidationError('Liste de prix non renseignée pour ce fournisseur')
             else:
@@ -368,21 +406,29 @@ class is_demande_achat_moule_line(models.Model):
         return res
 
 
-    def _test_num_chantier(self,vals):
-        if 'num_chantier' in vals:
-            num_chantier=vals.get('num_chantier')
-            if len(num_chantier)!=11:
-                raise ValidationError('Le numéro du chantier doit-être sur 11 caractères (ex : M0000/12345)')
+    def _get_anomalie_num_chantier(self, num_chantier):
+        if not (num_chantier or '').strip():
+            return "n° du chantier non renseigné"
+        if not re.match(FORMAT_CHANTIER, num_chantier):
+            return "n° du chantier %s incorrect"%num_chantier
+        return False
 
 
-    def create(self, vals):
-        self._test_num_chantier(vals)
-        obj = super(is_demande_achat_moule_line, self).create(vals)
-        return obj
+    def _normalise_num_chantier(self,vals):
+        """Le format est contrôlé aux changements d'état de la DA (bandeau d'anomalies), pas à l'enregistrement"""
+        if vals.get('num_chantier'):
+            vals['num_chantier']=vals['num_chantier'].strip().upper()
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._normalise_num_chantier(vals)
+        return super().create(vals_list)
 
 
     def write(self,vals):
-        self._test_num_chantier(vals)
+        self._normalise_num_chantier(vals)
         obj = super(is_demande_achat_moule_line, self).write(vals)
         return obj
 
