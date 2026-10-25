@@ -5,6 +5,7 @@ from subprocess import PIPE, Popen
 from xmlrpc import client as xmlrpclib
 from datetime import datetime
 import os
+import re
 import psycopg2         # type: ignore
 import psycopg2.extras  # type: ignore
 import logging
@@ -844,6 +845,20 @@ class is_galia_base(models.Model):
         return imprimante
 
 
+    def _message_erreur_site(self, e, database, url):
+        "Message lisible pour une erreur XML-RPC vers la base d'un site"
+        if isinstance(e, xmlrpclib.Fault):
+            #** Le faultString contient toute la trace : on ne garde que le
+            #** message de la dernière exception (ex. 'ValueError: message')
+            msg = e.faultString.strip()
+            for ligne in msg.split('\n'):
+                res = re.match(r'^[\w.]+: (.*)', ligne)
+                if res:
+                    msg = res.group(1).strip()
+            return "Erreur dans la base %s : %s"%(database,msg.split('\n')[0])
+        return "Base %s injoignable sur %s (%s)"%(database,url,e)
+
+
     def copier_uc_vers_site_action(self):
         "Copie les étiquettes sélectionnées dans les UC de la base du site (champ soc) avec une nouvelle UM par article et lot"
         erreurs=[]
@@ -861,13 +876,19 @@ class is_galia_base(models.Model):
                     continue
                 #** Sans adresse IP, la base du site est sur le même serveur Odoo
                 ip_server = database.ip_server or 'localhost'
-                sock = xmlrpclib.ServerProxy('http://%s:%s/xmlrpc/object'%(ip_server,database.port_server))
-                ids = sock.execute(database.database, 2, database.password, 'stock.location', 'search', [('usage','=','customer')], 0, 1)
+                url  = 'http://%s:%s/xmlrpc/object'%(ip_server,database.port_server)
+                sock = xmlrpclib.ServerProxy(url)
+                try:
+                    ids = sock.execute(database.database, 2, database.password, 'stock.location', 'search', [('usage','=','customer')], 0, 1)
+                except (xmlrpclib.Fault, OSError) as e:
+                    erreurs.append("Etiquette %s : %s"%(obj.num_eti,self._message_erreur_site(e,database.database,url)))
+                    continue
                 if not ids:
                     erreurs.append("Etiquette %s : aucun emplacement de type 'Client' dans %s"%(obj.num_eti,database.database))
                     continue
                 sites[obj.soc]={
                     'database'   : database,
+                    'url'        : url,
                     'sock'       : sock,
                     'location_id': ids[0],
                     'groupes'    : {},
@@ -879,31 +900,35 @@ class is_galia_base(models.Model):
             USERPASS = database.password
             sock     = site['sock']
 
-            #** L'UC ne doit pas déjà exister, même archivée ******************
-            domain=[('num_eti','=',obj.num_eti),('active','in',[True,False])]
-            if sock.execute(DB, USERID, USERPASS, 'is.galia.base.uc', 'search', domain):
-                erreurs.append("Etiquette %s : UC déjà présente dans %s"%(obj.num_eti,DB))
-                continue
+            try:
+                #** L'UC ne doit pas déjà exister, même archivée **************
+                domain=[('num_eti','=',obj.num_eti),('active','in',[True,False])]
+                if sock.execute(DB, USERID, USERPASS, 'is.galia.base.uc', 'search', domain):
+                    erreurs.append("Etiquette %s : UC déjà présente dans %s"%(obj.num_eti,DB))
+                    continue
 
-            #** Recherche de l'article dans la base du site *******************
-            product_id=production_id=False
-            if obj.type_eti=='OF':
-                rows = sock.execute(DB, USERID, USERPASS, 'mrp.production', 'search_read', [('name','=',obj.num_of)], ['product_id'], 0, 1)
-                product_id    = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
-                production_id = rows and rows[0]['id']
-            if obj.type_eti=='Commande':
-                rows = sock.execute(DB, USERID, USERPASS, 'purchase.order.line', 'search_read', [('order_id.name','=',obj.num_of)], ['product_id'], 0, 1)
-                product_id = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
-            if obj.type_eti=='CodePG':
-                ids = sock.execute(DB, USERID, USERPASS, 'product.product', 'search', [('is_code','=',obj.num_of)], 0, 1)
-                product_id = ids and ids[0]
-            if not product_id:
-                erreurs.append("Etiquette %s : article non trouvé dans %s (%s %s)"%(obj.num_eti,DB,obj.type_eti,obj.num_of))
-                continue
+                #** Recherche de l'article dans la base du site ***************
+                product_id=production_id=False
+                if obj.type_eti=='OF':
+                    rows = sock.execute(DB, USERID, USERPASS, 'mrp.production', 'search_read', [('name','=',obj.num_of)], ['product_id'], 0, 1)
+                    product_id    = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
+                    production_id = rows and rows[0]['id']
+                if obj.type_eti=='Commande':
+                    rows = sock.execute(DB, USERID, USERPASS, 'purchase.order.line', 'search_read', [('order_id.name','=',obj.num_of)], ['product_id'], 0, 1)
+                    product_id = rows and rows[0]['product_id'] and rows[0]['product_id'][0]
+                if obj.type_eti=='CodePG':
+                    ids = sock.execute(DB, USERID, USERPASS, 'product.product', 'search', [('is_code','=',obj.num_of)], 0, 1)
+                    product_id = ids and ids[0]
+                if not product_id:
+                    erreurs.append("Etiquette %s : article non trouvé dans %s (%s %s)"%(obj.num_eti,DB,obj.type_eti,obj.num_of))
+                    continue
 
-            #** Recherche du lot dans la base du site *************************
-            ids = sock.execute(DB, USERID, USERPASS, 'stock.lot', 'search', [('name','=',obj.num_of),('product_id','=',product_id)], 0, 1)
-            lot_id = ids and ids[0]
+                #** Recherche du lot dans la base du site *********************
+                ids = sock.execute(DB, USERID, USERPASS, 'stock.lot', 'search', [('name','=',obj.num_of),('product_id','=',product_id)], 0, 1)
+                lot_id = ids and ids[0]
+            except (xmlrpclib.Fault, OSError) as e:
+                erreurs.append("Etiquette %s : %s"%(obj.num_eti,self._message_erreur_site(e,DB,site['url'])))
+                continue
 
             key=(product_id,obj.num_of,production_id,lot_id)
             site['groupes'].setdefault(key, self.env['is.galia.base'])
@@ -945,8 +970,8 @@ class is_galia_base(models.Model):
                 try:
                     um_id   = sock.execute(DB, USERID, USERPASS, 'is.galia.base.um', 'create', um_vals)
                     um_name = sock.execute(DB, USERID, USERPASS, 'is.galia.base.um', 'read', [um_id], ['name'])[0]['name']
-                except xmlrpclib.Fault as e:
-                    msg="Erreur création UM dans %s pour %s UC (%s) : %s"%(DB,len(objs),num_of,e.faultString.strip().split('\n')[0])
+                except (xmlrpclib.Fault, OSError) as e:
+                    msg="Création UM pour %s UC (%s) : %s"%(len(objs),num_of,self._message_erreur_site(e,DB,site['url']))
                     _logger.error("copier_uc_vers_site_action : %s"%msg)
                     erreurs.append(msg)
                     continue
