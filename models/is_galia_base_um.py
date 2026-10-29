@@ -62,6 +62,11 @@ class is_galia_base_um(models.Model):
     def creer_um_theia(self, vals):
         "Création d'une UM depuis THEIA (XML-RPC) avec l'utilisateur Odoo de l'employé qui a scanné son badge. Retourne l'id de l'UM"
         model_uc, employee = self.env['is.galia.base.uc']._env_employe(vals.get('employee_id'))
+        # UM dans l'emplacement de destination de l'OF (là où la déclaration de production met les pièces), sinon ATELIER par défaut
+        if not vals.get('location_id') and vals.get('production_id'):
+            location = self.env['mrp.production'].browse(int(vals['production_id'])).location_dest_id
+            if location.usage=='internal':
+                vals['location_id'] = location.id
         um = self.with_env(model_uc.env).create(vals)
         if employee:
             um.message_post(body="UM créée sur la presse par l'employé %s"%employee.name)
