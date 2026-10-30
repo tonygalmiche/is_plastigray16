@@ -260,7 +260,7 @@ class is_inventaire_reference(models.Model):
     anomalie_bloquante        = fields.Boolean("Anomalie bloquante", readonly=True, copy=False, help="UC sans lot ni Fabrication : validation impossible")
     action_attendue           = fields.Char("Action attendue", compute='_compute_action_attendue')
     info_html                 = fields.Html("Informations"       , compute='_compute_info_html'  , sanitize=False)
-    cartes_courant_html       = fields.Html("Emplacement courant", compute='_compute_cartes_html', sanitize=False)
+    cartes_courant_html       = fields.Html("Cartes de l'emplacement courant", compute='_compute_cartes_html', sanitize=False)
     cartes_autres_html        = fields.Html("Autres emplacements", compute='_compute_cartes_html', sanitize=False)
     ecarts_html               = fields.Html("Écarts (cartes)"    , compute='_compute_ecarts_html', sanitize=False)
     um_non_trouvees_html      = fields.Html("UM non trouvées"    , compute='_compute_ecarts_html', sanitize=False)
