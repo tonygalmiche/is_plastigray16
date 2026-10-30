@@ -204,7 +204,7 @@
                             </page>
                             <page string="Écarts" attrs="{'invisible': [('state', 'not in', ('a_valider', 'valide'))]}">
                                 <field name="ecart_ids">
-                                    <tree decoration-danger="ecart &lt; 0" decoration-success="ecart &gt; 0">
+                                    <tree decoration-danger="ecart &lt; 0" decoration-warning="ecart &gt; 0">
                                         <field name="location_id"/>
                                         <field name="lot_id" optional="hide"/>
                                         <field name="lot_name"/>

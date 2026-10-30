@@ -80,7 +80,7 @@ class is_inventaire_reference(models.Model):
             obj.action_attendue = action_attendue
 
 
-    @api.depends('name', 'state', 'product_id', 'location_id', 'nb_um', 'nb_um_attendues', 'nb_uc', 'nb_uc_attendues', 'qt_odoo', 'qt_scannee', 'progression', 'ecart')
+    @api.depends('name', 'state', 'product_id', 'location_id', 'nb_um', 'nb_um_attendues', 'nb_uc', 'nb_uc_attendues', 'qt_odoo', 'qt_scannee', 'progression', 'ecart', 'ecart_ids')
     def _compute_info_html(self):
         couleurs = {'scan': '#17a2b8', 'a_valider': '#fd7e14', 'valide': '#28a745', 'annule': '#8a8f94'}
         for obj in self:
@@ -93,7 +93,11 @@ class is_inventaire_reference(models.Model):
             if obj.state=='scan':
                 lignes.append("Emplacement courant : <b>%s</b>"%escape(obj.location_id.name or '—'))
             if obj.product_id and obj.state in ('a_valider', 'valide'):
-                lignes.append("Écart total : <b>%s</b> pièces"%_fmt_signe(obj.ecart))
+                ecart = "Écart total : <b>%s</b> pièces"%_fmt_signe(obj.ecart)
+                # Fond rouge dès qu'une ligne est en écart (un total à 0 peut cacher des écarts qui s'annulent)
+                if obj.ecart_ids.filtered(lambda e: e.ecart):
+                    ecart = "<span class='d-inline-block rounded px-2 mt-1' style='background-color:#dc3545;color:#fff'>%s</span>"%ecart
+                lignes.append(ecart)
             # Titre en bloc (div) : pas de <br/> après, sinon ligne vide
             info = "<div class='lh-sm'>%s%s</div>"%(titre, "<br/>".join(lignes))
             if obj.product_id and obj.state=='scan':
@@ -176,7 +180,8 @@ class is_inventaire_reference(models.Model):
             #** Écarts (lignes sans écart seulement comptées) ******************
             cartes = []
             for ecart in obj.ecart_ids.filtered(lambda e: e.ecart):
-                couleur = ecart.ecart>0 and '#28a745' or '#dc3545'
+                # Orange en plus (excédent, comme les cartes des scans), rouge en moins : un écart n'est jamais vert
+                couleur = ecart.ecart>0 and '#fd7e14' or '#dc3545'
                 cartes.append(
                     "<div class='border rounded px-2 py-1 bg-white'>"
                     "<div class='d-flex justify-content-between align-items-center'><b>%s · %s</b>"
