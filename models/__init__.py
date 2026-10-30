@@ -103,3 +103,4 @@ from . import is_gestion_portail
 from . import is_facture_proforma_export_tunisie
 from . import is_controle_qualite_um
 from . import is_scinder_um_par_lot
+from . import is_inventaire_reference

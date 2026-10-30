@@ -1,0 +1,78 @@
+// Inventaire d'une référence (scan) : formulaire compact pour le Zebra TC22 (moins d'espace au-dessus de la fiche)
+.o_is_inventaire_reference .o_form_sheet_bg > .o_form_sheet {
+    margin-top: 0.25rem !important;
+    padding-top: 0.25rem !important;
+}
+
+// Champ qui reçoit les scans : il doit être monté (pas d'invisible="1") mais n'a rien à afficher
+.o_is_inventaire_reference .o_field_widget[name='_barcode_scanned'] {
+    display: none !important;
+}
+
+// Liste des inventaires (kanban) : fond gris clair et cartes blanches encadrées, bien séparées
+.o_is_inventaire_reference_kanban {
+    background-color: #e9ecef !important;
+    padding: 0.25rem !important;
+    .o_kanban_record:not(.o_kanban_ghost) {
+        background-color: #fff !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+        margin: 0.25rem !important;
+        // Largeur 100 % + marges : la carte déborde à droite sur smartphone
+        max-width: calc(100% - 0.5rem) !important;
+    }
+    .o_kanban_ghost {
+        display: none !important;
+    }
+}
+
+// Bouton gris moyen (btn-secondary d'Odoo 16 sans fond visible, btn-dark trop sombre)
+.o_is_inventaire_reference .o_is_btn_gris {
+    background-color: #8a8f94 !important;
+    border-color: #8a8f94 !important;
+    color: #fff !important;
+}
+
+// Titres des blocs (emplacement courant, autres emplacements, derniers scans, écarts…) : bandeau gris foncé
+.o_is_inventaire_reference .o_is_titre {
+    background-color: #5a6268;
+    color: #fff;
+    font-weight: bold;
+    padding: 0.15rem 0.5rem;
+    margin: 0.5rem 0 0.25rem 0;
+    border-radius: 0.25rem;
+}
+
+// Cartes (HTML et kanban des derniers scans) : même grille, une colonne sur smartphone, plusieurs colonnes sur PC
+.o_is_inventaire_reference {
+    .o_is_cartes,
+    .o_field_one2many .o_kanban_renderer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 0.25rem;
+        padding: 0 !important;
+        margin-bottom: 0.25rem;
+    }
+    // Le cadre de la carte est porté par o_is_carte : on retire ceux du kanban d'Odoo
+    .o_field_one2many,
+    .o_field_one2many .o_kanban_renderer {
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    .o_field_one2many .o_kanban_renderer {
+        .o_kanban_record {
+            width: auto !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+        .o_kanban_ghost {
+            display: none !important;
+        }
+    }
+}

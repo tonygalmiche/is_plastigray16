@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_inventaire_reference_seq" model="ir.sequence">
+            <field name="name">Inventaire d'une référence</field>
+            <field name="code">is.inventaire.reference</field>
+            <field name="prefix">IR-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+
+        <!-- is.inventaire.reference -->
+        <!-- Action avant le formulaire, qui y fait référence (bouton « Retour à la liste ») -->
+        <record model="ir.actions.act_window" id="is_inventaire_reference_action">
+            <field name="name">Inventaires d'une référence</field>
+            <field name="res_model">is.inventaire.reference</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'search_default_en_cours': 1}</field>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_reference_form_view">
+            <field name="name">is_inventaire_reference_form_view</field>
+            <field name="model">is.inventaire.reference</field>
+            <field name="arch" type="xml">
+                <form create="false" class="o_is_inventaire_reference">
+                    <!-- Pas d'en-tête : les boutons sont dans la fiche et l'état est dans la zone grise -->
+                    <sheet>
+                        <field name="state" invisible="1"/>
+                        <field name="product_id" invisible="1"/>
+                        <field name="anomalies" invisible="1"/>
+                        <!-- Sans invisible="1" : en Odoo 16, un champ invisible n'est pas monté et le widget ne reçoit pas les scans -->
+                        <field name="_barcode_scanned" widget="barcode_handler"/>
+                        <div class="alert alert-info fs-5 py-1 px-2 mt-1 mb-1" role="status" attrs="{'invisible': [('action_attendue', '=', False)]}">
+                            <i class="fa fa-barcode me-2" title="Action attendue"/><field name="action_attendue"/>
+                        </div>
+                        <div class="alert alert-danger py-1 px-2 mb-1" role="alert" attrs="{'invisible': [('alerte', '=', False)]}">
+                            <field name="alerte"/>
+                        </div>
+                        <div class="alert alert-warning py-1 px-2 mb-1" role="status" attrs="{'invisible': [('avertissement', '=', False)]}">
+                            <field name="avertissement"/>
+                        </div>
+                        <!-- Anomalies (UC sans lot, doublons, UM mixtes) : affichées avec les écarts -->
+                        <div class="alert alert-warning py-1 px-2 mb-1" role="status" attrs="{'invisible': ['|', ('state', '!=', 'a_valider'), ('anomalies', '=', False)]}">
+                            <field name="anomalies" readonly="1"/>
+                        </div>
+                        <div class="alert alert-success py-1 px-2 mb-1" role="status" attrs="{'invisible': [('message', '=', False)]}">
+                            <field name="message"/>
+                        </div>
+                        <div class="bg-light border rounded py-1 px-2 mb-1">
+                            <field name="info_html" nolabel="1"/>
+                        </div>
+
+                        <!-- Scans : cartes emplacement × lot et derniers scans -->
+                        <div attrs="{'invisible': [('state', '!=', 'scan')]}">
+                            <field name="cartes_courant_html" nolabel="1"/>
+                            <field name="cartes_autres_html" nolabel="1"/>
+                            <div class="o_is_titre" attrs="{'invisible': [('derniers_scan_ids', '=', [])]}">Derniers scans</div>
+                            <field name="derniers_scan_ids" mode="kanban" attrs="{'invisible': [('derniers_scan_ids', '=', [])]}">
+                                <kanban>
+                                    <field name="um_id"/>
+                                    <field name="uc_id"/>
+                                    <field name="situation"/>
+                                    <field name="qt_pieces"/>
+                                    <field name="location_id"/>
+                                    <field name="lots"/>
+                                    <field name="user_id"/>
+                                    <field name="date_scan"/>
+                                    <field name="inventaire_state"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div>
+                                            <div class="o_is_carte d-flex align-items-center justify-content-between border rounded px-2 py-1 bg-white">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>
+                                                            <b t-if="record.uc_id.raw_value">UC <field name="uc_id"/> · </b>
+                                                            <b>UM <field name="um_id"/></b>
+                                                            <span t-if="record.situation.raw_value == 'ok'" class="badge ms-1" style="background-color:#28a745;color:#fff">OK</span>
+                                                            <span t-else="" class="badge ms-1" style="background-color:#fd7e14;color:#fff"><field name="situation"/></span>
+                                                        </span>
+                                                        <span><field name="qt_pieces"/> pcs</span>
+                                                    </div>
+                                                    <div class="small text-muted">
+                                                        <field name="location_id"/> · <field name="lots"/> · <field name="user_id"/> · <field name="date_scan"/>
+                                                    </div>
+                                                </div>
+                                                <button t-if="record.inventaire_state.raw_value == 'scan'"
+                                                    name="retirer_scan_action"
+                                                    type="object"
+                                                    class="btn btn-link text-danger fs-5 p-0 ms-2"
+                                                    title="Retirer"
+                                                    confirm="Retirer cette UM de l'inventaire ?">
+                                                    <i class="fa fa-trash" title="Retirer"/>
+                                                </button>
+                                            </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                            <button
+                                name="terminer_scans_action"
+                                string="Terminer les scans"
+                                type="object"
+                                class="btn-primary btn-lg w-100 mt-2 mb-2"
+                                confirm="Terminer les scans et calculer les écarts ?"
+                                attrs="{'invisible': [('product_id', '=', False)]}"
+                            />
+                            <div class="d-flex mb-3">
+                                <field name="code" placeholder="N° UM / UC saisi à la main" class="flex-grow-1 me-2"/>
+                                <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
+                            </div>
+                        </div>
+
+                        <!-- Écarts : cartes de validation sur smartphone -->
+                        <div attrs="{'invisible': [('state', 'not in', ('a_valider', 'valide'))]}">
+                            <field name="ecarts_html" nolabel="1"/>
+                            <field name="um_non_trouvees_html" nolabel="1"/>
+                            <field name="um_a_corriger_html" nolabel="1"/>
+                        </div>
+                        <div attrs="{'invisible': [('state', '!=', 'a_valider')]}">
+                            <button
+                                name="valider_action"
+                                string="Valider l'inventaire"
+                                type="object"
+                                class="btn-primary btn-lg w-100 mt-2 mb-2"
+                                confirm="Mettre à jour le stock, les UM et les UC avec les écarts affichés (écart total dans la zone grise) ? Validation définitive."
+                            />
+                            <button
+                                name="recalculer_ecarts_action"
+                                string="Recalculer les écarts"
+                                type="object"
+                                class="btn-info w-100 mb-2"
+                            />
+                            <button
+                                name="reprendre_scans_action"
+                                string="Reprendre les scans"
+                                type="object"
+                                class="btn-info w-100 mb-2"
+                            />
+                        </div>
+
+                        <!-- Sur smartphone, la barre du haut est masquée (inventaire_reference.js) : retour à la liste par ce bouton -->
+                        <button
+                            name="%(is_inventaire_reference_action)d"
+                            string="Retour à la liste"
+                            type="action"
+                            class="btn-secondary o_is_btn_gris w-100 mb-2 d-md-none"
+                        />
+                        <!-- Abandon tout en bas, séparé des autres boutons pour éviter un appui par erreur -->
+                        <button
+                            name="abandonner_action"
+                            string="Abandonner"
+                            type="object"
+                            class="btn-outline-danger w-100 mt-4 mb-2"
+                            confirm="Abandonner cet inventaire ? Rien ne sera modifié."
+                            attrs="{'invisible': [('state', 'not in', ('scan', 'a_valider'))]}"
+                        />
+
+                        <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22) -->
+                        <div class="d-none d-md-block">
+                        <notebook>
+                            <page string="Journal">
+                                <field name="scan_ids">
+                                    <tree decoration-muted="retire" decoration-warning="not retire and situation != 'ok'">
+                                        <field name="date_scan"/>
+                                        <field name="user_id" optional="show"/>
+                                        <field name="location_id"/>
+                                        <button title="UM" name="voir_um_action" type="object" icon="fa-search-plus"/>
+                                        <field name="um_id"/>
+                                        <button title="UC" name="voir_uc_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('uc_id', '=', False)]}"/>
+                                        <field name="uc_id" optional="show"/>
+                                        <field name="nb_uc" sum="Total"/>
+                                        <field name="qt_pieces" sum="Total"/>
+                                        <field name="lots"/>
+                                        <field name="location_odoo_id" optional="show"/>
+                                        <field name="um_active_odoo" optional="hide"/>
+                                        <field name="situation"/>
+                                        <field name="saisie_manuelle" optional="show"/>
+                                        <field name="message" optional="show"/>
+                                        <field name="retire"/>
+                                        <field name="motif_retrait" optional="show"/>
+                                        <field name="date_retrait" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Cartes" attrs="{'invisible': [('state', '!=', 'scan')]}">
+                                <field name="carte_ids">
+                                    <tree>
+                                        <field name="location_id"/>
+                                        <field name="lot_id" optional="hide"/>
+                                        <field name="lot_name"/>
+                                        <field name="qt_odoo" sum="Total"/>
+                                        <field name="qt_scannee" sum="Total"/>
+                                        <field name="nb_um" sum="Total"/>
+                                        <field name="nb_um_attendues" sum="Total"/>
+                                        <field name="nb_uc" sum="Total"/>
+                                        <field name="nb_uc_attendues" sum="Total"/>
+                                        <field name="progression" widget="progressbar"/>
+                                        <field name="etat" widget="badge" decoration-info="etat == 'en_cours'" decoration-success="etat == 'complet'" decoration-warning="etat == 'excedent'"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Écarts" attrs="{'invisible': [('state', 'not in', ('a_valider', 'valide'))]}">
+                                <field name="ecart_ids">
+                                    <tree decoration-danger="ecart &lt; 0" decoration-success="ecart &gt; 0">
+                                        <field name="location_id"/>
+                                        <field name="lot_id" optional="hide"/>
+                                        <field name="lot_name"/>
+                                        <field name="qt_odoo" sum="Total"/>
+                                        <field name="qt_scannee" sum="Total"/>
+                                        <field name="ecart" sum="Total"/>
+                                        <button title="Mouvement de stock" name="voir_mouvement_action" type="object" icon="fa-exchange" attrs="{'invisible': [('move_id', '=', False)]}"/>
+                                        <field name="move_id" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="UM" attrs="{'invisible': [('state', 'not in', ('a_valider', 'valide'))]}">
+                                <field name="um_ids">
+                                    <tree decoration-danger="situation == 'non_trouvee'" decoration-warning="situation in ('autre_emplacement', 'hors_stock')">
+                                        <button title="UM" name="voir_um_action" type="object" icon="fa-search-plus"/>
+                                        <field name="um_id"/>
+                                        <field name="situation"/>
+                                        <field name="location_odoo_id"/>
+                                        <field name="um_active_odoo" optional="show"/>
+                                        <field name="location_scan_id"/>
+                                        <field name="lots"/>
+                                        <field name="nb_uc_odoo" sum="Total"/>
+                                        <field name="nb_uc_scannees" sum="Total"/>
+                                        <field name="qt_odoo" sum="Total"/>
+                                        <field name="qt_scannee" sum="Total"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Anomalies">
+                                <group>
+                                    <field name="anomalie_bloquante"/>
+                                    <field name="anomalies" readonly="1"/>
+                                </group>
+                            </page>
+                            <page string="Emplacements inventoriés">
+                                <field name="location_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="complete_name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Totaux et activité">
+                                <group>
+                                    <group string="Article">
+                                        <field name="product_id"/>
+                                        <field name="location_id"/>
+                                        <field name="nb_emplacements"/>
+                                        <field name="nb_lots"/>
+                                    </group>
+                                    <group string="Totaux">
+                                        <field name="nb_um"/>
+                                        <field name="nb_um_attendues"/>
+                                        <field name="nb_uc"/>
+                                        <field name="nb_uc_attendues"/>
+                                        <field name="qt_odoo"/>
+                                        <field name="qt_scannee"/>
+                                        <field name="progression"/>
+                                        <field name="ecart"/>
+                                    </group>
+                                    <group string="Activité">
+                                        <field name="date_debut"/>
+                                        <field name="date_fin_scan"/>
+                                        <field name="date_validation"/>
+                                        <field name="valideur_id"/>
+                                        <field name="date_derniere_activite"/>
+                                        <field name="user_derniere_activite_id"/>
+                                        <field name="create_date"/>
+                                        <field name="create_uid"/>
+                                    </group>
+                                </group>
+                                <field name="commentaire" placeholder="Commentaire"/>
+                            </page>
+                        </notebook>
+                        </div>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_reference_tree_view">
+            <field name="name">is_inventaire_reference_tree_view</field>
+            <field name="model">is.inventaire.reference</field>
+            <field name="arch" type="xml">
+                <tree create="false">
+                    <field name="name"/>
+                    <field name="product_id" optional="show"/>
+                    <field name="nb_emplacements" optional="show"/>
+                    <field name="nb_lots" optional="show"/>
+                    <field name="nb_um" optional="show"/>
+                    <field name="nb_um_attendues" optional="show"/>
+                    <field name="qt_odoo" optional="show"/>
+                    <field name="qt_scannee" optional="show"/>
+                    <field name="progression" widget="progressbar" optional="show"/>
+                    <field name="ecart" optional="show"/>
+                    <field name="date_debut" optional="hide"/>
+                    <field name="date_validation" optional="hide"/>
+                    <field name="valideur_id" optional="hide"/>
+                    <field name="date_derniere_activite" optional="show"/>
+                    <field name="user_derniere_activite_id" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'scan'" decoration-warning="state == 'a_valider'" decoration-success="state == 'valide'" decoration-muted="state == 'annule'" optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_reference_kanban_view">
+            <field name="name">is_inventaire_reference_kanban_view</field>
+            <field name="model">is.inventaire.reference</field>
+            <field name="arch" type="xml">
+                <kanban create="false" class="o_kanban_mobile o_is_inventaire_reference_kanban">
+                    <field name="state"/>
+                    <field name="product_id"/>
+                    <field name="nb_emplacements"/>
+                    <field name="nb_lots"/>
+                    <field name="nb_um"/>
+                    <field name="qt_odoo"/>
+                    <field name="qt_scannee"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="fs-4"><field name="name"/></strong>
+                                    <field name="state" widget="label_selection" options="{'classes': {'scan': 'info', 'a_valider': 'warning', 'valide': 'success', 'annule': 'default'}}"/>
+                                </div>
+                                <t t-if="record.product_id.raw_value">
+                                    <div class="fw-bold fs-5"><field name="product_id"/></div>
+                                    <div class="text-muted">
+                                        <i class="fa fa-map-marker me-1" title="Emplacements"/><field name="nb_emplacements"/>
+                                        <i class="fa fa-tag ms-3 me-1" title="Lots"/><field name="nb_lots"/>
+                                        <i class="fa fa-cubes ms-3 me-1" title="UM scannées"/><field name="nb_um"/> UM
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <div class="flex-grow-1 me-2"><field name="progression" widget="progressbar"/></div>
+                                        <div class="text-nowrap"><strong><field name="qt_scannee"/></strong> / <field name="qt_odoo"/></div>
+                                    </div>
+                                </t>
+                                <div t-else="" class="text-muted fst-italic">
+                                    <i class="fa fa-barcode me-1" title="Aucune UM scannée"/>Aucune UM scannée
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center text-muted small mt-2 pt-2 border-top">
+                                    <span><i class="fa fa-clock-o me-1" title="Dernière activité"/><field name="date_derniere_activite"/></span>
+                                    <field name="user_derniere_activite_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_reference_search_view">
+            <field name="name">is_inventaire_reference_search_view</field>
+            <field name="model">is.inventaire.reference</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="location_ids"/>
+                    <filter name="en_cours"  string="En cours"   domain="[('state', 'in', ('scan', 'a_valider'))]"/>
+                    <filter name="valide"    string="Validés"    domain="[('state', '=', 'valide')]"/>
+                    <filter name="annule"    string="Abandonnés" domain="[('state', '=', 'annule')]"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter name="group_state"      string="État"    context="{'group_by': 'state'}"/>
+                        <filter name="group_product_id" string="Article" context="{'group_by': 'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="is_inventaire_reference_nouveau_action" model="ir.actions.server">
+            <field name="name">Nouvel inventaire d'une référence</field>
+            <field name="model_id" ref="model_is_inventaire_reference"/>
+            <field name="state">code</field>
+            <field name="code">action = model.nouvel_inventaire_action()</field>
+        </record>
+    </data>
+</odoo>
