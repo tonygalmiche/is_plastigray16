@@ -160,6 +160,11 @@
 
                         <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22) -->
                         <div class="d-none d-md-block">
+                        <div class="d-flex gap-2 mt-2 mb-2">
+                            <button name="voir_ums_action" string="UM" type="object" icon="fa-cubes" class="btn-secondary" attrs="{'invisible': [('product_id', '=', False)]}"/>
+                            <button name="voir_ucs_action" string="UC" type="object" icon="fa-cube" class="btn-secondary" attrs="{'invisible': [('product_id', '=', False)]}"/>
+                            <button name="voir_mouvements_action" string="Mouvements" type="object" icon="fa-exchange" class="btn-secondary" attrs="{'invisible': [('state', '!=', 'valide')]}"/>
+                        </div>
                         <notebook>
                             <page string="Journal">
                                 <field name="scan_ids">

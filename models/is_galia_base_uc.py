@@ -233,7 +233,11 @@ class is_galia_base_uc(models.Model):
 
     def _creer_mouvement_lot(self, product, qty, lot, location_src, location_dest, name):
         "Mouvement de stock d'un lot validé immédiatement. Retourne le mouvement"
+        # État 'confirmed' (comme l'inventaire d'Odoo, stock.quant._get_inventory_move_values) : un mouvement en brouillon
+        # est confirmé par _action_done, qui réserve aussitôt si la source n'est pas réservable (INV, Client…) et crée une
+        # ligne sans lot, gardée à 0 à la validation car is_inventory=True
         move=self.env['stock.move'].create({
+            "state": "confirmed",
             "product_id": product.id,
             "product_uom": product.uom_id.id,
             "location_id": location_src.id,

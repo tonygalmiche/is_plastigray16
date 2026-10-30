@@ -952,7 +952,7 @@ class is_inventaire_reference(models.Model):
                     # UM mixte : ses UC de la référence vont dans une nouvelle UM mise dans INV, l'UM mixte reste en place
                     um_inv = self.env['is.galia.base.um'].sudo().create({
                         'mixte'      : 'non',
-                        'location_id': um.location_id.id,
+                        'location_id': location_inv.id,
                         'date_fin'   : fields.Datetime.now(),
                     })
                     ucs.write({'um_id': um_inv.id})
@@ -962,9 +962,10 @@ class is_inventaire_reference(models.Model):
                         uc.message_post(body="Inventaire %s : UC non trouvée, déplacée de l'UM mixte %s vers l'UM %s mise dans INV"%(self.name, um.name, um_inv.name), author_id=auteur)
                     um = um_inv
                 else:
-                    um.message_post(body="Inventaire %s : UM non trouvée, archivée"%self.name, author_id=auteur)
-                um.active = False
-                um.mettre_um_archivee_dans_inv_action()
+                    um.message_post(body="Inventaire %s : UM non trouvée, mise dans INV (de %s)"%(self.name, um.location_id.name), author_id=auteur)
+                # Ni l'UM ni ses UC ne sont archivées : seulement mises dans INV (hors stock). Retrouvée plus tard, elle
+                # revient dans le stock par un prochain inventaire (situation « hors stock »)
+                um.location_id = location_inv.id
                 nb_um += 1
 
         self.write({
@@ -975,6 +976,48 @@ class is_inventaire_reference(models.Model):
         return "Inventaire validé : %s mouvement%s de stock (écart %s pièces), %s UM modifiée%s"%(
             nb_mouvements, nb_mouvements>1 and 's' or '', _fmt_signe(self.ecart), nb_um, nb_um>1 and 's' or '',
         )
+
+
+    #** Accès aux UM, UC et mouvements concernés (vue PC) ********************
+    def _get_ums_concernees(self):
+        "UM scannées (scans retirés compris) et UM de la situation des UM (non trouvées)"
+        return self.scan_ids.um_id | self.um_ids.um_id
+
+
+    def voir_ums_action(self):
+        for obj in self:
+            return {
+                'name'     : "UM %s"%obj.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'is.galia.base.um',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', obj._get_ums_concernees().ids)],
+                # UM archivées comprises (UM archivée par un autre programme puis retrouvée)
+                'context'  : {'active_test': False},
+            }
+
+
+    def voir_ucs_action(self):
+        for obj in self:
+            return {
+                'name'     : "UC %s"%obj.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'is.galia.base.uc',
+                'view_mode': 'tree,form',
+                'domain'   : [('um_id', 'in', obj._get_ums_concernees().ids), ('product_id', '=', obj.product_id.id)],
+                'context'  : {'active_test': False},
+            }
+
+
+    def voir_mouvements_action(self):
+        for obj in self:
+            return {
+                'name'     : "Mouvements %s"%obj.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'stock.move',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', obj.ecart_ids.move_id.ids)],
+            }
 
 
     #** Retrait d'un scan (poubelle des derniers scans) ***********************
