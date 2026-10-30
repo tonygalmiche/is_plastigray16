@@ -87,14 +87,15 @@ class is_inventaire_reference(models.Model):
             titre = "<div class='d-flex justify-content-between align-items-center'><b>%s</b><span class='badge' style='background-color:%s;color:#fff'>%s</span></div>"%(
                 escape(obj.name or ''), couleurs.get(obj.state, '#8a8f94'), escape(dict(_STATE).get(obj.state, '')),
             )
-            lignes = [titre]
+            lignes = []
             if obj.product_id:
                 lignes.append("<b>%s</b> <span class='text-muted'>%s</span>"%(escape(obj.product_id.is_code or ''), escape(obj.product_id.name or '')))
             if obj.state=='scan':
                 lignes.append("Emplacement courant : <b>%s</b>"%escape(obj.location_id.name or '—'))
             if obj.product_id and obj.state in ('a_valider', 'valide'):
                 lignes.append("Écart total : <b>%s</b> pièces"%_fmt_signe(obj.ecart))
-            info = "<div class='lh-sm'>%s</div>"%"<br/>".join(lignes)
+            # Titre en bloc (div) : pas de <br/> après, sinon ligne vide
+            info = "<div class='lh-sm'>%s%s</div>"%(titre, "<br/>".join(lignes))
             if obj.product_id and obj.state=='scan':
                 progression = int(round(obj.progression))
                 info += (
@@ -191,10 +192,11 @@ class is_inventaire_reference(models.Model):
             ecarts_html = False
             if obj.ecart_ids:
                 pied = ""
-                if nb_sans_ecart:
-                    pied = "<div class='small text-muted mb-1'>%s ligne%s sans écart</div>"%(nb_sans_ecart, nb_sans_ecart>1 and 's' or '')
                 if not cartes:
                     cartes = ["<div class='text-muted small'>Aucun écart</div>"]
+                elif nb_sans_ecart:
+                    # Nombre des lignes sans écart utile seulement à côté des lignes en écart
+                    pied = "<div class='small text-muted mb-1'>%s ligne%s sans écart</div>"%(nb_sans_ecart, nb_sans_ecart>1 and 's' or '')
                 ecarts_html = "<div class='o_is_titre'>Écarts</div><div class='o_is_cartes'>%s</div>%s"%("".join(cartes), pied)
 
             #** UM non trouvées ***********************************************

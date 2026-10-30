@@ -62,7 +62,10 @@
         background: transparent !important;
     }
     .o_field_one2many .o_kanban_renderer {
-        .o_kanban_record {
+        // Odoo 16 encadre aussi le premier div de la carte (.o_kanban_record > div : bordure et padding) :
+        // sans ce div, double cadre autour de o_is_carte
+        .o_kanban_record,
+        .o_kanban_record > div {
             width: auto !important;
             min-width: 0 !important;
             margin: 0 !important;
@@ -70,6 +73,13 @@
             border: 0 !important;
             box-shadow: none !important;
             background: transparent !important;
+        }
+        // Pleine largeur (comme Odoo), sinon la carte se réduit à son contenu
+        .o_kanban_record > div {
+            width: 100% !important;
+        }
+        .o_kanban_record > div::after {
+            display: none !important;
         }
         .o_kanban_ghost {
             display: none !important;
