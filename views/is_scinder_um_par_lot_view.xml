@@ -58,32 +58,33 @@
                             attrs="{'invisible': [('state', '!=', 'a_valider')]}"
                         />
                         <button
-                            name="annuler_action"
-                            string="Annuler"
-                            type="object"
-                            class="btn-secondary o_is_btn_gris w-100 mb-2"
-                            attrs="{'invisible': [('state', '!=', 'a_valider')]}"
-                        />
-                        <button
                             name="nouvelle_um_action"
                             string="Nouvelle UM"
                             type="object"
                             class="btn-primary w-100 mb-2 fs-5"
                             attrs="{'invisible': [('state', 'not in', ('termine', 'annule'))]}"
                         />
-                        <div class="d-flex mb-3" attrs="{'invisible': [('state', '!=', 'scan')]}">
+                        <div class="d-flex mb-3" attrs="{'invisible': [('state', 'not in', ('scan', 'a_valider'))]}">
                             <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
                             <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
                         </div>
                         <group>
                             <field name="imprimante_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', 'in', ('termine', 'annule'))]}"/>
                         </group>
+                        <!-- Annuler après l'imprimante : l'imprimante se choisit avant « Scinder l'UM » -->
+                        <button
+                            name="annuler_action"
+                            string="Annuler"
+                            type="object"
+                            class="btn-secondary o_is_btn_gris w-100 mb-2"
+                            attrs="{'invisible': [('state', '!=', 'a_valider')]}"
+                        />
                         <!-- Sur smartphone, la barre du haut est masquée (scinder_um_par_lot.js) : retour à la liste par ce bouton -->
                         <button
                             name="%(is_scinder_um_par_lot_action)d"
                             string="Retour à la liste"
                             type="action"
-                            class="btn-secondary o_is_btn_gris w-100 mb-2 d-md-none"
+                            class="btn-secondary o_is_btn_gris w-100 mt-4 mb-2 d-md-none"
                         />
                         <!-- Abandon tout en bas, séparé des autres boutons pour éviter un appui par erreur -->
                         <button

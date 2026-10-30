@@ -989,8 +989,8 @@ class is_galia_base_um(models.Model):
             FN20 = NomClient
             if FormatEti in ("DD", "EMS"):
                 FN20 = " "
-            FN21 = str(Quantite*PoidsBrut)+" Kg"
-            FN24 = str(Quantite*PoidsNet)+" Kg"
+            FN21 = str(round(Quantite*PoidsBrut,2))+" Kg"
+            FN24 = str(round(Quantite*PoidsNet,2))+" Kg"
             FN30 = ""
             FN90 = LogoSecu in ("R", "RS", "SR") and "R" or ""
             FN91 = LogoSecu in ("RS", "SR") and "S" or ""

@@ -13,6 +13,9 @@ _STATE = [
     ('annule'   , 'Annulé'),
 ]
 
+# Impression d'une UM d'une seule UC : pas d'étiquette UM, l'étiquette UC suffit
+_PAS_ETIQUETTE_UM = " · pas d'étiquette UM (1 seule UC)"
+
 # Champs recopiés de l'enregistrement en base vers le formulaire après un scan (on_barcode_scanned est un onchange)
 _CHAMPS_FORMULAIRE = [
     'state', 'um_id', 'product_id', 'location_id', 'lot_id', 'ligne_ids', 'ligne_uc_ids', 'message', 'alerte',
@@ -38,7 +41,7 @@ class is_scinder_um_par_lot(models.Model):
             if obj.state=='scan':
                 action_attendue = "Scannez l'UM"
             if obj.state=='a_valider':
-                action_attendue = "Vérifiez puis « Scinder l'UM »"
+                action_attendue = "Vérifiez puis « Scinder l'UM », ou scannez une autre UM"
             obj.action_attendue = action_attendue
 
 
@@ -46,14 +49,15 @@ class is_scinder_um_par_lot(models.Model):
     def _compute_apercu_html(self):
         couleurs = {'scan': '#17a2b8', 'a_valider': '#fd7e14', 'termine': '#28a745', 'annule': '#8a8f94'}
         for obj in self:
-            titre = "<div class='d-flex justify-content-between align-items-center'><b>%s</b><span class='badge' style='background-color:%s;color:#fff'>%s</span></div>"%(
+            # N° et état masqués sur smartphone (d-none d-md-flex) : le bandeau « action attendue » suffit
+            titre = "<div class='d-none d-md-flex justify-content-between align-items-center'><b>%s</b><span class='badge' style='background-color:%s;color:#fff'>%s</span></div>"%(
                 escape(obj.name or ''), couleurs.get(obj.state, '#8a8f94'), escape(dict(_STATE).get(obj.state, '')),
             )
             info = "<div class='lh-sm'>%s"%titre
             if obj.um_id:
-                info += "<b>UM %s</b> · <b>%s</b> <span class='text-muted'>%s</span><br/>En <b>%s</b> · %s lots"%(
+                # Emplacement et nombre de lots : dans le message du scan
+                info += "<b>UM %s</b> · <b>%s</b> <span class='text-muted'>%s</span>"%(
                     escape(obj.um_id.name), escape(obj.product_id.is_code or ''), escape(obj.product_id.name or ''),
-                    escape(obj.location_id.name or ''), len(obj.ligne_ids),
                 )
             info += "</div>"
             obj.info_html = info
@@ -88,11 +92,14 @@ class is_scinder_um_par_lot(models.Model):
                 else:
                     um = "UM %s"%(ligne.um_id.name or '')
                     badge = "<span class='badge ms-1' style='background-color:#28a745;color:#fff'>gardée</span>"
+                impression = ligne.impression
+                if not impression and ligne.nb_uc==1:
+                    impression = _PAS_ETIQUETTE_UM
                 cartes_um.append(
                     "<div class='border rounded px-2 py-1 bg-white'>"
                     "<div class='d-flex justify-content-between'><span><b>%s</b>%s</span><span>%s UC · %s pcs</span></div>"
                     "<div class='small text-muted'>Lot %s%s</div>"
-                    "</div>"%(escape(um), badge, ligne.nb_uc, ligne.quantite, escape(ligne.lot_id.name or ''), escape(ligne.impression or ''))
+                    "</div>"%(escape(um), badge, ligne.nb_uc, ligne.quantite, escape(ligne.lot_id.name or ''), escape(impression or ''))
                 )
             obj.um_html = cartes_um and "<div class='o_is_cartes'>%s</div>"%"".join(cartes_um) or False
 
@@ -100,8 +107,14 @@ class is_scinder_um_par_lot(models.Model):
             etiquettes = False
             if obj.state=='a_valider':
                 nb_uc = len(obj.ligne_uc_ids)
-                nb_um = len(obj.ligne_ids)
-                etiquettes = "Étiquettes imprimées automatiquement : <b>%s UC</b> et <b>%s UM</b>"%(nb_uc, nb_um)
+                # Pas d'étiquette pour une UM d'une seule UC
+                nb_um = len(obj.ligne_ids.filtered(lambda l: l.nb_uc>1))
+                liste = []
+                if nb_uc:
+                    liste.append("<b>%s UC</b>"%nb_uc)
+                if nb_um:
+                    liste.append("<b>%s UM</b>"%nb_um)
+                etiquettes = liste and "Étiquettes imprimées automatiquement : %s"%" et ".join(liste) or "Aucune étiquette à imprimer"
             obj.etiquettes_html = etiquettes
 
 
@@ -132,10 +145,11 @@ class is_scinder_um_par_lot(models.Model):
 
 
     def nouveau_action(self):
-        "Ouvre la fiche vide de l'utilisateur s'il en a une, sinon en crée une, pour qu'elle existe en base au premier scan"
+        """Reprend la fiche en cours de l'utilisateur (UM à scanner, ou aperçu pas encore validé) s'il en a une, sinon en crée une,
+        pour qu'elle existe en base au premier scan"""
         obj = self.search([
             ('create_uid', '=', self.env.uid),
-            ('state'     , '=', 'scan'),
+            ('state'     , 'in', ('scan', 'a_valider')),
         ], order='id desc', limit=1)
         if not obj:
             obj = self.create({})
@@ -185,15 +199,19 @@ class is_scinder_um_par_lot(models.Model):
 
     def _executer(self, libelle, fonction, *args):
         """Exécute une opération (scan ou bouton). Les refus et les erreurs sont affichés dans l'alerte
-        et le chatter, et l'opération est annulée (savepoint) sans perdre le message"""
+        et le chatter, et l'opération est annulée (savepoint) sans perdre le message.
+        La fonction retourne le message, ou (message, alerte) si l'opération est faite avec un problème (étiquettes non imprimées)"""
         self.ensure_one()
         try:
             with self.env.cr.savepoint():
                 self._verifier_droits()
-                message = fonction(*args)
-            _logger.info("Scinder UM par lot : %s : %s : %s", self.name, libelle, message)
+                res = fonction(*args)
+            message, alerte = isinstance(res, tuple) and res or (res, False)
+            _logger.info("Scinder UM par lot : %s : %s : %s%s", self.name, libelle, message, alerte and " · %s"%alerte or "")
             self.message_post(body="✅ %s : %s"%(libelle, message))
-            self.write({'message': message, 'alerte': False})
+            if alerte:
+                self.message_post(body="⚠ %s"%alerte)
+            self.write({'message': message, 'alerte': alerte})
         except UserError as e:
             _logger.info("Scinder UM par lot : %s : %s : refus : %s", self.name, libelle, e.args[0])
             self.message_post(body="❌ %s : refusé : %s"%(libelle, e.args[0]))
@@ -213,8 +231,8 @@ class is_scinder_um_par_lot(models.Model):
 
 
     def _traiter_code(self, code):
-        "Scan de l'UM : aperçu de la scission, rien n'est modifié"
-        self._verifier_etat(['scan'])
+        "Scan de l'UM : aperçu de la scission, rien n'est modifié. Pendant l'aperçu, le scan d'une autre UM remplace l'aperçu"
+        self._verifier_etat(['scan', 'a_valider'])
         prefixe = code[:1]
         num     = code[1:]
         if prefixe not in ('M', 'G') or not num.isdigit():
@@ -224,7 +242,11 @@ class is_scinder_um_par_lot(models.Model):
             raise ValidationError("UM non trouvée")
         self._preparer(um)
         self.state = 'a_valider'
-        return "UM %s : %s lots, %s UC à scinder"%(um.name, len(self.ligne_ids), len(self.ligne_uc_ids.uc_origine_id))
+        message = "UM %s : %s lots dans l'emplacement %s"%(um.name, len(self.ligne_ids), um.location_id.name)
+        nb_uc = len(self.ligne_uc_ids.uc_origine_id)
+        if nb_uc:
+            message += ", %s UC à scinder"%nb_uc
+        return message
 
 
     #** Calcul de la scission *************************************************
@@ -434,12 +456,22 @@ class is_scinder_um_par_lot(models.Model):
             ligne.impression = self._imprimer_uc(ligne.uc_id, zpl=zpls.get(ligne.uc_id.id))
             nb_erreurs += '⚠' in ligne.impression
         for ligne in self.ligne_ids:
+            # Pas d'étiquette pour une UM d'une seule UC : l'étiquette UC suffit
+            if ligne.nb_uc==1:
+                ligne.impression = _PAS_ETIQUETTE_UM
+                continue
             ligne.impression = self._imprimer_um(ligne.um_id)
             nb_erreurs += '⚠' in ligne.impression
         self.state = 'termine'
-        message = "UM %s scindée : %s nouvelles UM, %s nouvelles UC"%(um.name, len(nouvelles_um), len(self.ligne_uc_ids.filtered('nouvelle_uc')))
+        def nombre(n, singulier, pluriel):
+            return "%s %s"%(n, n>1 and pluriel or singulier)
+        nb_uc = len(self.ligne_uc_ids.filtered('nouvelle_uc'))
+        message = "UM %s scindée : %s"%(um.name, nombre(len(nouvelles_um), "nouvelle UM", "nouvelles UM"))
+        if nb_uc:
+            message += ", %s"%nombre(nb_uc, "nouvelle UC", "nouvelles UC")
         if nb_erreurs:
-            message += " · ⚠ %s étiquettes non imprimées : à réimprimer depuis la fiche UC ou UM"%nb_erreurs
+            alerte = "⚠ %s : à réimprimer depuis la fiche UC ou UM"%nombre(nb_erreurs, "étiquette non imprimée", "étiquettes non imprimées")
+            return message, alerte
         return message
 
 
@@ -470,6 +502,7 @@ class is_scinder_um_par_lot(models.Model):
             imprimante = self._imprimante()
             if zpl:
                 self.env['is.galia.base'].imprimer_zpl(zpl, imprimante=imprimante)
+                uc.sudo().message_post(body="Impression étiquette UC %s (nouvelle UC, scission par lot %s) sur l'imprimante %s"%(uc.num_eti, self.name, imprimante))
             else:
                 uc.sudo().imprimer_etiquette_uc_action(imprimante=imprimante)
         return self._imprimer("étiquette UC %s"%uc.num_eti, imprimer)
