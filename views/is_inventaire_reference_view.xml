@@ -339,7 +339,15 @@
                                         <i class="fa fa-cubes ms-3 me-1" title="UM scannées"/><field name="nb_um"/> UM
                                     </div>
                                     <div class="d-flex align-items-center mt-2">
-                                        <div class="flex-grow-1 me-2"><field name="progression" widget="progressbar"/></div>
+                                        <!-- Barre comme les cartes : rouge s'il en manque, orange s'il y en a trop, vert sans écart -->
+                                        <t t-set="qt_scannee" t-value="record.qt_scannee.raw_value"/>
+                                        <t t-set="qt_odoo" t-value="record.qt_odoo.raw_value"/>
+                                        <t t-set="couleur" t-value="qt_scannee &lt; qt_odoo ? '#dc3545' : (qt_scannee &gt; qt_odoo ? '#fd7e14' : '#28a745')"/>
+                                        <t t-set="largeur" t-value="record.progression.raw_value &gt; 100 ? 100 : record.progression.raw_value"/>
+                                        <div class="progress flex-grow-1 me-2" style="height:8px">
+                                            <div class="progress-bar" t-attf-style="width: {{largeur}}%; background-color: {{couleur}}"/>
+                                        </div>
+                                        <span class="text-nowrap me-2"><field name="progression"/> %</span>
                                         <div class="text-nowrap"><strong><field name="qt_scannee"/></strong> / <field name="qt_odoo"/></div>
                                     </div>
                                 </t>

@@ -105,14 +105,23 @@ class is_inventaire_reference(models.Model):
                 info += (
                     "<div class='lh-sm'>UM <b>%s</b> / %s · UC <b>%s</b> / %s</div>"
                     "<div class='d-flex align-items-center mt-1'>"
-                    "<div class='progress flex-grow-1 me-2' style='height:8px'><div class='progress-bar' style='width:%s%%'></div></div>"
+                    "<div class='progress flex-grow-1 me-2' style='height:8px'><div class='progress-bar' style='width:%s%%;background-color:%s'></div></div>"
                     "<span class='small text-nowrap'>%s / %s · %s %%</span>"
                     "</div>"
                 )%(
                     obj.nb_um, obj.nb_um_attendues, obj.nb_uc, obj.nb_uc_attendues,
-                    min(progression, 100), _fmt(obj.qt_scannee), _fmt(obj.qt_odoo), progression,
+                    min(progression, 100), obj._couleur_ecart(), _fmt(obj.qt_scannee), _fmt(obj.qt_odoo), progression,
                 )
             obj.info_html = info
+
+
+    def _couleur_ecart(self):
+        "Barre de la zone grise (comme le kanban de la liste) : rouge s'il en manque, orange s'il y en a trop, vert sans écart"
+        if self.qt_scannee<self.qt_odoo:
+            return '#dc3545'
+        if self.qt_scannee>self.qt_odoo:
+            return '#fd7e14'
+        return '#28a745'
 
 
     def _html_carte(self, carte):
