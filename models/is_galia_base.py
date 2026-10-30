@@ -845,6 +845,51 @@ class is_galia_base(models.Model):
         return imprimante
 
 
+    def _creer_etiquette_uc_odoo0(self, uc_ref, production, qt):
+        """Crée une nouvelle étiquette UC dans odoo0 (même société et type que l'UC uc_ref, OF production, n° de carton = plus grand + 1).
+        Retourne num_eti, num_carton et le ZPL. Utilisée par le contrôle qualité et « Scinder UM par lot »"""
+        company  = self.env.company
+        DB       = company.is_nom_base_odoo0
+        USERID   = 2
+        USERPASS = company.is_mdp_admin
+        URL      = company.is_url_odoo0
+        sock = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
+        def executer(methode, args, kwargs=None):
+            try:
+                return sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', methode, args, kwargs or {})
+            except Exception:
+                _logger.exception("Création étiquette UC : odoo0 : %s", methode)
+                raise ValidationError("Problème de connexion sur %s ou sur la base %s (%s)"%(URL, DB, methode))
+        lignes = executer('search_read', [[('num_eti','=',uc_ref.num_eti)]], {'fields': ['soc'], 'limit': 1, 'order': 'id desc'})
+        soc = lignes and lignes[0]['soc']
+        if not soc:
+            raise ValidationError("Étiquette %s non trouvée dans odoo0"%uc_ref.num_eti)
+        domain = [('soc','=',soc), ('type_eti','=',uc_ref.type_eti), ('num_of','=',production)]
+        lignes = executer('search_read', [domain], {'fields': ['num_carton'], 'limit': 1, 'order': 'num_carton desc'})
+        num_carton = (lignes and lignes[0]['num_carton'] or 0) + 1
+        # Sans le mot de passe de réimpression : refus si ce n° de carton existe déjà (deux créations en même temps)
+        res = executer('creer_etiquette', [[0], {
+            'ACTION'      : 'OK',
+            'Soc'         : soc,
+            'Etiquette'   : uc_ref.type_eti,
+            'Imprimante'  : 'ZPL',
+            'zzCode'      : production,
+            'zzDebut'     : num_carton,
+            'zzFin'       : num_carton,
+            'zzNbPieces'  : qt,
+            'zzMDP1'      : company.is_mdp_quantite,
+            'zzValidation': 'OK',
+            'zzAction'    : 'Imprimer',
+            'user_name'   : self.env.user.name,
+        }])
+        if res.get('Msg'):
+            raise ValidationError("odoo0 : %s"%res['Msg'])
+        lignes = executer('search_read', [domain+[('num_carton','=',num_carton)]], {'fields': ['num_eti'], 'limit': 1})
+        if not lignes:
+            raise ValidationError("Étiquette %s / carton %s non créée dans odoo0"%(production, num_carton))
+        return {'num_eti': lignes[0]['num_eti'], 'num_carton': num_carton, 'zpl': res.get('ZPL')}
+
+
     def _message_erreur_site(self, e, database, url):
         "Message lisible pour une erreur XML-RPC vers la base d'un site"
         if isinstance(e, xmlrpclib.Fault):

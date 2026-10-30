@@ -141,6 +141,7 @@ Module Odoo 16 pour Plastigray
         "views/is_reception_inter_site_view.xml",
         "views/is_gestion_portail_view.xml",
         "views/is_controle_qualite_um_view.xml",
+        "views/is_scinder_um_par_lot_view.xml",
 
         "views/report_paperformat.xml",
         "views/report_inventaire.xml",

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_scinder_um_par_lot_seq" model="ir.sequence">
+            <field name="name">Scinder UM par lot</field>
+            <field name="code">is.scinder.um.par.lot</field>
+            <field name="prefix">SUL-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+
+        <!-- is.scinder.um.par.lot -->
+        <!-- Action avant le formulaire, qui y fait référence (bouton « Retour à la liste ») -->
+        <record model="ir.actions.act_window" id="is_scinder_um_par_lot_action">
+            <field name="name">Scinder UM par lot</field>
+            <field name="res_model">is.scinder.um.par.lot</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <record model="ir.ui.view" id="is_scinder_um_par_lot_form_view">
+            <field name="name">is_scinder_um_par_lot_form_view</field>
+            <field name="model">is.scinder.um.par.lot</field>
+            <field name="arch" type="xml">
+                <form create="false" class="o_is_scinder_um_par_lot">
+                    <sheet>
+                        <field name="state" invisible="1"/>
+                        <!-- Sans invisible="1" : en Odoo 16, un champ invisible n'est pas monté et le widget ne reçoit pas les scans -->
+                        <field name="_barcode_scanned" widget="barcode_handler"/>
+                        <div class="alert alert-info fs-5 py-1 px-2 mt-1 mb-1" role="status" attrs="{'invisible': [('action_attendue', '=', False)]}">
+                            <i class="fa fa-barcode me-2" title="Action attendue"/><field name="action_attendue"/>
+                        </div>
+                        <div class="alert alert-danger py-1 px-2 mb-1" role="alert" attrs="{'invisible': [('alerte', '=', False)]}">
+                            <field name="alerte"/>
+                        </div>
+                        <div class="alert alert-success py-1 px-2 mb-1" role="status" attrs="{'invisible': [('message', '=', False)]}">
+                            <field name="message"/>
+                        </div>
+                        <div class="bg-light border rounded py-1 px-2 mb-1">
+                            <field name="info_html" nolabel="1"/>
+                        </div>
+                        <div attrs="{'invisible': [('uc_html', '=', False)]}">
+                            <div class="o_is_titre">UC de plusieurs lots</div>
+                            <field name="uc_html" nolabel="1"/>
+                        </div>
+                        <div attrs="{'invisible': [('um_html', '=', False)]}">
+                            <div class="o_is_titre">UM par lot</div>
+                            <field name="um_html" nolabel="1"/>
+                        </div>
+                        <div class="mb-2" attrs="{'invisible': [('etiquettes_html', '=', False)]}">
+                            <field name="etiquettes_html" nolabel="1"/>
+                        </div>
+                        <button
+                            name="scinder_action"
+                            string="Scinder l'UM"
+                            type="object"
+                            class="btn-primary w-100 mb-2 fs-5"
+                            confirm="Scinder l'UM et imprimer toutes les étiquettes ?"
+                            attrs="{'invisible': [('state', '!=', 'a_valider')]}"
+                        />
+                        <button
+                            name="annuler_action"
+                            string="Annuler"
+                            type="object"
+                            class="btn-secondary o_is_btn_gris w-100 mb-2"
+                            attrs="{'invisible': [('state', '!=', 'a_valider')]}"
+                        />
+                        <button
+                            name="nouvelle_um_action"
+                            string="Nouvelle UM"
+                            type="object"
+                            class="btn-primary w-100 mb-2 fs-5"
+                            attrs="{'invisible': [('state', 'not in', ('termine', 'annule'))]}"
+                        />
+                        <div class="d-flex mb-3" attrs="{'invisible': [('state', '!=', 'scan')]}">
+                            <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
+                            <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
+                        </div>
+                        <group>
+                            <field name="imprimante_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', 'in', ('termine', 'annule'))]}"/>
+                        </group>
+                        <!-- Sur smartphone, la barre du haut est masquée (scinder_um_par_lot.js) : retour à la liste par ce bouton -->
+                        <button
+                            name="%(is_scinder_um_par_lot_action)d"
+                            string="Retour à la liste"
+                            type="action"
+                            class="btn-secondary o_is_btn_gris w-100 mb-2 d-md-none"
+                        />
+                        <!-- Abandon tout en bas, séparé des autres boutons pour éviter un appui par erreur -->
+                        <button
+                            name="abandonner_action"
+                            string="Abandonner"
+                            type="object"
+                            class="btn-outline-danger w-100 mt-4 mb-2"
+                            confirm="Abandonner ? Rien n'a été modifié."
+                            attrs="{'invisible': [('state', 'not in', ('scan', 'a_valider'))]}"
+                        />
+                        <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22) -->
+                        <div class="d-none d-md-block">
+                        <notebook>
+                            <page string="Détail">
+                                <group>
+                                    <group>
+                                        <field name="um_id"/>
+                                        <field name="product_id"/>
+                                        <field name="location_id"/>
+                                        <field name="lot_id"/>
+                                    </group>
+                                    <group>
+                                        <field name="create_date"/>
+                                        <field name="create_uid"/>
+                                    </group>
+                                </group>
+                                <field name="ligne_ids">
+                                    <tree>
+                                        <field name="lot_id"/>
+                                        <field name="nb_uc" sum="Total"/>
+                                        <field name="quantite" sum="Total"/>
+                                        <field name="nouvelle_um"/>
+                                        <button title="UM" name="voir_um_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('um_id', '=', False)]}"/>
+                                        <field name="um_id"/>
+                                        <field name="impression"/>
+                                    </tree>
+                                </field>
+                                <field name="ligne_uc_ids" attrs="{'invisible': [('ligne_uc_ids', '=', [])]}">
+                                    <tree>
+                                        <field name="uc_origine_id"/>
+                                        <field name="lot_id"/>
+                                        <field name="quantite" sum="Total"/>
+                                        <field name="nouvelle_uc"/>
+                                        <button title="UC" name="voir_uc_action" type="object" icon="fa-search-plus" attrs="{'invisible': [('uc_id', '=', False)]}"/>
+                                        <field name="uc_id"/>
+                                        <field name="impression"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                        </div>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_scinder_um_par_lot_tree_view">
+            <field name="name">is_scinder_um_par_lot_tree_view</field>
+            <field name="model">is.scinder.um.par.lot</field>
+            <field name="arch" type="xml">
+                <tree create="false">
+                    <field name="name"/>
+                    <field name="um_id"/>
+                    <field name="product_id" optional="show"/>
+                    <field name="location_id" optional="show"/>
+                    <field name="lot_id" optional="show"/>
+                    <field name="create_date" optional="show"/>
+                    <field name="create_uid" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'scan'" decoration-warning="state == 'a_valider'" decoration-success="state == 'termine'" decoration-muted="state == 'annule'" optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_scinder_um_par_lot_kanban_view">
+            <field name="name">is_scinder_um_par_lot_kanban_view</field>
+            <field name="model">is.scinder.um.par.lot</field>
+            <field name="arch" type="xml">
+                <kanban create="false" class="o_kanban_mobile o_is_scinder_um_par_lot_kanban">
+                    <field name="state"/>
+                    <field name="um_id"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="lot_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="fs-4"><field name="name"/></strong>
+                                    <field name="state" widget="label_selection" options="{'classes': {'scan': 'info', 'a_valider': 'warning', 'termine': 'success', 'annule': 'default'}}"/>
+                                </div>
+                                <t t-if="record.um_id.raw_value">
+                                    <div class="fw-bold fs-5">UM <field name="um_id"/></div>
+                                    <div class="text-muted">
+                                        <field name="product_id"/>
+                                        <i class="fa fa-map-marker ms-3 me-1" title="Emplacement"/><field name="location_id"/>
+                                    </div>
+                                </t>
+                                <div t-else="" class="text-muted fst-italic">
+                                    <i class="fa fa-barcode me-1" title="Aucune UM scannée"/>Aucune UM scannée
+                                </div>
+                                <div class="text-muted small mt-2 pt-2 border-top">
+                                    <i class="fa fa-clock-o me-1" title="Date"/><field name="create_date"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_scinder_um_par_lot_search_view">
+            <field name="name">is_scinder_um_par_lot_search_view</field>
+            <field name="model">is.scinder.um.par.lot</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="um_id"/>
+                    <field name="product_id"/>
+                    <field name="lot_id"/>
+                    <field name="ligne_ids" string="Lot (tous)" filter_domain="[('ligne_ids.lot_id', 'ilike', self)]"/>
+                    <field name="location_id"/>
+                    <filter name="termine" string="Terminés" domain="[('state', '=', 'termine')]"/>
+                    <filter name="annule"  string="Annulés"  domain="[('state', '=', 'annule')]"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter name="group_state"      string="État"    context="{'group_by': 'state'}"/>
+                        <filter name="group_product_id" string="Article" context="{'group_by': 'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="is_scinder_um_par_lot_nouveau_action" model="ir.actions.server">
+            <field name="name">Scinder une UM par lot</field>
+            <field name="model_id" ref="model_is_scinder_um_par_lot"/>
+            <field name="state">code</field>
+            <field name="code">action = model.nouveau_action()</field>
+        </record>
+    </data>
+</odoo>

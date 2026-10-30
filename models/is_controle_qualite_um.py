@@ -2,7 +2,6 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError, UserError
 from markupsafe import escape
-from xmlrpc import client as xmlrpclib
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -747,7 +746,7 @@ class is_controle_qualite_um(models.Model):
         if location!=self.location_id:
             self._verifier_stock(qt)
         # Étiquette créée dans odoo0 en dernier : le savepoint ne l'annule pas en cas d'erreur
-        etiquette = self._creer_etiquette_odoo0(uc_ref, qt)
+        etiquette = self.env['is.galia.base']._creer_etiquette_uc_odoo0(uc_ref, uc_ref.production, qt)
         ligne_um = self.ligne_ids.filtered(lambda l: l.type=='nouvelle_uc' and l.location_dest_id==location)[:1]
         um = ligne_um.um_id
         if not um:
@@ -789,50 +788,6 @@ class is_controle_qualite_um(models.Model):
         self.qt_saisie = self.qt_restante
         message = "UC %s (carton %s, %s pièces) à recontrôler dans l'UM %s en %s%s"%(uc.num_eti, uc.num_carton, qt, um.name, location.name, impression)
         return message + self._terminer_si_reste_nul()
-
-
-    def _creer_etiquette_odoo0(self, uc_ref, qt):
-        "Crée l'étiquette UC dans odoo0 (même société, type et OF que uc_ref, n° de carton = plus grand + 1). Retourne num_eti, num_carton et le ZPL"
-        company  = self.env.company
-        DB       = company.is_nom_base_odoo0
-        USERID   = 2
-        USERPASS = company.is_mdp_admin
-        URL      = company.is_url_odoo0
-        sock = xmlrpclib.ServerProxy('%s/xmlrpc/2/object'%URL)
-        def executer(methode, args, kwargs=None):
-            try:
-                return sock.execute_kw(DB, USERID, USERPASS, 'is.galia.base', methode, args, kwargs or {})
-            except Exception:
-                _logger.exception("Contrôle qualité UM : odoo0 : %s", methode)
-                raise ValidationError("Problème de connexion sur %s ou sur la base %s (%s)"%(URL, DB, methode))
-        lignes = executer('search_read', [[('num_eti','=',uc_ref.num_eti)]], {'fields': ['soc'], 'limit': 1, 'order': 'id desc'})
-        soc = lignes and lignes[0]['soc']
-        if not soc:
-            raise ValidationError("Étiquette %s non trouvée dans odoo0"%uc_ref.num_eti)
-        domain = [('soc','=',soc), ('type_eti','=',uc_ref.type_eti), ('num_of','=',uc_ref.production)]
-        lignes = executer('search_read', [domain], {'fields': ['num_carton'], 'limit': 1, 'order': 'num_carton desc'})
-        num_carton = (lignes and lignes[0]['num_carton'] or 0) + 1
-        # Sans le mot de passe de réimpression : refus si ce n° de carton existe déjà (deux contrôles en même temps)
-        res = executer('creer_etiquette', [[0], {
-            'ACTION'      : 'OK',
-            'Soc'         : soc,
-            'Etiquette'   : uc_ref.type_eti,
-            'Imprimante'  : 'ZPL',
-            'zzCode'      : uc_ref.production,
-            'zzDebut'     : num_carton,
-            'zzFin'       : num_carton,
-            'zzNbPieces'  : qt,
-            'zzMDP1'      : company.is_mdp_quantite,
-            'zzValidation': 'OK',
-            'zzAction'    : 'Imprimer',
-            'user_name'   : self.env.user.name,
-        }])
-        if res.get('Msg'):
-            raise ValidationError("odoo0 : %s"%res['Msg'])
-        lignes = executer('search_read', [domain+[('num_carton','=',num_carton)]], {'fields': ['num_eti'], 'limit': 1})
-        if not lignes:
-            raise ValidationError("Étiquette %s / carton %s non créée dans odoo0"%(uc_ref.production, num_carton))
-        return {'num_eti': lignes[0]['num_eti'], 'num_carton': num_carton, 'zpl': res.get('ZPL')}
 
 
     def _rebut(self):
