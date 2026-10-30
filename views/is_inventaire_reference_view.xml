@@ -98,18 +98,19 @@
                                     </templates>
                                 </kanban>
                             </field>
+                            <div class="d-flex mt-2">
+                                <field name="code" placeholder="Saisie : EMP01, n° d'UM ou d'UC" class="flex-grow-1 me-2"/>
+                                <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
+                            </div>
+                            <!-- Sous la saisie, espacé avant et après pour éviter un appui par erreur -->
                             <button
                                 name="terminer_scans_action"
                                 string="Terminer les scans"
                                 type="object"
-                                class="btn-primary btn-lg w-100 mt-2 mb-2"
+                                class="btn-primary btn-lg w-100 mt-4 mb-4"
                                 confirm="Terminer les scans et calculer les écarts ?"
                                 attrs="{'invisible': [('product_id', '=', False)]}"
                             />
-                            <div class="d-flex mb-3">
-                                <field name="code" placeholder="N° UM / UC saisi à la main" class="flex-grow-1 me-2"/>
-                                <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
-                            </div>
                         </div>
 
                         <!-- Écarts : cartes de validation sur smartphone -->

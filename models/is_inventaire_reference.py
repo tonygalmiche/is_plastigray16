@@ -146,11 +146,15 @@ class is_inventaire_reference(models.Model):
         )
 
 
-    @api.depends('location_id', 'carte_ids')
+    @api.depends('location_id', 'carte_ids', 'dernier_scan_id', 'nb_um', 'nb_uc', 'qt_scannee', 'qt_odoo')
     def _compute_cartes_html(self):
         for obj in self:
-            courant = obj.carte_ids.filtered(lambda c: obj.location_id and c.location_id==obj.location_id)
-            autres  = obj.carte_ids - courant
+            # Dans l'onchange du scan, les cartes recopiées gardent leurs anciennes valeurs (une carte existante dont
+            # seules les quantités changent) : cartes lues sur l'enregistrement en base (_origin), mises à jour par le scan.
+            # Recalcul déclenché par les totaux, qui changent à chaque scan
+            cartes  = (obj._origin or obj).carte_ids
+            courant = cartes.filtered(lambda c: obj.location_id and c.location_id==obj.location_id)
+            autres  = cartes - courant
             courant_html = False
             if obj.location_id and obj.product_id:
                 cartes = "".join(obj._html_carte(c) for c in courant)
@@ -265,7 +269,7 @@ class is_inventaire_reference(models.Model):
     ecarts_html               = fields.Html("Écarts (cartes)"    , compute='_compute_ecarts_html', sanitize=False)
     um_non_trouvees_html      = fields.Html("UM non trouvées"    , compute='_compute_ecarts_html', sanitize=False)
     um_a_corriger_html        = fields.Html("UM à corriger"      , compute='_compute_ecarts_html', sanitize=False)
-    code                      = fields.Char("N° UM / UC", copy=False, help="Saisie manuelle (étiquette abîmée, tests sur PC) : même traitement que le scan. N° d'UM (8 chiffres, M ou G + n°), d'UC (S + n°, ou autre n°) ou emplacement (EMP + nom)")
+    code                      = fields.Char("Saisie manuelle", copy=False, help="Saisie manuelle (étiquette abîmée, tests sur PC) : même traitement que le scan. N° d'UM (8 chiffres, M ou G + n°), d'UC (S + n°, ou autre n°) ou emplacement (EMP + nom)")
     nb_um                     = fields.Integer("UM scannées"   , readonly=True)
     nb_um_attendues           = fields.Integer("UM attendues"  , readonly=True)
     nb_uc                     = fields.Integer("UC scannées"   , readonly=True)
