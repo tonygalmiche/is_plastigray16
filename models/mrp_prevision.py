@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 import time
 import sys
 from math import *
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class mrp_prevision(models.Model):
@@ -303,6 +305,10 @@ class mrp_prevision(models.Model):
                     boms_by_product = self.env['mrp.bom'].with_context(active_test=True)._bom_find(row.product_id)
                     bom = boms_by_product[row.product_id]
                     res = bom.explode_phantom(qty=row.quantity)
+                    if bom:
+                        _logger.info("FS %s : article %s : %s ligne(s) de nomenclature" % (row.name, row.product_id.is_code, len(res)))
+                    else:
+                        _logger.warning("FS %s : article %s sans nomenclature active => aucun besoin en composants (FT)" % (row.name, row.product_id.is_code))
                     for line in res:
                         if line["line"].is_cbn:
                             vals={

@@ -45,6 +45,7 @@ class mrp_bom(models.Model):
         for obj in self:
             lines = explode(obj,qty=qty)
             return lines
+        return [] # Pas de nomenclature (ex : article fabriqué sans nomenclature active)
 
 
 class mrp_bom_line(models.Model):
