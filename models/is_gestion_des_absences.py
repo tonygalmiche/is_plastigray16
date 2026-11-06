@@ -3,6 +3,8 @@ from odoo import models, fields, api
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 import calendar
+import os
+import unicodedata
 from odoo.exceptions import ValidationError
 from xmlrpc import client as xmlrpclib
 import ssl
