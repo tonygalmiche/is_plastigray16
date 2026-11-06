@@ -19,7 +19,7 @@ _STATE = [
 ]
 
 # Champs recopiés de l'enregistrement en base vers le formulaire après un scan (on_barcode_scanned est un onchange)
-_CHAMPS_FORMULAIRE = ['state', 'um_id', 'ligne_ids', 'message', 'alerte']
+_CHAMPS_FORMULAIRE = ['state', 'num_bl', 'date_reception', 'um_id', 'ligne_ids', 'qt_derniere_uc', 'message', 'alerte']
 
 
 def _receptions_ouvertes_domain():
@@ -111,11 +111,13 @@ class is_reception_sous_traitance(models.Model):
             obj.qt_scannee  = sum(obj.ligne_ids.mapped('quantite'))
 
 
-    @api.depends('state', 'um_id', 'ligne_ids')
+    @api.depends('state', 'um_id', 'ligne_ids', 'num_bl')
     def _compute_action_attendue(self):
         for obj in self:
             action_attendue = False
-            if obj.state=='scan':
+            if obj.state=='scan' and not obj.num_bl:
+                action_attendue = "Saisissez le n° de BL fournisseur, puis scannez les UC"
+            elif obj.state=='scan':
                 action_attendue = "Scannez les UC, « Fin UM » à la fin de chaque palette, puis « Fin de contrôle »"
             obj.action_attendue = action_attendue
 
@@ -142,7 +144,8 @@ class is_reception_sous_traitance(models.Model):
             attendu = obj.qt_attendue or 0
             scanne  = obj.qt_scannee or 0
             pourcentage = attendu and min(100, round(100*scanne/attendu)) or (scanne and 100 or 0)
-            couleur = scanne>attendu and '#dc3545' or (scanne==attendu and '#28a745' or '#17a2b8')
+            # Orange tant qu'il manque des pièces, vert si égal, rouge si dépassement
+            couleur = scanne>attendu and '#dc3545' or (scanne==attendu and '#28a745' or '#fd7e14')
             texte = "%s / %s pièces"%(scanne, int(attendu))
             if scanne>attendu:
                 texte += " · ⚠ %s de plus que l'attendu"%int(scanne-attendu)
@@ -165,13 +168,14 @@ class is_reception_sous_traitance(models.Model):
     imprimante_id    = fields.Many2one('is.raspberry.zebra', "Imprimante", default=lambda self: self._get_imprimante_id(), tracking=True)
     um_id            = fields.Many2one('is.galia.base.um', "UM en cours", readonly=True)
     ligne_ids        = fields.One2many('is.reception.sous.traitance.ligne', 'reception_id', "UC scannées")
+    qt_derniere_uc   = fields.Integer("Quantité de la dernière UC", copy=False, help="Quantité de la dernière UC scannée : à corriger puis « Modifier » pour mettre à jour l'UC et réimprimer son étiquette")
     qt_attendue      = fields.Float("Quantité attendue", compute='_compute_quantites', digits=(14, 2))
     qt_scannee       = fields.Integer("Quantité scannée", compute='_compute_quantites')
     code             = fields.Char("Code", copy=False, help="Saisie manuelle d'un code-barres (tests sur PC, étiquette illisible) : même traitement que le scan")
     action_attendue  = fields.Char("Action attendue", compute='_compute_action_attendue')
     message          = fields.Char("Message", readonly=True, copy=False)
     alerte           = fields.Char("Alerte" , readonly=True, copy=False)
-    info_html        = fields.Html("Réception"  , compute='_compute_html', sanitize=False)
+    info_html        = fields.Html("Informations", compute='_compute_html', sanitize=False)
     progression_html = fields.Html("Progression", compute='_compute_html', sanitize=False)
 
 
@@ -240,6 +244,10 @@ class is_reception_sous_traitance(models.Model):
         # Onchange : le traitement se fait sur l'enregistrement en base, puis le formulaire est mis à jour
         origin = self._origin
         _logger.info("Réception sous-traitance : scan %r sur %s (id=%s)", barcode, origin.name, origin.id)
+        # BL et date saisis mais pas encore enregistrés : enregistrés avant le scan (sinon perdus à la mise à jour du formulaire)
+        vals = {champ: self[champ] for champ in ('num_bl', 'date_reception') if self[champ]!=origin[champ]}
+        if vals and origin.state=='scan':
+            origin.write(vals)
         origin.traiter_code(barcode)
         for champ in _CHAMPS_FORMULAIRE:
             self[champ] = origin[champ]
@@ -307,6 +315,8 @@ class is_reception_sous_traitance(models.Model):
     def _traiter_code(self, code):
         "Scan d'une UC : contrôles, puis création de l'UC dans l'UM en cours (créée si besoin)"
         self._verifier_etat(['scan'])
+        if not self.num_bl:
+            raise ValidationError("Saisissez le n° de BL fournisseur avant de scanner")
         prefixe = code[:1]
         num     = code[1:]
         if prefixe!='S' or not num.isdigit():
@@ -357,11 +367,47 @@ class is_reception_sous_traitance(models.Model):
             'num_eti'         : num_eti,
             'quantite'        : etiquette['qt_pieces'],
             'quantite_origine': etiquette['qt_pieces'],
-        })]})
+        })], 'qt_derniere_uc': etiquette['qt_pieces']})
         return "UC %s : %s pièces dans l'UM %s"%(num_eti, etiquette['qt_pieces'], um.name)
 
 
     #** Boutons ***************************************************************
+    def modifier_qt_action(self):
+        for obj in self:
+            obj._executer("Quantité", obj._modifier_qt)
+
+
+    def _modifier_qt(self):
+        "Quantité de la dernière UC scannée corrigée : UC mise à jour et étiquette réimprimée (écriture de la ligne)"
+        self._verifier_etat(['scan'])
+        ligne = self.ligne_ids.sorted('id', reverse=True)[:1]
+        if not ligne:
+            raise ValidationError("Aucune UC scannée")
+        if self.qt_derniere_uc==ligne.quantite:
+            raise ValidationError("Quantité inchangée (%s) pour l'UC %s"%(ligne.quantite, ligne.num_eti))
+        return ligne._modifier_quantite(self.qt_derniere_uc)
+
+
+    def _supprimer_ligne(self, ligne):
+        """UC supprimée de la fiche et de la base (elle pourra être rescannée).
+        UM vide supprimée ; UM déjà terminée qui garde des UC : étiquette UM réimprimée"""
+        self._verifier_etat(['scan'])
+        uc, um, num_eti = ligne.uc_id, ligne.um_id, ligne.num_eti
+        ligne.unlink()
+        uc.sudo().unlink()
+        message = "UC %s supprimée"%num_eti
+        if um and not um.uc_ids:
+            if um==self.um_id:
+                self.um_id = False
+            message += " · UM %s vide supprimée"%um.name
+            um.sudo().unlink()
+        elif um and um!=self.um_id and len(um.uc_ids)>1:
+            message += " · UM %s"%um.name + self._imprimer_um(um)
+        derniere = self.ligne_ids.sorted('id', reverse=True)[:1]
+        self.qt_derniere_uc = derniere.quantite
+        return message
+
+
     def fin_um_action(self):
         for obj in self:
             obj._executer("Fin UM", obj._fin_um)
@@ -417,6 +463,9 @@ class is_reception_sous_traitance(models.Model):
         })
         for line in transfert.line_ids:
             line.quantity = qt if line.move_id==move else 0
+            # Lot fournisseur = n° de commande (= « Fabrication » des UC, comme l'OF en réception inter-site)
+            if line.move_id==move:
+                line.is_lot_fournisseur = self.purchase_id.name
         transfert.valider_action()
         if move.state!='done':
             raise ValidationError("La réception %s n'a pas été validée"%picking.name)
@@ -441,10 +490,49 @@ class is_reception_sous_traitance(models.Model):
             obj._verifier_etat(['scan'])
             ucs = obj.ligne_ids.uc_id
             ums = obj.ligne_ids.um_id | obj.um_id
+            liste_uc = ", ".join(str(n) for n in obj.ligne_ids.sorted('id').mapped('num_eti')) or "aucune"
+            liste_um = ", ".join(ums.mapped('name')) or "aucune"
             obj.ligne_ids.unlink()
             ucs.sudo().unlink()
             ums.filtered(lambda um: not um.uc_ids).sudo().unlink()
+            obj.message_post(body="🚫 Abandonné : UC supprimées (%s), UM supprimées (%s), réception %s inchangée"%(liste_uc, liste_um, obj.picking_id.name))
             obj.write({'state': 'annule', 'um_id': False, 'message': "Abandonné : UC et UM créées supprimées", 'alerte': False})
+
+
+    #** Accès depuis la vue PC ************************************************
+    def voir_reception_action(self):
+        for obj in self:
+            return {
+                'name'     : obj.picking_id.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'stock.picking',
+                'res_id'   : obj.picking_id.id,
+                'view_mode': 'form',
+            }
+
+
+    def voir_ums_action(self):
+        for obj in self:
+            return {
+                'name'     : "UM %s"%obj.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'is.galia.base.um',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', obj.ligne_ids.um_id.ids)],
+                'context'  : {'active_test': False},
+            }
+
+
+    def voir_ucs_action(self):
+        for obj in self:
+            return {
+                'name'     : "UC %s"%obj.name,
+                'type'     : 'ir.actions.act_window',
+                'res_model': 'is.galia.base.uc',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', obj.ligne_ids.uc_id.ids)],
+                'context'  : {'active_test': False},
+            }
 
 
     def retour_commandes_action(self):
@@ -500,29 +588,33 @@ class is_reception_sous_traitance_ligne(models.Model):
     num_eti          = fields.Integer("N° UC", readonly=True)
     uc_id            = fields.Many2one('is.galia.base.uc', "UC", readonly=True)
     um_id            = fields.Many2one('is.galia.base.um', "UM", readonly=True)
-    quantite         = fields.Integer("Quantité")
+    quantite         = fields.Integer("Quantité", readonly=True)
     quantite_origine = fields.Integer("Quantité de l'étiquette", readonly=True)
     impression       = fields.Char("Impression", readonly=True)
 
 
-    def write(self, vals):
-        "Quantité modifiée : mise à jour de l'UC et réimpression de son étiquette"
-        if 'quantite' not in vals:
-            return super().write(vals)
-        anciennes = {obj.id: obj.quantite for obj in self}
-        res = super().write(vals)
+    def _modifier_quantite(self, quantite):
+        "Nouvelle quantité de l'UC : ligne et UC mises à jour, étiquette réimprimée. Retourne le message"
+        self.ensure_one()
+        fiche = self.reception_id
+        fiche._verifier_etat(['scan'])
+        if quantite<=0:
+            raise ValidationError("La quantité de l'UC %s doit être supérieure à 0"%self.num_eti)
+        ancienne = self.quantite
+        self.quantite = quantite
+        self.uc_id.sudo().qt_pieces = quantite
+        impression = fiche._imprimer_uc(self.uc_id)
+        self.impression = "Quantité %s → %s%s"%(ancienne, quantite, impression)
+        if fiche.ligne_ids.sorted('id', reverse=True)[:1]==self:
+            fiche.qt_derniere_uc = quantite
+        return "UC %s : quantité %s → %s%s"%(self.num_eti, ancienne, quantite, impression)
+
+
+    def supprimer_action(self):
+        "Poubelle : UC supprimée (à rescanner)"
         for obj in self:
-            if obj.quantite==anciennes[obj.id]:
-                continue
             fiche = obj.reception_id
-            fiche._verifier_etat(['scan'])
-            if obj.quantite<=0:
-                raise ValidationError("La quantité de l'UC %s doit être supérieure à 0"%obj.num_eti)
-            obj.uc_id.sudo().qt_pieces = obj.quantite
-            impression = fiche._imprimer_uc(obj.uc_id)
-            super(is_reception_sous_traitance_ligne, obj).write({'impression': "Quantité %s → %s%s"%(anciennes[obj.id], obj.quantite, impression)})
-            fiche.message_post(body="UC %s : quantité %s → %s%s"%(obj.num_eti, anciennes[obj.id], obj.quantite, impression))
-        return res
+            fiche._executer("Suppression UC %s"%obj.num_eti, fiche._supprimer_ligne, obj)
 
 
     def voir_uc_action(self):

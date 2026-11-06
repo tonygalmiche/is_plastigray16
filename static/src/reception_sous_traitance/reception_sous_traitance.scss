@@ -9,6 +9,11 @@
     display: none !important;
 }
 
+// Boutons écrits tels quels (« Fin UM », « Valider », « Réceptionner »), sans passage en majuscules
+.o_is_reception_sous_traitance .btn, .o_is_reception_st_kanban .btn {
+    text-transform: none !important;
+}
+
 // Bouton gris moyen (btn-secondary d'Odoo 16 sans fond visible, btn-dark trop sombre)
 .o_is_reception_sous_traitance .o_is_btn_gris {
     background-color: #8a8f94 !important;

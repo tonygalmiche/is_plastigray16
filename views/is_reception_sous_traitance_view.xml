@@ -114,29 +114,45 @@
                             <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
                             <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
                         </div>
+                        <!-- Quantité de la dernière UC scannée : correction (ex. dernier carton incomplet), UC mise à jour et étiquette réimprimée -->
+                        <div attrs="{'invisible': ['|', ('state', '!=', 'scan'), ('ligne_ids', '=', [])]}">
+                            <label for="qt_derniere_uc"/>
+                            <div class="d-flex mb-2">
+                                <field name="qt_derniere_uc" class="flex-grow-1 me-2"/>
+                                <button name="modifier_qt_action" string="Modifier" type="object" class="btn-secondary"/>
+                            </div>
+                        </div>
                         <button
                             name="fin_um_action"
                             string="Fin UM"
                             type="object"
-                            class="btn-primary w-100 mb-2 fs-5"
+                            class="btn-info w-100 mt-4 mb-2 fs-5"
                             attrs="{'invisible': ['|', ('state', '!=', 'scan'), ('um_id', '=', False)]}"
                         />
                         <button
                             name="fin_controle_action"
                             string="Fin de contrôle"
                             type="object"
-                            class="btn-success w-100 mb-2 fs-5"
+                            class="btn-success w-100 mt-4 mb-2 fs-5"
                             confirm="Valider la réception avec la quantité scannée ?"
                             attrs="{'invisible': ['|', ('state', '!=', 'scan'), ('ligne_ids', '=', [])]}"
                         />
                         <field name="um_id" invisible="1"/>
-                        <!-- Quantité modifiable : à l'enregistrement, l'UC est mise à jour et son étiquette réimprimée -->
-                        <field name="ligne_ids" nolabel="1" attrs="{'readonly': [('state', '!=', 'scan')]}">
-                            <tree editable="bottom" create="false" delete="false">
+                        <!-- Liste non modifiable : poubelle pour supprimer une UC et la rescanner -->
+                        <field name="ligne_ids" nolabel="1" readonly="1">
+                            <tree create="false" delete="false">
                                 <field name="num_eti"/>
                                 <field name="um_id"/>
                                 <field name="quantite" sum="Total"/>
                                 <field name="impression" optional="hide"/>
+                                <button
+                                    name="supprimer_action"
+                                    type="object"
+                                    icon="fa-trash"
+                                    title="Supprimer l'UC (à rescanner)"
+                                    confirm="Supprimer cette UC ? Elle pourra être rescannée."
+                                    attrs="{'invisible': [('parent.state', '!=', 'scan')]}"
+                                />
                             </tree>
                         </field>
                         <group>
@@ -159,6 +175,11 @@
                         />
                         <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22) -->
                         <div class="d-none d-md-block">
+                        <div class="d-flex gap-2 mt-2 mb-2">
+                            <button name="voir_reception_action" string="Réception" type="object" icon="fa-truck" class="btn-secondary"/>
+                            <button name="voir_ums_action" string="UM" type="object" icon="fa-cubes" class="btn-secondary" attrs="{'invisible': [('ligne_ids', '=', [])]}"/>
+                            <button name="voir_ucs_action" string="UC" type="object" icon="fa-cube" class="btn-secondary" attrs="{'invisible': [('ligne_ids', '=', [])]}"/>
+                        </div>
                         <notebook>
                             <page string="Détail">
                                 <group>
