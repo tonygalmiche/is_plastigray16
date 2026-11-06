@@ -101,6 +101,19 @@ class purchase_order_line(models.Model):
             return {'warning': warning}
 
 
+    def _create_stock_moves(self, picking):
+        """Quantité augmentée sur une commande confirmée : Odoo crée un mouvement pour la différence et ne le fusionne
+        avec le mouvement ouvert que si leur price_unit est identique. Ce prix est calculé à partir du total HT arrondi
+        au centime divisé par la quantité : en MILLE, il change avec la quantité (ex. 0,2510 et 0,2512), d'où une
+        2ème ligne dans la réception. Les mouvements ouverts prennent donc le prix du nouveau mouvement, comme le fait
+        Odoo quand le prix de la ligne change (purchase.order.line.write)"""
+        for line in self.filtered(lambda l: not l.display_type):
+            moves = line.move_ids.filtered(lambda m: m.state not in ('cancel', 'done') and m.product_id==line.product_id)
+            if moves:
+                moves.write({'price_unit': line._get_stock_move_price_unit()})
+        return super()._create_stock_moves(picking)
+
+
 class purchase_order(models.Model):
     _inherit = "purchase.order"
 
