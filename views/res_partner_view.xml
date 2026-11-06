@@ -498,6 +498,7 @@
             <field name="arch" type="xml">
                 <tree string="Segment d'achat">
                     <field name="name"/>
+                    <field name="sous_traitance" optional="show"/>
                     <field name="is_database_origine_id" optional="hide"/>
                 </tree>
             </field>
@@ -510,6 +511,7 @@
                     <sheet>
                         <group>
                             <field name="name" />
+                            <field name="sous_traitance" />
                             <field name="family_line">
                                 <tree string="Familles" editable="bottom">
                                     <field name="name" />

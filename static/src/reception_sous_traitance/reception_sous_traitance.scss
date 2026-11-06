@@ -1,0 +1,34 @@
+// Réception sous-traitance (scan) : formulaire compact pour le Zebra TC22 (moins d'espace au-dessus de la fiche)
+.o_is_reception_sous_traitance .o_form_sheet_bg > .o_form_sheet {
+    margin-top: 0.25rem !important;
+    padding-top: 0.25rem !important;
+}
+
+// Champ qui reçoit les scans : il doit être monté (pas d'invisible="1") mais n'a rien à afficher
+.o_is_reception_sous_traitance .o_field_widget[name='_barcode_scanned'] {
+    display: none !important;
+}
+
+// Bouton gris moyen (btn-secondary d'Odoo 16 sans fond visible, btn-dark trop sombre)
+.o_is_reception_sous_traitance .o_is_btn_gris {
+    background-color: #8a8f94 !important;
+    border-color: #8a8f94 !important;
+    color: #fff !important;
+}
+
+// Kanbans (fournisseurs, commandes, historique) : fond gris clair et cartes blanches encadrées, bien séparées
+.o_is_reception_st_kanban {
+    background-color: #e9ecef !important;
+    padding: 0.25rem !important;
+    .o_kanban_record:not(.o_kanban_ghost) {
+        background-color: #fff !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+        margin: 0.25rem !important;
+        max-width: calc(100% - 0.5rem) !important;
+    }
+    .o_kanban_ghost {
+        display: none !important;
+    }
+}

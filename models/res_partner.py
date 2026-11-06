@@ -226,6 +226,7 @@ class is_segment_achat(models.Model):
     name        = fields.Char('Code', size=256, required=True)
     description = fields.Text('Commentaire')
     family_line = fields.One2many('is.famille.achat', 'segment_id', 'Familles')
+    sous_traitance = fields.Boolean('Sous-traitance', help="Fournisseurs proposés dans l'application de scan « Réception sous-traitance »")
     is_database_origine_id = fields.Integer("Id d'origine", readonly=True)
 
     def write(self, vals):
@@ -233,7 +234,7 @@ class is_segment_achat(models.Model):
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
         return res
-            
+
     @api.model_create_multi
     def create(self, vals_list):
         res=super().create(vals_list)
@@ -244,6 +245,7 @@ class is_segment_achat(models.Model):
         vals ={
             'name'                  : self.name,
             'description'           : self.description,
+            'sous_traitance'        : self.sous_traitance,
             'is_database_origine_id': self.id
         }
         return vals

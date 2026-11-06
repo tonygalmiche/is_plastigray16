@@ -1839,14 +1839,14 @@
         <field name="action" ref="is_top_menu.menu_navigator_action"/>
     </record>
     <record id="menu_scan_controle_qualite" model="ir.ui.menu" >
-        <field name="name">Contrôle qualité par scan</field>
+        <field name="name">Contrôle qualité</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_main_scan')"/>
         <field name="groups_id" eval="[(6,0,[])]"/>
     </record>
     <record id="is_controle_qualite_um_menu" model="ir.ui.menu" >
-        <field name="name">Contrôles</field>
-        <field name="sequence">10</field>
+        <field name="name">Historique</field>
+        <field name="sequence">20</field>
         <field name="parent_id" eval="ref('menu_scan_controle_qualite')"/>
         <field name="action"    ref="is_controle_qualite_um_action"/>
         <field name="groups_id" eval="[(6,0,[
@@ -1854,8 +1854,8 @@
         ])]"/>
     </record>
     <record id="is_controle_qualite_um_nouveau_menu" model="ir.ui.menu" >
-        <field name="name">Nouveau contrôle</field>
-        <field name="sequence">20</field>
+        <field name="name">Nouveau</field>
+        <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_scan_controle_qualite')"/>
         <field name="action"    ref="is_controle_qualite_um_nouveau_action"/>
         <field name="groups_id" eval="[(6,0,[
@@ -1878,7 +1878,7 @@
         <field name="groups_id" eval="[(6,0,[])]"/>
     </record>
     <record id="is_scinder_um_par_lot_nouveau_menu" model="ir.ui.menu" >
-        <field name="name">Scinder une UM</field>
+        <field name="name">Nouveau</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_scan_scinder_um_par_lot')"/>
         <field name="action"    ref="is_scinder_um_par_lot_nouveau_action"/>
@@ -1902,7 +1902,7 @@
         <field name="groups_id" eval="[(6,0,[])]"/>
     </record>
     <record id="is_inventaire_reference_nouveau_menu" model="ir.ui.menu" >
-        <field name="name">Nouvel inventaire</field>
+        <field name="name">Nouveau</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_scan_inventaire_reference')"/>
         <field name="action"    ref="is_inventaire_reference_nouveau_action"/>
@@ -1911,10 +1911,34 @@
         ])]"/>
     </record>
     <record id="is_inventaire_reference_menu" model="ir.ui.menu" >
-        <field name="name">Inventaires</field>
+        <field name="name">Historique</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('menu_scan_inventaire_reference')"/>
         <field name="action"    ref="is_inventaire_reference_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_magasiniers_group'),
+        ])]"/>
+    </record>
+    <record id="menu_scan_reception_sous_traitance" model="ir.ui.menu" >
+        <field name="name">Réception sous-traitance</field>
+        <field name="sequence">40</field>
+        <field name="parent_id" eval="ref('menu_main_scan')"/>
+        <field name="groups_id" eval="[(6,0,[])]"/>
+    </record>
+    <record id="is_reception_sous_traitance_fournisseurs_menu" model="ir.ui.menu" >
+        <field name="name">Nouveau</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('menu_scan_reception_sous_traitance')"/>
+        <field name="action"    ref="is_reception_sous_traitance_fournisseurs_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_magasiniers_group'),
+        ])]"/>
+    </record>
+    <record id="is_reception_sous_traitance_menu" model="ir.ui.menu" >
+        <field name="name">Historique</field>
+        <field name="sequence">20</field>
+        <field name="parent_id" eval="ref('menu_scan_reception_sous_traitance')"/>
+        <field name="action"    ref="is_reception_sous_traitance_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_magasiniers_group'),
         ])]"/>
