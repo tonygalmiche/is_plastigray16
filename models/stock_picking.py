@@ -562,9 +562,35 @@ class stock_picking(models.Model):
             if obj.state!='done':
                 raise ValidationError("Cette réception n'est pas à l'état 'Fait' !")
 
-            #** Copie du picking pour pourvoir refaire la réception ***********
-            new_picking=obj.copy()
-            new_picking.action_confirm()
+            #** Quantité à recevoir de nouveau ********************************
+            # Si la ligne de commande a déjà une réception ouverte (reliquat), la quantité annulée y est ajoutée.
+            # Sinon, le picking est copié. Une copie en plus du reliquat mettrait le reste à recevoir de la ligne
+            # de commande sur deux réceptions ouvertes, et l'analyse de la réception inter-site n'en prendrait qu'une
+            moves = obj.move_ids_without_package
+            open_moves = self.env['stock.move'].search([
+                ('purchase_line_id', 'in', moves.purchase_line_id.ids),
+                ('picking_id'      , '!=', obj.id),
+                ('picking_type_id' , '=' , obj.picking_type_id.id),
+                ('state'           , 'not in', ('draft', 'done', 'cancel')),
+            ])
+            moves_a_copier = self.env['stock.move']
+            for move in moves:
+                open_move = open_moves.filtered(lambda m: move.purchase_line_id and m.purchase_line_id==move.purchase_line_id)[:1]
+                if open_move:
+                    qty = move.product_uom._compute_quantity(move.product_uom_qty, open_move.product_uom)
+                    open_move.product_uom_qty += qty
+                    open_move._action_assign()
+                    open_move.picking_id.message_post(body="Quantité de %s augmentée de %g (annulation de la réception %s)"%(open_move.product_id.is_code, qty, obj.name))
+                else:
+                    moves_a_copier |= move
+            new_picking = open_moves[:1].picking_id
+            if moves_a_copier:
+                new_picking=obj.copy()
+                # Mouvements déjà ajoutés à une réception ouverte : retirés de la copie
+                new_picking.move_ids_without_package.filtered(
+                    lambda m: m.purchase_line_id and m.purchase_line_id not in moves_a_copier.purchase_line_id
+                ).unlink()
+                new_picking.action_confirm()
             #******************************************************************
 
             #** Recherche si les lignes de cette réception son facturées ******
