@@ -629,6 +629,11 @@ class is_reception_inter_site(models.Model):
             old_move_ids = current_picking.move_ids_without_package.ids
             current_picking._action_done()
 
+            # Dernier lot fournisseur : le reliquat éventuel est le reste de la commande, pas encore livré.
+            # Il ne doit pas être relié à la réception inter-site, sinon l'analyse de la prochaine livraison l'ignore
+            if production==productions[-1]:
+                break
+
             # Recherche du reliquat (backorder) pour le prochain lot fournisseur
             backorder = self.env['stock.picking'].search([
                 ('backorder_id', '=', current_picking.id),
