@@ -209,9 +209,16 @@ class stock_move(models.Model):
             if  obj.picking_id.is_purchase_order_id:
                 location_id = obj.picking_id.is_purchase_order_id.location_id.id
                 if obj.product_id.is_ctrl_rcp=='bloque':
-                    locations = self.env['stock.location'].search([('name','=','Q2')])
-                    for location in locations:
-                        location_id=location.id
+                    # Réception inter-site : Q3 (sauf UC des UM mixtes, qui restent avec la commande), sinon Q2
+                    q3 = False
+                    if obj.picking_id.is_reception_inter_site_id:
+                        q3 = obj.picking_id.is_reception_inter_site_id._get_location_q3(erreur=False)
+                    if q3:
+                        location_id = q3.id
+                    else:
+                        locations = self.env['stock.location'].search([('name','=','Q2')])
+                        for location in locations:
+                            location_id=location.id
             obj.is_location_dest_prevu_id = location_id
 
 

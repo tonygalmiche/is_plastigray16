@@ -212,6 +212,7 @@ class is_reception_inter_site(models.Model):
             nb_liv=nb_rcp=0
             nb_um_creees=0  # Compteur d'UM créées
             nb_uc_creees=0  # Compteur d'UC créées
+            location_q3_id = False  # Emplacement Q3, cherché une seule fois
             #UMs=[]
             for row_liv in rows_liv:
                 nb_liv+=1
@@ -244,18 +245,16 @@ class is_reception_inter_site(models.Model):
                         picking_id  = row['picking_id']
                         qt_rcp      = row['product_uom_qty']
                         move_rcp_id = row['move_id']
-                        location_id = row['location_dest_id']
-
-                        #** Recherche location_id dans stock.move *************
+                        #** Emplacement de la commande (Q3 décidé UM par UM plus bas)
                         move = self.env['stock.move'].browse(move_rcp_id)
-                        if move.is_location_dest_prevu_id.id:
-                            location_id = move.is_location_dest_prevu_id.id
+                        location_cde_id = move.picking_id.is_purchase_order_id.location_id.id or row['location_dest_id']
 
                         #** Livraison depuis un autre site : UM dans 'Client' *
+                        location_client_id = False
                         if obj.fournisseur_reception_id.is_livraison_autre_site:
                             location_client = self.env['stock.location'].search([('usage','=','customer')], limit=1)
                             if location_client:
-                                location_id = location_client.id
+                                location_client_id = location_client.id
 
                         #** Recherche des UC/UM *******************************
                         SQL="""
@@ -278,6 +277,16 @@ class is_reception_inter_site(models.Model):
                             num_eti = line['num_eti']
                             code_pg = line['is_code']
                             qt_scan+=line['qt_pieces']
+
+                            #** Emplacement de l'UM : Q3 pour une UM homogène d'un article bloqué, sinon celui de la commande
+                            if location_client_id:
+                                location_id = location_client_id
+                            elif obj._en_q3(move.product_id, line['mixte']):
+                                if not location_q3_id:
+                                    location_q3_id = obj._get_location_q3().id
+                                location_id = location_q3_id
+                            else:
+                                location_id = location_cde_id
 
                             #** Recherche si UM existe déjà (active=True) *****
                             um_id=False
@@ -583,17 +592,32 @@ class is_reception_inter_site(models.Model):
             return res
 
 
+    def _get_location_q3(self, erreur=True):
+        "Emplacement Q3 (pièces bloquées en transit), actif. erreur=False : vide si non trouvé (affichage)"
+        q3 = self.env['stock.location'].search([('name','=','Q3'),('usage','=','internal')], limit=1)
+        if not q3 and erreur:
+            raise ValidationError("Emplacement Q3 non trouvé")
+        return q3
+
+
+    def _en_q3(self, product, mixte):
+        """Article bloqué (Contrôle réception = Produit bloqué) dans une UM homogène : Q3.
+        Une UM mixte ne va jamais en Q3 : elle reste avec la commande, puis part en 00 pour être éclatée"""
+        return product.is_ctrl_rcp=='bloque' and mixte!='oui'
+
+
     def _valider_picking_par_lot_fournisseur(self, obj, picking, qt_by_product_production, productions):
-        """Valide un picking en créant une réception partielle par lot fournisseur."""
+        """Valide un picking en créant une réception partielle par lot fournisseur et par emplacement
+        (Q3 pour les UC des UM homogènes d'un article bloqué)"""
         current_picking = picking
-        for production in productions:
+        for production, en_q3 in productions:
             current_picking.is_num_bl = obj.num_bl
             current_picking.is_date_reception = current_picking.is_date_reception or fields.Date.today()
             current_picking.move_line_ids_without_package.unlink()
 
             for move in current_picking.move_ids_without_package:
                 product_id = move.product_id.id
-                qty = qt_by_product_production.get((product_id, production), 0)
+                qty = qt_by_product_production.get((product_id, production, en_q3), 0)
                 if qty <= 0:
                     continue
 
@@ -604,15 +628,13 @@ class is_reception_inter_site(models.Model):
                 if production:
                     lot.is_lot_fournisseur = production
 
-                # Emplacement de destination
-                if current_picking.purchase_id:
+                # Emplacement de destination : Q3 (UM homogène d'un article bloqué) ou celui de la commande
+                if en_q3:
+                    location_dest_id = self._get_location_q3().id
+                elif current_picking.purchase_id:
                     location_dest_id = current_picking.purchase_id.location_id.id
                 else:
                     location_dest_id = current_picking.location_dest_id.id
-                if move.product_id.is_ctrl_rcp == 'bloque':
-                    q2 = self.env['stock.location'].search([('name', '=', 'Q2')], limit=1)
-                    if q2:
-                        location_dest_id = q2.id
 
                 move.location_dest_id = location_dest_id
                 self.env['stock.move.line'].create({
@@ -631,7 +653,7 @@ class is_reception_inter_site(models.Model):
 
             # Dernier lot fournisseur : le reliquat éventuel est le reste de la commande, pas encore livré.
             # Il ne doit pas être relié à la réception inter-site, sinon l'analyse de la prochaine livraison l'ignore
-            if production==productions[-1]:
+            if (production, en_q3)==productions[-1]:
                 break
 
             # Recherche du reliquat (backorder) pour le prochain lot fournisseur
@@ -643,12 +665,11 @@ class is_reception_inter_site(models.Model):
                 # Associer le reliquat à la réception inter-site (copy=False ne le propage pas)
                 backorder.is_reception_inter_site_id = obj.id
 
-                # Réaffecter les UC des productions suivantes vers les nouveaux mouvements du backorder
+                # Réaffecter les UC des étapes suivantes (autre lot fournisseur ou autre emplacement) vers les nouveaux mouvements du backorder
                 backorder_move_by_product = {m.product_id.id: m.id for m in backorder.move_ids_without_package}
                 future_ucs = self.env['is.galia.base.uc'].search([
                     ('stock_move_rcp_id', 'in', old_move_ids),
-                    ('production', '!=', production),
-                ])
+                ]).filtered(lambda uc: ((uc.production or ''), self._en_q3(uc.product_id, uc.um_id.mixte))!=(production, en_q3))
                 for uc in future_ucs:
                     new_move_id = backorder_move_by_product.get(uc.product_id.id)
                     if new_move_id:
@@ -659,7 +680,7 @@ class is_reception_inter_site(models.Model):
         for obj in self:
             for picking in obj.picking_ids:
                 if picking.state != 'done':
-                    # Grouper les UC par (product_id, production)
+                    # Grouper les UC par (product_id, production, Q3) : une réception partielle par lot fournisseur et par emplacement
                     qt_by_product_production = {}
                     productions = []
                     for move in picking.move_ids_without_package:
@@ -668,11 +689,12 @@ class is_reception_inter_site(models.Model):
                             ('reception_inter_site_id', '=', obj.id),
                         ])
                         for uc in ucs:
-                            prod = uc.production or ''
-                            key = (move.product_id.id, prod)
+                            prod  = uc.production or ''
+                            en_q3 = self._en_q3(move.product_id, uc.um_id.mixte)
+                            key = (move.product_id.id, prod, en_q3)
                             qt_by_product_production[key] = qt_by_product_production.get(key, 0) + uc.qt_pieces
-                            if prod not in productions:
-                                productions.append(prod)
+                            if (prod, en_q3) not in productions:
+                                productions.append((prod, en_q3))
 
                     if productions:
                         productions.sort()

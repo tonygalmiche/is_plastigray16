@@ -29,9 +29,13 @@ class stock_transfer_details(models.TransientModel):
                     #location_dest_id = obj.picking_id.location_dest_id.id
                     location_dest_id = obj.picking_id.is_purchase_order_id.location_id.id
                     if line.move_id.product_id.is_ctrl_rcp=='bloque':
-                        locations = self.env['stock.location'].search([('name','=','Q2')])
-                        for location in locations:
-                            location_dest_id=location.id
+                        if obj.picking_id.is_reception_inter_site_id:
+                            # Réception inter-site (sans UC) : Q3, pièces bloquées en transit
+                            location_dest_id = obj.picking_id.is_reception_inter_site_id._get_location_q3().id
+                        else:
+                            locations = self.env['stock.location'].search([('name','=','Q2')])
+                            for location in locations:
+                                location_dest_id=location.id
                     if  line.is_lot_fournisseur:
                         line.lot_id.is_lot_fournisseur = line.is_lot_fournisseur
                     #** Création stock.move.line **********************************
