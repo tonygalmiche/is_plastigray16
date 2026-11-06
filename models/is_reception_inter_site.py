@@ -735,32 +735,40 @@ class is_reception_inter_site(models.Model):
 
 
     def get_stock_par_emplacement_et_par_article(self):
+        # Destination : UM mixte en 00 (s'il existe), où le magasinier l'éclate et réimprime les UM avant de les ranger,
+        # sinon l'emplacement final de la réception inter-site
+        location_00 = self.env['stock.location'].search([('name','=','00'),('usage','=','internal')], limit=1)
         for obj in self:
             ums=obj.get_ums()
             res={}
+            qt_par_emplacement_article = {}
             for um in ums:
+                location_dest = location_00 if (um.mixte=='oui' and location_00) else obj.location_id
                 for uc in um.uc_ids:
                     code        = uc.product_id.is_code
                     location    = uc.um_id.location_id.name
-                    key = "%s-%s"%(location,code)
+                    key = "%s-%s-%s"%(location,location_dest.name,code)
                     if key not in res:
                         vals={
                             'qt_pieces'       : 0,
                             'code_pg'         : uc.product_id.is_code,
                             'product_id'      : uc.product_id.id,
                             'location_id'     : uc.um_id.location_id.id,
-                            'location_dest_id': obj.location_id.id,
+                            'location_dest_id': location_dest.id,
                             'location'        : uc.um_id.location_id.name,
+                            'location_dest'   : location_dest.name,
                             'um_ids'          : [],
                         }
                         res[key] = vals
                     res[key]['qt_pieces']+=uc.qt_pieces
                     if um.id not in res[key]['um_ids']:
                         res[key]['um_ids'].append(um.id)
+                    key2 = (uc.um_id.location_id.id, uc.product_id.id)
+                    qt_par_emplacement_article[key2] = qt_par_emplacement_article.get(key2, 0) + uc.qt_pieces
 
 
 
-            stock_sorted = dict(sorted(res.items())) 
+            stock_sorted = dict(sorted(res.items()))
             for key in stock_sorted:
                 product_id     = stock_sorted[key]['product_id']
                 location_id = stock_sorted[key]['location_id']
@@ -773,7 +781,8 @@ class is_reception_inter_site(models.Model):
                 btn="btn-success"
                 if stock_sorted[key]['location_id']==stock_sorted[key]['location_dest_id']:
                     btn="btn-warning 1"
-                if stock_sorted[key]['qt_pieces']>res[key]['stock']:
+                # Stock comparé à toutes les UC de l'article dans cet emplacement (UM mixtes et homogènes, qui ont des destinations différentes)
+                if qt_par_emplacement_article[(location_id, product_id)]>stock:
                     btn="btn-warning 2"
                 if stock_sorted[key]['location'][0:1]=='Q':
                     btn="btn-warning 3"
