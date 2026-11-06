@@ -647,14 +647,16 @@ class is_demande_conges(models.Model):
 
 
     def test_dates(self):
+        # Océane GILANT : les demandes soldées du mois sont exportées pour la paie, d'où le blocage des demandes
+        # du mois en cours après le 27 (après le 24 jusqu'au 06/11/2026)
         uid=self._uid
         for obj in self:
             ce_mois = str(date.today())[:8]
             day     = date.today().day
             if obj.date_debut and obj.date_fin:
                 mois_demande = str(obj.date_debut)[:8]
-                if mois_demande==ce_mois and day>24 and obj.responsable_rh_id.id!=uid and uid!=1:
-                    raise ValidationError("Il n'est pas autorisé de créer une demande après le 24 sur le mois en cours")
+                if mois_demande==ce_mois and day>27 and obj.responsable_rh_id.id!=uid and uid!=1:
+                    raise ValidationError("Il n'est pas autorisé de créer une demande après le 27 sur le mois en cours")
                 if mois_demande<ce_mois and obj.responsable_rh_id.id!=uid and uid!=1:
                     raise ValidationError(u"Le mois de la demande ne peux pas être inférieur au mois en cours")
                 #if str(obj.date_debut)[:8]!=str(obj.date_fin)[:8]:
@@ -663,16 +665,10 @@ class is_demande_conges(models.Model):
                     raise ValidationError(u"La date de fin doit être supérieure à la date de début")
             if obj.le:
                 mois_demande = str(obj.le)[:8]
-                if mois_demande==ce_mois and day>24 and obj.responsable_rh_id.id!=uid and uid!=1:
-                    raise ValidationError("Il n'est pas autorisé de créer une demande après le 24 sur le mois en cours")
+                if mois_demande==ce_mois and day>27 and obj.responsable_rh_id.id!=uid and uid!=1:
+                    raise ValidationError("Il n'est pas autorisé de créer une demande après le 27 sur le mois en cours")
         return True
 
-
- # J'ai changé mon rythme des paies, je démarre ainsi maintenant à partir du 24.
- # J'exporte donc toutes les demandes soldées du mois pour démarrer la paie (manipulation que je ne peux faire qu'une fois).
- # Je dois donc être vigilante aujourd'hui si une demande est créée après le 24 qui concernerait le mois en cours. 
- # Je regarde tous les jours sur ODOO pendant la semaine de traitement des paies pour vérifier. 
- # Si j'ai le cas je saisis simplement la demande manuellement directement dans le bulletin de paie.
 
     @api.model_create_multi
     def create(self, vals_list):
