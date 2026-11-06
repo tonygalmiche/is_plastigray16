@@ -291,13 +291,37 @@ class is_galia_base_um(models.Model):
             obj.message_post(body=Markup("UM mixte remplacée par les UM homogènes : %s")%Markup(', ').join(lien_um%(um.id, um.name) for um in ums_obj))
             obj.mettre_um_archivee_dans_inv_action()
             ums |= ums_obj
+        impressions = [um._imprimer_um_homogene() for um in ums]
         return {
             'name'     : "UM homogènes",
             'view_mode': 'tree,form',
             'res_model': 'is.galia.base.um',
             'type'     : 'ir.actions.act_window',
             'domain'   : [('id','in',ums.ids)],
+            # Résultat des impressions, affiché par scan-exp (creer-um-homogenes.php) : [um_id, texte, erreur]
+            'params'   : {'is_impressions': impressions},
         }
+
+
+    def _imprimer_um_homogene(self):
+        """Étiquette d'une UM homogène créée (A5 si l'article a un type d'étiquette UM, sinon l'ancienne), sur la Zebra
+        de l'utilisateur ou de la société. Pas d'étiquette pour une UM d'une seule UC (l'étiquette UC suffit).
+        Une erreur d'impression n'annule pas la création (réimpression depuis la fiche UM). Retourne [um_id, texte, erreur]"""
+        self.ensure_one()
+        if len(self.uc_ids)<=1:
+            return [self.id, "pas d'étiquette UM (1 UC)", False]
+        try:
+            with self.env.cr.savepoint():
+                if self.etiquette_um_a5:
+                    self.imprimer_etiquette_um_a5()
+                else:
+                    self.imprimer_etiquette_um_ancienne()
+            return [self.id, "imprimée", False]
+        except Exception as e:
+            _logger.exception("UM homogène %s : impression"%self.name)
+            erreur = "%s"%(e.args and e.args[0] or e)
+            self.message_post(body="❌ Impression de l'étiquette UM : %s"%erreur)
+            return [self.id, "non imprimée : %s"%erreur, True]
 
 
     def reintegrer_pi_production_action(self):
@@ -848,9 +872,13 @@ class is_galia_base_um(models.Model):
 
 
     def imprimer_etiquette_um_ancienne(self, imprimante=False):
-        """Ancienne étiquette UM : reprise du script externe scripts-externes/imprimer-etiquette-um.py (même SQL, mêmes
-        champs, mêmes masques UM.zpl / UM-MIXTE.zpl + Secu.grf de static/src/galia/). Utilisée seulement par le contrôle
-        qualité des UM par scan : imprimer_etiquette_um_action passe toujours par la commande externe"""
+        """Ancienne étiquette UM. « Ancienne » désigne le format de l'étiquette, pas la façon d'imprimer : il y a deux
+        étiquettes UM, l'étiquette UM A5 (imprimer_etiquette_um_a5, nouveau format, articles avec un type d'étiquette UM)
+        et l'ancienne étiquette (format historique, masques UM.zpl / UM-MIXTE.zpl, tous les autres articles).
+        Les deux sont imprimées directement depuis Odoo (imprimer_zpl). Celle-ci est une reprise du script externe
+        scripts-externes/imprimer-etiquette-um.py (même SQL, mêmes champs, mêmes masques + Secu.grf de static/src/galia/).
+        Utilisée par le contrôle qualité des UM, la réception sous-traitance et la création des UM homogènes.
+        imprimer_etiquette_um_action (bouton de la fiche UM) et scan-exp passent encore par le script externe"""
         cr = self.env.cr
         addons_path = tools.config['addons_path'].split(',')[1]
         path = "%s/is_plastigray16/static/src/galia/"%addons_path
