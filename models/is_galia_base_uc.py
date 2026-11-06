@@ -485,6 +485,15 @@ class is_galia_base_uc(models.Model):
             _logger.info("retrouver_lot_action : %s/%s - UC N°%s"%(ct, nb, obj.num_eti))
             if not obj.production or obj.lot_id or obj.lot_ids:
                 continue
+            #** UC reçue (réception inter-site) : lot de sa ligne de réception validée, s'il est unique.
+            # Plus fiable que la recherche par lot fournisseur : une même Fabrication peut avoir plusieurs lots
+            # (une réception par ligne du BL), et toutes les UC iraient alors sur le même lot
+            move = obj.stock_move_rcp_id
+            if move.state=='done':
+                lots = move.move_line_ids.filtered(lambda l: l.product_id==obj.product_id).lot_id
+                if len(lots)==1:
+                    obj.lot_id = lots.id
+                    continue
             productions = self.env['mrp.production'].search([('name','=',obj.production)], limit=1)
             if not productions and obj.product_id.is_fournisseur_id:
                 #** Article acheté : recherche par le lot fournisseur, en priorité le lot ayant du stock dans l'emplacement de l'UC, sinon le plus récent
