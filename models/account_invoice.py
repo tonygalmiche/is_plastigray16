@@ -122,8 +122,11 @@ class account_invoice(models.Model):
 
     @api.onchange('is_id_owork')
     def onchange_is_id_owork(self):
-        if self.is_id_owork and self.move_type == 'in_refund':  # Uniquement pour les avoirs fournisseurs
+        if self.is_id_owork and self.move_type in ('in_refund', 'in_invoice'):  # Avoirs et factures fournisseurs
             msg = ""
+            # Avoir : montants O'Work négatifs => inverser les signes
+            signe   = -1 if self.move_type == 'in_refund' else 1
+            libelle = "Avoir" if self.move_type == 'in_refund' else "Facture"
             try:
                 # Tentative de conversion en entier
                 id_owork_int = int(self.is_id_owork)
@@ -145,12 +148,12 @@ class account_invoice(models.Model):
                 montant_tva_owork = line.montanttva or 0
                 montant_ttc_owork = line.montanttc or 0
                 
-                # Comparaison avec les montants de l'avoir (en inversant les signes)
-                montant_ht_avoir = -self.amount_untaxed if self.amount_untaxed else 0
-                montant_tva_avoir = -self.amount_tax if self.amount_tax else 0
-                montant_ttc_avoir = -self.amount_total if self.amount_total else 0
-                
-                msg = f"Comparaison montants O'Work (id: {self.is_id_owork}) vs Avoir:\n\n"
+                # Comparaison avec les montants de l'avoir ou de la facture
+                montant_ht_avoir = signe * self.amount_untaxed if self.amount_untaxed else 0
+                montant_tva_avoir = signe * self.amount_tax if self.amount_tax else 0
+                montant_ttc_avoir = signe * self.amount_total if self.amount_total else 0
+
+                msg = f"Comparaison montants O'Work (id: {self.is_id_owork}) vs {libelle}:\n\n"
                 
                 # Comparaison et affichage ligne par ligne
                 anomalies = []
@@ -158,21 +161,21 @@ class account_invoice(models.Model):
                 # HT
                 ht_ok = round(montant_ht_owork, 2) == round(montant_ht_avoir, 2)
                 icone_ht = "✅" if ht_ok else "❌"
-                msg += f"{icone_ht} HT: O'Work {montant_ht_owork:,.2f} € / Avoir {montant_ht_avoir:,.2f} €\n"
+                msg += f"{icone_ht} HT: O'Work {montant_ht_owork:,.2f} € / {libelle} {montant_ht_avoir:,.2f} €\n"
                 if not ht_ok:
                     anomalies.append("HT différent")
                 
                 # TVA
                 tva_ok = round(montant_tva_owork, 2) == round(montant_tva_avoir, 2)
                 icone_tva = "✅" if tva_ok else "❌"
-                msg += f"{icone_tva} TVA: O'Work {montant_tva_owork:,.2f} € / Avoir {montant_tva_avoir:,.2f} €\n"
+                msg += f"{icone_tva} TVA: O'Work {montant_tva_owork:,.2f} € / {libelle} {montant_tva_avoir:,.2f} €\n"
                 if not tva_ok:
                     anomalies.append("TVA différente")
                 
                 # TTC
                 ttc_ok = round(montant_ttc_owork, 2) == round(montant_ttc_avoir, 2)
                 icone_ttc = "✅" if ttc_ok else "❌"
-                msg += f"{icone_ttc} TTC: O'Work {montant_ttc_owork:,.2f} € / Avoir {montant_ttc_avoir:,.2f} €\n"
+                msg += f"{icone_ttc} TTC: O'Work {montant_ttc_owork:,.2f} € / {libelle} {montant_ttc_avoir:,.2f} €\n"
                 if not ttc_ok:
                     anomalies.append("TTC différent")
                 
