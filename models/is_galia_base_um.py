@@ -169,62 +169,148 @@ class is_galia_base_um(models.Model):
                 if vals['stock']<vals['qt_pieces']:
                     raise ValidationError("Déplacement impossible car stock insuffisant dans l'emplacement '%s' pour l'article %s et le lot %s : Stock=%s < Qt UM=%s"%(obj.location_id.name,vals['product'].is_code,vals['production'],vals['stock'],vals['qt_pieces']))
             #******************************************************************
-            location_src  = obj.location_id
-            location_dest = obj.location_dest_id
-            moves={}
-            for key in sorted_dict:
-                product = sorted_dict[key]['product']
-                qty     = sorted_dict[key]['qt_pieces']
-                lot_id  = sorted_dict[key]['lot_id']
-                name="UM %s"%obj.name
-                vals={
-                    "product_id": product.id,
-                    "product_uom": product.uom_id.id,
-                    "location_id": obj.location_id.id,
-                    "location_dest_id": obj.location_dest_id.id,
-                    "origin": name,
-                    "name": name,
-                    "reference": name,
-                    "procure_method": "make_to_stock",
-                    "product_uom_qty": qty,
-                    "scrapped": False,
-                    "propagate_cancel": True,
-                    "is_inventory": True,
-                    "additional": False,
-                }
-                move=self.env['stock.move'].create(vals)
-                vals={
-                    "move_id": move.id,
-                    "product_id": product.id,
-                    "product_uom_id": product.uom_id.id,
-                    "location_id": obj.location_id.id,
-                    "location_dest_id": obj.location_dest_id.id,
-                    "lot_id": lot_id,
-                    "qty_done": qty,
-                    "reference": name,
-                }
-                move_line=self.env['stock.move.line'].create(vals)
-                move._action_done()
-                moves[key]=move
+            obj._mouvements_par_lot(sorted_dict, obj.location_id, obj.location_dest_id, "UM %s"%obj.name, "Déplacement")
             obj.location_id = obj.location_dest_id.id
             obj.location_dest_id = False
-
-            #** Traçabilité dans le chatter de l'UM et des UC *****************
-            def lien_move(move):
-                return Markup('<a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>')%(move.id,move.id)
-            lignes=[]
-            for key in sorted_dict:
-                vals = sorted_dict[key]
-                lignes.append(Markup('<li>%s : %s pièces du lot %s (mouvement %s)</li>')%(vals['product'].is_code,int(vals['qt_pieces']),vals['production'],lien_move(moves[key])))
-            msg=Markup('Déplacement de l\'UM de %s vers %s :<ul>%s</ul>')%(location_src.name,location_dest.name,Markup('').join(lignes))
-            obj.message_post(body=msg)
-            for uc in obj.uc_ids:
-                for lot,qt_pieces in uc.get_lots():
-                    key=obj._get_cle_lot(uc, lot)
-                    msg=Markup('Déplacement avec l\'UM %s de %s vers %s : %s pièces du lot %s (mouvement %s)')%(obj.name,location_src.name,location_dest.name,qt_pieces,sorted_dict[key]['production'],lien_move(moves[key]))
-                    uc.message_post(body=msg)
-            #******************************************************************
             return True
+
+
+    def _mouvements_par_lot(self, sorted_dict, location_src, location_dest, name, libelle):
+        """Un mouvement de stock validé par article et par lot de l'UM (sorted_dict de get_qt_par_lot), avec la traçabilité
+        dans le chatter de l'UM et des UC. Commun au déplacement d'une UM et au retour client. Retourne les mouvements"""
+        self.ensure_one()
+        moves={}
+        for key in sorted_dict:
+            product = sorted_dict[key]['product']
+            qty     = sorted_dict[key]['qt_pieces']
+            lot_id  = sorted_dict[key]['lot_id']
+            vals={
+                "product_id": product.id,
+                "product_uom": product.uom_id.id,
+                "location_id": location_src.id,
+                "location_dest_id": location_dest.id,
+                "origin": name,
+                "name": name,
+                "reference": name,
+                "procure_method": "make_to_stock",
+                "product_uom_qty": qty,
+                "scrapped": False,
+                "propagate_cancel": True,
+                "is_inventory": True,
+                "additional": False,
+                # Créé confirmé : sinon _action_done le confirme, et la confirmation réserve automatiquement les mouvements
+                # depuis un emplacement sans réservation (Client) en ajoutant une 2e ligne sans lot, qui finit à 0
+                "state": "confirmed",
+            }
+            move=self.env['stock.move'].create(vals)
+            vals={
+                "move_id": move.id,
+                "product_id": product.id,
+                "product_uom_id": product.uom_id.id,
+                "location_id": location_src.id,
+                "location_dest_id": location_dest.id,
+                "lot_id": lot_id,
+                "qty_done": qty,
+                "reference": name,
+            }
+            self.env['stock.move.line'].create(vals)
+            move._action_done()
+            moves[key]=move
+
+        #** Traçabilité dans le chatter de l'UM et des UC *********************
+        def lien_move(move):
+            return Markup('<a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>')%(move.id,move.id)
+        lignes=[]
+        for key in sorted_dict:
+            vals = sorted_dict[key]
+            lignes.append(Markup('<li>%s : %s pièces du lot %s (mouvement %s)</li>')%(vals['product'].is_code,int(vals['qt_pieces']),vals['production'],lien_move(moves[key])))
+        msg=Markup('%s de l\'UM de %s vers %s :<ul>%s</ul>')%(libelle,location_src.name,location_dest.name,Markup('').join(lignes))
+        self.message_post(body=msg)
+        for uc in self.uc_ids:
+            for lot,qt_pieces in uc.get_lots():
+                key=self._get_cle_lot(uc, lot)
+                msg=Markup('%s avec l\'UM %s de %s vers %s : %s pièces du lot %s (mouvement %s)')%(libelle,self.name,location_src.name,location_dest.name,qt_pieces,sorted_dict[key]['production'],lien_move(moves[key]))
+                uc.message_post(body=msg)
+        #**********************************************************************
+        return self.env['stock.move'].union(*moves.values())
+
+
+    #** Retour client (application de scan is.retour.client) ******************
+    def _get_location_client(self):
+        location = self.env["stock.location"].search([('usage','=','customer')], limit=1)
+        if not location:
+            raise ValidationError("Aucun emplacement de type 'Client' n'a été trouvé.")
+        return location
+
+
+    def _verifier_retour_client(self):
+        """Contrôles avant la remise en stock d'une UM retournée par le client (au scan et à la validation).
+        UM archivée : ses UC archivées sont comprises"""
+        for obj in self.with_context(active_test=False):
+            if obj.active and obj.location_id.usage!='customer':
+                raise ValidationError("UM %s en %s : déjà en stock (ni dans l'emplacement Client, ni archivée)"%(obj.name, obj.location_id.name or 'aucun emplacement'))
+            if not obj.uc_ids:
+                raise ValidationError("UM %s sans UC"%obj.name)
+            for uc in obj.uc_ids:
+                for lot,qt in uc.get_lots():
+                    if not lot:
+                        raise ValidationError("UM %s : lot %s de l'UC %s non trouvé"%(obj.name, uc.production or '', uc.num_eti))
+            # Doublon : même n° d'UC qu'une UC active d'une autre UM en stock (même règle que le champ Doublon de l'UC)
+            doublons = self.env['is.galia.base.uc'].search([
+                ('num_eti'           , 'in', obj.uc_ids.mapped('num_eti')),
+                ('um_id'             , '!=', obj.id),
+                ('active'            , '=' , True),
+                ('location_id.usage' , '=' , 'internal'),
+            ])
+            if doublons:
+                details = ', '.join("UC %s (UM %s en %s)"%(uc.num_eti, uc.um_id.name, uc.location_id.name) for uc in doublons)
+                raise ValidationError("UM %s : doublon une fois en stock avec %s. Archivez d'abord l'autre UC"%(obj.name, details))
+
+
+    def retour_client(self, location_dest, origine):
+        """Remise en stock d'une UM retournée par le client : mouvements depuis l'emplacement Client dans les lots des UC,
+        UM et UC réactivées dans l'emplacement de destination, liste à servir, bon de transfert et livraison vidés
+        (sinon l'actualisation des emplacements remettrait l'UM dans Client). Retourne les mouvements"""
+        location_client = self._get_location_client()
+        moves = self.env['stock.move']
+        for obj in self:
+            obj._verifier_retour_client()
+            avant = []
+            if not obj.active:
+                avant.append("UM archivée")
+            if obj.liste_servir_id:
+                avant.append("liste à servir %s"%obj.liste_servir_id.name)
+            if obj.bon_transfert_id:
+                avant.append("bon de transfert %s"%obj.bon_transfert_id.name)
+            #** Réactivation des UC (UM archivée : UC souvent archivées aussi) et de l'UM, liens vidés
+            for uc in obj.with_context(active_test=False).uc_ids:
+                avant_uc = []
+                if not uc.active:
+                    avant_uc.append("UC archivée")
+                if uc.stock_move_id:
+                    avant_uc.append("ligne de livraison %s"%uc.stock_move_id.id)
+                uc.write({
+                    'active'       : True,
+                    'stock_move_id': False,
+                    'ls_line_id'   : False,
+                    'bt_line_id'   : False,
+                })
+                if avant_uc:
+                    uc.message_post(body="Retour client %s : %s vidé(s)"%(origine, ', '.join(avant_uc)))
+            obj.write({
+                'active'          : True,
+                'location_dest_id': False,
+                'liste_servir_id' : False,
+                'bon_transfert_id': False,
+            })
+            #** Mouvements depuis Client dans les lots des UC, puis UM dans l'emplacement de destination
+            obj.invalidate_recordset(['uc_ids'])
+            # Champ Lot vide : renseigné comme le bouton « Retrouver le lot » de l'UC, avant le calcul des lots des mouvements
+            obj.uc_ids.retrouver_lot_action()
+            moves |=obj._mouvements_par_lot(obj.get_qt_par_lot(), location_client, location_dest, "Retour client UM %s"%obj.name, "Retour client")
+            obj.location_id = location_dest.id
+            obj.message_post(body="Retour client %s : UM remise en stock dans %s%s"%(origine, location_dest.name, avant and " (avant : %s)"%', '.join(avant) or ""))
+        return moves
 
 
     # def archiver_sur_stock_action(self):

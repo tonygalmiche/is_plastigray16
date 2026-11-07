@@ -351,13 +351,19 @@ class is_galia_base_uc(models.Model):
         for obj in self:
             information = []
             anomalie = []
+            # Anomalie seulement entre emplacements internes (même règle que le champ Doublon).
+            # Copie dans une UM hors emplacement interne (Client…) : simple information
             if obj.num_eti and obj.active and obj.um_id.active:
                 domain = [('num_eti','=',obj.num_eti),('id','!=',obj._origin.id),('um_id.active','=',True)]
-                doublons = self.search(domain)
+                autres = self.search(domain)
+                interne = obj.location_id.usage=='internal'
+                doublons = autres.filtered(lambda uc: interne and uc.location_id.usage=='internal')
                 if doublons:
                     ums = (obj.um_id | doublons.um_id).mapped('name')
                     msg = "Etiquette dans plusieurs UM (%s)"%', '.join(ums)
                     anomalie.append(msg)
+                for uc in autres - doublons:
+                    information.append("Aussi dans l'UM %s (%s)"%(uc.um_id.name, uc.location_id.name or ''))
 
             #** Comparaison des quantités par lot avec le stock de l'emplacement (comme sur l'UM), sauf stock client (consignation)
             if obj.product_id and obj.location_id.usage=='internal' and not obj.location_id.is_stock_client:

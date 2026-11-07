@@ -144,6 +144,7 @@ Module Odoo 16 pour Plastigray
         "views/is_scinder_um_par_lot_view.xml",
         "views/is_inventaire_reference_view.xml",
         "views/is_reception_sous_traitance_view.xml",
+        "views/is_retour_client_view.xml",
 
         "views/report_paperformat.xml",
         "views/report_inventaire.xml",

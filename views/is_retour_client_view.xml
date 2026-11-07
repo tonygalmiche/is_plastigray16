@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_retour_client_seq" model="ir.sequence">
+            <field name="name">Retour client</field>
+            <field name="code">is.retour.client</field>
+            <field name="prefix">RC-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+
+        <!-- is.retour.client -->
+        <!-- Action avant le formulaire, qui y fait référence (bouton « Retour à la liste ») -->
+        <record model="ir.actions.act_window" id="is_retour_client_action">
+            <field name="name">Retour client</field>
+            <field name="res_model">is.retour.client</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <record model="ir.ui.view" id="is_retour_client_form_view">
+            <field name="name">is_retour_client_form_view</field>
+            <field name="model">is.retour.client</field>
+            <field name="arch" type="xml">
+                <form create="false" class="o_is_retour_client">
+                    <sheet>
+                        <field name="state" invisible="1"/>
+                        <!-- Sans invisible="1" : en Odoo 16, un champ invisible n'est pas monté et le widget ne reçoit pas les scans -->
+                        <field name="_barcode_scanned" widget="barcode_handler"/>
+                        <div class="alert alert-info fs-5 py-1 px-2 mt-1 mb-1" role="status" attrs="{'invisible': [('action_attendue', '=', False)]}">
+                            <i class="fa fa-barcode me-2" title="Action attendue"/><field name="action_attendue"/>
+                        </div>
+                        <div class="alert alert-danger py-1 px-2 mb-1" role="alert" attrs="{'invisible': [('alerte', '=', False)]}">
+                            <field name="alerte"/>
+                        </div>
+                        <div class="alert alert-success py-1 px-2 mb-1" role="status" attrs="{'invisible': [('message', '=', False)]}">
+                            <field name="message"/>
+                        </div>
+                        <div class="bg-light border rounded py-1 px-2 mb-1">
+                            <field name="info_html" nolabel="1"/>
+                        </div>
+                        <div attrs="{'invisible': [('recap_html', '=', False)]}">
+                            <div class="o_is_titre">Récapitulatif par article</div>
+                            <field name="recap_html" nolabel="1"/>
+                        </div>
+                        <div class="d-flex mb-2" attrs="{'invisible': [('state', '!=', 'scan')]}">
+                            <field name="code" placeholder="Saisie manuelle d'un code" class="flex-grow-1 me-2"/>
+                            <button name="valider_code_action" string="Valider" type="object" class="btn-secondary"/>
+                        </div>
+                        <div class="o_is_titre" attrs="{'invisible': [('ligne_ids', '=', [])]}">UM scannées</div>
+                        <!-- Une carte par UM, non cliquable (pas de oe_kanban_global_click) : poubelle pour retirer une UM (erreur de scan) -->
+                        <field name="ligne_ids" nolabel="1" readonly="1" mode="kanban" attrs="{'invisible': [('ligne_ids', '=', [])]}">
+                            <kanban create="false" class="o_is_retour_client_lignes">
+                                <field name="state"/>
+                                <field name="libelle"/>
+                                <field name="product_id"/>
+                                <field name="nb_uc"/>
+                                <field name="quantite"/>
+                                <templates>
+                                    <t t-name="kanban-box">
+                                        <div class="d-flex align-items-center px-2 py-1">
+                                            <button
+                                                t-if="record.state.raw_value == 'scan'"
+                                                name="supprimer_action"
+                                                type="object"
+                                                class="btn btn-link text-danger p-0 me-2"
+                                                title="Retirer l'UM de la liste"
+                                            ><i class="fa fa-trash fa-lg" title="Retirer"/></button>
+                                            <div class="flex-grow-1 text-truncate">
+                                                <b><t t-esc="record.libelle.value"/></b>
+                                                <span class="text-muted small ms-1"><t t-esc="record.product_id.value"/></span>
+                                            </div>
+                                            <div class="text-nowrap ms-2"><t t-esc="record.nb_uc.value"/> UC · <b><t t-esc="record.quantite.value"/></b></div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                        <!-- Validation après la liste, séparée des autres boutons pour éviter un appui par erreur -->
+                        <!-- Libellé avec l'emplacement : champ dans le bouton (l'attribut string est fixe) -->
+                        <button
+                            name="valider_action"
+                            type="object"
+                            class="btn-success w-100 mt-5 mb-2 fs-5"
+                            confirm="Valider l'entrée en stock de toutes les UM scannées ?"
+                            attrs="{'invisible': ['|', ('state', '!=', 'scan'), ('ligne_ids', '=', [])]}"
+                        >
+                            <field name="libelle_valider"/>
+                        </button>
+                        <button
+                            name="nouveau_retour_action"
+                            string="Nouveau retour"
+                            type="object"
+                            class="btn-primary w-100 mt-4 mb-2 fs-5 d-md-none"
+                            attrs="{'invisible': [('state', '=', 'scan')]}"
+                        />
+                        <!-- Sur smartphone, la barre du haut est masquée (retour_client.js) : retour à la liste par ce bouton -->
+                        <button
+                            name="%(is_retour_client_action)d"
+                            string="Retour à la liste"
+                            type="action"
+                            class="btn-secondary o_is_btn_gris w-100 mt-4 mb-2 d-md-none"
+                        />
+                        <!-- Abandon tout en bas, séparé des autres boutons pour éviter un appui par erreur -->
+                        <button
+                            name="abandonner_action"
+                            string="Abandonner"
+                            type="object"
+                            class="btn-outline-danger w-100 mt-5 mb-2"
+                            confirm="Abandonner ? Aucune entrée en stock n'a été faite."
+                            attrs="{'invisible': [('state', '!=', 'scan')]}"
+                        />
+                        <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22) -->
+                        <div class="d-none d-md-block">
+                        <div class="d-flex gap-2 mt-2 mb-2">
+                            <button name="voir_ums_action" string="UM" type="object" icon="fa-cubes" class="btn-secondary" attrs="{'invisible': [('ligne_ids', '=', [])]}"/>
+                            <button name="voir_ucs_action" string="UC" type="object" icon="fa-cube" class="btn-secondary" attrs="{'invisible': [('ligne_ids', '=', [])]}"/>
+                            <button name="voir_mouvements_action" string="Mouvements" type="object" icon="fa-exchange" class="btn-secondary" attrs="{'invisible': [('state', '!=', 'termine')]}"/>
+                        </div>
+                        <notebook>
+                            <page string="Détail">
+                                <group>
+                                    <group>
+                                        <field name="location_id"/>
+                                        <field name="client_id"/>
+                                        <field name="nb_um"/>
+                                    </group>
+                                    <group>
+                                        <field name="create_date"/>
+                                        <field name="create_uid"/>
+                                        <field name="date_validation"/>
+                                        <field name="valideur_id"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                        </div>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <!-- Confirmation de la poubelle : détail de la ligne pour être sûr de retirer la bonne UM -->
+        <record model="ir.ui.view" id="is_retour_client_ligne_supprimer_form_view">
+            <field name="name">is_retour_client_ligne_supprimer_form_view</field>
+            <field name="model">is.retour.client.ligne</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <form create="false" edit="false">
+                    <group>
+                        <field name="libelle" readonly="1"/>
+                        <field name="product_id" string="Article" readonly="1" options="{'no_open': True}"/>
+                        <field name="nb_uc" string="UC" readonly="1"/>
+                        <field name="quantite" string="Pièces" readonly="1"/>
+                    </group>
+                    <footer>
+                        <button name="confirmer_suppression_action" string="Retirer cette UM" type="object" class="btn-danger"/>
+                        <button string="Annuler" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_retour_client_tree_view">
+            <field name="name">is_retour_client_tree_view</field>
+            <field name="model">is.retour.client</field>
+            <field name="arch" type="xml">
+                <tree create="false">
+                    <field name="name"/>
+                    <field name="client_id"/>
+                    <field name="location_id" optional="show"/>
+                    <field name="nb_um" sum="Total" optional="show"/>
+                    <field name="create_date" optional="show"/>
+                    <field name="create_uid" optional="show"/>
+                    <field name="date_validation" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'scan'" decoration-success="state == 'termine'" decoration-muted="state == 'annule'" optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_retour_client_kanban_view">
+            <field name="name">is_retour_client_kanban_view</field>
+            <field name="model">is.retour.client</field>
+            <field name="arch" type="xml">
+                <kanban create="false" class="o_kanban_mobile o_is_retour_client_kanban">
+                    <field name="state"/>
+                    <field name="client_id"/>
+                    <field name="location_id"/>
+                    <field name="nb_um"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="fs-4"><field name="name"/></strong>
+                                    <field name="state" widget="label_selection" options="{'classes': {'scan': 'info', 'termine': 'success', 'annule': 'default'}}"/>
+                                </div>
+                                <t t-if="record.client_id.raw_value">
+                                    <div class="fw-bold fs-5"><field name="client_id"/></div>
+                                    <div class="text-muted">
+                                        <field name="nb_um"/> UM
+                                        <i class="fa fa-map-marker ms-3 me-1" title="Emplacement"/><field name="location_id"/>
+                                    </div>
+                                </t>
+                                <div t-else="" class="text-muted fst-italic">
+                                    <i class="fa fa-barcode me-1" title="Aucune UM scannée"/>Aucune UM scannée
+                                </div>
+                                <div class="text-muted small mt-2 pt-2 border-top">
+                                    <i class="fa fa-clock-o me-1" title="Date"/><field name="create_date"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_retour_client_search_view">
+            <field name="name">is_retour_client_search_view</field>
+            <field name="model">is.retour.client</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="client_id"/>
+                    <field name="location_id"/>
+                    <field name="ligne_ids" string="UM" filter_domain="[('ligne_ids.um_id.name', 'ilike', self)]"/>
+                    <filter name="en_cours" string="En cours" domain="[('state', '=', 'scan')]"/>
+                    <filter name="termine"  string="Terminés" domain="[('state', '=', 'termine')]"/>
+                    <filter name="annule"   string="Annulés"  domain="[('state', '=', 'annule')]"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter name="group_state"     string="État"   context="{'group_by': 'state'}"/>
+                        <filter name="group_client_id" string="Client" context="{'group_by': 'client_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="is_retour_client_nouveau_action" model="ir.actions.server">
+            <field name="name">Retour client</field>
+            <field name="model_id" ref="model_is_retour_client"/>
+            <field name="state">code</field>
+            <field name="code">action = model.nouveau_action()</field>
+        </record>
+    </data>
+</odoo>
