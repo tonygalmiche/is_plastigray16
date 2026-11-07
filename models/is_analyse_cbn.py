@@ -920,7 +920,7 @@ class product_product(models.Model):
         - Recherche le(s) partenaire(s) correspondant au code saisi (ex: '900000' ou '900000/1' pour code+code adresse)
         - Recherche tous les articles dont ce partenaire est le 'Client par défaut' (is_client_id)
         - Éclate les nomenclatures de ces articles à tous les niveaux pour retrouver tous les articles composants
-          (hors nomenclatures inactives ou de sous-traitance)
+          (hors articles achetés, qui sont au dernier niveau, et hors nomenclatures inactives, de sous-traitance ou de négoce)
         Retourne la liste des ids product.product (articles clients + tous les composants) à utiliser dans un "pp.id in (...)"
         """
         debut = datetime.now()
@@ -952,9 +952,13 @@ class product_product(models.Model):
         vus = set(product_ids)
 
         def explode(product, niveau):
+            # Article acheté (Peut être acheté) : dernier niveau, sa nomenclature n'est pas éclatée
+            if product.purchase_ok:
+                return
             # Première nomenclature active (même recherche et même ordre que _bom_find),
-            # en excluant les nomenclatures inactives (is_inactive) et de sous-traitance
-            domain = bom_obj._bom_find_domain(product) + [('is_inactive','!=',True), ('is_sous_traitance','!=',True)]
+            # en excluant les nomenclatures inactives (is_inactive), de sous-traitance et de négoce
+            # (comme dans le calcul du CBN)
+            domain = bom_obj._bom_find_domain(product) + [('is_inactive','!=',True), ('is_sous_traitance','!=',True), ('is_negoce','!=',True)]
             bom = bom_obj.with_context(active_test=True).search(domain, order='sequence, product_id, id', limit=1)
             if not bom:
                 return
