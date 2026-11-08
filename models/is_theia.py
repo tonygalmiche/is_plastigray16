@@ -160,7 +160,8 @@ class is_raspberry(models.Model):
     reintegration_ci   = fields.Boolean('Réintégration CI/PI', default=False)
     solder_um          = fields.Boolean('Solder automatiquement UM', default=False)
     zebra_id           = fields.Many2one('is.raspberry.zebra', "Zebra", help="Imprimante Zebra")
-    entree_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Entrées du Raspberry",  domain=[('entree_sortie','=','entree')])
+    informations       = fields.Text('Informations')
+    entree_ids        = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Entrées du Raspberry",  domain=[('entree_sortie','=','entree')])
     sortie_ids         = fields.One2many('is.raspberry.entree.sortie', 'raspberry_id', u"Sorties du Raspberry",  domain=[('entree_sortie','=','sortie')])
 
 

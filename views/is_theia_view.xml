@@ -1093,6 +1093,7 @@
                 <field name="reintegration_ci"   optional="show"/>
                 <field name="solder_um"          optional="show"/>
                 <field name="zebra_id"           optional="hide"/>
+                <field name="informations"       optional="hide"/>
                 <field name="create_date"        optional="hide"/>
                 <field name="write_date"         optional="show"/>
             </tree>
@@ -1124,6 +1125,9 @@
                         <field name="reintegration_ci"/>
                         <field name="solder_um"/>
                     </group>
+                </group>
+                <group>
+                    <field name="informations"/>
                 </group>
                  <table>
                     <tr style="vertical-align: top">
@@ -1161,6 +1165,7 @@
             <search>
                 <field name="name"/>
                 <field name="adresse_mac"/>
+                <field name="informations"/>
             </search>
         </field>
     </record>
