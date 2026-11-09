@@ -347,6 +347,9 @@ class is_galia_base(models.Model):
                         Msg+="Le numéro de la première étiquette doit-être supèrieur à 0 !\n"
                     if zzFin<zzDebut:
                         Msg+="Le numéro de la dernière étiquette doit-être supèrieur au numéro de la première !\n"
+                    NbMaxEtiquettes = 200
+                    if zzFin-zzDebut+1>NbMaxEtiquettes:
+                        Msg+="Impossible d'imprimer plus de %s étiquettes à la fois (%s demandées) !\n"%(NbMaxEtiquettes, zzFin-zzDebut+1)
             if Msg=="":
                 #** Test si la quantité modifiée ******************************
                 if (zzNbPieces>0 and zzNbPieces!=Quantite):
