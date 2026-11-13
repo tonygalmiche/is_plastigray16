@@ -16,7 +16,6 @@
                         <field name="category" />
                         <field name="group" />
                         <field name="active_user" />
-                        <field name="active_group" />
                     </group>
                 </sheet>
             </form>
@@ -34,7 +33,6 @@
                 <field name="category"  />
                 <field name="group"     />
                 <field name="active_user" />
-                <field name="active_group" />
            </tree>
         </field>
     </record>
@@ -50,7 +48,6 @@
                 <field name="group" />
                 <field name="category" />
                 <field name="active_user" />
-                <field name="active_group" />
             </search>
         </field>
     </record>

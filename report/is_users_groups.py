@@ -17,7 +17,6 @@ class is_users_groups(models.Model):
     group           = fields.Char('Groupe')
     category        = fields.Char('Application')
     active_user     = fields.Boolean('Utilisateur actif')
-    active_group    = fields.Boolean('Group actif')
 
     def init(self):
         cr = self._cr
@@ -32,8 +31,7 @@ class is_users_groups(models.Model):
                         rg.name   as group,
                         rg.id     as group_id, 
                         imc.name  as category,
-                        ru.active as active_user,
-                        rg.active as active_group
+                        ru.active as active_user
                 from res_users ru inner join res_partner                 rp on ru.partner_id=rp.id
                                   left outer join res_groups_users_rel rgur on ru.id=rgur.uid
                                   left outer join res_groups             rg on rgur.gid=rg.id

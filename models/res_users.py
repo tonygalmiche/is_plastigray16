@@ -91,5 +91,3 @@ class res_users(models.Model):
 class res_groups(models.Model):
     _inherit = "res.groups"
     _order='category_id,name'
-
-    active = fields.Boolean('Actif', default=True)
