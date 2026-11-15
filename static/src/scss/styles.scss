@@ -43,3 +43,22 @@
 .o_form_view .o_form_sheet_bg > .alert[role="alert"] {
     margin-top: 50px;
 }
+
+// Boutons d'une vue liste affichés quand des lignes sont cochées (<header>).
+// En Odoo 16, l'attribut class de ces boutons est ignoré (non transmis par
+// ListViewHeaderButton) : style uniquement par CSS. Ils sont les seuls
+// boutons de .o_list_buttons à avoir un attribut name (Nouveau, Enregistrer,
+// Annuler n'en ont pas).
+.o_list_buttons > .btn[name] {
+    margin-left: 4px;
+    text-transform: none;
+    border: 1px solid #adb5bd;
+    background-color: #fff;
+    &:hover {
+        background-color: #e9ecef;
+    }
+    // Espace entre l'icône et le libellé (collés par défaut)
+    > .fa + span {
+        margin-left: 4px;
+    }
+}

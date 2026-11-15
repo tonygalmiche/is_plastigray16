@@ -7,10 +7,10 @@
             <field name="arch" type="xml">
                 <form string="Dupliquer sur un autre article">
                     <div style="background:Gainsboro;padding:8px;margin-bottom:12px">
-                        Une nouvelle SA est créée sur le nouvel article pour chaque SA sélectionnée, avec la même quantité et la même date de réception.
-                        La quantité est arrondie au lot du nouvel article et la date de début recalculée avec ses délais.
-                        Si le fournisseur change, la date de réception peut être décalée sur un jour disponible de son calendrier.
-                        Les SA d'origine sont gardées : à supprimer ensuite si besoin.
+                        <div>Une nouvelle SA est créée sur le nouvel article pour chaque SA sélectionnée, avec la même quantité et la même date de réception.</div>
+                        <div>La quantité est arrondie au lot du nouvel article et la date de début recalculée avec ses délais.</div>
+                        <div>Si le fournisseur change, la date de réception peut être décalée sur un jour disponible de son calendrier.</div>
+                        <div>Les SA d'origine sont gardées : à supprimer ensuite si besoin.</div>
                     </div>
                     <group>
                         <field name="prevision_ids" invisible="1" force_save="1"/>

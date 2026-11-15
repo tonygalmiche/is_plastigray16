@@ -34,8 +34,7 @@
                     <!-- Boutons affichés quand des lignes sont cochées -->
                     <header>
                         <button name="action_dupliquer_autre_article" type="object" icon="fa-copy"
-                            string="Dupliquer sur un autre article"
-                            confirm="Dupliquer les lignes cochées sur un autre article ?"/>
+                            string="Dupliquer sur un autre article"/>
                         <button name="convertir_fs" type="object" icon="fa-cogs"
                             string="Convertir FS en OF"
                             confirm="Convertir les FS cochées en ordres de fabrication ? Les FS seront supprimées."/>
