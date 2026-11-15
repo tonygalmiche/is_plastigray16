@@ -126,6 +126,13 @@ class mrp_prevision(models.Model):
                 obj.unlink()
 
       
+    def action_dupliquer_autre_article(self):
+        "Bouton de la liste : ouvre l'assistant de duplication avec les lignes cochées"
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.mrp_prevision_dupliquer_wizard_action')
+        action['context'] = {'active_model': self._name, 'active_ids': self.ids}
+        return action
+
+
     def convertir_fs(self):
         ids=[]
         for obj in self:
