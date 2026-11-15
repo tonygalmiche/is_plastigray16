@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp_prevision_dupliquer_wizard_form_view" model="ir.ui.view">
+            <field name="name">mrp.prevision.dupliquer.wizard.form</field>
+            <field name="model">mrp.prevision.dupliquer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Dupliquer sur un autre article">
+                    <div style="background:Gainsboro;padding:8px;margin-bottom:12px">
+                        Une nouvelle SA est créée sur le nouvel article pour chaque SA sélectionnée, avec la même quantité et la même date de réception.
+                        La quantité est arrondie au lot du nouvel article et la date de début recalculée avec ses délais.
+                        Si le fournisseur change, la date de réception peut être décalée sur un jour disponible de son calendrier.
+                        Les SA d'origine sont gardées : à supprimer ensuite si besoin.
+                    </div>
+                    <group>
+                        <field name="prevision_ids" invisible="1" force_save="1"/>
+                        <field name="nb_previsions"/>
+                        <field name="product_src_id" force_save="1" options="{'no_open': True}"/>
+                        <field name="segment_id" options="{'no_open': True}"/>
+                        <field name="product_id" options="{'no_create': True}"/>
+                    </group>
+                    <footer>
+                        <button name="action_dupliquer" string="Dupliquer" type="object" class="btn-primary" data-hotkey="q"/>
+                        <button string="Annuler" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="mrp_prevision_dupliquer_wizard_action" model="ir.actions.act_window">
+            <field name="name">Dupliquer sur un autre article</field>
+            <field name="res_model">mrp.prevision.dupliquer.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="model_mrp_prevision"/>
+            <field name="binding_view_types">list</field>
+        </record>
+    </data>
+</odoo>
