@@ -12,6 +12,7 @@ from . import is_theia_dequalification_moule_wizard
 from . import is_galia_base_uc_reintegrer_ci_wizard
 from . import is_galia_base_copier_uc_wizard
 from . import mrp_prevision_dupliquer_wizard
+from . import sale_order_line_basculer_wizard
 
 
 # import is_stock_mise_rebut
