@@ -1162,8 +1162,11 @@ class product_product(models.Model):
                 im.date_retour_prise_avance,
                 mp.name as name,
                 mp.is_qt_reste_uom,
-                bom.product_qty
+                bom.product_qty,
+                of_pt.is_code as fs_code_pg
             FROM is_mrp_production_bom bom   inner join mrp_production mp on bom.production_id=mp.id
+                            inner join product_product      of_pp on mp.product_id=of_pp.id
+                            inner join product_template     of_pt on of_pp.product_tmpl_id=of_pt.id
                             inner join product_product      pp   on bom.product_id=pp.id
                             inner join product_template     pt   on pp.product_tmpl_id=pt.id
                             left outer join is_mold         im   on pt.is_mold_id=im.id
