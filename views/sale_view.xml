@@ -304,6 +304,11 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree editable="top" create="0">
+                    <!-- Bouton affiché quand des lignes sont cochées -->
+                    <header>
+                        <button name="action_basculer_autre_article" type="object" icon="fa-exchange"
+                            string="Basculer sur un autre article"/>
+                    </header>
                     <field name="product_id"          readonly="1" optional="show" widget="many2one_clickable"/>
                     <field name="is_ref_client"       readonly="1" optional="show"/>
                     <field name="product_uom_qty"     readonly="1" optional="show" sum="Total"/>

@@ -842,6 +842,13 @@ class sale_order_line(models.Model):
         return True
 
 
+    def action_basculer_autre_article(self):
+        "Bouton de la liste : ouvre l'assistant de basculement avec les lignes cochées"
+        action = self.env['ir.actions.act_window']._for_xml_id('is_plastigray16.sale_order_line_basculer_wizard_action')
+        action['context'] = {'active_model': self._name, 'active_ids': self.ids}
+        return action
+
+
     def set_price_justification(self):
         """Recherche prix et justifcation dans liste de prix pour date et qt et mise à jour"""
         for obj in self:
