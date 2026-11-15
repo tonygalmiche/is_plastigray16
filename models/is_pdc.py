@@ -19,7 +19,11 @@ class is_pdc(models.Model):
     nb_absents            = fields.Float("Absents sur la totalité de la période")
     effectif_operationnel = fields.Float("Effectif opérationnel", readonly=True, store=True, compute='_effectif_operationnel')
     decision_prise        = fields.Char("Décision prise")
-    nb_presses            = fields.Integer("Nombre de presses")
+    detail_par_date       = fields.Boolean("Détail par FL / FS avec date", default=False,
+        help="Coché : une ligne par FL / FS avec sa date (date planifiée de la FL, date de début de la FS) et le lien vers la FL / FS, sans regroupement par moule.\n"
+             "Décoché : regroupement par poste de charge, moule et matière (simulations de charge).\n"
+             "À choisir avant d'importer les données du CBN.")
+    nb_presses           = fields.Integer("Nombre de presses")
     temps_ouverture       = fields.Integer("Temps d'ouverture")
     nb_heures_periode     = fields.Integer("Nombre d'heures total dans la période")
 
@@ -71,14 +75,22 @@ class is_pdc(models.Model):
         cr      = self._cr
         for obj in self:
             obj.mold_ids.unlink()
+            detail = obj.detail_par_date # Une ligne par FL / FS avec sa date, sans regroupement par moule
 
             #** Importation des FS *********************************************
+            if detail:
+                champs_detail   = ", mp.id as prevision_id, mp.start_date as date"
+                group_by_detail = ", mp.id, mp.start_date"
+            else:
+                champs_detail   = ", null as prevision_id, null as date"
+                group_by_detail = ""
             SQL="""
                 select  mrw.workcenter_id                        as workcenter_id,
                         pt.is_mold_dossierf                      as mold_dossierf,
                         pt.is_couleur                            as matiere,
                         sum(mp.quantity)                         as quantite,
                         sum(mp.quantity*mrw.is_nb_secondes)      as temps_total
+                        """+champs_detail+"""
                 from mrp_prevision mp inner join product_product  pp on mp.product_id=pp.id
                                       inner join product_template pt on pp.product_tmpl_id=pt.id
                                       inner join mrp_bom          mb on pt.id=mb.product_tmpl_id and (mb.sequence=0 or mb.sequence is null)
@@ -88,7 +100,7 @@ class is_pdc(models.Model):
                         and mp.start_date<='"""+str(obj.date_fin)+"""'
                         -- and pt.is_mold_dossierf='3090'
                         -- and pt.is_code='400886'
-                group by mrw.workcenter_id, pt.is_mold_dossierf, pt.is_couleur
+                group by mrw.workcenter_id, pt.is_mold_dossierf, pt.is_couleur"""+group_by_detail+"""
                 order by mrw.workcenter_id;
             """
             cr.execute(SQL)
@@ -96,6 +108,8 @@ class is_pdc(models.Model):
             res={}
             for row in result:
                 key=str(row[0])+"/"+str(row[1])+"/"+str(row[2])
+                if detail:
+                    key+="/fs%s"%row[5]
                 temps_u=temps_h=0
                 if row[3]!=0:
                     temps_u=row[4]/row[3]
@@ -107,6 +121,8 @@ class is_pdc(models.Model):
                     'quantite'     : row[3],
                     'temps_u'      : temps_u,
                     'temps_h'      : temps_h,
+                    'prevision_id' : row[5],
+                    'date'         : row[6],
                 }
                 res[key]=vals
             #*******************************************************************
@@ -124,6 +140,8 @@ class is_pdc(models.Model):
                     qt_reste = production.is_qt_reste_uom
                     if qt_reste>0:
                         key="%s/%s/%s"%(line.workcenter_id.id,production.product_id.is_mold_dossierf,production.product_id.is_couleur)
+                        if detail:
+                            key+="/fl%s"%production.id
                         temps_u=line.is_nb_secondes
                         temps_h=qt_reste*line.is_nb_secondes/3600
                         vals={
@@ -134,6 +152,10 @@ class is_pdc(models.Model):
                             'temps_u'      : temps_u,
                             'temps_h'      : temps_h,
                         }
+                        if detail:
+                            # Date planifiée dans le fuseau de l'utilisateur (sinon la veille pour une FL à 00:00)
+                            vals['production_id'] = production.id
+                            vals['date']          = fields.Datetime.context_timestamp(self, production.date_planned_start).date()
                         if not key in res:
                             res[key]=vals
                         else:
@@ -151,6 +173,9 @@ class is_pdc(models.Model):
                     'quantite'     : res[key]['quantite'],
                     'temps_u'      : res[key]['temps_u'],
                     'capacite'     : obj.temps_ouverture,
+                    'date'         : res[key].get('date'),
+                    'prevision_id' : res[key].get('prevision_id'),
+                    'production_id': res[key].get('production_id'),
                 }
                 pdc_mold_obj.create(vals)
             obj.state="analyse"
@@ -166,6 +191,7 @@ class is_pdc(models.Model):
                 'domain': [
                     ('pdc_id' ,'=',obj.id),
                 ],
+                'context': {'detail_par_date': obj.detail_par_date},
                 'type': 'ir.actions.act_window',
                 'limit': 1000,
             }
@@ -300,7 +326,7 @@ class is_pdc(models.Model):
 class is_pdc_mold(models.Model):
     _name='is.pdc.mold'
     _description="is_pdc_mold"
-    _order='pdc_id desc, workcenter_id, mold_dossierf'
+    _order='pdc_id desc, workcenter_id, mold_dossierf, date'
 
 
     def _get_default_pdc_id(self):
@@ -314,6 +340,9 @@ class is_pdc_mold(models.Model):
     mold_id        = fields.Many2one('is.mold', 'Moule')
     mold_dossierf  = fields.Char('Moule/DossierF')
     matiere        = fields.Char('Matière')
+    date           = fields.Date('Date', help="Date planifiée de la FL ou date de début de la FS (option « Détail par FL / FS avec date »)")
+    production_id  = fields.Many2one('mrp.production', 'FL', readonly=True)
+    prevision_id   = fields.Many2one('mrp.prevision' , 'FS', readonly=True)
     quantite       = fields.Integer('Quantité')
     temps_u        = fields.Float('Temps unitaire (s)', digits=(14, 4))
     temps_h        = fields.Float('Temps (H)'       , store=True,  compute='_compute', readonly=1)
@@ -329,6 +358,20 @@ class is_pdc_mold(models.Model):
     def _resource_type(self):
         for obj in self:
             obj.resource_type = obj.workcenter_id.resource_type
+
+
+    def action_acces_fl_fs(self):
+        "Ouvre la FL ou la FS de la ligne"
+        for obj in self:
+            record = obj.production_id or obj.prevision_id
+            if record:
+                return {
+                    'name': record.name,
+                    'view_mode': 'form',
+                    'res_model': record._name,
+                    'res_id': record.id,
+                    'type': 'ir.actions.act_window',
+                }
 
 
     @api.depends('quantite','temps_u','pdc_id.temps_ouverture')
@@ -399,6 +442,7 @@ class is_pdc_workcenter(models.Model):
                 'context':{
                     'default_pdc_id'        : obj.pdc_id.id,
                     'default_workcenter_id' : obj.workcenter_id.id,
+                    'detail_par_date'       : obj.pdc_id.detail_par_date,
                 },
                 'type': 'ir.actions.act_window',
             }

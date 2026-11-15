@@ -259,6 +259,10 @@
                                         <th style="width:9%;text-align:center"><b>Moule</b></th>
                                         <th style="width:19%;text-align:center"><b>Commentaire</b></th>
                                         <th style="width:9%;text-align:center"><b>Matière</b></th>
+                                        <t t-if="o.detail_par_date">
+                                            <th style="width:9%;text-align:center"><b>Date</b></th>
+                                            <th style="width:9%;text-align:center"><b>FL / FS</b></th>
+                                        </t>
                                         <th style="width:9%;text-align:center"><b>Quantité</b></th>
                                         <th style="width:9%;text-align:center"><b>Temps</b></th>
                                         <th style="width:9%;text-align:center"><b>Capacité</b></th>
@@ -274,6 +278,10 @@
                                             <td><span t-field="l.mold_dossierf"/></td>
                                             <td></td>
                                             <td><span t-field="l.matiere"/></td>
+                                            <t t-if="o.detail_par_date">
+                                                <td style="text-align:center"><span t-field="l.date"/></td>
+                                                <td style="text-align:center"><t t-esc="l.production_id.name or l.prevision_id.name or ''"/></td>
+                                            </t>
                                             <td><t t-esc='"{:,.0f}".format(l.quantite).replace(","," ").replace(".",",")'      /></td>
                                             <td><t t-esc='"{:,.0f}".format(l.temps_h).replace(","," ").replace(".",",")'      /></td>
                                             <td><t t-esc='"{:,.0f}".format(l.capacite).replace(","," ").replace(".",",")'      /></td>

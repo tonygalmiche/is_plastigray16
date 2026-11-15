@@ -15,6 +15,9 @@
                             <field name="resource_type"/>
                             <field name="mold_dossierf"/>
                             <field name="matiere"/>
+                            <field name="date"          attrs="{'invisible':[('date','=',False)]}"/>
+                            <field name="production_id" attrs="{'invisible':[('production_id','=',False)]}"/>
+                            <field name="prevision_id"  attrs="{'invisible':[('prevision_id','=',False)]}"/>
                             <field name="quantite"/>
                             <field name="temps_h"/>
                             <field name="capacite"/>
@@ -34,19 +37,28 @@
             <field name="arch" type="xml">
                 <!-- colors="red:cumul_pourcent and (cumul_pourcent&gt;100)" -->
                 <tree editable="top">
-                    <field name="pdc_id" readonly="1"/>
-                    <field name="workcenter_id"/>
-                    <field name="resource_type"/>
+                    <field name="pdc_id" readonly="1" optional="show"/>
+                    <field name="workcenter_id"       optional="show"/>
+                    <field name="resource_type"       optional="show"/>
                     <field name="mold_dossierf"/>
-                    <field name="matiere"/>
+                    <field name="matiere"             optional="show"/>
+                    <!-- Colonnes de l'option « Détail par FL / FS avec date » (contexte passé par les actions) -->
+                    <field name="date"          invisible="not context.get('detail_par_date')"/>
+                    <field name="production_id" invisible="not context.get('detail_par_date')" optional="hide"/>
+                    <field name="prevision_id"  invisible="not context.get('detail_par_date')" optional="hide"/>
+                    <button
+                        title="Accès à la FL / FS"
+                        name="action_acces_fl_fs" type="object" icon="fa-search-plus"
+                        invisible="not context.get('detail_par_date')"
+                    />
                     <field name="quantite" sum="Total"/>
-                    <field name="temps_u"/>
+                    <field name="temps_u"             optional="show"/>
                     <field name="temps_h" sum="Total"/>
-                    <field name="capacite"/>
-                    <field name="temps_pourcent"/>
+                    <field name="capacite"            optional="show"/>
+                    <field name="temps_pourcent"      optional="show"/>
                     <field name="cumul_pourcent"/>
-                    <field name="cumul_h"/>
-                    <field name="cumul_j"/>
+                    <field name="cumul_h"             optional="show"/>
+                    <field name="cumul_j"             optional="show"/>
                 </tree>
             </field>
         </record>
@@ -99,7 +111,8 @@
                             <group>
                                 <field name="name"       attrs="{'readonly':[('state','in',['analyse'])]}"/>
                                 <field name="date_debut" attrs="{'readonly':[('state','in',['analyse'])]}"/> 
-                                <field name="date_fin"   attrs="{'readonly':[('state','in',['analyse'])]}"/> 
+                                <field name="date_fin"   attrs="{'readonly':[('state','in',['analyse'])]}"/>
+                                <field name="detail_par_date" attrs="{'readonly':[('state','in',['analyse'])]}"/>
                             </group>
                         </group>
                         <group>
@@ -168,6 +181,7 @@
                     <field name="nb_inscrits"/>
                     <field name="nb_absents"/>
                     <field name="temps_ouverture"/>
+                    <field name="detail_par_date" optional="show"/>
                     <field name="decision_prise" optional="show"/>
                     <field name="state"          optional="show"/>
                 </tree>
