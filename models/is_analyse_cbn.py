@@ -10,6 +10,7 @@ from openpyxl.styles.borders import Border
 from openpyxl.worksheet.page import PageMargins
 import base64
 import logging
+import psycopg2 # type: ignore
 _logger = logging.getLogger(__name__)
 
 #TODO : 
@@ -321,7 +322,14 @@ class product_product(models.Model):
         result = result1+result2+result3+result4+result5
         if valorisation=="Oui":
             result+=self._get_stock(filtre)
-            
+
+        #** Acceptation EI des moules du résultat (rapport Fabrication, CDC 2161)
+        MoulesEI = {}
+        if type_rapport!='Achat':
+            debut3=datetime.now()
+            MoulesEI = self._get_moules_acceptation_ei(list(set(row["moule"] for row in result if row["moule"])))
+            _logger.info("Acceptation EI des moules (durée=%.2fs)"%(datetime.now()-debut3).total_seconds())
+
         res={}
         for row in result:
             product_id = row["product_id"]
@@ -338,6 +346,8 @@ class product_product(models.Model):
             else:
                 key="%s/%s"%(row["moule"],code)
                 Code = "%s / %s"%(row["moule"],code)
+                if row["moule"] in MoulesEI:
+                    Code = " / %s"%code # Moule affiché à part, en rouge ou orange
 
 
             cout=0
@@ -360,9 +370,13 @@ class product_product(models.Model):
                     groupage_cbn=''
                 drpa = row.get("date_retour_prise_avance")
                 date_retour_pa = drpa.strftime('%d/%m/%Y') if drpa and drpa > datetime.now().date() else ''
+                moule_ei = MoulesEI.get(row["moule"]) if type_rapport!='Achat' else False
                 res[key] = {
                     "key"        : key,
                     "Code"       : Code,
+                    "moule_ei"        : row["moule"] if moule_ei else '',
+                    "moule_ei_couleur": moule_ei[0] if moule_ei else '',
+                    "moule_ei_titre"  : moule_ei[1] if moule_ei else '',
                     "product_id" : product_id,
                     "product_tmpl_id": product_tmpl.id,
                     "code_pg"    : row["code_pg"],
@@ -1240,6 +1254,53 @@ class product_product(models.Model):
             TabSemaines.append(d)
             date = date + timedelta(days=7)
         return TabSemaines
+
+
+    def _get_moules_acceptation_ei(self, moules):
+        """Moules dont l'Acceptation EI n'est pas OK, lue dans odoo16-0 (CDC 2161).
+        Même règle que le suivi des projets (_compute_color de is.doc.moule), calculée dans la requête
+        car le champ color n'est plus recalculé pour les moules dont le BE est terminé (même règle que le planning) :
+        - red    : à faire avec date de fin Gantt dépassée, ou dérogé avec dérogation terminée et date de fin Gantt dépassée
+        - orange : dérogé (dérogation en cours ou date de fin Gantt non dépassée)
+        Retourne {moule: (couleur, texte de l'info-bulle)}"""
+        if not moules:
+            return {}
+        company = self.env.user.company_id
+        base0 = "pg-odoo16-0" if company.is_postgres_host=='localhost' else "odoo16-0"
+        try:
+            cnx0 = psycopg2.connect(dbname=base0, user=company.is_postgres_user, host=company.is_postgres_host, password=company.is_postgres_pwd)
+        except Exception as e:
+            _logger.warning("Analyse CBN : connexion à %s impossible, acceptation EI non affichée (%s)"%(base0, e))
+            return {}
+        res = {}
+        fmt = lambda d: d.strftime('%d/%m/%Y') if d else '?'
+        try:
+            with cnx0.cursor() as cr0:
+                cr0.execute("""
+                    select
+                        im.name,
+                        case when (idm.etat='AF' and idm.date_fin_gantt<current_date)
+                               or (idm.etat='D'  and idm.date_fin_gantt<current_date and (idm.fin_derogation is null or idm.fin_derogation<current_date))
+                             then 'red' else 'orange' end as couleur,
+                        idm.etat, idm.date_fin_gantt, idm.fin_derogation
+                    from is_doc_moule idm join is_mold im on idm.idmoule=im.id
+                    where idm.active and idm.param_project_id=43 and im.name in %s
+                        and ((idm.etat='AF' and idm.date_fin_gantt<current_date) or idm.etat='D')
+                    order by couleur desc
+                """, (tuple(moules),))
+                for moule, couleur, etat, date_fin_gantt, fin_derogation in cr0.fetchall():
+                    if moule in res:
+                        continue # Rouge prioritaire (tri)
+                    if etat=='AF':
+                        txt = "Acceptation EI à faire, date de fin prévue dépassée (%s)"%fmt(date_fin_gantt)
+                    elif couleur=='orange':
+                        txt = "Acceptation EI dérogée jusqu'au %s (date de fin prévue %s)"%(fmt(fin_derogation), fmt(date_fin_gantt))
+                    else:
+                        txt = "Acceptation EI dérogée, dérogation terminée le %s (date de fin prévue %s)"%(fmt(fin_derogation), fmt(date_fin_gantt))
+                    res[moule] = (couleur, txt)
+        finally:
+            cnx0.close()
+        return res
 
 
     def _get_Stocks(self,control_quality='f', transit=None):

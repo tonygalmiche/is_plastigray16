@@ -146,7 +146,13 @@
                                         style="text-align:left" 
                                         t-att-rowspan="line.rowspan"
                                     >
-                                        <span 
+                                        <!-- Moule à part en rouge ou orange si l'Acceptation EI n'est pas OK (CDC 2161) -->
+                                        <span t-if="line.moule_ei"
+                                            t-esc="line.moule_ei"
+                                            t-att-title="line.moule_ei_titre"
+                                            t-attf-style="background-color:{{line.moule_ei_couleur}};color:white;font-weight:bold;padding:1px 3px;border-radius:2px"
+                                        />
+                                        <span
                                             t-esc="line.Code"
                                             t-att-product_tmpl_id="line.product_tmpl_id"
                                             t-on-click="ProductClick" 
