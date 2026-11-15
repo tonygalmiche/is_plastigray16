@@ -201,6 +201,9 @@ class is_pdc(models.Model):
 
 
     def action_recalculer(self):
+        # Écrit en base les lignes créées par l'import (temps_h et resource_type calculés) avant les requêtes SQL,
+        # sinon le recalcul lancé à la fin de l'import ne les trouve pas et garde les anciennes valeurs
+        self.env.flush_all()
         cr      = self._cr
         for obj in self:
             obj.mod_ids.unlink()
