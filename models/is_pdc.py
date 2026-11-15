@@ -161,6 +161,9 @@ class is_pdc(models.Model):
                         else:
                             res[key]['quantite'] = res[key]['quantite']+qt_reste
                             res[key]['temps_h']  = res[key]['temps_h']+temps_h
+                            # Temps unitaire moyen pondéré (le temps en heures est recalculé à partir de temps_u x quantite)
+                            if res[key]['quantite']:
+                                res[key]['temps_u'] = res[key]['temps_h']*3600/res[key]['quantite']
             #*******************************************************************
 
             pdc_mold_obj = self.env['is.pdc.mold']
