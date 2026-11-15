@@ -7,13 +7,16 @@
             <field name="arch" type="xml">
                 <form string="Dupliquer sur un autre article">
                     <div style="background:Gainsboro;padding:8px;margin-bottom:12px">
-                        <div>Une nouvelle SA est créée sur le nouvel article pour chaque SA sélectionnée, avec la même quantité et la même date de réception.</div>
+                        <div attrs="{'invisible': [('type', '!=', 'fs')]}">Une nouvelle FS est créée sur le nouvel article pour chaque FS sélectionnée, avec la même quantité et la même date de fin.</div>
+                        <div attrs="{'invisible': [('type', '!=', 'fs')]}">Les FT sont recréées avec la nomenclature du nouvel article.</div>
+                        <div attrs="{'invisible': [('type', '!=', 'sa')]}">Une nouvelle SA est créée sur le nouvel article pour chaque SA sélectionnée, avec la même quantité et la même date de réception.</div>
                         <div>La quantité est arrondie au lot du nouvel article et la date de début recalculée avec ses délais.</div>
-                        <div>Si le fournisseur change, la date de réception peut être décalée sur un jour disponible de son calendrier.</div>
-                        <div>Les SA d'origine sont gardées : à supprimer ensuite si besoin.</div>
+                        <div attrs="{'invisible': [('type', '!=', 'sa')]}">Si le fournisseur change, la date de réception peut être décalée sur un jour disponible de son calendrier.</div>
+                        <div>Les lignes d'origine sont gardées : à supprimer ensuite si besoin.</div>
                     </div>
                     <group>
                         <field name="prevision_ids" invisible="1" force_save="1"/>
+                        <field name="type" force_save="1"/>
                         <field name="nb_previsions"/>
                         <field name="product_src_id" force_save="1" options="{'no_open': True}"/>
                         <field name="segment_id" options="{'no_open': True}"/>
