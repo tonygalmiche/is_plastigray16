@@ -117,8 +117,8 @@
                 <table style="width:100%;overflow-y:auto">
                     <thead>
                         <tr>
-                            <th style="text-align:left">
-                                Sécu / Délai / Lot / Multi / <span style="color:green;font-weight:bold;">Stock A</span> / <span style="color:orange;font-weight: bold;">Q</span>
+                            <th style="text-align:left" title="Sécu : stock de sécurité&#10;Délai : délai de fabrication ou fournisseur (jours)&#10;Lot : lot minimum&#10;Multi : multiple de lot&#10;Stock A : emplacements internes sans contrôle qualité, hors transit 03&#10;03 : stock en transit (réceptions inter-sites), compté comme du stock A&#10;Q : emplacements en contrôle qualité (Q2, Q3...), non compté dans le stock disponible&#10;&#10;Ligne Stock de la 1re semaine = Stock A + 03 - Sécu + besoins / ressources&#10;(avec valorisation : Stock A + 03 + Q)">
+                                Sécu / Délai / Lot / Multi / <span style="color:green;font-weight:bold;">Stock A</span> / <span style="color:teal;font-weight:bold;">03</span> / <span style="color:orange;font-weight: bold;">Q</span>
                             </th>
                             <th>Type</th>
                             <t t-foreach="state.date_cols or []" t-as="col" t-key="col.key">
@@ -182,12 +182,13 @@
                                             style="margin-left:0.5em"
                                         />
                                         <br />
-                                        <span t-esc="line.StockSecu"/> / 
-                                        <span t-esc="line.Delai"/> / 
-                                        <span t-esc="line.lot_mini"/> / 
-                                        <span t-esc="line.multiple"/> / 
-                                        <span t-esc="line.StockA" style="color:green;font-weight: bold;"/> / 
-                                        <span t-esc="line.StockQ" style="color:orange;font-weight: bold;"/>
+                                        <span t-esc="line.StockSecu" title="Stock de sécurité"/> /
+                                        <span t-esc="line.Delai" title="Délai de fabrication ou fournisseur (jours)"/> /
+                                        <span t-esc="line.lot_mini" title="Lot minimum"/> /
+                                        <span t-esc="line.multiple" title="Multiple de lot"/> /
+                                        <span t-esc="line.StockA" style="color:green;font-weight: bold;" title="Stock A : emplacements internes sans contrôle qualité, hors transit 03"/> /
+                                        <span t-esc="line.Stock03" style="color:teal;font-weight: bold;" title="Stock en transit 03 (réceptions inter-sites), compté comme du stock A"/> /
+                                        <span t-esc="line.StockQ" style="color:orange;font-weight: bold;" title="Stock Q : emplacements en contrôle qualité (Q2, Q3...), non compté dans le stock disponible"/>
                                      </td>
                                     <td>
                                         <span t-esc="t.name_typeod"/>

@@ -290,8 +290,12 @@ class product_product(models.Model):
         #TabSemaines = self._get_TabSemaines(semaines)   # Tableau des semaines
 
         debut2=datetime.now()
-        StocksA     = self._get_Stocks('f')              # StocksA (control_quality=f)
+        StocksA     = self._get_Stocks('f', transit=False) # StocksA (control_quality=f, hors transit 03)
         _logger.info("StocksA (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
+
+        debut2=datetime.now()
+        Stocks03    = self._get_Stocks('f', transit=True)  # Stocks03 (transit, compté comme du stock A)
+        _logger.info("Stocks03 (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
 
         debut2=datetime.now()
         StocksQ     = self._get_Stocks('t')              # StocksQ (control_quality=t)
@@ -370,7 +374,8 @@ class product_product(models.Model):
                     "Delai"      : Delai,
                     "groupage_cbn": groupage_cbn,
                     "StockA"     : int(StocksA.get(product_id,0) or 0),
-                    "StockQ"     : int(StocksQ.get(product_id,0) or 0),
+                    "Stock03"    : int(Stocks03.get(product_id,0) or 0),
+                    "StockQ"    : int(StocksQ.get(product_id,0) or 0),
                     "date_retour_prise_avance": date_retour_pa,
                     "typeod"     : {},
                 }
@@ -517,7 +522,7 @@ class product_product(models.Model):
 
                 if valorisation=="Oui":
                     if t=="90-Stock":
-                        if res[p]['StockA'] or res[p]['StockQ']:
+                        if res[p]['StockA'] or res[p]['Stock03'] or res[p]['StockQ']:
                             test=True
             res[p]['test']=test #Permet de détecter si l'article a du stok ou des besoins
         _logger.info("Calcul du total des besoins par date (durée=%.2fs)"%(datetime.now()-debut2).total_seconds())
@@ -531,9 +536,9 @@ class product_product(models.Model):
             for c in TabSemaines:
                 if ct==0:
                     if valorisation=="Oui":
-                        cumul = res[p]["StockA"]+res[p]["StockQ"]
+                        cumul = res[p]["StockA"]+res[p]["Stock03"]+res[p]["StockQ"]
                     else:
-                        cumul = res[p]["StockA"]-res[p]["StockSecu"]
+                        cumul = res[p]["StockA"]+res[p]["Stock03"]-res[p]["StockSecu"]
                 cumul+=totaux[p][c]
                 val = cumul*res[p]["cout"]
                 if val<0:
@@ -1234,16 +1239,23 @@ class product_product(models.Model):
         return TabSemaines
 
 
-    def _get_Stocks(self,control_quality='f'):
+    def _get_Stocks(self,control_quality='f', transit=None):
+        "transit : True = emplacement 03 (transit) seul, False = hors 03, None = tous"
         cr = self._cr
+        filtre_transit = ""
+        if transit is True:
+            filtre_transit = " and sl.name='03' "
+        if transit is False:
+            filtre_transit = " and sl.name!='03' "
         SQL="""
             select sq.product_id, sum(sq.quantity) as qt
-            from stock_quant sq inner join stock_location sl on sq.location_id=sl.id 
-            where 
-                sl.usage='internal' and 
-                sl.active='t' and 
-                sl.control_quality='"""+control_quality+"""' 
-            group by sq.product_id 
+            from stock_quant sq inner join stock_location sl on sq.location_id=sl.id
+            where
+                sl.usage='internal' and
+                sl.active='t' and
+                sl.control_quality='"""+control_quality+"""'
+                """+filtre_transit+"""
+            group by sq.product_id
             order by sq.product_id
         """
         cr.execute(SQL)
