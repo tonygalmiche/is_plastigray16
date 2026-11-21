@@ -514,12 +514,19 @@ class is_galia_base_uc(models.Model):
                     continue
             productions = self.env['mrp.production'].search([('name','=',obj.production)], limit=1)
             if not productions and obj.product_id.is_fournisseur_id:
-                #** Article acheté : recherche par le lot fournisseur, en priorité le lot ayant du stock dans l'emplacement de l'UC, sinon le plus récent
+                #** Article acheté : recherche par le lot fournisseur. Plusieurs lots (commande ou OF reçu en plusieurs fois) :
+                # lot ayant du stock dans l'emplacement de l'UC, sinon dans un emplacement interne, sinon pas de lot (à choisir)
                 lots = self.env['stock.lot'].search([('is_lot_fournisseur','=',obj.production),('product_id','=',obj.product_id.id)], order='id desc')
-                if len(lots)>1 and obj.location_id:
-                    quants = self.env['stock.quant'].search([('lot_id','in',lots.ids),('location_id','=',obj.location_id.id),('quantity','>',0)])
-                    if quants:
-                        lots = quants.lot_id.sorted('id', reverse=True)
+                if len(lots)>1:
+                    Quant = self.env['stock.quant'].sudo()
+                    quants = obj.location_id and Quant.search([('lot_id','in',lots.ids),('location_id','=',obj.location_id.id),('quantity','>',0)])
+                    if not quants:
+                        quants = Quant.search([('lot_id','in',lots.ids),('location_id.usage','=','internal'),('quantity','>',0)])
+                    if not quants:
+                        obj.message_post(body="Lot non trouvé : %s lots pour la Fabrication %s (%s), aucun en stock"%(
+                            len(lots), obj.production, ", ".join(lots.mapped('name'))))
+                        continue
+                    lots = quants.lot_id.sorted('id', reverse=True)
                 lots = lots[:1]
             else:
                 lots = self.env['stock.lot'].search([('name','=',obj.production),('product_id','=',obj.product_id.id)], limit=1)
