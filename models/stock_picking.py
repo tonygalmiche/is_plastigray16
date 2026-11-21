@@ -799,8 +799,10 @@ class stock_picking(models.Model):
             for move in obj.move_ids_without_package:
                 poids_brut += move.product_uom_qty * move.product_id.weight                                        
                 poids_net  += move.product_uom_qty * move.product_id.weight_net                                        
-            obj.is_poids_brut = poids_brut
-            obj.is_poids_net  = poids_net
+            # Arrondi à la précision des champs (digits=(12, 1)) : sinon 44.400000000000006
+            # diffère de 44.4 en base et le suivi crée un message à chaque recalcul
+            obj.is_poids_brut = round(poids_brut, 1)
+            obj.is_poids_net  = round(poids_net, 1)
 
 
     def mise_a_jour_colisage_action(self):
