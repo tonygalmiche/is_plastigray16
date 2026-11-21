@@ -79,7 +79,8 @@ class is_galia_base_uc(models.Model):
                 raise ValidationError("Emplacement ATELIER non trouvé")
             product = obj.product_id
             qty     = obj.qt_pieces
-            lots = self.env['stock.lot'].search([('product_id','=',product.id),('name','=',obj.production)], limit=1)
+            # Lot de l'UC, sinon retrouvé d'après la Fabrication (lot fournisseur pour un article acheté)
+            lots = obj.lot_id or obj._trouver_lot()[0]
             if not lots:
                 raise ValidationError("Lot %s non trouvé pour l'article %s"%(obj.production,product.is_code))
             quants = self.env['stock.quant'].search([
@@ -89,7 +90,7 @@ class is_galia_base_uc(models.Model):
             ])
             stock = sum(quants.mapped('quantity'))
             if stock<qty:
-                raise ValidationError("Réintégration impossible car stock insuffisant en CI pour le lot %s : Stock=%s < Qt UC=%s"%(obj.production,stock,qty))
+                raise ValidationError("Réintégration impossible car stock insuffisant en CI pour le lot %s : Stock=%s < Qt UC=%s"%(lots.name,stock,qty))
             name="UC %s"%obj.num_eti
             vals={
                 "product_id": product.id,
@@ -119,7 +120,7 @@ class is_galia_base_uc(models.Model):
             }
             self.env['stock.move.line'].create(vals)
             move._action_done()
-            msg=Markup('Réintégration de CI en production : %s pièces du lot %s déplacées vers ATELIER (mouvement <a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>)')%(qty,obj.production,move.id,move.id)
+            msg=Markup('Réintégration de CI en production : %s pièces du lot %s déplacées vers ATELIER (mouvement <a href="#" data-oe-model="stock.move" data-oe-id="%s">%s</a>)')%(qty,lots.name,move.id,move.id)
             obj.message_post(body=msg)
             um.message_post(body=msg)
             obj.active = False
@@ -395,13 +396,11 @@ class is_galia_base_uc(models.Model):
 
 
     def get_lots(self):
-        "Lots et quantités de l'UC : tableau des lots (CI), sinon champ Lot, sinon lot portant le nom de la Fabrication"
+        "Lots et quantités de l'UC : tableau des lots (CI), sinon champ Lot, sinon lot retrouvé d'après la Fabrication (sans écriture)"
         self.ensure_one()
         if self.lot_ids:
             return [(line.lot_id, line.qt_pieces) for line in self.lot_ids]
-        lot = self.lot_id
-        if not lot and self.production:
-            lot = self.env['stock.lot'].search([('product_id','=',self.product_id.id),('name','=',self.production)], limit=1)
+        lot = self.lot_id or self._trouver_lot()[0]
         return [(lot, self.qt_pieces)]
 
 
@@ -496,6 +495,39 @@ class is_galia_base_uc(models.Model):
         self._recompute_doublon_num_eti(self.mapped('num_eti'))
 
 
+    def _trouver_lot(self):
+        """Lot de l'UC d'après sa Fabrication, sans écriture (utilisé par « Retrouver le lot », get_lots et la réintégration de CI).
+        Retourne (lot, message) : message si le lot ne peut pas être choisi"""
+        self.ensure_one()
+        Lot = self.env['stock.lot']
+        if not self.production:
+            return Lot, False
+        #** UC reçue (réception inter-site) : lot de sa ligne de réception validée, s'il est unique.
+        # Plus fiable que la recherche par lot fournisseur : une même Fabrication peut avoir plusieurs lots
+        # (une réception par ligne du BL), et toutes les UC iraient alors sur le même lot
+        move = self.stock_move_rcp_id
+        if move.state=='done':
+            lots = move.move_line_ids.filtered(lambda l: l.product_id==self.product_id).lot_id
+            if len(lots)==1:
+                return lots, False
+        productions = self.env['mrp.production'].search([('name','=',self.production)], limit=1)
+        if productions or not self.product_id.is_fournisseur_id:
+            return Lot.search([('name','=',self.production),('product_id','=',self.product_id.id)], limit=1), False
+        #** Article acheté : recherche par le lot fournisseur. Plusieurs lots (commande ou OF reçu en plusieurs fois) :
+        # lot ayant du stock dans l'emplacement de l'UC, sinon dans un emplacement interne, sinon pas de lot (à choisir)
+        lots = Lot.search([('is_lot_fournisseur','=',self.production),('product_id','=',self.product_id.id)], order='id desc')
+        if len(lots)>1:
+            Quant = self.env['stock.quant'].sudo()
+            quants = self.location_id and Quant.search([('lot_id','in',lots.ids),('location_id','=',self.location_id.id),('quantity','>',0)])
+            if not quants:
+                quants = Quant.search([('lot_id','in',lots.ids),('location_id.usage','=','internal'),('quantity','>',0)])
+            if not quants:
+                return Lot, "Lot non trouvé : %s lots pour la Fabrication %s (%s), aucun en stock"%(
+                    len(lots), self.production, ", ".join(lots.mapped('name')))
+            lots = quants.lot_id.sorted('id', reverse=True)
+        return lots[:1], False
+
+
     def retrouver_lot_action(self):
         "Retrouve le lot à partir du champ Fabrication"
         nb = len(self)
@@ -503,35 +535,11 @@ class is_galia_base_uc(models.Model):
             _logger.info("retrouver_lot_action : %s/%s - UC N°%s"%(ct, nb, obj.num_eti))
             if not obj.production or obj.lot_id or obj.lot_ids:
                 continue
-            #** UC reçue (réception inter-site) : lot de sa ligne de réception validée, s'il est unique.
-            # Plus fiable que la recherche par lot fournisseur : une même Fabrication peut avoir plusieurs lots
-            # (une réception par ligne du BL), et toutes les UC iraient alors sur le même lot
-            move = obj.stock_move_rcp_id
-            if move.state=='done':
-                lots = move.move_line_ids.filtered(lambda l: l.product_id==obj.product_id).lot_id
-                if len(lots)==1:
-                    obj.lot_id = lots.id
-                    continue
-            productions = self.env['mrp.production'].search([('name','=',obj.production)], limit=1)
-            if not productions and obj.product_id.is_fournisseur_id:
-                #** Article acheté : recherche par le lot fournisseur. Plusieurs lots (commande ou OF reçu en plusieurs fois) :
-                # lot ayant du stock dans l'emplacement de l'UC, sinon dans un emplacement interne, sinon pas de lot (à choisir)
-                lots = self.env['stock.lot'].search([('is_lot_fournisseur','=',obj.production),('product_id','=',obj.product_id.id)], order='id desc')
-                if len(lots)>1:
-                    Quant = self.env['stock.quant'].sudo()
-                    quants = obj.location_id and Quant.search([('lot_id','in',lots.ids),('location_id','=',obj.location_id.id),('quantity','>',0)])
-                    if not quants:
-                        quants = Quant.search([('lot_id','in',lots.ids),('location_id.usage','=','internal'),('quantity','>',0)])
-                    if not quants:
-                        obj.message_post(body="Lot non trouvé : %s lots pour la Fabrication %s (%s), aucun en stock"%(
-                            len(lots), obj.production, ", ".join(lots.mapped('name'))))
-                        continue
-                    lots = quants.lot_id.sorted('id', reverse=True)
-                lots = lots[:1]
-            else:
-                lots = self.env['stock.lot'].search([('name','=',obj.production),('product_id','=',obj.product_id.id)], limit=1)
-            if lots:
-                obj.lot_id = lots.id
+            lot, message = obj._trouver_lot()
+            if lot:
+                obj.lot_id = lot.id
+            elif message:
+                obj.message_post(body=message)
 
 
     def etiquette_remplacee_action(self):
