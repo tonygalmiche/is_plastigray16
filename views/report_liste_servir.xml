@@ -43,6 +43,15 @@
                         <b><span t-field="o.transporteur_id.name"/></b> (<span t-field="o.transporteur_id.is_code"/>)<br />
                         Téléphone : <span t-field="o.transporteur_id.phone" /><br />
                         Point de déchargement : <b><span t-field="o.is_point_dechargement"/></b><br />
+                        <t t-if="o.commande_client">
+                            Commande client : <b><span t-field="o.commande_client"/></b><br />
+                        </t>
+                        <t t-if="o.commande_odoo_id">
+                            Commande Odoo : <b><span t-field="o.commande_odoo_id.name"/></b><br />
+                        </t>
+                        <t t-if="o.product_id">
+                            Référence client : <b><span t-field="o.product_id.is_code"/></b><br />
+                        </t>
                     </div>
                 </div>
             </div><br />

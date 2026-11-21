@@ -52,7 +52,7 @@
             <field name="model">is.liste.servir</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Form">  
+                <form string="Form" create="false">
                     <style>
                         .o_form_label{
                             white-space: nowrap;
@@ -62,7 +62,6 @@
                         }
                     </style>
                     <header>
-                        <button name="action_importer_commandes" type="object" string="Importer les commandes" class="oe_highlight" states="creation" />
                         <button 
                             name="action_generer_bl"         type="object" 
                             string="Générer la commande de livraison" 
@@ -106,6 +105,10 @@
                                 <field name="commentaire" attrs="{'readonly':[('state','!=','creation')]}"/> 
                                 <field name="mixer"         widget="boolean_toggle"/>
                                 <field name="saut_page_aqp" widget="boolean_toggle"/>
+                                <field name="decoupage_bl"/>
+                                <field name="commande_client"       attrs="{'invisible':[('commande_client','=',False)]}"/>
+                                <field name="commande_odoo_id"      attrs="{'invisible':[('commande_odoo_id','=',False)]}"/>
+                                <field name="product_id"            attrs="{'invisible':[('product_id','=',False)]}"/>
                                 <field name="is_point_dechargement" attrs="{'readonly':[('state','!=','creation')]}"/>
                                 <field name="is_livree_aqp" attrs="{'readonly':[('state','!=','creation')]}"/>
                             </group>
@@ -130,7 +133,7 @@
                             />
                         </div>
                         <field name="line_ids" nolabel="1">
-                            <tree editable="bottom"  create="true"  decoration-danger="livrable == False" limit="2000">
+                            <tree editable="bottom"  create="false"  decoration-danger="livrable == False" limit="2000">
                                 <field name="sequence"       invisible="1"/>
                                 <field name="is_certificat_conformite_vsb" invisible="1"/>
                                 <button 
@@ -145,7 +148,7 @@
                                     type="object" icon="fa-exclamation" 
                                     attrs="{'invisible':[('is_certificat_conformite_vsb','!=',2)]}"  
                                 />
-                                <field name="product_id" widget="many2one_clickable"/>
+                                <field name="product_id" widget="many2one_clickable" readonly="1"/>
                                 <field name="mold_dossierf" optional="show"/>
                                 <field name="livrable"       invisible="1"/>
                                 <field name="date_livraison" optional="show"/>
@@ -170,7 +173,7 @@
 
                                 <field name="mixer" widget="boolean_toggle"/>
                                 <field name="client_order_ref"  optional="show" readonly="1" />
-                                <field name="point_dechargement"  optional="show" />
+                                <field name="point_dechargement"  optional="show" readonly="1"/>
 
                                 <field name="is_date_heure_livraison_au_plus_tot" optional="hide"/>
                                 <field name="is_numero_document"                  optional="hide"/>
@@ -237,15 +240,19 @@
             <field name="model">is.liste.servir</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree>
-                    <field name="name" /> 
-                    <field name="partner_id" widget="many2one_clickable"/> 
-                    <field name="date_debut"/> 
-                    <field name="date_fin"/> 
-                    <field name="livrable"/> 
-                    <field name="is_source_location_id" optional="show"/> 
-                    <field name="is_point_dechargement" optional="hide"/> 
-                    <field name="is_livree_aqp" optional="hide"/> 
+                <tree create="false">
+                    <field name="name" />
+                    <field name="partner_id" widget="many2one_clickable"/>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                    <field name="livrable"/>
+                    <field name="is_source_location_id" optional="show"/>
+                    <field name="decoupage_bl"          optional="hide"/>
+                    <field name="commande_client"       optional="show"/>
+                    <field name="commande_odoo_id"      optional="hide"/>
+                    <field name="product_id"            optional="hide"/>
+                    <field name="is_point_dechargement" optional="show"/>
+                    <field name="is_livree_aqp"         optional="show"/>
                     <field name="state" widget="badge" 
                         decoration-success="state == 'traite'" 
                         decoration-info="state == 'creation'" 
@@ -269,6 +276,10 @@
                     <filter string="En cours" name="en_cours" domain="[('state','!=','traite')]"/>
                     <separator/>
                     <filter string="Archivé" name="inactive" domain="[('active','=',False)]"/>
+                    <group expand="0" string="Regrouper par">
+                        <filter string="Client"           name="group_partner"   context="{'group_by':'partner_id'}"/>
+                        <filter string="Découpage des BL" name="group_decoupage" context="{'group_by':'decoupage_bl'}"/>
+                    </group>
                 </search>
             </field>
         </record>

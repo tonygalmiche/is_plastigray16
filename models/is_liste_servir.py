@@ -39,53 +39,6 @@ class is_liste_servir_client(models.Model):
             liste_servir_ids = liste_servir_obj.search([('partner_id','=',obj.name.id),('state','!=','traite')])
             obj.nb_liste_servir = len(liste_servir_ids)
 
-    def _get_sql(self, obj, aqp):
-        SQL="""
-            SELECT  sol.product_id,
-            """
-        if aqp:
-            SQL += """
-                    pt.is_livree_aqp,
-               """
-        SQL += """                    so.is_point_dechargement
-            FROM sale_order so INNER JOIN sale_order_line sol ON so.id=sol.order_id
-            """
-        if aqp:
-            SQL += """
-            INNER JOIN product_product pp ON pp.id=sol.product_id INNER JOIN product_template pt ON pp.product_tmpl_id=pt.id
-            """
-        SQL += """
-            WHERE so.partner_id=""" + str(obj.name.id) + """
-                  AND so.state='draft'
-                  AND sol.is_date_expedition<='"""+str(obj.date_fin)+"""'
-                  AND sol.product_id>0
-                  AND sol.is_type_commande='ferme'
-                  AND so.is_type_commande!='ls'
-        """
-        if obj.date_debut:
-            SQL=SQL+" and sol.is_date_expedition>='"+str(obj.date_debut)+"' "
-        return SQL
-
-    def points_dechargement_and_aqp(self, obj, aqp=False):
-        points_dechargement = []
-        SQL = self._get_sql(obj, aqp)
-        self._cr.execute(SQL)
-        result = self._cr.dictfetchall()
-        if aqp:
-            lst_aqp = []
-        for row in result:
-            point_dechargement = row['is_point_dechargement']
-            if point_dechargement not in points_dechargement:
-                points_dechargement.append(point_dechargement)
-            if aqp and row['is_livree_aqp'] not in lst_aqp:
-                lst_aqp.append(row['is_livree_aqp'])
-
-        if not points_dechargement:
-            points_dechargement.append(None)
-        if aqp:
-            return points_dechargement, lst_aqp
-        return points_dechargement
-
     def creer_liste_servir_action(self):
         for obj in self:
             liste_servir_obj = self.env['is.liste.servir']
@@ -103,30 +56,31 @@ class is_liste_servir_client(models.Model):
                 'date_fin'             : obj.date_fin,
                 'livrable'             : obj.livrable,
             }
+            #** Une liste à servir par BL, selon le découpage du client (demande 2172) **
+            # Les lignes de commandes sont regroupées par clé de découpage (commande client, commande Odoo,
+            # article, statut AQP, point de déchargement) : une liste à servir est créée pour chaque clé,
+            # pour que les UM scannées soient affectées au bon BL
             listes_servir = []
-            if not obj.name.is_caracteristique_liste_a_servir:
-                points_dechargement = [None]
-                lst_aqp = [None]
-            elif obj.name.is_caracteristique_liste_a_servir == 'status_aqp':
-                points_dechargement = [None]
-                lst_aqp = [True, False]
-            elif obj.name.is_caracteristique_liste_a_servir == 'point_de_chargement':
-                points_dechargement = self.points_dechargement_and_aqp(obj, False)
-                lst_aqp = [None]
-            elif obj.name.is_caracteristique_liste_a_servir == 'point_de_chargement_et_status_aqp':
-                points_dechargement, lst_aqp = self.points_dechargement_and_aqp(obj, True)
-            for aqp in lst_aqp:
-                for point_dechargement in points_dechargement:
+            liste_servir = liste_servir_obj.create(vals)
+            rows = liste_servir._get_lignes_commandes()
+            decoupage = obj.name.is_decoupage_bl
+            groupes = {}
+            for row in rows:
+                cle = liste_servir_obj._get_cle_decoupage(
+                    decoupage, row['is_client_order_ref'], row['order_id'], row['product_id'],
+                    row['is_point_dechargement'], row['is_livree_aqp'],
+                )
+                groupes.setdefault(cle, []).append(row)
+            for cle, rows_cle in groupes.items():
+                if not liste_servir:
                     liste_servir = liste_servir_obj.create(vals)
-                    liste_servir.action_importer_commandes(aqp, point_dechargement)
-                    if not liste_servir.line_ids:
-                        liste_servir.sudo().unlink()
-                    else:
-                        if point_dechargement:
-                            liste_servir.is_point_dechargement = point_dechargement
-                        if aqp is not None:
-                            liste_servir.is_livree_aqp = aqp
-                        listes_servir.append(liste_servir)
+                liste_servir._importer_lignes(rows_cle, decoupage)
+                if liste_servir.line_ids:
+                    listes_servir.append(liste_servir)
+                    liste_servir = False
+            if liste_servir:
+                liste_servir.sudo().unlink()
+            #**********************************************************************
 
             if not listes_servir:
                 criteres = "commandes fermes jusqu'au %s"%obj.date_fin.strftime('%d/%m/%Y') if obj.date_fin else "commandes fermes"
@@ -250,6 +204,10 @@ class is_liste_servir(models.Model):
     saut_page_aqp          = fields.Boolean('Saut de page AQP', default=False)
     is_point_dechargement  = fields.Char('Point de déchargement', tracking=True)
     is_livree_aqp          = fields.Boolean('Pièce livrée en AQP', tracking=True)
+    decoupage_bl           = fields.Selection(selection='_get_decoupage_bl_selection', string='Découpage des BL', readonly=True, help="Découpage du client utilisé à la création de la liste à servir")
+    commande_client        = fields.Char('Commande client', readonly=True, tracking=True, help="Clé de découpage de la liste à servir (1 BL par commande client)")
+    commande_odoo_id       = fields.Many2one('sale.order', 'Commande Odoo', readonly=True, tracking=True, help="Clé de découpage de la liste à servir (1 BL par commande Odoo)")
+    product_id             = fields.Many2one('product.product', 'Référence client', readonly=True, tracking=True, help="Clé de découpage de la liste à servir (1 BL par référence client)")
     alerte_obligatoire     = fields.Text("Champs obligatoires", compute='_compute_alerte_obligatoire', store=False, readonly=True)
     nb_uc_ids              = fields.Integer(u"Nb UCs", compute='_compute_nb_uc_um_ids', store=False, readonly=True)
     nb_um_ids              = fields.Integer(u"Nb UMs", compute='_compute_nb_uc_um_ids', store=False, readonly=True)
@@ -432,6 +390,23 @@ class is_liste_servir(models.Model):
         return res
 
 
+    def write(self, vals):
+        #** Archivage d'une liste à servir non traitée : détacher ses UM ********
+        # Par sécurité (demande 2172) : une UM rattachée à une liste à servir ne peut pas être scannée sur une
+        # autre. Jamais une fois le BL généré (état Traité) : les UM restent sur le BL
+        if vals.get('active') is False:
+            for obj in self:
+                if obj.active and obj.state!='traite':
+                    ums = self.env['is.galia.base.um'].sudo().with_context(active_test=False).search([
+                        ('liste_servir_id','=',obj.id),
+                    ])
+                    if ums:
+                        ums.write({'liste_servir_id': False})
+                        obj.message_post(body="UM détachées à l'archivage : %s"%', '.join(ums.mapped('name')))
+        #**********************************************************************
+        return super().write(vals)
+
+
     @api.onchange('line_ids','partner_id')
     def onchange_line_ids(self):
         self.uc_ids = False
@@ -499,7 +474,7 @@ class is_liste_servir(models.Model):
         self.um_ids=um_ids
 
 
-    def _get_sql(self,obj, aqp=None, point_dechargement=None):
+    def _get_sql(self,obj):
         SQL="""
             SELECT  sol.order_id,
                     sol.product_id,
@@ -516,12 +491,12 @@ class is_liste_servir(models.Model):
                     sol.is_num_ran,
                     sol.is_identifiant_transport,
                     sol.is_code_routage,
-                    sol.is_point_destination
+                    sol.is_point_destination,
+                    so.is_point_dechargement,
+                    pt.is_livree_aqp
             FROM sale_order so INNER JOIN sale_order_line sol ON so.id=sol.order_id
-            """
-        if aqp is not None:
-            SQL+="INNER JOIN product_product pp ON pp.id=sol.product_id INNER JOIN product_template pt ON pp.product_tmpl_id=pt.id "
-        SQL+="""
+                               INNER JOIN product_product pp ON pp.id=sol.product_id
+                               INNER JOIN product_template pt ON pp.product_tmpl_id=pt.id
             WHERE so.partner_id="""+str(obj.partner_id.id)+"""
                   AND so.state='draft'
                   AND sol.is_date_expedition<='"""+str(obj.date_fin)+"""'
@@ -529,13 +504,9 @@ class is_liste_servir(models.Model):
                   AND sol.is_type_commande='ferme'
                   AND so.is_type_commande!='ls'
         """
-        if aqp is not None:
-            SQL+="and pt.is_livree_aqp=" + str(aqp).upper() + " "
-        if point_dechargement is not None:
-            SQL+="and so.is_point_dechargement='" + point_dechargement + "' "
         if obj.date_debut:
             SQL=SQL+" and sol.is_date_expedition>='"+str(obj.date_debut)+"' "
-        if obj.partner_id.is_caracteristique_bl=='cde_client':
+        if obj.partner_id.is_decoupage_bl in ('cde_client', 'statut_aqp_cde_client', 'point_dechargement_cde_client'):
             OrderBy="sol.is_client_order_ref"
         else:
             OrderBy="sol.product_id"
@@ -543,9 +514,53 @@ class is_liste_servir(models.Model):
         return SQL
 
 
-    def action_importer_commandes(self, aqp=None, point_dechargement=None):
+    @api.model
+    def _get_decoupage_bl_selection(self):
+        return self.env['res.partner']._fields['is_decoupage_bl'].selection
+
+
+    def _get_lignes_commandes(self):
+        """Lignes des commandes du client à livrer (date de fin et date de début de la liste à servir)"""
+        self.ensure_one()
+        self._cr.execute(self._get_sql(self))
+        return self._cr.dictfetchall()
+
+
+    @api.model
+    def _get_cle_decoupage(self, decoupage, commande_client, order_id, product_id, point_dechargement, livree_aqp):
+        """Clé de découpage d'une ligne : les lignes de même clé vont sur la même liste à servir, donc sur le même BL
+        (demande 2172). Champ vide (client créé hors du formulaire) : 1 BL par client à livrer"""
+        cle = {}
+        if decoupage in ('cde_client', 'statut_aqp_cde_client', 'point_dechargement_cde_client'):
+            cle['commande_client'] = commande_client or False
+        if decoupage=='cde_odoo':
+            cle['commande_odoo_id'] = order_id or False
+        if decoupage=='ref_client':
+            cle['product_id'] = product_id or False
+        if decoupage in ('statut_aqp', 'statut_aqp_cde_client', 'point_dechargement_statut_aqp'):
+            cle['is_livree_aqp'] = bool(livree_aqp)
+        if decoupage in ('point_dechargement', 'point_dechargement_statut_aqp', 'point_dechargement_cde_client'):
+            cle['is_point_dechargement'] = point_dechargement or False
+        return tuple(sorted(cle.items()))
+
+
+    def _importer_lignes(self, rows, decoupage):
+        """Création des lignes de la liste à servir à partir des lignes de commandes d'une même clé de découpage"""
         cr = self._cr
         for obj in self:
+            #** Clé de découpage de la liste à servir *************************
+            cle = {}
+            if rows:
+                row = rows[0]
+                cle = dict(self._get_cle_decoupage(
+                    decoupage, row['is_client_order_ref'], row['order_id'], row['product_id'],
+                    row['is_point_dechargement'], row['is_livree_aqp'],
+                ))
+            cle['decoupage_bl'] = decoupage or 'client_a_livrer'
+            obj.write(cle)
+            point_dechargement = cle.get('is_point_dechargement') or None
+            #*******************************************************************
+
             #** Connexion à Dynacase *******************************************
             if obj.partner_id.is_certificat_matiere:
                 uid=self._uid
@@ -563,12 +578,9 @@ class is_liste_servir(models.Model):
 
             for row in obj.line_ids:
                 row.unlink()
-            SQL=self._get_sql(obj, aqp, point_dechargement)
-            cr.execute(SQL)
-            result = cr.dictfetchall()
             line_obj = self.env['is.liste.servir.line']
             sequence=0
-            for row in result:
+            for row in rows:
                 sequence=sequence+1
                 product_id=row['product_id']
                 product=self.env['product.product'].browse(product_id)
@@ -673,6 +685,25 @@ class is_liste_servir(models.Model):
     def action_generer_bl(self):
         cr = self._cr
         for obj in self:
+            #** 1 liste à servir = 1 BL (demande 2172) ****************************
+            # Blocage si les lignes donneraient plusieurs BL avec le découpage actuel du client
+            # (ligne modifiée, découpage du client changé depuis la création de la liste à servir...)
+            decoupage = obj.partner_id.is_decoupage_bl
+            cles = set()
+            for line in obj.line_ids:
+                cles.add(self._get_cle_decoupage(
+                    decoupage, line.client_order_ref, line.order_id.id, line.product_id.id,
+                    line.point_dechargement or line.order_id.is_point_dechargement, line.product_id.is_livree_aqp,
+                ))
+            if len(cles)>1:
+                raise ValidationError(
+                    "Cette liste à servir donnerait %s BL avec le découpage du client (%s).\n"
+                    "Il faut l'archiver et la recréer depuis le menu 'Clients à livrer'."%(
+                        len(cles), dict(obj.partner_id._fields['is_decoupage_bl'].selection).get(decoupage, '1 BL par client à livrer'),
+                    )
+                )
+            #***********************************************************************
+
             #** Mettre à jour le stock sur les lignes ****************************
             obj.action_actualiser_stock()
             #***********************************************************************
@@ -725,28 +756,12 @@ class is_liste_servir(models.Model):
         ids = self._ids
         context = self._context
         order_obj = self.env['sale.order']
+        #** Une seule commande (un seul BL) par liste à servir (demande 2172) *****
+        # Le découpage en plusieurs BL est fait à la création des listes à servir (Clients à livrer)
         vals={}
         lines = []
-        mem=''
-        point_dechargement = False
+        point_dechargement = obj.is_point_dechargement or False
         for line in obj.line_ids:
-            key=''
-            if obj.partner_id.is_caracteristique_bl=='cde_odoo':
-                key=''
-            if obj.partner_id.is_caracteristique_bl=='cde_client':
-                key=str(line.client_order_ref)
-            if obj.partner_id.is_caracteristique_bl=='ref_article':
-                key=str(line.product_id.id)
-
-            key=key+(line.point_dechargement or '')
-
-            if mem!=key:
-                if vals:
-                    new_id = order_obj.create(vals)
-                    new_id.pg_onchange_partner_id()
-                    vals={}
-                    lines = []
-                mem=key
             quotation_line={
                 "product_id"         : line.product_id.id,
                 "sequence"           : 1,
@@ -772,8 +787,9 @@ class is_liste_servir(models.Model):
 
 
             }
-            point_dechargement = line.point_dechargement
-            lines.append([0,False,quotation_line]) 
+            if line.point_dechargement:
+                point_dechargement = line.point_dechargement
+            lines.append([0,False,quotation_line])
             values = {
                 'partner_id': obj.partner_id.id,
                 'is_source_location_id': obj.is_source_location_id.id,
@@ -793,13 +809,7 @@ class is_liste_servir(models.Model):
             new_id = order_obj.create(vals)
             new_id.pg_onchange_partner_id()
             new_id.is_transporteur_id=obj.transporteur_id.id
-            #if point_dechargement:
-            #    new_id.is_point_dechargement = line.point_dechargement
-
-
-
-
-
+        #***********************************************************************
 
         #** Supprimer les lignes des commandes d'origine ***********************
         SQL="""

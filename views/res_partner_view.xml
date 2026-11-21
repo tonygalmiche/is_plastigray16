@@ -280,8 +280,9 @@
                             <field name="is_cofor" attrs="{'invisible': [('customer', '!=', True)] }"/>
                             <field name="is_escompte" />
                             <field name="is_champ_obligatoire_id"            attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                            <field name="is_caracteristique_liste_a_servir"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
-                            <field name="is_caracteristique_bl"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
+                            <field name="is_decoupage_bl"                    attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)], 'required': [('is_company', '=', True),('customer','=', True)]}" />
+                            <field name="is_caracteristique_liste_a_servir"  attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" readonly="1"/>
+                            <field name="is_caracteristique_bl"              attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" readonly="1"/>
                             <field name="is_configuration_bl_id"             attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_envoi_bl_mail"                   attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
                             <field name="is_configuration_facture"           attrs="{'invisible': ['|',('is_company', '=', False),('customer','!=', True)]}" />
@@ -328,6 +329,9 @@
                 </field>
                 <field name="active" position="after">
                     <field name="is_envoi_bl_mail"           optional="hide"/>
+                    <field name="is_decoupage_bl"                   optional="hide"/>
+                    <field name="is_caracteristique_liste_a_servir" optional="hide"/>
+                    <field name="is_caracteristique_bl"             optional="hide"/>
                     <field name="is_mode_transport_id"       optional="hide"/>
                     <field name="property_product_pricelist" optional="hide"/>
                     <field name="pricelist_purchase_id"      optional="hide"/>

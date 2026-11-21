@@ -658,6 +658,18 @@ class res_partner(models.Model):
         ('cde_client' , '1 commande client = 1 BL'),
         ('ref_article', '1 référence client = 1 BL'),
     ], 'Caractéristique des BL', tracking=True)
+    # Remplace is_caracteristique_liste_a_servir et is_caracteristique_bl (demande 2172) : 1 liste à servir = 1 BL
+    is_decoupage_bl                       = fields.Selection([
+        ('client_a_livrer'              , '1 BL par client à livrer'),
+        ('cde_client'                   , '1 BL par commande client'),
+        ('cde_odoo'                     , '1 BL par commande Odoo'),
+        ('ref_client'                   , '1 BL par référence client'),
+        ('statut_aqp'                   , '1 BL par statut AQP'),
+        ('statut_aqp_cde_client'        , '1 BL par statut AQP et commande client'),
+        ('point_dechargement'           , '1 BL par point de déchargement'),
+        ('point_dechargement_statut_aqp', '1 BL par point de déchargement et statut AQP'),
+        ('point_dechargement_cde_client', '1 BL par point de déchargement et commande client'),
+    ], 'Découpage des BL', tracking=True, help="Une liste à servir est créée pour chaque BL, afin que les UM scannées soient affectées au bon BL")
     is_mode_envoi_facture   = fields.Selection([
         ('courrier'        , 'Envoi par courrier'),
         ('courrier2'       , 'Envoi par courrier en double exemplaire'),
@@ -843,6 +855,7 @@ class res_partner(models.Model):
             'is_num_autorisation_tva': self.is_num_autorisation_tva,
             'is_caracteristique_liste_a_servir'  : self.is_caracteristique_liste_a_servir,
             'is_caracteristique_bl'   : self.is_caracteristique_bl,
+            'is_decoupage_bl'         : self.is_decoupage_bl,
             'is_champ_obligatoire_id'   : self._get_is_champ_obligatoire_id(DB, USERID, USERPASS, sock),
             'is_configuration_bl_id'    : self._get_is_configuration_bl_id(DB, USERID, USERPASS, sock),
             'is_envoi_bl_mail'          : self.is_envoi_bl_mail,
