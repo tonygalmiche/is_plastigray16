@@ -212,12 +212,9 @@ class is_galia_base_uc(models.Model):
         # La date de création lue dans odoo0 (is_galia_base) peut contenir des microsecondes, refusées par Odoo
         if isinstance(vals.get('date_creation'), str):
             vals['date_creation'] = vals['date_creation'][:19]
-        # Lot de la Fabrication s'il existe déjà
-        if not vals.get('lot_id') and vals.get('production') and vals.get('product_id'):
-            lot = self.env['stock.lot'].search([('product_id','=',int(vals['product_id'])),('name','=',vals['production'])], limit=1)
-            if lot:
-                vals['lot_id'] = lot.id
         uc = model.create(vals)
+        # Lot de la Fabrication s'il existe déjà : OF (lot = Fabrication) ou article acheté (lot fournisseur = Fabrication)
+        uc.retrouver_lot_action()
         if employee:
             uc.message_post(body="UC créée sur la presse par l'employé %s"%employee.name)
         elif origine:
