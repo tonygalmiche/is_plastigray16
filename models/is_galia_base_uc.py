@@ -213,7 +213,22 @@ class is_galia_base_uc(models.Model):
         if isinstance(vals.get('date_creation'), str):
             vals['date_creation'] = vals['date_creation'][:19]
         uc = model.create(vals)
-        # Lot de la Fabrication s'il existe déjà : OF (lot = Fabrication) ou article acheté (lot fournisseur = Fabrication)
+        # UC recréée (ex : UM archivée puis « Créer et lire UC ») : lot de l'ancienne UC de même n° et même article,
+        # s'il a encore du stock (la Fabrication seule ne départage pas plusieurs lots d'une même commande ou d'un même OF)
+        if not uc.lot_id:
+            ancienne = self.env['is.galia.base.uc'].with_context(active_test=False).search([
+                ('id'        , '!=', uc.id),
+                ('num_eti'   , '=' , uc.num_eti),
+                ('product_id', '=' , uc.product_id.id),
+                ('lot_id'    , '!=', False),
+            ], order='id desc', limit=1)
+            if ancienne and self.env['stock.quant'].sudo().search_count([
+                ('lot_id'           , '=', ancienne.lot_id.id),
+                ('location_id.usage', '=', 'internal'),
+                ('quantity'         , '>', 0),
+            ]):
+                uc.lot_id = ancienne.lot_id.id
+        # Sinon, lot de la Fabrication s'il existe déjà : OF (lot = Fabrication) ou article acheté (lot fournisseur = Fabrication)
         uc.retrouver_lot_action()
         if employee:
             uc.message_post(body="UC créée sur la presse par l'employé %s"%employee.name)
