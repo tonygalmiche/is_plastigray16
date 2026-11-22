@@ -82,15 +82,16 @@
                         <field name="line_ids" nolabel="1" >
                             <tree editable="bottom">
                                     <field name="product_id" />
-                                    <field name="mold_id" />
-                                    <field name="ref_client" />
-                                    <field name="point_dechargement" />
+                                    <field name="mold_id"            optional="show"/>
+                                    <field name="ref_client"         optional="show"/>
+                                    <field name="point_dechargement" optional="show"/>
+                                    <field name="commande_client"    optional="show"/>
                                     <field name="quantite" />
-                                    <field name="uom_id" />
-                                    <field name="uc_id" />
-                                    <field name="nb_uc" />
-                                    <field name="um_id" />
-                                    <field name="nb_um" />
+                                    <field name="uom_id"             optional="show"/>
+                                    <field name="uc_id"              optional="show"/>
+                                    <field name="nb_uc"              optional="show"/>
+                                    <field name="um_id"              optional="show"/>
+                                    <field name="nb_um"              optional="show"/>
                             </tree>
                         </field>
                         <field name="galia_um_ids" nolabel="1" attrs="{'invisible': [('galia_um_ids', '=', [])]}">

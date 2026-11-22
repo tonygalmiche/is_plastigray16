@@ -274,8 +274,24 @@ class is_bon_transfert(models.Model):
         return res
 
 
+    def _verifier_commande_client(self):
+        "N° de commande client de la commande ouverte obligatoire pour chaque article (DESADV)"
+        for obj in self:
+            obj.line_ids._compute_commande_client()
+            erreurs = []
+            for line in obj.line_ids:
+                code = line.product_id.is_code
+                if not line.commande_client:
+                    erreurs.append("%s : pas de commande ouverte ou pas de n° de commande client"%code)
+                elif ',' in line.commande_client:
+                    erreurs.append("%s : plusieurs n° de commande client (%s)"%(code, line.commande_client))
+            if erreurs:
+                raise ValidationError("DESADV non envoyé :\n%s"%"\n".join(erreurs))
+
+
     def desadv_action(self):
-        for obj in self : 
+        self._verifier_commande_client()
+        for obj in self :
             # traitement_edi=[
             #     ('DESADV'         , 'DESADV (Fusion Gray et ST-Brice)'),
             #     ('DESADV_GRAY'    , 'DESADV Gray'),
@@ -390,21 +406,35 @@ class is_bon_transfert_line(models.Model):
                     obj.ref_client = row[5]
                     obj.uom_id     = row[6]
 
+    def _get_commandes_ouvertes(self):
+        "Commandes ouvertes du client du bon de transfert pour l'article de la ligne"
+        self.ensure_one()
+        if not self.product_id or not self.bon_transfert_id.partner_id:
+            return self.env['sale.order']
+        filtre = [
+            ('partner_id'            , '=', self.bon_transfert_id.partner_id.id),
+            ('is_article_commande_id', '=', self.product_id.id),
+            ('is_type_commande'      , '=', 'ouverte'),
+            ('state'                 , '=', 'draft'),
+        ]
+        return self.env['sale.order'].search(filtre)
+
+
     @api.depends('product_id','quantite')
     def _compute_point_dechargement(self):
         for obj in self:
             x = False
             if obj.bon_transfert_id.partner_id.is_traitement_edi:
-                filtre = [
-                    ('partner_id'            , '=', obj.bon_transfert_id.partner_id.id),
-                    ('is_article_commande_id', '=', obj.product_id.id),
-                    ('is_type_commande'      , '=', 'ouverte'),
-                    ('state'                 , '=', 'draft'),
-                ]
-                orders = self.env['sale.order'].search(filtre)
-                for order in orders:
+                for order in obj._get_commandes_ouvertes():
                     x = order.is_point_dechargement
             obj.point_dechargement = x
+
+
+    @api.depends('product_id','bon_transfert_id.partner_id')
+    def _compute_commande_client(self):
+        for obj in self:
+            refs = obj._get_commandes_ouvertes().mapped('client_order_ref')
+            obj.commande_client = ', '.join(sorted(set(r for r in refs if r))) or False
 
 
     bon_transfert_id   = fields.Many2one('is.bon.transfert', 'Bon de transfert', required=True, ondelete='cascade', readonly=True)
@@ -418,4 +448,5 @@ class is_bon_transfert_line(models.Model):
     um_id              = fields.Many2one('is.product.ul', 'UM'      , compute='_compute', readonly=True, store=True)
     nb_um              = fields.Float('Nb UM'                    , compute='_compute', readonly=True, store=True, digits=(14,1))
     point_dechargement = fields.Char(u'Point de déchargement', compute='_compute_point_dechargement', readonly=True, store=False)
+    commande_client    = fields.Char('N° commande client', compute='_compute_commande_client', readonly=True, store=True, help="N° de commande client de la commande ouverte de l'article (envoyé dans le DESADV)")
 
