@@ -180,7 +180,9 @@ class is_heures_theoriques(models.Model):
                         sum(move.qty) AS qty
                     FROM  pg_stock_move        move
                     JOIN  stock_picking_type   spt  ON move.picking_type_id = spt.id
+                    LEFT JOIN mrp_production   mp   ON move.production_id = mp.id
                     WHERE move.date >= %s AND move.date <= %s
+                      AND mp.is_retour_client IS NOT TRUE
             """
 
             if obj.of_name:

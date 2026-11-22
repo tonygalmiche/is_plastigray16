@@ -272,6 +272,7 @@ class MrpProduction(models.Model):
     is_mold_dossierf          = fields.Char("Moule", help='Moule ou Dossier F', related='product_id.is_mold_dossierf', readonly=True)
     is_num_essai              = fields.Char("N°Essai")
     is_prioritaire            = fields.Boolean("Prioritaire", help="Ordre de fabrication prioritaire")
+    is_retour_client          = fields.Boolean("Retour client", tracking=True, help="OF de reprise d'un retour client : exclu du calcul des heures théoriques (MOD)")
     move_lines_composants_consommes = fields.One2many('stock.move', 'raw_material_production_id', 'Composants consommés', domain=[('state', 'in', ['done'])]              , readonly=True)
     move_lines_produits_finis       = fields.One2many('stock.move', 'production_id', 'Produits finis', domain=[('state', 'in', ['done'])]                                 , readonly=True)
     is_bom_line_ids                 = fields.One2many('is.mrp.production.bom', 'production_id', "Composants à consommer", copy=False, states={'done': [('readonly', True)]})

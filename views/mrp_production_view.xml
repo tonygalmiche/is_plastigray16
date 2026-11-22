@@ -157,6 +157,7 @@
                     <field name="lot_producing_id" readonly="1"/>
                     <field name="is_prioritaire" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                     <field name="is_num_essai"   attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                    <field name="is_retour_client"/>
                     <field name="is_qt_fabriquee_uom"/>
                     <field name="is_qt_reste_uom"/>
                     <field name="is_qt_rebut_uom"/>
@@ -286,6 +287,7 @@
                 <field name="product_id" position="after">
                     <field name="is_mold_dossierf" optional="show"/>
                     <field name="is_prioritaire" optional="show"/>
+                    <field name="is_retour_client" optional="hide"/>
                 </field>
 
 
@@ -314,6 +316,7 @@
                 <field name="product_id" position="after">
                     <field name="is_mold_dossierf"/>
                     <field name="is_prioritaire"/>
+                    <filter string="Retour client" name="is_retour_client" domain="[('is_retour_client', '=', True)]"/>
                 </field>
             </field>
         </record>
