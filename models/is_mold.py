@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api # type: ignore
 from odoo.tools.translate import _ # type: ignore
+from odoo.exceptions import ValidationError # type: ignore
 import datetime
 
 
@@ -315,6 +316,11 @@ class is_mold(models.Model):
 
 
     def write(self, vals):
+        #** Archivage des moules interdit pour tout le monde (demande de Caroline Bouvier du 09/11/2026)
+        if 'active' in vals and not vals['active']:
+            moules = self.filtered(lambda m: m.active)
+            if moules:
+                raise ValidationError("L'archivage des moules n'est pas autorisé (%s) !"%', '.join(moules.mapped('name')))
         res=super().write(vals)
         for obj in self:
             self.env['is.database'].copy_other_database(obj)
