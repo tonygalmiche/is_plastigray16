@@ -205,10 +205,11 @@ class stock_picking(models.Model):
             obj.is_location_dest_prevu_id = location_id
 
 
-    @api.depends('state','move_ids_without_package.product_uom_qty','move_ids_without_package.quantity_done')
+    # move_ids et pas move_ids_without_package, qui n'est pas cherchable (avertissement au démarrage)
+    @api.depends('state','move_ids.product_uom_qty','move_ids.quantity_done')
     def _compute_is_qt_reception(self):
         for obj in self:
-            moves = obj.move_ids_without_package.filtered(lambda m: m.state!='cancel')
+            moves = obj.move_ids.filtered(lambda m: m.state!='cancel')
             if obj.state=='done':
                 obj.is_qt_reception = sum(moves.mapped('quantity_done'))
             else:
