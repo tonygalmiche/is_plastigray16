@@ -269,6 +269,31 @@ class is_controle_qualite_um(models.Model):
             }
 
 
+    def liste_um_action(self):
+        "UM du contrôle (UM d'origine et UM remplies au tri), par exemple pour les fusionner à la fin du tri"
+        for obj in self:
+            ums = obj.um_origine_ids | obj.ligne_ids.um_id | obj.ligne_ids.um_origine_id
+            return {
+                'type'     : 'ir.actions.act_window',
+                'name'     : "UM %s"%obj.name,
+                'res_model': 'is.galia.base.um',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', ums.ids)],
+            }
+
+
+    def liste_uc_action(self):
+        "UC triées du contrôle"
+        for obj in self:
+            return {
+                'type'     : 'ir.actions.act_window',
+                'name'     : "UC %s"%obj.name,
+                'res_model': 'is.galia.base.uc',
+                'view_mode': 'tree,form',
+                'domain'   : [('id', 'in', obj.ligne_ids.uc_id.ids)],
+            }
+
+
     def _verifier_droits(self):
         if not self.env.user.has_group('is_plastigray16.is_qualite_group'):
             raise ValidationError("Contrôle qualité réservé au groupe Qualité")

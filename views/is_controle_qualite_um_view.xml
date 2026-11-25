@@ -170,6 +170,11 @@
                         />
                         <!-- Détail pour le PC seulement : masqué sur smartphone (Zebra TC22), où la zone grise suffit -->
                         <div class="d-none d-md-block">
+                        <!-- UM et UC du contrôle : par exemple pour fusionner les UM à la fin du tri -->
+                        <div class="d-flex gap-2 mt-2 mb-2">
+                            <button name="liste_um_action" string="UM" type="object" icon="fa-cubes" class="btn-secondary"/>
+                            <button name="liste_uc_action" string="UC" type="object" icon="fa-cube" class="btn-secondary"/>
+                        </div>
                         <notebook>
                             <page string="Journal">
                                 <field name="ligne_ids">

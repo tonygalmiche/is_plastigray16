@@ -1871,14 +1871,15 @@
             ref('is_qualite_group'),
         ])]"/>
     </record>
+    <!-- Menu UM : Scinder UM par lot et Fusionner des UM, sur 2 niveaux (rien à déplier sur smartphone) -->
     <record id="menu_scan_scinder_um_par_lot" model="ir.ui.menu" >
-        <field name="name">Scinder UM par lot</field>
+        <field name="name">UM</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('menu_main_scan')"/>
         <field name="groups_id" eval="[(6,0,[])]"/>
     </record>
     <record id="is_scinder_um_par_lot_nouveau_menu" model="ir.ui.menu" >
-        <field name="name">Nouveau</field>
+        <field name="name">Scinder UM par lot</field>
         <field name="sequence">10</field>
         <field name="parent_id" eval="ref('menu_scan_scinder_um_par_lot')"/>
         <field name="action"    ref="is_scinder_um_par_lot_nouveau_action"/>
@@ -1887,12 +1888,30 @@
         ])]"/>
     </record>
     <record id="is_scinder_um_par_lot_menu" model="ir.ui.menu" >
-        <field name="name">Historique</field>
+        <field name="name">Historique scissions</field>
         <field name="sequence">20</field>
         <field name="parent_id" eval="ref('menu_scan_scinder_um_par_lot')"/>
         <field name="action"    ref="is_scinder_um_par_lot_action"/>
         <field name="groups_id" eval="[(6,0,[
             ref('is_qualite_group'),
+        ])]"/>
+    </record>
+    <record id="is_fusionner_um_nouveau_menu" model="ir.ui.menu" >
+        <field name="name">Fusionner des UM</field>
+        <field name="sequence">30</field>
+        <field name="parent_id" eval="ref('menu_scan_scinder_um_par_lot')"/>
+        <field name="action"    ref="is_fusionner_um_nouveau_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_fusionner_um_group'),
+        ])]"/>
+    </record>
+    <record id="is_fusionner_um_menu" model="ir.ui.menu" >
+        <field name="name">Historique fusions</field>
+        <field name="sequence">40</field>
+        <field name="parent_id" eval="ref('menu_scan_scinder_um_par_lot')"/>
+        <field name="action"    ref="is_fusionner_um_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('is_fusionner_um_group'),
         ])]"/>
     </record>
     <record id="menu_scan_inventaire_reference" model="ir.ui.menu" >

@@ -307,6 +307,12 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
 
+    <record model="res.groups" id="is_fusionner_um_group" >
+        <field name="name">Fusionner des UM</field>
+        <field name="comment">Application de scan « Fusionner des UM » et action « Fusionner les UM » de la liste des UM</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
 
 
 
