@@ -920,10 +920,12 @@ class is_galia_base(models.Model):
         }
 
 
-    def _execute_site(self, site, model, method, *args):
-        "Appel XML-RPC à la base d'un site, avec un message lisible en cas d'erreur"
+    def _execute_site(self, site, model, method, *args, **kwargs):
+        "Appel XML-RPC à la base d'un site (avec execute_kw si kwargs, ex : context), avec un message lisible en cas d'erreur"
         database = site['database']
         try:
+            if kwargs:
+                return site['sock'].execute_kw(database.database, 2, database.password, model, method, list(args), kwargs)
             return site['sock'].execute(database.database, 2, database.password, model, method, *args)
         except (xmlrpclib.Fault, OSError) as e:
             raise ValidationError(self._message_erreur_site(e,database.database,site['url']))
@@ -1045,8 +1047,17 @@ class is_galia_base(models.Model):
                 'uc_ids'     : uc_ids,
             }
             try:
-                um_id   = self._execute_site(site, 'is.galia.base.um', 'create', um_vals)
-                um_name = self._execute_site(site, 'is.galia.base.um', 'read', [um_id], ['name'])[0]['name']
+                #** Sans le message automatique de création (au nom de l'admin
+                #** de la connexion XML-RPC), remplacé par un message indiquant
+                #** qui a fait la copie, sur l'UM et sur chacune de ses UC
+                #** (message_post ne traite qu'un enregistrement à la fois)
+                um_id   = self._execute_site(site, 'is.galia.base.um', 'create', um_vals, context={'mail_create_nolog': True})
+                um      = self._execute_site(site, 'is.galia.base.um', 'read', [um_id], ['name','uc_ids'])[0]
+                um_name = um['name']
+                body    = "créée par copie des étiquettes Galia depuis la base %s par %s"%(self.env.cr.dbname,self.env.user.name)
+                self._execute_site(site, 'is.galia.base.um', 'message_post', [um_id], body="UM %s"%body)
+                for uc_id in um['uc_ids']:
+                    self._execute_site(site, 'is.galia.base.uc', 'message_post', [uc_id], body="UC %s"%body)
             except ValidationError as e:
                 msg="Création UM pour %s UC (%s) : %s"%(len(objs),num_of,e.args[0])
                 _logger.error("copier_uc_vers_site_action : %s"%msg)
@@ -1056,7 +1067,9 @@ class is_galia_base(models.Model):
             _logger.info("copier_uc_vers_site_action : %s"%msg)
             ums.append(msg)
             for obj in objs:
-                obj.message_post(body="UC copiée dans l'UM %s de la base %s%s"%(um_name,DB,origine))
+                #** sudo car le chatter demande le droit d'écriture sur les
+                #** étiquettes (l'auteur reste l'utilisateur)
+                obj.sudo().message_post(body="UC copiée dans l'UM %s de la base %s%s"%(um_name,DB,origine))
         #**********************************************************************
 
         return {

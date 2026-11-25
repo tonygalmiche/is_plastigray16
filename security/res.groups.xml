@@ -301,6 +301,12 @@
         <field name="category_id" ref="is_groupe_plastigray_module_category"/>
     </record>
 
+    <record model="res.groups" id="is_copie_etiquettes_galia_group" >
+        <field name="name">Copie des étiquettes Galia vers un autre site</field>
+        <field name="comment">Accès à l'assistant « Copier dans les UC de la base du site » des étiquettes Galia</field>
+        <field name="category_id" ref="is_groupe_plastigray_module_category"/>
+    </record>
+
 
 
 
