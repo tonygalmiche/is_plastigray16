@@ -81,6 +81,7 @@ class stock_picking(models.Model):
 
     is_reception_inter_site_id = fields.Many2one('is.reception.inter.site', 'Réception inter-site', copy=False, tracking=True)
     is_qt_livree_inter_site    = fields.Float("Qt livrée inter-site", digits=(12, 6), copy=False, tracking=True)
+    is_qt_reception            = fields.Float("Qt réception", digits=(12, 6), compute='_compute_is_qt_reception', store=False, readonly=True, help="Quantité faite si la réception est faite, sinon quantité prévue")
     is_location_dest_prevu_id  = fields.Many2one('stock.location', 'Emplacement', help="Emplacement de destination du premier mouvement", compute='_compute_is_location_mouvement_id', store=False, readonly=True)
 
     is_plaque_immatriculation = fields.Char("Plaque d’immatriculation", copy=False, tracking=True)
@@ -202,6 +203,16 @@ class stock_picking(models.Model):
                 location_id=line.is_location_dest_prevu_id.id
                 break
             obj.is_location_dest_prevu_id = location_id
+
+
+    @api.depends('state','move_ids_without_package.product_uom_qty','move_ids_without_package.quantity_done')
+    def _compute_is_qt_reception(self):
+        for obj in self:
+            moves = obj.move_ids_without_package.filtered(lambda m: m.state!='cancel')
+            if obj.state=='done':
+                obj.is_qt_reception = sum(moves.mapped('quantity_done'))
+            else:
+                obj.is_qt_reception = sum(moves.mapped('product_uom_qty'))
 
 
     def voir_picking_action(self):
