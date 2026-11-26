@@ -26,7 +26,7 @@ class is_product_packaging(models.Model):
     ul_container       = fields.Many2one('is.product.ul', 'Unité logistique palette')
 
     def init(self):
-        if self.env.company.is_activer_init:
+        if self.env.company._is_activer_init():
             start = time.time()
             cr = self.env.cr
             tools.drop_view_if_exists(cr, 'is_product_packaging')

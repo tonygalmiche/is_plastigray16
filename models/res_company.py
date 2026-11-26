@@ -84,6 +84,14 @@ class res_company(models.Model):
     is_regrouper_ligne_commande = fields.Boolean('Regrouper les lignes des commandes de ventes sur les factures', default=False)
 
 
+    def _is_activer_init(self):
+        """is_activer_init lu en SQL, pour les fonctions init() des modèles : la lecture par l'ORM charge toute la ligne
+        de res_company, y compris les colonnes ajoutées par un module fils pas encore créées pendant sa mise à jour"""
+        self.env.cr.execute("SELECT is_activer_init FROM res_company WHERE id=%s", [self.id])
+        row = self.env.cr.fetchone()
+        return bool(row and row[0])
+
+
     def write(self, vals):
         base_group_id = self.env.ref('base.group_user')
         principale_grp_id = self.env.ref('is_plastigray16.is_base_principale_grp')

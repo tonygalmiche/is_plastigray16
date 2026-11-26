@@ -74,7 +74,7 @@ class is_ligne_livraison(models.Model):
 
 
     def init(self):
-        if self.env.company.is_activer_init:
+        if self.env.company._is_activer_init():
             start = time.time()
             cr = self._cr
             cr.execute("""

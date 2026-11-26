@@ -70,7 +70,7 @@ class is_stock_quant(models.Model):
 
 
     def init(self):
-        if self.env.company.is_activer_init:
+        if self.env.company._is_activer_init():
             start = time.time()
             cr = self._cr
             tools.drop_view_if_exists(cr, 'is_stock_quant')

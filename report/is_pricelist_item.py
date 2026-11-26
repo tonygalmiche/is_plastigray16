@@ -34,7 +34,7 @@ class is_pricelist_item(models.Model):
     item_date_end      = fields.Date('Date fin ligne')
 
     def init(self):
-        if self.env.company.is_activer_init:
+        if self.env.company._is_activer_init():
             start = time.time()
             cr = self._cr
             tools.drop_view_if_exists(cr, 'is_pricelist_item')

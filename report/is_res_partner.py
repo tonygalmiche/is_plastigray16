@@ -21,7 +21,7 @@ class is_res_partner(models.Model):
     customer              = fields.Boolean('Est un client')
 
     def init(self):
-        if self.env.company.is_activer_init:
+        if self.env.company._is_activer_init():
             start = time.time()
             cr=self._cr
             tools.drop_view_if_exists(cr, 'is_res_partner')

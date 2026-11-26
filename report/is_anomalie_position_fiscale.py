@@ -23,7 +23,7 @@ class is_anomalie_position_fiscale(models.Model):
 
     def init(self):
         cr = self._cr
-        if self.env.company.is_activer_init:
+        if self.env.company._is_activer_init():
             start = time.time()
 
             tools.drop_view_if_exists(cr, 'is_anomalie_position_fiscale')
