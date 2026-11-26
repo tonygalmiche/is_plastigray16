@@ -109,7 +109,12 @@ class is_facturation_fournisseur(models.Model):
                             pt.is_ref_fournisseur,
 
                             -- sm.product_uom_qty as qty,
-                            round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where  ail.parent_state='posted' and ail.is_move_id=sm.id ),0),4) as qty,
+                            -- Reste à facturer : quantités facturées converties dans l'unité du mouvement (factures dans l'unité de la commande)
+                            round(sm.product_uom_qty-coalesce((
+                                select sum(case when ua.id is null then ail.quantity else ail.quantity/ua.factor*um.factor end)
+                                from account_move_line ail left outer join uom_uom ua on ail.product_uom_id=ua.id
+                                where  ail.parent_state='posted' and ail.is_move_id=sm.id
+                            ),0),4) as qty,
 
                             sm.product_uom, 
                             pol.price_unit,
@@ -118,9 +123,10 @@ class is_facturation_fournisseur(models.Model):
                             sm.name as description
                     from stock_picking sp inner join stock_move                sm on sp.id=sm.picking_id
                                         inner join product_product           pp on sm.product_id=pp.id
-                                        inner join product_template          pt on pp.product_tmpl_id=pt.id 
+                                        inner join product_template          pt on pp.product_tmpl_id=pt.id
+                                        inner join uom_uom                   um on sm.product_uom=um.id
                                         left outer join purchase_order_line pol on sm.purchase_line_id=pol.id
-                    where 
+                    where
                         sm.state='done' and 
                         sp.state='done' and
                         -- round(sm.product_uom_qty-coalesce((select sum(quantity) from account_move_line ail where ail.is_move_id=sm.id ),0),4)>0 and 
@@ -134,6 +140,9 @@ class is_facturation_fournisseur(models.Model):
                 cr.execute(sql)
                 result=cr.dictfetchall()
                 for row in result:
+                    #** Rien à facturer (déjà facturé en totalité ou plus) ***********
+                    if row["qty"] <= 0:
+                        continue
                     move = self.env['stock.move'].browse(row["move_id"])
 
                     #** Recherche des taxes ****************************************
