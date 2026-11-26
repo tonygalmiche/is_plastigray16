@@ -322,8 +322,8 @@ class stock_picking(models.Model):
     @api.depends('sale_id', 'partner_id')
     def _compute_transporteur_dates(self):
         date_expedition = time.strftime('%Y-%m-%d')
-        date_livraison= self.env['res.partner'].get_date_livraison( self.company_id, self.partner_id, date_expedition)
         for obj in self:
+            date_livraison = self.env['res.partner'].get_date_livraison(obj.company_id, obj.partner_id, date_expedition)
             is_transporteur_id=False
             if obj.sale_id:
                 is_transporteur_id = obj.sale_id.is_transporteur_id.id
