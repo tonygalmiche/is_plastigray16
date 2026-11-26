@@ -161,8 +161,9 @@ class is_facturation_fournisseur(models.Model):
                     account_id = product.property_account_expense_id.id
                     #***************************************************************
 
-                    #** Recalcul quantité en unité d'achat *************************
-                    qty = move.product_uom._compute_quantity(row["qty"], move.product_id.uom_po_id)
+                    #** Recalcul quantité dans l'unité de la ligne de commande (celle du prix), sinon en unité d'achat
+                    uom = move.purchase_line_id.product_uom or move.product_id.uom_po_id
+                    qty = move.product_uom._compute_quantity(row["qty"], uom)
                     #***************************************************************
                     total = qty*(row["price_unit"] or 0)
                     test=True
@@ -179,7 +180,7 @@ class is_facturation_fournisseur(models.Model):
                             'ref_fournisseur'    : row["is_ref_fournisseur"],
                             'quantite_facturable': qty,
                             'quantite'           : qty,
-                            'uom_id'             : move.product_id.uom_po_id.id,
+                            'uom_id'             : uom.id,
                             'prix'               : row["price_unit"],
                             #'prix_origine'      : row["price_unit"],
                             'total'              : total,
