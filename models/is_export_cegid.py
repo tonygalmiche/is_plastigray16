@@ -113,6 +113,7 @@ class is_export_cegid(models.Model):
                 ('is_export_cegid_id', '=' , False),
                 ('is_folio_id'      ,  '=' , False),
                 ('move_type'        , 'in', type_facture),
+                ('partner_id.is_societe_comptable', '!=', 'plasti_ka'), # Factures Plasti-ka jamais exportées, même par un utilisateur sans société comptable
                 #('id'          , '=' , 12865),
             ], order='is_bon_a_payer, name')
 
