@@ -23,7 +23,8 @@ class is_donnee_machine_line(models.Model):
     _description = u"Lignes des données des machines pour l'usine 4.0"
     _order='name'
 
-    donnee_id  = fields.Many2one("is.donnee.machine", u"Donnée machine", required=True, ondelete='cascade', readonly=True)
+    # index : recherche des valeurs d'une donnée (mail-machine-MS0121-pour-EMS.py du lundi : 20 min sans index, 11/2026)
+    donnee_id  = fields.Many2one("is.donnee.machine", u"Donnée machine", required=True, ondelete='cascade', readonly=True, index=True)
     name       = fields.Char('Donnée', index=True, required=True)
     valeur     = fields.Char('Valeur', index=True, required=True)
     of_id      = fields.Many2one("mrp.production", "Ordre de fabrication", index=True)
