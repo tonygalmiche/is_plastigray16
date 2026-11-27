@@ -287,12 +287,9 @@ class mrp_generate_previsions(models.TransientModel):
 
             #** supprimer les previsions existantes ****************************
             _logger.info(_now(debut) + '## Début delete from mrp_prevision')
-            sql="""
-                ALTER TABLE mrp_prevision DISABLE TRIGGER ALL; 
-                DELETE FROM mrp_prevision;
-                ALTER TABLE mrp_prevision ENABLE TRIGGER ALL; 
-            """
-            cr.execute(sql)
+            # Triggers actifs : les clés étrangères mettent à NULL les liens vers les prévisions (commandes ouvertes,
+            # PDC, OF) ; avant, triggers désactivés => liens orphelins et contraintes non recréées par pg_restore (11/2026)
+            cr.execute("DELETE FROM mrp_prevision")
             _logger.info(_now(debut) + '## Fin delete from mrp_prevision')
             #*******************************************************************
 

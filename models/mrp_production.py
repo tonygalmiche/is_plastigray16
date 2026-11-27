@@ -268,7 +268,7 @@ class MrpProduction(models.Model):
     is_qt_rebut               = fields.Float(string="Qt rebut (UC)"    , compute="_compute_qt_reste", store=True)
     is_qt_reste               = fields.Float(string="Qt reste (UC)"    , compute="_compute_qt_reste", store=True)
     is_done                   = fields.Boolean(string="Is done ?", default=False)
-    mrp_product_suggestion_id = fields.Many2one('mrp.prevision','MRP Product Suggestion')
+    mrp_product_suggestion_id = fields.Many2one('mrp.prevision','MRP Product Suggestion', index=True) # index : suppression des prévisions du CBN
     is_mold_dossierf          = fields.Char("Moule", help='Moule ou Dossier F', related='product_id.is_mold_dossierf', readonly=True)
     is_num_essai              = fields.Char("N°Essai")
     is_prioritaire            = fields.Boolean("Prioritaire", help="Ordre de fabrication prioritaire")

@@ -28,7 +28,7 @@ class mrp_prevision(models.Model):
 
     num_od           = fields.Integer("Numéro", readonly=True, tracking=True)
     name             =  fields.Char('OD', size=128, required=True, default="/", tracking=True)
-    parent_id        = fields.Many2one('mrp.prevision', "FS d'origine", ondelete='cascade', tracking=True)
+    parent_id        = fields.Many2one('mrp.prevision', "FS d'origine", ondelete='cascade', tracking=True, index=True) # index : suppression des prévisions du CBN
     type             = fields.Selection([
         ('fs', u"FS"),
         ('ft', u"FT"),

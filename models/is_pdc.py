@@ -348,7 +348,7 @@ class is_pdc_mold(models.Model):
     matiere        = fields.Char('Matière')
     date           = fields.Date('Date', help="Date planifiée de la FL ou date de début de la FS (option « Détail par FL / FS avec date »)")
     production_id  = fields.Many2one('mrp.production', 'FL', readonly=True)
-    prevision_id   = fields.Many2one('mrp.prevision' , 'FS', readonly=True)
+    prevision_id   = fields.Many2one('mrp.prevision' , 'FS', readonly=True, index=True) # index : suppression des prévisions du CBN
     quantite       = fields.Integer('Quantité')
     temps_u        = fields.Float('Temps unitaire (s)', digits=(14, 4))
     temps_h        = fields.Float('Temps (H)'       , store=True,  compute='_compute', readonly=1)
