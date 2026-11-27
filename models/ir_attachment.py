@@ -12,6 +12,14 @@ class IrAttachment(models.Model):
     original_id = fields.Many2one(index=True)  # Ajout index pour améliorer les performances lors des suppressions
 
 
+    def _compute_mimetype(self, values):
+        # Fichiers CAO STEP (.stp / .step) : type model/step, absent de /etc/mime.types de Debian 11 ; sinon reconnus
+        # comme text/plain et tout leur contenu copié dans index_content (9 Go dans odoo16-0 en 11/2026)
+        name = str(values.get('name') or '').lower()  # str : nom parfois de type Path (conversion PDF de is_doc_moule.py)
+        if name.endswith(('.stp', '.step')):
+            return 'model/step'
+        return super()._compute_mimetype(values)
+
 
     #TODO : J'ai surchargé cette fonction pour autoriser à voir les pieces jointes d'un autre modèle
     @api.model
