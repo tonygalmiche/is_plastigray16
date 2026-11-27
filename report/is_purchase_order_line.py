@@ -72,12 +72,12 @@ class is_purchase_order_line(models.Model):
                 BEGIN
                     factor1 := (
                         select factor 
-                        from uom_uom
+                        from public.uom_uom
                         where id=uom1
                     );
                     factor2 := (
                         select factor 
-                        from uom_uom
+                        from public.uom_uom
                         where id=uom2
                     );
                     RETURN factor1/factor2;

@@ -982,7 +982,7 @@ class product_product(models.Model):
         cr.execute("""
             CREATE OR REPLACE FUNCTION is_qt_par_uc(productid integer) RETURNS float AS $$
             BEGIN
-                RETURN (select qty from product_packaging where product_id=productid order by id limit 1);
+                RETURN (select qty from public.product_packaging where product_id=productid order by id limit 1);
             END;
             $$ LANGUAGE plpgsql;
                    
